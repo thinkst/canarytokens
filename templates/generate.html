@@ -1,0 +1,685 @@
+
+
+<html lang="en">
+  <head>
+  <title>canarytokens.net</title>
+  <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+
+
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+  <style>
+  .pre-like {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 1em 0px;
+  }
+
+  p.subtypes label {padding-right: 20px; font-size:1.3rem;}
+  p.subtypes label input {margin-right: 10px;}
+  .jumbotron { height: 340px;}
+  </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a href="#" data-toggle="modal" data-target="#aboutModal">About</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Canarytokens</h3>
+      </div>
+
+      <div class="jumbotron">
+        <h2>Generate your Canarytoken here</h2>
+        <form id="genForm">
+        <div class="row col-lg-12">
+          <input class="form-control" type="text" name="email" placeholder="Enter your Email Address">
+        </div>
+            {% if settings.TWILIO_ENABLE %}
+            <input class="form-control" type="text" name="mobile" placeholder="Enter your mobile number">
+            {% endif %}
+        <div class="row col-lg-12">
+            <input class="form-control" type="text" name="memo" placeholder="Enter a brief Comment to remind you where you used this Token">
+        </div>
+        <div class="row col-lg-12">
+            <p class="subtypes">
+              <label><input class="" data-jumbo-height="340" type="radio" name="subtype" value="none" checked>DNS/HTTP</label>
+              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="imgur">Imgur</label>
+              <label><input class="" data-jumbo-height="460" type="radio" name="subtype" value="linkedin">LinkedIn</label>
+              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="bitcoin">Bitcoin</label>
+            </p>
+        </div>
+
+        <div class="row col-lg-12">
+            <p class="subtype hidden input_imgur"><input class="form-control" type="text" name="imgur" placeholder="Enter your imgur token"></p>
+        </div>
+        <div class="row col-lg-12">
+            <p class="subtype hidden input_linkedin">These are stored in the clear. Only use with fake accounts.</p>
+            <p class="subtype hidden input_linkedin"><input class="form-control" type="text" name="linkedin_user" placeholder="Enter your LinkedIn username"></p>
+            <p class="subtype hidden input_linkedin"><input class="form-control"type="text" name="linkedin_password" placeholder="Enter your LinkedIn password"></p>
+        </div>
+        <div class="row col-lg-12">
+            <p class="subtype hidden input_bitcoin"><input class="form-control" type="text" name="bitcoin_address" placeholder="Enter your Bitcoin address"></p>
+        </div>
+        <div class="row">
+          <div class="col-lg-3">
+          </div>
+          <div class="col-lg-6">
+              <input type="submit" class="btn btn-lg btn-primary btn-block" value="Generate Token">
+          </div>
+          <div class="col-lg-3">
+          </div>
+        </div>
+        </form>
+      </div>
+
+      <div id="server_response" class="hidden">
+        <h1>Your Canarytoken is live!</h1>
+        <p>Thanks for submitting, the token has been generated. You'll get notified at <span id="alert_email_recipient"></span> whenever the token is triggered.</p>
+        <h1>Triggering your Canarytoken</h1>
+        <p>Your Canarytoken can be triggered in a variety of ways, including web bugs, DNS requests, email addresses, Imgur links, LinkedIn profiles, file reads, process executions, database queries and changes.</p>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div id="imgur" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingImgur">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseImgur" aria-expanded="true" aria-controls="collapseImgur">
+                Imgur Links
+              </a>
+            </h4>
+          </div>
+          <div id="collapseImgur" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingImgur">
+            <div class="panel-body">
+              <p>We'll poll this URL and tell you when its viewcount increases:</p>
+              <a href="" id="imgur_link">http://imgur.com/<span id="imgur_id"></span></a>
+              <p>Current view count is <span id="imgur_count"></span>.</p>
+              <p>Ideas for use:
+                <ul>
+                  <li>Leave link in email between two admins, to identify when the mail is snooped.</li>
+                </ul>
+              </p>
+
+            </div>
+          </div>
+        </div>
+
+        <div id="linkedin" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingLinkedIn">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseLinkedIn" aria-expanded="true" aria-controls="collapseLinkedIn">
+                LinkedIn profile
+              </a>
+            </h4>
+          </div>
+          <div id="collapseLinkedIn" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingLinkedIn">
+            <div class="panel-body">
+              <p>We'll poll this LinkedIn account and tell you when its profile views increase:</p>
+              <p><span id="linkedin_account"></span></p>
+              <p>Current view count is <span id="linkedin_account_views"></span>.</p>
+              <p>Ideas for use:
+                <ul>
+                  <li>Create a fake profile for an sensitive position in your company, monitor for profile views.</li>
+                </ul>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="bitcoin" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingBitcoin">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseBitcoin" aria-expanded="true" aria-controls="collapseBitcoin">
+                Bitcoin address
+              </a>
+            </h4>
+          </div>
+          <div id="collapseBitcoin" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingBitcoin">
+            <div class="panel-body">
+              <p>We'll poll this Bitcoin Address and tell you when its balance changes:</p>
+              <p><span id="bitcoin_address"></span></p>
+              <p>Current balance is <span id="bitcoin_balance"></span>.</p>
+              <p>Ideas for use:
+                <ul>
+                  <li>Load a small amount of BTC on a passwordless wallet and leave on a sensitive machine.</li>
+                </ul>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="web" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingWeb">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseWeb" aria-expanded="true" aria-controls="collapseWeb">
+                Web bugs
+              </a>
+            </h4>
+          </div>
+          <div id="collapseWeb" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingWeb">
+            <div class="panel-body">
+              <p>Here's a unique URL:</p>
+              <input type="text" name="url" readonly size="100">
+              <p>Use this where ever you like, it gets triggered whenever someone requests the URL. Ideas for use:
+              <ul>
+                <li>In an email with a juicy subject line.</li>
+                <li>Embedded in documents.</li>
+                <li>Inserted into canary webpages that are only found through brute-force.</li>
+              </ul>
+              <p>This URL is just an example, you can make up your own URL on the site <span id="host"></span> so long as you include your unique token <span id="canarytoken"></span>. For example, here's a URL with a different extension:</p>
+              <p><span id="rotate_url"></span>/<span id="rotate_file">config.php</span></p>
+
+            </div>
+          </div>
+        </div>
+
+        <div id="dns" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingDNS">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDNS" aria-expanded="true" aria-controls="collapseDNS">
+                DNS Tokens
+              </a>
+            </h4>
+          </div>
+          <div id="collapseDNS" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingDNS">
+            <div class="panel-body">
+              <p>Here's a unique hostname:</p>
+              <input type="text" name="hostname" readonly size="100">
+              <p>Use this where ever you like, it gets triggered whenever someone performs a lookup on this domain. Ideas for use:
+              <ul>
+                <li>Include in a PTR entry for dark IP space of your internal network. Quick way to determine if someone is walking your internal DNS without configuring DNS logging and monitoring.</li>
+                <li>Leave in a .bash_history, or .ssh/config, or ~/servers.txt
+                <li>Use as a extremely simple bridge between a detection and notification action. Many possibilities, here's one that tails a logfile and triggers the token when someone logs in:
+                    <div class="pre-like">tail -f /var/log/auth.log | awk '/Accepted publickey for/ { system("host <span class="hostname"></span>") }'</pre>
+                </li>
+                <li>Use as the domain part of an email address.</li>
+                <li>DNS is used in the specific canary modules below.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="dtrace" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingDTrace">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDTrace" aria-expanded="true" aria-controls="collapseDTrace">
+                Title
+              </a>
+            </h4>
+          </div>
+          <div id="collapseDTrace" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingDTrace">
+            <div class="panel-body">
+              Body
+            </div>
+          </div>
+        </div>
+
+        <div id="honify" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingHonify">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseHonify" aria-expanded="true" aria-controls="collapseHonify">
+                Title
+              </a>
+            </h4>
+          </div>
+          <div id="collapseHonify" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingHonify">
+            <div class="panel-body">
+              Body
+            </div>
+          </div>
+        </div>
+
+        <div id="sqlserver" class="panel panel-default hidden dns">
+          <div class="panel-heading" role="tab" id="headingSQLServer">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSQLServer" aria-expanded="true" aria-controls="collapseSQLServer">
+                SQL Server Alert on SELECT, UPDATE, INSERT, DELETE
+              </a>
+            </h4>
+          </div>
+          <div id="collapseSQLServer" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSQLServer">
+            <div class="panel-body">
+              <p>Pick the kind of alert you want:</p>
+              <p>
+                <label><input type="radio" name="sqlserver_action" value="insert">Trigger on INSERT</label>
+                <label><input type="radio" name="sqlserver_action" value="insert">Trigger on UPDATE</label>
+                <label><input type="radio" name="sqlserver_action" value="insert">Trigger on DELETE</label>
+                <label><input type="radio" name="sqlserver_action" value="select">Trigger on VIEW SELECT</label>
+              </p>
+              <div class="hidden sqlserver insert">
+                <p>Don't forget to change the table name and the trigger name.</p>
+                <div class="pre-like">
+      --create a stored proc that'll ping canarytokens
+      CREATE proc ping_canarytoken
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(rand()*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','-')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_fileexist @unc;
+      END
+
+      --add a trigger if data is altered
+      CREATE TRIGGER trigger2
+        ON table1
+        AFTER INSERT
+      AS
+      BEGIN
+      exec ping_canarytoken
+      end
+                </div>
+              </div>
+              <div class="hidden sqlserver delete">
+                <p>Don't forget to change the table name and the trigger name.</p>
+                <div class="pre-like">
+      --create a stored proc that'll ping canarytoken
+      CREATE proc ping_canarytoken
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(rand()*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','-')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_fileexist @unc;
+      END
+
+      --add a trigger if data is altered
+      CREATE TRIGGER trigger2
+        ON table1
+        AFTER DELETE
+      AS
+      BEGIN
+      exec ping_canarytoken
+      end
+                </div>
+              </div>
+              <div class="hidden sqlserver update">
+                <p>Don't forget to change the table name and the trigger name.</p>
+                <div class="pre-like">
+      --create a stored proc that'll ping canarytoken
+      CREATE proc ping_canarytoken
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(rand()*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','-')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_fileexist @unc;
+      END
+
+      --add a trigger if data is altered
+      CREATE TRIGGER trigger2
+        ON table1
+        AFTER UPDATE
+      AS
+      BEGIN
+      exec ping_canarytoken
+      end
+                </div>
+              </div>
+              <div class="hidden sqlserver select">
+                <p>Don't forget to change the view name and the function name.</p>
+                <div class="pre-like">
+      --create a table-view function to query the canary hostname
+      CREATE function innocuous_name(@RAND FLOAT) returns @output table (col1 varchar(max))
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(@RAND*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','0')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
+              return
+      END
+
+      --create a view that calls the function
+      alter view view1 as select * from master.dbo.innocuous_name(rand());
+
+      --change permissions on innocuous_name to SELECT for [public]
+      --change permissions on lucrative_name to SELECT for [public]
+      --don't allow [public] to view the definitions
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="mysql" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingMySQL">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMySQL" aria-expanded="true" aria-controls="collapseMySQL">
+                Title
+              </a>
+            </h4>
+          </div>
+          <div id="collapseMySQL" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingMySQL">
+            <div class="panel-body">
+              Body
+            </div>
+          </div>
+        </div>
+
+        <div id="msword" class="panel panel-default filegen hidden">
+          <div class="panel-heading" role="tab" id="headingMSWord">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMSWord" aria-expanded="true" aria-controls="collapseMSWord">
+                MS Word
+              </a>
+            </h4>
+          </div>
+          <div id="collapseMSWord" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingMSWord">
+            <div class="panel-body">
+              <p>Get notified whenever someone opens your canary Word document. It works cross-platform and doesn't require macros.</p>
+              <p><a href="#" class="download_fmt" data-fmt="msword">Click here</a> to download your document.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="pdf" class="panel panel-default filegen hidden">
+          <div class="panel-heading" role="tab" id="headingPdf">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePdf" aria-expanded="true" aria-controls="collapsePdf">
+                Acrobat Reader PDF
+              </a>
+            </h4>
+          </div>
+          <div id="collapsePdf" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingPdf">
+            <div class="panel-body">
+              <p>Get notified whenever someone opens your canary PDF in Acrobat Reader. It works cross-platform and (get this!) happens even if they decline the popup.</p>
+              <p><a href="#" class="download_fmt" data-fmt="pdf">Click here</a> to download your document.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="desktopini" class="panel panel-default filegen hidden">
+          <div class="panel-heading" role="tab" id="headingDesktopINI">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDesktopINI" aria-expanded="true" aria-controls="collapseDesktopINI">
+                Windows Directory Browing
+              </a>
+            </h4>
+          </div>
+          <div id="collapseDesktopINI" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingDesktopINI">
+            <div class="panel-body">
+              <p>Get notified whenever someone opens browses a Windows directory in Explorer. It works with network shares, and doesn't require any additional software</p>
+              <p><a href="#" class="download_fmt" data-fmt="zip">Click here</a> to download a Zip file which has the directory structure you need.</p>
+              <p>You can add additional files into the directory.</p>
+              <p>The alert is triggered whenever someone opens the directory in Explorer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<script>
+    var timer_handle;
+    var rotate_filename = function() {
+        var EXTENSIONS = ["pdf", "docx", "aspx", "html", "php"];
+        var FNAMES = ["contact", "password", "secret", "admin", "login"];
+
+        if (timer_handle) {
+          clearInterval(timer_handle);
+        }
+
+        timer_handler = setInterval(function(){
+          var RANDOMNAME = FNAMES[Math.floor(Math.random() * FNAMES.length)];
+          var RANDOMEXTENSION = EXTENSIONS[Math.floor(Math.random() * EXTENSIONS.length)];
+          $("#rotate_file").text(RANDOMNAME+'.'+RANDOMEXTENSION);
+        }, 2000);
+    };
+
+    var prev_type = 'none';
+    $('input[name=subtype]').on('change', function(e) {
+      var self = this;
+      if (prev_type == 'none') {
+          prev_type = $(self).val();
+          $('.input_'+prev_type).removeClass('hidden').fadeIn();
+      } else {
+        $('.input_'+prev_type).fadeOut('fast', function() {
+          prev_type = $(self).val();
+          $('.input_'+prev_type).removeClass('hidden').fadeIn();
+        });
+      }
+      $('.jumbotron').css('height', $(this).data('jumbo-height'));
+    });
+
+    $('input[name=sqlserver_action]').on('change', function() {
+      $('.sqlserver').hide();
+      $('.sqlserver.'+$(this).val()).removeClass('hidden').show();
+    });
+
+    (function($){
+        function processForm( e ){
+            $.ajax({
+                url: '/generate',
+                dataType: 'json',
+                type: 'post',
+                contentType: 'application/x-www-form-urlencoded',
+                data: $(this).serialize(),
+                success: function(data){
+                    console.log(data);
+                    if (data['Error'] !== null){
+                      if (data['Error'] == '1'){
+                          $('#response').html('Come on.. All we asked for was an email address');
+                      } else if (data['Error'] == '2'){
+                          $('#response').html('Give a memo!');
+                      } else {
+                          $('#response').html('Some error happened.');
+                      }
+                    }else{
+                        $('#server_response').removeClass('hidden').show();
+                        var path_components = data['Url'].split('/');
+                        var file_name = path_components.pop();
+                        $('#alert_email_recipient').text(data['Email']);
+                        $('input[name=url]').val(data['Url']);
+                        $('#rotate_url').text(path_components.join('/'));
+                        $('input[name=hostname]').val(data['Hostname']);
+                        $('span[class=hostname]').text(data['Hostname']);
+                        $('#host').text(path_components[2]);
+                        $('#canarytoken').text(data['Token']);
+                        rotate_filename();
+                        $('.subtype > input').val('');
+                        $('#web').removeClass('hidden').show();
+                        $('#dns').removeClass('hidden').show();
+                        $('.dns').removeClass('hidden').show();
+
+                        if (data['imgur_count'] != undefined) {
+                          $('#imgur_count').text(data['imgur_count']);
+                          $('#imgur_id').text(data['imgur_id']);
+                          $('#imgur_link').prop('href', 'http://imgur.com/'+data['imgur_id']);
+                          $('#imgur').removeClass('hidden').show();
+                        } else {
+                          $('#imgur').hide();
+                        }
+
+                        if (data['linkedin_account']) {
+                          $('#linkedin_account').text(data['linkedin_account']);
+                          $('#linkedin_account_views').text(data['linkedin_account_views']);
+                          $('#linkedin').removeClass('hidden').show();
+                        } else {
+                          $('#linkedin').hide();
+                        }
+
+                        if (data['bitcoin_balance'] != undefined && data['bitcoin_address'] != undefined) {
+                          $('#bitcoin_address').text(data['bitcoin_address']);
+                          $('#bitcoin_balance').text(data['bitcoin_balance']);
+                          $('#bitcoin').removeClass('hidden').show();
+                        } else {
+                          $('#bitcoin').hide();
+                        }
+
+                        //rewrite download links
+                        var fmt_links = $('.download_fmt');
+                        for (var i=0; i<fmt_links.length; i++) {
+                          var fmt = $(fmt_links[i]).data('fmt');
+                          $(fmt_links[i]).prop('href', '/download?fmt='+fmt+'&token='+data['Token']);
+                        }
+                        $('.filegen').removeClass('hidden').show();
+                    }
+                },
+                error: function( jqXhr, textStatus, errorThrown ){
+                    console.log( errorThrown );
+                }
+            });
+
+            e.preventDefault();
+        }
+
+        $('#genForm').submit( processForm );
+    })(jQuery);
+</script>
+
+
+<div id="aboutModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">About Canarytokens</h4>
+      </div>
+      <div class="modal-body">
+        <p>Canarytoken is brought to you by <a href="http://thinkst.com">Thinkst Applied Research</a>.</p>
+        <p>If you like Canarytokens and want to find out more about our insanely easy-to-use honeypot solution, browse on over to:</p>
+        <center><a href="https://canary.tools/" target="_blank"><img src="http://thinkst.com/images/canary_ad_1.png" style="width:350px;height:151px;"></a><center>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+</body>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</html>

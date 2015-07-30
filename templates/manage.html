@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>canarytokens.net</title>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+</head>
+<body>
+
+<center>
+{% if saved %}
+<div>
+  Saved settings.
+</div>
+{%endif%}
+<form method="POST">
+    Token: {{canarydrop['canarytoken']}}<br />
+    Email Enabled: <input type="checkbox" name="email_enable"  {% if canarydrop['alert_email_enabled'] %}checked="checked"{%endif%}/><br />
+    {% if canarydrop['alert_sms_recipient'] %}
+    SMS Enabled: <input type="checkbox" name="sms_enable"  {% if canarydrop['alert_sms_enabled'] %}checked="checked"{%endif%}/><br />
+    {%endif%}
+    <input type="hidden" name="token" value="{{canarydrop['canarytoken']}}"/><br />
+    <input type="hidden" name="auth" value="{{canarydrop['auth']}}" /><br />
+    <input type="submit" />
+</form>
+</center>
+
+{% if error %}
+<center>
+{{error}}
+</center>
+{%endif%}
+
+<center><a href="https://canary.tools/" target="_blank"><img src="http://thinkst.com/images/canary_ad_1.png" style="width:350px;height:151px;"></a><center>
+</body>
+</html>
