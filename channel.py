@@ -35,7 +35,7 @@ class InputChannel(Channel):
         return ''
 
     def format_canaryalert(self, canarydrop=None, protocol="http",
-                          host="canarydrops.org", params=None, **kwargs):
+                          host="canarytokens.org", params=None, **kwargs):
         msg = {}
         if params.get('body_length', 999999999) <= 140:
             msg['body'] = """Canarydrop@{time} via {channel_name}: """\
