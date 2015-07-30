@@ -1,3 +1,7 @@
+import os
+import sys
+settingsmodule = sys.modules[__name__]
+
 DEBUG=False
 
 LISTEN_DOMAIN=""
