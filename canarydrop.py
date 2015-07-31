@@ -11,7 +11,8 @@ import md5
 
 from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS
 from queries import get_all_canary_sites, get_all_canary_path_elements,\
-     get_all_canary_pages, get_all_canary_domains, load_user
+     get_all_canary_pages, get_all_canary_domains, get_all_canary_nxdomains,\
+     load_user
 from tokens import Canarytoken
 from users import User, AnonymousUser
 from exception import NoUser, NoCanarytokenPresent, UnknownAttribute
