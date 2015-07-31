@@ -1,4 +1,5 @@
 from queries import *
+import settings
 
 
 domains = settings.DOMAINS

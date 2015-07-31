@@ -154,7 +154,7 @@ class DownloadPage(resource.Resource):
                               'attachment; filename={token}.zip'\
                               .format(token=token))
             return make_canary_zip(hostname=
-                        canarydrop.generate_random_hostname(with_random=False))
+                        canarydrop.get_hostname(with_random=False))
         elif fmt == 'msword':
             request.setHeader("Content-Type", 
                               "application/vnd.openxmlformats-officedocument"+\
@@ -168,7 +168,7 @@ class DownloadPage(resource.Resource):
             request.setHeader("Content-Disposition",
                               'attachment; filename={token}.pdf'\
                               .format(token=token))
-            return make_canary_pdf(hostname=canarydrop.get_hostname())
+            return make_canary_pdf(hostname=canarydrop.get_hostname(nxdomain=True, with_random=False))
 
 
         return NoResource().render(request)

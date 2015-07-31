@@ -111,14 +111,19 @@ class Canarydrop(object):
 
         generated_hostname += self._drop['canarytoken']+'.'+\
                               domains[random.randint(0,len(domains)-1)]
-        self._drop['generated_hostname'] = generated_hostname
+        return generated_hostname
 
-        return self._drop['generated_hostname']
-
-    def get_hostname(self, with_random=False):
-        if 'generated_hostname' in self._drop:
+    def get_hostname(self, with_random=False, nxdomain=False):
+        if nxdomain:
+            if 'generated_nx_hostname' not in self._drop:
+                self._drop['generated_nx_hostname'] = \
+                    self.generate_random_hostname(with_random=with_random, nxdomain=True)
+            return self._drop['generated_nx_hostname']
+        else:
+            if 'generated_hostname' not in self._drop:
+                self._drop['generated_hostname'] = \
+                    self.generate_random_hostname(with_random=with_random, nxdomain=False)
             return self._drop['generated_hostname']
-        return self.generate_random_hostname(with_random=with_random)
 
     def get_requested_output_channels(self,):
         """Return a list containing the output channels configured in this
