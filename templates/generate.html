@@ -19,7 +19,8 @@
 
   p.subtypes label {padding-right: 20px; font-size:1.3rem;}
   p.subtypes label input {margin-right: 10px;}
-  .jumbotron { height: 340px;}
+  .jumbotron { margin-top: 20px; height: 340px;}
+  img.banner {margin: 0px; padding: 0px; width: 700px;}
   </style>
   </head>
   <body>
@@ -32,7 +33,9 @@
         </nav>
         <h3 class="text-muted">Canarytokens</h3>
       </div>
-
+      <div>
+        <p class="text-muted">You'll be familiar with web bugs which track when someone opens an email. Imagine doing that, but for file reads, database queries or process executions. A more comprehensive explanation can be found <a href="http://blog.thinkst.com/p/canarytokensorg-quick-free-detection.html" target="_blank">here</a>.</p>
+      </div>
       <div class="jumbotron">
         <h2>Generate your Canarytoken here</h2>
         <form id="genForm">
@@ -541,7 +544,10 @@
         </div>
       </div>
     </div>
-
+    <a href="https://canary.tools/" target="_blank"><img class="banner" src="http://thinkst.com/images/tokens-banner.gif"></a>
+    <footer class="footer">
+      <p><center>&copy; 2015, Built with love by Thinkst Applied Research</p>
+    </footer>
 <script>
     var timer_handle;
     var rotate_filename = function() {
