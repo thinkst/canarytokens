@@ -27,7 +27,7 @@ CLONED_SITE_JS = """
             var l = location.href;
             var r = document.referrer;
             var m = new Image();
-            m.src = "CANARYTOKEN_SITE/CANARYTOKEN?l=" + encodeURI(l) + "&amp;r=" + encodeURI(r);
+            m.src = "CANARYTOKEN_SITE/CANARYTOKEN.jpg?l=" + encodeURI(l) + "&amp;r=" + encodeURI(r);
         }
         """
 env = Environment(loader=FileSystemLoader('templates'))
