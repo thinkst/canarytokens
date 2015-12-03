@@ -1,5 +1,5 @@
 """
-A Canarydrop ties a canarytoken to an alerting mechanisms, 
+A Canarydrop ties a canarytoken to an alerting mechanisms,
 and records accounting information about the Canarytoken.
 
 Maps to the object stored in Redis.
@@ -88,9 +88,13 @@ class Canarydrop(object):
 
         generated_url += '/'.join(path)
 
-        self._drop['generated_url'] = generated_url 
+        self._drop['generated_url'] = generated_url
 
         return self._drop['generated_url']
+
+    def get_random_site(self,):
+        sites = get_all_canary_sites()
+        return sites[random.randint(0,len(sites)-1)]
 
     def get_url(self,):
         if 'generated_url' in self._drop:

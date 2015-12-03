@@ -27,7 +27,7 @@ CLONED_SITE_JS = """
             var l = location.href;
             var r = document.referrer;
             var m = new Image();
-            m.src = "http://CANARYTOKEN_HOSTNAME/CANARYTOKEN?l=" + encodeURI(l) + "&amp;r=" + encodeURI(r);
+            m.src = "CANARYTOKEN_SITE/CANARYTOKEN?l=" + encodeURI(l) + "&amp;r=" + encodeURI(r);
         }
         """
 env = Environment(loader=FileSystemLoader('templates'))
@@ -100,7 +100,7 @@ class GeneratorPage(resource.Resource):
                 save_canarydrop(canarydrop)
                 response['clonedsite_js'] =  CLONED_SITE_JS\
                                     .replace('CLONED_SITE_DOMAIN', clonedsite)\
-                                    .replace('CANARYTOKEN_HOSTNAME', response['Hostname'])\
+                                    .replace('CANARYTOKEN_SITE', canarydrop.get_random_site())\
                                     .replace('CANARYTOKEN', response['Token'])
                 response['clonedsite'] =  clonedsite
             except (IndexError, KeyError):
