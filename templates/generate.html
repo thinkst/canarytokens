@@ -51,12 +51,15 @@
         <div class="row col-lg-12">
             <p class="subtypes">
               <label><input class="" data-jumbo-height="340" type="radio" name="subtype" value="none" checked>DNS/HTTP</label>
+              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="clonedsite">Cloned site</label>
               <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="imgur">Imgur</label>
               <label><input class="" data-jumbo-height="460" type="radio" name="subtype" value="linkedin">LinkedIn</label>
               <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="bitcoin">Bitcoin</label>
             </p>
         </div>
-
+        <div class="row col-lg-12">
+            <p class="subtype hidden input_clonedsite"><input class="form-control" type="text" name="clonedsite" placeholder="Enter your site's domain (e.g. thinkst.com or google.com)"></p>
+        </div>
         <div class="row col-lg-12">
             <p class="subtype hidden input_imgur"><input class="form-control" type="text" name="imgur" placeholder="Enter your imgur token"></p>
         </div>
@@ -84,8 +87,30 @@
         <h1>Your Canarytoken is live!</h1>
         <p>Thanks for submitting, the token has been generated. You'll get notified at <span id="alert_email_recipient"></span> whenever the token is triggered.</p>
         <h1>Triggering your Canarytoken</h1>
-        <p>Your Canarytoken can be triggered in a variety of ways, including web bugs, DNS requests, email addresses, Imgur links, LinkedIn profiles, file reads, process executions, database queries and changes.</p>
+        <p>Your Canarytoken can be triggered in a variety of ways, including web bugs, DNS requests, on cloned websites, email addresses, Imgur links, LinkedIn profiles, file reads, process executions, database queries and changes.</p>
         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          <div id="clonedsite" class="panel panel-default hidden">
+            <div class="panel-heading" role="tab" id="headingClonedsite">
+              <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseClonedsite" aria-expanded="true" aria-controls="collapseClonedsite">
+                  Cloned site JavaScript
+                </a>
+              </h4>
+            </div>
+            <div id="collapseClonedsite" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingClonedsite">
+              <div class="panel-body">
+                <p>Use this Javascript to detect when someone has cloned a
+                   webpage. Simply copy this Javascript into the page.</p>
+                <p><small>For extra sneakiness, Use an <a href="https://www.google.com/search?q=JavaScript+Obfuscator" target="_blank">obfuscator</a> to scramble the Javascript
+                  before placing in your page.</p>
+                <div class="pre-like">
+      &lt;script&gt;
+        <span class="clonedsite-js"></span>
+      &lt;/script&gt;
+    </div>
+              </div>
+            </div>
+          </div>
         <div id="imgur" class="panel panel-default hidden">
           <div class="panel-heading" role="tab" id="headingImgur">
             <h4 class="panel-title">
@@ -614,11 +639,19 @@
                         $('span[class=hostname]').text(data['Hostname']);
                         $('#host').text(path_components[2]);
                         $('#canarytoken').text(data['Token']);
+                        $('.canarytoken').text(data['Token']);
                         rotate_filename();
                         $('.subtype > input').val('');
                         $('#web').removeClass('hidden').show();
                         $('#dns').removeClass('hidden').show();
                         $('.dns').removeClass('hidden').show();
+
+                        if (data['clonedsite'] != undefined) {
+                          $('.clonedsite-js').text(data['clonedsite_js']);
+                          $('#clonedsite').removeClass('hidden').show();
+                        } else {
+                          $('#clonedsite').hide();
+                        }
 
                         if (data['imgur_count'] != undefined) {
                           $('#imgur_count').text(data['imgur_count']);

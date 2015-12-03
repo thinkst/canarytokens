@@ -7,7 +7,8 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_CANARY_PATH_ELEMENTS, KEY_CANARY_PAGES, KEY_CANARYDROPS_TIMELINE,\
      KEY_USER_ACCOUNT, KEY_CANARYTOKEN_ALERT_COUNT, KEY_IMGUR_TOKEN, \
      KEY_IMGUR_TOKENS, KEY_LINKEDIN_ACCOUNT, KEY_LINKEDIN_ACCOUNTS,\
-     KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS
+     KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
+     KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS
 
 from twisted.python import log
 
@@ -80,10 +81,10 @@ def get_canarydrops(min_time='-inf', max_time='+inf'):
     """Return a list of stored Canarydrops.
 
        Arguments:
-       
-       min_time -- Limit to Canarydrops created after min_time. Format is Unix 
+
+       min_time -- Limit to Canarydrops created after min_time. Format is Unix
                    epoch. Default is no limit.
-       max_time -- Limit to Canarydrops created before max_time. Format is Unix 
+       max_time -- Limit to Canarydrops created before max_time. Format is Unix
                    epoch. Default is no limit.
     """
     canarydrops = []
@@ -113,6 +114,16 @@ def lookup_canarytoken_alert_count(canarytoken):
 def save_canarytoken_alert_count(canarytoken, count, expiry):
     key = KEY_CANARYTOKEN_ALERT_COUNT+canarytoken.value()
     db.setex(key, expiry, count)
+
+def save_clonedsite_token(clonedsite_token):
+    if not clonedsite_token.get('canarytoken'):
+        raise Exception('Cannot save an imgur token without a canarydrop')
+
+    key = KEY_CLONEDSITE_TOKEN+clonedsite_token['clonedsite']+':'+\
+          clonedsite_token['canarytoken']
+    db.hmset(key, clonedsite_token)
+    db.sadd(KEY_CLONEDSITE_TOKENS, key)
+    return key
 
 def get_imgur_count(imgur_id=None):
     resp = requests.get('http://imgur.com/ajax/views?images={imgur_id}'\

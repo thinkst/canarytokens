@@ -30,8 +30,14 @@ class CanarytokenPage(resource.Resource, InputChannel):
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
             useragent = request.getHeader('User-Agent')
             src_ip    = request.getHeader('x-forwarded-for')
-            self.dispatch(canarydrop=canarydrop, src_ip=src_ip, 
-                          useragent=useragent)
+
+            #location and refere are for cloned sites
+            location  = request.args.get('l', [None])[0]
+            referer   = request.args.get('r', [None])[0]
+
+            self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
+                          useragent=useragent, location=location,
+                          referer=referer)
         except:
             log.err('No canarytoken seen in: {path}'.format(path=request.path))
 
@@ -44,10 +50,15 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
     def format_additional_data(self, **kwargs):
         log.msg('%r' % kwargs)
+        additional_report = ''
         if kwargs.has_key('src_ip') and kwargs['src_ip']:
-            additional_report = 'Source IP : {ip}'.format(ip=kwargs['src_ip'])
+            additional_report += 'Source IP: {ip}'.format(ip=kwargs['src_ip'])
         if kwargs.has_key('useragent') and kwargs['useragent']:
             additional_report += '\nUser-agent: {useragent}'.format(useragent=kwargs['useragent'])
+        if kwargs.has_key('location') and kwargs['location']:
+            additional_report += '\nCloned site is at: {location}'.format(location=kwargs['location'])
+        if kwargs.has_key('referer') and kwargs['referer']:
+            additional_report += '\nReferring site: {referer}'.format(referer=kwargs['referer'])
         return additional_report
 
     def init(self, switchboard=None):

@@ -14,13 +14,22 @@ from tokens import Canarytoken
 from canarydrop import Canarydrop
 from queries import save_canarydrop, save_imgur_token, get_canarydrop,\
                     create_linkedin_account, create_bitcoin_account,\
-                    get_linkedin_account, get_bitcoin_account
+                    get_linkedin_account, get_bitcoin_account, \
+                    save_clonedsite_token
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
 from msword import make_canary_msword
 from pdfgen import make_canary_pdf
 import settings
 
+CLONED_SITE_JS = """
+        if (document.domain != "CLONED_SITE_DOMAIN") {
+            var l = location.href;
+            var r = document.referrer;
+            var m = new Image();
+            m.src = "http://CANARYTOKEN_HOSTNAME/CANARYTOKEN?l=" + encodeURI(l) + "&amp;r=" + encodeURI(r);
+        }
+        """
 env = Environment(loader=FileSystemLoader('templates'))
 class GeneratorPage(resource.Resource):
     isLeaf = True
@@ -37,7 +46,7 @@ class GeneratorPage(resource.Resource):
 
     def render_POST(self, request):
         request.responseHeaders.addRawHeader(b"content-type", b"application/json")
-        response = { 'Error': None, 
+        response = { 'Error': None,
                      'Url': "",
                      'Token': "",
                      'Email': "",
@@ -81,11 +90,28 @@ class GeneratorPage(resource.Resource):
             response['Email'] = email
 
             try:
+                clonedsite = request.args['clonedsite'][0]
+                if not clonedsite:
+                    raise KeyError
+
+                cloned_token = {'clonedsite': clonedsite,
+                               'canarytoken': canarytoken.value()}
+                canarydrop.clonedsite_token = save_clonedsite_token(cloned_token)
+                save_canarydrop(canarydrop)
+                response['clonedsite_js'] =  CLONED_SITE_JS\
+                                    .replace('CLONED_SITE_DOMAIN', clonedsite)\
+                                    .replace('CANARYTOKEN_HOSTNAME', response['Hostname'])\
+                                    .replace('CANARYTOKEN', response['Token'])
+                response['clonedsite'] =  clonedsite
+            except (IndexError, KeyError):
+                pass
+
+            try:
                 imgur_id = request.args['imgur'][0]
                 if not imgur_id:
                     raise KeyError
 
-                imgur_token = {'id': imgur_id, 
+                imgur_token = {'id': imgur_id,
                                'canarytoken': canarytoken.value()}
                 canarydrop.imgur_token = save_imgur_token(imgur_token)
                 save_canarydrop(canarydrop)
@@ -156,7 +182,7 @@ class DownloadPage(resource.Resource):
             return make_canary_zip(hostname=
                         canarydrop.get_hostname(with_random=False))
         elif fmt == 'msword':
-            request.setHeader("Content-Type", 
+            request.setHeader("Content-Type",
                               "application/vnd.openxmlformats-officedocument"+\
                                                   ".wordprocessingml.document")
             request.setHeader("Content-Disposition",
@@ -233,7 +259,7 @@ class ManagePage(resource.Resource):
 
         except Exception as e:
             template = env.get_template('manage.html')
-            return template.render(canarydrop=canarydrop, error=e, 
+            return template.render(canarydrop=canarydrop, error=e,
                                         settings=settings).encode('utf8')
 
 

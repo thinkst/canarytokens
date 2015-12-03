@@ -17,7 +17,7 @@ class EmailOutputChannel(OutputChannel):
     def do_send_alert(self, input_channel=None, canarydrop=None, **kwargs):
         try:
             msg = input_channel.format_canaryalert(
-                                          params={'subject_required':True, 
+                                          params={'subject_required':True,
                                                   'from_display_required':True,
                                                   'from_address_required':True},
                                           canarydrop=canarydrop,
@@ -38,8 +38,8 @@ class EmailOutputChannel(OutputChannel):
             if settings.DEBUG:
                 pprint.pprint(message)
             else:
-                result = mandrill_client.messages.send(message=message, 
-                                                   async=False, 
+                result = mandrill_client.messages.send(message=message,
+                                                   async=False,
                                                    ip_pool='Main Pool')
             log.msg('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
@@ -49,4 +49,3 @@ class EmailOutputChannel(OutputChannel):
             # Mandrill errors are thrown as exceptions
             log.err('A mandrill error occurred: %s - %s' % (e.__class__, e))
             # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....
-

@@ -27,7 +27,7 @@ CANARY_WORD_TEMPLATE="templates/template.docx"
 
 for envvar in ['MANDRILL_API_KEY','PUBLIC_IP','ALERT_EMAIL_FROM_ADDRESS',
                'ALERT_EMAIL_FROM_DISPLAY','ALERT_EMAIL_SUBJECT','DOMAINS',
-	      'NXDOMAINS']:
+               'NXDOMAINS']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
