@@ -25,9 +25,9 @@ CANARY_PDF_TEMPLATE="templates/template.pdf"
 CANARY_PDF_TEMPLATE_OFFSET=793
 CANARY_WORD_TEMPLATE="templates/template.docx"
 
-for envvar in ['MANDRILL_API_KEY','PUBLIC_IP','ALERT_EMAIL_FROM_ADDRESS',
-               'ALERT_EMAIL_FROM_DISPLAY','ALERT_EMAIL_SUBJECT','DOMAINS',
-               'NXDOMAINS']:
+for envvar in ['MAILGUN_DOMAIN_NAME','MAILGUN_API_KEY','MANDRILL_API_KEY',
+               'PUBLIC_IP','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
+               'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
