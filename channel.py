@@ -20,7 +20,7 @@ class InputChannel(Channel):
     CHANNEL = 'InputChannel'
 
     def __init__(self, switchboard=None, name=None, unique_channel=False):
-        super(InputChannel, self).__init__(switchboard=switchboard, 
+        super(InputChannel, self).__init__(switchboard=switchboard,
                                             name=name)
         try:
             self.register_input_channel()
@@ -35,11 +35,11 @@ class InputChannel(Channel):
         return ''
 
     def format_canaryalert(self, canarydrop=None, protocol="http",
-                          host="canarytokens.org", params=None, **kwargs):
+                          host=settings.PUBLIC_DOMAIN, params=None, **kwargs):
         msg = {}
         if params.get('body_length', 999999999) <= 140:
             msg['body'] = """Canarydrop@{time} via {channel_name}: """\
-                .format(channel_name=self.name, 
+                .format(channel_name=self.name,
                         time=datetime.datetime.utcnow()\
                                   .strftime("%Y-%m-%d %H:%M:%S"))
             capacity = 140 - len(msg['body'])
@@ -83,7 +83,7 @@ class OutputChannel(Channel):
     CHANNEL = 'OutputChannel'
 
     def __init__(self, switchboard=None, name=None):
-        super(OutputChannel, self).__init__(switchboard=switchboard, 
+        super(OutputChannel, self).__init__(switchboard=switchboard,
                                             name=name)
         self.register_output_channel()
 
@@ -103,4 +103,3 @@ class OutputChannel(Channel):
 
     def do_send_alert(self, **kwargs):
         pass
-

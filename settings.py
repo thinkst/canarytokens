@@ -39,6 +39,8 @@ for envvar in ['DOMAINS', 'NXDOMAINS']:
     except KeyError:
         setattr(settingsmodule, envvar, [])
 
+PUBLIC_DOMAIN=DOMAINS[0]
+
 REDIS_HOST='redis'
 REDIS_PORT=6379
 REDIS_DB='0'
