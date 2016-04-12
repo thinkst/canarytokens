@@ -23,9 +23,9 @@ class EmailOutputChannel(OutputChannel):
                                       canarydrop=canarydrop,
                                       **kwargs)
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
-            mailgun_send(msg=msg,canarydrop=canarydrop)
+            self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:
-            mandrill_send(msg=msg,canarydrop=canarydrop)
+            self.mandrill_send(msg=msg,canarydrop=canarydrop)
         else:
             log.err("No email settings found")
 
