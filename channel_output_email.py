@@ -21,7 +21,6 @@ class EmailOutputChannel(OutputChannel):
                                               'from_display_required':True,
                                               'from_address_required':True},
                                       canarydrop=canarydrop,
-                                      host=settings.PUBLIC_DOMAIN,
                                       **kwargs)
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
             self.mailgun_send(msg=msg,canarydrop=canarydrop)

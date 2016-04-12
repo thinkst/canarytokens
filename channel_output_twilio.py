@@ -20,7 +20,6 @@ class TwilioOutputChannel(OutputChannel):
             msg = input_channel.format_canaryalert(
                                           params={'body_length':140},
                                           canarydrop=canarydrop,
-                                          host=settings.PUBLIC_DOMAIN,
                                           **kwargs)
 
             client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
