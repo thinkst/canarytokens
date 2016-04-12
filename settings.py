@@ -26,7 +26,7 @@ CANARY_PDF_TEMPLATE_OFFSET=793
 CANARY_WORD_TEMPLATE="templates/template.docx"
 
 for envvar in ['MAILGUN_DOMAIN_NAME','MAILGUN_API_KEY','MANDRILL_API_KEY',
-               'PUBLIC_IP','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
+               'PUBLIC_IP','PUBLIC_DOMAIN','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
@@ -38,8 +38,6 @@ for envvar in ['DOMAINS', 'NXDOMAINS']:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar].split(','))
     except KeyError:
         setattr(settingsmodule, envvar, [])
-
-PUBLIC_DOMAIN=DOMAINS[0]
 
 REDIS_HOST='redis'
 REDIS_PORT=6379
