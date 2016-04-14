@@ -157,12 +157,26 @@ def get_linkedin_viewer_count(username=None, password=None):
     from twill import get_browser
     from twill.commands import add_extra_header, go, fv, submit, reset_browser
     reset_browser()
+    from twill.errors import TwillException
     add_extra_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.132 Safari/537.36')
     go("https://www.linkedin.com/nhome/")
+    # Added because LinkedIn login page no longer names the login form.
+    b = get_browser()
+    form_num = ''
+    for n, f in enumerate(b.get_all_forms()):
+        try:
+            b.get_form_field(f, "session_key")
+            b.get_form_field(f, "session_password")
+            form_num = str(n+1)
+        except TwillException:
+            pass
+    if form_num == '':
+        log.err('Failed to parse LinkedIn login page - page format may have changed.')
+        raise LinkedInFailure()
     #fv("login", 'session_password', 'LetsTryPrime')
     #fv("login", 'session_key', 'ms_DerrickWortham@endian.co.za')
-    fv("login", 'session_key', username)
-    fv("login", 'session_password', password)
+    fv(form_num, 'session_key', username)
+    fv(form_num, 'session_password', password)
     submit()
     go('http://www.linkedin.com/wvmx/profile?trk=nav_responsive_sub_nav_wvmp')
 
