@@ -1,4 +1,5 @@
 import simplejson
+import cgi
 
 from twisted.web import server, resource
 from twisted.application import internet
@@ -15,11 +16,12 @@ from canarydrop import Canarydrop
 from queries import save_canarydrop, save_imgur_token, get_canarydrop,\
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
-                    save_clonedsite_token
+                    save_clonedsite_token, get_all_canary_sites
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
 from msword import make_canary_msword
 from pdfgen import make_canary_pdf
+from authenticode import make_canary_authenticode_binary
 import settings
 
 CLONED_SITE_JS = """
@@ -41,7 +43,8 @@ class GeneratorPage(resource.Resource):
 
     def render_GET(self, request):
         template = env.get_template('generate.html')
-        return template.render(settings=settings).encode('utf8')
+        sites_len = len(get_all_canary_sites())
+        return template.render(settings=settings, sites_len=sites_len).encode('utf8')
 
 
     def render_POST(self, request):
@@ -51,7 +54,6 @@ class GeneratorPage(resource.Resource):
                      'Token': "",
                      'Email': "",
                      'Hostname': ""}
-
         try:
             try:
                 email = request.args.get('email', None)[0]
@@ -167,39 +169,79 @@ class DownloadPage(resource.Resource):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
-        token  = request.args.get('token', None)[0]
-        fmt    = request.args.get('fmt', None)[0]
+        try:
+            token  = request.args.get('token', None)[0]
+            fmt    = request.args.get('fmt', None)[0]
 
-        canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
-        if not canarydrop:
-            raise NoCanarytokenPresent()
+            canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
+            if not canarydrop:
+                raise NoCanarytokenPresent()
 
-        if fmt == 'zip':
-            request.setHeader("Content-Type", "application/zip")
-            request.setHeader("Content-Disposition",
-                              'attachment; filename={token}.zip'\
-                              .format(token=token))
-            return make_canary_zip(hostname=
-                        canarydrop.get_hostname(with_random=False))
-        elif fmt == 'msword':
-            request.setHeader("Content-Type",
-                              "application/vnd.openxmlformats-officedocument"+\
-                                                  ".wordprocessingml.document")
-            request.setHeader("Content-Disposition",
-                              'attachment; filename={token}.docx'\
-                              .format(token=token))
-            return make_canary_msword(url=canarydrop.get_url())
-        elif fmt == 'pdf':
-            request.setHeader("Content-Type", "application/pdf")
-            request.setHeader("Content-Disposition",
-                              'attachment; filename={token}.pdf'\
-                              .format(token=token))
-            return make_canary_pdf(hostname=canarydrop.get_hostname(nxdomain=True, with_random=False))
+            if fmt == 'zip':
+                request.setHeader("Content-Type", "application/zip")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}.zip'\
+                                  .format(token=token))
+                return make_canary_zip(hostname=
+                            canarydrop.get_hostname(with_random=False))
+            elif fmt == 'msword':
+                request.setHeader("Content-Type",
+                                  "application/vnd.openxmlformats-officedocument"+\
+                                                      ".wordprocessingml.document")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}.docx'\
+                                  .format(token=token))
+                return make_canary_msword(url=canarydrop.get_url())
+            elif fmt == 'pdf':
+                request.setHeader("Content-Type", "application/pdf")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}.pdf'\
+                                  .format(token=token))
+                return make_canary_pdf(hostname=canarydrop.get_hostname(nxdomain=True, with_random=False))
+        except Exception as e:
+            log.err('Unexpected error in download: {err}'.format(err=e))
 
 
         return NoResource().render(request)
 
     def render_POST(self, request):
+        try:
+            fields = cgi.FieldStorage(
+                fp = request.content,
+                headers = request.getAllHeaders(),
+                environ = {'REQUEST_METHOD':'POST',
+                'CONTENT_TYPE': request.getAllHeaders()['content-type'],
+                }
+            )#hacky way to parse out file contents and filenames
+
+            token  = request.args.get('token', None)[0]
+            fmt    = request.args.get('fmt', None)[0]
+            filename = fields['file_for_signing'].filename
+            filebody = fields['file_for_signing'].value
+            if len(filebody) > 1024 * 1024 * 10:
+                raise Exception('File too large')
+
+            canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
+            if not canarydrop:
+                raise NoCanarytokenPresent()
+
+            if fmt == 'authenticode':
+                if not filename.lower().endswith(('exe','dll')):
+                    raise Exception('Uploaded authenticode file must be an exe or dll')
+                signed_contents = make_canary_authenticode_binary(hostname=
+                            canarydrop.get_hostname(with_random=False, as_url=True),
+                            filebody=filebody)
+                request.setHeader("Content-Type", "octet/stream")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={filename}.signed'\
+                                  .format(filename=filename))
+                return signed_contents
+
+        except Exception as e:
+            log.err('Unexpected error in POST download: {err}'.format(err=e))
+            template = env.get_template('error.html')
+            return template.render(error=e.message).encode('utf8')
+
         return NoResource().render(request)
 
 class ManagePage(resource.Resource):

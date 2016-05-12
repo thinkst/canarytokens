@@ -36,6 +36,11 @@
       <div>
         <p class="text-muted">You'll be familiar with web bugs which track when someone opens an email. Imagine doing that, but for file reads, database queries or process executions. A more comprehensive explanation can be found <a href="http://blog.thinkst.com/p/canarytokensorg-quick-free-detection.html" target="_blank">here</a>.</p>
       </div>
+      {% if sites_len == 0 %}
+      <div class="alert alert-danger">
+        Your Canarytokens server does not have any sites configured, you won't be able to generate tokens.
+      </div>
+      {% endif %}
       <div class="jumbotron">
         <h2>Generate your Canarytoken here</h2>
         <form id="genForm">
@@ -550,6 +555,28 @@
           </div>
         </div>
 
+        <div id="authenticode" class="panel panel-default filegen hidden">
+          <div class="panel-heading" role="tab" id="headingAuthenticode">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAuthenticode" aria-expanded="true" aria-controls="collapseAuthenticode">
+                Signed EXE / DLL
+              </a>
+            </h4>
+          </div>
+          <div id="collapseAuthenticode" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingAuthenticode">
+            <div class="panel-body">
+              <p>Get notified whenever someone runs an EXE or imports a DLL.</p>
+              <form method="post" action="/download" enctype="multipart/form-data">
+                Select EXE or DLL to upload:
+                <input class="form-control"  type="file" name="file_for_signing" id="file_for_signing">
+                <input type="hidden" name="token">
+                <input type="hidden" name="fmt" value="authenticode">
+                <input class="btn" type="submit" value="Upload and sign" name="submit">
+              </form>
+            </div>
+          </div>
+        </div>
+
         <div id="desktopini" class="panel panel-default filegen hidden">
           <div class="panel-heading" role="tab" id="headingDesktopINI">
             <h4 class="panel-title">
@@ -684,6 +711,8 @@
                           var fmt = $(fmt_links[i]).data('fmt');
                           $(fmt_links[i]).prop('href', '/download?fmt='+fmt+'&token='+data['Token']);
                         }
+                        //rewrite token inputs, if present
+                        $('input[name=token]').val(data['Token']);
                         $('.filegen').removeClass('hidden').show();
                     }
                 },
