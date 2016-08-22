@@ -5,12 +5,17 @@ from twisted.web.server import Site, GzipEncoderFactory
 from twisted.web.resource import Resource, EncodingResourceWrapper, ForbiddenResource
 from twisted.web.util import Redirect
 from twisted.python import log
+from jinja2 import Environment, FileSystemLoader
+import subprocess
 
 from tokens import Canarytoken
 from canarydrop import Canarydrop
 from channel import InputChannel
 from queries import get_canarydrop
 from constants import INPUT_CHANNEL_HTTP
+from settings import TOKEN_RETURN
+
+env = Environment(loader=FileSystemLoader('templates'))
 
 class CanarytokenPage(resource.Resource, InputChannel):
     CHANNEL = INPUT_CHANNEL_HTTP
@@ -25,6 +30,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
+        accept_html = accept_images = False
+
         try:
             token = Canarytoken(value=request.path)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
@@ -38,11 +45,27 @@ class CanarytokenPage(resource.Resource, InputChannel):
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
                           referer=referer)
+
+            accept = request.getHeader('Accept')
+            if accept:
+                if "text/html" in accept:
+                    accept_html = True
+                if "images/*" in accept:
+                    accept_images = True
+
         except:
             log.err('No canarytoken seen in: {path}'.format(path=request.path))
 
-        request.setHeader("Content-Type", "image/gif")
         request.setHeader("Server",       "Apache")
+        if accept_html and TOKEN_RETURN == 'fortune':
+            try:
+                fortune = subprocess.check_output('/usr/games/fortune')
+                template = env.get_template('fortune.html')
+                return template.render(fortune=fortune).encode('utf8')
+            except Exception as e:
+                log.err('Could not get a fortune: {e}'.format(e=e))
+
+        request.setHeader("Content-Type", "image/gif")
         return self.GIF
 
     def render_POST(self, request):
