@@ -10,6 +10,8 @@ from twisted.web.resource import Resource, EncodingResourceWrapper, \
 from twisted.web.util import Redirect
 from twisted.python import log
 from jinja2 import Environment, FileSystemLoader
+import pyqrcode
+
 
 from tokens import Canarytoken
 from canarydrop import Canarydrop
@@ -167,6 +169,12 @@ class GeneratorPage(resource.Resource):
                 response['bitcoin_address'] = bitcoin_address
                 response['bitcoin_balance'] = btc['balance']
             except (IndexError, KeyError):
+                pass
+
+            try:
+                qrcode = pyqrcode.create(canarydrop.get_url()).png_as_base64_str(scale=5)
+                response['qrcode_png'] = "data:image/png;base64,{qrcode}".format(qrcode=qrcode)
+            except:
                 pass
 
         except Exception as e:

@@ -259,6 +259,27 @@
           </div>
         </div>
 
+        <div id="qrcode" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingQrcode">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseQrcode" aria-expanded="true" aria-controls="collapseQrcode">
+                QR Code
+              </a>
+            </h4>
+          </div>
+          <div id="collapseQrcode" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingQrcode">
+            <div class="panel-body">
+              <p>Here's a unique QR code:</p>
+              <p><img id="qrcode_png" /></p>
+              <p>Use this as a physical token:
+              <ul>
+                <li>On containers left in secure locations.</li>
+                <li>Underneath your phone battery when crossing international borders.</li>
+                <li>On your desk.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <div id="dtrace" class="panel panel-default hidden">
           <div class="panel-heading" role="tab" id="headingDTrace">
             <h4 class="panel-title">
@@ -713,6 +734,10 @@
                         $('#web').removeClass('hidden').show();
                         $('#dns').removeClass('hidden').show();
                         $('.dns').removeClass('hidden').show();
+
+                        $('#qrcode_png').prop('src', data['qrcode_png']);
+                        $('#qrcode').removeClass('hidden').show();
+
 
                         if (data['clonedsite'] != undefined) {
                           $('.clonedsite-js').text(data['clonedsite_js']);
