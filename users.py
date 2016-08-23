@@ -61,9 +61,9 @@ class User(object):
         return self._user['username']
 
 class AnonymousUser(User):
-    """Represents an anonymous user. These users have lower limits than 
+    """Represents an anonymous user. These users have lower limits than
        regular users."""
     def __init__(self):
-        User.__init__(self, username='Anonymous', 
-                      alert_expiry=(5 if settings.DEBUG else 60), 
+        User.__init__(self, username='Anonymous',
+                      alert_expiry=(5 if settings.DEBUG else 60),
                       alert_limit=1)

@@ -14,7 +14,10 @@ from twisted.python import log
 
 
 def get_canarydrop(canarytoken=None):
-    return db.hgetall(KEY_CANARYDROP+canarytoken)
+    canarydrop = db.hgetall(KEY_CANARYDROP+canarytoken)
+    if 'triggered_list' in canarydrop.keys():
+        canarydrop['triggered_list'] = simplejson.loads(canarydrop['triggered_list'])
+    return canarydrop
 
 def get_all_canary_sites():
     return ['http://'+x for x in get_all_canary_domains()]
@@ -76,6 +79,44 @@ def save_canarydrop(canarydrop=None):
     if db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) == None:
         current_time = datetime.datetime.utcnow().strftime("%s.%f")
         db.zadd(KEY_CANARYDROPS_TIMELINE, current_time, canarytoken.value())
+
+def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
+    """Add a hit to a canarydrop
+
+       Arguments:
+
+       canarytoken -- canarytoken object.
+       **kwargs   -- Additional details about the hit.
+    """
+    key = KEY_CANARYDROP+canarytoken.value()
+    triggered_list = db.hget(key,'triggered_list')
+    if not triggered_list:
+        triggered_list={}
+    else:
+        triggered_list = simplejson.loads(triggered_list)
+        #we limit to last 10 hits
+        triggered_list = {k:v for k,v in triggered_list.iteritems()
+                          if k in sorted(triggered_list.keys())[-9:]}
+    triggered_key = hit_time if hit_time else datetime.datetime.utcnow().strftime("%s.%f")
+    triggered_list[triggered_key] = kwargs
+    triggered_list[triggered_key]['input_channel'] = input_channel
+    triggered_list[triggered_key]['is_tor_relay'] = is_tor_relay(kwargs['src_ip'])
+    db.hset(key, 'triggered_list',simplejson.dumps(triggered_list))
+
+def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
+    try:
+        key = KEY_CANARYDROP+canarytoken
+        triggered_list = simplejson.loads(db.hget(key,'triggered_list'))
+        if 'additional_info' not in triggered_list[hit_time]:
+            triggered_list[hit_time]['additional_info'] = {}
+        for k,v in additional_info.iteritems():
+            if k in triggered_list[hit_time]['additional_info'].keys():
+                triggered_list[hit_time]['additional_info'][k].update(v)
+            else:
+                triggered_list[hit_time]['additional_info'][k] = v
+        db.hset(key, 'triggered_list',simplejson.dumps(triggered_list))
+    except Exception as e:
+        log.err('Failed adding additional info: {err}'.format(err=r))
 
 def get_canarydrops(min_time='-inf', max_time='+inf'):
     """Return a list of stored Canarydrops.
@@ -342,3 +383,10 @@ def is_webhook_valid(url):
     except requests.exceptions.RequestException as e:
         log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
         return False
+
+def is_tor_relay(ip):
+    try:
+        resp = requests.get('https://check.torproject.org/exit-addresses')
+        return ip in resp.content
+    except Exception as e:
+        print e

@@ -26,6 +26,7 @@ from msword import make_canary_msword
 from pdfgen import make_canary_pdf
 from authenticode import make_canary_authenticode_binary
 import settings
+import datetime
 
 CLONED_SITE_JS = """
         if (document.domain != "CLONED_SITE_DOMAIN") {
@@ -83,13 +84,20 @@ class GeneratorPage(resource.Resource):
             alert_email_enabled = False if not email else True
             alert_webhook_enabled = False if not webhook else True
             canarytoken = Canarytoken()
+
+            try:
+                browser_scanner = request.args['subtype'][0] == 'browserscanner'
+            except:
+                browser_scanner = False
+
             canarydrop = Canarydrop(generate=True,
                                   alert_email_enabled=alert_email_enabled,
                                   alert_email_recipient=email,
                                   alert_webhook_enabled=alert_webhook_enabled,
                                   alert_webhook_url=webhook,
                                   canarytoken=canarytoken.value(),
-                                  memo=memo)
+                                  memo=memo,
+                                  browser_scanner=browser_scanner)
 
             if settings.TWILIO_ENABLED:
                 try:
@@ -284,6 +292,12 @@ class ManagePage(resource.Resource):
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
             if not canarydrop['auth'] or canarydrop['auth'] != auth:
                 raise NoCanarytokenPresent()
+
+            if canarydrop['triggered_list']:
+                for timestamp in canarydrop['triggered_list'].keys():
+                    formatted_timestamp = datetime.datetime.fromtimestamp(
+                                float(timestamp)).strftime('%Y %b %d %H:%M:%S')
+                    canarydrop['triggered_list'][formatted_timestamp] = canarydrop['triggered_list'].pop(timestamp)
 
         except (TypeError, NoCanarytokenPresent):
             return NoResource().render(request)

@@ -22,6 +22,7 @@ class EmailOutputChannel(OutputChannel):
                                               'from_address_required':True},
                                       canarydrop=canarydrop,
                                       **kwargs)
+        print msg
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
             self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:

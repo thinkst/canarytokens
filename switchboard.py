@@ -60,7 +60,7 @@ class Switchboard(object):
                 return
 
             #update accounting info
-            canarydrop.alerting()
+            canarydrop.alerting(input_channel=input_channel,**kwargs)
 
             for requested_output_channel in canarydrop.get_requested_output_channels():
                 try:

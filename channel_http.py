@@ -1,4 +1,5 @@
 import simplejson
+import datetime
 from twisted.web import server, resource
 from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
@@ -11,7 +12,7 @@ import subprocess
 from tokens import Canarytoken
 from canarydrop import Canarydrop
 from channel import InputChannel
-from queries import get_canarydrop
+from queries import get_canarydrop, add_additional_info_to_hit
 from constants import INPUT_CHANNEL_HTTP
 from settings import TOKEN_RETURN
 
@@ -35,6 +36,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
         try:
             token = Canarytoken(value=request.path)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
+            canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
             useragent = request.getHeader('User-Agent')
             src_ip    = request.getHeader('x-forwarded-for')
 
@@ -45,6 +47,12 @@ class CanarytokenPage(resource.Resource, InputChannel):
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
                           referer=referer)
+            if str(canarydrop['browser_scanner']) == 'True':
+                request.setHeader("Server",       "Apache")
+                template = env.get_template('browser_scanner.html')
+                return template.render(key=canarydrop._drop['hit_time'],
+                                       canarytoken=token.value()).encode('utf8')
+                # return self.HTML % (canarydrop._drop['hit_time'], token.value())
 
             accept = request.getHeader('Accept')
             if accept:
@@ -53,10 +61,11 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 if "images/*" in accept:
                     accept_images = True
 
-        except:
-            log.err('No canarytoken seen in: {path}'.format(path=request.path))
+        except Exception as e:
+            log.err('Error in render GET: {error}'.format(error=e))
 
         request.setHeader("Server",       "Apache")
+
         if accept_html and TOKEN_RETURN == 'fortune':
             try:
                 fortune = subprocess.check_output('/usr/games/fortune')
@@ -69,7 +78,19 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return self.GIF
 
     def render_POST(self, request):
-        return self.render_GET(request)
+        try:
+            key = request.args['key'][0]
+            canarytoken =  request.args['canarytoken'][0]
+            #if key and token args are present, we are posting browser info
+            #store the info and don't re-render
+            if key and canarytoken:
+                additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','canarytoken','name']}
+                add_additional_info_to_hit(canarytoken,key,{request.args['name'][0]:additional_info})
+                return 'success'
+            else:
+                return self.render_GET(request)
+        except:
+            return self.render_GET(request)
 
     def format_additional_data(self, **kwargs):
         log.msg('%r' % kwargs)

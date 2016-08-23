@@ -13,7 +13,7 @@ from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS,\
                       OUTPUT_CHANNEL_WEBHOOK
 from queries import get_all_canary_sites, get_all_canary_path_elements,\
      get_all_canary_pages, get_all_canary_domains, get_all_canary_nxdomains,\
-     load_user
+     load_user, add_canarydrop_hit
 from tokens import Canarytoken
 from users import User, AnonymousUser
 from exception import NoUser, NoCanarytokenPresent, UnknownAttribute
@@ -24,7 +24,7 @@ class Canarydrop(object):
              'alert_webhook_enabled', 'alert_webhook_url','canarytoken',\
              'triggered_count', 'triggered_list','memo', 'generated_url',\
              'generated_email', 'generated_hostname','timestamp', 'user',
-             'imgur_token' ,'imgur', 'auth']
+             'imgur_token' ,'imgur', 'auth', 'browser_scanner']
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
@@ -53,6 +53,9 @@ class Canarydrop(object):
         if 'auth' not in self._drop:
             self._drop['auth'] = md5.md5(str(random.SystemRandom()\
                                   .randrange(1,2**128))).hexdigest()
+
+        if 'browser_scanner' not in self._drop:
+            self._drop['browser_scanner'] = False
 
         if self._drop.get('alert_email_enabled', '') in ('True', True):
             self._drop['alert_email_enabled'] = True
@@ -190,7 +193,13 @@ class Canarydrop(object):
         else:
             return False
 
-    def alerting(self,):
+    def alerting(self, input_channel=None, **kwargs):
+        if 'hit_time' in self._drop.keys():
+            hit_time = self._drop['hit_time']
+        else:
+            hit_time = None
+        add_canarydrop_hit(self.canarytoken, input_channel=input_channel,
+                           hit_time=hit_time, **kwargs)
         self.user.do_accounting(canarydrop=self)
 
     def __getitem__(self, key):

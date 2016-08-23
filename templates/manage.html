@@ -2,9 +2,31 @@
 <head>
 <title>canarytokens.net</title>
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<style>
+.history_item{
+  border-width: 2px;
+  border-style: solid;
+  padding: 10px;
+  margin: 10px;
+  text-align: left;
+  width: 50%;
+}
+.details-list{
+  display:none;
+}
+.details-header{
+  text-align: center;
+}
+.expand{
+  text-align: center;
+  color: blue;
+}
+.expand:hover{
+  text-decoration: underline;
+}
+</style>
 </head>
 <body>
-
 <center>
 {% if saved %}
 <div>
@@ -25,7 +47,6 @@
     <input type="submit" />
 </form>
 </center>
-
 {% if error %}
 <center>
 {{error}}
@@ -33,5 +54,60 @@
 {%endif%}
 
 <center><a href="https://canary.tools/" target="_blank"><img src="http://thinkst.com/images/canary_ad_1.png" style="width:350px;height:151px;"></a><center>
+  {% if canarydrop['triggered_list'] %}
+    History:
+    <ul>
+    {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
+      <div class="history_item">
+        <p class="details-header"><b>Date:</b> {{ item }}
+                                  <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
+                                  <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}</p>
+        <ul class="details-list">
+        {% for field in canarydrop['triggered_list'][item] %}
+          {% if canarydrop['triggered_list'][item][field] != None and
+                canarydrop['triggered_list'][item][field] is defined  %}
+            {% if field == 'additional_info' %}
+              <b>Additional Info</b>
+              <ul>
+
+              {% for info in canarydrop['triggered_list'][item][field] %}
+                  <li>{{info}}
+                    <ul>
+                    {% for info_item in canarydrop['triggered_list'][item][field][info] %}
+                        <li>{{info_item}}: {{ canarydrop['triggered_list'][item][field][info][info_item][0] == "1"
+                              if info_item in ['enabled','installed']
+                              else canarydrop['triggered_list'][item][field][info][info_item]|join(', ') }}</li>
+                    {% endfor %}
+                    </ul>
+                  </li>
+              {% endfor %}
+              </ul>
+            {% else %}
+              {% if field not in ['src_ip','input_channel'] %}
+                <b>{{ field }}</b>
+                <ul>
+                  <li>{{ canarydrop['triggered_list'][item][field] }}</li>
+                </ul>
+              {%endif%}
+            {%endif%}
+          {%endif%}
+        {% endfor %}
+        </ul>
+        <p class="expand">Expand</p>
+      </div>
+    {% endfor %}
+
+    </ul>
+  {%endif%}
+
+  <script type="text/javascript">
+    $('.expand').each(function(){
+      console.log($(this.previousElementSibling))
+    })
+    $('.expand').click(function(){
+      this.innerHTML == "Expand" ? this.innerHTML = "Collapse" : this.innerHTML = "Expand";
+      $(this.previousElementSibling).slideToggle('slow');
+    });
+  </script>
 </body>
 </html>
