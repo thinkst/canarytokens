@@ -35,7 +35,7 @@ for envvar in ['MAILGUN_DOMAIN_NAME','MAILGUN_API_KEY','MANDRILL_API_KEY',
     except KeyError:
         setattr(settingsmodule, envvar, '')
 
-for envvar in ['DOMAINS', 'NXDOMAINS']:
+for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar].split(','))
     except KeyError:

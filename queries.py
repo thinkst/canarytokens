@@ -8,7 +8,8 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_USER_ACCOUNT, KEY_CANARYTOKEN_ALERT_COUNT, KEY_IMGUR_TOKEN, \
      KEY_IMGUR_TOKENS, KEY_LINKEDIN_ACCOUNT, KEY_LINKEDIN_ACCOUNTS,\
      KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
-     KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS
+     KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
+     KEY_CANARY_GOOGLE_API_KEY
 
 from twisted.python import log
 
@@ -46,6 +47,9 @@ def get_all_canary_domains():
 def get_all_canary_nxdomains():
     return list(db.smembers(KEY_CANARY_NXDOMAINS))
 
+def get_canary_google_api_key():
+    return db.get(KEY_CANARY_GOOGLE_API_KEY)
+
 def add_canary_domain(domain=None):
     if not domain:
         raise ValueError
@@ -57,6 +61,12 @@ def add_canary_nxdomain(domain=None):
         raise ValueError
 
     return db.sadd(KEY_CANARY_NXDOMAINS, domain)
+
+def add_canary_google_api_key(key=None):
+    if not key:
+        return None
+
+    return db.set(KEY_CANARY_GOOGLE_API_KEY, key)
 
 def save_canarydrop(canarydrop=None):
     """Persist a Canarydrop into the Redis instance.
@@ -100,7 +110,9 @@ def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
     triggered_key = hit_time if hit_time else datetime.datetime.utcnow().strftime("%s.%f")
     triggered_list[triggered_key] = kwargs
     triggered_list[triggered_key]['input_channel'] = input_channel
-    triggered_list[triggered_key]['is_tor_relay'] = is_tor_relay(kwargs['src_ip'])
+    if kwargs['src_ip']:
+        triggered_list[triggered_key]['geo_info'] = get_geoinfo(kwargs['src_ip'])
+        triggered_list[triggered_key]['is_tor_relay'] = is_tor_relay(kwargs['src_ip'])
     db.hset(key, 'triggered_list',simplejson.dumps(triggered_list))
 
 def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
@@ -116,7 +128,43 @@ def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
                 triggered_list[hit_time]['additional_info'][k] = v
         db.hset(key, 'triggered_list',simplejson.dumps(triggered_list))
     except Exception as e:
-        log.err('Failed adding additional info: {err}'.format(err=r))
+        log.err('Failed adding additional info: {err}'.format(err=e))
+
+def get_geoinfo(ip):
+    if is_ip_cached(ip):
+        return get_geoinfo_from_cache(ip)
+    else:
+        resp = get_geoinfo_from_ip(ip)
+        add_ip_to_cache(ip, resp)
+        return resp
+
+def get_geoinfo_from_ip(ip):
+    resp = requests.get('http://ipinfo.io/' + ip + '/json')
+    if resp.status_code != 200:
+        raise Exception('ipinfo.io response was unexpected: {resp}'\
+                        .format(resp=resp))
+    return resp.json()
+
+def get_geoinfo_from_cache(ip):
+    key = KEY_CANARY_IP_CACHE + ip
+    return simplejson.loads(db.get(key))
+
+def is_ip_cached(ip):
+    key = KEY_CANARY_IP_CACHE + ip
+    check = db.exists(key)
+    if check == 1:
+        return True
+    return False
+
+def add_ip_to_cache(ip, geoinfo , exp_time=60*60*24):
+    """Adds an IP with Geo Data to redis.
+
+       Arguments:
+
+       exp_time -- Expiry time for this IP (in seconds). Default set to 1 day.
+    """
+    key = KEY_CANARY_IP_CACHE + ip
+    db.setex(key,exp_time,simplejson.dumps(geoinfo))
 
 def get_canarydrops(min_time='-inf', max_time='+inf'):
     """Return a list of stored Canarydrops.

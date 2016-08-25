@@ -6,6 +6,7 @@ from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
 from twisted.web.resource import Resource, EncodingResourceWrapper, \
                                  ForbiddenResource, NoResource
+from twisted.web.static import File, DirectoryLister
 
 from twisted.web.util import Redirect
 from twisted.python import log
@@ -18,8 +19,9 @@ from canarydrop import Canarydrop
 from queries import save_canarydrop, save_imgur_token, get_canarydrop,\
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
-                    save_clonedsite_token, get_all_canary_sites,\
+                    save_clonedsite_token, get_all_canary_sites, get_canary_google_api_key,\
                     is_webhook_valid
+
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
 from msword import make_canary_msword
@@ -301,9 +303,9 @@ class ManagePage(resource.Resource):
 
         except (TypeError, NoCanarytokenPresent):
             return NoResource().render(request)
-
+        g_api_key = get_canary_google_api_key()
         template = env.get_template('manage.html')
-        return template.render(canarydrop=canarydrop).encode('utf8')
+        return template.render(canarydrop=canarydrop, API_KEY=g_api_key).encode('utf8')
 
     def render_POST(self, request):
         try:
@@ -338,16 +340,26 @@ class ManagePage(resource.Resource):
             canarydrop['alert_sms_enabled']   = sms_enable_status
 
             save_canarydrop(canarydrop=canarydrop)
-
+            g_api_key = get_canary_google_api_key()
             template = env.get_template('manage.html')
             return template.render(canarydrop=canarydrop, saved=True,
-                                        settings=settings).encode('utf8')
+                                        settings=settings, API_KEY=g_api_key).encode('utf8')
 
         except Exception as e:
             template = env.get_template('manage.html')
             return template.render(canarydrop=canarydrop, error=e,
-                                        settings=settings).encode('utf8')
+                                        settings=settings, API_KEY=g_api_key).encode('utf8')
 
+
+class LimitedFile(File):
+    def directoryListing(self):
+        dl = DirectoryLister(self.path,
+                               [],
+                               self.contentTypes,
+                               self.contentEncodings,
+                               self.defaultType)
+        dl.template = ""
+        return dl
 
 class CanarytokensHttpd():
     def __init__(self, port=80):
@@ -358,6 +370,7 @@ class CanarytokensHttpd():
         root.putChild("generate", GeneratorPage())
         root.putChild("manage", ManagePage())
         root.putChild("download", DownloadPage())
+        root.putChild("resources", LimitedFile("/srv/templates/static"))
 
         wrapped = EncodingResourceWrapper(root, [GzipEncoderFactory()])
         site = server.Site(wrapped)

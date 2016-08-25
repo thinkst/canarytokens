@@ -1,7 +1,10 @@
-<html>
+<!DOCTYPE html>
 <head>
 <title>canarytokens.net</title>
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<meta name="viewport" content="initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="/resources/famfamfam-flags.css" >
 <style>
 .history_item{
   border-width: 2px;
@@ -24,9 +27,22 @@
 .expand:hover{
   text-decoration: underline;
 }
+.map{
+  margin-bottom: 10px;
+  margin-top: 10px;
+   height:400px;
+   width:70%;
+   text-align:center;
+}
 </style>
 </head>
 <body>
+<script type="text/javascript">
+   var geo_info = {}
+    function appendGeoInfo(id,info){
+      geo_info[id] = info;
+    }
+</script>
 <center>
 {% if saved %}
 <div>
@@ -55,17 +71,37 @@
 
 <center><a href="https://canary.tools/" target="_blank"><img src="http://thinkst.com/images/canary_ad_1.png" style="width:350px;height:151px;"></a><center>
   {% if canarydrop['triggered_list'] %}
-    History:
+  {% if API_KEY %}
+    <b>Map:</b>
+    <br>
+    <div class="map" id="map">
+    </div>
+  {%endif%}
+    <b>History:</b>
     <ul>
     {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
-      <div class="history_item">
+      <div class="history_item" >
         <p class="details-header"><b>Date:</b> {{ item }}
                                   <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
-                                  <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}</p>
+                                  <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
+                                  {%if canarydrop['triggered_list'][item]['geo_info'] != None and 
+                                       canarydrop['triggered_list'][item]['geo_info'] is defined and 
+                                       canarydrop['triggered_list'][item]['geo_info']['country'] != None and
+                                       canarydrop['triggered_list'][item]['geo_info']['country'] is defined %}
+                                    <b>Country:</b>{{canarydrop['triggered_list'][item]['geo_info']['country']}}
+                                    <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i></p>
+                                  {%else%}
+                                    <b>Country:</b> Unknown
+                                  {%endif%}
         <ul class="details-list">
         {% for field in canarydrop['triggered_list'][item] %}
           {% if canarydrop['triggered_list'][item][field] != None and
-                canarydrop['triggered_list'][item][field] is defined  %}
+                canarydrop['triggered_list'][item][field] is defined %}
+            {% if field == 'geo_info' %}
+              <script type="text/javascript">
+                appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']}});
+              </script>
+            {%endif%}
             {% if field == 'additional_info' %}
               <b>Additional Info</b>
               <ul>
@@ -98,16 +134,83 @@
     {% endfor %}
 
     </ul>
-  {%endif%}
+    <script type="text/javascript">
+        function initMap() {
 
-  <script type="text/javascript">
-    $('.expand').each(function(){
-      console.log($(this.previousElementSibling))
-    })
+          var map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: 0, lng: 0},
+              zoom: 2,
+              mapTypeId: 'hybrid',
+              mapTypeControl: false,
+              streetViewControl: false
+            });
+
+          var bounds = new google.maps.LatLngBounds();
+          var markers = {};
+          for (x in geo_info){
+            var loc = String(geo_info[x]['loc']).split(",");
+            var latitude = parseFloat(loc[0]);
+            var longitude = parseFloat(loc[1]);
+            if (isNaN(latitude) || isNaN(longitude)) {
+              continue;
+            }
+            var latlng = new google.maps.LatLng(latitude,longitude);
+
+            if(markers[latlng]==undefined){
+              markers[latlng]= '<br>'+x;
+            }else{
+              markers[latlng] += '<br>'+x;
+            }
+
+            var marker = new google.maps.Marker({
+              map : map,
+              draggable :false,
+              animation:google.maps.Animation.DROP,
+              position : latlng
+            });
+            bounds.extend(marker.position);
+            var content = '';
+            for(info in geo_info[x]){
+              if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname'){
+                continue;
+              }
+              if(info=='ip'){
+                if(geo_info[x]['hostname']==undefined){
+                  content = '<b>'+geo_info[x]['ip']+'</b>'+content;  
+                }
+                else{
+                  content = '<b>'+geo_info[x]['ip']+ '</b><br>'+geo_info[x]['hostname']+'<br>'+content;
+                }
+              }else if(info=='country'){
+                content +='<br><i class="famfamfam-flag-'+(geo_info[x]['country']).toLowerCase()+'"></i> '+(geo_info[x]['country']);
+              }else{
+                content += '<br>'+geo_info[x][info];
+              }
+            }
+            var info = new google.maps.InfoWindow({
+              content :
+              content +'<br>'+markers[latlng]
+            });
+            google.maps.event.addListener(marker, 'click', (function(marker,x){
+              return function(){
+                info.open(map,marker);
+              }
+            })(marker,x));
+          }
+          map.fitBounds(bounds);
+        }
     $('.expand').click(function(){
-      this.innerHTML == "Expand" ? this.innerHTML = "Collapse" : this.innerHTML = "Expand";
+      if(this.innerHTML == "Expand"){
+        this.innerHTML = "Collapse";
+       }else{
+        this.innerHTML = "Expand";
+       }
       $(this.previousElementSibling).slideToggle('slow');
     });
   </script>
+  {% if API_KEY %}
+  <script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap" async defer></script>
+  {%endif%}
+  {%endif%}
 </body>
 </html>

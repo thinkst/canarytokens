@@ -4,6 +4,7 @@ import settings
 
 domains = settings.DOMAINS
 nxdomains = settings.NXDOMAINS
+google_api_key = settings.GOOGLE_API_KEY
 path_elements = ['about','feedback','static','terms','articles','images',\
                  'tags','traffic']
 pages = ['index.html','contact.php','post.jsp','submit.aspx']
@@ -27,3 +28,8 @@ print '[x] Adding pages'
 for p in pages:
     add_canary_page(page=p)
     print '\t{p}'.format(p=p)
+
+print '[x] Adding google api key'
+for k in google_api_key:
+    add_canary_google_api_key(key=k)
+    print '\t{k}'.format(k=k)
