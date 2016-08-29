@@ -314,3 +314,31 @@ def save_bitcoin_account(bitcoin_account=None):
     db.hmset(key, bitcoin_account)
     db.sadd(KEY_BITCOIN_ACCOUNTS, key)
     return key
+
+def is_webhook_valid(url):
+    """Tests if a webhook is valid by sending a test payload
+
+       Arguments:
+
+       url -- Webhook url
+    """
+    if not url or url == '':
+        return False
+
+    payload = {"manage_url": "http://test/url/",
+               "memo": "test memo",
+               "additional_data": {
+                   "src_ip": "1.1.1.1",
+                   "useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36",
+                   "referer": "",
+                   "location": ""
+               },
+               "channel": "HTTP",
+               "time": "2016-08-29 12:00:00"}
+    try:
+        response = requests.post(url, simplejson.dumps(payload), headers={'content-type': 'application/json'})
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
+        return False

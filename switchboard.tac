@@ -13,6 +13,7 @@ from channel_input_bitcoin import ChannelBitcoin
 from channel_input_smtp import ChannelSMTP
 from channel_output_email import EmailOutputChannel
 from channel_output_twilio import TwilioOutputChannel
+from channel_output_webhook import WebhookOutputChannel
 from switchboard import Switchboard
 
 log.msg('Canarydrops switchboard started')
@@ -23,6 +24,7 @@ switchboard = Switchboard()
 
 email_output_channel  = EmailOutputChannel(switchboard=switchboard)
 twilio_output_channel = TwilioOutputChannel(switchboard=switchboard)
+webhook_output_channel = WebhookOutputChannel(switchboard=switchboard)
 
 dns_service = service.MultiService()
 
@@ -37,7 +39,7 @@ internet.UDPServer(settings.CHANNEL_DNS_PORT, udp_factory)\
             .setServiceParent(dns_service)
 dns_service.setServiceParent(application)
 
-canarytokens_httpd = ChannelHTTP(port=settings.CHANNEL_HTTP_PORT, 
+canarytokens_httpd = ChannelHTTP(port=settings.CHANNEL_HTTP_PORT,
                                 switchboard=switchboard)
 canarytokens_httpd.service.setServiceParent(application)
 

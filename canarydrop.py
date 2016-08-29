@@ -9,7 +9,8 @@ import datetime
 import random
 import md5
 
-from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS
+from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS,\
+                      OUTPUT_CHANNEL_WEBHOOK
 from queries import get_all_canary_sites, get_all_canary_path_elements,\
      get_all_canary_pages, get_all_canary_domains, get_all_canary_nxdomains,\
      load_user
@@ -19,7 +20,8 @@ from exception import NoUser, NoCanarytokenPresent, UnknownAttribute
 
 class Canarydrop(object):
     allowed_attrs = ['alert_email_enabled', 'alert_email_recipient',\
-             'alert_sms_enabled', 'alert_sms_recipient', 'canarytoken',\
+             'alert_sms_enabled', 'alert_sms_recipient',\
+             'alert_webhook_enabled', 'alert_webhook_url','canarytoken',\
              'triggered_count', 'triggered_list','memo', 'generated_url',\
              'generated_email', 'generated_hostname','timestamp', 'user',
              'imgur_token' ,'imgur', 'auth']
@@ -56,6 +58,11 @@ class Canarydrop(object):
             self._drop['alert_email_enabled'] = True
         else:
             self._drop['alert_email_enabled'] = False
+
+        if self._drop.get('alert_webhook_enabled', '') in ('True', True):
+            self._drop['alert_webhook_enabled'] = True
+        else:
+            self._drop['alert_webhook_enabled'] = False
 
         if self._drop.get('alert_sms_enabled', '') in ('True', True):
             self._drop['alert_sms_enabled'] = True
@@ -137,6 +144,9 @@ class Canarydrop(object):
         if (self._drop.get('alert_email_enabled', False) and
                 self._drop.get('alert_email_recipient', None)):
             channels.append(OUTPUT_CHANNEL_EMAIL)
+        if (self._drop.get('alert_webhook_enabled', False) and
+                self._drop.get('alert_webhook_url', None)):
+            channels.append(OUTPUT_CHANNEL_WEBHOOK)
         if (self._drop.get('alert_sms_enabled', False) and
                 self._drop.get('alert_sms_recipient', None)):
             channels.append(OUTPUT_CHANNEL_TWILIO_SMS)

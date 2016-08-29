@@ -10,16 +10,28 @@
   <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 
   <style>
+  #response{
+    color:red;
+    /*padding-bottom: 20px;*/
+  }
   .pre-like {
     display: block;
     font-family: monospace;
     white-space: pre;
     margin: 1em 0px;
   }
+  .btn-webhook{
+    font-size:12px !important;
+    padding: 6px 12px !important ;
+    margin-top: 3px;
+  }
+  .btn-webhook:focus,.btn-webhook:active {
+   outline: none !important;
+}
 
   p.subtypes label {padding-right: 20px; font-size:1.3rem;}
   p.subtypes label input {margin-right: 10px;}
-  .jumbotron { margin-top: 20px; height: 340px;}
+  .jumbotron { margin-top: 20px; height: 400px;}
   img.banner {margin: 0px; padding: 0px; width: 700px;}
   </style>
   </head>
@@ -43,9 +55,16 @@
       {% endif %}
       <div class="jumbotron">
         <h2>Generate your Canarytoken here</h2>
+        <div class="row">
+          <div class="col-lg-12" id="response">
+          </div>
+        </div>
         <form id="genForm">
         <div class="row col-lg-12">
           <input class="form-control" type="text" name="email" placeholder="Enter your Email Address">
+        </div>
+        <div class="row col-lg-12">
+          <input class="form-control hidden" type="text" name="webhook" id="webhook" placeholder="Enter a webhook endpoint">
         </div>
             {% if settings.TWILIO_ENABLE %}
             <input class="form-control" type="text" name="mobile" placeholder="Enter your mobile number">
@@ -53,13 +72,19 @@
         <div class="row col-lg-12">
             <input class="form-control" type="text" name="memo" placeholder="Enter a brief Comment to remind you where you used this Token">
         </div>
+
+        <div class="col-lg-12">
+          <div class="text-right">
+            <button type="button" class="btn btn-link btn-webhook" id="btn_webhook">Got Webhooks?</button>
+          </div>
+        </div>
         <div class="row col-lg-12">
             <p class="subtypes">
-              <label><input class="" data-jumbo-height="340" type="radio" name="subtype" value="none" checked>DNS/HTTP</label>
-              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="clonedsite">Cloned site</label>
-              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="imgur">Imgur</label>
-              <label><input class="" data-jumbo-height="460" type="radio" name="subtype" value="linkedin">LinkedIn</label>
-              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="bitcoin">Bitcoin</label>
+              <label><input class="" data-jumbo-height="400" type="radio" name="subtype" value="none" checked>DNS/HTTP</label>
+              <label><input class="" data-jumbo-height="430" type="radio" name="subtype" value="clonedsite">Cloned site</label>
+              <label><input class="" data-jumbo-height="430" type="radio" name="subtype" value="imgur">Imgur</label>
+              <label><input class="" data-jumbo-height="520" type="radio" name="subtype" value="linkedin">LinkedIn</label>
+              <label><input class="" data-jumbo-height="430" type="radio" name="subtype" value="bitcoin">Bitcoin</label>
             </p>
         </div>
         <div class="row col-lg-12">
@@ -74,7 +99,7 @@
             <p class="subtype hidden input_linkedin"><input class="form-control"type="text" name="linkedin_password" placeholder="Enter your LinkedIn password"></p>
         </div>
         <div class="row col-lg-12">
-            <p class="subtype hidden input_bitcoin"><input class="form-control" type="text" name="bitcoin_address" placeholder="Enter your Bitcoin address"></p>
+            <p class="subtype hidden input_bitcoin"><input class="form-control" type="text" name="response_text" placeholder="Enter your Bitcoin address"></p>
         </div>
         <div class="row">
           <div class="col-lg-3">
@@ -637,6 +662,17 @@
       $('.sqlserver.'+$(this).val()).removeClass('hidden').show();
     });
 
+    $('#btn_webhook').on('click', function(){
+      if(  $('#webhook').hasClass('hidden')){
+        $('#webhook').removeClass('hidden').show();
+        $('#btn_webhook').text('Got no webooks?');
+      }else{
+        $('#webhook').addClass('hidden').hide();
+        $('#btn_webhook').text('Got webooks?');
+      }
+
+    });
+
     (function($){
         function processForm( e ){
             $.ajax({
@@ -649,13 +685,18 @@
                     console.log(data);
                     if (data['Error'] !== null){
                       if (data['Error'] == '1'){
-                          $('#response').html('Come on.. All we asked for was an email address');
+                          $('#response').html('Provide an email and/or a webhook endpoint');
                       } else if (data['Error'] == '2'){
-                          $('#response').html('Give a memo!');
+                          $('#response').html('Provide a memo to remind you what this token is used for.');
+                      } else if (data['Error'] == '3'){
+                          $('#response').html('Invalid webhook supplied');
                       } else {
-                          $('#response').html('Some error happened.');
+                          $('#response').html('An unexpected error occured');
                       }
+                      // $('.jumbotron').css('height', $(this).data('jumbo-height'));
+                      $('#response').removeClass('hidden').show();
                     }else{
+                        $('#response').addClass('hidden').hide();
                         $('#server_response').removeClass('hidden').show();
                         var path_components = data['Url'].split('/');
                         var file_name = path_components.pop();

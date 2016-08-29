@@ -16,7 +16,8 @@ from canarydrop import Canarydrop
 from queries import save_canarydrop, save_imgur_token, get_canarydrop,\
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
-                    save_clonedsite_token, get_all_canary_sites
+                    save_clonedsite_token, get_all_canary_sites,\
+                    is_webhook_valid
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
 from msword import make_canary_msword
@@ -57,19 +58,34 @@ class GeneratorPage(resource.Resource):
         try:
             try:
                 email = request.args.get('email', None)[0]
+                webhook = request.args.get('webhook', None)[0]
+                if not email and not webhook:
+                    response['Error'] = 1
+                    raise Exception('No email/webhook supplied')
             except IndexError:
                 response['Error'] = 1
                 raise Exception('No email supplied')
             try:
                 memo  = ''.join(request.args.get('memo', None))
+                if not memo:
+                    response['Error'] = 2
+                    raise Exception('No memo supplied')
             except TypeError:
                 response['Error'] = 2
                 raise Exception('No memo supplied')
 
+            if webhook and not is_webhook_valid(webhook):
+                response['Error'] = 3
+                raise Exception('Invalid webhook supplied')
+
+            alert_email_enabled = False if not email else True
+            alert_webhook_enabled = False if not webhook else True
             canarytoken = Canarytoken()
             canarydrop = Canarydrop(generate=True,
-                                  alert_email_enabled=True,
+                                  alert_email_enabled=alert_email_enabled,
                                   alert_email_recipient=email,
+                                  alert_webhook_enabled=alert_webhook_enabled,
+                                  alert_webhook_url=webhook,
                                   canarytoken=canarytoken.value(),
                                   memo=memo)
 

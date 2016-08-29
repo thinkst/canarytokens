@@ -34,12 +34,28 @@ class InputChannel(Channel):
     def format_additional_data(self, **kwargs):
         return ''
 
+    def format_webhook_canaryalert(self,canarydrop=None,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        payload = {}
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+
+        payload['channel'] = self.name
+        payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        payload['memo'] = canarydrop.memo
+        payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
+                                .format(host=host,
+                                        token=canarydrop['canarytoken'],
+                                        auth=canarydrop['auth'])
+        payload['additional_data'] = kwargs
+        return payload
+
     def format_canaryalert(self, canarydrop=None, protocol="http",
                            host=settings.PUBLIC_DOMAIN, params=None, **kwargs):
         msg = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
-        
+
         if params.get('body_length', 999999999) <= 140:
             msg['body'] = """Canarydrop@{time} via {channel_name}: """\
                 .format(channel_name=self.name,
