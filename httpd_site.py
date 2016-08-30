@@ -302,11 +302,17 @@ class ManagePage(resource.Resource):
                 email_enable_status = False
 
             try:
+                webhook_enable_status = request.args.get('webhook_enable', None)[0] == "on"
+            except (TypeError, IndexError):
+                webhook_enable_status = False
+
+            try:
                 sms_enable_status = request.args.get('sms_enable', None)[0] == "on"
             except (TypeError, IndexError):
                 sms_enable_status = False
 
             canarydrop['alert_email_enabled'] = email_enable_status
+            canarydrop['alert_webhook_enabled'] = webhook_enable_status
             canarydrop['alert_sms_enabled']   = sms_enable_status
 
             save_canarydrop(canarydrop=canarydrop)
