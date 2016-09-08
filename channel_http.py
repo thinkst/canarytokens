@@ -1,5 +1,6 @@
 import simplejson
 import datetime
+import os
 from twisted.web import server, resource
 from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
@@ -31,7 +32,16 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
-        accept_html = accept_images = False
+        #A GET request to a token URL can trigger one of a few responses:
+        # 1. Check if link has been clicked on (rather than loaded from an
+        #    <img>) by looking at the Accept header, then:
+        #  1a. If browser security if enabled, serve that page and stop.
+        #  1b. If fortune in enabled, serve a fortune and stop.
+        # 2. Otherwise we'll serve an image:
+        #  2a. If a custom image is attached to the canarydrop, serve that and stop.
+        #  2b. Serve our default 1x1 gif
+
+        request.setHeader("Server", "Apache")
 
         try:
             token = Canarytoken(value=request.path)
@@ -47,32 +57,30 @@ class CanarytokenPage(resource.Resource, InputChannel):
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
                           referer=referer)
-            if str(canarydrop['browser_scanner']) == 'True':
-                request.setHeader("Server",       "Apache")
-                template = env.get_template('browser_scanner.html')
-                return template.render(key=canarydrop._drop['hit_time'],
-                                       canarytoken=token.value()).encode('utf8')
-                # return self.HTML % (canarydrop._drop['hit_time'], token.value())
 
-            accept = request.getHeader('Accept')
-            if accept:
-                if "text/html" in accept:
-                    accept_html = True
-                if "images/*" in accept:
-                    accept_images = True
+            if "text/html" in request.getHeader('Accept'):
+                if canarydrop['browser_scanner_enabled']:
+                    template = env.get_template('browser_scanner.html')
+                    return template.render(key=canarydrop._drop['hit_time'],
+                                           canarytoken=token.value()).encode('utf8')
+
+                elif TOKEN_RETURN == 'fortune':
+                    try:
+                        fortune = subprocess.check_output('/usr/games/fortune')
+                        template = env.get_template('fortune.html')
+                        return template.render(fortune=fortune).encode('utf8')
+                    except Exception as e:
+                        log.err('Could not get a fortune: {e}'.format(e=e))
+
+            if canarydrop['web_image_enabled'] and os.path.exists(canarydrop['web_image_path']):
+                mimetype = "image/"+canarydrop['web_image_path'][-3:]
+                with open(canarydrop['web_image_path'], "r") as f:
+                    contents = f.read()
+                request.setHeader("Content-Type", mimetype)
+                return contents
 
         except Exception as e:
             log.err('Error in render GET: {error}'.format(error=e))
-
-        request.setHeader("Server",       "Apache")
-
-        if accept_html and TOKEN_RETURN == 'fortune':
-            try:
-                fortune = subprocess.check_output('/usr/games/fortune')
-                template = env.get_template('fortune.html')
-                return template.render(fortune=fortune).encode('utf8')
-            except Exception as e:
-                log.err('Could not get a fortune: {e}'.format(e=e))
 
         request.setHeader("Content-Type", "image/gif")
         return self.GIF

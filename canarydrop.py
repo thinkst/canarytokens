@@ -8,6 +8,8 @@ Maps to the object stored in Redis.
 import datetime
 import random
 import md5
+import os
+import base64
 
 from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS,\
                       OUTPUT_CHANNEL_WEBHOOK
@@ -24,7 +26,8 @@ class Canarydrop(object):
              'alert_webhook_enabled', 'alert_webhook_url','canarytoken',\
              'triggered_count', 'triggered_list','memo', 'generated_url',\
              'generated_email', 'generated_hostname','timestamp', 'user',
-             'imgur_token' ,'imgur', 'auth', 'browser_scanner']
+             'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
+             'web_image_enabled']
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
@@ -54,8 +57,10 @@ class Canarydrop(object):
             self._drop['auth'] = md5.md5(str(random.SystemRandom()\
                                   .randrange(1,2**128))).hexdigest()
 
-        if 'browser_scanner' not in self._drop:
-            self._drop['browser_scanner'] = False
+        if self._drop.get('browser_scanner_enabled', '') in ('True', True):
+            self._drop['browser_scanner_enabled'] = True
+        else:
+            self._drop['browser_scanner_enabled'] = False
 
         if self._drop.get('alert_email_enabled', '') in ('True', True):
             self._drop['alert_email_enabled'] = True
@@ -71,6 +76,11 @@ class Canarydrop(object):
             self._drop['alert_sms_enabled'] = True
         else:
             self._drop['alert_sms_enabled'] = False
+
+        if self._drop.get('web_image_enabled', '') in ('True', True):
+            self._drop['web_image_enabled'] = True
+        else:
+            self._drop['web_image_enabled'] = False
 
         if generate:
             self.generate_random_url()
@@ -154,6 +164,12 @@ class Canarydrop(object):
                 self._drop.get('alert_sms_recipient', None)):
             channels.append(OUTPUT_CHANNEL_TWILIO_SMS)
         return channels
+
+    def get_web_image_as_base64(self,):
+        if os.path.exists(self['web_image_path']):
+            with open(self['web_image_path'], "r") as f:
+                contents = f.read()
+            return base64.b64encode(contents)
 
     @property
     def canarytoken(self):

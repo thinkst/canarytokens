@@ -59,9 +59,16 @@
 {%endif%}
 <form method="POST">
     Token: {{canarydrop['canarytoken']}}<br />
+    URL: {{canarydrop.get_url()}}<br />
+    DNS: {{canarydrop.get_hostname()}}<br />
     Email Enabled: <input type="checkbox" name="email_enable"  {% if canarydrop['alert_email_enabled'] %}checked="checked"{%endif%}/><br />
+
     {% if canarydrop['alert_webhook_url'] %}
     Webook Enabled: <input type="checkbox" name="webhook_enable"  {% if canarydrop['alert_webhook_enabled'] %}checked="checked"{%endif%}/><br />
+    {%endif%}
+    {% if canarydrop['web_image_path'] %}
+    Alternative Image: <input type="checkbox" name="web_image_enable"  {% if canarydrop['web_image_enabled'] %}checked="checked"{%endif%}/><br />
+    <img src="data:image/png;base64,{{canarydrop.get_web_image_as_base64()}}"/>
     {%endif%}
     {% if canarydrop['alert_sms_recipient'] %}
     SMS Enabled: <input type="checkbox" name="sms_enable"  {% if canarydrop['alert_sms_enabled'] %}checked="checked"{%endif%}/><br />
@@ -92,8 +99,8 @@
         <p class="details-header"><b>Date:</b> {{ item }}
                                   <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
-                                  {%if canarydrop['triggered_list'][item]['geo_info'] != None and 
-                                       canarydrop['triggered_list'][item]['geo_info'] is defined and 
+                                  {%if canarydrop['triggered_list'][item]['geo_info'] != None and
+                                       canarydrop['triggered_list'][item]['geo_info'] is defined and
                                        canarydrop['triggered_list'][item]['geo_info']['country'] != None and
                                        canarydrop['triggered_list'][item]['geo_info']['country'] is defined %}
                                     <b>Country:</b>{{canarydrop['triggered_list'][item]['geo_info']['country']}}
@@ -177,7 +184,7 @@
               }
               if(info=='ip'){
                 if(geo_info[x]['hostname']==undefined){
-                  content = '<b>'+geo_info[x]['ip']+'</b>'+content;  
+                  content = '<b>'+geo_info[x]['ip']+'</b>'+content;
                 }
                 else{
                   content = '<b>'+geo_info[x]['ip']+ '</b><br>'+geo_info[x]['hostname']+'<br>'+content;

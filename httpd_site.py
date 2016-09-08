@@ -29,6 +29,9 @@ from pdfgen import make_canary_pdf
 from authenticode import make_canary_authenticode_binary
 import settings
 import datetime
+import tempfile
+import hashlib
+import os
 
 CLONED_SITE_JS = """
         if (document.domain != "CLONED_SITE_DOMAIN") {
@@ -59,7 +62,8 @@ class GeneratorPage(resource.Resource):
                      'Url': "",
                      'Token': "",
                      'Email': "",
-                     'Hostname': ""}
+                     'Hostname': "",
+                     'Auth': ''}
         try:
             try:
                 email = request.args.get('email', None)[0]
@@ -99,7 +103,7 @@ class GeneratorPage(resource.Resource):
                                   alert_webhook_url=webhook,
                                   canarytoken=canarytoken.value(),
                                   memo=memo,
-                                  browser_scanner=browser_scanner)
+                                  browser_scanner_enabled=browser_scanner)
 
             if settings.TWILIO_ENABLED:
                 try:
@@ -117,6 +121,7 @@ class GeneratorPage(resource.Resource):
             response['Token'] = canarytoken.value()
             response['Url'] = canarydrop.get_url()
             response['Hostname'] = canarydrop.get_hostname()
+            response['Auth'] = canarydrop['auth']
             response['Email'] = email
 
             try:
@@ -250,16 +255,19 @@ class DownloadPage(resource.Resource):
 
             token  = request.args.get('token', None)[0]
             fmt    = request.args.get('fmt', None)[0]
-            filename = fields['file_for_signing'].filename
-            filebody = fields['file_for_signing'].value
-            if len(filebody) > 1024 * 1024 * 10:
-                raise Exception('File too large')
+            if fmt not in ['authenticode']:
+                raise Exception('Unsupported token type for POST.')
 
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
             if not canarydrop:
                 raise NoCanarytokenPresent()
 
             if fmt == 'authenticode':
+                filename = fields['file_for_signing'].filename
+                filebody = fields['file_for_signing'].value
+                if len(filebody) > settings.MAX_UPLOAD_SIZE:
+                    raise Exception('File too large')
+
                 if not filename.lower().endswith(('exe','dll')):
                     raise Exception('Uploaded authenticode file must be an exe or dll')
                 signed_contents = make_canary_authenticode_binary(hostname=
@@ -270,6 +278,7 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename={filename}.signed'\
                                   .format(filename=filename))
                 return signed_contents
+
 
         except Exception as e:
             log.err('Unexpected error in POST download: {err}'.format(err=e))
@@ -335,10 +344,60 @@ class ManagePage(resource.Resource):
             except (TypeError, IndexError):
                 sms_enable_status = False
 
+            try:
+                web_image_status = request.args.get('web_image_enable', None)[0] == "on"
+            except (TypeError, IndexError):
+                web_image_status = False
+
+            try:
+                token_fmt = request.args.get('fmt', None)[0]
+            except (TypeError, IndexError):
+                token_fmt = ''
+
             canarydrop['alert_email_enabled'] = email_enable_status
             canarydrop['alert_webhook_enabled'] = webhook_enable_status
             canarydrop['alert_sms_enabled']   = sms_enable_status
+            canarydrop['web_image_enabled']   = web_image_status
 
+            if token_fmt == 'web_image':
+                if not settings.WEB_IMAGE_UPLOAD_PATH:
+                    raise Exception("Image upload not supported, set CANARY_WEB_IMAGE_UPLOAD_PATH in frontend.env.")
+
+                fields = cgi.FieldStorage(
+                    fp = request.content,
+                    headers = request.getAllHeaders(),
+                    environ = {'REQUEST_METHOD':'POST',
+                    'CONTENT_TYPE': request.getAllHeaders()['content-type'],
+                    }
+                )
+
+                filename = fields['web_image'].filename
+                filebody = fields['web_image'].value
+
+                if len(filebody) > settings.MAX_IMAGE_UPLOAD_SIZE:
+                    raise Exception('File too large')
+
+                if not filename.lower().endswith(('.png','.gif','.jpg')):
+                    raise Exception('Uploaded image must be a PNG, GIF or JPG')
+                ext = filename.lower()[-4:]
+
+                #create a random local filename
+                r = hashlib.md5(os.urandom(32)).hexdigest()
+                filepath = os.path.join(settings.WEB_IMAGE_UPLOAD_PATH,
+                                    r[:2],
+                                    r[2:])+ext
+                if not os.path.exists(os.path.dirname(filepath)):
+                    try:
+                        os.makedirs(os.path.dirname(filepath))
+                    except OSError as exc: # Guard against race condition
+                        if exc.errno != errno.EEXIST:
+                            raise
+
+                with open(filepath, "w") as f:
+                    f.write(filebody)
+
+                canarydrop['web_image_enabled'] = True
+                canarydrop['web_image_path'] = filepath
             save_canarydrop(canarydrop=canarydrop)
             g_api_key = get_canary_google_api_key()
             template = env.get_template('manage.html')
@@ -346,9 +405,11 @@ class ManagePage(resource.Resource):
                                         settings=settings, API_KEY=g_api_key).encode('utf8')
 
         except Exception as e:
+            import traceback
+            log.err('Exception in manage.html: {e}, {stack}'.format(e=e, stack=traceback.format_exc()))
             template = env.get_template('manage.html')
             return template.render(canarydrop=canarydrop, error=e,
-                                        settings=settings, API_KEY=g_api_key).encode('utf8')
+                                        settings=settings).encode('utf8')
 
 
 class LimitedFile(File):
