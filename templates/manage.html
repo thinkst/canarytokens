@@ -38,9 +38,17 @@
 </head>
 <body>
 <script type="text/javascript">
-   var geo_info = {}
+   // var test = ['39.916667,116.383333', '37.783333,-122.416667', '51.507222,-0.1275','55.75,37.616667']
+   // var i = 0;
+   var geo_info = {};
     function appendGeoInfo(id,info){
       geo_info[id] = info;
+      // console.log("Geo_info entry: "+ id);
+      // if(i<test.length && !('loc' in geo_info[id])){
+      //   console.log("Not loc found for this entry...adding fake one");
+      //   geo_info[id]['loc'] = test[i];
+      //   i++;
+      // }
     }
 </script>
 <center>
@@ -162,13 +170,6 @@
               markers[latlng] += '<br>'+x;
             }
 
-            var marker = new google.maps.Marker({
-              map : map,
-              draggable :false,
-              animation:google.maps.Animation.DROP,
-              position : latlng
-            });
-            bounds.extend(marker.position);
             var content = '';
             for(info in geo_info[x]){
               if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname'){
@@ -187,15 +188,23 @@
                 content += '<br>'+geo_info[x][info];
               }
             }
+            content = content +'<br>'+markers[latlng]
             var info = new google.maps.InfoWindow({
-              content :
-              content +'<br>'+markers[latlng]
+              content : content
             });
-            google.maps.event.addListener(marker, 'click', (function(marker,x){
-              return function(){
-                info.open(map,marker);
-              }
-            })(marker,x));
+
+            var marker = new google.maps.Marker({
+              map : map,
+              draggable :false,
+              animation:google.maps.Animation.DROP,
+              position : latlng,
+              info : content
+            });
+            bounds.extend(marker.position);
+            google.maps.event.addListener(marker, 'click', function(){
+              info.setContent(this.info);
+              info.open(map, this);
+            });
           }
           map.fitBounds(bounds);
         }
