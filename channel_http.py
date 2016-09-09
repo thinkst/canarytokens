@@ -53,7 +53,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
             #location and refere are for cloned sites
             location  = request.args.get('l', [None])[0]
             referer   = request.args.get('r', [None])[0]
-
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
                           referer=referer)
@@ -88,12 +87,25 @@ class CanarytokenPage(resource.Resource, InputChannel):
     def render_POST(self, request):
         try:
             key = request.args['key'][0]
-            canarytoken =  request.args['canarytoken'][0]
-            #if key and token args are present, we are posting browser info
+            token = Canarytoken(value=request.path)
+            #if key and token args are present, we are either:
+            #    -posting browser info
+            #    -getting an aws trigger (key == aws_s3)
             #store the info and don't re-render
-            if key and canarytoken:
-                additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','canarytoken','name']}
-                add_additional_info_to_hit(canarytoken,key,{request.args['name'][0]:additional_info})
+            if key and token:
+                if key == 'aws_s3':
+                    try:
+                        canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
+                        canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
+                        src_ip    = request.args['RemoteIP'][0]
+                        additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','src_ip']}
+                        self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
+                                      additional_info=additional_info)
+                    except Exception as e:
+                        log.err('Error in s3 post: {error}'.format(error=e))
+                else:
+                    additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','canarytoken','name']}
+                    add_additional_info_to_hit(token.value(),key,{request.args['name'][0]:additional_info})
                 return 'success'
             else:
                 return self.render_GET(request)

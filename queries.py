@@ -134,9 +134,13 @@ def get_geoinfo(ip):
     if is_ip_cached(ip):
         return get_geoinfo_from_cache(ip)
     else:
-        resp = get_geoinfo_from_ip(ip)
-        add_ip_to_cache(ip, resp)
-        return resp
+        try:
+            resp = get_geoinfo_from_ip(ip)
+            add_ip_to_cache(ip, resp)
+            return resp
+        except Exception as e:
+            log.err('Error getting geo ip: {err}'.format(err=e))
+            return ""
 
 def get_geoinfo_from_ip(ip):
     resp = requests.get('http://ipinfo.io/' + ip + '/json')

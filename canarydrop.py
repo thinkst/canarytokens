@@ -10,6 +10,7 @@ import random
 import md5
 import os
 import base64
+import simplejson
 
 from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS,\
                       OUTPUT_CHANNEL_WEBHOOK
@@ -200,6 +201,9 @@ class Canarydrop(object):
 
         if serialized['user']:
             serialized['user'] = serialized['user'].username
+
+        if 'triggered_list' in serialized.keys():
+            serialized['triggered_list'] = simplejson.dumps(serialized['triggered_list'])
 
         return serialized
 

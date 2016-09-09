@@ -80,12 +80,12 @@
         </div>
         <div class="row col-lg-12">
             <p class="subtypes">
-              <label><input class="" data-jumbo-height="340" type="radio" name="subtype" value="none" checked>DNS/HTTP</label>
-              <label><input class="" data-jumbo-height="340" type="radio" name="subtype" value="browserscanner">Browser Scanner</label>
-              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="clonedsite">Cloned site</label>
-              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="imgur">Imgur</label>
-              <label><input class="" data-jumbo-height="460" type="radio" name="subtype" value="linkedin">LinkedIn</label>
-              <label><input class="" data-jumbo-height="370" type="radio" name="subtype" value="bitcoin">Bitcoin</label>
+              <label><input class="" data-jumbo-height="400" type="radio" name="subtype" value="none" checked>DNS/HTTP</label>
+              <label><input class="" data-jumbo-height="400" type="radio" name="subtype" value="browserscanner">Browser Scanner</label>
+              <label><input class="" data-jumbo-height="430" type="radio" name="subtype" value="clonedsite">Cloned site</label>
+              <label><input class="" data-jumbo-height="430" type="radio" name="subtype" value="imgur">Imgur</label>
+              <label><input class="" data-jumbo-height="520" type="radio" name="subtype" value="linkedin">LinkedIn</label>
+              <label><input class="" data-jumbo-height="430" type="radio" name="subtype" value="bitcoin">Bitcoin</label>
             </p>
         </div>
         <div class="row col-lg-12">
@@ -269,6 +269,27 @@
           </div>
         </div>
 
+        <div id="smtp" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingSMTP">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSMTP" aria-expanded="true" aria-controls="collapseSMTP">
+                SMTP Token
+              </a>
+            </h4>
+          </div>
+          <div id="collapseSMTP" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSMTP">
+            <div class="panel-body">
+              <p>Here's a unique email address:</p>
+              <input type="text" name="smtp" readonly size="100">
+              <p>Use this where ever you like, it gets triggered whenever someone sends an email to this address. Ideas for use:
+              <ul>
+                <li>If you have a database of users with a field for email addresses, drop a fake record in there with this email address.  If it gets triggered
+                    you know someone has accessed your data.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div id="qrcode" class="panel panel-default hidden">
           <div class="panel-heading" role="tab" id="headingQrcode">
             <h4 class="panel-title">
@@ -290,6 +311,7 @@
             </div>
           </div>
         </div>
+
         <div id="dtrace" class="panel panel-default hidden">
           <div class="panel-heading" role="tab" id="headingDTrace">
             <h4 class="panel-title">
@@ -633,6 +655,28 @@
           </div>
         </div>
 
+        <div id="svn" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingSVN">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSVN" aria-expanded="true" aria-controls="collapseSVN">
+                SVN Token
+              </a>
+            </h4>
+          </div>
+          <div id="collapseSVN" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSVN">
+            <div class="panel-body">
+              <p>Here's an SVN command you can run to create a tokened externals definition:</p>
+              <p><input type="text" name="svn" readonly size="100"></p>
+              <p>After creating the externals link, remember to commit the changes.</p>
+              <p>Use this in unused SVN repos:
+              <ul>
+                <li>It may be a fake SVN repo created to lure intruders in.</li>
+                <li>It may be a repo of a completed project that no one should be using.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div id="desktopini" class="panel panel-default filegen hidden">
           <div class="panel-heading" role="tab" id="headingDesktopINI">
             <h4 class="panel-title">
@@ -676,7 +720,7 @@
     var prev_type = 'none';
     $('input[name=subtype]').on('change', function(e) {
       var self = this;
-      if (prev_type == 'none') {
+      if (prev_type == 'none' || prev_type == 'browserscanner') {
           prev_type = $(self).val();
           $('.input_'+prev_type).removeClass('hidden').fadeIn();
       } else {
@@ -696,10 +740,10 @@
     $('#btn_webhook').on('click', function(){
       if(  $('#webhook').hasClass('hidden')){
         $('#webhook').removeClass('hidden').show();
-        $('#btn_webhook').text('Got no webooks?');
+        $('#btn_webhook').text('Got no webhooks?');
       }else{
         $('#webhook').addClass('hidden').hide();
-        $('#btn_webhook').text('Got webooks?');
+        $('#btn_webhook').text('Got webhooks?');
       }
 
     });
@@ -745,6 +789,12 @@
                         $('#web').removeClass('hidden').show();
                         $('#dns').removeClass('hidden').show();
                         $('.dns').removeClass('hidden').show();
+
+                        $('input[name=smtp]').val(data['Token']+'@'+document.domain);
+                        $('#smtp').removeClass('hidden').show();
+
+                        $('input[name=svn]').val('svn propset svn:externals "extras http://svn.'+data['Token']+'.'+document.domain+'" .');
+                        $('#svn').removeClass('hidden').show();
 
                         $('#qrcode_png').prop('src', data['qrcode_png']);
                         $('#qrcode').removeClass('hidden').show();
