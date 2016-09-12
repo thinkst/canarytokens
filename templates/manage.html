@@ -6,6 +6,16 @@
 <meta name="viewport" content="initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="/resources/famfamfam-flags.css" >
 <style>
+table{
+  width:100%;
+  table-layout: fixed;
+  padding-bottom: 15px;
+}
+
+td{
+  overflow:hidden;
+  word-wrap: break-word;
+}
 .history_item{
   border-width: 2px;
   border-style: solid;
@@ -34,21 +44,19 @@
    width:70%;
    text-align:center;
 }
+.header_row{
+  background-color: #51b95a;
+}
+.info_row{
+  background-color: #cbe8d1;
+}
 </style>
 </head>
 <body>
 <script type="text/javascript">
-   // var test = ['39.916667,116.383333', '37.783333,-122.416667', '51.507222,-0.1275','55.75,37.616667']
-   // var i = 0;
    var geo_info = {};
     function appendGeoInfo(id,info){
       geo_info[id] = info;
-      // console.log("Geo_info entry: "+ id);
-      // if(i<test.length && !('loc' in geo_info[id])){
-      //   console.log("Not loc found for this entry...adding fake one");
-      //   geo_info[id]['loc'] = test[i];
-      //   i++;
-      // }
     }
 </script>
 <center>
@@ -108,42 +116,133 @@
                                   {%else%}
                                     <b>Country:</b> Unknown
                                   {%endif%}
-        <ul class="details-list">
-        {% for field in canarydrop['triggered_list'][item] %}
-          {% if canarydrop['triggered_list'][item][field] != None and
-                canarydrop['triggered_list'][item][field] is defined %}
-            {% if field == 'geo_info' %}
-              <script type="text/javascript">
-                appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']}});
-              </script>
-            {%endif%}
-            {% if field == 'additional_info' %}
-              <b>Additional Info</b>
-              <ul>
+        <div class="details-list">
+        {% if canarydrop['triggered_list'][item]['geo_info'] %}
+          <table class="additional_info">
+            <col width="25%">
+            <col width="75%">
+            <tr class="header_row">
+               <td colspan="2">
+                 Geo Info
+               </td>
+            </tr>
+            {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
+            <tr class="info_row">
+              <td>Country</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['country'] }}
+                  <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i>
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['city'] %}
+            <tr class="info_row">
+              <td>City</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['city'] }}
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['region'] %}
+            <tr class="info_row">
+              <td>Region</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['region'] }}
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['org'] %}
+            <tr class="info_row">
+              <td>Organisation</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['org'] }}
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['hostname'] %}
+            <tr class="info_row">
+              <td>Hostname</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['hostname'] }}
+              </td>
+            </tr>
+            {% endif %}
+            <script type="text/javascript">
+              appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']}});
+            </script>
+          </table>
+        {%endif%}
+        {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None %}
+          <table class="additional_info">
+            <col width="25%">
+            <col width="75%">
+            <tr class="header_row">
+               <td colspan="2">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Tor-logo-2011-flat.svg" style="width:30px;height:19px;">
+               </td>
+            </tr>
+            <tr class="info_row">
+              <td>
+                Known Exit Node
+              </td>
+              <td>
+                {{ canarydrop['triggered_list'][item]['is_tor_relay']==True }}
+              </td>
+            </tr>
+        {%endif%}
 
-              {% for info in canarydrop['triggered_list'][item][field] %}
-                  <li>{{info}}
-                    <ul>
-                    {% for info_item in canarydrop['triggered_list'][item][field][info] %}
-                        <li>{{info_item}}: {{ canarydrop['triggered_list'][item][field][info][info_item][0] == "1"
-                              if info_item in ['enabled','installed']
-                              else canarydrop['triggered_list'][item][field][info][info_item]|join(', ') }}</li>
-                    {% endfor %}
-                    </ul>
-                  </li>
-              {% endfor %}
-              </ul>
-            {% else %}
-              {% if field not in ['src_ip','input_channel'] %}
-                <b>{{ field }}</b>
-                <ul>
-                  <li>{{ canarydrop['triggered_list'][item][field] }}</li>
-                </ul>
+            {% for field in canarydrop['triggered_list'][item] %}
+              {% if canarydrop['triggered_list'][item][field] != None and
+                    canarydrop['triggered_list'][item][field] is defined and
+                    field not in ['geo_info','is_tor_relay','additional_info'] %}
+                {% if field not in ['src_ip','input_channel'] %}
+                <table class="additional_info">
+                  <col width="25%">
+                  <col width="75%">
+                  <tr class="header_row">
+                     <td colspan="2">
+                       Basic Info
+                     </td>
+                  </tr>
+                  <tr class="info_row">
+                     <td>
+                       {{field}}
+                     </td>
+                     <td>
+                       {{ canarydrop['triggered_list'][item][field] }}
+                     </td>
+                  </tr>
+                </table>
+                {%endif%}
               {%endif%}
-            {%endif%}
-          {%endif%}
-        {% endfor %}
-        </ul>
+            {% endfor %}
+            {% if canarydrop['triggered_list'][item]['additional_info'] %}
+              <table class="additional_info">
+                            <b>Additional Info</b>
+                <col width="25%">
+                <col width="75%">
+                {% for info in canarydrop['triggered_list'][item]['additional_info'] %}
+                <tr class="header_row">
+                   <td colspan="2">
+                     {{info}}
+                   </td>
+                </tr>
+                  {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
+                    <tr class="info_row">
+                      <td>
+                        {{info_item}}
+                      </td>
+                      <td>
+                        {{ canarydrop['triggered_list'][item]['additional_info'][info][info_item][0] == '1'
+                              if info_item in ['enabled','installed']
+                              else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ') }}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endfor %}
+              </table>
+            {% endif %}
+      </div>
         <p class="expand">Expand</p>
       </div>
     {% endfor %}

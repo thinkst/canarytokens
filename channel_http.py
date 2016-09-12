@@ -98,7 +98,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                         canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
                         canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
                         src_ip    = request.args['RemoteIP'][0]
-                        additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','src_ip']}
+                        additional_info = {'AWS Log Data': {k:v for k,v in request.args.iteritems() if k not in ['key','src_ip']}}
                         self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                                       additional_info=additional_info)
                     except Exception as e:
