@@ -42,11 +42,13 @@ class CanarytokenPage(resource.Resource, InputChannel):
         #  2b. Serve our default 1x1 gif
 
         request.setHeader("Server", "Apache")
-
         try:
             token = Canarytoken(value=request.path)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
-            canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
+            if request.args.get('ts_key',[None])[0]:
+                canarydrop._drop['hit_time'] = request.args.get('ts_key', [None])[0]
+            else:
+                canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
             useragent = request.getHeader('User-Agent')
             src_ip    = request.getHeader('x-forwarded-for')
 
@@ -109,7 +111,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 return 'success'
             else:
                 return self.render_GET(request)
-        except:
+        except Exception as e:
             return self.render_GET(request)
 
     def format_additional_data(self, **kwargs):

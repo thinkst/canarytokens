@@ -226,6 +226,11 @@ td{
                    <td colspan="2">
                      {{info}}
                    </td>
+                    {%if info == 'iOS-App'%}
+                  <script type="text/javascript">
+                    appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['additional_info'][info]}})
+                  </script>
+                  {%endif%}
                 </tr>
                   {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
                     <tr class="info_row">
