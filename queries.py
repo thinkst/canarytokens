@@ -90,13 +90,9 @@ def save_canarydrop(canarydrop=None):
         current_time = datetime.datetime.utcnow().strftime("%s.%f")
         db.zadd(KEY_CANARYDROPS_TIMELINE, current_time, canarytoken.value())
 
-def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
-    """Add a hit to a canarydrop
-
-       Arguments:
-
-       canarytoken -- canarytoken object.
-       **kwargs   -- Additional details about the hit.
+def get_canarydrop_triggered_list(canarytoken):
+    """
+    Returns the triggered list for a Canarydrop, or {} if it does not exist
     """
     key = KEY_CANARYDROP+canarytoken.value()
     triggered_list = db.hget(key,'triggered_list')
@@ -107,18 +103,31 @@ def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
         #we limit to last 10 hits
         triggered_list = {k:v for k,v in triggered_list.iteritems()
                           if k in sorted(triggered_list.keys())[-9:]}
+    return triggered_list
+
+def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
+    """Add a hit to a canarydrop
+
+       Arguments:
+
+       canarytoken -- canarytoken object.
+       **kwargs   -- Additional details about the hit.
+    """
+    triggered_list = get_canarydrop_triggered_list(canarytoken)
+
     triggered_key = hit_time if hit_time else datetime.datetime.utcnow().strftime("%s.%f")
     triggered_list[triggered_key] = kwargs
     triggered_list[triggered_key]['input_channel'] = input_channel
-    if kwargs['src_ip']:
+    if kwargs.get('src_ip', None):
         triggered_list[triggered_key]['geo_info'] = get_geoinfo(kwargs['src_ip'])
         triggered_list[triggered_key]['is_tor_relay'] = is_tor_relay(kwargs['src_ip'])
-    db.hset(key, 'triggered_list',simplejson.dumps(triggered_list))
+    db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
+    return triggered_key
 
 def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
     try:
-        key = KEY_CANARYDROP+canarytoken
-        triggered_list = simplejson.loads(db.hget(key,'triggered_list'))
+        triggered_list = get_canarydrop_triggered_list(canarytoken)
+
         if 'additional_info' not in triggered_list[hit_time]:
             triggered_list[hit_time]['additional_info'] = {}
         for k,v in additional_info.iteritems():
@@ -126,8 +135,9 @@ def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
                 triggered_list[hit_time]['additional_info'][k].update(v)
             else:
                 triggered_list[hit_time]['additional_info'][k] = v
-        db.hset(key, 'triggered_list',simplejson.dumps(triggered_list))
+        db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
     except Exception as e:
+        import pdb; pdb.set_trace()
         log.err('Failed adding additional info: {err}'.format(err=e))
 
 def get_geoinfo(ip):

@@ -1,6 +1,9 @@
 import simplejson
 import datetime
 import os
+import hashlib
+import cgi
+
 from twisted.web import server, resource
 from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
@@ -13,9 +16,9 @@ import subprocess
 from tokens import Canarytoken
 from canarydrop import Canarydrop
 from channel import InputChannel
-from queries import get_canarydrop, add_additional_info_to_hit
+from queries import get_canarydrop, add_canarydrop_hit, add_additional_info_to_hit
 from constants import INPUT_CHANNEL_HTTP
-from settings import TOKEN_RETURN
+from settings import TOKEN_RETURN, MAX_IMAGE_UPLOAD_SIZE, WEB_IMAGE_UPLOAD_PATH
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -90,6 +93,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
         try:
             key = request.args['key'][0]
             token = Canarytoken(value=request.path)
+            canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
             #if key and token args are present, we are either:
             #    -posting browser info
             #    -getting an aws trigger (key == aws_s3)
@@ -97,7 +101,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
             if key and token:
                 if key == 'aws_s3':
                     try:
-                        canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
                         canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
                         src_ip    = request.args['RemoteIP'][0]
                         additional_info = {'AWS Log Data': {k:v for k,v in request.args.iteritems() if k not in ['key','src_ip']}}
@@ -105,9 +108,42 @@ class CanarytokenPage(resource.Resource, InputChannel):
                                       additional_info=additional_info)
                     except Exception as e:
                         log.err('Error in s3 post: {error}'.format(error=e))
+                elif 'secretkeeper_photo' in request.args:
+                    log.err('Saving secretkeeper_photo')
+                    try:
+                        fields = cgi.FieldStorage(
+                            fp = request.content,
+                            headers = request.getAllHeaders(),
+                            environ = {'REQUEST_METHOD':'POST',
+                            'CONTENT_TYPE': request.getAllHeaders()['content-type'],
+                            }
+                        )#hacky way to parse out file contents and filenames
+                        filename = fields['secretkeeper_photo'].filename
+                        filebody = fields['secretkeeper_photo'].value
+
+                        if len(filebody) > MAX_IMAGE_UPLOAD_SIZE:
+                            raise Exception('File too large')
+
+                        r = hashlib.md5(os.urandom(32)).hexdigest()
+                        filepath = os.path.join(WEB_IMAGE_UPLOAD_PATH,
+                                            r[:2],
+                                            r[2:])+'.png'
+                        if not os.path.exists(os.path.dirname(filepath)):
+                            try:
+                                os.makedirs(os.path.dirname(filepath))
+                            except OSError as exc: # Guard against race condition
+                                if exc.errno != errno.EEXIST:
+                                    raise
+
+                        with open(filepath, "w") as f:
+                            f.write(filebody)
+
+                        canarydrop.add_additional_info_to_hit(hit_time=key, additional_info={'secretkeeper_photo':filepath})
+                    except Exception as e:
+                        log.err('Error in secretkeeper_photo post: {error}'.format(error=e))
                 else:
                     additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','canarytoken','name']}
-                    add_additional_info_to_hit(token.value(),key,{request.args['name'][0]:additional_info})
+                    canarydrop.add_additional_info_to_hit(hit_time=key,additional_info={request.args['name'][0]:additional_info})
                 return 'success'
             else:
                 return self.render_GET(request)

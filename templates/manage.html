@@ -189,12 +189,13 @@ td{
                 {{ canarydrop['triggered_list'][item]['is_tor_relay']==True }}
               </td>
             </tr>
+          </table>
         {%endif%}
 
             {% for field in canarydrop['triggered_list'][item] %}
               {% if canarydrop['triggered_list'][item][field] != None and
                     canarydrop['triggered_list'][item][field] is defined and
-                    field not in ['geo_info','is_tor_relay','additional_info'] %}
+                    field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
                 {% if field not in ['src_ip','input_channel'] %}
                 <table class="additional_info">
                   <col width="25%">
@@ -230,8 +231,22 @@ td{
                   <script type="text/javascript">
                     appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['additional_info'][info]}})
                   </script>
+                  {% else %}
+                    {% if info == 'secretkeeper_photo'%}
+                      <tr class="info_row">
+                        <td>
+                          Photo
+                        </td>
+                        <td>
+                          <img src="data:image/png;base64,{{canarydrop.get_secretkeeper_photo_as_base64(item)}}"/>
+                        </td>
+                      </tr>
+                    {% endif %}
                   {%endif%}
                 </tr>
+                  {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
+                    {% continue %}
+                  {% endif %}
                   {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
                     <tr class="info_row">
                       <td>

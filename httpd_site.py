@@ -41,7 +41,8 @@ CLONED_SITE_JS = """
             m.src = "CANARYTOKEN_SITE/CANARYTOKEN.jpg?l=" + encodeURI(l) + "&amp;r=" + encodeURI(r);
         }
         """
-env = Environment(loader=FileSystemLoader('templates'))
+env = Environment(loader=FileSystemLoader('templates'),
+                  extensions=['jinja2.ext.loopcontrols'])
 class GeneratorPage(resource.Resource):
     isLeaf = True
 
@@ -303,8 +304,7 @@ class ManagePage(resource.Resource):
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
             if not canarydrop['auth'] or canarydrop['auth'] != auth:
                 raise NoCanarytokenPresent()
-
-            if canarydrop['triggered_list']:
+            if canarydrop.get('triggered_list', None):
                 for timestamp in canarydrop['triggered_list'].keys():
                     formatted_timestamp = datetime.datetime.fromtimestamp(
                                 float(timestamp)).strftime('%Y %b %d %H:%M:%S')

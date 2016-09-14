@@ -16,7 +16,7 @@ from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS,\
                       OUTPUT_CHANNEL_WEBHOOK
 from queries import get_all_canary_sites, get_all_canary_path_elements,\
      get_all_canary_pages, get_all_canary_domains, get_all_canary_nxdomains,\
-     load_user, add_canarydrop_hit
+     load_user, add_canarydrop_hit, add_additional_info_to_hit, get_canarydrop_triggered_list
 from tokens import Canarytoken
 from users import User, AnonymousUser
 from exception import NoUser, NoCanarytokenPresent, UnknownAttribute
@@ -28,7 +28,7 @@ class Canarydrop(object):
              'triggered_count', 'triggered_list','memo', 'generated_url',\
              'generated_email', 'generated_hostname','timestamp', 'user',
              'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
-             'web_image_enabled']
+             'web_image_enabled', ]
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
@@ -86,6 +86,26 @@ class Canarydrop(object):
         if generate:
             self.generate_random_url()
             self.generate_random_hostname()
+
+    def add_additional_info_to_hit(self,hit_time=None, additional_info={}):
+        try:
+            hit_time = hit_time or self._drop['hit_time']
+        except:
+            hit_time = self._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
+
+        if hit_time not in get_canarydrop_triggered_list(self.canarytoken):
+            self.add_canarydrop_hit()
+
+        add_additional_info_to_hit(self.canarytoken, hit_time, additional_info)
+
+    def add_canarydrop_hit(self, input_channel="http", **kwargs):
+        if 'hit_time' in self._drop.keys():
+            hit_time = self._drop['hit_time']
+        else:
+            hit_time = None
+
+        add_canarydrop_hit(self.canarytoken, input_channel=input_channel,
+                           hit_time=hit_time, **kwargs)
 
     def generate_random_url(self,):
         """Return a URL generated at random with the saved Canarytoken.
@@ -166,11 +186,17 @@ class Canarydrop(object):
             channels.append(OUTPUT_CHANNEL_TWILIO_SMS)
         return channels
 
-    def get_web_image_as_base64(self,):
-        if os.path.exists(self['web_image_path']):
-            with open(self['web_image_path'], "r") as f:
+    def _get_image_as_base64(self, path):
+        if os.path.exists(path):
+            with open(path, "r") as f:
                 contents = f.read()
             return base64.b64encode(contents)
+
+    def get_web_image_as_base64(self,):
+        return self._get_image_as_base64(self['web_image_path'])
+
+    def get_secretkeeper_photo_as_base64(self, item):
+        return self._get_image_as_base64(self['triggered_list'][item]['additional_info']['secretkeeper_photo'])
 
     @property
     def canarytoken(self):
@@ -214,12 +240,7 @@ class Canarydrop(object):
             return False
 
     def alerting(self, input_channel=None, **kwargs):
-        if 'hit_time' in self._drop.keys():
-            hit_time = self._drop['hit_time']
-        else:
-            hit_time = None
-        add_canarydrop_hit(self.canarytoken, input_channel=input_channel,
-                           hit_time=hit_time, **kwargs)
+        self.add_canarydrop_hit(input_channel=input_channel, **kwargs)
         self.user.do_accounting(canarydrop=self)
 
     def __getitem__(self, key):
@@ -227,3 +248,11 @@ class Canarydrop(object):
 
     def __setitem__(self, key, value):
         self._drop[key] = value
+
+    def get(self, *args):
+        try:
+            return self._drop[args[0]]
+        except KeyError:
+            if len(args) == 2:
+                return args[1]
+            raise KeyError(args[0])
