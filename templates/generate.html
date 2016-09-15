@@ -290,6 +290,30 @@
           </div>
         </div>
 
+        <div id="image" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingImage">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseImage" aria-expanded="true" aria-controls="collapseImage">
+                Remote Image
+              </a>
+            </h4>
+          </div>
+          <div id="collapseImage" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingImage">
+            <div class="panel-body">
+              <p>You can serve up your own image (PNG, GIF, JPG) instead of the default 1x1 GIF for a web bug:
+                <form method="post" action="/manage" enctype="multipart/form-data">
+                  Select Image to upload (maximum {{settings.MAX_IMAGE_UPLOAD_SIZE}} bytes):
+                  <input class="form-control"  type="file" name="web_image" id="web_image">
+                  <input class="canarytoken" type="hidden" name="token">
+                  <input class="tokenauth" type="hidden" name="auth">
+                  <input type="hidden" name="fmt" value="web_image">
+                  <input class="btn" type="submit" value="Upload image" name="submit">
+                </form>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div id="qrcode" class="panel panel-default hidden">
           <div class="panel-heading" role="tab" id="headingQrcode">
             <h4 class="panel-title">
@@ -677,6 +701,22 @@
           </div>
         </div>
 
+        <div id="secretkeeper" class="panel panel-default hidden">
+          <div class="panel-heading" role="tab" id="headingSecretkeeper">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSecretkeeper" aria-expanded="true" aria-controls="collapseSecretkeeper">
+                SecretKeeper Token
+              </a>
+            </h4>
+          </div>
+          <div id="collapseSecretkeeper" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSecretkeeper">
+            <div class="panel-body">
+              <p>Here's a link you can follow on your phone to initialise your application (if you have secret keeper installed):</p>
+              <p><a name="secretkeeper" href=""></a></p>
+            </div>
+          </div>
+        </div>
+
         <div id="desktopini" class="panel panel-default filegen hidden">
           <div class="panel-heading" role="tab" id="headingDesktopINI">
             <h4 class="panel-title">
@@ -789,9 +829,14 @@
                         $('#web').removeClass('hidden').show();
                         $('#dns').removeClass('hidden').show();
                         $('.dns').removeClass('hidden').show();
+                        $('#image').removeClass('hidden').show();
 
                         $('input[name=smtp]').val(data['Token']+'@'+document.domain);
                         $('#smtp').removeClass('hidden').show();
+
+                        $('a[name=secretkeeper]').prop('href','canarytoken://secretkeeper/'+data['Token']);
+                        $('a[name=secretkeeper]').text('canarytoken://secretkeeper/'+data['Token']);
+                        $('#secretkeeper').removeClass('hidden').show();
 
                         $('input[name=svn]').val('svn propset svn:externals "extras http://svn.'+data['Token']+'.'+document.domain+'" .');
                         $('#svn').removeClass('hidden').show();
