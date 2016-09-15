@@ -374,7 +374,7 @@ class ManagePage(resource.Resource):
                 filename = fields['web_image'].filename
                 filebody = fields['web_image'].value
 
-                if len(filebody) > settings.MAX_IMAGE_UPLOAD_SIZE:
+                if len(filebody) > settings.MAX_UPLOAD_SIZE:
                     raise Exception('File too large')
 
                 if not filename.lower().endswith(('.png','.gif','.jpg')):

@@ -18,7 +18,7 @@ from canarydrop import Canarydrop
 from channel import InputChannel
 from queries import get_canarydrop, add_canarydrop_hit, add_additional_info_to_hit
 from constants import INPUT_CHANNEL_HTTP
-from settings import TOKEN_RETURN, MAX_IMAGE_UPLOAD_SIZE, WEB_IMAGE_UPLOAD_PATH
+from settings import TOKEN_RETURN, MAX_UPLOAD_SIZE, WEB_IMAGE_UPLOAD_PATH
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -121,7 +121,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                         filename = fields['secretkeeper_photo'].filename
                         filebody = fields['secretkeeper_photo'].value
 
-                        if len(filebody) > MAX_IMAGE_UPLOAD_SIZE:
+                        if len(filebody) > MAX_UPLOAD_SIZE:
                             raise Exception('File too large')
 
                         r = hashlib.md5(os.urandom(32)).hexdigest()
