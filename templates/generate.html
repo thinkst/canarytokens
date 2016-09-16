@@ -19,6 +19,7 @@
     font-family: monospace;
     white-space: pre;
     margin: 1em 0px;
+    word-break: break-all;
   }
   .btn-webhook{
     font-size:12px !important;
@@ -210,11 +211,9 @@
         </div>
 
         <div id="web" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingWeb">
+          <div class="panel-heading" role="button" id="headingWeb" data-toggle="collapse" data-parent="#accordion" href="#collapseWeb" aria-expanded="true" aria-controls="collapseWeb">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseWeb" aria-expanded="true" aria-controls="collapseWeb">
                 Web bugs
-              </a>
             </h4>
           </div>
           <div id="collapseWeb" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingWeb">
@@ -244,11 +243,9 @@
         </div>
 
         <div id="dns" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingDNS">
+          <div class="panel-heading" id="headingDNS" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDNS" aria-expanded="true" aria-controls="collapseDNS">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDNS" aria-expanded="true" aria-controls="collapseDNS">
                 DNS Tokens
-              </a>
             </h4>
           </div>
           <div id="collapseDNS" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingDNS">
@@ -260,7 +257,7 @@
                 <li>Include in a PTR entry for dark IP space of your internal network. Quick way to determine if someone is walking your internal DNS without configuring DNS logging and monitoring.</li>
                 <li>Leave in a .bash_history, or .ssh/config, or ~/servers.txt
                 <li>Use as a extremely simple bridge between a detection and notification action. Many possibilities, here's one that tails a logfile and triggers the token when someone logs in:
-                    <div class="pre-like">tail -f /var/log/auth.log | awk '/Accepted publickey for/ { system("host <span class="hostname"></span>") }'</pre>
+                    <div class="pre-like"><pre>tail -f /var/log/auth.log | awk '/Accepted publickey for/ { system("host <span class="hostname"></span>") }'</pre></div>
                 </li>
                 <li>Use as the domain part of an email address.</li>
                 <li>DNS is used in the specific canary modules below.</li>
@@ -270,11 +267,9 @@
         </div>
 
         <div id="smtp" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingSMTP">
+          <div class="panel-heading" id="headingSMTP" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSMTP" aria-expanded="true" aria-controls="collapseSMTP">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSMTP" aria-expanded="true" aria-controls="collapseSMTP">
                 SMTP Token
-              </a>
             </h4>
           </div>
           <div id="collapseSMTP" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSMTP">
@@ -291,11 +286,9 @@
         </div>
 
         <div id="image" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingImage">
+          <div class="panel-heading" id="headingImage" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseImage" aria-expanded="true" aria-controls="collapseImage">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseImage" aria-expanded="true" aria-controls="collapseImage">
                 Remote Image
-              </a>
             </h4>
           </div>
           <div id="collapseImage" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingImage">
@@ -315,11 +308,9 @@
         </div>
 
         <div id="qrcode" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingQrcode">
+          <div class="panel-heading" id="headingQrcode" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseQrcode" aria-expanded="true" aria-controls="collapseQrcode">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseQrcode" aria-expanded="true" aria-controls="collapseQrcode">
                 QR Code
-              </a>
             </h4>
           </div>
           <div id="collapseQrcode" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingQrcode">
@@ -337,11 +328,9 @@
         </div>
 
         <div id="dtrace" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingDTrace">
+          <div class="panel-heading" id="headingDTrace" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDTrace" aria-expanded="true" aria-controls="collapseDTrace">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDTrace" aria-expanded="true" aria-controls="collapseDTrace">
                 Title
-              </a>
             </h4>
           </div>
           <div id="collapseDTrace" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingDTrace">
@@ -352,11 +341,9 @@
         </div>
 
         <div id="honify" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingHonify">
+          <div class="panel-heading" id="headingHonify" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseHonify" aria-expanded="true" aria-controls="collapseHonify">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseHonify" aria-expanded="true" aria-controls="collapseHonify">
                 Title
-              </a>
             </h4>
           </div>
           <div id="collapseHonify" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingHonify">
@@ -367,11 +354,9 @@
         </div>
 
         <div id="sqlserver" class="panel panel-default hidden dns">
-          <div class="panel-heading" role="tab" id="headingSQLServer">
+          <div class="panel-heading" id="headingSQLServer" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSQLServer" aria-expanded="true" aria-controls="collapseSQLServer">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSQLServer" aria-expanded="true" aria-controls="collapseSQLServer">
                 SQL Server Alert on SELECT, UPDATE, INSERT, DELETE
-              </a>
             </h4>
           </div>
           <div id="collapseSQLServer" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSQLServer">
@@ -611,11 +596,9 @@
         </div>
 
         <div id="mysql" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingMySQL">
+          <div class="panel-heading" id="headingMySQL" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMySQL" aria-expanded="true" aria-controls="collapseMySQL">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMySQL" aria-expanded="true" aria-controls="collapseMySQL">
                 Title
-              </a>
             </h4>
           </div>
           <div id="collapseMySQL" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingMySQL">
@@ -626,11 +609,9 @@
         </div>
 
         <div id="msword" class="panel panel-default filegen hidden">
-          <div class="panel-heading" role="tab" id="headingMSWord">
+          <div class="panel-heading" id="headingMSWord" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMSWord" aria-expanded="true" aria-controls="collapseMSWord">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMSWord" aria-expanded="true" aria-controls="collapseMSWord">
                 MS Word
-              </a>
             </h4>
           </div>
           <div id="collapseMSWord" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingMSWord">
@@ -642,11 +623,9 @@
         </div>
 
         <div id="pdf" class="panel panel-default filegen hidden">
-          <div class="panel-heading" role="tab" id="headingPdf">
+          <div class="panel-heading" id="headingPdf" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePdf" aria-expanded="true" aria-controls="collapsePdf">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePdf" aria-expanded="true" aria-controls="collapsePdf">
                 Acrobat Reader PDF
-              </a>
             </h4>
           </div>
           <div id="collapsePdf" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingPdf">
@@ -658,11 +637,9 @@
         </div>
 
         <div id="authenticode" class="panel panel-default filegen hidden">
-          <div class="panel-heading" role="tab" id="headingAuthenticode">
+          <div class="panel-heading" id="headingAuthenticode" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAuthenticode" aria-expanded="true" aria-controls="collapseAuthenticode">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAuthenticode" aria-expanded="true" aria-controls="collapseAuthenticode">
                 Signed EXE / DLL
-              </a>
             </h4>
           </div>
           <div id="collapseAuthenticode" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingAuthenticode">
@@ -680,11 +657,9 @@
         </div>
 
         <div id="svn" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingSVN">
+          <div class="panel-heading" id="headingSVN" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSVN" aria-expanded="true" aria-controls="collapseSVN">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSVN" aria-expanded="true" aria-controls="collapseSVN">
                 SVN Token
-              </a>
             </h4>
           </div>
           <div id="collapseSVN" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSVN">
@@ -702,11 +677,9 @@
         </div>
 
         <div id="secretkeeper" class="panel panel-default hidden">
-          <div class="panel-heading" role="tab" id="headingSecretkeeper">
+          <div class="panel-heading" id="headingSecretkeeper" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSecretkeeper" aria-expanded="true" aria-controls="collapseSecretkeeper">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSecretkeeper" aria-expanded="true" aria-controls="collapseSecretkeeper">
                 SecretKeeper Token
-              </a>
             </h4>
           </div>
           <div id="collapseSecretkeeper" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSecretkeeper">
@@ -718,11 +691,9 @@
         </div>
 
         <div id="desktopini" class="panel panel-default filegen hidden">
-          <div class="panel-heading" role="tab" id="headingDesktopINI">
+          <div class="panel-heading" id="headingDesktopINI" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDesktopINI" aria-expanded="true" aria-controls="collapseDesktopINI">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDesktopINI" aria-expanded="true" aria-controls="collapseDesktopINI">
                 Windows Directory Browsing
-              </a>
             </h4>
           </div>
           <div id="collapseDesktopINI" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingDesktopINI">
@@ -738,7 +709,7 @@
     </div>
     <a href="https://canary.tools/" target="_blank"><img class="banner" src="http://thinkst.com/images/tokens-banner.gif"></a>
     <footer class="footer">
-      <p><center>&copy; 2015, Built with love by Thinkst Applied Research</p>
+      <p><center>&copy; 2016, Built with love by Thinkst Applied Research</p>
     </footer>
 <script>
     var timer_handle;
