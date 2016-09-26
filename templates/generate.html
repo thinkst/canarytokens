@@ -228,16 +228,6 @@
               </ul>
               <p>This URL is just an example, you can make up your own URL on the site <span id="host"></span> so long as you include your unique token <span id="canarytoken"></span>. For example, here's a URL with a different extension:</p>
               <p><span id="rotate_url"></span>/<span id="rotate_file">config.php</span></p>
-              <p>You can also serve up your own image (PNG, GIF, JPG) instead of the default 1x1 GIF:
-                <form method="post" action="/manage" enctype="multipart/form-data">
-                  Select Image to upload (maximum {{settings.MAX_IMAGE_UPLOAD_SIZE}} bytes):
-                  <input class="form-control"  type="file" name="web_image" id="web_image">
-                  <input class="canarytoken" type="hidden" name="token">
-                  <input class="tokenauth" type="hidden" name="auth">
-                  <input type="hidden" name="fmt" value="web_image">
-                  <input class="btn" type="submit" value="Upload image" name="submit">
-                </form>
-              </p>
             </div>
           </div>
         </div>
