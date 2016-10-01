@@ -121,7 +121,7 @@ class CanaryESMTP(smtp.ESMTP):
     def receivedHeader(self, helo, origin, recipients):
         self.mail['helo']['client_name'] = helo[0]
         self.mail['helo']['client_ip'] = helo[1]
-        self.mail['sender'] = origin
+        self.mail['sender'] = str(origin)
         for r in recipients:
             address = r.dest.addrstr
             self.mail['recipients'].append(address)
