@@ -1,4 +1,4 @@
-Jinja2==2.7.3
+Jinja2==2.9.4
 MarkupSafe==0.23
 Twisted==15.2.1
 cssselect==0.9.1
