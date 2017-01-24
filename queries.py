@@ -9,9 +9,11 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_IMGUR_TOKENS, KEY_LINKEDIN_ACCOUNT, KEY_LINKEDIN_ACCOUNTS,\
      KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
      KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
-     KEY_CANARY_GOOGLE_API_KEY
+     KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES
 
 from twisted.python import log
+from twisted.web.client import getPage
+
 
 
 def get_canarydrop(canarytoken=None):
@@ -447,8 +449,17 @@ def is_webhook_valid(url):
         return False
 
 def is_tor_relay(ip):
-    try:
-        resp = requests.get('https://check.torproject.org/exit-addresses')
-        return ip in resp.content
-    except Exception as e:
-        print e
+    if not db.exists(KEY_TOR_EXIT_NODES):
+        update_tor_exit_nodes_loop()
+    return db.sismember(KEY_TOR_EXIT_NODES, simplejson.dumps(ip))
+
+def update_tor_exit_nodes(contents):
+    if "ExitAddress" in contents:
+        db.delete(KEY_TOR_EXIT_NODES)
+    for line in contents.splitlines():
+        if 'ExitAddress' in line:
+            db.sadd(KEY_TOR_EXIT_NODES, simplejson.dumps(line.split(' ')[1]))
+
+def update_tor_exit_nodes_loop():
+    d = getPage('https://somernadasofmasfasdfdsfdfscheck.torproject.org/exit-addresses')
+    d.addCallback(update_tor_exit_nodes)

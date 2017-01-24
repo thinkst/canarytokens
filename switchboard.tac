@@ -16,6 +16,8 @@ from channel_output_twilio import TwilioOutputChannel
 from channel_output_webhook import WebhookOutputChannel
 from switchboard import Switchboard
 
+from queries import update_tor_exit_nodes_loop
+
 log.msg('Canarydrops switchboard started')
 
 application = service.Application("Canarydrops Switchboard")
@@ -58,3 +60,8 @@ canarytokens_bitcoin.service.setServiceParent(application)
 canarytokens_smtp = ChannelSMTP(port=settings.CHANNEL_SMTP_PORT,
                                  switchboard=switchboard)
 canarytokens_smtp.service.setServiceParent(application)
+
+
+#loop to update tor exit nodes every 30 min
+loop_http = internet.task.LoopingCall(update_tor_exit_nodes_loop)
+loop_http.start(1800)
