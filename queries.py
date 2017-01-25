@@ -461,5 +461,5 @@ def update_tor_exit_nodes(contents):
             db.sadd(KEY_TOR_EXIT_NODES, simplejson.dumps(line.split(' ')[1]))
 
 def update_tor_exit_nodes_loop():
-    d = getPage('https://somernadasofmasfasdfdsfdfscheck.torproject.org/exit-addresses')
+    d = getPage('https://check.torproject.org/exit-addresses')
     d.addCallback(update_tor_exit_nodes)
