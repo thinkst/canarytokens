@@ -62,7 +62,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                           useragent=useragent, location=location,
                           referer=referer)
 
-            if "text/html" in request.getHeader('Accept'):
+            if request.getHeader('Accept') and "text/html" in request.getHeader('Accept'):
                 if canarydrop['browser_scanner_enabled']:
                     template = env.get_template('browser_scanner.html')
                     return template.render(key=canarydrop._drop['hit_time'],
