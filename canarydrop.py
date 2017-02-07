@@ -44,7 +44,7 @@ class Canarydrop(object):
             self._drop['timestamp'] = datetime.datetime.utcnow()\
                                         .strftime("%s.%f")
 
-        if 'imgur_token' in self._drop and not self._drop['imgur_token']['id']:
+        if 'imgur_token' in self._drop and not self._drop['imgur_token']:
             raise Exception('Missing imgur_token from Canarydrop')
 
         if 'user' not in self._drop or self._drop['user'] in ('None', 'Anonymous'):
