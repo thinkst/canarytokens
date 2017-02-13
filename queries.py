@@ -430,16 +430,16 @@ def is_webhook_valid(url):
     if not url or url == '':
         return False
 
-    payload = {"manage_url": "http://test/url/",
-               "memo": "test memo",
+    payload = {"manage_url": "http://example.com/test/url/for/webhook",
+               "memo": "Congrats! The newly saved webhook works",
                "additional_data": {
                    "src_ip": "1.1.1.1",
-                   "useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36",
-                   "referer": "",
-                   "location": ""
+                   "useragent": "Mozilla/5.0...",
+                   "referer": "http://example.com/referrer",
+                   "location": "http://example.com/location"
                },
                "channel": "HTTP",
-               "time": "2016-08-29 12:00:00"}
+               "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
     try:
         response = requests.post(url, simplejson.dumps(payload), headers={'content-type': 'application/json'})
         response.raise_for_status()
