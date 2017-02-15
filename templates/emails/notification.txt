@@ -1,0 +1,22 @@
+======================================================================
+                                ALERT
+======================================================================
+
+{{Intro}}
+
+Basic Information:
+  Incident: {{Description}}
+  Time    : {{Timestamp}}
+{%if SourceIP %}
+  Source  : {{SourceIP}}
+{%endif%}
+  Target  : {{CanaryIP}} ({{CanaryName}}, id {{CanaryID}})
+
+{% if AdditionalDetails %}
+Additional Details:
+  {% for add_det in AdditionalDetails %}
+  {{add_det[0]}}: {{add_det[1]}}
+  {% endfor %}
+{%endif%}
+
+======================================================================

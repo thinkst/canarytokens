@@ -18,3 +18,4 @@ twilio==4.4.0
 twill==1.8.0
 wsgiref==0.1.2
 zope.interface==4.1.2
+htmlmin==0.1.10

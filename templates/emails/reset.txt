@@ -1,0 +1,13 @@
+Hi!
+
+Someone (possibly you) initiated a password reset for Canary.
+
+To continue with the reset, please click this link:
+
+{{ url_for('reset_pass', hash=hash, _external=True) }}
+
+If you did not initiate the reset then you can ignore this
+as the reset link expires in 24 hours.
+
+Thanks
+Canary Team

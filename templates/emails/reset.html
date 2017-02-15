@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" name="viewport" />
+  <title>Canary Password Reset</title>
+  <style type="text/css">
+  @media only screen and (min-width: 510px) {
+    table.logo,
+    td.footer .left {
+      width: 50% !important;
+      float: left !important;
+      text-align: left !important;
+    }
+    table.date,
+    td.footer .right {
+      width: 50% !important;
+      float: right !important;
+      text-align: right !important;
+    }
+    table.date {
+      height: 50px;
+    }
+  }
+  </style>
+</head>
+
+<body bgcolor="#EDECED" style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #333333; margin-bottom: 20px;">
+  <table bgcolor="#EDECED" border="0" cellpadding="0" cellspacing="0" class="wrapper" style="padding-top: 20px; padding-bottom: 20px;" width="100%">
+    <tr>
+      <td>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" class="container" style="padding-top:10px; padding-bottom:20px; margin: auto; min-width: 315px; max-width: 660px; overflow: hidden;" width="95%">
+          <tr>
+            <td>
+              <table class="logo" style="text-align: center; padding-top:10px;" width="100%">
+                <tr>
+                  <td valign="top">
+                    <a href="http://canary.tools"><img alt="Canary" width="200" src="{{ url_for('static', filename='images/logo_email.png', _external=True) }}" /></a>
+                  </td>
+                </tr>
+              </table>
+              <!-- <table cellpadding="5" class="date" style="text-align: center;" width="100%"> -->
+              <!--   <tr> -->
+              <!--     <td style="font-size: 12px; color: #4A4A4A;" valign="middle">{{ datetime_now.strftime('%B %d, %Y') }}</td> -->
+              <!--   </tr> -->
+              <!-- </table> -->
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table bgcolor="#ffffff" border="0" cellpadding="18" cellspacing="0" class="content" style="border: 1px solid #D7D7D7; margin-top: 10px; border-radius: 5px; border-top: 4px solid #2ecc71;" width="100%">
+                <tr>
+                  <td>
+                    <table width="100%">
+                      <tr>
+                        <td>
+                          <h1 style="text-align: center; font-weight: normal; font-size: 26px;">Password Reset</h1>
+                          <tr>
+                            <td>
+                              <table style="word-break: break-all;">
+                                <tr>
+                                  <td>
+                                    <p>Hi!</p>
+                                    <p>Someone (possibly you) initiated a password reset for Canary.</p>
+                                    <p>To continue with the reset, please click this link:</p>
+                                    <p><a href="{{ url_for('reset_pass', hash=hash, _external=True) }}" style="text-decoration: underline;">{{ url_for('reset_pass', hash=hash, _external=True) }}</a></p>
+                                    <p>If you did not initiate the reset then you can ignore this as the reset link expires in 24 hours.</p>
+                                    <p>Thanks
+                                      <br />Canary Team</p>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="footer" style="font-size: 12px; text-align: center; padding-top: 10px; color: #666666; min-width: 315px; max-width: 660px; padding-bottom: 10px;" width="100%">
+                    <table class="left" width="100%">
+                      <tr>
+                        <td>Powered by Thinkst Applied Research
+                          <!-- <br />You are a Canary user - <a href="{{ url_for('settings', _external=True)}}" style="color: #70B025;">Change Email Settings</a></td> -->
+                      </tr>
+                    </table>
+                    <!-- <table class="right" width="100%"> -->
+                    <!--   <tr> -->
+                    <!--     <td>2G Amden South St. -->
+                    <!--       <br />Midstream, Pretoria, South Africa</td> -->
+                    <!--   </tr> -->
+                    <!-- </table> -->
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>

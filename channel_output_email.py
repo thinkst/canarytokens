@@ -7,13 +7,52 @@ import pprint
 from twisted.python import log
 import mandrill
 import requests
-
+from htmlmin import minify
+from httpd_site import env
 from channel import OutputChannel
 from constants import OUTPUT_CHANNEL_EMAIL
 
 class EmailOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_EMAIL
 
+    DESCRIPTION = 'Canarytoken triggered'
+    TIME_FORMAT = '%Y-%m-%d %H:%M:%S (UTC)'
+
+    def format_report_html(self,):
+        """Returns a string containing an incident report in HTML,
+           suitable for emailing"""
+
+        # Use the Flask app context to render the emails
+        # (this generates the urls + schemes correctly)
+
+        rendered_html = env.get_template('emails/notification.html').render(
+            Title=self.DESCRIPTION,
+            Intro=self.format_report_intro(),
+            BasicDetails=self.get_basic_details(),
+            AdditionalDetails=self.data['manage']
+        )
+        return minify(rendered_html)
+
+    def format_report_intro(self,):
+        template = ("A {Type} Canarytoken has been triggered by the source IP {SourceIP}.")
+
+        if self.data['channel'] == 'DNS':
+            template += "\n\nPlease note that the source IP refers to a DNS server," \
+                        " rather than the host that triggered the token."
+
+        return template.format(
+            Type = self.data['channel'],
+            SourceIP = self.data['src_ip'])
+
+    def get_basic_details(self,):
+
+        vars = { 'Description' : self.data['description'],
+                 'Channel'     : self.data['channel'],
+                 'CanaryToken' : self.data['canarytoken'],
+                 'SourceIP'   : self.data['src_ip']
+                }
+
+        return vars
 
     def do_send_alert(self, input_channel=None, canarydrop=None, **kwargs):
         msg = input_channel.format_canaryalert(
@@ -23,6 +62,9 @@ class EmailOutputChannel(OutputChannel):
                                       canarydrop=canarydrop,
                                       **kwargs)
         print msg
+        self.data = msg
+        self.data['canarytoken'] = canarydrop['canarytoken']
+        self.data['description'] = canarydrop['memo']
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
             self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:
@@ -38,7 +80,8 @@ class EmailOutputChannel(OutputChannel):
                 'from': '{name} <{address}>'.format(name=msg['from_display'],address=msg['from_address']),
                 'to': canarydrop['alert_email_recipient'],
                 'subject': msg['subject'],
-                'text':  msg['body']
+                'text':  msg['body'],
+                'html': self.format_report_html()
             }
 
             if settings.DEBUG:
@@ -55,6 +98,8 @@ class EmailOutputChannel(OutputChannel):
         except requests.exceptions.HTTPError as e:
             log.err('A mailgun error occurred: %s - %s' % (e.__class__, e))
 
+
+
     def mandrill_send(self, msg=None, canarydrop=None):
         try:
             mandrill_client = mandrill.Mandrill(settings.MANDRILL_API_KEY)
@@ -64,6 +109,7 @@ class EmailOutputChannel(OutputChannel):
              'from_email': msg['from_address'],
              'from_name': msg['from_display'],
              'text': msg['body'],
+             'html':self.format_report_html(),
              'subject': msg['subject'],
              'to': [{'email': canarydrop['alert_email_recipient'],
                      'name': '',

@@ -56,6 +56,10 @@ class InputChannel(Channel):
         if not host or host == '':
             host=settings.PUBLIC_IP
 
+        if 'src_ip' in kwargs:
+            msg['src_ip'] = kwargs['src_ip']
+
+        msg['channel'] = self.name
         if params.get('body_length', 999999999) <= 140:
             msg['body'] = """Canarydrop@{time} via {channel_name}: """\
                 .format(channel_name=self.name,
@@ -84,6 +88,11 @@ http://{host}/manage?token={token}&auth={auth}
                     token=canarydrop['canarytoken'],
                     auth=canarydrop['auth']
                     )
+            msg['manage'] = """
+http://{host}/manage?token={token}&auth={auth}
+            """.format(host=host,
+                    token=canarydrop['canarytoken'],
+                    auth=canarydrop['auth'])
 
         if params.get('subject_required', False):
             msg['subject'] = settings.ALERT_EMAIL_SUBJECT
