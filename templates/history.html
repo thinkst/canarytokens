@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/resources/famfamfam-flags.css" >
+    <link rel="stylesheet" type="text/css" href="/resources/styles.css">
+    <title>Canarytokens</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous"> 
+  </head>
+  <script type="text/javascript">
+   var geo_info = {};
+    function appendGeoInfo(id,info){
+      geo_info[id] = info;
+    }
+</script>
+  <body>
+    <div class="container-fluid">
+      <div class="header clearfix">
+        <!-- <nav>
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+          </ul>
+        </nav> -->
+        <h3 class="text-muted">Canarytokens by Thinkst</h3>
+      </div>
+      <div class="history-header">
+        <h3>History for Canary Token : {{canarydrop['canarytoken']}}</h3>
+      </div>
+      <div class="row content">
+          <div class="col-sm-6 incident-size">
+          <h4 style="text-align: center;">Incident Map</h4>
+        {% if API_KEY %}
+          <div class="row">
+              <div class="col-md-12"><div class="map" id="map"></div></div>
+          </div>
+          {%endif%}
+        </div>
+        <div class="col-sm-6 incident-size">
+        <h4 style="text-align: center;">Incident List</h4>
+        <div class="row incident-list">
+          <div class="col-md-12" id="incidents">
+          {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
+          <div class="incident-item expand">
+                <p class="details-header"><b>Date:</b> {{ item|e }}
+                                  <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
+                                  <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
+                </p>
+                <div class="incident-item-details">
+            {% if canarydrop['triggered_list'][item]['geo_info'] and not canarydrop['triggered_list'][item]['geo_info']['bogon'] == true%}
+              <table class="table table-striped">
+                <col width="25%">
+                <col width="75%">
+                <tr class="header_row">
+                   <td colspan="2">
+                     Geo Info
+                   </td>
+                </tr>
+                {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
+                <tr class="info_row">
+                  <td>Country</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['country'] }}
+                      <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i>
+                  </td>
+                </tr>
+                {% endif %}
+                {% if canarydrop['triggered_list'][item]['geo_info']['city'] %}
+                <tr class="info_row">
+                  <td>City</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['city'] }}
+                  </td>
+                </tr>
+                {% endif %}
+                {% if canarydrop['triggered_list'][item]['geo_info']['region'] %}
+                <tr class="info_row">
+                  <td>Region</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['region'] }}
+                  </td>
+                </tr>
+                {% endif %}
+                {% if canarydrop['triggered_list'][item]['geo_info']['org'] %}
+                <tr class="info_row">
+                  <td>Organisation</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['org'] }}
+                  </td>
+                </tr>
+                {% endif %}
+                {% if canarydrop['triggered_list'][item]['geo_info']['hostname'] %}
+                <tr class="info_row">
+                  <td>Hostname</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['hostname'] }}
+                  </td>
+                </tr>
+                {% endif %}
+                <script type="text/javascript">
+                  appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']|tojson}});
+                </script>
+              </table>
+            {%endif%}
+            {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None %}
+              <table class="table table-bordered table-hover">
+                <col width="25%">
+                <col width="75%">
+                <tr class="header_row">
+                   <td colspan="2">
+                     <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Tor-logo-2011-flat.svg" style="width:30px;height:19px;">
+                   </td>
+                </tr>
+                <tr class="info_row">
+                  <td>
+                    Known Exit Node
+                  </td>
+                  <td>
+                    {{ canarydrop['triggered_list'][item]['is_tor_relay']==True }}
+                  </td>
+                </tr>
+              </table>
+            {%endif%}
+
+                {% for field in canarydrop['triggered_list'][item] %}
+                  {% if canarydrop['triggered_list'][item][field] != None and
+                        canarydrop['triggered_list'][item][field] is defined and
+                        field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
+                    {% if field not in ['src_ip','input_channel'] %}
+                    <table class="table table-bordered table-hover">
+                      <col width="25%">
+                      <col width="75%">
+                      <tr class="header_row">
+                         <td colspan="2">
+                           Basic Info
+                         </td>
+                      </tr>
+                      <tr class="info_row">
+                         <td>
+                           {{field}}
+                         </td>
+                         <td>
+                           {{ canarydrop['triggered_list'][item][field]|e }}
+                         </td>
+                      </tr>
+                    </table>
+                    {%endif%}
+                  {%endif%}
+                {% endfor %}
+                {% if canarydrop['triggered_list'][item]['additional_info'] %}
+                  <table class="table table-bordered table-hover">
+                                <b>Additional Info</b>
+                    <col width="25%">
+                    <col width="75%">
+                    {% for info in canarydrop['triggered_list'][item]['additional_info'] %}
+                    <tr class="header_row">
+                       <td colspan="2">
+                         {{info}}
+                       </td>
+                        {%if info == 'iOS-App'%}
+                      <script type="text/javascript">
+                        appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['additional_info'][info]}})
+                      </script>
+                      {% else %}
+                        {% if info == 'secretkeeper_photo'%}
+                          <tr class="info_row">
+                            <td>
+                              Photo
+                            </td>
+                            <td>
+                              <img src="data:image/png;base64,{{canarydrop.get_secretkeeper_photo_as_base64(item)}}"/>
+                            </td>
+                          </tr>
+                        {% endif %}
+                      {%endif%}
+                    </tr>
+                      {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
+                        {% continue %}
+                      {% endif %}
+                      {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
+                        <tr class="info_row">
+                          <td>
+                            {{info_item}}
+                          </td>
+                          <td>
+                            {{ canarydrop['triggered_list'][item]['additional_info'][info][info_item][0] == '1'
+                                  if info_item in ['enabled','installed']
+                                  else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ') }}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% endfor %}
+                  </table>
+                {% endif %}
+            </div>
+          </div>
+          {%endfor%}
+          </div>
+        </div>
+      </div> 
+      </div>
+      <footer class="footer">
+        <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>
+        <p>&copy; Thinkst Applied Research 2015&ndash;2017</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="//v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script>
+        // $(window).on('load', calcSizes());
+        // $(window).on('resize', calcSizes());
+
+        function calcSizes(map){
+          var height = $(window).height();
+          $('#map').height(height*0.85);
+          $('#incidents').height(height*0.85);
+          google.maps.event.trigger(map, 'resize');
+        }
+
+        function initMap() {
+          if(Object.keys(geo_info).length === 0 && geo_info.constructor === Object){
+            $('#map').parent().parent().parent().hide();
+            $('#incidents').parent().parent().css('margin','0px auto');
+          }else{
+          // calcSizes();
+          var map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: 0, lng: 0},
+              zoom: 2,
+              mapTypeId: 'hybrid',
+              mapTypeControl: false,
+              streetViewControl: false
+            });
+
+          google.maps.event.addDomListener(window, 'resize', function(){
+              initMap();
+          });
+
+          $(document).ready(calcSizes(map));
+          // $(window).resize(calcSizes());
+          $(document).resize(calcSizes(map));
+
+          var bounds = new google.maps.LatLngBounds();
+          var markers = {};
+          for (x in geo_info){
+            var loc = String(geo_info[x]['loc']).split(",");
+            var latitude = parseFloat(loc[0]);
+            var longitude = parseFloat(loc[1]);
+            if (isNaN(latitude) || isNaN(longitude)) {
+              continue;
+            }
+            var latlng = new google.maps.LatLng(latitude,longitude);
+
+            if(markers[latlng]==undefined){
+              markers[latlng]= '<br>'+x;
+            }else{
+              markers[latlng] += '<br>'+x;
+            }
+
+            var content = '';
+            for(info in geo_info[x]){
+              if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname'){
+                continue;
+              }
+              if(info=='ip'){
+                if(geo_info[x]['hostname']==undefined){
+                  content = '<b>'+geo_info[x]['ip']+'</b>'+content;
+                }
+                else{
+                  content = '<b>'+geo_info[x]['ip']+ '</b><br>'+geo_info[x]['hostname']+'<br>'+content;
+                }
+              }else if(info=='country'){
+                content +='<br><i class="famfamfam-flag-'+(geo_info[x]['country']).toLowerCase()+'"></i> '+(geo_info[x]['country']);
+              }else{
+                content += '<br>'+geo_info[x][info];
+              }
+            }
+            content = content +'<br>'+markers[latlng]
+            var info = new google.maps.InfoWindow({
+              content : content
+            });
+
+            var marker = new google.maps.Marker({
+              map : map,
+              draggable :false,
+              animation:google.maps.Animation.DROP,
+              position : latlng,
+              info : content
+            });
+            bounds.extend(marker.position);
+            google.maps.event.addListener(marker, 'click', function(){
+              info.setContent(this.info);
+              info.open(map, this);
+            });
+          }
+          
+          map.fitBounds(bounds);
+          }
+        }
+
+      $('.expand').click(function(){
+        $(this).find('.incident-item-details').slideToggle('slow');
+    });
+    </script>
+  {% if API_KEY %}
+  <script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap" async defer></script>
+  {%endif%}
+  </body>
+</html>

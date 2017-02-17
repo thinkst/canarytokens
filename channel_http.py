@@ -75,7 +75,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
                         return template.render(fortune=fortune).encode('utf8')
                     except Exception as e:
                         log.err('Could not get a fortune: {e}'.format(e=e))
-
             if canarydrop['web_image_enabled'] and os.path.exists(canarydrop['web_image_path']):
                 mimetype = "image/"+canarydrop['web_image_path'][-3:]
                 with open(canarydrop['web_image_path'], "r") as f:

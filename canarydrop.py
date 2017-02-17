@@ -10,6 +10,7 @@ import random
 import md5
 import os
 import base64
+import pyqrcode
 import simplejson
 
 from constants import OUTPUT_CHANNEL_EMAIL, OUTPUT_CHANNEL_TWILIO_SMS,\
@@ -28,7 +29,7 @@ class Canarydrop(object):
              'triggered_count', 'triggered_list','memo', 'generated_url',\
              'generated_email', 'generated_hostname','timestamp', 'user',
              'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
-             'web_image_enabled', ]
+             'web_image_enabled', 'type', 'clonedsite' ]
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
@@ -107,16 +108,18 @@ class Canarydrop(object):
         add_canarydrop_hit(self.canarytoken, input_channel=input_channel,
                            hit_time=hit_time, **kwargs)
 
+    def get_url_components(self,):
+        return (get_all_canary_sites(), get_all_canary_path_elements(), get_all_canary_pages()
+)
     def generate_random_url(self,):
         """Return a URL generated at random with the saved Canarytoken.
            The random URL is also saved into the Canarydrop."""
-        sites = get_all_canary_sites()
-        path_elements = get_all_canary_path_elements()
-        pages = get_all_canary_pages()
+        (sites, path_elements, pages) = self.get_url_components()
+
 
         generated_url = sites[random.randint(0,len(sites)-1)]+'/'
         path = []
-        for count in range(0,random.randint(1,4)):
+        for count in range(0,random.randint(1,3)):
             if len(path_elements) == 0:
                 break
 
@@ -157,6 +160,7 @@ class Canarydrop(object):
 
         generated_hostname += self._drop['canarytoken']+'.'+\
                               domains[random.randint(0,len(domains)-1)]
+
         return generated_hostname
 
     def get_hostname(self, with_random=False, as_url=False, nxdomain=False):
@@ -197,6 +201,26 @@ class Canarydrop(object):
 
     def get_secretkeeper_photo_as_base64(self, item):
         return self._get_image_as_base64(self['triggered_list'][item]['additional_info']['secretkeeper_photo'])
+
+    def get_cloned_site_javascript(self,):
+        CLONED_SITE_JS = """
+if (document.domain != "CLONED_SITE_DOMAIN") {
+    var l = location.href;
+    var r = document.referrer;
+    var m = new Image();
+    m.src = "CANARYTOKEN_SITE/"+
+            "CANARYTOKEN.jpg?l="+
+            encodeURI(l) + "&amp;r=" + encodeURI(r);
+}
+                """
+        return CLONED_SITE_JS\
+                .replace('CLONED_SITE_DOMAIN', self['clonedsite'])\
+                .replace('CANARYTOKEN_SITE', self.get_random_site())\
+                .replace('CANARYTOKEN', self['canarytoken'])
+
+    def get_qrcode_data_uri_png(self,):
+        qrcode = pyqrcode.create(self.get_url()).png_as_base64_str(scale=5)
+        return "data:image/png;base64,{qrcode}".format(qrcode=qrcode)
 
     @property
     def canarytoken(self):
