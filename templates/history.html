@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
     <link rel="stylesheet" type="text/css" href="/resources/famfamfam-flags.css" >
-    <link rel="stylesheet" type="text/css" href="/resources/styles.css">
+    
     <title>Canarytokens</title>
 
     <!-- Bootstrap core CSS -->
@@ -17,6 +17,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous"> 
+    <link rel="stylesheet" type="text/css" href="/resources/styles.css">
   </head>
   <script type="text/javascript">
    var geo_info = {};
@@ -27,13 +28,16 @@
   <body>
     <div class="container-fluid">
       <div class="header clearfix">
-        <!-- <nav>
+        <nav>
           <ul class="nav nav-pills float-right">
             <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
+              <a class="nav-link" href="/generate">New token</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link manage-link" href="/manage?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">Manage this token</a>
             </li>
           </ul>
-        </nav> -->
+        </nav>
         <h3 class="text-muted">Canarytokens by Thinkst</h3>
       </div>
       <div class="history-header">
@@ -49,7 +53,11 @@
           {%endif%}
         </div>
         <div class="col-sm-6 incident-size">
+        {% if (canarydrop['triggered_list']|length) > 0 %}
         <h4 style="text-align: center;">Incident List</h4>
+        {% else %}
+        <h4 style="text-align: center;">Incident List is Currently Empty</h4>
+        {% endif %}
         <div class="row incident-list">
           <div class="col-md-12" id="incidents">
           {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
@@ -239,9 +247,11 @@
 
         function initMap() {
           if(Object.keys(geo_info).length === 0 && geo_info.constructor === Object){
-            $('#map').parent().parent().parent().hide();
-            $('#incidents').parent().parent().css('margin','0px auto');
+            // $('#incidents').parent().parent().css('margin','0px auto');
+            $('#incidents').parent().parent().show();
           }else{
+            $('#map').parent().parent().parent().show();
+            $('#incidents').parent().parent().show();
           // calcSizes();
           var map = new google.maps.Map(document.getElementById('map'), {
               center: {lat: 0, lng: 0},

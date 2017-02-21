@@ -50,16 +50,13 @@
         text-align: center;
       }
 
-      .header{
-        text-align: center;
-      }
-
       .footer {
         text-align: center;
       }
 
       .incident-size{
-        min-height: 400px;
+        margin :0px auto;
+        display: none;
       }
 
       .incident-list{
@@ -109,6 +106,7 @@
         background-color: aliceblue;
         color: darkslategrey;
         padding-top: 1rem;
+        padding-bottom: 2rem;
         border-radius: .3rem;
       }
 
@@ -404,4 +402,119 @@
         height:400px;
         border-radius: 5px;
         border: 7px solid #dadada;
+      }
+
+      .setting .key {
+        text-align: right;
+      }
+
+      .setting .value {
+        text-align: left;
+      }
+
+      .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-primary:hover, .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary:hover {
+        background-color: #449d44;
+        border-color: #419641;
+      }
+
+      .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-primary, .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
+        color: #fff;
+        background-color: #5cb85c;
+        border-color: #5cb85c;
+      }
+      
+      .jumbotron .btn.btn-clipboard {
+        background-color: #5cb85c;
+        border-color: #5cb85c;
+        color: #fff;
+      }
+
+      .setting .key small {
+        font-size: .2rem;
+        color: #999;
+        vertical-align: top;
+      }
+
+      @media (min-width: 48em) {
+        .container {
+          max-width: 100%;
+        }
+      }
+      
+      .jumbotron {
+            max-width: 46rem;
+            margin: auto;
+            margin-bottom: 2rem;
+      }
+
+      a.icon:before {
+        display: block;
+        position: absolute;
+        margin-right: 10px;
+        margin-left: 10px;
+        content: "";
+        height: 57px;
+        width: 57px;
+      }
+
+      a.icon-web:before {
+        background: url("https://cdn2.iconfinder.com/data/icons/browsers/Netscape.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-dns:before {
+        background: url("/resources/dns.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-web-image:before {
+        background: url("/resources/web_image.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-email:before {
+        /*Email by Lorena Salagre from the Noun Project*/
+        background: url("/resources/email.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-word:before {
+        background: url("/resources/word.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-pdf:before {
+        background: url("/resources/pdf.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-folder:before {
+        background: url("/resources/folder.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-exe:before {
+        background: url("/resources/exe.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-clonedsite:before {
+        background: url("/resources/clonedsite.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-sqlserver:before {
+        background: url("/resources/sqlserver.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-qrcode:before {
+        background: url("/resources/qrcode.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
+      }
+      a.icon-svn:before {
+        background: url("/resources/svn.png");
+        background-size: 40px 40px;
+        background-repeat: no-repeat;
       }
