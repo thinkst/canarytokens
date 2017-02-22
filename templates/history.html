@@ -43,6 +43,10 @@
       <div class="history-header">
         <h3>History for Canary Token : {{canarydrop['canarytoken']}}</h3>
       </div>
+      <div class="alert alert-info alert-dismissible" role="alert" style="text-align: center;">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <strong>Heads Up!</strong> Click the incident items for more info.
+        </div>
       <div class="row content">
           <div class="col-sm-6 incident-size">
           <h4 style="text-align: center;">Incident Map</h4>
@@ -55,6 +59,7 @@
         <div class="col-sm-6 incident-size">
         {% if (canarydrop['triggered_list']|length) > 0 %}
         <h4 style="text-align: center;">Incident List</h4>
+        <h6 class="text-info" style="text-align: center;">Click to expand Incidents</h6>
         {% else %}
         <h4 style="text-align: center;">Incident List is Currently Empty</h4>
         {% endif %}
@@ -62,7 +67,8 @@
           <div class="col-md-12" id="incidents">
           {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
           <div class="incident-item expand">
-                <p class="details-header"><b>Date:</b> {{ item|e }}
+                <p class="details-header">
+                <b>Date:</b> {{ item|e }}
                                   <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
                 </p>
@@ -234,6 +240,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
         // $(window).on('load', calcSizes());
         // $(window).on('resize', calcSizes());
@@ -255,7 +262,7 @@
           // calcSizes();
           var map = new google.maps.Map(document.getElementById('map'), {
               center: {lat: 0, lng: 0},
-              zoom: 2,
+              zoom: 5,
               mapTypeId: 'hybrid',
               mapTypeControl: false,
               streetViewControl: false

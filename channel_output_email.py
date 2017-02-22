@@ -29,7 +29,8 @@ class EmailOutputChannel(OutputChannel):
             Title=self.DESCRIPTION,
             Intro=self.format_report_intro(),
             BasicDetails=self.get_basic_details(),
-            AdditionalDetails=self.data['manage']
+            ManageLink=self.data['manage'],
+            HistoryLink=self.data['history']
         )
         return minify(rendered_html)
 
@@ -52,6 +53,9 @@ class EmailOutputChannel(OutputChannel):
                  'SourceIP'   : self.data['src_ip']
                 }
 
+        if 'useragent' in self.data:
+            vars['User-Agent'] = self.data['useragent']
+
         return vars
 
     def do_send_alert(self, input_channel=None, canarydrop=None, **kwargs):
@@ -61,7 +65,6 @@ class EmailOutputChannel(OutputChannel):
                                               'from_address_required':True},
                                       canarydrop=canarydrop,
                                       **kwargs)
-        print msg
         self.data = msg
         self.data['canarytoken'] = canarydrop['canarytoken']
         self.data['description'] = canarydrop['memo']

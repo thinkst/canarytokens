@@ -73,6 +73,7 @@
         color: darkslategrey;
         border-radius: .3rem;
         margin-bottom: 0.5rem;
+        cursor: pointer;
       }
 
       .incident-item-details{
@@ -84,7 +85,6 @@
         outline: none;
         border-color: #1ecaed;
         box-shadow: 0 0 10px green;
-
       }
 
       .header_row{
@@ -453,68 +453,84 @@
         margin-right: 10px;
         margin-left: 10px;
         content: "";
-        height: 57px;
-        width: 57px;
+        height: 40px;
+        width: 40px;
+        background-size: contain;
+        -webkit-transition: all 0.4s ease-in-out;
+        -moz-transition: all 0.4s ease-in-out;
+        transition: all 0.4s ease-in-out;
+        -webkit-transform: translate3d(0, 0, 0);
       }
 
+      @media (max-width: 768px) {
+          a.icon:before {
+            width: 20px;
+            height: 20px;
+          }
+      }
       a.icon-web:before {
-        background: url("https://cdn2.iconfinder.com/data/icons/browsers/Netscape.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/web.png");
       }
       a.icon-dns:before {
-        background: url("/resources/dns.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/dns.png");
       }
       a.icon-web-image:before {
-        background: url("/resources/web_image.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/web_image.png");
       }
       a.icon-email:before {
         /*Email by Lorena Salagre from the Noun Project*/
-        background: url("/resources/email.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/email.png");
       }
       a.icon-word:before {
-        background: url("/resources/word.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/word.png");
       }
       a.icon-pdf:before {
-        background: url("/resources/pdf.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/pdf.png");
       }
       a.icon-folder:before {
-        background: url("/resources/folder.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/folder.png");
       }
       a.icon-exe:before {
-        background: url("/resources/exe.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/exe.png");
       }
       a.icon-clonedsite:before {
-        background: url("/resources/clonedsite.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/clonedsite.png");
       }
       a.icon-sqlserver:before {
-        background: url("/resources/sqlserver.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/sqlserver.png");
       }
       a.icon-qrcode:before {
-        background: url("/resources/qrcode.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/qrcode.png");
       }
       a.icon-svn:before {
-        background: url("/resources/svn.png");
-        background-size: 40px 40px;
-        background-repeat: no-repeat;
+        background-image: url("/resources/svn.png");
+      }
+
+      @media (max-width: 768px) {
+        input.form-control:-moz-placeholder {
+          font-size: .8rem;
+        }
+        input.form-control::-moz-placeholder {
+          font-size: .8rem;
+        }
+        input.form-control:placeholder {
+          font-size: .8rem;
+        }
+        input.form-control::-webkit-input-placeholder {
+          font-size: .8rem;
+        }
+      }
+      @media (max-width: 500px) {
+        input.form-control:-moz-placeholder {
+          font-size: .7rem;
+        }
+        input.form-control::-moz-placeholder {
+          font-size: .7rem;
+        }
+        input.form-control:placeholder {
+          font-size: .7rem;
+        }
+        input.form-control::-webkit-input-placeholder {
+          font-size: .7rem;
+        }
       }

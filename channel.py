@@ -4,6 +4,8 @@ Base class for all canarydrop channels.
 
 import datetime
 
+import simplejson
+
 import settings
 from exception import DuplicateChannel
 from twisted.python import log
@@ -50,11 +52,14 @@ class InputChannel(Channel):
         payload['additional_data'] = kwargs
         return payload
 
-    def format_canaryalert(self, canarydrop=None, protocol="http",
+    def format_canaryalert(self, canarydrop=None, protocol="HTTP",
                            host=settings.PUBLIC_DOMAIN, params=None, **kwargs):
         msg = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
+
+        if 'useragent' in kwargs:
+            msg['useragent'] = kwargs['useragent']
 
         if 'src_ip' in kwargs:
             msg['src_ip'] = kwargs['src_ip']
@@ -90,6 +95,11 @@ http://{host}/manage?token={token}&auth={auth}
                     )
             msg['manage'] = """
 http://{host}/manage?token={token}&auth={auth}
+            """.format(host=host,
+                    token=canarydrop['canarytoken'],
+                    auth=canarydrop['auth'])
+            msg['history'] = """
+http://{host}/history?token={token}&auth={auth}
             """.format(host=host,
                     token=canarydrop['canarytoken'],
                     auth=canarydrop['auth'])

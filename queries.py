@@ -126,8 +126,11 @@ def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
     db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
     return triggered_key
 
-def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
+def add_additional_info_to_hit(canarytoken,hit_time,additional_info=None):
     try:
+        if not additional_info:
+            return
+
         triggered_list = get_canarydrop_triggered_list(canarytoken)
 
         if 'additional_info' not in triggered_list[hit_time]:
@@ -139,7 +142,6 @@ def add_additional_info_to_hit(canarytoken,hit_time,additional_info):
                 triggered_list[hit_time]['additional_info'][k] = v
         db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
     except Exception as e:
-        import pdb; pdb.set_trace()
         log.err('Failed adding additional info: {err}'.format(err=e))
 
 def get_geoinfo(ip):
