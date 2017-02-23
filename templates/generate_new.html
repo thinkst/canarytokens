@@ -58,15 +58,16 @@
       <div class="header clearfix">
         <nav class="hidden">
           <ul class="nav nav-pills float-right">
-            <li class="nav-item">
+            <li class="nav-item hidden">
               <a class="nav-link" href="/generate">New token</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item hidden">
               <a class="nav-link manage-link" href="">Manage this token</a>
             </li>
           </ul>
         </nav>
-        <h3 class="text-muted">Canarytokens by Thinkst</h3>
+        <h3 class="text-muted"><a style="color: inherit; text-decoration: inherit;" href="/">Canarytokens by Thinkst</a></h3>
+        <a href="http://blog.thinkst.com/p/canarytokensorg-quick-free-detection.html" target="_blank">What is this and why should I care?</a>
       </div>
 
       <div class="jumbotron">
@@ -102,7 +103,7 @@
               <div class="col-md-1">
               </div>
               <div class="col-md-10">
-                <input class="form-control" type="text" id="endpoints" tabindex=1 placeholder="Provide an email email address, or webook URL, or both">
+                <input class="form-control" type="text" id="endpoints" tabindex=1 placeholder="Provide an email address, or webook URL, or both space separated">
                 <input type="hidden" name="email">
                 <input type="hidden" name="webhook">
                 <input type="hidden" name="fmt">
@@ -141,7 +142,7 @@
               <div class="col-md-1">
               </div>
               <div class="col-md-10">
-                <p><button id="save" class="btn btn-lg btn-success btn-fullwidth btn-disabled" href="#" role="button" disabled data-unseen-label="Create my Canarytoken">Fill in the fields above</button></p>
+                <p id="create-token-p"><button id="save" class="btn btn-lg btn-success btn-fullwidth btn-disabled" href="#" role="button" disabled data-unseen-label="Create my Canarytoken">Fill in the fields above</button></p>
               </div>
               <div class="col-md-1">
               </div>
@@ -674,6 +675,18 @@
         }
       }
 
+      $('input').keyup(function(event) {
+        checkType();
+        checkEndpoints();
+        checkMemo();
+        checkWebImage();
+        checkSignedExe();
+        checkClonedWebsite();
+        checkSQLServer();
+
+        //invert UI elements, depending on whether there are errors or not
+        showSave();
+      });
 
       $('input').on('change', function(e){
         checkType();
@@ -682,10 +695,14 @@
         checkWebImage();
         checkSignedExe();
         checkClonedWebsite();
-        checkSQLServer()
+        checkSQLServer();
 
         //invert UI elements, depending on whether there are errors or not
-        save = $('#save');
+        showSave();
+      });
+
+      var showSave = function(){
+        var save = $('#save');
         if (($('.form-control.error-outline').length == 0 && save.prop('disabled')) ||
             ($('.form-control.error-outline').length >  0 && ! save.prop('disabled')))
          {
@@ -694,7 +711,7 @@
           save.prop('disabled', !save.prop('disabled')).text(unseen);
           save.toggleClass('btn-disabled');
         }
-      });
+      }
 
       // $('#save').on('click', function() {
       //   var type = $('input[name=type]').val();

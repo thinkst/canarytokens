@@ -319,6 +319,11 @@
       .fileupload-wrapper p {
         padding-bottom: 0px;
       }
+      
+      #create-token-p{
+        margin-top: 1rem;
+        margin-bottom: 0rem;
+      }
 
       #save.btn-fullwidth {
         width: 100%;
@@ -519,18 +524,61 @@
         input.form-control::-webkit-input-placeholder {
           font-size: .8rem;
         }
+        .setting .key {
+        text-align: center;
+        }
+
+        .setting .value {
+        text-align: center;
+        margin-bottom: 1rem;
+        }
+
+        .artifacts{
+          margin-left: 10px;
+          margin-right: 10px;
+        }
+        .row.results{
+          margin-left: 10px;
+          margin-right: 10px;
+        }
+        
       }
       @media (max-width: 500px) {
         input.form-control:-moz-placeholder {
-          font-size: .7rem;
+          font-size: .5rem;
         }
         input.form-control::-moz-placeholder {
-          font-size: .7rem;
+          font-size: .5rem;
         }
         input.form-control:placeholder {
-          font-size: .7rem;
+          font-size: .5rem;
         }
         input.form-control::-webkit-input-placeholder {
-          font-size: .7rem;
+          font-size: .5rem;
         }
+        .token-length{
+          font-size: 1.2rem;
+        }
+        .setting .key {
+        text-align: center;
+        }
+
+        .setting .value {
+        text-align: center;
+        margin-bottom: 1rem;
+        }
+
+        .artifacts{
+          margin-left: 10px;
+          margin-right: 10px;
+        }
+        .row.results{
+          margin-left: 5px;
+          margin-right: 5px;
+        }
+
+        a.btn.btn-large.btn-success{
+          font-size: 0.9rem;
+        }
+
       }

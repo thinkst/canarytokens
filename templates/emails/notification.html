@@ -73,14 +73,14 @@
                       {% endif %}
                       {% if BasicDetails['Description'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Description</td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Reminder</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Description'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['CanaryToken'] %}
+                      {% if BasicDetails['Canarytoken'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canary Token</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['CanaryToken'] }}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canarytoken</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Canarytoken'] }}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['SourceIP'] %}
@@ -135,16 +135,16 @@
                 {% if ManageLink or HistoryLink %}
                                 <tr>
                                   <td>
-                                    <h2 style="font-size: 18px;">Canary Token Management Details:</h2></td>
+                                    <h2 style="font-size: 18px;">Canarytoken Management Details:</h2></td>
                                 </tr>
                                 <tr>
                                   <td>
                                     <table class="data" style="border: 1px solid #cccccc; font-size: 14px; border-collapse: collapse;" width="100%">
                                       <tr>
-                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">Manage this CanaryToken at <a href="{{ ManageLink }}">here</a></td> 
+                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">Manage this Canarytoken <a href="{{ ManageLink }}">here</a></td> 
                                       </tr>
                                       <tr>
-                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">Check out this CanaryToken's Incident List over <a href="{{ HistoryLink }}">here</a></td> 
+                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">More info on this token <a href="{{ HistoryLink }}">here</a></td> 
                                       </tr>
                                     </table>
                                   </td>

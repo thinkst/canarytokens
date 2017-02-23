@@ -47,7 +47,7 @@
             </li>
           </ul>
         </nav>
-        <h3 class="text-muted">Canarytokens by Thinkst</h3>
+        <h3 class="text-muted"><a style="color: inherit; text-decoration: inherit;" href="/">Canarytokens by Thinkst</a></h3>
       </div>
 
       <div class="jumbotron">
@@ -63,12 +63,12 @@
           </div>
           {% if canarydrop['alert_email_recipient']%}
           <div class="row setting">
-            <div class="col-md-6 key">
-              Email alerts<br/><small>{{canarydrop['alert_email_recipient']}}</small>
-            </div>
-            <div class="col-md-6 value">
-              <input class="settings_checkbox" type="checkbox" name="email_enable" {%if canarydrop['alert_email_enabled']%}checked{%endif%}>
-            </div>
+              <div class="col-xs-12 col-md-6 key">
+                Email alerts<br/><small>{{canarydrop['alert_email_recipient']}}</small>
+              </div>
+              <div class="col-xs-12 col-md-6 value">
+                <input class="settings_checkbox" type="checkbox" name="email_enable" {%if canarydrop['alert_email_enabled']%}checked{%endif%}>
+              </div>
           </div>
           {%endif%}
           {% if canarydrop['alert_webhook_url']%}
@@ -307,6 +307,17 @@
         </div>
       </div>
 
+        <div class="row">
+        <div class="col-md-12">
+          <h6 style="text-align: center;">This token has {% if canarydrop['triggered_list']|length == 1 %}been triggered once.
+          {% elif canarydrop['triggered_list']|length == 2 %}been triggered twice. 
+          {% elif canarydrop['triggered_list']|length > 2%}been triggered {{canarydrop['triggered_list']|length}} times.
+          {%else%}not been triggered yet{%endif%}
+          {% if canarydrop['triggered_list']|length > 0 %} View its <a href="/history?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">history</a>{%endif%}
+          </h6>
+          <br>
+          </div>
+        </div>
 
       <footer class="footer">
         <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>

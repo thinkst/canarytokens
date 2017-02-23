@@ -35,7 +35,10 @@ class EmailOutputChannel(OutputChannel):
         return minify(rendered_html)
 
     def format_report_intro(self,):
-        template = ("A {Type} Canarytoken has been triggered by the source IP {SourceIP}.")
+        if self.data['channel'] == 'HTTP':
+            template = ("An {Type} Canarytoken has been triggered by the source IP {SourceIP}.")
+        else:
+            template = ("A {Type} Canarytoken has been triggered by the source IP {SourceIP}.")
 
         if self.data['channel'] == 'DNS':
             template += "\n\nPlease note that the source IP refers to a DNS server," \
@@ -49,7 +52,7 @@ class EmailOutputChannel(OutputChannel):
 
         vars = { 'Description' : self.data['description'],
                  'Channel'     : self.data['channel'],
-                 'CanaryToken' : self.data['canarytoken'],
+                 'Canarytoken' : self.data['canarytoken'],
                  'SourceIP'   : self.data['src_ip']
                 }
 

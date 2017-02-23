@@ -20,10 +20,16 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles.css">
   </head>
   <script type="text/javascript">
+   // var t_locations = ['-33.918861,18.423300','-26.196246,28.034088','37.615223,-122.389977','55.751244,37.6184.23'];
+   // var t_count = 0;
    var geo_info = {};
     function appendGeoInfo(id,info){
       geo_info[id] = info;
     }
+    // function appendGeoInfoTest(id){
+    //   geo_info[id] = {'loc':t_locations[t_count]};
+    //   t_count++;
+    // }
 </script>
   <body>
     <div class="container-fluid">
@@ -38,10 +44,10 @@
             </li>
           </ul>
         </nav>
-        <h3 class="text-muted">Canarytokens by Thinkst</h3>
+        <h3 class="text-muted"><a style="color: inherit; text-decoration: inherit;" href="/">Canarytokens by Thinkst</a></h3>
       </div>
       <div class="history-header">
-        <h3>History for Canary Token : {{canarydrop['canarytoken']}}</h3>
+        <h3>History for Canarytoken: <p class="token-length">{{canarydrop['canarytoken']}}</p></h3>
       </div>
       <div class="alert alert-info alert-dismissible" role="alert" style="text-align: center;">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -59,20 +65,23 @@
         <div class="col-sm-6 incident-size">
         {% if (canarydrop['triggered_list']|length) > 0 %}
         <h4 style="text-align: center;">Incident List</h4>
-        <h6 class="text-info" style="text-align: center;">Click to expand Incidents</h6>
+        <!-- <h6 class="text-info" style="text-align: center;">Click to expand Incidents</h6> -->
         {% else %}
         <h4 style="text-align: center;">Incident List is Currently Empty</h4>
         {% endif %}
         <div class="row incident-list">
           <div class="col-md-12" id="incidents">
           {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
-          <div class="incident-item expand">
+          <div class="incident-item expand" id="item-{{item}}">
                 <p class="details-header">
                 <b>Date:</b> {{ item|e }}
                                   <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
                 </p>
                 <div class="incident-item-details">
+                <!-- <script type="text/javascript">
+                  appendGeoInfoTest("{{item}}");
+                </script> -->
             {% if canarydrop['triggered_list'][item]['geo_info'] and not canarydrop['triggered_list'][item]['geo_info']['bogon'] == true%}
               <table class="table table-striped">
                 <col width="25%">
@@ -242,8 +251,8 @@
     <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
-        // $(window).on('load', calcSizes());
-        // $(window).on('resize', calcSizes());
+    var green_icon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
+    var red_icon = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 
         function calcSizes(map){
           var height = $(window).height();
@@ -254,15 +263,16 @@
 
         function initMap() {
           if(Object.keys(geo_info).length === 0 && geo_info.constructor === Object){
-            // $('#incidents').parent().parent().css('margin','0px auto');
             $('#incidents').parent().parent().show();
           }else{
             $('#map').parent().parent().parent().show();
             $('#incidents').parent().parent().show();
-          // calcSizes();
+
           var map = new google.maps.Map(document.getElementById('map'), {
               center: {lat: 0, lng: 0},
-              zoom: 5,
+              zoom: 4,
+              maxZoom: 7,
+              minZoom: 2,
               mapTypeId: 'hybrid',
               mapTypeControl: false,
               streetViewControl: false
@@ -273,7 +283,6 @@
           });
 
           $(document).ready(calcSizes(map));
-          // $(window).resize(calcSizes());
           $(document).resize(calcSizes(map));
 
           var bounds = new google.maps.LatLngBounds();
@@ -311,7 +320,8 @@
                 content += '<br>'+geo_info[x][info];
               }
             }
-            content = content +'<br>'+markers[latlng]
+            content = content +'<br>'+markers[latlng];
+
             var info = new google.maps.InfoWindow({
               content : content
             });
@@ -321,18 +331,37 @@
               draggable :false,
               animation:google.maps.Animation.DROP,
               position : latlng,
-              info : content
+              icon : red_icon
             });
             bounds.extend(marker.position);
-            google.maps.event.addListener(marker, 'click', function(){
-              info.setContent(this.info);
-              info.open(map, this);
-            });
+            var list_item = document.getElementById('item-'+x);
+            var clickHandler = new ClickEventHandler(map, marker,info,list_item);
           }
           
           map.fitBounds(bounds);
           }
         }
+
+        var ClickEventHandler = function(map, marker, info, item){
+          this.map = map;
+          this.marker = marker;
+          this.item = item;
+          this.info = info
+
+          this.marker.addListener('click', function(){
+            info.open(this.map, this);
+          });
+
+          $(this.item).click(function(){ 
+              if(marker.getIcon() == green_icon){
+                marker.setIcon(red_icon);
+                marker.setAnimation(null);
+              }else{
+                marker.setIcon(green_icon);
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+              }
+            });
+        };
 
       $('.expand').click(function(){
         $(this).find('.incident-item-details').slideToggle('slow');
