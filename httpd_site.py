@@ -363,9 +363,10 @@ class ManagePage(resource.Resource):
         except (TypeError, NoCanarytokenPresent):
             return NoResource().render(request)
         g_api_key = get_canary_google_api_key()
-        if canarydrop['type']:
+        try:
+            canarydrop['type']
             template = env.get_template('manage_new.html')
-        else:
+        except KeyError:
             template = env.get_template('manage.html')
         return template.render(canarydrop=canarydrop, API_KEY=g_api_key).encode('utf8')
 
@@ -537,5 +538,9 @@ class CanarytokensHttpd():
 
         wrapped = EncodingResourceWrapper(root, [GzipEncoderFactory()])
         site = server.Site(wrapped)
+        if settings.DEBUG:
+            site.displayTracebacks = settings.DEBUG
+        else:
+            site.displayTracebacks = False
         self.service = internet.TCPServer(self.port, site)
         return None

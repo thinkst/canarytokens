@@ -33,12 +33,15 @@ WEB_IMAGE_UPLOAD_PATH='/uploads'
 for envvar in ['MAILGUN_DOMAIN_NAME','MAILGUN_API_KEY','MANDRILL_API_KEY',
                'PUBLIC_IP','PUBLIC_DOMAIN','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS', 'TOKEN_RETURN', 'MAX_UPLOAD_SIZE',
-               'WEB_IMAGE_UPLOAD_PATH']:
+               'WEB_IMAGE_UPLOAD_PATH', 'DEBUG']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
         if not hasattr(settingsmodule, envvar):
             setattr(settingsmodule, envvar, '')
+
+if type(DEBUG) == str:
+    DEBUG = (DEBUG == "True")
 
 for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY']:
     try:
