@@ -39,7 +39,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
-    
+
     <title>Canarytokens</title>
 
     <!-- Bootstrap core CSS -->
@@ -81,18 +81,18 @@
                   <span id="selected_token">Select your token</span>
                   <input name="type" type="hidden">
                 	<ul id="dropdown" class="dropdown">
-                		<li data-type="web"            data-memo-placeholder="Where this URL be placed?"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
-                		<li data-type="dns"            data-memo-placeholder="Where will this hostname be placed?"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
-                    <li data-type="smtp"           data-memo-placeholder="Where is this email address going to be left?"><a href="#" class="icon icon-email"><span class="title">Unique email address</span><div class="explanation">Alert when an email is sent to a unqiue address</div></a></li>
-                		<li data-type="web_image"      data-memo-placeholder="Where is this image going to be embedded?"><a href="#" class="icon icon-web-image"><span class="title">Custom Image Web bug</span><div class="explanation">Alert when an image you uploaded is viewed</div></a></li>
-                    <li data-type="ms_word"        data-memo-placeholder="Where is this file going to be left?"><a href="#" class="icon icon-word"><span class="title">Microsoft Word Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
-                    <li data-type="adobe_pdf"      data-memo-placeholder="Where is this file going to be left?"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF Document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
-                    <li data-type="windows_dir"    data-memo-placeholder="Which server and file location will be tokened?"><a href="#" class="icon icon-folder"><span class="title">Windows Folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
-                    <li data-type="signed_exe"     data-memo-placeholder="Where is this binary going to be deployed?"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
-                    <li data-type="cloned_website" data-memo-placeholder="Which website are you protecting?"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned Website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
-                    <li data-type="sql_server"     data-memo-placeholder="Which database and table are you protecting?"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
-                    <li data-type="qr_code"        data-memo-placeholder="Where are you going to place the QR code?"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
-                    <li data-type="svn"      data-memo-placeholder="Name of the SVN repo and server"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
+                		<li data-type="web"            data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
+                		<li data-type="dns"            data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
+                    <li data-type="smtp"           data-memo-placeholder="Email address in Events database"><a href="#" class="icon icon-email"><span class="title">Unique email address</span><div class="explanation">Alert when an email is sent to a unqiue address</div></a></li>
+                		<li data-type="web_image"      data-memo-placeholder="Image embedded in router X's admin interface"><a href="#" class="icon icon-web-image"><span class="title">Custom Image Web bug</span><div class="explanation">Alert when an image you uploaded is viewed</div></a></li>
+                    <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
+                    <li data-type="adobe_pdf"      data-memo-placeholder="PDF document placed at U:\Users\Sipho\Reports\feb.pdf"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF Document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
+                    <li data-type="windows_dir"    data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows Folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
+                    <li data-type="signed_exe"     data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
+                    <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned Website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
+                    <li data-type="sql_server"     data-memo-placeholder="SELET SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
+                    <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
+                    <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
                 	</ul>
                 </div>
               </div>
@@ -107,7 +107,8 @@
                 <input type="hidden" name="email">
                 <input type="hidden" name="webhook">
                 <input type="hidden" name="fmt">
-                <input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">
+                <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
+                <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
                 <div class="field-optional field-web_image hidden">
                   {{ fileupload('web_image', text="Replace the default 1x1 GIF with your own image (PNG, GIF, JPG)") }}
                 </div>
@@ -115,7 +116,7 @@
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
                 </div>
                 <div class="field-optional field-cloned_website hidden">
-                  <input class="form-control" type="text" name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
+                  <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
                 </div>
                 <div class="field-optional field-sql_server hidden">
                   <div id="sql_type" class="wrapper-dropdown form-control" tabindex="1">
@@ -128,11 +129,11 @@
                   	</ul>
                   </div>
                   on
-                  <input class="form-control" type="text" name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
-                  <input class="form-control" type="text" name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
+                  <input class="form-control" type="text" tabindex=4 name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
+                  <input class="form-control" type="text" tabindex=5 name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
                   fires
-                  <input class="form-control" type="text" name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
-                  <input class="form-control" type="text" name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
+                  <input class="form-control" type="text" tabindex=6 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
+                  <input class="form-control" type="text" tabindex=7 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
                 </div>
               </div>
               <div class="col-md-1">
@@ -142,7 +143,7 @@
               <div class="col-md-1">
               </div>
               <div class="col-md-10">
-                <p id="create-token-p"><button id="save" class="btn btn-lg btn-success btn-fullwidth btn-disabled" href="#" role="button" disabled data-unseen-label="Create my Canarytoken">Fill in the fields above</button></p>
+                <p id="create-token-p"><button id="save" tabindex=10 class="btn btn-lg btn-success btn-fullwidth btn-disabled" href="#" role="button" disabled data-unseen-label="Create my Canarytoken">Fill in the fields above</button></p>
               </div>
               <div class="col-md-1">
               </div>
@@ -570,7 +571,7 @@
         endpoints.removeClass('error-outline').addClass('success-outline');
       }
       var checkMemo = function() {
-        memo = $('input[name=memo]');
+        memo = $('textarea[name=memo]');
         if (memo.val().length == 0) {
           return memo.addClass('error-outline').removeClass('success-outline');
         }
@@ -675,7 +676,7 @@
         }
       }
 
-      $('input').keyup(function(event) {
+      $('input,textarea').on('change keyup', function(e){
         checkType();
         checkEndpoints();
         checkMemo();
@@ -686,19 +687,9 @@
 
         //invert UI elements, depending on whether there are errors or not
         showSave();
-      });
-
-      $('input').on('change', function(e){
-        checkType();
-        checkEndpoints();
-        checkMemo();
-        checkWebImage();
-        checkSignedExe();
-        checkClonedWebsite();
-        checkSQLServer();
-
-        //invert UI elements, depending on whether there are errors or not
-        showSave();
+        if (e.currentTarget.parentElement.id == 'type'){
+          $('#endpoints').focus();
+        }
       });
 
       var showSave = function(){
@@ -747,7 +738,7 @@
                                   $('#dropdown').data('selected', list_item.data('type'))
                                   $('#selected_token').text(list_item.find('span.title').text());
                                   ToggleOptionalFields(list_item.data('type'));
-                                  $('input[name=memo]').prop('placeholder', list_item.data('memo-placeholder'));
+                                  $('textarea[name=memo]').prop('placeholder', 'Reminder note when this token is triggered, like: '+list_item.data('memo-placeholder'));
                                   $('input[name=type]').val(list_item.data('type')).trigger('change');
                                 });
 

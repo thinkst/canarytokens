@@ -118,21 +118,21 @@
       .results {
         padding-top: 1rem;
       }
-      input.form-control, input.fileupload {
+      input.form-control, input.fileupload, textarea {
         margin-top: 10px;
         margin-bottom: 10px;
         text-align: center;
       }
-      input.form-control::-webkit-input-placeholder {
+      input.form-control::-webkit-input-placeholder, textarea.form-control::-webkit-input-placeholder {
         color: #bbb;
       }
-      input.form-control:-moz-placeholder {
+      input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder{
         color: #bbb;
       }
-      input.form-control::-moz-placeholder {
+      input.form-control::-moz-placeholder, textarea.form-control::-moz-placeholder {
         color: #bbb;
       }
-      input.form-control:placeholder {
+      input.form-control:placeholder, textarea.form-control:placeholder {
         color: #bbb;
       }
 
@@ -319,7 +319,7 @@
       .fileupload-wrapper p {
         padding-bottom: 0px;
       }
-      
+
       #create-token-p{
         margin-top: 1rem;
         margin-bottom: 0rem;
@@ -427,7 +427,7 @@
         background-color: #5cb85c;
         border-color: #5cb85c;
       }
-      
+
       .jumbotron .btn.btn-clipboard {
         background-color: #5cb85c;
         border-color: #5cb85c;
@@ -445,7 +445,7 @@
           max-width: 100%;
         }
       }
-      
+
       .jumbotron {
             max-width: 46rem;
             margin: auto;
@@ -512,16 +512,16 @@
       }
 
       @media (max-width: 768px) {
-        input.form-control:-moz-placeholder {
+        input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder {
           font-size: .8rem;
         }
-        input.form-control::-moz-placeholder {
+        input.form-control::-moz-placeholder, textarea.form-control::-moz-placeholder {
           font-size: .8rem;
         }
-        input.form-control:placeholder {
+        input.form-control:placeholder, textarea.form-control:placeholder {
           font-size: .8rem;
         }
-        input.form-control::-webkit-input-placeholder {
+        input.form-control::-webkit-input-placeholder, textarea.form-control::-webkit-input-placeholder {
           font-size: .8rem;
         }
         .setting .key {
@@ -541,19 +541,19 @@
           margin-left: 10px;
           margin-right: 10px;
         }
-        
+
       }
       @media (max-width: 500px) {
-        input.form-control:-moz-placeholder {
+        input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder{
           font-size: .5rem;
         }
-        input.form-control::-moz-placeholder {
+        input.form-control::-moz-placeholder, textarea.form-control::-moz-placeholder {
           font-size: .5rem;
         }
-        input.form-control:placeholder {
+        input.form-control:placeholder, textarea.form-control:placeholder {
           font-size: .5rem;
         }
-        input.form-control::-webkit-input-placeholder {
+        input.form-control::-webkit-input-placeholder, textarea.form-control::-webkit-input-placeholder {
           font-size: .5rem;
         }
         .token-length{
