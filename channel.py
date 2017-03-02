@@ -61,15 +61,21 @@ class InputChannel(Channel):
         if 'useragent' in kwargs:
             msg['useragent'] = kwargs['useragent']
 
+        if 'referer' in kwargs:
+            msg['referer'] = kwargs['referer']
+
+        if 'location' in kwargs:
+            msg['location'] = kwargs['location']
+
         if 'src_ip' in kwargs:
             msg['src_ip'] = kwargs['src_ip']
 
+        msg['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         msg['channel'] = self.name
         if params.get('body_length', 999999999) <= 140:
             msg['body'] = """Canarydrop@{time} via {channel_name}: """\
                 .format(channel_name=self.name,
-                        time=datetime.datetime.utcnow()\
-                                  .strftime("%Y-%m-%d %H:%M:%S"))
+                        time=msg['time'])
             capacity = 140 - len(msg['body'])
             msg['body'] += canarydrop.memo[:capacity]
         else:
@@ -85,7 +91,7 @@ Memo   : {memo}
 Manage your settings for this Canarydrop:
 http://{host}/manage?token={token}&auth={auth}
 """         .format(channel_name=self.name,
-                    time=datetime.datetime.utcnow(),
+                    time=msg['time'],
                     memo=canarydrop.memo,
                     additional_data=self.format_additional_data(**kwargs),
                     protocol=protocol,

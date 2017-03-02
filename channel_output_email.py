@@ -52,12 +52,22 @@ class EmailOutputChannel(OutputChannel):
 
         vars = { 'Description' : self.data['description'],
                  'Channel'     : self.data['channel'],
+                 'Time'        : self.data['time'],
                  'Canarytoken' : self.data['canarytoken'],
-                 'SourceIP'   : self.data['src_ip']
+                 'SourceIP'    : self.data['src_ip']
                 }
 
         if 'useragent' in self.data:
             vars['User-Agent'] = self.data['useragent']
+
+        if 'tokentype' in self.data:
+            vars['TokenType'] = self.data['tokentype']
+
+        if 'referer' in self.data:
+            vars['Referer'] = self.data['referer']
+
+        if 'location' in self.data:
+            vars['Location'] = self.data['location']
 
         return vars
 
@@ -69,6 +79,8 @@ class EmailOutputChannel(OutputChannel):
                                       canarydrop=canarydrop,
                                       **kwargs)
         self.data = msg
+
+        self.data['tokentype']   = canarydrop['type']
         self.data['canarytoken'] = canarydrop['canarytoken']
         self.data['description'] = canarydrop['memo']
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:

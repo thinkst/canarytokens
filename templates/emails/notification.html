@@ -71,16 +71,28 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Channel'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Description'] %}
+                      {% if BasicDetails['Time'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Reminder</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Description'] }}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Time</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Time'] }}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['Canarytoken'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canarytoken</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Canarytoken'] }}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['Description'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Reminder</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Description'] }}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['TokenType'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Type</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['TokenType'] }}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['SourceIP'] %}
@@ -93,7 +105,18 @@
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">User Agent</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['User-Agent'] }}</code></td>
-                                        </td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['Referer'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Referer'] }}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['Location'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Location</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Location'] }}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}
