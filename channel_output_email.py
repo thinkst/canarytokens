@@ -36,17 +36,20 @@ class EmailOutputChannel(OutputChannel):
 
     def format_report_intro(self,):
         if self.data['channel'] == 'HTTP':
-            template = ("An {Type} Canarytoken has been triggered by the source IP {SourceIP}.")
+            template = ("An {Type} Canarytoken has been triggered")
         else:
-            template = ("A {Type} Canarytoken has been triggered by the source IP {SourceIP}.")
+            template = ("A {Type} Canarytoken has been triggered")
+
+        if 'src_ip' in self.data:
+            template += " by the Source IP {src}.".format(src=self.data['src_ip'])
 
         if self.data['channel'] == 'DNS':
             template += "\n\nPlease note that the source IP refers to a DNS server," \
                         " rather than the host that triggered the token."
 
         return template.format(
-            Type = self.data['channel'],
-            SourceIP = self.data['src_ip'])
+            Type=self.data['channel'])
+
 
     def get_basic_details(self,):
 
