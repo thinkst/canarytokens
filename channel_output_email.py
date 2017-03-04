@@ -79,9 +79,8 @@ class EmailOutputChannel(OutputChannel):
                                       canarydrop=canarydrop,
                                       **kwargs)
         self.data = msg
-
-        if 'type' in canarydrop:
-            self.data['tokentype']   = canarydrop['type']
+        if 'type' in canarydrop._drop:
+            self.data['tokentype']   = canarydrop._drop['type']
 
         self.data['canarytoken'] = canarydrop['canarytoken']
         self.data['description'] = canarydrop['memo']

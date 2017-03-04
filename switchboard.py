@@ -69,6 +69,6 @@ class Switchboard(object):
                                               input_channel=self.input_channels[input_channel],
                                               **kwargs)
                 except KeyError as e:
-                    raise Exception('Error sending alert: {0}'.format(e))
+                    raise Exception('Error sending alert: {err}'.format(err=e.message))
         except Exception as e:
             log.err('Exception occurred in switchboard dispatch: {err}'.format(err=e))
