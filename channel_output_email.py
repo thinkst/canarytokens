@@ -80,7 +80,9 @@ class EmailOutputChannel(OutputChannel):
                                       **kwargs)
         self.data = msg
 
-        self.data['tokentype']   = canarydrop['type']
+        if 'type' in canarydrop['type']:
+            self.data['tokentype']   = canarydrop['type']
+
         self.data['canarytoken'] = canarydrop['canarytoken']
         self.data['description'] = canarydrop['memo']
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
