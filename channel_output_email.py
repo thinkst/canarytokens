@@ -56,9 +56,11 @@ class EmailOutputChannel(OutputChannel):
         vars = { 'Description' : self.data['description'],
                  'Channel'     : self.data['channel'],
                  'Time'        : self.data['time'],
-                 'Canarytoken' : self.data['canarytoken'],
-                 'SourceIP'    : self.data['src_ip']
+                 'Canarytoken' : self.data['canarytoken']
                 }
+
+        if 'src_ip' in self.data:
+            vars['src_ip'] = self.data['src_ip']
 
         if 'useragent' in self.data:
             vars['User-Agent'] = self.data['useragent']
