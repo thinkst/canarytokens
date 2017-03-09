@@ -93,8 +93,33 @@ class EmailOutputChannel(OutputChannel):
             self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:
             self.mandrill_send(msg=msg,canarydrop=canarydrop)
+        elif settings.SENDGRID_API_KEY:
+            self.sendgrid_send(msg=msg,canarydrop=canarydrop)
         else:
             log.err("No email settings found")
+            
+    def sendgrid_send(self, msg=None, canarydrop=None):
+		try:
+			url = 'https://api.sendgrid.com/v3/mail/send'
+			headers = {
+				'authorization': "Bearer ", settings.SENDGRID_API_KEY,
+				'content-type': "application/json"
+				}
+			payload = "{\"personalizations\":[{\"to\":[{\"email\":\""canarydrop['alert_email_recipient']"\",\"name\":\"\"}],\"subject\":\""msg['subject']"\"}],\"from\":{\"email\":\""address=msg['from_address']"\",\"name\":\""msg['from_display']"\"},\"subject\":\""msg['subject']"\",\"content\":[{\"type\":\"text/html\",\"value\":\""msg['body']"\"}],\"footer\":{\"enable\":true,\"text\":\"Thanks,/n The SendGrid Team\",\"html\":\"<p>Thanks</br>The SendGrid Team</p>\"},\"sandbox_mode\":{\"enable\":false}}"
+			
+			if settings.DEBUG:
+				pprint.pprint(payload)
+			else:
+				result = requests.request("POST", url, data=payload, headers=headers)
+				#Raise an error if the returned status is 4xx or 5xx
+                result.raise_for_status()
+
+            log.msg('Sent alert to {recipient} for token {token}'\
+                        .format(recipient=canarydrop['alert_email_recipient'],
+                                token=canarydrop.canarytoken.value()))
+
+        except requests.exceptions.HTTPError as e:
+            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
 
     def mailgun_send(self, msg=None, canarydrop=None):
         try:
