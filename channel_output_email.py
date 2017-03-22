@@ -91,6 +91,8 @@ class EmailOutputChannel(OutputChannel):
 
         self.data['canarytoken'] = canarydrop['canarytoken']
         self.data['description'] = canarydrop['memo']
+        log.msg(settings.SENDGRID_API_KEY)
+        log.msg(settings.MAILGUN_API_KEY)
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
             self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:
@@ -168,7 +170,7 @@ class EmailOutputChannel(OutputChannel):
 			message = Mail(from_email, subject, to_email, content)
 			
 			if settings.DEBUG:
-				pprint.pprint(mail)
+				pprint.pprint(message)
 			else:
 				result = sg.client.mail.send.post(request_body=message.get())
 				
