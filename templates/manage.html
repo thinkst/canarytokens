@@ -1,351 +1,479 @@
+  {% macro inputcopy(name, value="")%}
+  <input id="{{name}}" type="text" class="result-data" value="{{value}}" readonly="">
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+
+{% macro textareacopy(name, value="")%}
+  <textarea id="{{name}}" class="result-data" readonly="">{{value}}
+  </textarea>
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
 <!DOCTYPE html>
-<head>
-<title>canarytokens.net</title>
-<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+    <title>Canarytokens</title>
 
-<meta name="viewport" content="initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="/resources/famfamfam-flags.css" >
-<style>
-table{
-  width:100%;
-  table-layout: fixed;
-  padding-bottom: 15px;
-}
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 
-td{
-  overflow:hidden;
-  word-wrap: break-word;
-}
-.history_item{
-  border-width: 2px;
-  border-style: solid;
-  padding: 10px;
-  margin: 10px;
-  text-align: left;
-  width: 50%;
-}
-.details-list{
-  display:none;
-}
-.details-header{
-  text-align: center;
-}
-.expand{
-  text-align: center;
-  color: blue;
-}
-.expand:hover{
-  text-decoration: underline;
-}
-.map{
-  margin-bottom: 10px;
-  margin-top: 10px;
-   height:400px;
-   width:70%;
-   text-align:center;
-}
-.header_row{
-  background-color: #51b95a;
-}
-.info_row{
-  background-color: #cbe8d1;
-}
-</style>
-</head>
-<body>
-<script type="text/javascript">
-   var geo_info = {};
-    function appendGeoInfo(id,info){
-      geo_info[id] = info;
-    }
-</script>
-<center>
-{% if saved %}
-<div>
-  Saved settings.
-</div>
-{%endif%}
-<form method="POST">
-    Token: {{canarydrop['canarytoken']}}<br />
-    URL: {{canarydrop.get_url()}}<br />
-    DNS: {{canarydrop.get_hostname()}}<br />
-    Email Enabled: <input type="checkbox" name="email_enable"  {% if canarydrop['alert_email_enabled'] %}checked="checked"{%endif%}/><br />
+    <!-- Custom styles for this template -->
+    <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/css/bootstrap3/bootstrap-switch.min.css" integrity="sha256-TmXiemEItWzNM8RAaAW2WZNEadRBPMsiW6RHIQC2D2A=" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="/resources/styles.css">
+  </head>
 
-    {% if canarydrop['alert_webhook_url'] %}
-    Webook Enabled: <input type="checkbox" name="webhook_enable"  {% if canarydrop['alert_webhook_enabled'] %}checked="checked"{%endif%}/><br />
-    {%endif%}
-    {% if canarydrop['web_image_path'] %}
-    Alternative Image: <input type="checkbox" name="web_image_enable"  {% if canarydrop['web_image_enabled'] %}checked="checked"{%endif%}/><br />
-    <img src="data:image/png;base64,{{canarydrop.get_web_image_as_base64()}}"/>
-    {%endif%}
-    {% if canarydrop['alert_sms_recipient'] %}
-    SMS Enabled: <input type="checkbox" name="sms_enable"  {% if canarydrop['alert_sms_enabled'] %}checked="checked"{%endif%}/><br />
-    {%endif%}
-    <input type="hidden" name="token" value="{{canarydrop['canarytoken']}}"/><br />
-    <input type="hidden" name="auth" value="{{canarydrop['auth']}}" /><br />
-    <input type="submit" />
-</form>
-</center>
-{% if error %}
-<center>
-{{error|e}}
-</center>
-{%endif%}
+  <body>
 
-<center><a href="https://canary.tools/" target="_blank"><img src="//thinkst.com/images/canary_ad_1.png" style="width:350px;height:151px;"></a><center>
-  {% if canarydrop['triggered_list'] %}
-  {% if API_KEY %}
-    <b>Map:</b>
-    <br>
-    <div class="map" id="map">
-    </div>
-  {%endif%}
-    <b>History:</b>
-    <ul>
-    {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
-      <div class="history_item" >
-        <p class="details-header"><b>Date:</b> {{ item|e }}
-                                  <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
-                                  <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
-                                  {%if canarydrop['triggered_list'][item]['geo_info'] != None and
-                                       canarydrop['triggered_list'][item]['geo_info'] is defined and
-                                       canarydrop['triggered_list'][item]['geo_info']['country'] != None and
-                                       canarydrop['triggered_list'][item]['geo_info']['country'] is defined %}
-                                    <b>Country:</b>{{canarydrop['triggered_list'][item]['geo_info']['country']}}
-                                    <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i></p>
-                                  {%else%}
-                                    <b>Country:</b> Unknown
-                                  {%endif%}
-        <div class="details-list">
-        {% if canarydrop['triggered_list'][item]['geo_info'] %}
-          <table class="additional_info">
-            <col width="25%">
-            <col width="75%">
-            <tr class="header_row">
-               <td colspan="2">
-                 Geo Info
-               </td>
-            </tr>
-            {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
-            <tr class="info_row">
-              <td>Country</td>
-              <td>
-                  {{ canarydrop['triggered_list'][item]['geo_info']['country'] }}
-                  <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i>
-              </td>
-            </tr>
-            {% endif %}
-            {% if canarydrop['triggered_list'][item]['geo_info']['city'] %}
-            <tr class="info_row">
-              <td>City</td>
-              <td>
-                  {{ canarydrop['triggered_list'][item]['geo_info']['city'] }}
-              </td>
-            </tr>
-            {% endif %}
-            {% if canarydrop['triggered_list'][item]['geo_info']['region'] %}
-            <tr class="info_row">
-              <td>Region</td>
-              <td>
-                  {{ canarydrop['triggered_list'][item]['geo_info']['region'] }}
-              </td>
-            </tr>
-            {% endif %}
-            {% if canarydrop['triggered_list'][item]['geo_info']['org'] %}
-            <tr class="info_row">
-              <td>Organisation</td>
-              <td>
-                  {{ canarydrop['triggered_list'][item]['geo_info']['org'] }}
-              </td>
-            </tr>
-            {% endif %}
-            {% if canarydrop['triggered_list'][item]['geo_info']['hostname'] %}
-            <tr class="info_row">
-              <td>Hostname</td>
-              <td>
-                  {{ canarydrop['triggered_list'][item]['geo_info']['hostname'] }}
-              </td>
-            </tr>
-            {% endif %}
-            <script type="text/javascript">
-              appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']|tojson}});
-            </script>
-          </table>
-        {%endif%}
-        {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None %}
-          <table class="additional_info">
-            <col width="25%">
-            <col width="75%">
-            <tr class="header_row">
-               <td colspan="2">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Tor-logo-2011-flat.svg" style="width:30px;height:19px;">
-               </td>
-            </tr>
-            <tr class="info_row">
-              <td>
-                Known Exit Node
-              </td>
-              <td>
-                {{ canarydrop['triggered_list'][item]['is_tor_relay']==True }}
-              </td>
-            </tr>
-          </table>
-        {%endif%}
-
-            {% for field in canarydrop['triggered_list'][item] %}
-              {% if canarydrop['triggered_list'][item][field] != None and
-                    canarydrop['triggered_list'][item][field] is defined and
-                    field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
-                {% if field not in ['src_ip','input_channel'] %}
-                <table class="additional_info">
-                  <col width="25%">
-                  <col width="75%">
-                  <tr class="header_row">
-                     <td colspan="2">
-                       Basic Info
-                     </td>
-                  </tr>
-                  <tr class="info_row">
-                     <td>
-                       {{field}}
-                     </td>
-                     <td>
-                       {{ canarydrop['triggered_list'][item][field]|e }}
-                     </td>
-                  </tr>
-                </table>
-                {%endif%}
-              {%endif%}
-            {% endfor %}
-            {% if canarydrop['triggered_list'][item]['additional_info'] %}
-              <table class="additional_info">
-                            <b>Additional Info</b>
-                <col width="25%">
-                <col width="75%">
-                {% for info in canarydrop['triggered_list'][item]['additional_info'] %}
-                <tr class="header_row">
-                   <td colspan="2">
-                     {{info}}
-                   </td>
-                    {%if info == 'iOS-App'%}
-                  <script type="text/javascript">
-                    appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['additional_info'][info]}})
-                  </script>
-                  {% else %}
-                    {% if info == 'secretkeeper_photo'%}
-                      <tr class="info_row">
-                        <td>
-                          Photo
-                        </td>
-                        <td>
-                          <img src="data:image/png;base64,{{canarydrop.get_secretkeeper_photo_as_base64(item)}}"/>
-                        </td>
-                      </tr>
-                    {% endif %}
-                  {%endif%}
-                </tr>
-                  {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
-                    {% continue %}
-                  {% endif %}
-                  {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
-                    <tr class="info_row">
-                      <td>
-                        {{info_item}}
-                      </td>
-                      <td>
-                        {{ canarydrop['triggered_list'][item]['additional_info'][info][info_item][0] == '1'
-                              if info_item in ['enabled','installed']
-                              else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ') }}
-                      </td>
-                    </tr>
-                  {% endfor %}
-                {% endfor %}
-              </table>
-            {% endif %}
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link" href="/generate">New token</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/history?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">History</a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted"><a style="color: inherit; text-decoration: inherit;" href="/">Canarytokens by Thinkst</a></h3>
       </div>
-        <p class="expand">Expand</p>
+
+      <div class="jumbotron">
+        <div class="success">
+          <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+              <h3>Token settings</h3>
+            </div>
+            <div class="col-md-1">
+            </div>
+          </div>
+          {% if canarydrop['alert_email_recipient']%}
+          <div class="row setting">
+              <div class="col-xs-12 col-md-6 key">
+                Email alerts<br/><small>{{canarydrop['alert_email_recipient']}}</small>
+              </div>
+              <div class="col-xs-12 col-md-6 value">
+                <input class="settings_checkbox" type="checkbox" name="email_enable" {%if canarydrop['alert_email_enabled']%}checked{%endif%}>
+              </div>
+          </div>
+          {%endif%}
+          {% if canarydrop['alert_webhook_url']%}
+          <div class="row setting">
+            <div class="col-md-6 key">
+              Webhook reporting<br/><small>{{canarydrop['alert_webhook_url']}}</small>
+            </div>
+            <div class="col-md-6 value">
+              <input class="settings_checkbox" type="checkbox" name="webhook_enable" {%if canarydrop['alert_webhook_enabled']%}checked{%endif%}>
+            </div>
+          </div>
+          {%endif%}
+          {% if canarydrop['type'] in ["web", "web_image"]%}
+          <div class="row setting">
+            <div class="col-md-6 key">
+              Browser scanner<br/><small>Runs Javascript fingerprinting when the token is browsed</small>
+            </div>
+            <div class="col-md-6 value">
+              <input class="settings_checkbox" type="checkbox" name="browser_scanner_enable" {%if canarydrop['browser_scanner_enabled']%}checked{%endif%}>
+            </div>
+          </div>
+          {%endif%}
+          {% if canarydrop['type'] == "web_image"%}
+          <div class="row setting">
+            <div class="col-md-6 key">
+              Custom web image<br/><small>Serve your alternative image</small>
+            </div>
+            <div class="col-md-6 value">
+              <input class="settings_checkbox" type="checkbox" name="web_image_enable" {%if canarydrop['web_image_enabled']%}checked{%endif%}>
+            </div>
+          </div>
+          {%endif%}
+          <div class="row results">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+              <div class="result web web_image">
+                <h5>Here's your Web token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ inputcopy('result_web') }}
+                  </div>
+                </div>
+              </div>
+              <div class="result dns">
+                <h5>Here's your DNS token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ inputcopy('result_dns') }}
+                  </div>
+                </div>
+              </div>
+              <div class="result smtp">
+                <h5>Here's your tokened Email address:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ inputcopy('result_smtp') }}
+                  </div>
+                </div>
+              </div>
+              <div class="result ms_word">
+                <h5>Here's your tokened MS Word document:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="msword">Download your MS Word file</a>
+                  </div>
+                </div>
+              </div>
+              <div class="result adobe_pdf">
+                <h5>Here's your tokened PDF document:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="pdf">Download your PDF file</a>
+                  </div>
+                </div>
+              </div>
+              <div class="result windows_dir">
+                <h5>Here's your Windows Folder token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="zip">Download your Zip file</a>
+                  </div>
+                </div>
+              </div>
+              <div class="result clonedsite">
+                <h5>Here's your tokened Javascript:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {% if canarydrop['type'] == 'clonedsite'%}
+                    {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript()) }}
+                    {%endif%}
+                  </div>
+                </div>
+              </div>
+              <div class="result sql_server">
+                <div class="artifacts">
+                  <p>Here's your SQL token:</p>
+                  <div class="form-control">
+                    <div id="sql-insert-update-delete" class="sql-insert-update-delete pre-like hidden">
+--create a stored proc that'll ping canarytokens
+      CREATE proc ping_canarytoken
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="sql_hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(rand()*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','-')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_fileexist @unc;
+      END
+
+      --add a trigger if data is altered
+      CREATE TRIGGER <span class="sql_trigger_name"></span>
+        ON <span class="sql_table_name"></span>
+        AFTER <span class="sql_action"></span>
+      AS
+      BEGIN
+      exec ping_canarytoken
+      end
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#sql-insert-update-delete">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                    </div>
+                    <div id="sql-select" class="sql-select pre-like hidden">
+--create a table-view function to query the canary hostname
+      CREATE function <span class="sql_function_name"></span>(@RAND FLOAT) returns @output table (col1 varchar(max))
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="sql_hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(@RAND*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','0')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
+              return
+      END
+
+      --create a view that calls the function
+      alter view <span class="sql_view_name"></span> as select * from master.dbo.<span class="sql_function_name"></span>(rand());
+
+      --change permissions on <span class="sql_function_name"></span> to SELECT for [public]
+      --change permissions on <span class="sql_view_name"></span> to SELECT for [public]
+      --don't allow [public] to view the definitions
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#sql-select">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="result qr_code">
+                <h5>Your QR Code token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {% if canarydrop['type'] == 'qr_code'%}
+                    <img id="qrcode_png" src="{{canarydrop.get_qrcode_data_uri_png()}}"/>
+                    <a href="{{canarydrop.get_qrcode_data_uri_png()}}" download="{{canarydrop['canarytoken']}}.png" class="btn btn-success">Download</a>
+                    {%endif%}
+                  </div>
+                </div>
+              </div>
+              <div class="result svn">
+                <h5>Your SVN token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ inputcopy('result_svn') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-1">
+            </div>
+          </div>
+        </div>
       </div>
-    {% endfor %}
 
-    </ul>
-    <script type="text/javascript">
-        function initMap() {
+        <div class="row">
+        <div class="col-md-12">
+          <h6 style="text-align: center;">This token has {% if canarydrop['triggered_list']|length == 1 %}been triggered once.
+          {% elif canarydrop['triggered_list']|length == 2 %}been triggered twice. 
+          {% elif canarydrop['triggered_list']|length > 2%}been triggered {{canarydrop['triggered_list']|length}} times.
+          {%else%}not been triggered yet{%endif%}
+          {% if canarydrop['triggered_list']|length > 0 %} View its <a href="/history?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">history</a>{%endif%}
+          </h6>
+          <br>
+          </div>
+        </div>
 
-          var map = new google.maps.Map(document.getElementById('map'), {
-              center: {lat: 0, lng: 0},
-              zoom: 2,
-              mapTypeId: 'hybrid',
-              mapTypeControl: false,
-              streetViewControl: false
-            });
+      <footer class="footer">
+        <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>
+        <p>&copy; Thinkst Applied Research 2015&ndash;2017</p>
+      </footer>
 
-          var bounds = new google.maps.LatLngBounds();
-          var markers = {};
-          for (x in geo_info){
-            var loc = String(geo_info[x]['loc']).split(",");
-            var latitude = parseFloat(loc[0]);
-            var longitude = parseFloat(loc[1]);
-            if (isNaN(latitude) || isNaN(longitude)) {
-              continue;
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="//v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/js/bootstrap-switch.min.js" integrity="sha256-lDGxF93YiQJCM4WXZYZmXNww6vWiPqnVxJgFJvstLGE=" crossorigin="anonymous"></script>
+    <script>
+      Array.prototype.random = function () {
+        return this[Math.floor((Math.random()*this.length))];
+      }
+      var canarydrop = {{canarydrop.serialize()|tojson}};
+
+      var save_settings = function(checkbox) {
+
+        var data = {'token': canarydrop['canarytoken'],
+                    'auth':  canarydrop['auth'],
+                    'setting': checkbox.name,
+                    'value': checkbox.value};
+        $.ajax({
+            url: '/settings',
+            data: data,
+            method: 'POST',
+            success: function(data){
+
+            },
+            error: function( jqXhr, textStatus, errorThrown ){
+                $(checkbox).bootstrapSwitch('toggleState', true);
             }
-            var latlng = new google.maps.LatLng(latitude,longitude);
+        });
+      }
 
-            if(markers[latlng]==undefined){
-              markers[latlng]= '<br>'+x;
-            }else{
-              markers[latlng] += '<br>'+x;
-            }
-
-            var content = '';
-            for(info in geo_info[x]){
-              if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname'){
-                continue;
-              }
-              if(info=='ip'){
-                if(geo_info[x]['hostname']==undefined){
-                  content = '<b>'+geo_info[x]['ip']+'</b>'+content;
-                }
-                else{
-                  content = '<b>'+geo_info[x]['ip']+ '</b><br>'+geo_info[x]['hostname']+'<br>'+content;
-                }
-              }else if(info=='country'){
-                content +='<br><i class="famfamfam-flag-'+(geo_info[x]['country']).toLowerCase()+'"></i> '+(geo_info[x]['country']);
-              }else{
-                content += '<br>'+geo_info[x][info];
-              }
-            }
-            content = content +'<br>'+markers[latlng]
-            var info = new google.maps.InfoWindow({
-              content : content
-            });
-
-            var marker = new google.maps.Marker({
-              map : map,
-              draggable :false,
-              animation:google.maps.Animation.DROP,
-              position : latlng,
-              info : content
-            });
-            bounds.extend(marker.position);
-            google.maps.event.addListener(marker, 'click', function(){
-              info.setContent(this.info);
-              info.open(map, this);
-            });
+      $(function() {
+        $(".settings_checkbox").bootstrapSwitch();
+        $('input[type="checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+          if (state) {
+            this.value = "on";
+          } else {
+            this.value = "off";
           }
-          map.fitBounds(bounds);
+          save_settings(this);
+        });
+
+        $('.tooltip').tooltipster({
+          theme: 'tooltipster-borderless',
+          trigger: 'custom',
+          triggerOpen: {
+          },
+          triggerClose: {
+            mouseleave: true,
+            originClick: true,
+            touchleave: true
+          }
+        });
+
+        var clipboard = new Clipboard('.btn-clipboard');
+        clipboard.on('success', function(e){
+          $(e.trigger).tooltipster('content', 'Copied!')
+          $(e.trigger).tooltipster('open');
+        });
+        clipboard.on('failure', function(e){
+          $(e.trigger).tooltipster('content', 'cmd/ctrl + c to copy')
+          $(e.trigger).tooltipster('open');
+        });
+        $('.btn-clipboard').removeClass('tooltip');
+
+        var _handleWebResponse = function(data) {
+          $('#result_web').val(data['generated_url']);
+        };
+        var _handleDNSResponse = function(data) {
+          $('#result_dns').val(data['generated_hostname']);
+        };
+        var _handleFileDownloadResponse = function(data) {
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
+          });
         }
-    $('.expand').click(function(){
-      if(this.innerHTML == "Expand"){
-        this.innerHTML = "Collapse";
-       }else{
-        this.innerHTML = "Expand";
-       }
-      $(this.previousElementSibling).slideToggle('slow');
-    });
-  </script>
-  {% if API_KEY %}
-  <script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap" async defer></script>
-  {%endif%}
-  {%endif%}
-</body>
+        var _handleClonedWebsiteResponse = function(data) {
+          //$('#result_clonedsite').val(data['clonedsite_js']);
+        }
+        var _handleQrCodeResponse = function(data) {
+        }
+        var _handleSVNResponse = function(data){
+          $('#result_svn').val('svn propset svn:externals "extras http://'+data['generated_hostname']+'" .')
+        }
+        var _handleSMTPResponse = function(data) {
+          $('#result_smtp').val(data['canarytoken']+'@'+document.domain);
+        }
+        var _handleSQLServerResponse = function(data) {
+          $('.sql_hostname').text(data['generated_hostname']);
+          if ($('#selected_sql_action').text() == 'SELECT') {
+            $('.sql-select').removeClass('hidden');
+            $('.sql_function_name').text($('input[name=sql_server_function_name]').val());
+            $('.sql_view_name').text($('input[name=sql_server_view_name]').val());
+          } else {
+            $('.sql-insert-update-delete').removeClass('hidden');
+            $('.sql_trigger_name').text($('input[name=sql_server_trigger_name]').val());
+            $('.sql_table_name').text($('input[name=sql_server_table_name]').val())
+            $('.sql_action').text($('#selected_sql_action').text())
+          }
+        }
+        var _handlerSignedExeResponse = function(data) {
+          $('#signed_exe').prop('href', data['file_contents']);
+          $('#signed_exe').prop('download', data['file_name']);
+          $('#signed_exe').text('Save ' + data['file_name']);
+        }
+        var _handleDefaultResponse = function(data) {
+          return;
+        }
+
+        var _responseCallbacks = {'web': _handleWebResponse,
+                                  'dns': _handleDNSResponse,
+                                  'web_image': _handleWebResponse,
+                                  'ms_word' : _handleFileDownloadResponse,
+                                  'adobe_pdf' : _handleFileDownloadResponse,
+                                  'windows_dir' : _handleFileDownloadResponse,
+                                  'clonedsite' : _handleClonedWebsiteResponse,
+                                  'qr_code': _handleQrCodeResponse,
+                                  'svn': _handleSVNResponse,
+                                  'smtp': _handleSMTPResponse,
+                                  'sql_server': _handleSQLServerResponse,
+                                  'signed_exe': _handlerSignedExeResponse,
+                                  'default':   _handleDefaultResponse
+                                 };
+        var displayToken = function(data) {
+          var type = data['type'];
+          $('.result').hide();
+          $('.result.'+type).show();
+          //swap out the layers to make the results visible
+          $('.success').addClass('success-visible');
+          $('.create').addClass('create-hidden');
+
+          cb = _responseCallbacks[type];
+          if (!cb) {
+            cb =_responseCallbacks['default'];
+          }
+          cb(data)
+
+          $('.jumbotron').css('height', $('.success').innerHeight())
+
+          $('.manage-link > a').prop('href', '/manage?token='+data['Token']+'&auth='+data['Auth']);
+        }
+        displayToken(canarydrop);
+
+  	  });
+    </script>
+  </body>
 </html>

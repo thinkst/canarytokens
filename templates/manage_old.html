@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<head>
+<title>canarytokens.net</title>
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<meta name="viewport" content="initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="/resources/famfamfam-flags.css" >
+<style>
+table{
+  width:100%;
+  table-layout: fixed;
+  padding-bottom: 15px;
+}
+
+td{
+  overflow:hidden;
+  word-wrap: break-word;
+}
+.history_item{
+  border-width: 2px;
+  border-style: solid;
+  padding: 10px;
+  margin: 10px;
+  text-align: left;
+  width: 50%;
+}
+.details-list{
+  display:none;
+}
+.details-header{
+  text-align: center;
+}
+.expand{
+  text-align: center;
+  color: blue;
+}
+.expand:hover{
+  text-decoration: underline;
+}
+.map{
+  margin-bottom: 10px;
+  margin-top: 10px;
+   height:400px;
+   width:70%;
+   text-align:center;
+}
+.header_row{
+  background-color: #51b95a;
+}
+.info_row{
+  background-color: #cbe8d1;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+   var geo_info = {};
+    function appendGeoInfo(id,info){
+      geo_info[id] = info;
+    }
+</script>
+<center>
+{% if saved %}
+<div>
+  Saved settings.
+</div>
+{%endif%}
+<form method="POST">
+    Token: {{canarydrop['canarytoken']}}<br />
+    URL: {{canarydrop.get_url()}}<br />
+    DNS: {{canarydrop.get_hostname()}}<br />
+    Email Enabled: <input type="checkbox" name="email_enable"  {% if canarydrop['alert_email_enabled'] %}checked="checked"{%endif%}/><br />
+
+    {% if canarydrop['alert_webhook_url'] %}
+    Webook Enabled: <input type="checkbox" name="webhook_enable"  {% if canarydrop['alert_webhook_enabled'] %}checked="checked"{%endif%}/><br />
+    {%endif%}
+    {% if canarydrop['web_image_path'] %}
+    Alternative Image: <input type="checkbox" name="web_image_enable"  {% if canarydrop['web_image_enabled'] %}checked="checked"{%endif%}/><br />
+    <img src="data:image/png;base64,{{canarydrop.get_web_image_as_base64()}}"/>
+    {%endif%}
+    {% if canarydrop['alert_sms_recipient'] %}
+    SMS Enabled: <input type="checkbox" name="sms_enable"  {% if canarydrop['alert_sms_enabled'] %}checked="checked"{%endif%}/><br />
+    {%endif%}
+    <input type="hidden" name="token" value="{{canarydrop['canarytoken']}}"/><br />
+    <input type="hidden" name="auth" value="{{canarydrop['auth']}}" /><br />
+    <input type="submit" />
+</form>
+</center>
+{% if error %}
+<center>
+{{error|e}}
+</center>
+{%endif%}
+
+<center><a href="https://canary.tools/" target="_blank"><img src="//thinkst.com/images/canary_ad_1.png" style="width:350px;height:151px;"></a><center>
+  {% if canarydrop['triggered_list'] %}
+  {% if API_KEY %}
+    <b>Map:</b>
+    <br>
+    <div class="map" id="map">
+    </div>
+  {%endif%}
+    <b>History:</b>
+    <ul>
+    {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
+      <div class="history_item" >
+        <p class="details-header"><b>Date:</b> {{ item|e }}
+                                  <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
+                                  <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
+                                  {%if canarydrop['triggered_list'][item]['geo_info'] != None and
+                                       canarydrop['triggered_list'][item]['geo_info'] is defined and
+                                       canarydrop['triggered_list'][item]['geo_info']['country'] != None and
+                                       canarydrop['triggered_list'][item]['geo_info']['country'] is defined %}
+                                    <b>Country:</b>{{canarydrop['triggered_list'][item]['geo_info']['country']}}
+                                    <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i></p>
+                                  {%else%}
+                                    <b>Country:</b> Unknown
+                                  {%endif%}
+        <div class="details-list">
+        {% if canarydrop['triggered_list'][item]['geo_info'] %}
+          <table class="additional_info">
+            <col width="25%">
+            <col width="75%">
+            <tr class="header_row">
+               <td colspan="2">
+                 Geo Info
+               </td>
+            </tr>
+            {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
+            <tr class="info_row">
+              <td>Country</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['country'] }}
+                  <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i>
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['city'] %}
+            <tr class="info_row">
+              <td>City</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['city'] }}
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['region'] %}
+            <tr class="info_row">
+              <td>Region</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['region'] }}
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['org'] %}
+            <tr class="info_row">
+              <td>Organisation</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['org'] }}
+              </td>
+            </tr>
+            {% endif %}
+            {% if canarydrop['triggered_list'][item]['geo_info']['hostname'] %}
+            <tr class="info_row">
+              <td>Hostname</td>
+              <td>
+                  {{ canarydrop['triggered_list'][item]['geo_info']['hostname'] }}
+              </td>
+            </tr>
+            {% endif %}
+            <script type="text/javascript">
+              appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']|tojson}});
+            </script>
+          </table>
+        {%endif%}
+        {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None %}
+          <table class="additional_info">
+            <col width="25%">
+            <col width="75%">
+            <tr class="header_row">
+               <td colspan="2">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Tor-logo-2011-flat.svg" style="width:30px;height:19px;">
+               </td>
+            </tr>
+            <tr class="info_row">
+              <td>
+                Known Exit Node
+              </td>
+              <td>
+                {{ canarydrop['triggered_list'][item]['is_tor_relay']==True }}
+              </td>
+            </tr>
+          </table>
+        {%endif%}
+
+            {% for field in canarydrop['triggered_list'][item] %}
+              {% if canarydrop['triggered_list'][item][field] != None and
+                    canarydrop['triggered_list'][item][field] is defined and
+                    field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
+                {% if field not in ['src_ip','input_channel'] %}
+                <table class="additional_info">
+                  <col width="25%">
+                  <col width="75%">
+                  <tr class="header_row">
+                     <td colspan="2">
+                       Basic Info
+                     </td>
+                  </tr>
+                  <tr class="info_row">
+                     <td>
+                       {{field}}
+                     </td>
+                     <td>
+                       {{ canarydrop['triggered_list'][item][field]|e }}
+                     </td>
+                  </tr>
+                </table>
+                {%endif%}
+              {%endif%}
+            {% endfor %}
+            {% if canarydrop['triggered_list'][item]['additional_info'] %}
+              <table class="additional_info">
+                            <b>Additional Info</b>
+                <col width="25%">
+                <col width="75%">
+                {% for info in canarydrop['triggered_list'][item]['additional_info'] %}
+                <tr class="header_row">
+                   <td colspan="2">
+                     {{info}}
+                   </td>
+                    {%if info == 'iOS-App'%}
+                  <script type="text/javascript">
+                    appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['additional_info'][info]}})
+                  </script>
+                  {% else %}
+                    {% if info == 'secretkeeper_photo'%}
+                      <tr class="info_row">
+                        <td>
+                          Photo
+                        </td>
+                        <td>
+                          <img src="data:image/png;base64,{{canarydrop.get_secretkeeper_photo_as_base64(item)}}"/>
+                        </td>
+                      </tr>
+                    {% endif %}
+                  {%endif%}
+                </tr>
+                  {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
+                    {% continue %}
+                  {% endif %}
+                  {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
+                    <tr class="info_row">
+                      <td>
+                        {{info_item}}
+                      </td>
+                      <td>
+                        {{ canarydrop['triggered_list'][item]['additional_info'][info][info_item][0] == '1'
+                              if info_item in ['enabled','installed']
+                              else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ') }}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endfor %}
+              </table>
+            {% endif %}
+      </div>
+        <p class="expand">Expand</p>
+      </div>
+    {% endfor %}
+
+    </ul>
+    <script type="text/javascript">
+        function initMap() {
+
+          var map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: 0, lng: 0},
+              zoom: 2,
+              mapTypeId: 'hybrid',
+              mapTypeControl: false,
+              streetViewControl: false
+            });
+
+          var bounds = new google.maps.LatLngBounds();
+          var markers = {};
+          for (x in geo_info){
+            var loc = String(geo_info[x]['loc']).split(",");
+            var latitude = parseFloat(loc[0]);
+            var longitude = parseFloat(loc[1]);
+            if (isNaN(latitude) || isNaN(longitude)) {
+              continue;
+            }
+            var latlng = new google.maps.LatLng(latitude,longitude);
+
+            if(markers[latlng]==undefined){
+              markers[latlng]= '<br>'+x;
+            }else{
+              markers[latlng] += '<br>'+x;
+            }
+
+            var content = '';
+            for(info in geo_info[x]){
+              if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname'){
+                continue;
+              }
+              if(info=='ip'){
+                if(geo_info[x]['hostname']==undefined){
+                  content = '<b>'+geo_info[x]['ip']+'</b>'+content;
+                }
+                else{
+                  content = '<b>'+geo_info[x]['ip']+ '</b><br>'+geo_info[x]['hostname']+'<br>'+content;
+                }
+              }else if(info=='country'){
+                content +='<br><i class="famfamfam-flag-'+(geo_info[x]['country']).toLowerCase()+'"></i> '+(geo_info[x]['country']);
+              }else{
+                content += '<br>'+geo_info[x][info];
+              }
+            }
+            content = content +'<br>'+markers[latlng]
+            var info = new google.maps.InfoWindow({
+              content : content
+            });
+
+            var marker = new google.maps.Marker({
+              map : map,
+              draggable :false,
+              animation:google.maps.Animation.DROP,
+              position : latlng,
+              info : content
+            });
+            bounds.extend(marker.position);
+            google.maps.event.addListener(marker, 'click', function(){
+              info.setContent(this.info);
+              info.open(map, this);
+            });
+          }
+          map.fitBounds(bounds);
+        }
+    $('.expand').click(function(){
+      if(this.innerHTML == "Expand"){
+        this.innerHTML = "Collapse";
+       }else{
+        this.innerHTML = "Expand";
+       }
+      $(this.previousElementSibling).slideToggle('slow');
+    });
+  </script>
+  {% if API_KEY %}
+  <script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap" async defer></script>
+  {%endif%}
+  {%endif%}
+</body>
+</html>
