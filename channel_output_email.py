@@ -177,3 +177,6 @@ class EmailOutputChannel(OutputChannel):
 			log.msg('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
+
+        except requests.exceptions.HTTPError as e:
+            log.err('A mailgun error occurred: %s - %s' % (e.__class__, e))
