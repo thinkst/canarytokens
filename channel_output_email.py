@@ -185,11 +185,11 @@ class EmailOutputChannel(OutputChannel):
             pprint.pprint(mail)
         else:
 #                result = requests.request('POST', url, data=payload, headers=headers)
-                response = sg.client.mail.send.post(request_body=mail.get())
+            response = sg.client.mail.send.post(request_body=mail.get())
 
-            log.msg('Sent alert to {recipient} for token {token}'\
-                        .format(recipient=canarydrop['alert_email_recipient'],
-                                token=canarydrop.canarytoken.value()))
+        log.msg('Sent alert to {recipient} for token {token}'\
+                    .format(recipient=canarydrop['alert_email_recipient'],
+                            token=canarydrop.canarytoken.value()))
 
 #        except requests.exceptions.HTTPError as e:
 #            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
