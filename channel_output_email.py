@@ -172,7 +172,7 @@ class EmailOutputChannel(OutputChannel):
 #            headers = {'authorization': 'Bearer settings.MAILGUN_API_KEY',
 #                        'content-type': 'application/json'
 #            }
-        sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+        sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
         from_email = Email("noreply@yranac.mamisano.com")
         subject = "Your Canarytoken was Triggered"
         to_email = Email("mamisano@us.ibm.com")
