@@ -101,7 +101,7 @@ class EmailOutputChannel(OutputChannel):
             self.sendgrid_send(msg=msg,canarydrop=canarydrop)
         else:
             log.err("No email settings found")
-            
+
     def mailgun_send(self, msg=None, canarydrop=None):
         try:
             url = 'https://api.mailgun.net/v3/{}/messages'.format(settings.MAILGUN_DOMAIN_NAME)
@@ -160,9 +160,9 @@ class EmailOutputChannel(OutputChannel):
             log.err('A mandrill error occurred: %s - %s' % (e.__class__, e))
             # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....
 
-	def sendgrid_send(self, msg=None, canarydrop=None):
-		try:
-            url = "https://api.sendgrid.com/v3/mail/send"
+    def sendgrid_send(self, msg=None, canarydrop=None):
+        try:
+            url = 'https://api.sendgrid.com/v3/mail/send'
             payload = {
                 'personalizations': [{'to': [{'email': canarydrop['alert_email_recipient']}]}],
                 'from': {'email': msg['from_address']},
@@ -174,12 +174,12 @@ class EmailOutputChannel(OutputChannel):
                         'content-type': 'application/json'
             }
 
-			if settings.DEBUG:
-				pprint.pprint(message)
-			else:
-				result = requests.request('POST', url, data=payload, headers=headers)
+            if settings.DEBUG:
+                pprint.pprint(message)
+            else:
+                result = requests.request('POST', url, data=payload, headers=headers)
 
-			log.msg('Sent alert to {recipient} for token {token}'\
+            log.msg('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
 
