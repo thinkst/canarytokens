@@ -162,21 +162,26 @@ class EmailOutputChannel(OutputChannel):
 
 	def sendgrid_send(self, msg=None, canarydrop=None):
 		try:
-			sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
-			from_email = Email(msg['from_address'])
-			subject = msg['subject']
-			to_email = Email(canarydrop['alert_email_recipient'])
-			content = Content("text/plain", msg['body'])
-			message = Mail(from_email, subject, to_email, content)
-			
+            url = "https://api.sendgrid.com/v3/mail/send"
+            payload = {
+                'personalizations': [{'to': [{'email': canarydrop['alert_email_recipient']}]}],
+                'from': {'email': msg['from_address']},
+                'subject': msg['subject'],
+                'content': [{'type': "text/plain",
+                             'value': msg['body']}]
+            }
+            headers = {'authorization': 'Bearer settings.MAILGUN_API_KEY',
+                        'content-type': 'application/json'
+            }
+
 			if settings.DEBUG:
 				pprint.pprint(message)
 			else:
-				result = sg.client.mail.send.post(request_body=message.get())
-				
+				result = requests.request('POST', url, data=payload, headers=headers)
+
 			log.msg('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
 
         except requests.exceptions.HTTPError as e:
-            log.err('A mailgun error occurred: %s - %s' % (e.__class__, e))
+            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
