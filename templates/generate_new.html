@@ -1,0 +1,948 @@
+{% macro fileupload(name, text='Drag and drop a file here or click') %}
+<div class="fileupload-wrapper form-control">
+  <div class="fileupload-message">
+    <span class="file-icon"></span>
+    <p>{{text}}</p>
+  </div>
+  <div class="fileupload-filename hidden">
+    <p>
+      <span></span>
+      <a href="#" class="fileupload-clear" aria-label="remove" title="remove">×</a>
+    </p>
+  </div>
+  <input type="file" id="fileupload-{{name}}" name="{{name}}" class="fileupload">
+</div>
+{%- endmacro %}
+
+{% macro inputcopy(name, refresh=None)%}
+  <input id="{{name}}" class="result-data" value="testempty" readonly="">
+  {% if refresh %}
+  <a class="refresh">&#x21bb;</a>
+  {%endif%}
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+
+{% macro textareacopy(name)%}
+  <textarea id="{{name}}" class="result-data" readonly="">
+  </textarea>
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Canarytokens</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.css">
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav class="hidden">
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link" href="/generate">New token</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link manage-link" href="">Manage this token</a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted"><a style="color: inherit; text-decoration: inherit;" href="/">Canarytokens by Thinkst</a></h3>
+        <a href="http://blog.thinkst.com/p/canarytokensorg-quick-free-detection.html" target="_blank">What is this and why should I care?</a>
+      </div>
+
+      <div class="jumbotron">
+        <div class="create">
+          <form id="createForm">
+            <div class="row step">
+              <div class="col-md-1">
+              </div>
+              <div class="col-md-10">
+                <div id="type" class="wrapper-dropdown form-control" tabindex="1">
+                  <span id="selected_token">Select your token</span>
+                  <input name="type" type="hidden">
+                	<ul id="dropdown" class="dropdown">
+                		<li data-type="web"            data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
+                		<li data-type="dns"            data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
+                    <li data-type="smtp"           data-memo-placeholder="Email address in Events database"><a href="#" class="icon icon-email"><span class="title">Unique email address</span><div class="explanation">Alert when an email is sent to a unique address</div></a></li>
+                		<li data-type="web_image"      data-memo-placeholder="Image embedded in router X's admin interface"><a href="#" class="icon icon-web-image"><span class="title">Custom Image Web bug</span><div class="explanation">Alert when an image you uploaded is viewed</div></a></li>
+                    <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
+                    <li data-type="adobe_pdf"      data-memo-placeholder="PDF document placed at U:\Users\Sipho\Reports\feb.pdf"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF Document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
+                    <li data-type="windows_dir"    data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows Folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
+                    <li data-type="signed_exe"     data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
+                    <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned Website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
+                    <li data-type="sql_server"     data-memo-placeholder="SELET SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
+                    <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
+                    <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
+                	</ul>
+                </div>
+              </div>
+              <div class="col-md-1">
+              </div>
+            </div>
+            <div class="row step">
+              <div class="col-md-1">
+              </div>
+              <div class="col-md-10">
+                <input class="form-control" type="text" id="endpoints" tabindex=1 placeholder="Provide an email address, or webook URL, or both space separated">
+                <input type="hidden" name="email">
+                <input type="hidden" name="webhook">
+                <input type="hidden" name="fmt">
+                <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
+                <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
+                <div class="field-optional field-web_image hidden">
+                  {{ fileupload('web_image', text="Replace the default 1x1 GIF with your own image (PNG, GIF, JPG)") }}
+                </div>
+                <div class="field-optional field-signed_exe hidden">
+                  {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
+                </div>
+                <div class="field-optional field-cloned_website hidden">
+                  <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
+                </div>
+                <div class="field-optional field-sql_server hidden">
+                  <div id="sql_type" class="wrapper-dropdown form-control" tabindex="1">
+                    <span id="selected_sql_action">INSERT</span>
+                  	<ul id="sql_dropdown" class="dropdown">
+                  		<li data-type="insert"><a href="#"><span class="title">INSERT</span><div class="explanation">Trigger on an INSERT</div></a></li>
+                  		<li data-type="update"><a href="#"><span class="title">UPDATE</span><div class="explanation">Trigger on an UPDATE</div></a></li>
+                      <li data-type="delete"><a href="#"><span class="title">DELETE</span><div class="explanation">Trigger on an DELETE</div></a></li>
+                      <li data-type="select"><a href="#"><span class="title">SELECT</span><div class="explanation">Trigger on an SELECT</div></a></li>
+                  	</ul>
+                  </div>
+                  on
+                  <input class="form-control" type="text" tabindex=4 name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
+                  <input class="form-control" type="text" tabindex=5 name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
+                  fires
+                  <input class="form-control" type="text" tabindex=6 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
+                  <input class="form-control" type="text" tabindex=7 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
+                </div>
+              </div>
+              <div class="col-md-1">
+              </div>
+            </div>
+            <div class="row step">
+              <div class="col-md-1">
+              </div>
+              <div class="col-md-10">
+                <p id="create-token-p"><button id="save" tabindex=10 class="btn btn-lg btn-success btn-fullwidth btn-disabled" href="#" role="button" disabled data-unseen-label="Create my Canarytoken">Fill in the fields above</button></p>
+              </div>
+              <div class="col-md-1">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="success">
+          <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+              <img src="//www.clker.com/cliparts/e/3/9/7/1245686792938124914raemi_Check_mark.svg.thumb.png">
+            </div>
+            <div class="col-md-1">
+            </div>
+          </div>
+          <div class="row results">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+              <div class="result web web_image">
+                <h3>Your Web token is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this URL to your clipboard and use as you wish:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_web', refresh=True) }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone requests the URL.</p>
+                  <p>If the URL is requested as an image (e.g. &lt;img src=""&gt;) then a 1x1 image is served. If the URL is surfed in a browser than a blank page is served with fingerprinting Javascript.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>In an email with a juicy subject line.</li>
+                      <li>Embedded in documents.</li>
+                      <li>Inserted into canary webpages that are only found through brute-force.</li>
+                      <li>This URL is just an example. Apart from the hostname and the actual token (the random string), you can change all other parts of the URL.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result dns">
+                <h3>Your DNS token is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this hostname to your clipboard and use as you wish:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_dns') }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone performs a DNS lookup of the hostname.</p>
+                  <p>The source IP address shown in the alert is the <emph>DNS server</emph>, not the end user.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Include in a PTR entry for dark IP space of your internal network. Quick way to determine if someone is walking your internal DNS without configuring DNS logging and monitoring.</li>
+                      <li>Leave in a .bash_history, or .ssh/config, or ~/servers.txt</li>
+                      <li>Use as a extremely simple bridge between a detection and notification action. Many possibilities, here's one that tails a logfile and triggers the token when someone logs in:
+                        <pre>tail -f /var/log/auth.log | awk '/Accepted publickey for/ { system("host k5198sfh3cw64rhdpm29oo4ga.canarytokens.com") }'</pre>
+                      </li>
+                      <li>Use as the domain part of an email address.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result smtp">
+                <h3>Your Email address token is active!</h3>
+                <div class="artifacts">
+                  <p>Here is a unique email address:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_smtp') }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone sends an email to the address.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>In a database with a USERS table, drop a fake record in there with this email address. If it gets triggered you know someone has accessed your data.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result ms_word">
+                <h3>Your MS Word token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="msword">Download your MS Word file</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>You'll get an alert whenever this document is opened in Microsoft Office, on Windows or Mac OS.</p>
+                  <p>You can rename the document without affecting its operation.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Drop the file on a Windows network share.</li>
+                      <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
+                      <li>Attach to an email with a tempting Subject line.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result adobe_pdf">
+                <h3>Your PDF token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="pdf">Download your PDF file</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>You'll get an alert whenever this document is opened with Acrobat Reader, regardless of the user's security preferences in Reader.</p>
+                  <p>You can rename the document without affecting its operation.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Drop the file on a Windows network share.</li>
+                      <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
+                      <li>Attach to an email with a tempting Subject line.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result windows_dir">
+                <h3>Your Windows Folder token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="zip">Download your Zip file</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Unzip this file in a folder, and get notified when someone browses the folder in Windows Explorer. It will even trigger if someone is browsing the folder via a network share!</p>
+                  <p>The alert will include the network domain and username of the browsing user, if present.<p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Unzip the file on a juicely named Windows network share.</li>
+                      <li>Unzip the file on your CEO's laptop on a folder on their Desktop.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result signed_exe">
+                <h3>Your Signed Executable token is active!</h3>
+                <div class="artifacts">
+                  <p>Save this file and deploy on Windows machines:</p>
+                  <div class="form-control">
+                    <a id="signed_exe" href="" download="" class="btn btn-success"></a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, this token is triggered whenever the binary file is executed. For EXEs, this means direct execution and for DLLs, it means they were loaded.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Decide on a few default binaries commonly used by attackers, and token them.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result cloned_website">
+                <h3>Your Cloned Website token is active!</h3>
+                <div class="artifacts">
+                  <p>Use this Javascript to detect when someone has cloned a webpage. Place this Javascript on the page you wish to protect:</p>
+                  <div class="form-control">
+                    {{ textareacopy('result_cloned_website') }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>When someone clones your site, they'll include the Javascript. When the Javascript is run it checks whether the domain is expected. If not, it fires the token and you get an alert.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Run the script through an <a href="https://www.google.com/search?q=JavaScript+Obfuscator">obfuscator</a> to make it harder to pick up.</li>
+                      <li>Deploy on the login pages of your sensitive sites, such as OWA or tender systems.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result sql_server">
+                <h3>Your SQL Server token is active!</h3>
+                <div class="artifacts">
+                  <p>The next step is to copy the SQL snippet below and run in your SQL Server database.</p>
+                  <div class="form-control">
+                    <div id="sql-insert-update-delete" class="sql-insert-update-delete pre-like hidden">
+--create a stored proc that'll ping canarytokens
+      CREATE proc ping_canarytoken
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="sql_hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(rand()*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','-')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_fileexist @unc;
+      END
+
+      --add a trigger if data is altered
+      CREATE TRIGGER <span class="sql_trigger_name"></span>
+        ON <span class="sql_table_name"></span>
+        AFTER <span class="sql_action"></span>
+      AS
+      BEGIN
+      exec ping_canarytoken
+      end
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#sql-insert-update-delete">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                    </div>
+                    <div id="sql-select" class="sql-select pre-like hidden">
+--create a table-view function to query the canary hostname
+      CREATE function <span class="sql_function_name"></span>(@RAND FLOAT) returns @output table (col1 varchar(max))
+      AS
+      BEGIN
+          declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+          --setup the variables
+          set @tokendomain = '<span class="sql_hostname"></span>';
+          set @size = 128;
+          set @done = 0;
+          set @random = cast(round(@RAND*100,0) as varchar(2));
+          set @random = concat(@random, '.');
+          set @username = SUSER_SNAME();
+
+          --loop runs until the UNC path is 128 chars or less
+          while @done <= 0
+          begin
+              --convert username into base64
+              select @base64 = (SELECT
+                  CAST(N'' AS XML).value(
+                        'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                      , 'VARCHAR(MAX)'
+                  )   Base64Encoding
+              FROM (
+                  SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+              ) AS bin_sql_server_temp);
+
+              --replace base64 padding as dns will choke on =
+              select @base64 = replace(@base64,'=','0')
+
+              --construct the UNC path
+              select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+
+              -- if too big, trim the username and try again
+              if len(@unc) <= @size
+                  set @done = 1
+              else
+                  --trim from the front, to keep the username and lose domain details
+                  select @username = substring(@username, 2, len(@username)-1)
+          end
+          exec master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
+              return
+      END
+
+      --create a view that calls the function
+      alter view <span class="sql_view_name"></span> as select * from master.dbo.<span class="sql_function_name"></span>(rand());
+
+      --change permissions on <span class="sql_function_name"></span> to SELECT for [public]
+      --change permissions on <span class="sql_view_name"></span> to SELECT for [public]
+      --don't allow [public] to view the definitions
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#sql-select">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>When the actions are run, your Canarytoken will be triggered.</p>
+                  <p>Since DNS is used as the underlying transport, the Source IP will be that of a DNS server, not the databserver.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Deploy a SELECT token with a tempting VIEW name such as USER_DETAILS.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result qr_code">
+                <h3>Your QR Code token is active!</h3>
+                <div class="artifacts">
+                  <p>Use this QR Code to token a physical location or object:</p>
+                  <div class="form-control">
+                    <img id="qrcode_png" />
+                    <a href="" download="" class="btn btn-success">Download</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>When someone scans the QR Code with a reader, it will trigger the URL tied to your token and fire an alert.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>On containers left in secure locations.</li>
+                      <li>Underneath your phone battery when crossing international borders.</li>
+                      <li>On your desk.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result svn">
+                <h3>Your SVN token is active!</h3>
+                <div class="artifacts">
+                  <p>Run this SVN command in a dummy repo:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_svn') }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone clones the SVN repo.</p>
+                  <p>Don't forget to run <pre>svn commit</pre> after you've added the token.</p>
+                  <p>The source IP address shown in the alert is the <emph>DNS server</emph>, not the end user.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Token a dummy SVN repo to detect when attackers are enumerating repos.</li>
+                      <li>Token an old repo which shouldn't be touched any longer.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-1">
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <footer class="footer">
+        <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>
+        <p>&copy; Thinkst Applied Research 2015&ndash;2017</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="//v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script>
+      Array.prototype.random = function () {
+        return this[Math.floor((Math.random()*this.length))];
+      }
+      var ToggleOptionalFields = function(token_type){
+        $('.field-optional').each(function(i, e) {
+          e = $(e);
+          if (e.hasClass('field-'+token_type)) {
+            e.removeClass('hidden');
+          } else {
+            e.addClass('hidden');
+          }
+        });
+      }
+      //
+      $('.fileupload').on('change', function(e) {
+         var filepath = $(this).val().split('\\').pop();
+         $(this).siblings('.fileupload-message').toggleClass('hidden');
+         $(this).siblings('.fileupload-filename').toggleClass('hidden').find('span').text(filepath);
+         $(this).hide();
+         //debugger;
+      });
+      $('.fileupload-clear').on('click', function(e) {
+        var up_in = $(this.parentElement.parentElement);
+        $(up_in).siblings('.fileupload-message').toggleClass('hidden');
+        $(up_in).toggleClass('hidden').find('span').text('');
+        $(up_in).siblings('.fileupload').val('').show();
+        $('input[name=type]').trigger('change');
+      });
+
+      var checkType = function() {
+        type = $('input[name=type]');
+        if (type.val().length == 0) {
+          return type.parents('.form-control').addClass('error-outline').removeClass('success-outline');
+        }
+        type.parents('.form-control').removeClass('error-outline').addClass('success-outline');
+      }
+      var checkEndpoints = function() {
+        endpoints = $('#endpoints');
+        if (endpoints.val().length == 0) {
+          return endpoints.addClass('error-outline').removeClass('success-outline');
+        }
+        if (endpoints.val().length > 255) {
+          return endpoints.addClass('error-outline').removeClass('success-outline');
+        }
+        endpoints_components = endpoints.val().split(' ');
+        var email = webhook = null;
+        var re_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        var re_webhook = /^https?:\/\/.*/;
+        for (var i=0; i<endpoints_components.length; i++) {
+          var endpoint = endpoints_components[i];
+          if (re_webhook.test(endpoint) && !webhook) {
+            webhook = endpoint;
+          } else if (re_email.test(endpoint) && !email){
+            email = endpoint;
+          } else {
+            return endpoints.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        $('input[name=email]').val(email);
+        $('input[name=webhook]').val(webhook);
+        endpoints.removeClass('error-outline').addClass('success-outline');
+      }
+      var checkMemo = function() {
+        memo = $('textarea[name=memo]');
+        if (memo.val().length == 0) {
+          return memo.addClass('error-outline').removeClass('success-outline');
+        }
+        if (memo.val().length > 255) {
+          return memo.addClass('error-outline').removeClass('success-outline');
+        }
+        memo.removeClass('error-outline').addClass('success-outline');
+      }
+
+      var _checkFile = function(field) {
+        file = $('input[name='+field+']');
+        if (! file.parents('.field-'+field).hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (file.val().length == 0) {
+            return file.parents('.form-control').addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return file.parents('.form-control').removeClass('error-outline').addClass('success-outline');
+      }
+      var checkWebImage = function() {
+        return _checkFile('web_image');
+      }
+
+      var checkSignedExe = function() {
+        return _checkFile('signed_exe');
+      }
+
+      var checkClonedWebsite = function() {
+        cloned_website = $('input[name=clonedsite]');
+        if (! cloned_website.parents('.field-cloned_website').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (cloned_website.val().length == 0) {
+            return cloned_website.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return cloned_website.removeClass('error-outline').addClass('success-outline');
+      }
+
+      var _checkSQLServerSelectedAction = function() {
+        sql_server_selected_action = $('#selected_sql_action');
+
+        if (! sql_server_selected_action.parents('.field-sql_server').hasClass('hidden')) {
+          if (['INSERT','UPDATE','DELETE','SELECT'].indexOf(sql_server_selected_action.text()) == -1 ) {
+            return sql_server_selected_action.parents('.form-control').addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return sql_server_selected_action.parents('.form-control').removeClass('error-outline').addClass('success-outline');
+      }
+
+      var _checkSQLServerTable = function() {
+        sql_server_table_name = $('input[name=sql_server_table_name]');
+        if (! sql_server_table_name.parents('.field-sql_server').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (sql_server_table_name.val().length == 0) {
+            return sql_server_table_name.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return sql_server_table_name.removeClass('error-outline').addClass('success-outline');
+      }
+      var _checkSQLServerTrigger = function() {
+        sql_server_trigger_name = $('input[name=sql_server_trigger_name]');
+        if (! sql_server_trigger_name.parents('.field-sql_server').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (sql_server_trigger_name.val().length == 0) {
+            return sql_server_trigger_name.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return sql_server_trigger_name.removeClass('error-outline').addClass('success-outline');
+      }
+      var _checkSQLServerViewName = function() {
+        sql_server_view_name = $('input[name=sql_server_view_name]');
+        if (! sql_server_view_name.parents('.field-sql_server').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (sql_server_view_name.val().length == 0) {
+            return sql_server_view_name.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return sql_server_view_name.removeClass('error-outline').addClass('success-outline');
+      }
+      var _checkSQLServerFunctionName = function() {
+        sql_server_function_name = $('input[name=sql_server_function_name]');
+        if (! sql_server_function_name.parents('.field-sql_server').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (sql_server_function_name.val().length == 0) {
+            return sql_server_function_name.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return sql_server_function_name.removeClass('error-outline').addClass('success-outline');
+      }
+      var checkSQLServer = function() {
+        _checkSQLServerSelectedAction();
+        if ($('#selected_sql_action').text() == 'SELECT') {
+          _checkSQLServerViewName();
+          _checkSQLServerFunctionName();
+          $('input[name=sql_server_table_name]').removeClass('error-outline');
+          $('input[name=sql_server_trigger_name]').removeClass('error-outline');
+        } else {
+          _checkSQLServerTable();
+          _checkSQLServerTrigger();
+          $('input[name=sql_server_view_name]').removeClass('error-outline');
+          $('input[name=sql_server_function_name]').removeClass('error-outline');
+        }
+      }
+
+      $('input,textarea').on('change keyup', function(e){
+        checkType();
+        checkEndpoints();
+        checkMemo();
+        checkWebImage();
+        checkSignedExe();
+        checkClonedWebsite();
+        checkSQLServer();
+
+        //invert UI elements, depending on whether there are errors or not
+        showSave();
+        if (e.currentTarget.parentElement.id == 'type'){
+          $('#endpoints').focus();
+        }
+      });
+
+      var showSave = function(){
+        var save = $('#save');
+        if (($('.form-control.error-outline').length == 0 && save.prop('disabled')) ||
+            ($('.form-control.error-outline').length >  0 && ! save.prop('disabled')))
+         {
+          unseen = save.data('unseen-label');
+          save.data('unseen-label',save.text())
+          save.prop('disabled', !save.prop('disabled')).text(unseen);
+          save.toggleClass('btn-disabled');
+        }
+      }
+
+      // $('#save').on('click', function() {
+      //   var type = $('input[name=type]').val();
+      //   $('.result').hide();
+      //   $('.result.'+type).show();
+      //   //swap out the layers to make the results visible
+      //   $('.success').addClass('success-visible');
+      //   $('.create').addClass('create-hidden');
+      // });
+      function DropDown(el, click_cb) {
+          this.dd = el;
+          this.click_cb = click_cb;
+          this.initEvents();
+      }
+      DropDown.prototype = {
+          initEvents : function() {
+              var obj = this;
+
+              obj.dd.on('click', function(event){
+                  $(this).toggleClass('active');
+                  if ($(event.target).parents().hasClass('dropdown') && obj.click_cb) {
+                    obj.click_cb(event);
+                  }
+                  event.stopPropagation();
+              });
+          }
+      }
+      $(function() {
+        /* init dropdown menu */
+		    var dd = new DropDown( $('#type'),
+                                function(event) {
+                                  var list_item = $(event.target).parents('li');
+                                  $('#dropdown').data('selected', list_item.data('type'))
+                                  $('#selected_token').text(list_item.find('span.title').text());
+                                  ToggleOptionalFields(list_item.data('type'));
+                                  $('textarea[name=memo]').prop('placeholder', 'Reminder note when this token is triggered, like: '+list_item.data('memo-placeholder'));
+                                  $('input[name=type]').val(list_item.data('type')).trigger('change');
+                                });
+
+        $('input[name=sql_server_view_name]').hide();
+        $('input[name=sql_server_function_name]').hide();
+        var sql_dd = new DropDown( $('#sql_type'),
+                                function() {
+                                  var list_item = $(event.target).parents('li');
+                                  sql_server_selected_action = $('#selected_sql_action');
+                                  if (['INSERT','UPDATE','DELETE'].indexOf(list_item.find('.title').text()) > -1 ) {
+                                    $('input[name=sql_server_table_name]').show();
+                                    $('input[name=sql_server_trigger_name]').show();
+                                    $('input[name=sql_server_view_name]').hide();
+                                    $('input[name=sql_server_function_name]').hide();
+                                  } else {
+                                    $('input[name=sql_server_table_name]').hide();
+                                    $('input[name=sql_server_trigger_name]').hide();
+                                    $('input[name=sql_server_view_name]').show();
+                                    $('input[name=sql_server_function_name]').show();
+                                  }
+                                  $('#selected_sql_action').text(list_item.find('span.title').text());
+
+                                  //fire validation
+                                  $('input[name=type]').trigger('change');
+                                });
+    		$(document).click(function() {
+      			$('.wrapper-dropdown').removeClass('active');
+      	});
+
+        $('.tooltip').tooltipster({
+          theme: 'tooltipster-borderless',
+          trigger: 'custom',
+          triggerOpen: {
+          },
+          triggerClose: {
+            mouseleave: true,
+            originClick: true,
+            touchleave: true
+          }
+        });
+
+        var clipboard = new Clipboard('.btn-clipboard');
+        clipboard.on('success', function(e){
+          $(e.trigger).tooltipster('content', 'Copied!')
+          $(e.trigger).tooltipster('open');
+        });
+        clipboard.on('failure', function(e){
+          $(e.trigger).tooltipster('content', 'cmd/ctrl + c to copy')
+          $(e.trigger).tooltipster('open');
+        });
+        $('.btn-clipboard').removeClass('tooltip');
+
+        var _handleWebResponse = function(data) {
+          $('#result_web').val(data['Url']);
+          $('#result_web').siblings('.refresh').on('click', function() {
+            url = [data['Url_components'][0].random(),
+                   data['Url_components'][1].random(),
+                   data['Token'],
+                   data['Url_components'][2].random()].join('/');
+            $('#result_web').val(url);
+          });
+        };
+        var _handleDNSResponse = function(data) {
+          $('#result_dns').val(data['Hostname']);
+        };
+        var _handleWebImageRequest = function(form) {
+          return new FormData(form[0]);
+          var inputs = form.find('input').filter(function(i, e) {return (e.name && e.value && e.value != "") || false});
+
+          return new FormData(inputs);
+        }
+
+        var _handleFileDownloadResponse = function(data) {
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+          });
+        }
+
+        var _handleClonedWebsiteRequest = function(form) {
+          $('input[name=type]').val('clonedsite');
+          return new FormData(form[0]);
+        }
+        var _handleClonedWebsiteResponse = function(data) {
+          $('#result_cloned_website').val(data['clonedsite_js']);
+        }
+        var _handleQrCodeResponse = function(data) {
+          $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
+          $('#qrcode_png').siblings('a').prop('download', data['Token']+'.png');
+          $('#qrcode_png').prop('src', data['qrcode_png']);
+        }
+        var _handleSVNResponse = function(data){
+          $('#result_svn').val('svn propset svn:externals "extras http://'+data['Hostname']+'" .')
+        }
+        var _handleSMTPResponse = function(data) {
+          $('#result_smtp').val(data['Token']+'@'+document.domain);
+        }
+        var _handleSQLServerResponse = function(data) {
+          $('.sql_hostname').text(data['Hostname']);
+          if ($('#selected_sql_action').text() == 'SELECT') {
+            $('.sql-select').removeClass('hidden');
+            $('.sql_function_name').text($('input[name=sql_server_function_name]').val());
+            $('.sql_view_name').text($('input[name=sql_server_view_name]').val());
+          } else {
+            $('.sql-insert-update-delete').removeClass('hidden');
+            $('.sql_trigger_name').text($('input[name=sql_server_trigger_name]').val());
+            $('.sql_table_name').text($('input[name=sql_server_table_name]').val())
+            $('.sql_action').text($('#selected_sql_action').text())
+          }
+        }
+        var _handlerSignedExeResponse = function(data) {
+          $('#signed_exe').prop('href', data['file_contents']);
+          $('#signed_exe').prop('download', data['file_name']);
+          $('#signed_exe').text('Save ' + data['file_name']);
+        }
+        var _handleDefaultRequest = function(form) {
+          return new FormData(form[0]);
+        }
+        var _handleDefaultResponse = function(data) {
+          return;
+        }
+
+        var _requestCallbacks  = {'web_image': _handleWebImageRequest,
+                                  'cloned_website': _handleClonedWebsiteRequest,
+                                  'default':   _handleDefaultRequest};
+
+        var _responseCallbacks = {'web': _handleWebResponse,
+                                  'dns': _handleDNSResponse,
+                                  'web_image': _handleWebResponse,
+                                  'ms_word' : _handleFileDownloadResponse,
+                                  'adobe_pdf' : _handleFileDownloadResponse,
+                                  'windows_dir' : _handleFileDownloadResponse,
+                                  'cloned_website' : _handleClonedWebsiteResponse,
+                                  'qr_code': _handleQrCodeResponse,
+                                  'svn': _handleSVNResponse,
+                                  'smtp': _handleSMTPResponse,
+                                  'sql_server': _handleSQLServerResponse,
+                                  'signed_exe': _handlerSignedExeResponse,
+                                  'default':   _handleDefaultResponse
+                                 };
+
+        function processForm( e ){
+            var type = $('input[name=type]').val();
+            var data;
+
+            cb = _requestCallbacks[type];
+            if (!cb) {
+              cb = _requestCallbacks['default'];
+            }
+
+            data = cb($(this));
+
+            $.ajax({
+                url: '/generate',
+                beforeSend: function(){$('#save').prop('disabled','disabled');},
+                dataType: 'json',
+                type: 'post',
+                contentType: false,
+                processData: false,
+                data: data,
+                success: function(data){
+                    console.log(data);
+
+                    //$('.loader').addClass('hide');
+                    if (data['Error'] !== null){
+                      if (data['Error'] == '1'){
+                          $('#response').html('Provide an email and/or a webhook endpoint');
+                      } else if (data['Error'] == '2'){
+                          $('#response').html('Provide a memo to remind you what this token is used for.');
+                      } else if (data['Error'] == '3'){
+                          $('#response').html('Invalid webhook supplied');
+                      } else {
+                          $('#response').html('An unexpected error occured');
+                      }
+                      // $('.jumbotron').css('height', $(this).data('jumbo-height'));
+                      $('#response').removeClass('hidden').show();
+                    }else{
+                      $('.result').hide();
+                      $('.result.'+type).show();
+                      //swap out the layers to make the results visible
+                      $('.success').addClass('success-visible');
+                      $('.create').addClass('create-hidden');
+
+                      cb = _responseCallbacks[type];
+                      if (!cb) {
+                        cb =_responseCallbacks['default'];
+                      }
+                      cb(data)
+
+                      $('.jumbotron').css('height', $('.success').innerHeight())
+
+                      $('a.manage-link').prop('href', '/manage?token='+data['Token']+'&auth='+data['Auth']);
+                      $('nav').removeClass('hidden');
+                    }
+                },
+                error: function( jqXhr, textStatus, errorThrown ){
+                    console.log( errorThrown );
+                }
+            });
+
+            e.preventDefault();
+        }
+        $('#createForm').submit( processForm );
+  	  });
+    </script>
+  </body>
+</html>
