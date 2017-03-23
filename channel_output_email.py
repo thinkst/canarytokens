@@ -161,27 +161,35 @@ class EmailOutputChannel(OutputChannel):
             # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....
 
     def sendgrid_send(self, msg=None, canarydrop=None):
-        try:
-            url = 'https://api.sendgrid.com/v3/mail/send'
-            payload = {
-                'personalizations': [{'to': [{'email': canarydrop['alert_email_recipient']}]}],
-                'from': {'email': msg['from_address']},
-                'subject': msg['subject'],
-                'content': [{'type': "text/plain",
-                             'value': msg['body']}]
-            }
-            headers = {'authorization': 'Bearer settings.MAILGUN_API_KEY',
-                        'content-type': 'application/json'
-            }
+#            url = 'https://api.sendgrid.com/v3/mail/send'
+#            payload = {
+#                'personalizations': [{'to': [{'email': canarydrop['alert_email_recipient']}]}],
+#                'from': {'email': msg['from_address']},
+#                'subject': msg['subject'],
+#                'content': [{'type': "text/plain",
+#                             'value': msg['body']}]
+#            }
+#            headers = {'authorization': 'Bearer settings.MAILGUN_API_KEY',
+#                        'content-type': 'application/json'
+#            }
+        sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+        from_email = Email("noreply@yranac.mamisano.com")
+        subject = "Your Canarytoken was Triggered"
+        to_email = Email("mamisano@us.ibm.com")
+        content = Content("text/plain", "Hello, Email!")
+        mail = Mail(from_email, subject, to_email, content)
 
-            if settings.DEBUG:
-                pprint.pprint(message)
-            else:
-                result = requests.request('POST', url, data=payload, headers=headers)
+        log.msg(mail)
+
+        if settings.DEBUG:
+            pprint.pprint(mail)
+        else:
+#                result = requests.request('POST', url, data=payload, headers=headers)
+                response = sg.client.mail.send.post(request_body=mail.get())
 
             log.msg('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
 
-        except requests.exceptions.HTTPError as e:
-            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
+#        except requests.exceptions.HTTPError as e:
+#            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
