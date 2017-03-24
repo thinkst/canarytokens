@@ -176,7 +176,7 @@ class EmailOutputChannel(OutputChannel):
         from_email = Email(msg['from_address'])
         subject = msg['subject']
         to_email = Email(canarydrop['alert_email_recipient'])
-        content = Content("text/plain", msg['body'])
+        content = Content("text/html", msg['body'])
         mail = Mail(from_email, subject, to_email, content)
 
         if settings.DEBUG:
