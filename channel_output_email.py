@@ -167,12 +167,12 @@ class EmailOutputChannel(OutputChannel):
     def sendgrid_send(self, msg=None, canarydrop=None):
         try:
             sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
-            from_email = Email(msg['from_address'])
+            from_email = Email(msg['from_address'], msg['from_display'])
             subject = msg['subject']
             to_email = Email(canarydrop['alert_email_recipient'])
-            content = Content("text/html", msg['body'])
+            text = msg['body']
+            content = Content("text/html", self.format_report_html())
             mail = Mail(from_email, subject, to_email, content)
-            mail.personalizations[0].add_substitution(Substitution("-name-", msg['from_display']))
 
             if settings.DEBUG:
                 pprint.pprint(mail)
