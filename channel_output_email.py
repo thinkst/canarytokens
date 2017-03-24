@@ -173,13 +173,11 @@ class EmailOutputChannel(OutputChannel):
 #                        'content-type': 'application/json'
 #            }
         sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
-        from_email = Email("noreply@yranac.mamisano.com")
-        subject = "Your Canarytoken was Triggered"
-        to_email = Email("mamisano@us.ibm.com")
-        content = Content("text/plain", "Hello, Email!")
+        from_email = Email(msg['from_address'])
+        subject = msg['subject']
+        to_email = Email(canarydrop['alert_email_recipient'])
+        content = Content("text/plain", msg['body'])
         mail = Mail(from_email, subject, to_email, content)
-
-        log.msg(mail)
 
         if settings.DEBUG:
             pprint.pprint(mail)
