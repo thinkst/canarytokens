@@ -7,12 +7,18 @@ import pprint
 from twisted.python import log
 import mandrill
 import requests
-import sendgrid
-from sendgrid.helpers.mail import *
 from htmlmin import minify
 from httpd_site import env
 from channel import OutputChannel
 from constants import OUTPUT_CHANNEL_EMAIL
+import sendgrid
+from sendgrid.helpers.mail import *
+try:
+    # Python 3
+    import urllib.request as urllib
+except ImportError:
+    # Python 2
+    import urllib2 as urllib
 
 class EmailOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_EMAIL
@@ -91,8 +97,6 @@ class EmailOutputChannel(OutputChannel):
 
         self.data['canarytoken'] = canarydrop['canarytoken']
         self.data['description'] = canarydrop['memo']
-        log.msg(settings.SENDGRID_API_KEY)
-        log.msg(settings.MAILGUN_API_KEY)
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
             self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:
@@ -161,33 +165,23 @@ class EmailOutputChannel(OutputChannel):
             # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....
 
     def sendgrid_send(self, msg=None, canarydrop=None):
-#            url = 'https://api.sendgrid.com/v3/mail/send'
-#            payload = {
-#                'personalizations': [{'to': [{'email': canarydrop['alert_email_recipient']}]}],
-#                'from': {'email': msg['from_address']},
-#                'subject': msg['subject'],
-#                'content': [{'type': "text/plain",
-#                             'value': msg['body']}]
-#            }
-#            headers = {'authorization': 'Bearer settings.MAILGUN_API_KEY',
-#                        'content-type': 'application/json'
-#            }
-        sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
-        from_email = Email(msg['from_address'])
-        subject = msg['subject']
-        to_email = Email(canarydrop['alert_email_recipient'])
-        content = Content("text/html", msg['body'])
-        mail = Mail(from_email, subject, to_email, content)
+        try:
+            sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
+            from_email = Email(msg['from_address'])
+            subject = msg['subject']
+            to_email = Email(canarydrop['alert_email_recipient'])
+            content = Content("text/html", msg['body'])
+            mail = Mail(from_email, subject, to_email, content)
+            mail.personalizations[0].add_substitution(Substitution("-name-", msg['from_display']))
 
-        if settings.DEBUG:
-            pprint.pprint(mail)
-        else:
-#                result = requests.request('POST', url, data=payload, headers=headers)
-            response = sg.client.mail.send.post(request_body=mail.get())
+            if settings.DEBUG:
+                pprint.pprint(mail)
+            else:
+                response = sg.client.mail.send.post(request_body=mail.get())
 
-        log.msg('Sent alert to {recipient} for token {token}'\
-                    .format(recipient=canarydrop['alert_email_recipient'],
-                            token=canarydrop.canarytoken.value()))
+                log.msg('Sent alert to {recipient} for token {token}'\
+                        .format(recipient=canarydrop['alert_email_recipient'],
+                                token=canarydrop.canarytoken.value()))
 
-#        except requests.exceptions.HTTPError as e:
-#            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
+        except urllib.HTTPError as e:
+            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
