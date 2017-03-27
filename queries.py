@@ -2,7 +2,6 @@ import requests
 import datetime
 import simplejson
 
-from canarydrop import Canarydrop
 from exception import LinkedInFailure
 from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_CANARY_PATH_ELEMENTS, KEY_CANARY_PAGES, KEY_CANARYDROPS_TIMELINE,\
@@ -15,7 +14,6 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
 from twisted.python import log
 from twisted.web.client import getPage
 
-from users import User
 
 
 def get_canarydrop(canarytoken=None):
