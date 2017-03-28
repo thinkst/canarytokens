@@ -200,6 +200,22 @@ def get_canarydrops(min_time='-inf', max_time='+inf'):
         canarydrops.append(Canarydrop(**get_canarydrop(canarytoken=canarytoken)))
     return canarydrops
 
+def get_canarydrops_array(min_time='-inf', max_time='+inf'):
+    """Return an array of stored Canarydrops.
+
+           Arguments:
+
+           min_time -- Limit to Canarydrops created after min_time. Format is Unix
+                       epoch. Default is no limit.
+           max_time -- Limit to Canarydrops created before max_time. Format is Unix
+                       epoch. Default is no limit.
+        """
+    canarydrops = []
+    for canarytoken in db.zrangebyscore(KEY_CANARYDROPS_TIMELINE, min_time,
+                                        max_time):
+        canarydrops.append(get_canarydrop(canarytoken=canarytoken))
+    return canarydrops
+
 def load_user(username):
     """Return a User object.
 
@@ -211,6 +227,7 @@ def load_user(username):
     if not db.exists(account_key):
         return None
 
+    from users import User
     return User(db.hgetall(account_key))
 
 
