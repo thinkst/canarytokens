@@ -49,7 +49,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.css">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css">
   </head>
 
   <body>
@@ -104,11 +104,13 @@
               </div>
               <div class="col-md-10">
                 <input class="form-control" type="text" id="endpoints" tabindex=1 placeholder="Provide an email address, or webook URL, or both space separated">
+                <div class="error-field" id="endpoints_errors"></div>
                 <input type="hidden" name="email">
                 <input type="hidden" name="webhook">
                 <input type="hidden" name="fmt">
                 <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
                 <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
+                <div class="error-field" id="memo_errors"></div>
                 <div class="field-optional field-web_image hidden">
                   {{ fileupload('web_image', text="Replace the default 1x1 GIF with your own image (PNG, GIF, JPG)") }}
                 </div>
@@ -893,29 +895,37 @@
 
             $.ajax({
                 url: '/generate',
-                beforeSend: function(){$('#save').prop('disabled','disabled');},
+                beforeSend: function(){$('#save').prop('disabled','disabled');$('.error-field').hide()},
                 dataType: 'json',
                 type: 'post',
                 contentType: false,
                 processData: false,
                 data: data,
                 success: function(data){
-                    console.log(data);
+                    $('#save').prop('disabled',false);
 
                     //$('.loader').addClass('hide');
                     if (data['Error'] !== null){
                       if (data['Error'] == '1'){
-                          $('#response').html('Provide an email and/or a webhook endpoint');
+                          $('#endpoints_errors').html('Provide an email and/or a webhook endpoint');
+                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
+                          $('#endpoints_errors').show();
                       } else if (data['Error'] == '2'){
-                          $('#response').html('Provide a memo to remind you what this token is used for.');
+                          $('#memo_errors').html('Provide a memo to remind you what this token is used for.');
+                          $('#memo_errors').show();
+                          $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
                       } else if (data['Error'] == '3'){
-                          $('#response').html('Invalid webhook supplied');
+                          $('#endpoints_errors').html('Invalid webhook supplied');
+                          $('#endpoints_errors').show();
+                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
                       } else {
-                          $('#response').html('An unexpected error occured');
+                          $('#memo_errors').html('An unexpected error occured');
+                          $('#memo_errors').show();
+                          $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
                       }
-                      // $('.jumbotron').css('height', $(this).data('jumbo-height'));
-                      $('#response').removeClass('hidden').show();
+                      showSave();
                     }else{
+                      $('.error-field').hide();
                       $('.result').hide();
                       $('.result.'+type).show();
                       //swap out the layers to make the results visible

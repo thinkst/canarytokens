@@ -400,6 +400,13 @@
         text-align: left;
       }
 
+      .error-field {
+        display: none;
+        color: red;
+        border-bottom: 1px solid red;
+        border-radius: 6px;
+        margin-bottom: 24px;
+      }
       .map{
         position: relative;
         margin-bottom: 10px;
