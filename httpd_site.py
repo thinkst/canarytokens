@@ -5,9 +5,11 @@ import cgi
 from twisted.web import server, resource
 from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
+import twisted.web.resource
 from twisted.web.resource import Resource, EncodingResourceWrapper, \
                                  ForbiddenResource, NoResource
-from twisted.web.static import File, DirectoryLister
+
+from twisted.web.static import File, DirectoryLister, Data
 
 from twisted.web.util import Redirect
 from twisted.python import log
@@ -36,6 +38,10 @@ import os
 
 env = Environment(loader=FileSystemLoader('templates'),
                   extensions=['jinja2.ext.loopcontrols'])
+
+with open('/srv/templates/error_http.html', 'r') as f:
+    twisted.web.resource.ErrorPage.template = f.read()
+
 class GeneratorPage(resource.Resource):
     isLeaf = True
 
@@ -535,6 +541,9 @@ class CanarytokensHttpd():
         root.putChild("settings", SettingsPage())
         root.putChild("history", HistoryPage())
         root.putChild("resources", LimitedFile("/srv/templates/static"))
+
+        with open('/srv/templates/robots.txt', 'r') as f:
+            root.putChild("robots.txt", Data(f.read(), "text/plain"))
 
         wrapped = EncodingResourceWrapper(root, [GzipEncoderFactory()])
         site = server.Site(wrapped)

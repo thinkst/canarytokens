@@ -248,7 +248,7 @@
           border-radius: 5px 5px 0 0;
           background: #4cbeff;
           box-shadow: none;
-          border-bottom: none;
+          border-bottom: 2px solid #eceeef;
           color: white;
       }
 
@@ -588,4 +588,9 @@
           font-size: 0.9rem;
         }
 
+      }
+
+      #mainsite {
+        font-size: smaller;
+        padding-top: 1.5rem;
       }
