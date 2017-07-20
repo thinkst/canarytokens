@@ -517,6 +517,9 @@
       a.icon-svn:before {
         background-image: url("/resources/svn.png");
       }
+      a.icon-aws:before {
+        background-image: url("/resources/aws.png");
+      }
 
       @media (max-width: 768px) {
         input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder {

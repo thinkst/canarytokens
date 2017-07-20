@@ -121,6 +121,17 @@
                   </div>
                 </div>
               </div>
+              <div class="result aws_keys">
+                <h5>Here's your AWS key token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ textareacopy('result_aws_keys') }}
+                  </div>
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
+                  </div>
+                </div>
+              </div>
               <div class="result smtp">
                 <h5>Here's your tokened Email address:</h5>
                 <div class="artifacts">
@@ -437,12 +448,25 @@
           $('#signed_exe').prop('download', data['file_name']);
           $('#signed_exe').text('Save ' + data['file_name']);
         }
+
+        var _handleAWSKeysResponse = function(data){
+          $('#result_aws_keys').val('[Credentials]'+
+          '\nAccess key Id: '+ data['aws_access_key_id']+
+          '\nSecret Access Key: '+ data['aws_secret_access_key']);
+          $('#result_aws_keys').css('height','70px');
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
+          });
+        }
+
         var _handleDefaultResponse = function(data) {
           return;
         }
 
         var _responseCallbacks = {'web': _handleWebResponse,
                                   'dns': _handleDNSResponse,
+                                  'aws_keys': _handleAWSKeysResponse,
                                   'web_image': _handleWebResponse,
                                   'ms_word' : _handleFileDownloadResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,

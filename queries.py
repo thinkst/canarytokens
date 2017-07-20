@@ -1,6 +1,7 @@
 import requests
 import datetime
 import simplejson
+import base64
 
 from exception import LinkedInFailure
 from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
@@ -120,7 +121,10 @@ def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
     triggered_key = hit_time if hit_time else datetime.datetime.utcnow().strftime("%s.%f")
     triggered_list[triggered_key] = kwargs
     triggered_list[triggered_key]['input_channel'] = input_channel
-    if kwargs.get('src_ip', None):
+    if kwargs.get('src_data', None) and 'aws_keys_event_source_ip' in kwargs['src_data']:
+        triggered_list[triggered_key]['geo_info'] = get_geoinfo(kwargs['src_data']['aws_keys_event_source_ip'])
+        triggered_list[triggered_key]['is_tor_relay'] = is_tor_relay(kwargs['src_data']['aws_keys_event_source_ip'])
+    elif kwargs.get('src_ip', None):
         triggered_list[triggered_key]['geo_info'] = get_geoinfo(kwargs['src_ip'])
         triggered_list[triggered_key]['is_tor_relay'] = is_tor_relay(kwargs['src_ip'])
     db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
@@ -143,6 +147,44 @@ def add_additional_info_to_hit(canarytoken,hit_time,additional_info=None):
         db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
     except Exception as e:
         log.err('Failed adding additional info: {err}'.format(err=e))
+
+def get_aws_keys(token=None, server=None):
+    if not (token or server) or len(token)==0 or len(server)==0:
+        log.err('Empty values passed through to get_aws_keys function.')
+        return False
+    try:
+        # data = base64.b64encode('U:'+server+':'+token)
+        # The following is because aws username can only be 64 characters long
+        if not validate_hostname(server):
+            return False
+
+        data = server+'@@'+token
+        if len(data)>64:
+            log.err('Length of the Server Name and token is too long. Will not work on AWS')
+            return False
+
+        resp = requests.get('https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens?data={d}'
+                            .format(d=data))
+        if not resp:
+            return False
+        resp_json = resp.json()
+        access_key_id = resp_json['access_key_id']
+        secret_access_key = resp_json['secret_access_key']
+        return (access_key_id, secret_access_key)
+    except Exception as e:
+        log.err('Error getting aws keys: {err}'.format(err=e))
+        return False
+
+def validate_hostname(hostname):
+    import re
+    print 'Going to search {e} for bad username characters'.format(e=hostname)
+    pattern = re.compile("[^a-zA-Z0-9+=,.@_-]")
+    match = pattern.search(hostname)
+    if match:
+        log.err('Hostname contains a bad character for AWS username {m} ... aborting'.format(m=match.group(0)))
+        return False
+    else:
+        return True
 
 def get_geoinfo(ip):
     if is_ip_cached(ip):

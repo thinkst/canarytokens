@@ -75,8 +75,16 @@
           <div class="incident-item expand" id="item-{{item}}">
                 <p class="details-header">
                 <b>Date:</b> {{ item|e }}
+                                  {% if 'src_data' in canarydrop['triggered_list'][item] and
+                                  'aws_keys_event_source_ip' in canarydrop['triggered_list'][item]['src_data'] %}
+                                  <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_data']['aws_keys_event_source_ip'] }}
+                                 
+                                  <b>Channel:</b> AWS API Key Token
+                                  {% else %}
                                   <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
+                                 
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
+                                  {% endif %}
                 </p>
                 <div class="incident-item-details">
                 <!-- <script type="text/javascript">
@@ -171,12 +179,55 @@
                          </td>
                       </tr>
                       <tr class="info_row">
+                        {% if field == 'src_data' and 'aws_keys_event_source_ip' in canarydrop['triggered_list'][item][field] %}
+                          <td>
+                           AWS Access Key ID
+                         </td>
+                         <td>
+                           {{ canarydrop['aws_access_key_id'] }}
+                         </td>
+                         </tr>
+                          <tr class="info_row">
+                          <td>
+                           Token Type
+                         </td>
+                         <td>
+                           AWS API Key
+                         </td>
+                         </tr>
+                          <tr class="info_row">
+                          <td>
+                           Memo
+                         </td>
+                         <td>
+                           {{ canarydrop['memo'] }}
+                         </td>
+                        </tr>
+                        <tr class="info_row">
+                          <td>
+                           Accessed by
+                         </td>
+                         <td>
+                           {{ canarydrop['triggered_list'][item][field]['aws_keys_event_source_ip']|e }}
+                         </td>
+                        {% if 'aws_keys_event_user_agent' in canarydrop['triggered_list'][item][field]%}
+                         </tr>
+                         <tr class="info_row">
+                          <td>
+                           User-agent
+                         </td>
+                         <td>
+                           {{ canarydrop['triggered_list'][item][field]['aws_keys_event_user_agent']|e }}
+                         </td>
+                        {% endif %}
+                        {% else %}
                          <td>
                            {{field}}
                          </td>
                          <td>
                            {{ canarydrop['triggered_list'][item][field]|e }}
                          </td>
+                         {% endif %}
                       </tr>
                     </table>
                     {%endif%}

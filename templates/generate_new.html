@@ -102,6 +102,7 @@
                     <li data-type="sql_server"     data-memo-placeholder="SELET SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
                     <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
+                    <li data-type="aws_keys"        data-memo-placeholder="AWS keys placed with important keys"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
                 	</ul>
                 </div>
               </div>
@@ -495,6 +496,31 @@
                   </p>
                 </div>
               </div>
+              <div class="result aws_keys">
+                <h3>Your AWS key token is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this credential pair to your clipboard to use as desired:</p>
+                  <div class="form-control">
+                    {{ textareacopy('result_aws_keys') }}
+                  </div>
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>This canarytoken is triggered when someone uses this credential pair to access AWS programmatically (through the API).</p>
+                  <p>The key is hyper unique. i.e. There is 0 chance of somebody having guessed these credentials.</p>
+                  <p>If this token fires, it is a clear indication that this set of keys has "leaked".</p>
+                  <p>Please note reference to an AWS IP means that IP triggered the AWS API event that triggered this token.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>These credentials are often stored in a file called ~/.aws/credentials on linux/OSX systems. Generate a fake credential pair for your senior developers 
+                        and sysadmins and keep it on their machines. If someone tries to access AWS with the pair you generated for Bob, chances are that Bob's been compromised.</li>
+                      <li>Place the credentials in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
             </div>
             <div class="col-md-1">
             </div>
@@ -814,9 +840,22 @@
             $('#result_web').val(url);
           });
         };
+
         var _handleDNSResponse = function(data) {
           $('#result_dns').val(data['Hostname']);
         };
+
+        var _handleAWSKeysResponse = function(data){
+          $('#result_aws_keys').val('[Credentials]'+
+          '\nAccess key Id: '+ data['aws_access_key_id']+
+          '\nSecret Access Key: '+ data['aws_secret_access_key']);
+          $('#result_aws_keys').css('height','70px');
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+          });
+        }
+
         var _handleWebImageRequest = function(form) {
           return new FormData(form[0]);
           var inputs = form.find('input').filter(function(i, e) {return (e.name && e.value && e.value != "") || false});
@@ -880,6 +919,7 @@
 
         var _responseCallbacks = {'web': _handleWebResponse,
                                   'dns': _handleDNSResponse,
+                                  'aws_keys':_handleAWSKeysResponse,
                                   'web_image': _handleWebResponse,
                                   'ms_word' : _handleFileDownloadResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,

@@ -29,7 +29,8 @@ class Canarydrop(object):
              'triggered_count', 'triggered_list','memo', 'generated_url',\
              'generated_email', 'generated_hostname','timestamp', 'user',
              'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
-             'web_image_enabled', 'type', 'clonedsite' ]
+             'web_image_enabled', 'type', 'clonedsite', 'aws_secret_access_key',\
+             'aws_access_key_id' ]
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
@@ -109,8 +110,8 @@ class Canarydrop(object):
                            hit_time=hit_time, **kwargs)
 
     def get_url_components(self,):
-        return (get_all_canary_sites(), get_all_canary_path_elements(), get_all_canary_pages()
-)
+        return (get_all_canary_sites(), get_all_canary_path_elements(), get_all_canary_pages())
+        
     def generate_random_url(self,):
         """Return a URL generated at random with the saved Canarytoken.
            The random URL is also saved into the Canarydrop."""
