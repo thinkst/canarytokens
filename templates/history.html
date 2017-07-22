@@ -179,6 +179,14 @@
                          </td>
                       </tr>
                       <tr class="info_row">
+                          <td>
+                           Memo
+                         </td>
+                         <td>
+                           {{ canarydrop['memo'] }}
+                         </td>
+                      </tr>
+                      <tr class="info_row">
                         {% if field == 'src_data' and 'aws_keys_event_source_ip' in canarydrop['triggered_list'][item][field] %}
                           <td>
                            AWS Access Key ID
@@ -195,14 +203,6 @@
                            AWS API Key
                          </td>
                          </tr>
-                          <tr class="info_row">
-                          <td>
-                           Memo
-                         </td>
-                         <td>
-                           {{ canarydrop['memo'] }}
-                         </td>
-                        </tr>
                         <tr class="info_row">
                           <td>
                            Accessed by

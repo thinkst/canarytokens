@@ -102,7 +102,7 @@
                     <li data-type="sql_server"     data-memo-placeholder="SELET SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
                     <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
-                    <li data-type="aws_keys"        data-memo-placeholder="AWS keys placed with important keys"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
+                    <li data-type="aws_keys"        data-memo-placeholder="like AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
                 	</ul>
                 </div>
               </div>
@@ -511,7 +511,6 @@
                   <p>This canarytoken is triggered when someone uses this credential pair to access AWS programmatically (through the API).</p>
                   <p>The key is hyper unique. i.e. There is 0 chance of somebody having guessed these credentials.</p>
                   <p>If this token fires, it is a clear indication that this set of keys has "leaked".</p>
-                  <p>Please note reference to an AWS IP means that IP triggered the AWS API event that triggered this token.</p>
                   <p>Ideas for use:
                     <ul>
                       <li>These credentials are often stored in a file called ~/.aws/credentials on linux/OSX systems. Generate a fake credential pair for your senior developers 
@@ -846,10 +845,10 @@
         };
 
         var _handleAWSKeysResponse = function(data){
-          $('#result_aws_keys').val('[Credentials]'+
+          $('#result_aws_keys').val('[Default]'+
           '\nAccess key Id: '+ data['aws_access_key_id']+
           '\nSecret Access Key: '+ data['aws_secret_access_key']);
-          $('#result_aws_keys').css('height','70px');
+          $('#result_aws_keys').css('height','50px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);

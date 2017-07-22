@@ -450,10 +450,10 @@
         }
 
         var _handleAWSKeysResponse = function(data){
-          $('#result_aws_keys').val('[Credentials]'+
+          $('#result_aws_keys').val('[Default]'+
           '\nAccess key Id: '+ data['aws_access_key_id']+
           '\nSecret Access Key: '+ data['aws_secret_access_key']);
-          $('#result_aws_keys').css('height','70px');
+          $('#result_aws_keys').css('height','50px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);

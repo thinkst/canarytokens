@@ -23,6 +23,7 @@ class WebhookOutputChannel(OutputChannel):
             self.generic_webhook_send(simplejson.dumps(payload), canarydrop)
         except Exception as e:
             log.err(e)
+
     def generic_webhook_send(self, payload=None, canarydrop=None):
         try:
             response = requests.post(canarydrop['alert_webhook_url'], payload, headers={'content-type': 'application/json'})
@@ -32,3 +33,5 @@ class WebhookOutputChannel(OutputChannel):
         except requests.exceptions.RequestException as e:
             log.err("Failed sending request to webhook {url} with error {error}".format(url=canarydrop['alert_webhook_url'],error=e))
             return e
+    
+    
