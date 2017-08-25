@@ -965,7 +965,7 @@
                           $('#memo_errors').show();
                           $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
                       } else if (data['Error'] == '3'){
-                          $('#endpoints_errors').html('Invalid webhook supplied');
+                          $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"":""}\' URL</pre></p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                       } else {

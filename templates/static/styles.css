@@ -407,6 +407,15 @@
         border-radius: 6px;
         margin-bottom: 24px;
       }
+      #endpoints_errors {
+        border: 1px solid red;
+        margin: 24px 0px;
+        padding: 0px 5px;
+      }
+      #endpoints_errors pre {
+        color: #eceeef;
+        background: firebrick;
+      }
       .map{
         position: relative;
         margin-bottom: 10px;

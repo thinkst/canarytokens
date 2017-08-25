@@ -106,7 +106,7 @@ class GeneratorPage(resource.Resource):
 
             if webhook and not is_webhook_valid(webhook):
                 response['Error'] = 3
-                raise Exception('Invalid webhook supplied')
+                raise Exception('Invalid webhook supplied. Confirm you can POST to this URL.')
 
             alert_email_enabled = False if not email else True
             alert_webhook_enabled = False if not webhook else True

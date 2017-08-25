@@ -502,9 +502,15 @@ def is_webhook_valid(url):
                "channel": "HTTP",
                "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
     try:
-        response = requests.post(url, simplejson.dumps(payload), headers={'content-type': 'application/json'})
+        response = requests.post(url,
+                                 simplejson.dumps(payload),
+                                 headers={'content-type': 'application/json'},
+                                 timeout=10)
         response.raise_for_status()
         return True
+    except requests.exceptions.Timeout as e:
+        log.err('Timed out sending test payload to webhook: {url}'.format(url=url))
+        return False
     except requests.exceptions.RequestException as e:
         log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
         return False
