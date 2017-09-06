@@ -1,3 +1,3 @@
-if (document.domain != 'canarytokens.org') {
+if (!(/^(www\.|)canarytokens\.(com|org)$/i.test(document.domain))){
   $('#mainsite').removeClass('hidden');
 }
