@@ -124,7 +124,6 @@ http://{host}/history?token={token}&auth={auth}
             msg['from_display'] = settings.ALERT_EMAIL_FROM_DISPLAY
         if params.get('from_address_required', False):
             msg['from_address'] = settings.ALERT_EMAIL_FROM_ADDRESS
-
         return msg
 
     def dispatch(self, **kwargs):

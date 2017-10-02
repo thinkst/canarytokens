@@ -32,7 +32,6 @@ class EmailOutputChannel(OutputChannel):
 
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
-
         rendered_html = env.get_template('emails/notification.html').render(
             Title=self.DESCRIPTION,
             Intro=self.format_report_intro(),
@@ -81,7 +80,10 @@ class EmailOutputChannel(OutputChannel):
             vars['Referer'] = self.data['referer']
 
         if 'location' in self.data:
-            vars['Location'] = self.data['location']
+            try:
+                vars['Location'] = self.data['location'].decode('utf-8')
+            except Exception:
+                vars['Location'] = self.data['location']
 
         return vars
 
