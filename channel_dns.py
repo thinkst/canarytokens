@@ -155,13 +155,13 @@ class ChannelDNS(InputChannel):
     def look_for_source_data(self, token=None, value=None):
         try:
             (haystack, domain) = value.split(token)
-            sql_server_username  = re.compile('([A-Za-z0-9.-]*)\.[0-9]{2}\.')
-            mysql_username       = re.compile('([A-Za-z0-9.-]*)\.M[0-9]{3}\.')
-            linux_inotify        = re.compile('([A-Za-z0-9.-]*)\.L[0-9]{2}\.')
-            dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.')
-            dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.')
-            desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.ini\.')
-            aws_keys_event       = re.compile('([A-Za-z0-9-]*)\.([A-Za-z0-9.-]*)\.A[0-9]{3}\.')
+            sql_server_username  = re.compile('([A-Za-z0-9.-]*)\.[0-9]{2}\.', re.IGNORECASE)
+            mysql_username       = re.compile('([A-Za-z0-9.-]*)\.M[0-9]{3}\.', re.IGNORECASE)
+            linux_inotify        = re.compile('([A-Za-z0-9.-]*)\.L[0-9]{2}\.', re.IGNORECASE)
+            dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.', re.IGNORECASE)
+            dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
+            desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.ini\.', re.IGNORECASE)
+            aws_keys_event       = re.compile('([A-Za-z0-9-]*)\.([A-Za-z0-9.-]*)\.A[0-9]{3}\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
