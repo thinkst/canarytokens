@@ -113,6 +113,22 @@
                   </div>
                 </div>
               </div>
+              <div class="result fast_redirect">
+                <h5>Here's your Fast Redirect token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ inputcopy('result_fast_redirect') }}
+                  </div>
+                </div>
+              </div>
+              <div class="result slow_redirect">
+                <h5>Here's your Slow Redirect token:</h5>
+                <div class="artifacts">
+                  <div class="form-control">
+                    {{ inputcopy('result_slow_redirect') }}
+                  </div>
+                </div>
+              </div>
               <div class="result dns">
                 <h5>Here's your DNS token:</h5>
                 <div class="artifacts">
@@ -410,6 +426,12 @@
         var _handleWebResponse = function(data) {
           $('#result_web').val(data['generated_url']);
         };
+        var _handleFastRedirectResponse = function(data) {
+          $('#result_fast_redirect').val(data['generated_url']);
+        };
+        var _handleSlowRedirectResponse = function(data) {
+          $('#result_slow_redirect').val(data['generated_url']);
+        };
         var _handleDNSResponse = function(data) {
           $('#result_dns').val(data['generated_hostname']);
         };
@@ -477,6 +499,8 @@
                                   'smtp': _handleSMTPResponse,
                                   'sql_server': _handleSQLServerResponse,
                                   'signed_exe': _handlerSignedExeResponse,
+                                  'fast_redirect': _handleFastRedirectResponse,
+                                  'slow_redirect': _handleSlowRedirectResponse,
                                   'default':   _handleDefaultResponse
                                  };
         var displayToken = function(data) {

@@ -81,7 +81,9 @@ class GeneratorPage(resource.Resource):
                                       'smtp',
                                       'sql_server',
                                       'aws_keys',
-                                      'signed_exe']:
+                                      'signed_exe',
+                                      'fast_redirect',
+                                      'slow_redirect']:
                     raise Exception()
             except:
                 raise Exception('Unknown type')
@@ -260,7 +262,29 @@ class GeneratorPage(resource.Resource):
             except:
                 pass
 
+            try:
+                if request.args.get('type', None)[0] != 'fast_redirect':
+                    raise Exception()
+                
+                if not request.args['redirect_url'][0]:
+                    raise Exception()
 
+                canarydrop['redirect_url'] = request.args['redirect_url'][0]
+                save_canarydrop(canarydrop)
+            except:
+                pass
+
+            try:
+                if request.args.get('type', None)[0] != 'slow_redirect':
+                    raise Exception()
+                
+                if not request.args['redirect_url'][0]:
+                    raise Exception()
+
+                canarydrop['redirect_url'] = request.args['redirect_url'][0]
+                save_canarydrop(canarydrop)
+            except:
+                pass
 
         except Exception as e:
             if response['Error'] is None:

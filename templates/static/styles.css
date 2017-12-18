@@ -529,6 +529,9 @@
       a.icon-aws:before {
         background-image: url("/resources/aws.png");
       }
+      a.icon-redirect:before {
+        background-image: url("/resources/redirect.png");
+      }
 
       @media (max-width: 768px) {
         input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder {

@@ -30,7 +30,7 @@ class Canarydrop(object):
              'generated_email', 'generated_hostname','timestamp', 'user',
              'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
              'web_image_enabled', 'type', 'clonedsite', 'aws_secret_access_key',\
-             'aws_access_key_id' ]
+             'aws_access_key_id', 'redirect_url' ]
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}

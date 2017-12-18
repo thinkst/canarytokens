@@ -811,6 +811,27 @@ body .mouth {
             </div>
           </div>
         </div>
+
+        <div id="blah" class="panel panel-default hidden">
+          <div class="panel-heading" id="headingSVN" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSVN" aria-expanded="true" aria-controls="collapseSVN">
+            <h4 class="panel-title" data-toggle="tooltip" title="Fire an alert when someone checks out an SVN repository">
+                Blah Token
+            </h4>
+          </div>
+          <div id="collapseSVN" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingSVN">
+            <div class="panel-body">
+              <p>Here's an SVN command you can run to create a tokened externals definition:</p>
+              <p><input type="text" name="svn" readonly size="100"></p>
+              <p>After creating the externals link, remember to commit the changes.</p>
+              <p>Use this in unused SVN repos:
+              <ul>
+                <li>It may be a fake SVN repo created to lure intruders in.</li>
+                <li>It may be a repo of a completed project that no one should be using.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <a href="https://canary.tools/" target="_blank"><img class="banner" src="//thinkst.com/images/tokens-banner.gif"></a>

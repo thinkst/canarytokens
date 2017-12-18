@@ -102,8 +102,10 @@
                     <li data-type="sql_server"     data-memo-placeholder="SELET SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
                     <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
-                    <li data-type="aws_keys"        data-memo-placeholder="like AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
-                	</ul>
+                    <li data-type="aws_keys"       data-memo-placeholder="like AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
+                    <li data-type="fast_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast Redirect</span><div class="explanation">Alert when a URL is visited, vistor is redirected</div></a></li>
+                    <li data-type="slow_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow Redirect</span><div class="explanation">Alert when a URL is visited, vistor is redirected and browser info grabbed</div></a></li>
+                  </ul>
                 </div>
               </div>
               <div class="col-md-1">
@@ -146,6 +148,9 @@
                   fires
                   <input class="form-control" type="text" tabindex=6 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
                   <input class="form-control" type="text" tabindex=7 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
+                </div>
+                <div class="field-optional field-fast_redirect field-slow_redirect hidden">
+                  <input class="form-control" type="text" tabindex=3 name="redirect_url" placeholder="https://www.redirect.com">
                 </div>
               </div>
               <div class="col-md-1">
@@ -190,6 +195,46 @@
                   <p>Ideas for use:
                     <ul>
                       <li>In an email with a juicy subject line.</li>
+                      <li>Embedded in documents.</li>
+                      <li>Inserted into canary webpages that are only found through brute-force.</li>
+                      <li>This URL is just an example. Apart from the hostname and the actual token (the random string), you can change all other parts of the URL.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result fast_redirect">
+                <h3>Your Fast Redirect token is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this URL to your clipboard and use as you wish:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_fast_redirect', refresh=True) }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>The token is similar to the Web token, however, when the link is loaded the view will be immediately redirected to the specified redirect URL.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Replace links with these to capture user information before user is redirected to where they want to go.</li>
+                      <li>Embedded in documents.</li>
+                      <li>Inserted into canary webpages that are only found through brute-force.</li>
+                      <li>This URL is just an example. Apart from the hostname and the actual token (the random string), you can change all other parts of the URL.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result slow_redirect">
+                <h3>Your Slow Redirect token is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this URL to your clipboard and use as you wish:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_slow_redirect', refresh=True) }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>The token is similar to the Fast Redirect token, however, when the link is loaded the user's browser / browser plugin information is captured.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Replace links with these to capture user information before user is redirected to where they want to go.</li>
                       <li>Embedded in documents.</li>
                       <li>Inserted into canary webpages that are only found through brute-force.</li>
                       <li>This URL is just an example. Apart from the hostname and the actual token (the random string), you can change all other parts of the URL.</li>
@@ -648,6 +693,32 @@
         return cloned_website.removeClass('error-outline').addClass('success-outline');
       }
 
+      var checkFastRedirect = function() {
+        var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+        var regex = new RegExp(expression);
+        redirect_url = $('input[name=redirect_url]');
+        if (! redirect_url.parents('.field-fast_redirect').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (redirect_url.val().length == 0 || !redirect_url.val().match(regex)) {
+            return redirect_url.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return redirect_url.removeClass('error-outline').addClass('success-outline');
+      }
+
+      var checkSlowRedirect = function() {
+        var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+        var regex = new RegExp(expression);
+        redirect_url = $('input[name=redirect_url]');
+        if (! redirect_url.parents('.field-slow_redirect').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (redirect_url.val().length == 0 || !redirect_url.val().match(regex)) {
+            return redirect_url.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return redirect_url.removeClass('error-outline').addClass('success-outline');
+      }
+
       var _checkSQLServerSelectedAction = function() {
         sql_server_selected_action = $('#selected_sql_action');
 
@@ -722,6 +793,8 @@
         checkSignedExe();
         checkClonedWebsite();
         checkSQLServer();
+        checkFastRedirect();
+        checkSlowRedirect();
 
         //invert UI elements, depending on whether there are errors or not
         showSave();
@@ -840,6 +913,28 @@
           });
         };
 
+        var _handleFastRedirectResponse = function(data) {
+          $('#result_fast_redirect').val(data['Url']);
+          $('#result_fast_redirect').siblings('.refresh').on('click', function() {
+            url = [data['Url_components'][0].random(),
+                   data['Url_components'][1].random(),
+                   data['Token'],
+                   data['Url_components'][2].random()].join('/');
+            $('#result_fast_redirect').val(url);
+          });
+        };
+
+        var _handleSlowRedirectResponse = function(data) {
+          $('#result_slow_redirect').val(data['Url']);
+          $('#result_slow_redirect').siblings('.refresh').on('click', function() {
+            url = [data['Url_components'][0].random(),
+                   data['Url_components'][1].random(),
+                   data['Token'],
+                   data['Url_components'][2].random()].join('/');
+            $('#result_slow_redirect').val(url);
+          });
+        };
+
         var _handleDNSResponse = function(data) {
           $('#result_dns').val(data['Hostname']);
         };
@@ -929,6 +1024,8 @@
                                   'smtp': _handleSMTPResponse,
                                   'sql_server': _handleSQLServerResponse,
                                   'signed_exe': _handlerSignedExeResponse,
+                                  'fast_redirect': _handleFastRedirectResponse,
+                                  'slow_redirect': _handleSlowRedirectResponse,
                                   'default':   _handleDefaultResponse
                                  };
 
