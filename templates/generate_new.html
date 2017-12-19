@@ -48,6 +48,7 @@
     <meta property="og:image:height" content="52">
     <meta name="keywords" content="Canary token,Canarytokens,Canary token,Canary tokens,Honeytoken,Honeytokens,Web bug,DNS token,URL token,Thinkst,Thinkst Applied Research">
     <link rel="icon" href="../../favicon.ico">
+    <link href="/resources/perfect-scrollbar.css" rel="stylesheet">
 
     <title>Canarytokens</title>
 
@@ -58,7 +59,13 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=1">
+    <style>
+    .ps__rail-x,
+    .ps__rail-y {
+      opacity: 0.6;
+    }
+    </style>
   </head>
 
   <body>
@@ -103,8 +110,8 @@
                     <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
                     <li data-type="aws_keys"       data-memo-placeholder="like AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
-                    <li data-type="fast_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast Redirect</span><div class="explanation">Alert when a URL is visited, vistor is redirected</div></a></li>
-                    <li data-type="slow_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow Redirect</span><div class="explanation">Alert when a URL is visited, vistor is redirected and browser info grabbed</div></a></li>
+                    <li data-type="fast_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast Redirect</span><div class="explanation">Alert when a URL is visited, User is redirected</div></a></li>
+                    <li data-type="slow_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow Redirect</span><div class="explanation">Alert when a URL is visited, User is redirected (Moar info is grabbed!)</div></a></li>
                   </ul>
                 </div>
               </div>
@@ -590,6 +597,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
     <script src="/resources/site.js"></script>
+    <script src="/resources/perfect-scrollbar.min.js"></script>
     <script>
       Array.prototype.random = function () {
         return this[Math.floor((Math.random()*this.length))];
@@ -878,6 +886,10 @@
     		$(document).click(function() {
       			$('.wrapper-dropdown').removeClass('active');
       	});
+
+        $('.wrapper-dropdown').click(function() {
+          setTimeout(function(){new PerfectScrollbar('#dropdown')}, 250);
+        });
 
         $('.tooltip').tooltipster({
           theme: 'tooltipster-borderless',
