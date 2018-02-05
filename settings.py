@@ -49,6 +49,12 @@ for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY']:
     except KeyError:
         setattr(settingsmodule, envvar, [])
 
+try:
+    setattr(settingsmodule, 'LOG_FILE', os.environ['LOG_FILE'])
+except KeyError:
+    if not hasattr(settingsmodule, 'LOG_FILE'):
+        setattr(settingsmodule, 'LOG_FILE', [])
+
 if WEB_IMAGE_UPLOAD_PATH and not os.path.exists(WEB_IMAGE_UPLOAD_PATH):
     os.mkdir(WEB_IMAGE_UPLOAD_PATH)
 
