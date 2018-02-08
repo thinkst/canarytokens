@@ -61,9 +61,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
                           referer=referer)
-            
-            print dir(canarydrop)
-            print vars(canarydrop)
+
             if 'redirect_url' in canarydrop._drop and canarydrop._drop['redirect_url']:
                 # if fast redirect
                 if canarydrop._drop['type'] == 'fast_redirect':
