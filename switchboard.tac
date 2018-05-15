@@ -1,6 +1,7 @@
 import sys, os
-
 from twisted.names import dns, server
+from caa_monkeypatch import patch
+patch()
 from twisted.application import service, internet
 from twisted.python import log
 

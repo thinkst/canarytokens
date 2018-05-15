@@ -1,5 +1,5 @@
 from twisted.internet import reactor, defer
-from twisted.names import client, dns, server, error
+from twisted.names import dns, server, error
 from twisted.python import log
 
 from constants import INPUT_CHANNEL_DNS
@@ -203,6 +203,8 @@ class ChannelDNS(InputChannel):
         self.logfile.write('%r\n' % query)
         self.logfile.flush()
 
+        print "Query Type: {q}".format(q=query.type)
+
         if query.type == dns.NS:
             return defer.succeed(self._do_ns_response(name=query.name.name))
 
@@ -233,6 +235,9 @@ class ChannelDNS(InputChannel):
         return defer.succeed(self._do_dynamic_response(name=query.name.name))
         #return defer.fail(error.DomainError())
 
+    def lookupCAA(self, name, timeout):
+        """Respond with NXdomain to a -t CAA lookup."""
+        return defer.fail(error.DomainError())
 
     def lookupAllRecords(self, name, timeout):
         """Respond with error to a -t ANY lookup."""
