@@ -203,8 +203,6 @@ class ChannelDNS(InputChannel):
         self.logfile.write('%r\n' % query)
         self.logfile.flush()
 
-        print "Query Type: {q}".format(q=query.type)
-
         if query.type == dns.NS:
             return defer.succeed(self._do_ns_response(name=query.name.name))
 
