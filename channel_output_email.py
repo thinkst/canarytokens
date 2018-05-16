@@ -99,7 +99,7 @@ class EmailOutputChannel(OutputChannel):
             self.data['tokentype']   = canarydrop._drop['type']
 
         self.data['canarytoken'] = canarydrop['canarytoken']
-        self.data['description'] = canarydrop['memo']
+        self.data['description'] = unicode(canarydrop['memo'], "utf8") if canarydrop['memo'] is not None else ''
         if settings.MAILGUN_DOMAIN_NAME and settings.MAILGUN_API_KEY:
             self.mailgun_send(msg=msg,canarydrop=canarydrop)
         elif settings.MANDRILL_API_KEY:
