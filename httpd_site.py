@@ -502,6 +502,9 @@ class HistoryPage(resource.Resource):
                                 float(timestamp)).strftime('%Y %b %d %H:%M:%S')
                     canarydrop['triggered_list'][formatted_timestamp] = canarydrop['triggered_list'].pop(timestamp)
 
+            if canarydrop.get('memo'):
+                canarydrop['memo'] = unicode(canarydrop['memo'], "utf8")
+
         except (TypeError, NoCanarytokenPresent):
             return NoResource().render(request)
         g_api_key = get_canary_google_api_key()
