@@ -154,6 +154,7 @@ class ChannelDNS(InputChannel):
 
     def look_for_source_data(self, token=None, value=None):
         try:
+            value = value.lower()
             (haystack, domain) = value.split(token)
             sql_server_username  = re.compile('([A-Za-z0-9.-]*)\.[0-9]{2}\.', re.IGNORECASE)
             mysql_username       = re.compile('([A-Za-z0-9.-]*)\.M[0-9]{3}\.', re.IGNORECASE)
