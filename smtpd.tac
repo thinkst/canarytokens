@@ -129,7 +129,6 @@ class SimpleRealm:
     implements(IRealm)
 
     def requestAvatar(self, avatarId, mind, *interfaces):
-        import pdb;pdb.set_trace()
 
         if smtp.IMessageDelivery in interfaces:
             return smtp.IMessageDelivery, CanaryMessageDelivery(), lambda: None

@@ -35,6 +35,8 @@ import datetime
 import tempfile
 import hashlib
 import os
+from cStringIO import StringIO
+import csv
 
 env = Environment(loader=FileSystemLoader('templates'),
                   extensions=['jinja2.ext.loopcontrols'])
@@ -341,6 +343,39 @@ class DownloadPage(resource.Resource):
                 text="[default]\naws_access_key={id}\naws_secret_access_key={k}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'])
                 return text 
+            elif fmt == 'incidentlist_json':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}_history.json'\
+                                  .format(token=token))
+                return simplejson.dumps(canarydrop['triggered_list'], indent=4)
+            elif fmt == 'incidentlist_csv':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}_history.csv'\
+                                  .format(token=token))
+                csvOutput = StringIO()
+                incident_list = canarydrop['triggered_list']
+
+                writer = csv.writer(csvOutput)
+                    
+                details = []
+                for key in incident_list:
+                    for element in incident_list[key].keys():
+                        details.append(element)
+                
+                headers = ["Timestamp"] + details
+                writer.writerow(headers)
+                items = []
+                for item in details:
+                    for key in incident_list:
+                        items.append(incident_list[key][item])
+
+                for key in incident_list:
+                    data = [datetime.datetime.fromtimestamp(float(key)).strftime('%Y-%m-%d %H:%M:%S.%s')] + items
+                    writer.writerow(data)
+
+                return csvOutput.getvalue()
                 
         except Exception as e:
             log.err('Unexpected error in download: {err}'.format(err=e))

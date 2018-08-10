@@ -55,7 +55,11 @@
         </div>
       <div class="row content">
           <div class="col-sm-6 incident-size">
-          <h4 style="text-align: center;">Incident Map</h4>
+          <div class="row" style="align-items: center;">
+            <div class="col-md 12">
+              <h4 style="text-align: center;">Incident Map</h4>
+            </div>
+          </div>
         {% if API_KEY %}
           <div class="row">
               <div class="col-md-12"><div class="map" id="map"></div></div>
@@ -68,7 +72,21 @@
         </div>
         <div class="col-sm-6 incident-size">
         {% if (canarydrop['triggered_list']|length) > 0 %}
-        <h4 style="text-align: center;">Incident List</h4>
+
+        <div class="row" style="align-items: center;">
+          <h4 style="text-align: center;" class="col-md-9">Incident List</h4>
+          <div id="file_format" class="wrapper-dropdown form-control col-md-2" style="text-align: center;margin-bottom: 0;padding: 5px;" tabindex="1">
+            <span id="selected_file_format">
+              Export
+            </span>
+            <input name="file_format" type="hidden">
+            <ul id="file_format_dropdown" class="dropdown">
+              <li data-type="JSON"           data-memo-placeholder="Download incident list as a (.json)"><a onClick="jsonDownload()"><span class="title">JSON File Format</span><div class="explanation">Download incident list as (.json)</div></a></li>
+              <li data-type="CSV"            data-memo-placeholder="Download incident list as a (.csv)"><a onClick="csvDownload()"><span class="title">CSV File Format</span><div class="explanation">Download incident list as (.csv)</div></a></li>
+            </ul>
+          </div>
+        </div>
+
         <!-- <h6 class="text-info" style="text-align: center;">Click to expand Incidents</h6> -->
         {% else %}
         <h4 style="text-align: center;">Incident List is Currently Empty</h4>
@@ -308,6 +326,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="/resources/site.js"></script>
     <script>
+
+    function jsonDownload() {
+      window.location = "/download?fmt=incidentlist_json&token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}";
+    }
+    function csvDownload() {
+      window.location = "/download?fmt=incidentlist_csv&token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}";
+    }
+
     var green_icon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
     var red_icon = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 
@@ -423,6 +449,40 @@
       $('.expand').click(function(){
         $(this).find('.incident-item-details').slideToggle('slow');
     });
+
+
+    function DropDown(el, click_cb) {
+          this.dd = el;
+          this.click_cb = click_cb;
+          this.initEvents();
+      }
+      DropDown.prototype = {
+          initEvents : function() {
+              var obj = this;
+
+              obj.dd.on('click', function(event){
+                  $(this).toggleClass('active');
+                  if ($(event.target).parents().hasClass('file_format_dropdown') && obj.click_cb) {
+                    obj.click_cb(event);
+                  }
+                  event.stopPropagation();
+              });
+          }
+      }
+      $(function() {
+        /* init dropdown menu */
+		    var dd = new DropDown( $('#file_format'),
+                                function(event) {
+                                  var list_item = $(event.target).parents('li');
+                                  $('#file_format_dropdown').data('selected', list_item.data('file_format'))
+                                  $('#selected_file_format').text(list_item.find('span.title').text());
+                                });
+                                });
+
+      $(document).click(function() {
+          $('.wrapper-dropdown').removeClass('active');
+      });
+
     </script>
   {% if API_KEY %}
   <script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap" async defer></script>
