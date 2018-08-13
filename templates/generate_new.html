@@ -1054,7 +1054,7 @@
 
             // Safari Web Browser can't handle input types of file to be empty fields, thus it is checked whether the browser is Safari
             // and if so, all empty input fields of type 'file' (included in the fileupload class) is removed from the FormData
-            if (/constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification))){
+            if (window.navigator.userAgent.includes('Safari')) {
               fileArray = ($('.fileupload')).toArray()
               for (var i = 0; i < fileArray.length; ++i) {
                 if (fileArray[i].value == ''){
