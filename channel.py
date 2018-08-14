@@ -97,8 +97,8 @@ Memo   : {memo}
 {additional_data}
 
 Manage your settings for this Canarydrop:
-http://{host}/manage?token={token}&auth={auth}
-"""         .format(channel_name=self.name,
+http://{host}/manage?token={token}&auth={auth}""".format(
+                    channel_name=self.name,
                     time=msg['time'],
                     memo=canarydrop.memo,
                     additional_data=self.format_additional_data(**kwargs),
@@ -107,16 +107,14 @@ http://{host}/manage?token={token}&auth={auth}
                     token=canarydrop['canarytoken'],
                     auth=canarydrop['auth']
                     )
-            msg['manage'] = """
-http://{host}/manage?token={token}&auth={auth}
-            """.format(host=host,
-                    token=canarydrop['canarytoken'],
-                    auth=canarydrop['auth'])
-            msg['history'] = """
-http://{host}/history?token={token}&auth={auth}
-            """.format(host=host,
-                    token=canarydrop['canarytoken'],
-                    auth=canarydrop['auth'])
+            msg['manage'] = 'http://{host}/manage?token={token}&auth={auth}'\
+                .format(host=host,
+                        token=canarydrop['canarytoken'],
+                        auth=canarydrop['auth'])
+            msg['history'] = 'http://{host}/history?token={token}&auth={auth}'\
+                .format(host=host,
+                        token=canarydrop['canarytoken'],
+                        auth=canarydrop['auth'])
 
         if params.get('subject_required', False):
             msg['subject'] = settings.ALERT_EMAIL_SUBJECT
