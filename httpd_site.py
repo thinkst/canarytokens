@@ -61,6 +61,7 @@ class GeneratorPage(resource.Resource):
     def render_POST(self, request):
         request.responseHeaders.addRawHeader(b"content-type", b"application/json")
         response = { 'Error': None,
+                     'Error_Message': None,
                      'Url': "",
                      'Url_components': None,
                      'Token': "",
@@ -209,9 +210,13 @@ class GeneratorPage(resource.Resource):
                 filebody = fields['web_image'].value
 
                 if len(filebody) > settings.MAX_UPLOAD_SIZE:
+                    response['Error'] = 4
+                    response['Message'] = 'File too large. File size must be < ' + str(settings.MAX_UPLOAD_SIZE/(1024*1024)) + 'MB.'
                     raise Exception('File too large')
 
                 if not filename.lower().endswith(('.png','.gif','.jpg')):
+                    response['Error'] = 4
+                    response['Message'] = 'Uploaded image must be a PNG, GIF or JPG.'
                     raise Exception('Uploaded image must be a PNG, GIF or JPG')
                 ext = filename.lower()[-4:]
 
@@ -247,13 +252,16 @@ class GeneratorPage(resource.Resource):
                     'CONTENT_TYPE': request.getAllHeaders()['content-type'],
                     }
                 )#hacky way to parse out file contents and filenames
-
                 filename = fields['signed_exe'].filename
                 filebody = fields['signed_exe'].value
                 if len(filebody) > settings.MAX_UPLOAD_SIZE:
+                    response['Error'] = 4
+                    response['Message'] = 'File too large. File size must be < ' + str(settings.MAX_UPLOAD_SIZE/(1024*1024)) + 'MB.'
                     raise Exception('File too large')
 
                 if not filename.lower().endswith(('exe','dll')):
+                    response['Error'] = 4
+                    response['Message'] = 'Uploaded authenticode file must be an exe or dll.'
                     raise Exception('Uploaded authenticode file must be an exe or dll')
 
                 signed_contents = make_canary_authenticode_binary(hostname=

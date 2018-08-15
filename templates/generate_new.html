@@ -139,6 +139,7 @@
                 <div class="field-optional field-cloned_website hidden">
                   <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
                 </div>
+                <div class="error-field" id="file_upload_errors"></div>
                 <div class="field-optional field-sql_server hidden">
                   <div id="sql_type" class="wrapper-dropdown form-control" tabindex="1">
                     <span id="selected_sql_action">INSERT</span>
@@ -1052,9 +1053,14 @@
 
             data = cb($(this));
 
-            // Safari Web Browser can't handle input types of file to be empty fields, thus it is checked whether the browser is Safari
-            // and if so, all empty input fields of type 'file' (included in the fileupload class) is removed from the FormData
-            if (window.navigator.userAgent.includes('Safari')) {
+            // Safari Web Browser can't handle input types of file to be empty fields and Edge can't handle incomplete formData fields, but doesn't mind if they are empty.
+            // Thus it is checked whether the browser is Edge and if so the data is left in its original format. If it is any other browser, all empty input fields
+            // of type 'file' (included in the fileupload class) is removed from the FormData.
+
+            // This "backwards" testing is done due to the ambiguous nature of browser user agent strings, where browsers impersonate one another. However, "Edge" only occurs
+            // within Edge browser user agent strings and is also the only browser that can't handle incomplete formData fields, where as all other browsers successfully
+            // handle input fields in the same manner as Safari.
+            if (!window.navigator.userAgent.includes('Edge')){
               fileArray = ($('.fileupload')).toArray()
               for (var i = 0; i < fileArray.length; ++i) {
                 if (fileArray[i].value == ''){
@@ -1088,6 +1094,10 @@
                           $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"":""}\' URL</pre></p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
+                      } else if (data['Error'] == '4'){
+                          $('#file_upload_errors').html(data['Message']);
+                          $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
+                          $('#file_upload_errors').show();
                       } else {
                           $('#memo_errors').html('An unexpected error occured');
                           $('#memo_errors').show();
