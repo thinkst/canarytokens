@@ -209,16 +209,16 @@ class GeneratorPage(resource.Resource):
                 filename = fields['web_image'].filename
                 filebody = fields['web_image'].value
 
-                if len(filebody) > settings.MAX_UPLOAD_SIZE:
-                    response['Error'] = 4
-                    response['Message'] = 'File too large. File size must be < ' + str(settings.MAX_UPLOAD_SIZE/(1024*1024)) + 'MB.'
-                    raise Exception('File too large')
-
                 if not filename.lower().endswith(('.png','.gif','.jpg')):
                     response['Error'] = 4
                     response['Message'] = 'Uploaded image must be a PNG, GIF or JPG.'
                     raise Exception('Uploaded image must be a PNG, GIF or JPG')
                 ext = filename.lower()[-4:]
+
+                if len(filebody) > int(settings.MAX_UPLOAD_SIZE):
+                    response['Error'] = 4
+                    response['Message'] = 'File too large. File size must be < ' + str(int(settings.MAX_UPLOAD_SIZE)/(1024*1024)) + 'MB.'
+                    raise Exception('File too large')
 
                 #create a random local filename
                 r = hashlib.md5(os.urandom(32)).hexdigest()
@@ -254,15 +254,16 @@ class GeneratorPage(resource.Resource):
                 )#hacky way to parse out file contents and filenames
                 filename = fields['signed_exe'].filename
                 filebody = fields['signed_exe'].value
-                if len(filebody) > settings.MAX_UPLOAD_SIZE:
-                    response['Error'] = 4
-                    response['Message'] = 'File too large. File size must be < ' + str(settings.MAX_UPLOAD_SIZE/(1024*1024)) + 'MB.'
-                    raise Exception('File too large')
 
                 if not filename.lower().endswith(('exe','dll')):
                     response['Error'] = 4
                     response['Message'] = 'Uploaded authenticode file must be an exe or dll.'
                     raise Exception('Uploaded authenticode file must be an exe or dll')
+
+                if len(filebody) > int(settings.MAX_UPLOAD_SIZE):
+                    response['Error'] = 4
+                    response['Message'] = 'File too large. File size must be < ' + str(int(settings.MAX_UPLOAD_SIZE/(1024*1024))) + 'MB.'
+                    raise Exception('File too large')
 
                 signed_contents = make_canary_authenticode_binary(hostname=
                             canarydrop.get_hostname(with_random=False, as_url=True),
@@ -412,7 +413,9 @@ class DownloadPage(resource.Resource):
             if fmt == 'authenticode':
                 filename = fields['file_for_signing'].filename
                 filebody = fields['file_for_signing'].value
-                if len(filebody) > settings.MAX_UPLOAD_SIZE:
+                if len(filebody) > int(settings.MAX_UPLOAD_SIZE):
+                    response['Error'] = 4
+                    response['Message'] = 'File too large. File size must be < ' + str(int(settings.MAX_UPLOAD_SIZE)/(1024*1024)) + 'MB.'
                     raise Exception('File too large')
 
                 if not filename.lower().endswith(('exe','dll')):

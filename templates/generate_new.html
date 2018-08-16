@@ -1124,7 +1124,15 @@
                       $('nav').removeClass('hidden');
                     }
                 },
-                error: function( jqXhr, textStatus, errorThrown ){
+                error: function( jqXhr, textStatus, errorThrown){
+                  if ( errorThrown == "Request Entity Too Large" ){
+                    $('#file_upload_errors').html("File too large.");
+                    $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
+                    $('#file_upload_errors').show();
+                  } else{
+                    $('#file_upload_errors').html("An error has occurred: " + errorThrown + ".");
+                    $('#file_upload_errors').show();
+                  }
                     console.log( errorThrown );
                 }
             });
