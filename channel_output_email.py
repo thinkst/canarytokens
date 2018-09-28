@@ -13,7 +13,6 @@ from channel import OutputChannel
 from constants import OUTPUT_CHANNEL_EMAIL
 import sendgrid
 from sendgrid.helpers.mail import *
-from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import smtplib
 
