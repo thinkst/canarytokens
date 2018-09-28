@@ -110,7 +110,7 @@ class EmailOutputChannel(OutputChannel):
         elif settings.SENDGRID_API_KEY:
             self.sendgrid_send(msg=msg,canarydrop=canarydrop)
         elif settings.SMTP_SERVER:
-			self.smtp_send(msg=msg,canarydrop=canarydrop)
+            self.smtp_send(msg=msg,canarydrop=canarydrop)
         else:
             log.err("No email settings found")
 
