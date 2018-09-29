@@ -203,15 +203,16 @@ class EmailOutputChannel(OutputChannel):
             smtpmsg['From'] = fromaddr
             smtpmsg['To'] = toaddr
             smtpmsg['Subject'] = msg['subject']
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
-            text = smtpmsg.as_string()
+            
             if settings.DEBUG:
                 pprint.pprint(message)
             else:
+                server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
+                text = smtpmsg.as_string()            
                 server.sendmail(fromaddr, toaddr, text)
 
             log.msg('Sent alert to {recipient} for token {token}'\
