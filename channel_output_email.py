@@ -207,7 +207,7 @@ class EmailOutputChannel(OutputChannel):
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(settings.ALERT_EMAIL_FROM_ADDRESS, settings.SMTP_PASSWORD)
+            server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
             text = smtpmsg.as_string()
             if settings.DEBUG:
                 pprint.pprint(message)
