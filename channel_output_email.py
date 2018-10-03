@@ -1,5 +1,5 @@
 """
-Output channel that sends emails. Relies on Mandrill, Sendgrid oder SMTP to actually send mails.
+Output channel that sends emails. Relies on Mandrill, Sendgrid or SMTP to actually send mails.
 """
 import settings
 import pprint
