@@ -1,5 +1,5 @@
 """
-Output channel that sends emails. Relies on Mandrill to actually send mails.
+Output channel that sends emails. Relies on Mandrill, Sendgrid or SMTP to actually send mails.
 """
 import settings
 import pprint
@@ -13,6 +13,9 @@ from channel import OutputChannel
 from constants import OUTPUT_CHANNEL_EMAIL
 import sendgrid
 from sendgrid.helpers.mail import *
+from email.MIMEText import MIMEText
+import smtplib
+
 try:
     # Python 3
     import urllib.request as urllib
@@ -106,6 +109,8 @@ class EmailOutputChannel(OutputChannel):
             self.mandrill_send(msg=msg,canarydrop=canarydrop)
         elif settings.SENDGRID_API_KEY:
             self.sendgrid_send(msg=msg,canarydrop=canarydrop)
+        elif settings.SMTP_SERVER:
+            self.smtp_send(msg=msg,canarydrop=canarydrop)
         else:
             log.err("No email settings found")
 
@@ -188,3 +193,30 @@ class EmailOutputChannel(OutputChannel):
 
         except urllib.HTTPError as e:
             log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
+
+    def smtp_send(self, msg=None, canarydrop=None):
+        try:
+            fromaddr = msg['from_address']
+            toaddr = canarydrop['alert_email_recipient']
+
+            smtpmsg = MIMEText(msg['body'])
+            smtpmsg['From'] = fromaddr
+            smtpmsg['To'] = toaddr
+            smtpmsg['Subject'] = msg['subject']
+            
+            if settings.DEBUG:
+                pprint.pprint(message)
+            else:
+                server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
+                text = smtpmsg.as_string()            
+                server.sendmail(fromaddr, toaddr, text)
+
+            log.msg('Sent alert to {recipient} for token {token}'\
+                .format(recipient=canarydrop['alert_email_recipient'],
+                    token=canarydrop.canarytoken.value()))
+        except smtplib.SMTPException as e:
+            log.err('A smtp error occurred: %s - %s' % (e.__class__, e))
