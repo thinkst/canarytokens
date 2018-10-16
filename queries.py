@@ -2,7 +2,7 @@ import requests
 import datetime
 import simplejson
 import base64
-
+import settings
 from exception import LinkedInFailure
 from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_CANARY_PATH_ELEMENTS, KEY_CANARY_PAGES, KEY_CANARYDROPS_TIMELINE,\
@@ -163,8 +163,12 @@ def get_aws_keys(token=None, server=None):
             log.err('Length of the Server Name and token is too long. Will not work on AWS')
             return False
 
-        resp = requests.get('https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens?data={d}'
-                            .format(d=data))
+        if settings.AWSID_URL:
+            url = str(settings.AWSID_URL)
+        else:
+            url = "https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens"
+            
+        resp = requests.get('{url}?data={d}'.format(url=url,d=data))
         if not resp:
             return False
         resp_json = resp.json()

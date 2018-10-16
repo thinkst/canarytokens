@@ -13,7 +13,7 @@ from twisted.web.static import File, DirectoryLister, Data
 
 from twisted.web.util import Redirect
 from twisted.python import log
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import pyqrcode
 
 
@@ -39,6 +39,7 @@ from cStringIO import StringIO
 import csv
 
 env = Environment(loader=FileSystemLoader('templates'),
+                  autoescape=select_autoescape(['html', 'htm', 'xml']),
                   extensions=['jinja2.ext.loopcontrols'])
 
 with open('/srv/templates/error_http.html', 'r') as f:
