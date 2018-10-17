@@ -64,7 +64,7 @@
           {% if canarydrop['alert_email_recipient']%}
           <div class="row setting">
               <div class="col-xs-12 col-md-6 key">
-                Email alerts<br/><small>{{canarydrop['alert_email_recipient']}}</small>
+                Email alerts<br/><small>{{canarydrop['alert_email_recipient'] | e}}</small>
               </div>
               <div class="col-xs-12 col-md-6 value">
                 <input class="settings_checkbox" type="checkbox" name="email_enable" {%if canarydrop['alert_email_enabled']%}checked{%endif%}>
@@ -74,7 +74,7 @@
           {% if canarydrop['alert_webhook_url']%}
           <div class="row setting">
             <div class="col-md-6 key">
-              Webhook reporting<br/><small>{{canarydrop['alert_webhook_url']}}</small>
+              Webhook reporting<br/><small>{{canarydrop['alert_webhook_url'] | e}}</small>
             </div>
             <div class="col-md-6 value">
               <input class="settings_checkbox" type="checkbox" name="webhook_enable" {%if canarydrop['alert_webhook_enabled']%}checked{%endif%}>
