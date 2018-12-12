@@ -42,14 +42,23 @@ class InputChannel(Channel):
         if not host or host == '':
             host=settings.PUBLIC_IP
 
-        payload['channel'] = self.name
-        payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        payload['memo'] = canarydrop.memo
-        payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
-                                .format(host=host,
-                                        token=canarydrop['canarytoken'],
-                                        auth=canarydrop['auth'])
-        payload['additional_data'] = kwargs
+        slack = "https://hooks.slack.com"
+
+        if (slack in canarydrop['alert_webhook_url']):
+            payload['text'] = 'canarytoken triggered: http://{host}/manage?token={token}&auth={auth}'\
+                                    .format(host=host,
+                                            token=canarydrop['canarytoken'],
+                                            auth=canarydrop['auth'])
+        else:
+            payload['channel'] = self.name
+            payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            payload['memo'] = canarydrop.memo
+            payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
+                                    .format(host=host,
+                                            token=canarydrop['canarytoken'],
+                                            auth=canarydrop['auth'])
+            payload['additional_data'] = kwargs
+
         return payload
 
     def format_canaryalert(self, canarydrop=None, protocol="HTTP",
@@ -88,14 +97,11 @@ class InputChannel(Channel):
             msg['body'] += canarydrop.memo[:capacity]
         else:
             msg['body'] = """
-
 One of your canarydrops was triggered.
-
 Channel: {channel_name}
 Time   : {time}
 Memo   : {memo}
 {additional_data}
-
 Manage your settings for this Canarydrop:
 http://{host}/manage?token={token}&auth={auth}""".format(
                     channel_name=self.name,
