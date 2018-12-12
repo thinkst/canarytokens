@@ -3,7 +3,6 @@ Output channel that sends to webhooks.
 """
 import settings
 import pprint
-import json
 
 from twisted.python import log
 import requests
@@ -25,7 +24,7 @@ class WebhookOutputChannel(OutputChannel):
                 payload = input_channel.format_webhook_canaryalert(
                                               canarydrop=canarydrop,
                                               **kwargs)
-                self.generic_webhook_send(json.dumps(payload), canarydrop)
+                self.generic_webhook_send(simplejson.dumps(payload), canarydrop)
             except Exception as e:
                 log.err(e)
         else:

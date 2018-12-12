@@ -1,6 +1,5 @@
 import requests
 import datetime
-import json
 import simplejson
 import base64
 import settings
@@ -502,7 +501,7 @@ def is_webhook_valid(url):
 
         try:
             response = requests.post(url,
-                                     data=json.dumps(payload),
+                                     data=simplejson.dumps(payload),
                                      headers={'content-type': 'application/json'})
             response.raise_for_status()
             return True
