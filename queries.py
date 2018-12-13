@@ -482,21 +482,19 @@ def is_webhook_valid(url):
         return False
 
     slack = "https://hooks.slack.com"
-
     if (slack in url):
         payload = {'text': 'Validating new canarytokens webhook'}
     else:
         payload = {"manage_url": "http://example.com/test/url/for/webhook",
                    "memo": "Congrats! The newly saved webhook works",
                    "additional_data": {
-                       "src_ip": "1.1.1.1",
-                       "useragent": "Mozilla/5.0...",
-                       "referer": "http://example.com/referrer",
-                       "location": "http://example.com/location"
-                   },
-                   "channel": "HTTP",
-                   "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
-
+                        "src_ip": "1.1.1.1",
+                        "useragent": "Mozilla/5.0...",
+                        "referer": "http://example.com/referrer",
+                        "location": "http://example.com/location"
+                    },
+               "channel": "HTTP",
+               "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
     try:
         response = requests.post(url,
                                  simplejson.dumps(payload),
