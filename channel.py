@@ -63,6 +63,33 @@ class InputChannel(Channel):
                                         auth=canarydrop['auth'])
         payload['additional_data'] = kwargs
 
+<<<<<<< HEAD
+=======
+        return payload
+
+    def format_slack_canaryalert(self,canarydrop=None,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        payload = {}
+        fields = []
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+        manage_link = 'http://{host}/manage?token={token}&auth={auth}'\
+                      .format(host=host,
+                              token=canarydrop['canarytoken'],
+                              auth= canarydrop['auth'])
+        attachment = {
+            'title':'Canarytoken Triggered\n',
+            'title_link': manage_link,
+            'mrkdwn_in': ['title'],
+            'fallback' : 'Canarytoken Triggered: {link}'.format(link=manage_link)
+        }
+        fields.append({'title':'Channel','value':self.name})
+        fields.append({'title':'Memo', 'value': canarydrop.memo})
+        fields.append({'title':'Time', 'value': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")})
+        fields.append({'title':'Manage','value': manage_link})
+        attachment['fields'] = fields
+        payload['attachments'] = [attachment]
+>>>>>>> 635084c43bfd3e4914b8ad5e1d6b5e802d13548a
         return payload
 
     def format_canaryalert(self, canarydrop=None, protocol="HTTP",
