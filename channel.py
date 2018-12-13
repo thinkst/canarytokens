@@ -36,28 +36,32 @@ class InputChannel(Channel):
     def format_additional_data(self, **kwargs):
         return ''
 
+    def format_slack_canaryalert(self,canarydrop=None,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        payload = {}
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+
+        payload['text'] = 'canarytoken triggered: http://{host}/manage?token={token}&auth={auth}'\
+                                .format(host=host,
+                                        token=canarydrop['canarytoken'],
+                                        auth=canarydrop['auth'])
+        return payload
+
     def format_webhook_canaryalert(self,canarydrop=None,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
 
-        slack = "https://hooks.slack.com"
-
-        if (slack in canarydrop['alert_webhook_url']):
-            payload['text'] = 'canarytoken triggered: http://{host}/manage?token={token}&auth={auth}'\
-                                    .format(host=host,
-                                            token=canarydrop['canarytoken'],
-                                            auth=canarydrop['auth'])
-        else:
-            payload['channel'] = self.name
-            payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            payload['memo'] = canarydrop.memo
-            payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
-                                    .format(host=host,
-                                            token=canarydrop['canarytoken'],
-                                            auth=canarydrop['auth'])
-            payload['additional_data'] = kwargs
+        payload['channel'] = self.name
+        payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        payload['memo'] = canarydrop.memo
+        payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
+                                .format(host=host,
+                                        token=canarydrop['canarytoken'],
+                                        auth=canarydrop['auth'])
+        payload['additional_data'] = kwargs
 
         return payload
 
