@@ -36,6 +36,18 @@ class InputChannel(Channel):
     def format_additional_data(self, **kwargs):
         return ''
 
+    def format_slack_canaryalert(self,canarydrop=None,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        payload = {}
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+
+        payload['text'] = 'canarytoken triggered: http://{host}/manage?token={token}&auth={auth}'\
+                                .format(host=host,
+                                        token=canarydrop['canarytoken'],
+                                        auth=canarydrop['auth'])
+        return payload
+
     def format_webhook_canaryalert(self,canarydrop=None,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {}
@@ -50,6 +62,7 @@ class InputChannel(Channel):
                                         token=canarydrop['canarytoken'],
                                         auth=canarydrop['auth'])
         payload['additional_data'] = kwargs
+
         return payload
 
     def format_canaryalert(self, canarydrop=None, protocol="HTTP",
@@ -88,14 +101,11 @@ class InputChannel(Channel):
             msg['body'] += canarydrop.memo[:capacity]
         else:
             msg['body'] = """
-
 One of your canarydrops was triggered.
-
 Channel: {channel_name}
 Time   : {time}
 Memo   : {memo}
 {additional_data}
-
 Manage your settings for this Canarydrop:
 http://{host}/manage?token={token}&auth={auth}""".format(
                     channel_name=self.name,
