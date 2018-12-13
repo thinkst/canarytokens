@@ -63,8 +63,6 @@ class InputChannel(Channel):
                                         auth=canarydrop['auth'])
         payload['additional_data'] = kwargs
 
-<<<<<<< HEAD
-=======
         return payload
 
     def format_slack_canaryalert(self,canarydrop=None,
@@ -89,7 +87,6 @@ class InputChannel(Channel):
         fields.append({'title':'Manage','value': manage_link})
         attachment['fields'] = fields
         payload['attachments'] = [attachment]
->>>>>>> 635084c43bfd3e4914b8ad5e1d6b5e802d13548a
         return payload
 
     def format_canaryalert(self, canarydrop=None, protocol="HTTP",
