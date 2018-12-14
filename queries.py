@@ -170,7 +170,9 @@ def get_aws_keys(token=None, server=None):
         resp_json = resp.json()
         access_key_id = resp_json['access_key_id']
         secret_access_key = resp_json['secret_access_key']
-        return (access_key_id, secret_access_key)
+        region = "us-east-2"
+        output = "json"
+        return (access_key_id, secret_access_key, region, output)
     except Exception as e:
         log.err('Error getting aws keys: {err}'.format(err=e))
         return False
@@ -482,32 +484,51 @@ def is_webhook_valid(url):
         return False
 
     slack = "https://hooks.slack.com"
+
     if (slack in url):
         payload = {'text': 'Validating new canarytokens webhook'}
     else:
         payload = {"manage_url": "http://example.com/test/url/for/webhook",
                    "memo": "Congrats! The newly saved webhook works",
                    "additional_data": {
-                        "src_ip": "1.1.1.1",
-                        "useragent": "Mozilla/5.0...",
-                        "referer": "http://example.com/referrer",
-                        "location": "http://example.com/location"
-                    },
-               "channel": "HTTP",
-               "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
-    try:
-        response = requests.post(url,
-                                 simplejson.dumps(payload),
-                                 headers={'content-type': 'application/json'},
-                                 timeout=10)
-        response.raise_for_status()
-        return True
-    except requests.exceptions.Timeout as e:
-        log.err('Timed out sending test payload to webhook: {url}'.format(url=url))
-        return False
-    except requests.exceptions.RequestException as e:
-        log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
-        return False
+                       "src_ip": "1.1.1.1",
+                       "useragent": "Mozilla/5.0...",
+                       "referer": "http://example.com/referrer",
+                       "location": "http://example.com/location"
+                   },
+                   "channel": "HTTP",
+                   "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
+
+    if (slack in url):
+
+        try:
+            response = requests.post(url,
+                                     data=simplejson.dumps(payload),
+                                     headers={'content-type': 'application/json'})
+            response.raise_for_status()
+            return True
+        except requests.exceptions.Timeout as e:
+            log.err('Timed out sending test payload to webhook: {url}'.format(url=url))
+            return False
+        except requests.exceptions.RequestException as e:
+            log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
+            return False
+
+    else:
+
+        try:
+            response = requests.post(url,
+                                     simplejson.dumps(payload),
+                                     headers={'content-type': 'application/json'},
+                                     timeout=10)
+            response.raise_for_status()
+            return True
+        except requests.exceptions.Timeout as e:
+            log.err('Timed out sending test payload to webhook: {url}'.format(url=url))
+            return False
+        except requests.exceptions.RequestException as e:
+            log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
+            return False
 
 def is_tor_relay(ip):
     if not db.exists(KEY_TOR_EXIT_NODES):
