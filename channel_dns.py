@@ -5,7 +5,7 @@ from twisted.python import log
 from constants import INPUT_CHANNEL_DNS
 from tokens import Canarytoken
 from canarydrop import Canarydrop
-from exception import NoCanarytokenPresent
+from exception import NoCanarytokenPresent, NoCanarytokenFound
 from channel import InputChannel
 from queries import get_canarydrop
 
@@ -148,8 +148,8 @@ class ChannelDNS(InputChannel):
     
     def _aws_keys_event(self, srcip=None, agent=None):
         data = {}
-        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','='))
-        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','='))
+        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','=').upper())
+        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','=').upper())
         return data
 
     def look_for_source_data(self, token=None, value=None):
@@ -223,8 +223,9 @@ class ChannelDNS(InputChannel):
 #            return defer.succeed(
 #                            self._do_dynamic_response(name=query.name.name,
 #                                                      response=response))
-        except NoCanarytokenPresent:
-            log.err('No token seen in query: {query}'.format(query=query.name.name))
+        except (NoCanarytokenPresent, NoCanarytokenFound):
+            # If we dont find a canarytoken, lets just continue. No need to log.
+            pass
         except Exception as e:
             log.err(e)
 
