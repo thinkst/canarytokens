@@ -148,8 +148,8 @@ class ChannelDNS(InputChannel):
     
     def _aws_keys_event(self, srcip=None, agent=None):
         data = {}
-        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','='))
-        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','='))
+        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','=').upper())
+        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','=').upper())
         return data
 
     def look_for_source_data(self, token=None, value=None):
