@@ -279,7 +279,7 @@ class ChannelDNS(InputChannel):
                     .format(filename=kwargs['src_data']['dtrace_filename'])
 
             if 'windows_desktopini_access_username' in kwargs['src_data']\
-               and 'windows_desktopini_access_domain' in kwargs['src_data']
+               and 'windows_desktopini_access_domain' in kwargs['src_data']\
                and 'windows_desktopini_access_hostname' in kwargs['src_data']:
                 additional_report += '\nWindows Directory Browsing By: {domain}\{username} from {hostname}'\
                     .format(username=kwargs['src_data']['windows_desktopini_access_username'],
