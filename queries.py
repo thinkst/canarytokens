@@ -170,7 +170,9 @@ def get_aws_keys(token=None, server=None):
         resp_json = resp.json()
         access_key_id = resp_json['access_key_id']
         secret_access_key = resp_json['secret_access_key']
-        return (access_key_id, secret_access_key)
+        region = "us-east-2"
+        output = "json"
+        return (access_key_id, secret_access_key, region, output)
     except Exception as e:
         log.err('Error getting aws keys: {err}'.format(err=e))
         return False
