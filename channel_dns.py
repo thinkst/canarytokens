@@ -162,12 +162,15 @@ class ChannelDNS(InputChannel):
             linux_inotify        = re.compile('([A-Za-z0-9.-]*)\.L[0-9]{2}\.', re.IGNORECASE)
             dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.', re.IGNORECASE)
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
-            desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.([^\.]+)\.ini\.', re.IGNORECASE)
+            desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.([^\.]*)\.ini\.', re.IGNORECASE)
             aws_keys_event       = re.compile('([A-Za-z0-9-]*)\.([A-Za-z0-9.-]*)\.A[0-9]{3}\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
-                return self._desktop_ini_browsing(username=m.group(1), hostname=m.group(2), domain=m.group(3))
+                if len(m.groups()) == 2:
+                    return self._desktop_ini_browsing(username=m.group(1), domain=m.group(2))
+                if len(m.groups()) == 3:
+                    return self._desktop_ini_browsing(username=m.group(1), hostname=m.group(2), domain=m.group(3))
 
             m = sql_server_username.match(value)
             if m:
@@ -279,12 +282,16 @@ class ChannelDNS(InputChannel):
                     .format(filename=kwargs['src_data']['dtrace_filename'])
 
             if 'windows_desktopini_access_username' in kwargs['src_data']\
-               and 'windows_desktopini_access_domain' in kwargs['src_data']\
-               and 'windows_desktopini_access_hostname' in kwargs['src_data']:
-                additional_report += '\nWindows Directory Browsing By: {domain}\{username} from {hostname}'\
+                and 'windows_desktopini_access_domain' in kwargs['src_data']:
+                if 'windows_desktopini_access_hostname' in kwargs['src_data']:
+                    additional_report += '\nWindows Directory Browsing By: {domain}\{username} from {hostname}'\
                     .format(username=kwargs['src_data']['windows_desktopini_access_username'],
                             domain=kwargs['src_data']['windows_desktopini_access_domain'],
                             hostname=kwargs['src_data']['windows_desktopini_access_hostname'])
+                else:
+                    additional_report += '\nWindows Directory Browsing By: {domain}\{username}'\
+                    .format(username=kwargs['src_data']['windows_desktopini_access_username'],
+                        domain=kwargs['src_data']['windows_desktopini_access_domain'])
             
             if 'aws_keys_event_source_ip' in kwargs['src_data']:
                 additional_report += '\nAWS Keys used by: {ip}'\
