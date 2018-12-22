@@ -15,7 +15,7 @@ MODE_ARCHIVE   = 0x20
 MODE_FILE      = 0x80
 
 def make_canary_desktop_ini(hostname=None,dummyfile='resource.dll'):
-    return (u'\r\n[.ShellClassInfo]\r\nIconResource=\\\\%USERNAME%.%COMPUTERNAME%.%USERDOMAIN%.INI.'\
+    return (u'\r\n[.ShellClassInfo]\r\nIconResource=\\\\%USERNAME%.%COMPUTERNAME%.%DOMAIN%.INI.'\
            +unicode(hostname)\
            +unicode('\\'+dummyfile+'\r\n')).encode('utf16')
 
