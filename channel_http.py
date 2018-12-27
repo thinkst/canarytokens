@@ -178,7 +178,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
     def init(self, switchboard=None):
         InputChannel.__init__(self, switchboard=switchboard, name=self.CHANNEL)
-
 class ChannelHTTP():
     def __init__(self, port=80, switchboard=None):
         self.port = port

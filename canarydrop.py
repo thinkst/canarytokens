@@ -265,7 +265,6 @@ if (document.domain != "CLONED_SITE_DOMAIN") {
             return False
 
     def alerting(self, input_channel=None, **kwargs):
-        self.add_canarydrop_hit(input_channel=input_channel, **kwargs)
         self.user.do_accounting(canarydrop=self)
 
     def __getitem__(self, key):
