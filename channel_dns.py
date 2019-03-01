@@ -16,6 +16,9 @@ import re
 
 class DNSServerFactory(server.DNSServerFactory):
     def handleQuery(self, message, protocol, address):
+        if message.answer:
+            return
+
         query = message.queries[0]
         src_ip = address[0]
 
