@@ -3,7 +3,6 @@ Output channel that sends emails. Relies on Mandrill, Sendgrid or SMTP to actual
 """
 import settings
 import pprint
-
 from twisted.python import log
 import mandrill
 import requests

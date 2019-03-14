@@ -86,7 +86,7 @@
                       {% if BasicDetails['Description'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Reminder</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Description'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Description'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['TokenType'] %}
@@ -104,19 +104,19 @@
                       {% if BasicDetails['User-Agent'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">User Agent</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['User-Agent'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['User-Agent'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['Referer'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Referer'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Referer'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['Location'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Location</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Location'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Location'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}
@@ -125,7 +125,7 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;">
                                           <code>
                                             {% if BasicDetails['CanaryIP'] %}{{ BasicDetails['CanaryIP'] }}{%endif%}
-                                            {% if BasicDetails['CanaryName'] %}({{BasicDetails['CanaryName']}}
+                                            {% if BasicDetails['CanaryName'] %}({{BasicDetails['CanaryName'] | e}}
                                               {%- if BasicDetails['CanaryID'] %}, ID:{{BasicDetails['CanaryID']}}{%endif-%}
                                             ){%endif%}
                                           </code></td>
@@ -136,7 +136,7 @@
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canary Location</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;">
                                           <code>
-                                            {{ BasicDetails['CanaryLocation'] }}
+                                            {{ BasicDetails['CanaryLocation'] | e}}
                                           </code></td>
                                       </tr>
                       {% endif %}
