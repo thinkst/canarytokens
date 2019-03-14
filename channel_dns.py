@@ -7,7 +7,7 @@ from tokens import Canarytoken
 from canarydrop import Canarydrop
 from exception import NoCanarytokenPresent, NoCanarytokenFound
 from channel import InputChannel
-from queries import get_canarydrop
+from queries import get_canarydrop, get_all_canary_domains
 
 import settings
 import math
@@ -54,6 +54,23 @@ class ChannelDNS(InputChannel):
         answers = [answer]
         authority = []
         additional = [additional]
+        return answers, authority, additional
+
+    def _do_soa_response(self, name=None):
+        """
+        Ensure a standard response to a SOA query.
+        """
+        answer = dns.RRHeader(
+            name=name,
+            payload=dns.Record_SOA(mname=name.lower(),
+                rname='info.'+name.lower(),
+                serial=0, refresh=300, retry=300, expire=300, minimum=300,
+                ttl=300),
+            type=dns.SOA)
+        answers = [answer]
+        authority = []
+        additional = []
+
         return answers, authority, additional
 
     def _do_dynamic_response(self, name=None):
@@ -213,6 +230,10 @@ class ChannelDNS(InputChannel):
 
         if query.type == dns.NS:
             return defer.succeed(self._do_ns_response(name=query.name.name))
+
+        if (query.type == dns.SOA and
+            True in [d in query.name.name.lower() for d in get_all_canary_domains()]):
+            return  defer.succeed(self._do_soa_response(name=query.name.name))
 
         if query.type != dns.A:
             return defer.succeed(self._do_no_response(query=query))
