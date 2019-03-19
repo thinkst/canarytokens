@@ -38,6 +38,7 @@ class ChannelDNS(InputChannel):
                                          name=self.CHANNEL)
         self.logfile = open('output.txt', 'wb+')
         self.listen_domain = listen_domain
+        self.canary_domains = get_all_canary_domains()
 
     def _do_ns_response(self, name=None):
         """
@@ -228,16 +229,17 @@ class ChannelDNS(InputChannel):
         self.logfile.write('%r\n' % query)
         self.logfile.flush()
 
+        if not True in [query.name.name.lower().endswith(d) for d in self.canary_domains]:
+            return defer.fail(error.DNSQueryRefusedError())
+
         if query.type == dns.NS:
             return defer.succeed(self._do_ns_response(name=query.name.name))
 
-        if (query.type == dns.SOA and
-            True in [d in query.name.name.lower() for d in get_all_canary_domains()]):
+        if query.type == dns.SOA:
             return  defer.succeed(self._do_soa_response(name=query.name.name))
 
         if query.type != dns.A:
             return defer.succeed(self._do_no_response(query=query))
-            #return defer.fail(error.DomainError())
 
         try:
             token = Canarytoken(value=query.name.name)
@@ -248,9 +250,6 @@ class ChannelDNS(InputChannel):
 
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
 
-#            return defer.succeed(
-#                            self._do_dynamic_response(name=query.name.name,
-#                                                      response=response))
         except (NoCanarytokenPresent, NoCanarytokenFound):
             # If we dont find a canarytoken, lets just continue. No need to log.
             pass
