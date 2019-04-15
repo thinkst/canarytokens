@@ -1,6 +1,7 @@
 import requests
 import datetime
 import simplejson
+import urllib
 import base64
 import settings
 from exception import LinkedInFailure
@@ -201,11 +202,15 @@ def get_geoinfo(ip):
             return ""
 
 def get_geoinfo_from_ip(ip):
-    resp = requests.get('http://ipinfo.io/' + ip + '/json')
+    if not settings.IPINFO_API_KEY:
+        resp = requests.get('http://ipinfo.io/' + ip + '/json')
+    else:
+        resp = requests.get('http://ipinfo.io/'+ip+'/json/', auth=(settings.IPINFO_API_KEY,''))
     if resp.status_code != 200:
         raise Exception('ipinfo.io response was unexpected: {resp}'\
-                        .format(resp=resp))
+                    .format(resp=resp))
     return resp.json()
+
 
 def get_geoinfo_from_cache(ip):
     key = KEY_CANARY_IP_CACHE + ip

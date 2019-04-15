@@ -34,7 +34,7 @@ for envvar in ['SMTP_PORT', 'SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_SERVER', 'AW
                'MAILGUN_DOMAIN_NAME', 'MAILGUN_API_KEY','MANDRILL_API_KEY','SENDGRID_API_KEY',
                'PUBLIC_IP','PUBLIC_DOMAIN','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS', 'TOKEN_RETURN', 'MAX_UPLOAD_SIZE',
-               'WEB_IMAGE_UPLOAD_PATH', 'DEBUG']:
+               'WEB_IMAGE_UPLOAD_PATH', 'DEBUG', 'IPINFO_API_KEY']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
