@@ -34,8 +34,8 @@ The `switchboard.env` contains the switchboard process settings such as:
 - CANARY_ALERT_EMAIL_FROM_ADDRESS=noreply@yourdomain.com
 - CANARY_ALERT_EMAIL_FROM_DISPLAY="Canarytoken Mailer"
 - CANARY_ALERT_EMAIL_SUBJECT="Alert"
-- CANARY_SMTP_USERNAME=
-- CANARY_SMTP_PASSWORD=
+- CANARY_SMTP_USERNAME=<smtp username>
+- CANARY_SMTP_PASSWORD=<smtp password>
 - CANARY_SMTP_SERVER=smtp.gmail.com
 - CANARY_SMTP_PORT=587
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
@@ -48,3 +48,26 @@ information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` 
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda. 
 
+### Configuration of Outgoing SMTP
+When configuring outgoing SMTP please consider the following:
+
+Restrictions:
+* no other provider like Mailgun or Sendgrid must be configured for this to work
+* only supports StartTLS right now (you have to use the corresponding port)
+* no anonymous SMTP supported right now (you have to use username/password to authenticate)
+
+The following settings have to be configured in `switchboard.env` for SMTP to work:
+* CANARY_SMTP_SERVER: the SMTP server
+* CANARY_SMTP_PORT: the port number of the SMTP server (must be a StartTLS enabled port!)
+* CANARY_SMTP_USERNAME: Username for the SMTP server (no anonymous SMTP supported right now)
+* CANARY_SMTP_PASSWORD: the password that corresponds to the username
+
+A complete example config in `switchboard.env` then looks like this:
+```
+CANARY_SMTP_SERVER=smtp.yourserver.com
+CANARY_SMTP_PORT=587
+CANARY_SMTP_USERNAME=<your smtp username>
+CANARY_SMTP_PASSWORD=<your smtp password>
+CANARY_ALERT_EMAIL_FROM_ADDRESS=canary@yourdomain.com
+CANARY_ALERT_EMAIL_SUBJECT="Canary Alert via SMTP"
+```
