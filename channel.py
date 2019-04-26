@@ -50,6 +50,31 @@ class InputChannel(Channel):
                                         token=canarydrop['canarytoken'],
                                         auth=canarydrop['auth'])
         payload['additional_data'] = kwargs
+
+        return payload
+
+    def format_slack_canaryalert(self,canarydrop=None,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        payload = {}
+        fields = []
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+        manage_link = 'http://{host}/manage?token={token}&auth={auth}'\
+                      .format(host=host,
+                              token=canarydrop['canarytoken'],
+                              auth= canarydrop['auth'])
+        attachment = {
+            'title':'Canarytoken Triggered\n',
+            'title_link': manage_link,
+            'mrkdwn_in': ['title'],
+            'fallback' : 'Canarytoken Triggered: {link}'.format(link=manage_link)
+        }
+        fields.append({'title':'Channel','value':self.name})
+        fields.append({'title':'Memo', 'value': canarydrop.memo})
+        fields.append({'title':'Time', 'value': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")})
+        fields.append({'title':'Manage','value': manage_link})
+        attachment['fields'] = fields
+        payload['attachments'] = [attachment]
         return payload
 
     def format_canaryalert(self, canarydrop=None, protocol="HTTP",
@@ -88,14 +113,11 @@ class InputChannel(Channel):
             msg['body'] += canarydrop.memo[:capacity]
         else:
             msg['body'] = """
-
 One of your canarydrops was triggered.
-
 Channel: {channel_name}
 Time   : {time}
 Memo   : {memo}
 {additional_data}
-
 Manage your settings for this Canarydrop:
 http://{host}/manage?token={token}&auth={auth}""".format(
                     channel_name=self.name,

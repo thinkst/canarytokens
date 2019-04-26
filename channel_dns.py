@@ -5,9 +5,9 @@ from twisted.python import log
 from constants import INPUT_CHANNEL_DNS
 from tokens import Canarytoken
 from canarydrop import Canarydrop
-from exception import NoCanarytokenPresent
+from exception import NoCanarytokenPresent, NoCanarytokenFound
 from channel import InputChannel
-from queries import get_canarydrop
+from queries import get_canarydrop, get_all_canary_domains
 
 import settings
 import math
@@ -16,6 +16,9 @@ import re
 
 class DNSServerFactory(server.DNSServerFactory):
     def handleQuery(self, message, protocol, address):
+        if message.answer:
+            return
+
         query = message.queries[0]
         src_ip = address[0]
 
@@ -35,6 +38,7 @@ class ChannelDNS(InputChannel):
                                          name=self.CHANNEL)
         self.logfile = open('output.txt', 'wb+')
         self.listen_domain = listen_domain
+        self.canary_domains = get_all_canary_domains()
 
     def _do_ns_response(self, name=None):
         """
@@ -51,6 +55,23 @@ class ChannelDNS(InputChannel):
         answers = [answer]
         authority = []
         additional = [additional]
+        return answers, authority, additional
+
+    def _do_soa_response(self, name=None):
+        """
+        Ensure a standard response to a SOA query.
+        """
+        answer = dns.RRHeader(
+            name=name,
+            payload=dns.Record_SOA(mname=name.lower(),
+                rname='info.'+name.lower(),
+                serial=0, refresh=300, retry=300, expire=300, minimum=300,
+                ttl=300),
+            type=dns.SOA)
+        answers = [answer]
+        authority = []
+        additional = []
+
         return answers, authority, additional
 
     def _do_dynamic_response(self, name=None):
@@ -140,16 +161,17 @@ class ChannelDNS(InputChannel):
 
         return data
 
-    def _desktop_ini_browsing(self, username=None, domain=None):
+    def _desktop_ini_browsing(self, username=None, hostname=None, domain=None):
         data = {}
         data['windows_desktopini_access_username'] = username
+        data['windows_desktopini_access_hostname'] = hostname
         data['windows_desktopini_access_domain'] = domain
         return data
     
     def _aws_keys_event(self, srcip=None, agent=None):
         data = {}
-        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','='))
-        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','='))
+        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','=').upper())
+        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','=').upper())
         return data
 
     def look_for_source_data(self, token=None, value=None):
@@ -161,12 +183,15 @@ class ChannelDNS(InputChannel):
             linux_inotify        = re.compile('([A-Za-z0-9.-]*)\.L[0-9]{2}\.', re.IGNORECASE)
             dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.', re.IGNORECASE)
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
-            desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.ini\.', re.IGNORECASE)
+            desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.', re.IGNORECASE)
             aws_keys_event       = re.compile('([A-Za-z0-9-]*)\.([A-Za-z0-9.-]*)\.A[0-9]{3}\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
-                return self._desktop_ini_browsing(username=m.group(1), domain=m.group(2))
+                if m.group(3):
+                    return self._desktop_ini_browsing(username=m.group(1), hostname=m.group(2), domain=m.group(3))
+                else:
+                    return self._desktop_ini_browsing(username=m.group(1), domain=m.group(2))
 
             m = sql_server_username.match(value)
             if m:
@@ -204,12 +229,17 @@ class ChannelDNS(InputChannel):
         self.logfile.write('%r\n' % query)
         self.logfile.flush()
 
+        if not True in [query.name.name.lower().endswith(d) for d in self.canary_domains]:
+            return defer.fail(error.DNSQueryRefusedError())
+
         if query.type == dns.NS:
             return defer.succeed(self._do_ns_response(name=query.name.name))
 
+        if query.type == dns.SOA:
+            return  defer.succeed(self._do_soa_response(name=query.name.name))
+
         if query.type != dns.A:
             return defer.succeed(self._do_no_response(query=query))
-            #return defer.fail(error.DomainError())
 
         try:
             token = Canarytoken(value=query.name.name)
@@ -220,11 +250,9 @@ class ChannelDNS(InputChannel):
 
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
 
-#            return defer.succeed(
-#                            self._do_dynamic_response(name=query.name.name,
-#                                                      response=response))
-        except NoCanarytokenPresent:
-            log.err('No token seen in query: {query}'.format(query=query.name.name))
+        except (NoCanarytokenPresent, NoCanarytokenFound):
+            # If we dont find a canarytoken, lets just continue. No need to log.
+            pass
         except Exception as e:
             log.err(e)
 
@@ -277,10 +305,16 @@ class ChannelDNS(InputChannel):
                     .format(filename=kwargs['src_data']['dtrace_filename'])
 
             if 'windows_desktopini_access_username' in kwargs['src_data']\
-               and 'windows_desktopini_access_domain' in kwargs['src_data']:
-                additional_report += '\nWindows Directory Browsing By: {domain}\{username}'\
+                and 'windows_desktopini_access_domain' in kwargs['src_data']:
+                if 'windows_desktopini_access_hostname' in kwargs['src_data']:
+                    additional_report += '\nWindows Directory Browsing By: {domain}\{username} from {hostname}'\
                     .format(username=kwargs['src_data']['windows_desktopini_access_username'],
-                            domain=kwargs['src_data']['windows_desktopini_access_domain'])
+                            domain=kwargs['src_data']['windows_desktopini_access_domain'],
+                            hostname=kwargs['src_data']['windows_desktopini_access_hostname'])
+                else:
+                    additional_report += '\nWindows Directory Browsing By: {domain}\{username}'\
+                    .format(username=kwargs['src_data']['windows_desktopini_access_username'],
+                        domain=kwargs['src_data']['windows_desktopini_access_domain'])
             
             if 'aws_keys_event_source_ip' in kwargs['src_data']:
                 additional_report += '\nAWS Keys used by: {ip}'\

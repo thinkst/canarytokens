@@ -54,6 +54,8 @@ class Switchboard(object):
             if not self.input_channels.has_key(input_channel):
                 raise InvalidChannel()
 
+            canarydrop.add_canarydrop_hit(input_channel=input_channel, **kwargs)
+
             if not canarydrop.alertable():
                 log.err('Token {token} is not alertable at this stage.'\
                         .format(token=canarydrop.canarytoken.value()))

@@ -176,7 +176,7 @@ class GeneratorPage(resource.Resource):
                 response['qrcode_png'] = canarydrop.get_qrcode_data_uri_png()
             except:
                 pass
-            
+
             try:
                 if not request.args.get('type', None)[0] == 'aws_keys':
                     raise Exception()
@@ -185,8 +185,12 @@ class GeneratorPage(resource.Resource):
                     raise Exception()
                 response['aws_access_key_id'] = keys[0]
                 response['aws_secret_access_key'] = keys[1]
+                response['region'] = keys[2]
+                response['output'] = keys[3]
                 canarydrop['aws_access_key_id'] = keys[0]
                 canarydrop['aws_secret_access_key'] = keys[1]
+                canarydrop['region'] = keys[2]
+                canarydrop['output'] = keys[3]
                 save_canarydrop(canarydrop)
             except:
                 pass
@@ -276,7 +280,7 @@ class GeneratorPage(resource.Resource):
             try:
                 if request.args.get('type', None)[0] != 'fast_redirect':
                     raise Exception()
-                
+
                 if not request.args['redirect_url'][0]:
                     raise Exception()
 
@@ -288,7 +292,7 @@ class GeneratorPage(resource.Resource):
             try:
                 if request.args.get('type', None)[0] != 'slow_redirect':
                     raise Exception()
-                
+
                 if not request.args['redirect_url'][0]:
                     raise Exception()
 
@@ -348,10 +352,9 @@ class DownloadPage(resource.Resource):
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
                                   'attachment; filename=credentials')
-
-                text="[default]\naws_access_key={id}\naws_secret_access_key={k}"\
-                        .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'])
-                return text 
+                text="[default]\naws_access_key={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
+                        .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
+                return text
             elif fmt == 'incidentlist_json':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
@@ -367,12 +370,12 @@ class DownloadPage(resource.Resource):
                 incident_list = canarydrop['triggered_list']
 
                 writer = csv.writer(csvOutput)
-                    
+
                 details = []
                 for key in incident_list:
                     for element in incident_list[key].keys():
                         details.append(element)
-                
+
                 headers = ["Timestamp"] + details
                 writer.writerow(headers)
                 items = []
@@ -385,7 +388,7 @@ class DownloadPage(resource.Resource):
                     writer.writerow(data)
 
                 return csvOutput.getvalue()
-                
+
         except Exception as e:
             log.err('Unexpected error in download: {err}'.format(err=e))
 

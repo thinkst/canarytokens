@@ -1,6 +1,7 @@
 import requests
 import datetime
 import simplejson
+import urllib
 import base64
 import settings
 from exception import LinkedInFailure
@@ -73,9 +74,7 @@ def add_canary_google_api_key(key=None):
 
 def save_canarydrop(canarydrop=None):
     """Persist a Canarydrop into the Redis instance.
-
        Arguments:
-
        canarydrop -- Canarydrop object.
     """
     if not canarydrop:
@@ -110,9 +109,7 @@ def get_canarydrop_triggered_list(canarytoken):
 
 def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):
     """Add a hit to a canarydrop
-
        Arguments:
-
        canarytoken -- canarytoken object.
        **kwargs   -- Additional details about the hit.
     """
@@ -167,14 +164,16 @@ def get_aws_keys(token=None, server=None):
             url = str(settings.AWSID_URL)
         else:
             url = "https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens"
-            
+
         resp = requests.get('{url}?data={d}'.format(url=url,d=data))
         if not resp:
             return False
         resp_json = resp.json()
         access_key_id = resp_json['access_key_id']
         secret_access_key = resp_json['secret_access_key']
-        return (access_key_id, secret_access_key)
+        region = "us-east-2"
+        output = "json"
+        return (access_key_id, secret_access_key, region, output)
     except Exception as e:
         log.err('Error getting aws keys: {err}'.format(err=e))
         return False
@@ -203,11 +202,15 @@ def get_geoinfo(ip):
             return ""
 
 def get_geoinfo_from_ip(ip):
-    resp = requests.get('http://ipinfo.io/' + ip + '/json')
+    if not settings.IPINFO_API_KEY:
+        resp = requests.get('http://ipinfo.io/' + ip + '/json')
+    else:
+        resp = requests.get('http://ipinfo.io/'+ip+'/json/', auth=(settings.IPINFO_API_KEY,''))
     if resp.status_code != 200:
         raise Exception('ipinfo.io response was unexpected: {resp}'\
-                        .format(resp=resp))
+                    .format(resp=resp))
     return resp.json()
+
 
 def get_geoinfo_from_cache(ip):
     key = KEY_CANARY_IP_CACHE + ip
@@ -222,9 +225,7 @@ def is_ip_cached(ip):
 
 def add_ip_to_cache(ip, geoinfo , exp_time=60*60*24):
     """Adds an IP with Geo Data to redis.
-
        Arguments:
-
        exp_time -- Expiry time for this IP (in seconds). Default set to 1 day.
     """
     key = KEY_CANARY_IP_CACHE + ip
@@ -232,9 +233,7 @@ def add_ip_to_cache(ip, geoinfo , exp_time=60*60*24):
 
 def get_canarydrops(min_time='-inf', max_time='+inf'):
     """Return a list of stored Canarydrops.
-
        Arguments:
-
        min_time -- Limit to Canarydrops created after min_time. Format is Unix
                    epoch. Default is no limit.
        max_time -- Limit to Canarydrops created before max_time. Format is Unix
@@ -248,9 +247,7 @@ def get_canarydrops(min_time='-inf', max_time='+inf'):
 
 def get_canarydrops_array(min_time='-inf', max_time='+inf'):
     """Return an array of stored Canarydrops.
-
            Arguments:
-
            min_time -- Limit to Canarydrops created after min_time. Format is Unix
                        epoch. Default is no limit.
            max_time -- Limit to Canarydrops created before max_time. Format is Unix
@@ -264,9 +261,7 @@ def get_canarydrops_array(min_time='-inf', max_time='+inf'):
 
 def load_user(username):
     """Return a User object.
-
        Arguments:
-
        username -- A username.
     """
     account_key = KEY_USER_ACCOUNT+username
@@ -487,22 +482,24 @@ def save_bitcoin_account(bitcoin_account=None):
 
 def is_webhook_valid(url):
     """Tests if a webhook is valid by sending a test payload
-
        Arguments:
-
        url -- Webhook url
     """
     if not url or url == '':
         return False
 
-    payload = {"manage_url": "http://example.com/test/url/for/webhook",
-               "memo": "Congrats! The newly saved webhook works",
-               "additional_data": {
-                   "src_ip": "1.1.1.1",
-                   "useragent": "Mozilla/5.0...",
-                   "referer": "http://example.com/referrer",
-                   "location": "http://example.com/location"
-               },
+    slack = "https://hooks.slack.com"
+    if (slack in url):
+        payload = {'text': 'Validating new canarytokens webhook'}
+    else:
+        payload = {"manage_url": "http://example.com/test/url/for/webhook",
+                   "memo": "Congrats! The newly saved webhook works",
+                   "additional_data": {
+                        "src_ip": "1.1.1.1",
+                        "useragent": "Mozilla/5.0...",
+                        "referer": "http://example.com/referrer",
+                        "location": "http://example.com/location"
+                    },
                "channel": "HTTP",
                "time": datetime.datetime.now().strftime('%Y-%m-%d %T') }
     try:
