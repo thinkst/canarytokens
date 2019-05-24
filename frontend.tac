@@ -10,6 +10,7 @@ from switchboard import Switchboard
 
 import setup_db
 
+logging.basicConfig()
 logger = logging.getLogger('generator_httpd')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
