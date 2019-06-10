@@ -113,7 +113,7 @@ class ChannelDNS(InputChannel):
         #this channel doesn't have padding, add if needed
         filename += '='*int(
                             (
-                             math.ceil(float(len(filename)) / 8) * 8 
+                             math.ceil(float(len(filename)) / 8) * 8
                                  - len(filename)
                             )
                         )
@@ -167,7 +167,7 @@ class ChannelDNS(InputChannel):
         data['windows_desktopini_access_hostname'] = hostname
         data['windows_desktopini_access_domain'] = domain
         return data
-    
+
     def _aws_keys_event(self, srcip=None, agent=None):
         data = {}
         data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','=').upper())
@@ -229,7 +229,11 @@ class ChannelDNS(InputChannel):
         self.logfile.write('%r\n' % query)
         self.logfile.flush()
 
-        if not True in [query.name.name.lower().endswith(d) for d in self.canary_domains]:
+        IS_NX_DOMAIN = True in [query.name.name.lower().endswith(d)
+                                for d in settings.NXDOMAINS]
+
+        if (not True in [query.name.name.lower().endswith(d) for d in self.canary_domains]
+            and not IS_NX_DOMAIN):
             return defer.fail(error.DNSQueryRefusedError())
 
         if query.type == dns.NS:
@@ -256,7 +260,7 @@ class ChannelDNS(InputChannel):
         except Exception as e:
             log.err(e)
 
-        if query.name.name in settings.NXDOMAINS:
+        if IS_NX_DOMAIN:
             return defer.fail(error.DomainError())
 
         return defer.succeed(self._do_dynamic_response(name=query.name.name))
@@ -315,10 +319,9 @@ class ChannelDNS(InputChannel):
                     additional_report += '\nWindows Directory Browsing By: {domain}\{username}'\
                     .format(username=kwargs['src_data']['windows_desktopini_access_username'],
                         domain=kwargs['src_data']['windows_desktopini_access_domain'])
-            
+
             if 'aws_keys_event_source_ip' in kwargs['src_data']:
                 additional_report += '\nAWS Keys used by: {ip}'\
                     .format(ip=kwargs['src_data']['aws_keys_event_source_ip'])
 
         return additional_report
-
