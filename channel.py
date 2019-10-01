@@ -43,7 +43,7 @@ class InputChannel(Channel):
             host=settings.PUBLIC_IP
 
         payload['channel'] = self.name
-        payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")
         payload['memo'] = canarydrop.memo
         payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
                                 .format(host=host,
@@ -71,7 +71,7 @@ class InputChannel(Channel):
         }
         fields.append({'title':'Channel','value':self.name})
         fields.append({'title':'Memo', 'value': canarydrop.memo})
-        fields.append({'title':'Time', 'value': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")})
+        fields.append({'title':'Time', 'value': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")})
         fields.append({'title':'Manage','value': manage_link})
         attachment['fields'] = fields
         payload['attachments'] = [attachment]
@@ -95,7 +95,7 @@ class InputChannel(Channel):
         if 'src_ip' in kwargs:
             msg['src_ip'] = kwargs['src_ip']
 
-        msg['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        msg['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")
         msg['channel'] = self.name
 
         if 'src_data' in kwargs and 'aws_keys_event_source_ip' in kwargs['src_data']:
