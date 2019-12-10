@@ -461,17 +461,22 @@
       }, 1000);
   }
 
-  getIPs(function(ip){
-    //local IPs
-    if (ip.match(/^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/))
-        saveDetectedInfo({'name':'WebRTC Leak', 'Local IP':[ip]});
-    //IPv6 addresses
-    else if (ip.match(/^[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}$/))
-        saveDetectedInfo({'name':'WebRTC Leak', 'IPv6':[ip]});
-    //assume the rest are public IPs
-    else
-      saveDetectedInfo({'name':'WebRTC Leak', 'Public IP':[ip]});
-  });
+  try {
+    getIPs(function(ip){
+        //local IPs
+        if (ip.match(/^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/))
+            saveDetectedInfo({'name':'WebRTC Leak', 'Local IP':[ip]});
+        //IPv6 addresses
+        else if (ip.match(/^[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}$/))
+            saveDetectedInfo({'name':'WebRTC Leak', 'IPv6':[ip]});
+        //assume the rest are public IPs
+        else
+            saveDetectedInfo({'name':'WebRTC Leak', 'Public IP':[ip]});
+    });
+  }
+  catch (err) {
+      // webrtc not supported, fail silently
+  }
 
   drdetector.godetect = function(){
       //detectAdobeReader();
