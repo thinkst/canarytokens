@@ -160,13 +160,11 @@ def get_aws_keys(token=None, server=None):
             log.err('Length of the Server Name and token is too long. Will not work on AWS')
             return False
 
-        if settings.AWSID_URL:
-            url = str(settings.AWSID_URL)
-        else:
-            url = "https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens"
+        url = str(settings.CANARY_AWSID_URL)
 
         resp = requests.get('{url}?data={d}'.format(url=url,d=data))
         if not resp:
+            log.err('Bad response from getting aws keys')
             return False
         resp_json = resp.json()
         access_key_id = resp_json['access_key_id']
@@ -177,6 +175,32 @@ def get_aws_keys(token=None, server=None):
     except Exception as e:
         log.err('Error getting aws keys: {err}'.format(err=e))
         return False
+
+def get_slack_api_key(token=None,server=None):
+    if not (token or server) or len(token) == 0 or len(server) == 0:
+        log.err('Empty values passed through to get_slack_api_key function')
+        return False
+    try:
+        if not validate_hostname(server):
+            return False
+
+        url = str(settings.CANARY_SLACKAPI_URL)
+
+        resp = (requests.get('{url}?token={t}&domain={d}'.format(url=url, t=token, d=server))).json()
+
+        if 'error' in resp:
+            log.err('Error in response for getting slack api key: {}'.format(resp['error']))
+            return False
+
+        if not 'slack-api-token' in resp:
+            log.err('Missing slack-api-token in response to getting token')
+            return False
+
+        return resp['slack-api-token']
+    except Exception as e:
+        log.err('Error getting slack api key: {err}'.format(err=e))
+        return False
+
 
 def validate_hostname(hostname):
     import re

@@ -54,7 +54,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
             useragent = request.getHeader('User-Agent')
             src_ip    = request.getHeader('x-forwarded-for')
-
             #location and refere are for cloned sites
             location  = request.args.get('l', [None])[0]
             referer   = request.args.get('r', [None])[0]
@@ -104,13 +103,21 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
     def render_POST(self, request):
         try:
-            key = request.args['key'][0]
             token = Canarytoken(value=request.path)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
             #if key and token args are present, we are either:
             #    -posting browser info
             #    -getting an aws trigger (key == aws_s3)
+            # otherwise, slack api token data perhaps
             #store the info and don't re-render
+            if canarydrop._drop['type'] == 'slack_api':
+                canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
+                useragent = request.args.get('user_agent', [None])[0]
+                src_ip    = request.args.get('ip', [None])[0]
+                additional_info = {'Slack Log Data': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip']}}
+                self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
+                return self.GIF
+            key = request.args['key'][0]
             if key and token:
                 if key == 'aws_s3':
                     try:

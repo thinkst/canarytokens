@@ -23,7 +23,8 @@ from queries import save_canarydrop, save_imgur_token, get_canarydrop,\
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
                     save_clonedsite_token, get_all_canary_sites, get_canary_google_api_key,\
-                    is_webhook_valid, get_aws_keys, get_all_canary_domains
+                    is_webhook_valid, get_aws_keys, get_all_canary_domains, \
+                    get_slack_api_key
 
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
@@ -86,7 +87,8 @@ class GeneratorPage(resource.Resource):
                                       'aws_keys',
                                       'signed_exe',
                                       'fast_redirect',
-                                      'slow_redirect']:
+                                      'slow_redirect',
+                                      'slack_api']:
                     raise Exception()
             except:
                 raise Exception('Unknown type')
@@ -182,6 +184,8 @@ class GeneratorPage(resource.Resource):
                     raise Exception()
                 keys = get_aws_keys(token=canarytoken.value(), server=get_all_canary_domains()[0])
                 if not keys:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to retrieve AWS API keys. Please contact support@thinkst.com.'
                     raise Exception()
                 response['aws_access_key_id'] = keys[0]
                 response['aws_secret_access_key'] = keys[1]
@@ -191,6 +195,20 @@ class GeneratorPage(resource.Resource):
                 canarydrop['aws_secret_access_key'] = keys[1]
                 canarydrop['region'] = keys[2]
                 canarydrop['output'] = keys[3]
+                save_canarydrop(canarydrop)
+            except:
+                pass
+
+            try:
+                if not request.args.get('type', None)[0] == 'slack_api':
+                    raise Exception()
+                slack_token = get_slack_api_key(token=canarytoken.value(), server=get_all_canary_domains()[0])
+                if not slack_token:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to retrieve Slack API token. Please contact support@thinkst.com.'
+                    raise Exception()
+                response['slack_api_key'] = slack_token
+                canarydrop['slack_api_key'] = slack_token
                 save_canarydrop(canarydrop)
             except:
                 pass
@@ -354,6 +372,12 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename=credentials')
                 text="[default]\naws_access_key={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
+                return text
+            elif fmt == 'slackapi':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename=slack_creds')
+                text="# Slack API key\nslack_api_key = {key}".format(key=canarydrop['slack_api_key'])
                 return text
             elif fmt == 'incidentlist_json':
                 request.setHeader("Content-Type", "text/plain")
