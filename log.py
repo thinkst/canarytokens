@@ -1,5 +1,7 @@
 from twisted.python import log
 from twisted.python import logfile
+import sys, os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import settings
 
 def logger():
