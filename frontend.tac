@@ -1,10 +1,11 @@
 import sys, os
 import logging
-
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# from sys import path
+# print(path)
 from twisted.names import server
 from twisted.application import service, internet
 
-import settings
 from httpd_site import CanarytokensHttpd
 from switchboard import Switchboard
 
