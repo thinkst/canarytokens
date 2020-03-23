@@ -1,9 +1,12 @@
 import sys, os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from twisted.names import dns, server
 from caa_monkeypatch import monkey_patch_caa_support
 monkey_patch_caa_support()
 from twisted.application import service, internet
 from twisted.python import log
+from twisted.logger import ILogObserver, textFileLogObserver
+from twisted.python import logfile
 
 import settings
 from channel_dns import DNSServerFactory, ChannelDNS
@@ -22,6 +25,8 @@ from queries import update_tor_exit_nodes_loop
 log.msg('Canarydrops switchboard started')
 
 application = service.Application("Canarydrops Switchboard")
+f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=5000000, maxRotatedFiles=5)
+application.setComponent(ILogObserver, textFileLogObserver(f))
 
 switchboard = Switchboard()
 
