@@ -361,10 +361,6 @@
               streetViewControl: false
             });
 
-          google.maps.event.addDomListener(window, 'resize', function(){
-              initMap();
-          });
-
           $(document).ready(calcSizes(map));
           $(document).resize(calcSizes(map));
 
@@ -424,6 +420,10 @@
           map.fitBounds(bounds);
           }
         }
+
+        google.maps.event.addDomListener(window, 'resize', function(){
+              initMap();
+          });
 
         var ClickEventHandler = function(map, marker, info, item){
           this.map = map;
