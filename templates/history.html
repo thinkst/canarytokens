@@ -326,6 +326,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="/resources/site.js"></script>
     <script>
+      var resizeAttached = false;
 
     function jsonDownload() {
       window.location = "/download?fmt=incidentlist_json&token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}";
@@ -360,6 +361,13 @@
               mapTypeControl: false,
               streetViewControl: false
             });
+
+            if(!resizeAttached) {
+              google.maps.event.addDomListener(window, 'resize', function(){
+                initMap();
+              });
+              resizeAttached = true;
+            }
 
           $(document).ready(calcSizes(map));
           $(document).resize(calcSizes(map));
@@ -421,9 +429,6 @@
           }
         }
 
-        google.maps.event.addDomListener(window, 'resize', function(){
-              initMap();
-          });
 
         var ClickEventHandler = function(map, marker, info, item){
           this.map = map;
@@ -449,7 +454,6 @@
       $('.expand').click(function(){
         $(this).find('.incident-item-details').slideToggle('slow');
     });
-
 
     function DropDown(el, click_cb) {
           this.dd = el;
