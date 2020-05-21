@@ -59,6 +59,12 @@ except KeyError:
     if not hasattr(settingsmodule, 'LOG_FILE'):
         setattr(settingsmodule, 'LOG_FILE', [])
 
+try:
+    setattr(settingsmodule, 'PROTOCOL', os.environ['PROTOCOL'])
+except KeyError:
+    if not hasattr(settingsmodule, 'PROTOCOL'):
+        setattr(settingsmodule, 'PROTOCOL', '')
+
 if WEB_IMAGE_UPLOAD_PATH and not os.path.exists(WEB_IMAGE_UPLOAD_PATH):
     os.mkdir(WEB_IMAGE_UPLOAD_PATH)
 

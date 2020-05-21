@@ -36,17 +36,21 @@ class InputChannel(Channel):
     def format_additional_data(self, **kwargs):
         return ''
 
-    def format_webhook_canaryalert(self,canarydrop=None,
+    def format_webhook_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
 
+        if not protocol or protocol == '':
+            protocol='http'
+
         payload['channel'] = self.name
         payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")
         payload['memo'] = canarydrop.memo
-        payload['manage_url'] = 'http://{host}/manage?token={token}&auth={auth}'\
-                                .format(host=host,
+        payload['manage_url'] = '{protocol}://{host}/manage?token={token}&auth={auth}'\
+                                .format(protocol=protocol,
+                                        host=host,
                                         token=canarydrop['canarytoken'],
                                         auth=canarydrop['auth'])
         payload['additional_data'] = kwargs
@@ -59,7 +63,7 @@ class InputChannel(Channel):
         fields = []
         if not host or host == '':
             host=settings.PUBLIC_IP
-        manage_link = 'http://{host}/manage?token={token}&auth={auth}'\
+        manage_link = 'https://{host}/manage?token={token}&auth={auth}'\
                       .format(host=host,
                               token=canarydrop['canarytoken'],
                               auth= canarydrop['auth'])
@@ -77,11 +81,14 @@ class InputChannel(Channel):
         payload['attachments'] = [attachment]
         return payload
 
-    def format_canaryalert(self, canarydrop=None, protocol="HTTP",
+    def format_canaryalert(self, canarydrop=None, protocol=settings.PROTOCOL,
                            host=settings.PUBLIC_DOMAIN, params=None, **kwargs):
         msg = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
+
+        if not protocol or protocol == '':
+            protocol='http'
 
         if 'useragent' in kwargs:
             msg['useragent'] = kwargs['useragent']
@@ -119,7 +126,7 @@ Time   : {time}
 Memo   : {memo}
 {additional_data}
 Manage your settings for this Canarydrop:
-http://{host}/manage?token={token}&auth={auth}""".format(
+{protocol}://{host}/manage?token={token}&auth={auth}""".format(
                     channel_name=self.name,
                     time=msg['time'],
                     memo=canarydrop.memo,
@@ -129,12 +136,14 @@ http://{host}/manage?token={token}&auth={auth}""".format(
                     token=canarydrop['canarytoken'],
                     auth=canarydrop['auth']
                     )
-            msg['manage'] = 'http://{host}/manage?token={token}&auth={auth}'\
-                .format(host=host,
+            msg['manage'] = '{protocol}://{host}/manage?token={token}&auth={auth}'\
+                .format(protocol=protocol,
+                        host=host,
                         token=canarydrop['canarytoken'],
                         auth=canarydrop['auth'])
-            msg['history'] = 'http://{host}/history?token={token}&auth={auth}'\
-                .format(host=host,
+            msg['history'] = '{protocol}://{host}/history?token={token}&auth={auth}'\
+                .format(protocol=protocol,
+                        host=host,
                         token=canarydrop['canarytoken'],
                         auth=canarydrop['auth'])
 
