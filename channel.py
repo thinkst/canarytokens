@@ -42,9 +42,6 @@ class InputChannel(Channel):
         if not host or host == '':
             host=settings.PUBLIC_IP
 
-        if not protocol or protocol == '':
-            protocol='http'
-
         payload['channel'] = self.name
         payload['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")
         payload['memo'] = canarydrop.memo
@@ -63,8 +60,6 @@ class InputChannel(Channel):
         fields = []
         if not host or host == '':
             host=settings.PUBLIC_IP
-        if not protocol or protocol == '':
-            protocol='http'
         manage_link = '{protocol}://{host}/manage?token={token}&auth={auth}'\
                       .format(protocol=protocol,
                               host=host,
@@ -89,9 +84,6 @@ class InputChannel(Channel):
         msg = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
-
-        if not protocol or protocol == '':
-            protocol='http'
 
         if 'useragent' in kwargs:
             msg['useragent'] = kwargs['useragent']
