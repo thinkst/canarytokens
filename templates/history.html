@@ -361,10 +361,6 @@
               streetViewControl: false
             });
 
-          google.maps.event.addDomListener(window, 'resize', function(){
-              initMap();
-          });
-
           $(document).ready(calcSizes(map));
           $(document).resize(calcSizes(map));
 
@@ -425,6 +421,7 @@
           }
         }
 
+
         var ClickEventHandler = function(map, marker, info, item){
           this.map = map;
           this.marker = marker;
@@ -449,7 +446,6 @@
       $('.expand').click(function(){
         $(this).find('.incident-item-details').slideToggle('slow');
     });
-
 
     function DropDown(el, click_cb) {
           this.dd = el;
