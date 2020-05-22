@@ -57,14 +57,17 @@ class InputChannel(Channel):
 
         return payload
 
-    def format_slack_canaryalert(self,canarydrop=None,
+    def format_slack_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {}
         fields = []
         if not host or host == '':
             host=settings.PUBLIC_IP
-        manage_link = 'https://{host}/manage?token={token}&auth={auth}'\
-                      .format(host=host,
+        if not protocol or protocol == '':
+            protocol='http'
+        manage_link = '{protocol}://{host}/manage?token={token}&auth={auth}'\
+                      .format(protocol=protocol,
+                              host=host,
                               token=canarydrop['canarytoken'],
                               auth= canarydrop['auth'])
         attachment = {
