@@ -251,7 +251,7 @@
                          {{ canarydrop['triggered_list'][item][field]['generic_data']|e }}
                        </td>
                       </tr>
-                        {% else %}
+                        {% elif canarydrop['triggered_list'][item][field] %}
 
                          <td>
                            {{field}}
