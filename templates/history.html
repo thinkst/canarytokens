@@ -242,7 +242,17 @@
                            {{ canarydrop['triggered_list'][item][field]['aws_keys_event_user_agent']|e }}
                          </td>
                         {% endif %}
+                        {% elif field == 'src_data' and field in canarydrop['triggered_list'][item] and 'generic_data' in canarydrop['triggered_list'][item][field] %}
+                      <tr class="info_row">
+                        <td>
+                         Generic Data
+                       </td>
+                       <td>
+                         {{ canarydrop['triggered_list'][item][field]['generic_data']|e }}
+                       </td>
+                      </tr>
                         {% else %}
+
                          <td>
                            {{field}}
                          </td>
