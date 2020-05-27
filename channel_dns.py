@@ -120,6 +120,22 @@ class ChannelDNS(InputChannel):
         data['linux_inotify_filename_access'] = base64.b32decode(filename)
         return data
 
+    def _generic(self, generic_data=None):
+        data = {}
+        generic_data = generic_data.replace('.', '').upper()
+        #this channel doesn't have padding, add if needed
+        generic_data += '='*int(
+                            (
+                             math.ceil(float(len(generic_data)) / 8) * 8
+                                 - len(generic_data)
+                            )
+                        )
+        try:
+            data['generic_data'] = base64.b32decode(generic_data)
+        except TypeError:
+            data['generic_data'] = 'Unrecoverable data: {}'.format(generic_data)
+        return data
+
     def _dtrace_process_data(self, uid=None, hostname=None, command=None):
         data = {}
         try:
@@ -181,6 +197,7 @@ class ChannelDNS(InputChannel):
             sql_server_username  = re.compile('([A-Za-z0-9.-]*)\.[0-9]{2}\.', re.IGNORECASE)
             mysql_username       = re.compile('([A-Za-z0-9.-]*)\.M[0-9]{3}\.', re.IGNORECASE)
             linux_inotify        = re.compile('([A-Za-z0-9.-]*)\.L[0-9]{2}\.', re.IGNORECASE)
+            generic              = re.compile('([A-Za-z0-9.-]*)\.G[0-9]{2}\.', re.IGNORECASE)
             dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.', re.IGNORECASE)
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
             desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.', re.IGNORECASE)
@@ -204,6 +221,10 @@ class ChannelDNS(InputChannel):
             m = linux_inotify.match(value)
             if m:
                 return self._linux_inotify_data(filename=m.group(1))
+
+            m = generic.match(value)
+            if m:
+                return self._generic(generic_data=m.group(1))
 
             m = dtrace_process.match(value)
             if m:
@@ -291,6 +312,10 @@ class ChannelDNS(InputChannel):
             if 'linux_inotify_filename_access' in kwargs['src_data']:
                 additional_report += '\nLinux File Access: {filename}'\
                     .format(filename=kwargs['src_data']['linux_inotify_filename_access'])
+
+            if 'generic_data' in kwargs['src_data']:
+                    additional_report += '\nGeneric data: {generic_data}'\
+                    .format(generic_data=kwargs['src_data']['generic_data'])
 
             if 'dtrace_uid' in kwargs['src_data']:
                 additional_report += '\nDTrace UID: {uid}'\
