@@ -1,4 +1,8 @@
 
+      .logo {
+        height: 32px;
+      }
+
       .hidden {
         display: none!important;
       }
