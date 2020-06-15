@@ -184,12 +184,6 @@ class ChannelDNS(InputChannel):
         data['windows_desktopini_access_domain'] = domain
         return data
 
-    def _aws_keys_event(self, srcip=None, agent=None):
-        data = {}
-        data['aws_keys_event_source_ip'] = base64.b32decode(srcip.replace('8','=').upper())
-        data['aws_keys_event_user_agent'] = base64.b32decode(agent.replace('.','').replace('8','=').upper())
-        return data
-
     def look_for_source_data(self, token=None, value=None):
         try:
             value = value.lower()
@@ -201,7 +195,6 @@ class ChannelDNS(InputChannel):
             dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.', re.IGNORECASE)
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
             desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.', re.IGNORECASE)
-            aws_keys_event       = re.compile('([A-Za-z0-9-]*)\.([A-Za-z0-9.-]*)\.A[0-9]{3}\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
@@ -233,10 +226,6 @@ class ChannelDNS(InputChannel):
             m = dtrace_file_open.match(value)
             if m:
                 return self._dtrace_file_open(uid=m.group(2), hostname=m.group(3), filename=m.group(4))
-
-            m = aws_keys_event.match(value)
-            if m:
-                return self._aws_keys_event(srcip=m.group(1), agent=m.group(2))
 
         except Exception as e:
             log.err(e)
