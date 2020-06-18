@@ -1,3 +1,5 @@
+<img src="http://canarytokens.org/resources/logo.png" width="200" />
+
 Canarytokens
 =============
 by Thinkst Applied Research
