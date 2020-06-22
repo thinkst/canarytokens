@@ -395,19 +395,19 @@ class DownloadPage(resource.Resource):
 
                 writer = csv.writer(csvOutput)
 
-                details = []
+                details = set()
                 for key in incident_list:
                     for element in incident_list[key].keys():
-                        details.append(element)
+                        details.add(element)
+                details = list(details)
 
                 headers = ["Timestamp"] + details
                 writer.writerow(headers)
-                items = []
-                for item in details:
-                    for key in incident_list:
-                        items.append(incident_list[key][item])
 
                 for key in incident_list:
+                    items = []
+                    for item in details:
+                        items.append(incident_list[key].get(item, 'N/A'))
                     data = [datetime.datetime.fromtimestamp(float(key)).strftime('%Y-%m-%d %H:%M:%S.%s')] + items
                     writer.writerow(data)
 
