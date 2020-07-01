@@ -14,7 +14,7 @@ import math
 import base64
 import re
 
-class DNSServerFactory(server.DNSServerFactory):
+class DNSServerFactory(server.DNSServerFactory, object):
     def handleQuery(self, message, protocol, address):
         if message.answer:
             return
@@ -28,6 +28,16 @@ class DNSServerFactory(server.DNSServerFactory):
         ).addErrback(
             self.gotResolverError, protocol, message, address
         )
+
+    def gotResolverError(self, failure, protocol, message, address):
+        if failure.check(error.DNSQueryRefusedError):
+            response = self._responseFromMessage(message=message, rCode=dns.EREFUSED)
+
+            self.sendReply(protocol, response, address)
+            self._verboseLog("Lookup failed")
+        else:
+            super(DNSServerFactory, self).gotResolverError(failure, protocol, message, address)
+        
 
 
 class ChannelDNS(InputChannel):
