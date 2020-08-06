@@ -102,9 +102,9 @@ def get_canarydrop_triggered_list(canarytoken):
         triggered_list={}
     else:
         triggered_list = simplejson.loads(triggered_list)
-        #we limit to last 10 hits
+        #we limit to last N hits, configurable via CANARY_MAX_HISTORY envvar
         triggered_list = {k:v for k,v in triggered_list.iteritems()
-                          if k in sorted(triggered_list.keys())[-9:]}
+                          if k in sorted(triggered_list.keys())[-settings.MAX_HISTORY:]}
     return triggered_list
 
 def add_canarydrop_hit(canarytoken,input_channel,hit_time=None,**kwargs):

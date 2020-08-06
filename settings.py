@@ -37,7 +37,8 @@ for envvar in ['SMTP_PORT', 'SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_SERVER', 'AW
                'MAILGUN_DOMAIN_NAME', 'MAILGUN_API_KEY','MANDRILL_API_KEY','SENDGRID_API_KEY',
                'PUBLIC_IP','PUBLIC_DOMAIN','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS', 'TOKEN_RETURN', 'MAX_UPLOAD_SIZE',
-               'WEB_IMAGE_UPLOAD_PATH', 'DEBUG', 'IPINFO_API_KEY']:
+               'WEB_IMAGE_UPLOAD_PATH', 'DEBUG', 'IPINFO_API_KEY', 'SWITCHBOARD_LOG_COUNT',
+               'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT', 'FRONTEND_LOG_SIZE', 'MAX_HISTORY']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
@@ -58,6 +59,22 @@ try:
 except KeyError:
     if not hasattr(settingsmodule, 'LOG_FILE'):
         setattr(settingsmodule, 'LOG_FILE', [])
+
+for log_config in ['SWITCHBOARD_LOG_COUNT', 'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT',
+        'FRONTEND_LOG_SIZE']:
+    val = getattr(settingsmodule, log_config)
+    if log_config.endswith('COUNT') and val == '':
+        val = 5
+    elif log_config.endswith('SIZE') and val == '':
+        val = 5000000
+
+    setattr(settingsmodule, log_config, int(val))
+
+# Configure the maximum number of saved hits on any token. Default list size is 10
+try:
+    setattr(settingsmodule, 'MAX_HISTORY', int(getattr(settingsmodule, 'MAX_HISTORY'))-1)
+except:
+    setattr(settingsmodule, 'MAX_HISTORY', 9) # The off-by-one is intentional, due to Python slicing notation
 
 try:
     setattr(settingsmodule, 'PROTOCOL', os.environ['PROTOCOL'])

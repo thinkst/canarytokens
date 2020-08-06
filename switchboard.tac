@@ -25,7 +25,9 @@ from queries import update_tor_exit_nodes_loop
 log.msg('Canarydrops switchboard started')
 
 application = service.Application("Canarydrops Switchboard")
-f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=5000000, maxRotatedFiles=5)
+
+f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.SWITCHBOARD_LOG_SIZE, 
+                                 maxRotatedFiles=settings.SWITCHBOARD_LOG_COUNT)
 application.setComponent(ILogObserver, textFileLogObserver(f))
 
 switchboard = Switchboard()
