@@ -22,7 +22,7 @@ class DNSServerFactory(server.DNSServerFactory):
         query = message.queries[0]
         src_ip = address[0]
 
-        print 'query=%r,src_ip=%r' % (query, src_ip)
+        log.msg('Query: {} sent {}'.format(src_ip, query))
         return self.resolver.query(query, src_ip).addCallback(
             self.gotResolverResponse, protocol, message, address
         ).addErrback(
@@ -36,7 +36,6 @@ class ChannelDNS(InputChannel):
     def __init__(self, listen_domain='canary.thinknest.com', switchboard=None):
         super(ChannelDNS, self).__init__(switchboard=switchboard,
                                          name=self.CHANNEL)
-        self.logfile = open('output.txt', 'wb+')
         self.listen_domain = listen_domain
         self.canary_domains = get_all_canary_domains()
 
@@ -236,8 +235,6 @@ class ChannelDNS(InputChannel):
         Check if the query should be answered dynamically, otherwise dispatch to
         the fallback resolver.
         """
-        self.logfile.write('%r\n' % query)
-        self.logfile.flush()
 
         IS_NX_DOMAIN = True in [query.name.name.lower().endswith(d)
                                 for d in settings.NXDOMAINS]

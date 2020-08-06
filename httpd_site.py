@@ -562,7 +562,6 @@ class HistoryPage(resource.Resource):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
-
         try:
             token = request.args.get('token', None)[0]
             auth  = request.args.get('auth', None)[0]
@@ -572,7 +571,7 @@ class HistoryPage(resource.Resource):
             if canarydrop.get('triggered_list', None):
                 for timestamp in canarydrop['triggered_list'].keys():
                     formatted_timestamp = datetime.datetime.fromtimestamp(
-                                float(timestamp)).strftime('%Y %b %d %H:%M:%S (UTC)')
+                                float(timestamp)).strftime('%Y %b %d %H:%M:%S.%f (UTC)')
                     canarydrop['triggered_list'][formatted_timestamp] = canarydrop['triggered_list'].pop(timestamp)
 
             if canarydrop.get('memo'):
