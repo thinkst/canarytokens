@@ -21,7 +21,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 logger.debug('Canarydrops generator HTTPd')
 
 application = service.Application("Canarydrops Generator Web Server")
-f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=5000000, maxRotatedFiles=5)
+f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.FRONTEND_LOG_SIZE,
+                                 maxRotatedFiles=settings.FRONTEND_LOG_COUNT)
 application.setComponent(ILogObserver, textFileLogObserver(f))
 
 canarytokens_httpd = CanarytokensHttpd(port=settings.CANARYTOKENS_HTTP_PORT)
