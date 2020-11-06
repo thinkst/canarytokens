@@ -36,6 +36,7 @@ The `switchboard.env` contains the switchboard process settings such as:
 - CANARY_ALERT_EMAIL_FROM_ADDRESS=noreply@yourdomain.com
 - CANARY_ALERT_EMAIL_FROM_DISPLAY="Canarytoken Mailer"
 - CANARY_ALERT_EMAIL_SUBJECT="Alert"
+- CANARY_MAX_ALERTS_PER_MINUTE=1000
 - CANARY_SMTP_USERNAME=<smtp username>
 - CANARY_SMTP_PASSWORD=<smtp password>
 - CANARY_SMTP_SERVER=smtp.gmail.com
@@ -73,3 +74,11 @@ CANARY_SMTP_PASSWORD=<your smtp password>
 CANARY_ALERT_EMAIL_FROM_ADDRESS=canary@yourdomain.com
 CANARY_ALERT_EMAIL_SUBJECT="Canary Alert via SMTP"
 ```
+
+### Alert throttling
+By default, unless running in DEBUG mode, no more than 1 alert per unique calling IP per
+minute is permitted.  Activity will still be recorded in the database, and visible in 
+the token management console, but alerts will not be generated (email and/or webhook).
+
+This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.  
+
