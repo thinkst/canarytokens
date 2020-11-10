@@ -56,11 +56,13 @@ class ChannelDNS(InputChannel):
         answer = dns.RRHeader(
             name=name,
             payload=dns.Record_NS(ttl=10, name='ns1.'+name),
-            type=dns.NS)
+            type=dns.NS,
+            auth=True)
         additional = dns.RRHeader(
             name='ns1.'+name,
             payload=dns.Record_A(ttl=10, address=settings.PUBLIC_IP),
-            type=dns.A)
+            type=dns.A,
+            auth=True)
         answers = [answer]
         authority = []
         additional = [additional]
@@ -76,7 +78,8 @@ class ChannelDNS(InputChannel):
                 rname='info.'+name.lower(),
                 serial=0, refresh=300, retry=300, expire=300, minimum=300,
                 ttl=300),
-            type=dns.SOA)
+            type=dns.SOA,
+            auth=True)
         answers = [answer]
         authority = []
         additional = []
@@ -91,7 +94,8 @@ class ChannelDNS(InputChannel):
         answer = dns.RRHeader(
             name=name,
             payload=payload,
-            type=dns.A)
+            type=dns.A,
+            auth=True)
         answers = [answer]
         authority = []
         additional = []
