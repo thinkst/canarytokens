@@ -62,8 +62,8 @@ class User(object):
 
 class AnonymousUser(User):
     """Represents an anonymous user. These users have lower limits than
-       regular users."""
+       regular users, unless configured otherwise"""
     def __init__(self):
         User.__init__(self, username='Anonymous',
                       alert_expiry=(5 if settings.DEBUG else 60),
-                      alert_limit=1)
+                      alert_limit=(int(settings.MAX_ALERTS_PER_MINUTE) if settings.MAX_ALERTS_PER_MINUTE else 1))
