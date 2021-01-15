@@ -56,7 +56,8 @@ class GeneratorPage(resource.Resource):
     def render_GET(self, request):
         template = env.get_template('generate_new.html')
         sites_len = len(get_all_canary_sites())
-        return template.render(settings=settings, sites_len=sites_len).encode('utf8')
+        now = datetime.datetime.now()
+        return template.render(settings=settings, sites_len=sites_len, now=now).encode('utf8')
 
 
     def render_POST(self, request):
@@ -489,12 +490,13 @@ class ManagePage(resource.Resource):
         except (TypeError, NoCanarytokenPresent):
             return NoResource().render(request)
         g_api_key = get_canary_google_api_key()
+        now = datetime.datetime.now()
         try:
             canarydrop['type']
             template = env.get_template('manage_new.html')
         except KeyError:
             template = env.get_template('manage.html')
-        return template.render(canarydrop=canarydrop, API_KEY=g_api_key).encode('utf8')
+        return template.render(canarydrop=canarydrop, API_KEY=g_api_key, now=now).encode('utf8')
 
     def render_POST(self, request):
         try:
@@ -580,8 +582,9 @@ class HistoryPage(resource.Resource):
         except (TypeError, NoCanarytokenPresent):
             return NoResource().render(request)
         g_api_key = get_canary_google_api_key()
+        now = datetime.datetime.now()
         template = env.get_template('history.html')
-        return template.render(canarydrop=canarydrop, API_KEY=g_api_key).encode('utf8')
+        return template.render(canarydrop=canarydrop, API_KEY=g_api_key, now=now).encode('utf8')
 
 
 class LimitedFile(File):
