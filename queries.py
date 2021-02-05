@@ -11,7 +11,7 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_IMGUR_TOKENS, KEY_LINKEDIN_ACCOUNT, KEY_LINKEDIN_ACCOUNTS,\
      KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
      KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
-     KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES
+     KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES, KEY_WEBHOOK_IDX, KEY_EMAIL_IDX
 
 from twisted.python import log
 from twisted.web.client import getPage
@@ -72,6 +72,30 @@ def add_canary_google_api_key(key=None):
 
     return db.set(KEY_CANARY_GOOGLE_API_KEY, key)
 
+def add_email_token_idx(email, canarytoken):
+   return db.sadd(KEY_EMAIL_IDX+email, canarytoken)
+
+def add_webhook_token_idx(webhook, canarytoken):
+   return db.sadd(KEY_WEBHOOK_IDX+webhook, canarytoken)
+    
+def delete_email_tokens(email_address):
+    for token in db.smembers(KEY_EMAIL_IDX+email_address):
+        db.delete(KEY_CANARYDROP+token)
+    # delete idx set
+    db.delete(KEY_EMAIL_IDX+email_address)
+
+def delete_webhook_tokens(webhook):
+    for token in db.smembers(KEY_WEBHOOK_IDX+webhook):
+        db.delete(KEY_CANARYDROP+token)
+    # delete idx set
+    db.delete(KEY_WEBHOOK_IDX+webhook)
+
+def list_email_tokens(email_address):
+    return db.smembers(KEY_EMAIL_IDX+email_address)
+
+def list_webhook_tokens(webhook):
+    return db.smembers(KEY_WEBHOOK_IDX+webhook)
+
 def save_canarydrop(canarydrop=None):
     """Persist a Canarydrop into the Redis instance.
        Arguments:
@@ -91,6 +115,12 @@ def save_canarydrop(canarydrop=None):
     if db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) == None:
         current_time = datetime.datetime.utcnow().strftime("%s.%f")
         db.zadd(KEY_CANARYDROPS_TIMELINE, current_time, canarytoken.value())
+
+    if canarydrop['alert_email_recipient']:
+            add_email_token_idx(canarydrop['alert_email_recipient'],canarytoken.value())
+
+    if canarydrop['alert_webhook_url']:
+        add_webhook_token_idx(canarydrop['alert_webhook_url'],canarytoken.value())
 
 def get_canarydrop_triggered_list(canarytoken):
     """
