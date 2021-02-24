@@ -734,32 +734,6 @@
         return cloned_website.removeClass('error-outline').addClass('success-outline');
       }
 
-      var checkFastRedirect = function() {
-        var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
-        var regex = new RegExp(expression);
-        redirect_url = $('input[name=redirect_url]');
-        if (! redirect_url.parents('.field-fast_redirect').hasClass('hidden')) {
-          //only perform checks if field is visible. could be multiple checks
-          if (redirect_url.val().length == 0 || !redirect_url.val().match(regex)) {
-            return redirect_url.addClass('error-outline').removeClass('success-outline');
-          }
-        }
-        return redirect_url.removeClass('error-outline').addClass('success-outline');
-      }
-
-      var checkSlowRedirect = function() {
-        var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
-        var regex = new RegExp(expression);
-        redirect_url = $('input[name=redirect_url]');
-        if (! redirect_url.parents('.field-slow_redirect').hasClass('hidden')) {
-          //only perform checks if field is visible. could be multiple checks
-          if (redirect_url.val().length == 0 || !redirect_url.val().match(regex)) {
-            return redirect_url.addClass('error-outline').removeClass('success-outline');
-          }
-        }
-        return redirect_url.removeClass('error-outline').addClass('success-outline');
-      }
-
       var _checkSQLServerSelectedAction = function() {
         sql_server_selected_action = $('#selected_sql_action');
 
@@ -834,8 +808,6 @@
         checkSignedExe();
         checkClonedWebsite();
         checkSQLServer();
-        checkFastRedirect();
-        checkSlowRedirect();
 
         //invert UI elements, depending on whether there are errors or not
         showSave();
