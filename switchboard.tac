@@ -3,6 +3,16 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from twisted.names import dns, server
 from caa_monkeypatch import monkey_patch_caa_support
 monkey_patch_caa_support()
+# import logging
+# # import logging.handlers
+# from loghandlers import slack_handler
+
+# logger = logging.getLogger('canary-tokens')
+# try:
+#     logger.addHandler(loghandlers.slack_handler())
+# except SlackException as e:
+#     logger.exception(e)
+
 from twisted.application import service, internet
 from twisted.python import log
 from twisted.logger import ILogObserver, textFileLogObserver
@@ -26,9 +36,10 @@ log.msg('Canarydrops switchboard started')
 
 application = service.Application("Canarydrops Switchboard")
 
-f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.SWITCHBOARD_LOG_SIZE, 
+f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.SWITCHBOARD_LOG_SIZE,
                                  maxRotatedFiles=settings.SWITCHBOARD_LOG_COUNT)
 application.setComponent(ILogObserver, textFileLogObserver(f))
+application.setComponent(ILogObserver, errorsToSlackLogObserver())
 
 switchboard = Switchboard()
 
