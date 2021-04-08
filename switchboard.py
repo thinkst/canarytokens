@@ -2,7 +2,8 @@
 Class that receives alerts, and dispatches them to the registered endpoint.
 """
 
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 
 from exception import DuplicateChannel, InvalidChannel
 
@@ -11,6 +12,8 @@ class Switchboard(object):
         """Return a new Switchboard instance."""
         self.input_channels = {}
         self.output_channels = {}
+        log.info('Canarydrops switchboard started')
+
 
     def add_input_channel(self, name=None, channel=None):
         """Register a new input channel with the switchboard.
