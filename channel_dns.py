@@ -297,7 +297,8 @@ class ChannelDNS(InputChannel):
         return defer.fail(error.DomainError())
 
     def format_additional_data(self, **kwargs):
-        log.info('%r' % kwargs)
+        log.info(kwargs)
+        # log.info('%r' % kwargs)
         additional_report = 'Source IP : {ip}'.format(ip=kwargs['src_ip'])
 
         if 'src_data' in kwargs:
