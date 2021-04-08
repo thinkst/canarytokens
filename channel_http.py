@@ -9,7 +9,8 @@ from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
 from twisted.web.resource import Resource, EncodingResourceWrapper, ForbiddenResource
 from twisted.web.util import Redirect, redirectTo
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from jinja2 import Environment, FileSystemLoader
 import subprocess
 
@@ -96,7 +97,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 return contents
 
         except Exception as e:
-            log.err('Error in render GET: {error}'.format(error=e))
+            log.warn('Error in render GET: {error}'.format(error=e))
 
         request.setHeader("Content-Type", "image/gif")
         return self.GIF
