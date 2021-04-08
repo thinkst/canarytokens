@@ -76,12 +76,11 @@ class errorsToSlackLogObserver(object):
         #
 
 def httpRequest(postdata):
-    import pudb; pudb.set_trace()
+    # import pudb; pudb.set_trace()
     agent = Agent(reactor)
     headers={'Content-Type': ['application/x-www-form-urlencoded']}
     data_str = json.dumps(postdata)
     body = BytesProducer(data_str)
-
     url = settings.ERROR_LOG_WEBHOOK
     # TODO burnt the below webhook straight after committing to GH
     d = agent.request("POST", url, Headers(headers), body)
