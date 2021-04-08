@@ -2,7 +2,8 @@ import simplejson
 import twill
 
 from twisted.application.internet import TimerService
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 
 from canarydrop import Canarydrop
 from channel import InputChannel
@@ -21,13 +22,13 @@ from constants import INPUT_CHANNEL_LINKEDIN
 
 
 class ChannelLinkedIn(InputChannel):
-    """Input channel that polls LinkedIn for changes to the profile view count, and 
+    """Input channel that polls LinkedIn for changes to the profile view count, and
        alerts when they climb."""
     CHANNEL = INPUT_CHANNEL_LINKEDIN
 
     def __init__(self, min_delay=3600*24, switchboard=None):
-        log.msg('Started channel {name}'.format(name=self.CHANNEL))
-        super(ChannelLinkedIn, self).__init__(switchboard=switchboard, 
+        log.info('Started channel {name}'.format(name=self.CHANNEL))
+        super(ChannelLinkedIn, self).__init__(switchboard=switchboard,
                                             name=self.CHANNEL)
         self.min_delay = min_delay
         self.service = TimerService(self.min_delay, self.schedule_polling)
@@ -39,7 +40,7 @@ class ChannelLinkedIn(InputChannel):
             for linkedin_account in get_all_linkedin_accounts():
                 self.poll(linkedin_account=linkedin_account)
         except Exception as e:
-            log.err('LinkedIn error: {error}'.format(error=e))
+            log.error('LinkedIn error: {error}'.format(error=e))
 
     def poll(self, linkedin_account=None):
         try:
@@ -47,20 +48,20 @@ class ChannelLinkedIn(InputChannel):
                                 username=linkedin_account['username'],
                                 password=linkedin_account['password'])
         except LinkedInFailure as e:
-            log.err('Could not retrieve linkedin view count: {error}'\
+            log.error('Could not retrieve linkedin view count: {error}'\
                     .format(error=e))
             return
 
         if current_count > linkedin_account['count']:
             canarydrop = Canarydrop(**get_canarydrop(
                             canarytoken=linkedin_account['canarytoken']))
-            self.dispatch(canarydrop=canarydrop, count=current_count, 
+            self.dispatch(canarydrop=canarydrop, count=current_count,
                           linkedin_username=linkedin_account['username'])
             linkedin_account['count'] = current_count
             save_linkedin_account(linkedin_account=linkedin_account)
 
     def format_additional_data(self, **kwargs):
-        log.msg('%r' % kwargs)
+        log.info('%r' % kwargs)
         additional_report = ''
         if kwargs.has_key('count') and kwargs['count']:
             additional_report += 'View Count: {count}\r\n'.format(

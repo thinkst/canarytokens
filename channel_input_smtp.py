@@ -6,9 +6,10 @@ from twisted.internet import defer
 from twisted.mail import smtp
 from twisted.cred.portal import IRealm
 from twisted.cred.portal import Portal
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from twisted.application import internet
-from twisted.application import service    
+from twisted.application import service
 
 from constants import INPUT_CHANNEL_SMTP
 from tokens import Canarytoken
@@ -105,10 +106,10 @@ class CanaryESMTP(smtp.ESMTP):
     def __init__(self, **kwargs):
         smtp.ESMTP.__init__(self, **kwargs)
         self.mail = {'recipients': [],
-                     'sender': '', 
-                     'helo': {}, 
-                     'headers': [], 
-                     'links': [], 
+                     'sender': '',
+                     'helo': {},
+                     'headers': [],
+                     'links': [],
                      'attachments': []}
 
     def greeting(self,):
@@ -136,15 +137,15 @@ class CanaryESMTP(smtp.ESMTP):
             self.canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
             return lambda: CanaryMessage(esmtp=self)
         except (NoCanarytokenPresent, NoCanarytokenFound):
-            log.err('No token in recipient address: {address}'\
+            log.warn('No token in recipient address: {address}'\
                      .format(address=user.dest.local))
         except Exception as e:
-            log.err(e)
+            log.error(e)
 
         raise smtp.SMTPBadRcpt(user)
 
     def dispatch(self,):
-        self.factory.dispatch(canarydrop=self.canarydrop, src_ip=self.src_ip, 
+        self.factory.dispatch(canarydrop=self.canarydrop, src_ip=self.src_ip,
                       mail=self.mail)
 
 class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
@@ -166,7 +167,7 @@ class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
         return p
 
     def format_additional_data(self, **kwargs):
-        log.msg('%r' % kwargs)
+        log.info('%r' % kwargs)
         if kwargs.has_key('src_ip') and kwargs['src_ip']:
             additional_report = 'Source IP : {ip}'.format(ip=kwargs['src_ip'])
         if kwargs.has_key('mail') and kwargs['mail']:
@@ -177,11 +178,11 @@ Client IP   : {client_ip}
 Sender      : {sender}
 Recipients  : {recipients}
 Links       : {links}
-Attachments : 
+Attachments :
 {attachments}
 
 
-Headers     : 
+Headers     :
 {headers}""".format(
                 recipients = ', '.join(mail['recipients']),
                 sender = mail['sender'],

@@ -60,7 +60,7 @@ class Switchboard(object):
             canarydrop.add_canarydrop_hit(input_channel=input_channel, **kwargs)
 
             if not canarydrop.alertable():
-                log.err('Token {token} is not alertable at this stage.'\
+                log.error('Token {token} is not alertable at this stage.'\
                         .format(token=canarydrop.canarytoken.value()))
                 return
 
@@ -76,4 +76,4 @@ class Switchboard(object):
                 except KeyError as e:
                     raise Exception('Error sending alert: {err}'.format(err=e.message))
         except Exception as e:
-            log.err('Exception occurred in switchboard dispatch: {err}'.format(err=e))
+            log.error('Exception occurred in switchboard dispatch: {err}'.format(err=e))

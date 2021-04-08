@@ -1,6 +1,7 @@
 from twisted.internet import reactor, defer
 from twisted.names import dns, server, error
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 
 from constants import INPUT_CHANNEL_DNS
 from tokens import Canarytoken
@@ -22,7 +23,7 @@ class DNSServerFactory(server.DNSServerFactory, object):
         query = message.queries[0]
         src_ip = address[0]
 
-        log.msg('Query: {} sent {}'.format(src_ip, query))
+        log.info('Query: {} sent {}'.format(src_ip, query))
         return self.resolver.query(query, src_ip).addCallback(
             self.gotResolverResponse, protocol, message, address
         ).addErrback(
@@ -37,7 +38,7 @@ class DNSServerFactory(server.DNSServerFactory, object):
             self._verboseLog("Lookup failed")
         else:
             super(DNSServerFactory, self).gotResolverError(failure, protocol, message, address)
-        
+
 
 
 class ChannelDNS(InputChannel):
@@ -154,17 +155,17 @@ class ChannelDNS(InputChannel):
         try:
             data['dtrace_uid'] = base64.b64decode(uid)
         except:
-            log.err('Could not retrieve uid from dtrace '+\
+            log.error('Could not retrieve uid from dtrace '+\
                     'process alert: {uid}'.format(uid=uid))
         try:
             data['dtrace_hostname'] = base64.b64decode(hostname.replace('.', ''))
         except:
-            log.err('Could not retrieve hostname from dtrace '+\
+            log.error('Could not retrieve hostname from dtrace '+\
                     'process alert: {hostname}'.format(hostname=hostname))
         try:
             data['dtrace_command'] = base64.b64decode(command.replace('.', ''))
         except:
-            log.err('Could not retrieve command from dtrace '+\
+            log.error('Could not retrieve command from dtrace '+\
                     'process alert: {command}'.format(command=command))
 
         return data
@@ -174,18 +175,18 @@ class ChannelDNS(InputChannel):
         try:
             data['dtrace_uid'] = base64.b64decode(uid)
         except:
-            log.err('Could not retrieve uid from dtrace '+\
+            log.error('Could not retrieve uid from dtrace '+\
                     'file open alert: {uid}'.format(uid=uid))
 
         try:
             data['dtrace_hostname'] = base64.b64decode(hostname.replace('.', ''))
         except:
-            log.err('Could not retrieve hostname from dtrace '+\
+            log.error('Could not retrieve hostname from dtrace '+\
                     'process alert: {hostname}'.format(hostname=hostname))
         try:
             data['dtrace_filename'] = base64.b64decode(filename.replace('.', ''))
         except:
-            log.err('Could not retrieve filename from dtrace '+\
+            log.error('Could not retrieve filename from dtrace '+\
                     'file open alert: {filename}'.format(filename=filename))
 
         return data
@@ -241,7 +242,7 @@ class ChannelDNS(InputChannel):
                 return self._dtrace_file_open(uid=m.group(2), hostname=m.group(3), filename=m.group(4))
 
         except Exception as e:
-            log.err(e)
+            log.error(e)
         return {}
 
     def query(self, query, src_ip):
@@ -279,7 +280,7 @@ class ChannelDNS(InputChannel):
             # If we dont find a canarytoken, lets just continue. No need to log.
             pass
         except Exception as e:
-            log.err(e)
+            log.error(e)
 
         if IS_NX_DOMAIN:
             return defer.fail(error.DomainError())
@@ -296,7 +297,7 @@ class ChannelDNS(InputChannel):
         return defer.fail(error.DomainError())
 
     def format_additional_data(self, **kwargs):
-        log.msg('%r' % kwargs)
+        log.info('%r' % kwargs)
         additional_report = 'Source IP : {ip}'.format(ip=kwargs['src_ip'])
 
         if 'src_data' in kwargs:

@@ -4,7 +4,8 @@ Output channel that sends to webhooks.
 import settings
 import pprint
 
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 import requests
 import simplejson
 
@@ -31,15 +32,15 @@ class WebhookOutputChannel(OutputChannel):
 
             self.generic_webhook_send(simplejson.dumps(payload), canarydrop)
         except Exception as e:
-            log.err(e)
+            log.error(e)
 
     def generic_webhook_send(self, payload=None, canarydrop=None):
 
         try:
             response = requests.post(canarydrop['alert_webhook_url'], payload, headers={'content-type': 'application/json'})
             response.raise_for_status()
-            log.msg('Webhook sent to {url}'.format(url=canarydrop['alert_webhook_url']))
+            log.info('Webhook sent to {url}'.format(url=canarydrop['alert_webhook_url']))
             return None
         except requests.exceptions.RequestException as e:
-            log.err("Failed sending request to webhook {url} with error {error}".format(url=canarydrop['alert_webhook_url'],error=e))
+            log.error("Failed sending request to webhook {url} with error {error}".format(url=canarydrop['alert_webhook_url'],error=e))
             return e

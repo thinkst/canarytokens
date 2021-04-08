@@ -12,7 +12,8 @@ from twisted.web.resource import Resource, EncodingResourceWrapper, \
 from twisted.web.static import File, DirectoryLister, Data
 
 from twisted.web.util import Redirect
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from jinja2 import Environment, FileSystemLoader
 import pyqrcode
 
@@ -323,7 +324,7 @@ class GeneratorPage(resource.Resource):
         except Exception as e:
             if response['Error'] is None:
                 response['Error'] = 255
-                log.err('Unexpected error: {err}'.format(err=e))
+                log.error('Unexpected error: {err}'.format(err=e))
 
         return simplejson.dumps(response)
 
@@ -415,7 +416,7 @@ class DownloadPage(resource.Resource):
                 return csvOutput.getvalue()
 
         except Exception as e:
-            log.err('Unexpected error in download: {err}'.format(err=e))
+            log.error('Unexpected error in download: {err}'.format(err=e))
 
         return NoResource().render(request)
 
@@ -459,7 +460,7 @@ class DownloadPage(resource.Resource):
 
 
         except Exception as e:
-            log.err('Unexpected error in POST download: {err}'.format(err=e))
+            log.error('Unexpected error in POST download: {err}'.format(err=e))
             template = env.get_template('error.html')
             return template.render(error=e.message).encode('utf8')
 
@@ -550,7 +551,7 @@ class ManagePage(resource.Resource):
 
         except Exception as e:
             import traceback
-            log.err('Exception in manage.html: {e}, {stack}'.format(e=e, stack=traceback.format_exc()))
+            log.error('Exception in manage.html: {e}, {stack}'.format(e=e, stack=traceback.format_exc()))
             template = env.get_template('manage.html')
             return template.render(canarydrop=canarydrop, error=e,
                                         settings=settings).encode('utf8')

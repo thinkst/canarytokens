@@ -6,11 +6,12 @@ monkey_patch_caa_support()
 
 
 from twisted.application import service, internet
-# from twisted.python import log
 from loghandlers import webhookLogObserver
 
 from twisted.logger import ILogObserver, textFileLogObserver, globalLogPublisher
 from twisted.python import logfile
+from twisted.logger import Logger
+log = Logger()
 
 import settings
 from channel_dns import DNSServerFactory, ChannelDNS
@@ -25,8 +26,6 @@ from channel_output_webhook import WebhookOutputChannel
 from switchboard import Switchboard
 
 from queries import update_tor_exit_nodes_loop
-
-# log.msg('Canarydrops switchboard started')
 
 application = service.Application("Canarydrops Switchboard")
 

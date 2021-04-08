@@ -8,7 +8,8 @@ from twisted.logger import globalLogPublisher, textFileLogObserver
 # from twisted.logger import Logger, globalLogPublisher, textFileLogObserver
 # from twisted.logger import Logger, globalLogPublisher
 # log = Logger()
-# from twisted.python import logfile
+# from twisted.logger import Logger
+log = Logger()file
 from loghandlers import webhookLogObserver
 import settings
 from channel_dns import DNSServerFactory, ChannelDNS
@@ -43,11 +44,11 @@ import pudb; pudb.set_trace()
 
 
 # log.info('Canarydrops switchboard started')
-# log.error('Testing error message first')
+# log.erroror('Testing error message first')
 # log.critical('Testing critical message first')
-# log.error('Testing error message')
+# log.erroror('Testing error message')
 # log.critical('Testing critical message')
-# log.msg('Canarydrops switchboard started')
+# log.info('Canarydrops switchboard started')
 
 switchboard = Switchboard()
 
@@ -93,9 +94,9 @@ canarytokens_httpd.service.setServiceParent(application)
 loop_http = internet.task.LoopingCall(update_tor_exit_nodes_loop)
 loop_http.start(1800)
 
-# log.error('Testing error message second')
+# log.erroror('Testing error message second')
 # log.critical('Testing critical message second')
-# log.error('Testing error message third')
+# log.erroror('Testing error message third')
 # log.critical('Testing critical message third')
-# log.error('Testing error message fourth')
+# log.erroror('Testing error message fourth')
 # log.critical('Testing critical message fourth')

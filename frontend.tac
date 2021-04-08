@@ -10,7 +10,8 @@ from switchboard import Switchboard
 import setup_db
 
 from twisted.logger import ILogObserver, textFileLogObserver
-from twisted.python import logfile
+from twisted.logger import Logger
+log = Logger()file
 import settings
 
 logging.basicConfig()
