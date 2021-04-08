@@ -36,6 +36,7 @@ application = service.Application("Canarydrops Switchboard")
 globalLogPublisher.addObserver(textFileLogObserver(io.open("/tmp/log-1.json", "a")))
 # globalLogPublisher.addObserver(jsonFileLogObserver(io.open("/tmp/log-1.json", "a")))
 globalLogPublisher.addObserver(webhookLogObserver())
+import pudb; pudb.set_trace()
 ####### ends works part commented
 # globalLogBeginner.beginLoggingTo([textFileLogObserver(io.open("/tmp/log-1.json", "a")),webhookLogObserver()])
 # globalLogBeginner.beginLoggingTo(webhookLogObserver())
