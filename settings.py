@@ -64,8 +64,8 @@ except KeyError:
 try:
     setattr(settingsmodule, 'ERROR_LOG_WEBHOOK', os.environ['ERROR_LOG_WEBHOOK'])
 except KeyError:
-    if not hasattr(settingsmodule, 'ERROR_LOG_WEBHOOK'):
-        setattr(settingsmodule, 'ERROR_LOG_WEBHOOK', [])
+    pass
+    # Do not set this an an attribute if it is not in the config / os environ
 
 for log_config in ['SWITCHBOARD_LOG_COUNT', 'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT',
         'FRONTEND_LOG_SIZE']:
