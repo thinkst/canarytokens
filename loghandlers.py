@@ -39,7 +39,7 @@ class BytesProducer:
 
 
 @implementer(ILogObserver)
-class errorsToSlackLogObserver(object):
+class errorsToWebhookLogObserver(object):
     """
     Log observer that sends errors out to a Slack endpoint.
     """
@@ -53,7 +53,6 @@ class errorsToSlackLogObserver(object):
         @type formatEvent: L{callable} that takes an C{event} argument and
             returns a formatted event as L{unicode}.
         """
-        # import pudb; pudb.set_trace()
         self.formatEvent = formatEvent
 
 
@@ -71,38 +70,21 @@ class errorsToSlackLogObserver(object):
             else:
                 postdata = {'text':event['log_format']}
             d = httpRequest(postdata)
-        #     data = {'text':event['log_format']}
-        #                 data=json.dumps(data))
-        #
 
 def httpRequest(postdata):
-    # import pudb; pudb.set_trace()
     agent = Agent(reactor)
     headers={'Content-Type': ['application/x-www-form-urlencoded']}
     data_str = json.dumps(postdata)
     body = BytesProducer(data_str)
     url = settings.ERROR_LOG_WEBHOOK
-    # TODO burnt the below webhook straight after committing to GH
     d = agent.request("POST", url, Headers(headers), body)
 
     def handle_response(response):
-        # import pudb; pudb.set_trace()
         if response.code == 200:
             d = defer.succeed('')
         else:
             log.warn('Failed to post to webhook')
             d = None
-            # class SimpleReceiver(protocol.Protocol):
-            #     def __init__(s, d):
-            #         s.buf = ''; s.d = d
-            #     def dataReceived(s, data):
-            #         s.buf += data
-            #     def connectionLost(s, reason):
-            #         # TODO: test if reason is twisted.web.client.ResponseDone, if not, do an errback
-            #         s.d.callback(s.buf)
-
-            # d = defer.Deferred()
-            # response.deliverBody(SimpleReceiver(d))
         return d
 
     d.addCallback(handle_response)
@@ -110,38 +92,16 @@ def httpRequest(postdata):
 
 def webhookLogObserver(recordSeparator=u"\x1e"):
     """
+    Create a L{errorsToWebhookLogObserver} that emits error and critical
+    loglines' text to a specified webhook URL by doing a HTTP POST.
+
+    @param recordSeparator: The record separator to use.
+    @type recordSeparator: L{unicode}
+
+    @return: A log observer that POST critical and Error logs to a webhook.
+    @rtype: L{errorsToWebhookLogObserver}
 
     """
-    return errorsToSlackLogObserver(
+    return errorsToWebhookLogObserver(
         lambda event: u"{0}{1}\n".format(recordSeparator, eventAsJSON(event))
     )
-
-# def slack_handler():
-#     SLACK_WEBHOOK = commonconfig.getVal('slack.exceptions_webhook', default="")
-#     SLACK_CHANNEL = commonconfig.getVal('slack.exceptions_channel', default="")
-#     SLACK_USERNAME = commonconfig.getVal('slack.exceptions_username', default="")
-
-#     if not SLACK_WEBHOOK or not SLACK_CHANNEL or not SLACK_USERNAME :
-#         raise SlackException("Slack config settings not present or not set.  No Slack exception reporting will take place.")
-
-#     handler = SlackChannelHandler(SLACK_WEBHOOK, SLACK_CHANNEL, SLACK_USERNAME)
-
-#     handler.setLevel(logging.ERROR)
-#     hostname= commonconfig.getVal('console.domain')
-#     formatter = logging.Formatter('{} [%(levelname)s - %(filename)s:%(lineno)d]: %(asctime)s  %(name)s: %(message)s'.format(hostname))
-#     handler.setFormatter(formatter)
-#     handler.addFilter(SlackFilter())
-#     return handler
-
-# class FileLogObserver:
-#     """
-#     Log observer that writes to a file-like object.
-
-#     @type timeFormat: C{str} or C{NoneType}
-#     @ivar timeFormat: If not C{None}, the format string passed to strftime().
-#     """
-#     timeFormat = None
-
-#     def __init__(self, f):
-#         self.write = f.write
-#         self.flush = f.flush
