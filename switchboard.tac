@@ -33,7 +33,7 @@ f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.SWITCH
                                  maxRotatedFiles=settings.SWITCHBOARD_LOG_COUNT)
 globalLogPublisher.addObserver(textFileLogObserver(f))
 
-if hasattr(settings, 'ERROR_LOG_WEBHOOK') and settings.ERROR_LOG_WEBHOOK:
+if getattr(settings, 'ERROR_LOG_WEBHOOK', None):
     # Only create this log observer if the config is setup for it.
     globalLogPublisher.addObserver(webhookLogObserver())
 

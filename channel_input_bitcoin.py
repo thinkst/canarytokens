@@ -52,7 +52,7 @@ class ChannelBitcoin(InputChannel):
             save_bitcoin_account(bitcoin_account=bitcoin_account)
 
     def format_additional_data(self, **kwargs):
-        log.info('%r' % kwargs)
+        log.info(kwargs)
         additional_report = ''
         if kwargs.has_key('address') and kwargs['address']:
             additional_report += 'Bitcoin Address: {address}\r\n'.format(

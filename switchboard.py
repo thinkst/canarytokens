@@ -12,7 +12,7 @@ class Switchboard(object):
         """Return a new Switchboard instance."""
         self.input_channels = {}
         self.output_channels = {}
-        log.info('Canarydrops switchboard started')
+        log.info('Canarytokens switchboard started')
 
 
     def add_input_channel(self, name=None, channel=None):
@@ -60,7 +60,7 @@ class Switchboard(object):
             canarydrop.add_canarydrop_hit(input_channel=input_channel, **kwargs)
 
             if not canarydrop.alertable():
-                log.error('Token {token} is not alertable at this stage.'\
+                log.warn('Token {token} is not alertable at this stage.'\
                         .format(token=canarydrop.canarytoken.value()))
                 return
 

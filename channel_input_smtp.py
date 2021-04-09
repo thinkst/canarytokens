@@ -167,7 +167,7 @@ class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
         return p
 
     def format_additional_data(self, **kwargs):
-        log.info('%r' % kwargs)
+        log.info(kwargs)
         if kwargs.has_key('src_ip') and kwargs['src_ip']:
             additional_report = 'Source IP : {ip}'.format(ip=kwargs['src_ip'])
         if kwargs.has_key('mail') and kwargs['mail']:

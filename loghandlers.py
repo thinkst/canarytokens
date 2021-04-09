@@ -45,10 +45,6 @@ class errorsToWebhookLogObserver(object):
     """
     def __init__(self, formatEvent):
         """
-        @param outFile: A file-like object.  Ideally one should be passed which
-            accepts L{unicode} data.  Otherwise, UTF-8 L{bytes} will be used.
-        @type outFile: L{io.IOBase}
-
         @param formatEvent: A callable that formats an event.
         @type formatEvent: L{callable} that takes an C{event} argument and
             returns a formatted event as L{unicode}.

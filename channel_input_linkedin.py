@@ -61,7 +61,7 @@ class ChannelLinkedIn(InputChannel):
             save_linkedin_account(linkedin_account=linkedin_account)
 
     def format_additional_data(self, **kwargs):
-        log.info('%r' % kwargs)
+        log.info(kwargs)
         additional_report = ''
         if kwargs.has_key('count') and kwargs['count']:
             additional_report += 'View Count: {count}\r\n'.format(
