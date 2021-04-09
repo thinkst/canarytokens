@@ -2,7 +2,8 @@
 Class that receives alerts, and dispatches them to the registered endpoint.
 """
 
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 
 from exception import DuplicateChannel, InvalidChannel
 
@@ -11,6 +12,8 @@ class Switchboard(object):
         """Return a new Switchboard instance."""
         self.input_channels = {}
         self.output_channels = {}
+        log.info('Canarytokens switchboard started')
+
 
     def add_input_channel(self, name=None, channel=None):
         """Register a new input channel with the switchboard.
@@ -57,7 +60,7 @@ class Switchboard(object):
             canarydrop.add_canarydrop_hit(input_channel=input_channel, **kwargs)
 
             if not canarydrop.alertable():
-                log.err('Token {token} is not alertable at this stage.'\
+                log.warn('Token {token} is not alertable at this stage.'\
                         .format(token=canarydrop.canarytoken.value()))
                 return
 
@@ -73,4 +76,4 @@ class Switchboard(object):
                 except KeyError as e:
                     raise Exception('Error sending alert: {err}'.format(err=e.message))
         except Exception as e:
-            log.err('Exception occurred in switchboard dispatch: {err}'.format(err=e))
+            log.error('Exception occurred in switchboard dispatch: {err}'.format(err=e))

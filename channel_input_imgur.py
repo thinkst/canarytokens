@@ -3,7 +3,8 @@ import simplejson
 from twisted.application.internet import TimerService
 from twisted.internet.task import deferLater
 from twisted.internet import reactor
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from twisted.web.client import getPage
 
 from canarydrop import Canarydrop
@@ -45,7 +46,7 @@ class ChannelImgur(InputChannel):
                 imgur_token['count'] = count
                 save_imgur_token(imgur_token=imgur_token)
         except Exception as e:
-            log.err('Imgur error: {error}'.format(error=e))
+            log.error('Imgur error: {error}'.format(error=e))
 
     def schedule_poll(self, imgur_token=None, delay=None):
         d = deferLater(reactor, delay, self.request_imgur_count, imgur_token)
@@ -62,7 +63,7 @@ class ChannelImgur(InputChannel):
         try:
             body = simplejson.loads(body)
             count = int(body['data'][imgur_token['id']])
-            log.msg('Count for imgur token '+imgur_token['id']+ ' was '+str(count))
+            log.info('Count for imgur token '+imgur_token['id']+ ' was '+str(count))
             if count > imgur_token['count']:
                 canarydrop = Canarydrop(**get_canarydrop(
                                 canarytoken=imgur_token['canarytoken']))
@@ -71,10 +72,10 @@ class ChannelImgur(InputChannel):
                 imgur_token['count'] = count
                 save_imgur_token(imgur_token=imgur_token)
         except Exception as e:
-            log.err('Imgur error: {error}'.format(error=e))
+            log.error('Imgur error: {error}'.format(error=e))
 
     def format_additional_data(self, **kwargs):
-        log.msg('%r' % kwargs)
+        log.info(kwargs)
         additional_report = ''
         if kwargs.has_key('count') and kwargs['count']:
             additional_report += 'View Count: {count}\r\n'.format(

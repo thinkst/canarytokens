@@ -4,7 +4,8 @@ Output channel that sends SMSs. Relies on Twilio to actually send SMSs.
 import settings
 import pprint
 
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from twilio.rest import TwilioRestClient
 
 from channel import OutputChannel
@@ -36,8 +37,8 @@ class TwilioOutputChannel(OutputChannel):
                     from_=settings.TWILIO_FROM_NUMBER,
                     body=msg['body']
                 )
-            log.msg('Sent SMS alert to {recipient} for token {token}'
+            log.info('Sent SMS alert to {recipient} for token {token}'
                 .format(recipient=canarydrop['alert_sms_recipient'],
                         token=canarydrop.canarytoken.value()))
         except Exception as e:
-            log.err('Twilio send failed: {error}'.format(error=e))
+            log.error('Twilio send failed: {error}'.format(error=e))

@@ -16,7 +16,7 @@ Configuration
 -------------
 
 The Canarytokens server can use many different settings configurations. You can find them in `settings.py`. There are two
-main settings files: `frontend.env` and `switchboard.env`. 
+main settings files: `frontend.env` and `switchboard.env`.
 
 The `frontend.env` contains the frontend process settings such as:
 - CANARY_DOMAINS=mytesttokensdomain.com
@@ -43,13 +43,14 @@ The `switchboard.env` contains the switchboard process settings such as:
 - CANARY_SMTP_PORT=587
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
 - LOG_FILE=switchboard.log
+- ERROR_LOG_WEBHOOK=<URI of a webhook you want Error Logs posted to>
 
 Please note that when choosing which email provider you would like to use, you **MUST** only provide
 information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` then you must remove the others such as
-`CANARY_SENDGRID_API_KEY` and `CANARY_MANDRILL_API_KEY`. 
+`CANARY_SENDGRID_API_KEY` and `CANARY_MANDRILL_API_KEY`.
 
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
-`frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda. 
+`frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
 
 ### Configuration of Outgoing SMTP
 When configuring outgoing SMTP please consider the following:
@@ -77,8 +78,8 @@ CANARY_ALERT_EMAIL_SUBJECT="Canary Alert via SMTP"
 
 ### Alert throttling
 By default, unless running in DEBUG mode, no more than 1 alert per unique calling IP per
-minute is permitted.  Activity will still be recorded in the database, and visible in 
+minute is permitted.  Activity will still be recorded in the database, and visible in
 the token management console, but alerts will not be generated (email and/or webhook).
 
-This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.  
+This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.
 

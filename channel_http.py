@@ -9,7 +9,8 @@ from twisted.application import internet
 from twisted.web.server import Site, GzipEncoderFactory
 from twisted.web.resource import Resource, EncodingResourceWrapper, ForbiddenResource
 from twisted.web.util import Redirect, redirectTo
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from jinja2 import Environment, FileSystemLoader
 import subprocess
 
@@ -87,7 +88,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                         template = env.get_template('fortune.html')
                         return template.render(fortune=fortune).encode('utf8')
                     except Exception as e:
-                        log.err('Could not get a fortune: {e}'.format(e=e))
+                        log.error('Could not get a fortune: {e}'.format(e=e))
             if canarydrop['web_image_enabled'] and os.path.exists(canarydrop['web_image_path']):
                 mimetype = "image/"+canarydrop['web_image_path'][-3:]
                 with open(canarydrop['web_image_path'], "r") as f:
@@ -96,7 +97,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 return contents
 
         except Exception as e:
-            log.err('Error in render GET: {error}'.format(error=e))
+            log.warn('Error in render GET: {error}'.format(error=e))
 
         request.setHeader("Content-Type", "image/gif")
         return self.GIF
@@ -136,9 +137,9 @@ class CanarytokenPage(resource.Resource, InputChannel):
                         self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                                       additional_info=additional_info)
                     except Exception as e:
-                        log.err('Error in s3 post: {error}'.format(error=e))
+                        log.error('Error in s3 post: {error}'.format(error=e))
                 elif 'secretkeeper_photo' in request.args:
-                    log.err('Saving secretkeeper_photo')
+                    log.error('Saving secretkeeper_photo')
                     try:
                         fields = cgi.FieldStorage(
                             fp = request.content,
@@ -169,7 +170,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
                         canarydrop.add_additional_info_to_hit(hit_time=key, additional_info={'secretkeeper_photo':filepath})
                     except Exception as e:
-                        log.err('Error in secretkeeper_photo post: {error}'.format(error=e))
+                        log.error('Error in secretkeeper_photo post: {error}'.format(error=e))
                 else:
                     additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','canarytoken','name']}
                     canarydrop.add_additional_info_to_hit(hit_time=key,additional_info={request.args['name'][0]:additional_info})
@@ -180,7 +181,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
             return self.render_GET(request)
 
     def format_additional_data(self, **kwargs):
-        log.msg('%r' % kwargs)
+        log.info(kwargs)
         additional_report = ''
         if kwargs.has_key('src_ip') and kwargs['src_ip']:
             additional_report += 'Source IP: {ip}'.format(ip=kwargs['src_ip'])

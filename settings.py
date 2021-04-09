@@ -61,6 +61,12 @@ except KeyError:
     if not hasattr(settingsmodule, 'LOG_FILE'):
         setattr(settingsmodule, 'LOG_FILE', [])
 
+try:
+    setattr(settingsmodule, 'ERROR_LOG_WEBHOOK', os.environ['ERROR_LOG_WEBHOOK'])
+except KeyError:
+    pass
+    # Do not set this an an attribute if it is not in the config / os environ
+
 for log_config in ['SWITCHBOARD_LOG_COUNT', 'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT',
         'FRONTEND_LOG_SIZE']:
     val = getattr(settingsmodule, log_config)

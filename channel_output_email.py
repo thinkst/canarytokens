@@ -3,7 +3,8 @@ Output channel that sends emails. Relies on Mandrill, Sendgrid or SMTP to actual
 """
 import settings
 import pprint
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 import mandrill
 import requests
 from htmlmin import minify
@@ -111,7 +112,7 @@ class EmailOutputChannel(OutputChannel):
         elif settings.SMTP_SERVER:
             self.smtp_send(msg=msg,canarydrop=canarydrop)
         else:
-            log.err("No email settings found")
+            log.error("No email settings found")
 
     def mailgun_send(self, msg=None, canarydrop=None):
         try:
@@ -132,12 +133,12 @@ class EmailOutputChannel(OutputChannel):
                 #Raise an error if the returned status is 4xx or 5xx
                 result.raise_for_status()
 
-            log.msg('Sent alert to {recipient} for token {token}'\
+            log.info('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
 
         except requests.exceptions.HTTPError as e:
-            log.err('A mailgun error occurred: %s - %s' % (e.__class__, e))
+            log.error('A mailgun error occurred: %s - %s' % (e.__class__, e))
 
 
 
@@ -162,13 +163,13 @@ class EmailOutputChannel(OutputChannel):
                 result = mandrill_client.messages.send(message=message,
                                                    async=False,
                                                    ip_pool='Main Pool')
-            log.msg('Sent alert to {recipient} for token {token}'\
+            log.info('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
 
         except mandrill.Error, e:
             # Mandrill errors are thrown as exceptions
-            log.err('A mandrill error occurred: %s - %s' % (e.__class__, e))
+            log.error('A mandrill error occurred: %s - %s' % (e.__class__, e))
             # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....
 
     def sendgrid_send(self, msg=None, canarydrop=None):
@@ -186,12 +187,12 @@ class EmailOutputChannel(OutputChannel):
             else:
                 response = sg.client.mail.send.post(request_body=mail.get())
 
-                log.msg('Sent alert to {recipient} for token {token}'\
+                log.info('Sent alert to {recipient} for token {token}'\
                         .format(recipient=canarydrop['alert_email_recipient'],
                                 token=canarydrop.canarytoken.value()))
 
         except urllib.HTTPError as e:
-            log.err('A sendgrid error occurred: %s - %s' % (e.__class__, e))
+            log.error('A sendgrid error occurred: %s - %s' % (e.__class__, e))
 
     def smtp_send(self, msg=None, canarydrop=None):
         try:
@@ -202,7 +203,7 @@ class EmailOutputChannel(OutputChannel):
             smtpmsg['From'] = fromaddr
             smtpmsg['To'] = toaddr
             smtpmsg['Subject'] = msg['subject']
-            
+
             if settings.DEBUG:
                 pprint.pprint(message)
             else:
@@ -211,11 +212,11 @@ class EmailOutputChannel(OutputChannel):
                 server.starttls()
                 server.ehlo()
                 server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
-                text = smtpmsg.as_string()            
+                text = smtpmsg.as_string()
                 server.sendmail(fromaddr, toaddr, text)
 
-            log.msg('Sent alert to {recipient} for token {token}'\
+            log.info('Sent alert to {recipient} for token {token}'\
                 .format(recipient=canarydrop['alert_email_recipient'],
                     token=canarydrop.canarytoken.value()))
         except smtplib.SMTPException as e:
-            log.err('A smtp error occurred: %s - %s' % (e.__class__, e))
+            log.error('A smtp error occurred: %s - %s' % (e.__class__, e))

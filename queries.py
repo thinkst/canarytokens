@@ -13,7 +13,8 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
      KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES, KEY_WEBHOOK_IDX, KEY_EMAIL_IDX
 
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 from twisted.web.client import getPage
 
 
@@ -77,7 +78,7 @@ def add_email_token_idx(email, canarytoken):
 
 def add_webhook_token_idx(webhook, canarytoken):
    return db.sadd(KEY_WEBHOOK_IDX+webhook, canarytoken)
-    
+
 def delete_email_tokens(email_address):
     for token in db.smembers(KEY_EMAIL_IDX+email_address):
         db.delete(KEY_CANARYDROP+token)
@@ -108,7 +109,7 @@ def save_canarydrop(canarydrop=None):
 
     db.hmset(KEY_CANARYDROP+canarytoken.value(), canarydrop.serialize())
 
-    log.msg('Saved canarydrop: {canarydrop}'.format(
+    log.info('Saved canarydrop: {canarydrop}'.format(
                                     canarydrop=canarydrop.serialize()))
 
     #if the canarydrop is new, save to the timeline
@@ -173,11 +174,11 @@ def add_additional_info_to_hit(canarytoken,hit_time,additional_info=None):
                 triggered_list[hit_time]['additional_info'][k] = v
         db.hset(KEY_CANARYDROP+canarytoken.value(), 'triggered_list',simplejson.dumps(triggered_list))
     except Exception as e:
-        log.err('Failed adding additional info: {err}'.format(err=e))
+        log.error('Failed adding additional info: {err}'.format(err=e))
 
 def get_aws_keys(token=None, server=None):
     if not (token or server) or len(token)==0 or len(server)==0:
-        log.err('Empty values passed through to get_aws_keys function.')
+        log.error('Empty values passed through to get_aws_keys function.')
         return False
     try:
         # data = base64.b64encode('U:'+server+':'+token)
@@ -187,14 +188,14 @@ def get_aws_keys(token=None, server=None):
 
         data = server+'@@'+token
         if len(data)>64:
-            log.err('Length of the Server Name and token is too long. Will not work on AWS')
+            log.error('Length of the Server Name and token is too long. Will not work on AWS')
             return False
 
         url = str(settings.CANARY_AWSID_URL)
 
         resp = requests.get('{url}?data={d}'.format(url=url,d=data))
         if not resp:
-            log.err('Bad response from getting aws keys')
+            log.error('Bad response from getting aws keys')
             return False
         resp_json = resp.json()
         access_key_id = resp_json['access_key_id']
@@ -203,12 +204,12 @@ def get_aws_keys(token=None, server=None):
         output = "json"
         return (access_key_id, secret_access_key, region, output)
     except Exception as e:
-        log.err('Error getting aws keys: {err}'.format(err=e))
+        log.error('Error getting aws keys: {err}'.format(err=e))
         return False
 
 def get_slack_api_key(token=None,server=None):
     if not (token or server) or len(token) == 0 or len(server) == 0:
-        log.err('Empty values passed through to get_slack_api_key function')
+        log.error('Empty values passed through to get_slack_api_key function')
         return False
     try:
         if not validate_hostname(server):
@@ -219,16 +220,16 @@ def get_slack_api_key(token=None,server=None):
         resp = (requests.get('{url}?token={t}&domain={d}'.format(url=url, t=token, d=server))).json()
 
         if 'error' in resp:
-            log.err('Error in response for getting slack api key: {}'.format(resp['error']))
+            log.error('Error in response for getting slack api key: {}'.format(resp['error']))
             return False
 
         if not 'slack-api-token' in resp:
-            log.err('Missing slack-api-token in response to getting token')
+            log.error('Missing slack-api-token in response to getting token')
             return False
 
         return resp['slack-api-token']
     except Exception as e:
-        log.err('Error getting slack api key: {err}'.format(err=e))
+        log.error('Error getting slack api key: {err}'.format(err=e))
         return False
 
 
@@ -238,7 +239,7 @@ def validate_hostname(hostname):
     pattern = re.compile("[^a-zA-Z0-9+=,.@_-]")
     match = pattern.search(hostname)
     if match:
-        log.err('Hostname contains a bad character for AWS username {m} ... aborting'.format(m=match.group(0)))
+        log.error('Hostname contains a bad character for AWS username {m} ... aborting'.format(m=match.group(0)))
         return False
     else:
         return True
@@ -252,7 +253,7 @@ def get_geoinfo(ip):
             add_ip_to_cache(ip, resp)
             return resp
         except Exception as e:
-            log.err('Error getting geo ip: {err}'.format(err=e))
+            log.error('Error getting geo ip: {err}'.format(err=e))
             return ""
 
 def get_geoinfo_from_ip(ip):
@@ -390,7 +391,7 @@ def get_linkedin_viewer_count(username=None, password=None):
         except TwillException:
             pass
     if form_num == '':
-        log.err('Failed to parse LinkedIn login page - page format may have changed.')
+        log.error('Failed to parse LinkedIn login page - page format may have changed.')
         raise LinkedInFailure()
     #fv("login", 'session_password', 'LetsTryPrime')
     #fv("login", 'session_key', 'ms_DerrickWortham@endian.co.za')
@@ -405,14 +406,14 @@ def get_linkedin_viewer_count(username=None, password=None):
                 .iterchildren():
             user_listing = simplejson.loads(i.text.replace('\\u002d','-'))
     except Exception as e:
-        log.err('Failed to extract user_listing from page: {error}'.format(error=e))
+        log.error('Failed to extract user_listing from page: {error}'.format(error=e))
         raise LinkedInFailure()
 
     try:
         current_count = user_listing['content']['wvmx_profile_viewers']['viewersCount']
         return current_count
     except KeyError:
-        log.err('Profile view struct in unknown format: {user_listing}'.format(user_listing=user_listing))
+        log.error('Profile view struct in unknown format: {user_listing}'.format(user_listing=user_listing))
         raise LinkedInFailure()
 
 def get_linkedin_account(username_key=None, username=None):
@@ -564,10 +565,10 @@ def is_webhook_valid(url):
         response.raise_for_status()
         return True
     except requests.exceptions.Timeout as e:
-        log.err('Timed out sending test payload to webhook: {url}'.format(url=url))
+        log.error('Timed out sending test payload to webhook: {url}'.format(url=url))
         return False
     except requests.exceptions.RequestException as e:
-        log.err('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
+        log.error('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
         return False
 
 def is_tor_relay(ip):

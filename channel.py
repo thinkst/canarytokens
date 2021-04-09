@@ -8,7 +8,8 @@ import simplejson
 
 import settings
 from exception import DuplicateChannel
-from twisted.python import log
+from twisted.logger import Logger
+log = Logger()
 
 class Channel(object):
     CHANNEL = 'Base'
@@ -16,7 +17,7 @@ class Channel(object):
     def __init__(self, switchboard=None, name=None):
         self.switchboard = switchboard
         self.name = name or self.CHANNEL
-        log.msg('Started channel {name}'.format(name=self.name))
+        log.info('Started channel {name}'.format(name=self.name))
 
 class InputChannel(Channel):
     CHANNEL = 'InputChannel'

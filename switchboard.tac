@@ -3,10 +3,15 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from twisted.names import dns, server
 from caa_monkeypatch import monkey_patch_caa_support
 monkey_patch_caa_support()
+
+
 from twisted.application import service, internet
-from twisted.python import log
-from twisted.logger import ILogObserver, textFileLogObserver
+from loghandlers import webhookLogObserver
+
+from twisted.logger import ILogObserver, textFileLogObserver, globalLogPublisher
 from twisted.python import logfile
+from twisted.logger import Logger
+log = Logger()
 
 import settings
 from channel_dns import DNSServerFactory, ChannelDNS
@@ -22,13 +27,15 @@ from switchboard import Switchboard
 
 from queries import update_tor_exit_nodes_loop
 
-log.msg('Canarydrops switchboard started')
-
 application = service.Application("Canarydrops Switchboard")
 
-f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.SWITCHBOARD_LOG_SIZE, 
+f = logfile.LogFile.fromFullPath(settings.LOG_FILE, rotateLength=settings.SWITCHBOARD_LOG_SIZE,
                                  maxRotatedFiles=settings.SWITCHBOARD_LOG_COUNT)
-application.setComponent(ILogObserver, textFileLogObserver(f))
+globalLogPublisher.addObserver(textFileLogObserver(f))
+
+if getattr(settings, 'ERROR_LOG_WEBHOOK', None):
+    # Only create this log observer if the config is setup for it.
+    globalLogPublisher.addObserver(webhookLogObserver())
 
 switchboard = Switchboard()
 
