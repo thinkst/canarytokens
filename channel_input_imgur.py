@@ -46,7 +46,7 @@ class ChannelImgur(InputChannel):
                 imgur_token['count'] = count
                 save_imgur_token(imgur_token=imgur_token)
         except Exception as e:
-            log.error('Imgur error: {error}'.format(error=e))
+            log.warn('Imgur error: {error}'.format(error=e))
 
     def schedule_poll(self, imgur_token=None, delay=None):
         d = deferLater(reactor, delay, self.request_imgur_count, imgur_token)
@@ -72,7 +72,7 @@ class ChannelImgur(InputChannel):
                 imgur_token['count'] = count
                 save_imgur_token(imgur_token=imgur_token)
         except Exception as e:
-            log.error('Imgur error: {error}'.format(error=e))
+            log.warn('Imgur error: {error}'.format(error=e))
 
     def format_additional_data(self, **kwargs):
         log.info(kwargs)

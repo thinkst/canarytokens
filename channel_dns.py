@@ -21,7 +21,13 @@ class DNSServerFactory(server.DNSServerFactory, object):
             return
 
         query = message.queries[0]
-        src_ip = address[0]
+        if address:
+            src_ip = address[0]
+            if address[1] == 0:
+                log.debug(('Dropping request from {src} because source port is 0').format(src=src_ip))
+                return None
+        else:
+            src_ip = protocol.transport.socket.getpeername()[0]
 
         log.info('Query: {} sent {}'.format(src_ip, query))
         return self.resolver.query(query, src_ip).addCallback(

@@ -19,6 +19,10 @@ from zope.interface import implementer
 from twisted.internet.defer import succeed
 from twisted.web.iweb import IBodyProducer
 
+# The below value comes up whenever a mailgun API requested is attempted
+# And the intended recipient of the mail is an incorrectly entered/obviously wrong
+# email address. eg `asd@x.xa`
+text_for_failed_email_address_entered = "A mailgun error occurred: <class 'requests.exceptions.HTTPError'> - 400 Client Error: BAD REQUEST for url: https://api.mailgun.net/v3/canarytokens.org/messages"
 
 @implementer(IBodyProducer)
 class BytesProducer:
@@ -65,6 +69,9 @@ class errorsToWebhookLogObserver(object):
                 postdata = {'text':event['log_text']}
             else:
                 postdata = {'text':event['log_format']}
+            if postdata['text'] == 'Unhandled error in Deferred:' or postdata['text'] == text_for_failed_email_address_entered:
+                # filters out non useful spam of messages seen before with these exact contents
+                return
             d = httpRequest(postdata)
 
 def httpRequest(postdata):

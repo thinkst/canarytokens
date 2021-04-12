@@ -253,7 +253,7 @@ def get_geoinfo(ip):
             add_ip_to_cache(ip, resp)
             return resp
         except Exception as e:
-            log.error('Error getting geo ip: {err}'.format(err=e))
+            log.warn('Error getting geo ip: {err}'.format(err=e))
             return ""
 
 def get_geoinfo_from_ip(ip):
