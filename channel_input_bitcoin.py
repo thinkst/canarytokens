@@ -31,7 +31,7 @@ class ChannelBitcoin(InputChannel):
             for bitcoin_account in get_all_bitcoin_accounts():
                 self.poll(bitcoin_account=bitcoin_account)
         except Exception as e:
-            log.error('Bitcoin error: {error}'.format(error=e))
+            log.warn('Bitcoin error: {error}'.format(error=e))
 
     def poll(self, bitcoin_account=None):
         try:
