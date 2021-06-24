@@ -8,7 +8,7 @@ from cStringIO import StringIO
 
 import settings
 
-WORD_TEMPLATE=settings.CANARY_EXCEL_TEMPLATE
+EXCEL_TEMPLATE=settings.CANARY_EXCEL_TEMPLATE
 
 def zipinfo_contents_replace(zipfile=None, zipinfo=None, 
                              search=None, replace=None):
@@ -50,4 +50,4 @@ def format_time_for_doc(time):
 
 if __name__ == '__main__':
     with open('testdoc.xlsx', 'w+') as f:
-        f.write(make_canary_msword(url="http://iamatesturlforcanarys.net/blah.png"))
+        f.write(make_canary_msexcel(url="http://iamatesturlforcanarys.net/blah.png"))
