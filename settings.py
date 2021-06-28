@@ -24,6 +24,7 @@ CANARYTOKENS_HTTP_PORT=8082
 CANARY_PDF_TEMPLATE="templates/template.pdf"
 CANARY_PDF_TEMPLATE_OFFSET=793
 CANARY_WORD_TEMPLATE="templates/template.docx"
+CANARY_EXCEL_TEMPLATE="templates/template.xlsx"
 
 TOKEN_RETURN="gif" #could be gif, fortune
 
