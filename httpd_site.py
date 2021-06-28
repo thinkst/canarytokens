@@ -31,6 +31,7 @@ from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
 from msword import make_canary_msword
 from pdfgen import make_canary_pdf
+from msexcel import make_canary_msexcel
 from authenticode import make_canary_authenticode_binary
 import settings
 import datetime
@@ -79,6 +80,7 @@ class GeneratorPage(resource.Resource):
                                       'dns',
                                       'web_image',
                                       'ms_word',
+                                      'ms_excel',
                                       'adobe_pdf',
                                       'windows_dir',
                                       'clonedsite',
@@ -362,6 +364,14 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename={token}.docx'\
                                   .format(token=token))
                 return make_canary_msword(url=canarydrop.get_url())
+            elif fmt == 'msexcel':
+                request.setHeader("Content-Type",
+                                  "application/vnd.openxmlformats-officedocument"+\
+                                                      ".spreadsheetml.sheet")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}.xlsx'\
+                                  .format(token=token))
+                return make_canary_msexcel(url=canarydrop.get_url())
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
                 request.setHeader("Content-Disposition",

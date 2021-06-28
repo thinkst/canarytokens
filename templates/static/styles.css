@@ -509,6 +509,9 @@
       a.icon-word:before {
         background-image: url("/resources/word.png");
       }
+      a.icon-excel:before {
+        background-image: url("/resources/excel.png");
+      }
       a.icon-pdf:before {
         background-image: url("/resources/pdf.png");
       }

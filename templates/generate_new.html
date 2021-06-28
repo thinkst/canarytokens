@@ -110,6 +110,7 @@
                     <li data-type="smtp"           data-memo-placeholder="Email address in Events database"><a href="#" class="icon icon-email"><span class="title">Unique email address</span><div class="explanation">Alert when an email is sent to a unique address</div></a></li>
                 		<li data-type="web_image"      data-memo-placeholder="Image embedded in router X's admin interface"><a href="#" class="icon icon-web-image"><span class="title">Custom Image Web bug</span><div class="explanation">Alert when an image you uploaded is viewed</div></a></li>
                     <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
+                    <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
                     <li data-type="adobe_pdf"      data-memo-placeholder="PDF document placed at U:\Users\Sipho\Reports\feb.pdf"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF Document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
                     <li data-type="windows_dir"    data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows Folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
                     <li data-type="signed_exe"     data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
@@ -304,6 +305,25 @@
                 <div class="artifacts">
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="msword">Download your MS Word file</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>You'll get an alert whenever this document is opened in Microsoft Office, on Windows or Mac OS.</p>
+                  <p>You can rename the document without affecting its operation.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Drop the file on a Windows network share.</li>
+                      <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
+                      <li>Attach to an email with a tempting Subject line.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result ms_excel">
+                <h3>Your MS Excel token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="msexcel">Download your MS Excel file</a>
                   </div>
                 </div>
                 <div class="advice">
@@ -1049,6 +1069,7 @@
                                   'aws_keys':_handleAWSKeysResponse,
                                   'web_image': _handleWebResponse,
                                   'ms_word' : _handleFileDownloadResponse,
+                                  'ms_excel' : _handleFileDownloadResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,

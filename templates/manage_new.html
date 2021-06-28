@@ -169,6 +169,14 @@
                 </div>
               </div>
             </div>
+            <div class="result ms_excel">
+              <h5>Here's your tokened MS Excel document:</h5>
+              <div class="artifacts">
+                <div class="form-control">
+                  <a class="btn btn-large btn-success file-download" data-fmt="msexcel">Download your MS Excel file</a>
+                </div>
+              </div>
+            </div>
             <div class="result adobe_pdf">
               <h5>Here's your tokened PDF document:</h5>
               <div class="artifacts">
@@ -508,6 +516,7 @@
                                 'aws_keys': _handleAWSKeysResponse,
                                 'web_image': _handleWebResponse,
                                 'ms_word' : _handleFileDownloadResponse,
+                                'ms_excel' : _handleFileDownloadResponse,
                                 'adobe_pdf' : _handleFileDownloadResponse,
                                 'windows_dir' : _handleFileDownloadResponse,
                                 'clonedsite' : _handleClonedWebsiteResponse,
