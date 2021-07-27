@@ -25,7 +25,7 @@ CANARY_PDF_TEMPLATE="templates/template.pdf"
 CANARY_PDF_TEMPLATE_OFFSET=793
 CANARY_WORD_TEMPLATE="templates/template.docx"
 CANARY_EXCEL_TEMPLATE="templates/template.xlsx"
-
+CANARY_MSI_TEMPLATE="templates/template.msi"
 TOKEN_RETURN="gif" #could be gif, fortune
 
 MAX_UPLOAD_SIZE=1024 * 1024 * 1

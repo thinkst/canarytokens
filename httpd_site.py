@@ -1,4 +1,6 @@
 import base64
+from canarytokens.win_process import make_canary_windows_process
+from redis.connection import HIREDIS_USE_BYTE_BUFFER
 import simplejson
 import cgi
 
@@ -83,6 +85,7 @@ class GeneratorPage(resource.Resource):
                                       'ms_excel',
                                       'adobe_pdf',
                                       'windows_dir',
+                                      'windows_process',
                                       'clonedsite',
                                       'qr_code',
                                       'svn',
@@ -343,6 +346,7 @@ class DownloadPage(resource.Resource):
             token  = request.args.get('token', None)[0]
             fmt    = request.args.get('fmt', None)[0]
             auth   = request.args.get('auth', None)[0]
+            hib    = request.args.get('hib', None)[0] #Hibernation digit - where to set? 
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token))
             if not canarydrop:
                 raise NoCanarytokenPresent()
@@ -378,6 +382,12 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename={token}.pdf'\
                                   .format(token=token))
                 return make_canary_pdf(hostname=canarydrop.get_hostname(nxdomain=True, with_random=False))
+            elif fmt == 'windows_process':
+                request.setHeader("Content-Type", "application/msi") #This correct?
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}-{hib}.msi'\
+                                  .format(token=token, hib=hib)) #hib digit input??  
+                return make_canary_windows_process(url=canarydrop.get_url())
             elif fmt == 'awskeys':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
