@@ -207,31 +207,6 @@ def get_aws_keys(token=None, server=None):
         log.error('Error getting aws keys: {err}'.format(err=e))
         return False
 
-def get_slack_api_key(token=None,server=None):
-    if not (token or server) or len(token) == 0 or len(server) == 0:
-        log.error('Empty values passed through to get_slack_api_key function')
-        return False
-    try:
-        if not validate_hostname(server):
-            return False
-
-        url = str(settings.CANARY_SLACKAPI_URL)
-
-        resp = (requests.get('{url}?token={t}&domain={d}'.format(url=url, t=token, d=server))).json()
-
-        if 'error' in resp:
-            log.error('Error in response for getting slack api key: {}'.format(resp['error']))
-            return False
-
-        if not 'slack-api-token' in resp:
-            log.error('Missing slack-api-token in response to getting token')
-            return False
-
-        return resp['slack-api-token']
-    except Exception as e:
-        log.error('Error getting slack api key: {err}'.format(err=e))
-        return False
-
 
 def validate_hostname(hostname):
     import re
