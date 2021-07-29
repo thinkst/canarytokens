@@ -536,9 +536,6 @@
       a.icon-aws:before {
         background-image: url("/resources/aws.png");
       }
-      a.icon-slackapi:before {
-        background-image: url("/resources/slack_icon.png");
-      }
       a.icon-redirect:before {
         background-image: url("/resources/redirect.png");
       }
