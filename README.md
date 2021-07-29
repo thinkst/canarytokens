@@ -8,6 +8,10 @@ Overview
 --------
 Canarytokens helps track activity and actions on your network.
 
+Deprecations
+------------
+* The Slack API Token is deprecated and it's no longer possible to create new ones. Old tokens will still work.
+
 Installation
 ------------
 We recommend [the Docker image installation process](https://github.com/thinkst/canarytokens-docker).
@@ -82,4 +86,3 @@ minute is permitted.  Activity will still be recorded in the database, and visib
 the token management console, but alerts will not be generated (email and/or webhook).
 
 This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.
-
