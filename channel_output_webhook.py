@@ -1,16 +1,13 @@
 """
 Output channel that sends to webhooks.
 """
-import settings
-import pprint
-
-from zope.interface import implementer, implements
+from zope.interface import implementer
 from twisted.web.iweb import IBodyProducer
 from twisted.internet.defer import succeed
 from twisted.logger import Logger
 log = Logger()
 from twisted.internet import reactor
-from twisted.web.client import Agent, HTTPConnectionPool, ResponseDone
+from twisted.web.client import Agent
 from twisted.web.http_headers import Headers
 import simplejson
 
