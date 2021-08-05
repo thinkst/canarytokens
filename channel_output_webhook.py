@@ -1,16 +1,34 @@
 """
 Output channel that sends to webhooks.
 """
-import settings
-import pprint
-
+from zope.interface import implementer
+from twisted.web.iweb import IBodyProducer
+from twisted.internet.defer import succeed
 from twisted.logger import Logger
 log = Logger()
-import requests
+from twisted.internet import reactor
+from twisted.web.client import Agent
+from twisted.web.http_headers import Headers
 import simplejson
 
 from channel import OutputChannel
 from constants import OUTPUT_CHANNEL_WEBHOOK
+
+@implementer(IBodyProducer)
+class BytesProducer:
+    def __init__(self, body):
+        self.body = body
+        self.length = len(body)
+
+    def startProducing(self, consumer):
+        consumer.write(self.body)
+        return succeed(None)
+
+    def pauseProducing(self):
+        pass
+
+    def stopProducing(self):
+        pass
 
 class WebhookOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_WEBHOOK
@@ -36,11 +54,17 @@ class WebhookOutputChannel(OutputChannel):
 
     def generic_webhook_send(self, payload=None, canarydrop=None):
 
-        try:
-            response = requests.post(canarydrop['alert_webhook_url'], payload, headers={'content-type': 'application/json'})
-            response.raise_for_status()
-            log.info('Webhook sent to {url}'.format(url=canarydrop['alert_webhook_url']))
-            return None
-        except requests.exceptions.RequestException as e:
-            log.error("Failed sending request to webhook {url} with error {error}".format(url=canarydrop['alert_webhook_url'],error=e))
-            return e
+        def handle_response(response):
+            if response.code != 200:
+                log.error("Failed sending request to webhook {url} with code {error}".format(url=canarydrop['alert_webhook_url'],error=response.code))
+            else:
+                log.info('Webhook sent to {url}'.format(url=canarydrop['alert_webhook_url']))
+
+        def handle_error(result):
+            log.error("Failed sending request to webhook {url} with error {error}".format(url=canarydrop['alert_webhook_url'],error=result))
+
+        agent = Agent(reactor)
+        body = BytesProducer(payload)
+        d = agent.request("POST", canarydrop['alert_webhook_url'], Headers({'content-type': ['application/json']}), body)
+        d.addCallback(handle_response)
+        d.addErrback(handle_error)
