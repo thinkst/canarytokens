@@ -55,7 +55,8 @@ Please note that when choosing which email provider you would like to use, you *
 information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` then you must remove the others such as
 `CANARY_SENDGRID_API_KEY` and `CANARY_MANDRILL_API_KEY`.
 
-If you are using Mailgun's European infrastructure for your Canarytokens Server, you will need to add `CANARY_MAILGUN_EU_REGION=true` to your `switchboard.env`.
+If you are using Mailgun's European infrastructure for your Canarytokens Server, you will need to add `CANARY_MAILGUN_BASE_URL=https://api.eu.mailgun.net` to your `switchboard.env`. If you do not specify that,
+we will use the regular url as 'https://api.mailgun.net' as the default.
 
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
