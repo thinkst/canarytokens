@@ -116,7 +116,10 @@ class EmailOutputChannel(OutputChannel):
 
     def mailgun_send(self, msg=None, canarydrop=None):
         try:
-            url = 'https://api.mailgun.net/v3/{}/messages'.format(settings.MAILGUN_DOMAIN_NAME)
+            base_url = 'https://api.mailgun.net'
+            if settings.MAILGUN_BASE_URL:
+                base_url = settings.MAILGUN_BASE_URL
+            url = '{}/v3/{}/messages'.format(base_url, settings.MAILGUN_DOMAIN_NAME)
             auth = ('api', settings.MAILGUN_API_KEY)
             data = {
                 'from': '{name} <{address}>'.format(name=msg['from_display'],address=msg['from_address']),
