@@ -527,6 +527,9 @@
       a.icon-sqlserver:before {
         background-image: url("/resources/sqlserver.png");
       }
+      a.icon-mysql:before {
+        background-image: url("/resources/mysql.png");
+      }
       a.icon-qrcode:before {
         background-image: url("/resources/qrcode.png");
       }
@@ -618,4 +621,17 @@
       #mainsite {
         font-size: smaller;
         padding-top: 1.5rem;
+      }
+
+      .mysql-encoded-button {
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      .mysql-text {
+        text-align: left;
+      }
+
+      .mysqldownload {
+        cursor: pointer;
       }

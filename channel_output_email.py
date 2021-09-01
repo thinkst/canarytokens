@@ -57,6 +57,11 @@ class EmailOutputChannel(OutputChannel):
             template += "\n\nPlease note that the source IP refers to a DNS server," \
                         " rather than the host that triggered the token. "
 
+        if self.data['channel'] == 'DNS' and self.data.get('tokentype') == "my_sql":
+            template = ("Your MySQL token was tripped, but the attackers machine was unable to connect " +
+                        "to the server directly. Instead, we can tell that it happened, and merely report " +
+                        "on their DNS server. Source IP therefore refers to the DNS server used by the attacker.")
+
         return template.format(
             Type=self.data['channel'])
 
