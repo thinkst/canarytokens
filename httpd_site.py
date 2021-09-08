@@ -40,6 +40,7 @@ import hashlib
 import os
 from cStringIO import StringIO
 import csv
+import wireguard as wg
 
 env = Environment(loader=FileSystemLoader('templates'),
                   extensions=['jinja2.ext.loopcontrols'])
@@ -82,6 +83,7 @@ class GeneratorPage(resource.Resource):
                                       'ms_word',
                                       'ms_excel',
                                       'adobe_pdf',
+                                      'wireguard',
                                       'windows_dir',
                                       'clonedsite',
                                       'qr_code',
@@ -308,6 +310,12 @@ class GeneratorPage(resource.Resource):
                 save_canarydrop(canarydrop)
             except:
                 pass
+
+            if token_type == 'wireguard':
+                canarydrop['wg_key'] = wg.generateCanarytokenPrivateKey(canarydrop["canarytoken"])
+                save_canarydrop(canarydrop)
+                response['wg_conf'] = canarydrop.get_wg_conf()
+                response['qr_code'] = canarydrop.get_wg_qrcode()
 
         except Exception as e:
             if response['Error'] is None:

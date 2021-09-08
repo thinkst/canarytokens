@@ -340,6 +340,17 @@
                 </div>
               </div>
             </div>
+            <div class="result wireguard">
+              <h5>Your WireGuard VPN client config:</h5>
+              <div class="artifacts">
+                <div class="form-control">
+                  {% if canarydrop['type'] == 'wireguard'%}
+                  <img id="wg_qrcode" src="{{ canarydrop.get_wg_qrcode() }}" />
+                  <pre id="wg_conf">{{ canarydrop.get_wg_conf() }}</pre>
+                  {%endif%}
+                </div>
+              </div>
+            </div>
           </div>
           <div class="col-md-1">
           </div>
