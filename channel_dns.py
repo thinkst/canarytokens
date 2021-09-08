@@ -1,4 +1,5 @@
 from twisted.internet import reactor, defer
+from twisted.internet.task import deferLater
 from twisted.names import dns, server, error
 from twisted.logger import Logger
 log = Logger()
@@ -280,7 +281,11 @@ class ChannelDNS(InputChannel):
 
             src_data = self.look_for_source_data(token=token.value(), value=query.name.name)
 
-            self.dispatch(canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
+            if canarydrop._drop['type'] == 'my_sql':
+                d = deferLater(reactor, 10, self.dispatch, canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
+                d.addErrback(self._handleMySqlErr)
+            else:
+                self.dispatch(canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
 
         except (NoCanarytokenPresent, NoCanarytokenFound):
             # If we dont find a canarytoken, lets just continue. No need to log.
@@ -357,3 +362,6 @@ class ChannelDNS(InputChannel):
                     .format(ip=kwargs['src_data']['aws_keys_event_source_ip'])
 
         return additional_report
+
+    def _handleMySqlErr(self, result):
+        log.error("Error dispatching MySQL alert: {}".format(result))

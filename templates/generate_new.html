@@ -60,7 +60,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=1">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=3">
     <style>
     .ps__rail-x,
     .ps__rail-y {
@@ -115,7 +115,8 @@
                     <li data-type="windows_dir"    data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows Folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
                     <li data-type="signed_exe"     data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
                     <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned Website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
-                    <li data-type="sql_server"     data-memo-placeholder="SELET SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
+                    <li data-type="sql_server"     data-memo-placeholder="SELECT SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
+                    <li data-type="my_sql"         data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL Dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
                     <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
                     <li data-type="aws_keys"       data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
@@ -533,6 +534,59 @@
                   <p>Ideas for use:
                     <ul>
                       <li>Deploy a SELECT token with a tempting VIEW name such as USER_DETAILS.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result my_sql">
+                <h3>Your MySQL token is active!</h3>
+                <div class="artifacts">
+                  <p>There are two ways you can use this token:</p>
+                  <p class="mysql-text">1.) Insert it into a MySQL dump of your own:</p>
+                  <div class="form-control">
+                    <div id="mysql-statement" class="pre-like">
+SET @b = '<span class="mysql-cmd"></span>';
+SET @s2 = FROM_BASE64(@b);
+PREPARE stmt1 FROM @s2;
+EXECUTE stmt1;
+PREPARE stmt2 FROM @bb;
+EXECUTE stmt2;
+START REPLICA;
+
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#mysql-statement">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                    </div>
+                    <div id="mysql-statement-decoded" class="pre-like hidden">
+
+
+
+<span class="mysql-cmd-decoded"></span>
+PREPARE stmt FROM @bb;
+EXECUTE stmt;
+START REPLICA;
+
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#mysql-statement-decoded">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                    </div>
+                  </div>
+                  <h4 style="margin-top: 10px;">OR</h4>
+                  <p class="mysql-text">2.) Download a (pseudo) random MySQL dump with a token already embedded in it</p>
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success mysqldownload" data-fmt="my_sql">Download a MySQL Dump file</a>
+                  </div>
+                </div>
+                <div class="mysql-encoded-button">
+                  <input checked type="checkbox" id="mysql-encoded" name="mysql-encoded">
+                  <label for="mysql-encoded">Encode snippet to make it harder to spot</label><br>
+                </div>
+                <div class="advice">
+                  <p>When the MySQL statements are run, your Canarytoken will be triggered.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Attackers who find MySQL dump files will usually throw them into a temporary database to query the data.
+                        When a dump file with this snippet is ingested, it will let us know.</li>
                     </ul>
                   </p>
                 </div>
@@ -1014,6 +1068,20 @@
             $('.sql_action').text($('#selected_sql_action').text())
           }
         }
+        var _handleMySQLResponse = function(data) {
+          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['Hostname']}', MASTER_USER='${data['Token']}\", @@lc_time_names, @@hostname, \"';\");`
+
+          $('.mysql-cmd').text(btoa(cmd));
+          $('.mysql-cmd-decoded').text(cmd);
+
+          $(".mysqldownload").click(function() {
+            var token = data['Token'];
+            var encodedEl = $("#mysql-encoded");
+            var encoded = encodedEl.is(":checked");
+
+            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['Auth'] + '&encoded=' + encoded, '_blank').focus();
+          });
+        }
         var _handlerSignedExeResponse = function(data) {
           $('#signed_exe').prop('href', data['file_contents']);
           $('#signed_exe').prop('download', data['file_name']);
@@ -1043,6 +1111,7 @@
                                   'svn': _handleSVNResponse,
                                   'smtp': _handleSMTPResponse,
                                   'sql_server': _handleSQLServerResponse,
+                                  'my_sql': _handleMySQLResponse,
                                   'signed_exe': _handlerSignedExeResponse,
                                   'fast_redirect': _handleFastRedirectResponse,
                                   'slow_redirect': _handleSlowRedirectResponse,
@@ -1148,6 +1217,18 @@
         }
         $('#createForm').submit( processForm );
   	  });
+
+      $("#mysql-encoded").click(function() {
+        var elem = $("#mysql-encoded");
+
+        if (elem.is(":checked")) {
+          $('#mysql-statement').removeClass("hidden");
+          $('#mysql-statement-decoded').addClass("hidden");
+        } else {
+          $('#mysql-statement-decoded').removeClass("hidden");
+          $('#mysql-statement').addClass("hidden");
+        }
+      });
     </script>
   </body>
 </html>

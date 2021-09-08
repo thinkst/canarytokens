@@ -31,6 +31,7 @@ from ziplib import make_canary_zip
 from msword import make_canary_msword
 from pdfgen import make_canary_pdf
 from msexcel import make_canary_msexcel
+from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
 import settings
 import datetime
@@ -87,6 +88,7 @@ class GeneratorPage(resource.Resource):
                                       'svn',
                                       'smtp',
                                       'sql_server',
+                                      'my_sql',
                                       'aws_keys',
                                       'signed_exe',
                                       'fast_redirect',
@@ -408,6 +410,14 @@ class DownloadPage(resource.Resource):
                     writer.writerow(data)
 
                 return csvOutput.getvalue()
+            elif fmt == "my_sql":
+                encoded   = request.args.get('encoded', "true")[0] == "true"
+
+                request.setHeader("Content-Type", "application/zip")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={token}_mysql_dump.sql.gz'\
+                                  .format(token=token))
+                return make_canary_mysql_dump(canarydrop=canarydrop, encoded=encoded)
 
         except Exception as e:
             log.error('Unexpected error in download: {err}'.format(err=e))
