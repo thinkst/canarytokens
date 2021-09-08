@@ -8,6 +8,12 @@ Overview
 --------
 Canarytokens helps track activity and actions on your network.
 
+If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try get back to you as soon as possible.
+
+Deprecations
+------------
+* The Slack API Token is deprecated and it's no longer possible to create new ones. Old tokens will still work.
+
 Installation
 ------------
 We recommend [the Docker image installation process](https://github.com/thinkst/canarytokens-docker).
@@ -49,6 +55,9 @@ Please note that when choosing which email provider you would like to use, you *
 information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` then you must remove the others such as
 `CANARY_SENDGRID_API_KEY` and `CANARY_MANDRILL_API_KEY`.
 
+If you are using Mailgun's European infrastructure for your Canarytokens Server, you will need to add `CANARY_MAILGUN_BASE_URL=https://api.eu.mailgun.net` to your `switchboard.env`. If you do not specify that,
+we will use the regular url as 'https://api.mailgun.net' as the default.
+
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
 
@@ -82,4 +91,3 @@ minute is permitted.  Activity will still be recorded in the database, and visib
 the token management console, but alerts will not be generated (email and/or webhook).
 
 This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.
-

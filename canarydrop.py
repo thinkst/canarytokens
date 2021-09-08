@@ -205,7 +205,7 @@ class Canarydrop(object):
 
     def get_cloned_site_javascript(self,):
         CLONED_SITE_JS = """
-if (document.domain != "CLONED_SITE_DOMAIN") {
+if (document.domain != "CLONED_SITE_DOMAIN" && document.domain != "www.CLONED_SITE_DOMAIN") {
     var l = location.href;
     var r = document.referrer;
     var m = new Image();
