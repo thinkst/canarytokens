@@ -144,7 +144,11 @@ Manage your settings for this Canarydrop:
                         auth=canarydrop['auth'])
 
         if params.get('subject_required', False):
-            msg['subject'] = settings.ALERT_EMAIL_SUBJECT
+            msg['subject'] = '{subject}: {memo} - {src_ip}'.format(
+                subject=settings.ALERT_EMAIL_SUBJECT,
+                memo=canarydrop.memo,
+                src_ip=msg.get('src_ip', '')
+            )
         if params.get('from_display_required', False):
             msg['from_display'] = settings.ALERT_EMAIL_FROM_DISPLAY
         if params.get('from_address_required', False):
