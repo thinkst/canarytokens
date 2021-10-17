@@ -8,7 +8,7 @@ Overview
 --------
 Canarytokens helps track activity and actions on your network.
 
-If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try get back to you as soon as possible.
+If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try to get back to you as soon as possible.
 
 Deprecations
 ------------
@@ -67,7 +67,7 @@ When configuring outgoing SMTP please consider the following:
 Restrictions:
 * no other provider like Mailgun or Sendgrid must be configured for this to work
 * only supports StartTLS right now (you have to use the corresponding port)
-* no anonymous SMTP supported right now (you have to use username/password to authenticate)
+* no anonymous SMTP is supported right now (you have to use a username/password to authenticate)
 
 The following settings have to be configured in `switchboard.env` for SMTP to work:
 * CANARY_SMTP_SERVER: the SMTP server
