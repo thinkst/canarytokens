@@ -15,6 +15,7 @@ import settings
 import math
 import base64
 import re
+from exceptions import UnicodeDecodeError
 
 class DNSServerFactory(server.DNSServerFactory, object):
     def handleQuery(self, message, protocol, address):
@@ -30,7 +31,12 @@ class DNSServerFactory(server.DNSServerFactory, object):
         else:
             src_ip = protocol.transport.socket.getpeername()[0]
 
-        log.info('Query: {} sent {}'.format(src_ip, query))
+        try:
+            log.info('Query: {} sent {}'.format(src_ip, query))
+        except UnicodeDecodeError:
+            # Invalid query
+            return None
+
         return self.resolver.query(query, src_ip).addCallback(
             self.gotResolverResponse, protocol, message, address
         ).addErrback(
