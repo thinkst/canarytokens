@@ -120,17 +120,12 @@ class WireGuardProtocol(DatagramProtocol):
         smac2 = len(data) - BLAKE2S_128_SIZE
         smac1 = smac2 - BLAKE2S_128_SIZE
 
-        import time
-        start = time.time()
         device = None
         for deviceCandidate in self.devices:
             mac1 = blake2s(data[:smac1], digest_size=BLAKE2S_128_SIZE, key=deviceCandidate.mac1_key).digest()
             if (mac1 == data[smac1:smac2]):
                 device = deviceCandidate
                 break
-
-        end = time.time()
-        print("Elapsed Time: %d", end-start)
 
         if not device:
             print("Could not find matching public key for message")
