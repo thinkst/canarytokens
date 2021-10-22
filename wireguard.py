@@ -12,6 +12,7 @@ import base64
 import queries
 import random
 import settings
+import time
 
 from twisted.logger import Logger
 log = Logger()
@@ -35,6 +36,9 @@ class MessageType(Enum):
 MSG_INITIATION_FMT = "<II32s48s28s16s16s"
 MSG_INITIATION_LEN = struct.calcsize(MSG_INITIATION_FMT)
 MSG_INITIATION_PREFIX = struct.pack('<I', MessageType.Initiation.value)
+MSG_INITIATION_MAX_TIME_DIFF = 5
+
+TAI64N_BASE = 0x400000000000000a
 
 Device = collections.namedtuple('Device', 'privateKey,mac1_key')
 
@@ -139,8 +143,22 @@ class WireGuardProtocol(DatagramProtocol):
         ss = sharedSecret(device.privateKey.encode(), ephemeral)
         chainKey, key = KDF2(chainKey, ss)
         peerPK = AEAD(key, ZERO_NONCE, static, hash)
-        public_key = base64.b64encode(peerPK)
 
+        hash = mixhash(hash, static)
+        chainKey, key = KDF2(chainKey, sharedSecret(device.privateKey.encode(), peerPK))
+        tai64nTimestamp = AEAD(key, ZERO_NONCE, timestamp, hash)
+        if not tai64nTimestamp:
+            log.debug("Timestamp not valid; Handshake not provably sent by peer key")
+            return
+
+        unix_seconds, nano = struct.unpack("!QI", tai64nTimestamp)
+        unix_seconds -= TAI64N_BASE
+        time_diff = abs(int(time.time()) - unix_seconds)
+        if  time_diff >  MSG_INITIATION_MAX_TIME_DIFF:
+            log.debug("Handshake timestamp too new or too old")
+            return
+
+        public_key = base64.b64encode(peerPK)
         canarytoken = queries.wireguard_keymap_get(public_key)
         if not canarytoken:
             log.debug("No matching token for valid handshake with client key {} from {}. Expected when Canarytoken is deleted, but WG client config still in use.".format(public_key, src))
