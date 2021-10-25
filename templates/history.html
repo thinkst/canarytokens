@@ -247,7 +247,7 @@
                            {{ canarydrop['triggered_list'][item][field]['aws_keys_event_user_agent']|e }}
                          </td>
                         {% endif %}
-                        {% elif canarydrop['type'] ==  'wireguard' and field == 'src_data' %}
+                        {% if canarydrop['type'] ==  'wireguard' and field == 'src_data' %}
                         <tr class="info_row">
                         <td>
                          Client Source Port
@@ -280,6 +280,7 @@
                          {{ canarydrop['triggered_list'][item][field]['server_public_key'] |e }}
                         </td>
                        </tr>
+                        {% endif %}
                         {% elif field == 'src_data' and field in canarydrop['triggered_list'][item] and 'generic_data' in canarydrop['triggered_list'][item][field] %}
                       <tr class="info_row">
                         <td>
