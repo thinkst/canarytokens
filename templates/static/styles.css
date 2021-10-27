@@ -515,6 +515,9 @@
       a.icon-pdf:before {
         background-image: url("/resources/pdf.png");
       }
+      a.icon-wireguard:before {
+        background-image: url("/resources/wireguard.png");
+      }
       a.icon-folder:before {
         background-image: url("/resources/folder.png");
       }
@@ -631,4 +634,30 @@
 
       .mysqldownload {
         cursor: pointer;
+      }
+
+      #wg_conf {
+        background: #f6f6f6;
+        display: block;
+        white-space: pre;
+        overflow-x: scroll;
+        max-width: 100%;
+        min-width: 100px;
+        padding: 0;
+        text-align: left;
+        border-radius: 8px;
+        padding-bottom: 12px;
+        padding-left: 12px;
+        padding-top: 12px;
+        margin-bottom: 7px;
+        margin-top: 7px;
+        margin-left: 0px;
+      }
+
+      #wireguard-app {
+        margin-bottom: 16px;
+      }
+
+      #wireguard-app img {
+        height: 40px;
       }

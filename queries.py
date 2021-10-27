@@ -11,7 +11,8 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_IMGUR_TOKENS, KEY_LINKEDIN_ACCOUNT, KEY_LINKEDIN_ACCOUNTS,\
      KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
      KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
-     KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES, KEY_WEBHOOK_IDX, KEY_EMAIL_IDX
+     KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES, KEY_WEBHOOK_IDX, KEY_EMAIL_IDX, \
+     KEY_WIREGUARD_KEYMAP
 
 from twisted.logger import Logger
 log = Logger()
@@ -561,3 +562,12 @@ def update_tor_exit_nodes(contents):
 def update_tor_exit_nodes_loop():
     d = getPage('https://check.torproject.org/exit-addresses')
     d.addCallback(update_tor_exit_nodes)
+
+def wireguard_keymap_add(public_key, canarytoken):
+    db.hset(KEY_WIREGUARD_KEYMAP, public_key, canarytoken)
+
+def wireguard_keymap_del(public_key):
+    db.hdel(KEY_WIREGUARD_KEYMAP, public_key)
+
+def wireguard_keymap_get(public_key):
+    return db.hget(KEY_WIREGUARD_KEYMAP, public_key)

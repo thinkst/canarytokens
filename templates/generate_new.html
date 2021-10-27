@@ -112,6 +112,7 @@
                     <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
                     <li data-type="adobe_pdf"      data-memo-placeholder="PDF document placed at U:\Users\Sipho\Reports\feb.pdf"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF Document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
+                    <li data-type="wireguard"      data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="windows_dir"    data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows Folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
                     <li data-type="signed_exe"     data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
                     <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned Website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
@@ -611,6 +612,31 @@ START REPLICA;
                   </p>
                 </div>
               </div>
+              <div class="result wireguard">
+                <h3>Your WireGuard VPN Config token is active!</h3>
+                <div class="artifacts">
+                  <p style="margin-bottom: 0px;">Scan this QR Code with the WireGuard app on your phone or copy the config below.</p>
+                  <div id="wireguard-app">
+                    <p>Don't have the WireGuard app?</p>
+                    <a href="https://apps.apple.com/us/app/wireguard/id1441195209?itsct=apps_box_badge&amp;itscg=30200" target="_blank">
+                      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1545264000&amp;h=b15fc494302fdddf3af31ab97784d31d" alt="Download on the App Store">
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.wireguard.android" target="_blank">
+                      <img class="play-img" alt="Get it on Google Play" src="/resources/google-play.png">
+                    </a>
+                  </div>
+                  <div class="form-control">
+                  <img id="wg_qrcode" />
+                   <pre id="wg_conf">
+                  </pre>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Whenever someone tries to use this WireGuard VPN config to see what access it gets them, an alert is triggered.</p>
+                  <p>This WireGuard config can be installed anywhere WireGuard is used, such as on phones, laptops and servers.<p>
+                  </p>
+                </div>
+              </div>
               <div class="result svn">
                 <h3>Your SVN token is active!</h3>
                 <div class="artifacts">
@@ -1045,6 +1071,10 @@ START REPLICA;
           $('#qrcode_png').siblings('a').prop('download', data['Token']+'.png');
           $('#qrcode_png').prop('src', data['qrcode_png']);
         }
+        var _handleWireGuardResponse = function(data) {
+          $('#wg_qrcode').prop('src', data['qr_code']);
+          $('#wg_conf').text(data['wg_conf']);
+        }
         var _handleSVNResponse = function(data){
           $('#result_svn').val('svn propset svn:externals "extras http://'+data['Hostname']+'" .')
         }
@@ -1115,6 +1145,7 @@ START REPLICA;
                                   'signed_exe': _handlerSignedExeResponse,
                                   'fast_redirect': _handleFastRedirectResponse,
                                   'slow_redirect': _handleSlowRedirectResponse,
+                                  'wireguard': _handleWireGuardResponse,
                                   'default':   _handleDefaultResponse
                                  };
 

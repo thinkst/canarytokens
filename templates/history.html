@@ -247,6 +247,40 @@
                            {{ canarydrop['triggered_list'][item][field]['aws_keys_event_user_agent']|e }}
                          </td>
                         {% endif %}
+                        {% if canarydrop['type'] ==  'wireguard' and field == 'src_data' %}
+                        <tr class="info_row">
+                        <td>
+                         Client Source Port
+                        </td>
+                        <td>
+                         {{ canarydrop['triggered_list'][item][field]['src_port'] |e }}
+                        </td>
+                       </tr>
+                       <tr class="info_row">
+                        <td>
+                         Client Handshake ID
+                        </td>
+                        <td>
+                         {{ canarydrop['triggered_list'][item][field]['session_index'] |e }}
+                        </td>
+                       </tr>
+                       <tr class="info_row">
+                        <td>
+                         Client Public Key
+                        </td>
+                        <td>
+                         {{ canarydrop['triggered_list'][item][field]['client_public_key'] |e }}
+                        </td>
+                       </tr>
+                       <tr class="info_row">
+                        <td>
+                         Server Public Key
+                        </td>
+                        <td>
+                         {{ canarydrop['triggered_list'][item][field]['server_public_key'] |e }}
+                        </td>
+                       </tr>
+                        {% endif %}
                         {% elif field == 'src_data' and field in canarydrop['triggered_list'][item] and 'generic_data' in canarydrop['triggered_list'][item][field] %}
                       <tr class="info_row">
                         <td>

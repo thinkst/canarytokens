@@ -21,6 +21,7 @@ from queries import get_all_canary_sites, get_all_canary_path_elements,\
 from tokens import Canarytoken
 from users import User, AnonymousUser
 from exception import NoUser, NoCanarytokenPresent, UnknownAttribute
+import wireguard as wg
 
 class Canarydrop(object):
     allowed_attrs = ['alert_email_enabled', 'alert_email_recipient',\
@@ -30,7 +31,8 @@ class Canarydrop(object):
              'generated_email', 'generated_hostname','timestamp', 'user',
              'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
              'web_image_enabled', 'type', 'clonedsite', 'aws_secret_access_key',\
-             'aws_access_key_id', 'redirect_url', 'region', 'output', 'slack_api_key']
+             'aws_access_key_id', 'redirect_url', 'region', 'output', 'slack_api_key',
+             'wg_key']
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
@@ -222,6 +224,14 @@ if (document.domain != "CLONED_SITE_DOMAIN" && document.domain != "www.CLONED_SI
     def get_qrcode_data_uri_png(self,):
         qrcode = pyqrcode.create(self.get_url()).png_as_base64_str(scale=5)
         return "data:image/png;base64,{qrcode}".format(qrcode=qrcode)
+
+    def get_wg_conf(self):
+        return wg.clientConfig(self._drop['wg_key'])
+
+    def get_wg_qrcode(self):
+        wg_conf = self.get_wg_conf()
+        qrcode = pyqrcode.create(wg_conf).png_as_base64_str(scale=2)
+        return "data:image/png;base64,{}".format(qrcode)
 
     @property
     def canarytoken(self):
