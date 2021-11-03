@@ -1,6 +1,4 @@
 from OpenSSL.crypto import FILETYPE_PEM, PKey, TYPE_RSA, X509, X509Extension, dump_certificate, dump_privatekey, load_certificate, load_privatekey
-from twisted.python.filepath import FilePath
-from twisted.internet.endpoints import SSL4ServerEndpoint
 from twisted.internet.ssl import PrivateCertificate, Certificate
 from twisted.internet import reactor, defer
 from twisted.internet.protocol import Factory
@@ -9,17 +7,15 @@ from twisted.protocols import basic
 from twisted.internet.error import CertificateError
 from twisted.application.internet import SSLServer
 
+from time import time
+from math import ceil
+
 from channel import InputChannel
 from constants import INPUT_CHANNEL_MTLS
 
-import settings
 import json
-import uuid
 import base64
-import yaml
 import random
-import types
-import functools
 
 from tokens import Canarytoken
 from canarydrop import Canarydrop
@@ -137,12 +133,12 @@ class mTLS(basic.LineReceiver):
             if username == 'kubernetes-apiserver' and not is_ca_generation_request:
                 san_list = ['IP:{}'.format(ip), 'DNS:kubernetes', 'DNS:kubernetes.default', 'DNS:kubernetes.default.svc', 'DNS:kubernetes.default.svc.cluster', 'DNS:kubernetes.svc.cluster.local']
                 x509.add_extensions([
-                ca_extension,
-                X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
-                X509Extension("extendedKeyUsage", True, "clientAuth"),
-                X509Extension("subjectAltName", False, ', '.join(san_list).encode()),
-                key_usage
-            ])
+                    ca_extension,
+                    X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
+                    X509Extension("extendedKeyUsage", True, "clientAuth"),
+                    X509Extension("subjectAltName", False, ', '.join(san_list).encode()),
+                    key_usage
+                ])
             else:
                 x509.add_extensions([
                     ca_extension,
@@ -230,9 +226,6 @@ class ChannelKubeConfig():
         self.service = SSLServer(port, factory, self._get_ssl_context())
 
     def add_intelligence(self, trigger, canarydrop=None, dispatcher=None):
-        from time import time
-        from math import ceil
-
         trigger['dispatch'] = False
         aggregation_key = "{}:{}".format(trigger['tf'], trigger['ip'])
 
@@ -245,12 +238,13 @@ class ChannelKubeConfig():
             hits[path] = {'count': 1, 'first_seen': offset}
             save_kc_hit_for_aggregation(aggregation_key, json.dumps(hits), update=(not hits))
         else:
-            hits[path]['count'] = hits[path]['count'] + 1
+            hits[path]['count'] += 1
             save_kc_hit_for_aggregation(aggregation_key, json.dumps(hits), update=True)
 
         hit_count = int(hits[path]['count'])
         observation_time =  offset - long(hits[path]['first_seen'])
-        request_count = "{} in the last ~{} seconds".format(hit_count, int(ceil(observation_time/1000.0))) if observation_time > 0 else str(hit_count)
+        unit_string = "seconds" if observation_time/1000.0 > 1 else "second"
+        request_count = "{} in the last ~{} {}".format(hit_count, int(ceil(observation_time/1000.0)), unit_string) if observation_time > 0 else str(hit_count)
 
         trigger_explanation = {
             'Request path': [path],
@@ -286,8 +280,6 @@ class ChannelKubeConfig():
                 additional_info=trigger['additional_info'])
 
     def _get_ssl_context(self):
-        from twisted.python.filepath import FilePath
-        from twisted.internet.ssl import PrivateCertificate, Certificate
 
         client_ca = get_certificate(self.client_ca_cert_path)
         if not client_ca:

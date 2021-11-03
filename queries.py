@@ -12,7 +12,7 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
      KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
      KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES, KEY_WEBHOOK_IDX, KEY_EMAIL_IDX, \
-     KEY_WIREGUARD_KEYMAP
+     KEY_WIREGUARD_KEYMAP, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_HITS
 
 from twisted.logger import Logger
 log = Logger()
@@ -564,14 +564,14 @@ def update_tor_exit_nodes_loop():
     d.addCallback(update_tor_exit_nodes)
 
 def get_certificate(key, _type=None):
-    certificate = db.hgetall("certificate:{}".format(key))
+    certificate = db.hgetall("{}{}".format(KEY_KUBECONFIG_CERTS, key))
     if certificate is not None and _type is not None:
         return certificate.get(_type, None)
 
     return certificate
 
 def save_certificate(key, cert_obj):
-    db.hmset("certificate:{}".format(key), cert_obj)
+    db.hmset("{}{}".format(KEY_KUBECONFIG_CERTS, key), cert_obj)
 
 def save_kc_endpoint(endpoint):
     db.set("kubeconfig_server_endpoint", endpoint)
@@ -580,7 +580,7 @@ def get_kc_endpoint():
     return db.get("kubeconfig_server_endpoint")
 
 def save_kc_hit_for_aggregation(key, hits, update=False):
-    hit_key = "kchit:{}".format(key)
+    hit_key = "{}{}".format(KEY_KUBECONFIG_HITS, key)
     db.hset(hit_key, 'hits', hits)
 
     if not update:
@@ -588,7 +588,7 @@ def save_kc_hit_for_aggregation(key, hits, update=False):
         db.expire(hit_key, 5*32)
 
 def get_kc_hits(key):
-    return (db.hgetall("kchit:{}".format(key)), db.pttl("kchit:{}".format(key)))
+    return (db.hgetall("{}{}".format(KEY_KUBECONFIG_HITS, key)), db.pttl("{}{}".format(KEY_KUBECONFIG_HITS, key)))
 
 def wireguard_keymap_add(public_key, canarytoken):
     db.hset(KEY_WIREGUARD_KEYMAP, public_key, canarytoken)

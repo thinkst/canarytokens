@@ -1,6 +1,4 @@
-from twisted.internet import ssl
-
-from channel_input_mtls import mTLS, mTLSFactory
+from channel_input_mtls import mTLS
 from queries import get_certificate, get_kc_endpoint
 from collections import OrderedDict
 from twisted.logger import Logger
@@ -91,7 +89,6 @@ class KubeConfig():
             return (client_auth["f"].replace(":","")[:25].lower(), base64.b64encode(yaml.dump(kc, None, default_flow_style=False, sort_keys=False)))
         except Exception as e:
             log.error(u"%s" % e)
-            print e
             return None
 
 def get_kubeconfig():
