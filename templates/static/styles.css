@@ -29,16 +29,17 @@
       }
 
       .jumbotron {
-        padding: 2rem 1rem;
+        padding: 0;
         position: relative;
       }
       .create {
         z-index: 1;
         position: relative;
+        padding: 2rem 1rem;
       }
       .create-hidden {
         transition:opacity 0.5s ease;
-        opacity: 0.0;
+        display: none;
       }
 
       .history-header {
@@ -100,11 +101,7 @@
       }
 
       .success {
-        position: absolute;
-        top: 0px;
-        left: 0px;
         width: 100%;
-        opacity: 0.0;
         z-index: 0;
         transition:opacity 0.5s ease;
         background-color: aliceblue;
@@ -112,11 +109,12 @@
         padding-top: 1rem;
         padding-bottom: 2rem;
         border-radius: .3rem;
+        display: none;
       }
 
       .success-visible {
         z-index: 2;
-        opacity: 1.0;
+        display: block;
       }
 
       .results {
