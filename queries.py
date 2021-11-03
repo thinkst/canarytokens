@@ -589,6 +589,7 @@ def save_kc_hit_for_aggregation(key, hits, update=False):
 
 def get_kc_hits(key):
     return (db.hgetall("kchit:{}".format(key)), db.pttl("kchit:{}".format(key)))
+
 def wireguard_keymap_add(public_key, canarytoken):
     db.hset(KEY_WIREGUARD_KEYMAP, public_key, canarytoken)
 
