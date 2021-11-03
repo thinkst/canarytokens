@@ -31,6 +31,7 @@ from ziplib import make_canary_zip
 from msword import make_canary_msword
 from pdfgen import make_canary_pdf
 from msexcel import make_canary_msexcel
+from kubeconfig import get_kubeconfig
 from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
 import settings
@@ -94,7 +95,8 @@ class GeneratorPage(resource.Resource):
                                       'aws_keys',
                                       'signed_exe',
                                       'fast_redirect',
-                                      'slow_redirect']:
+                                      'slow_redirect',
+                                      'kubeconfig']:
                     raise Exception()
             except:
                 raise Exception('Unknown type')
@@ -123,8 +125,15 @@ class GeneratorPage(resource.Resource):
 
             alert_email_enabled = False if not email else True
             alert_webhook_enabled = False if not webhook else True
-            canarytoken = Canarytoken()
 
+            if token_type != 'kubeconfig':
+                canarytoken = Canarytoken()
+            else:
+                kubeconfig = get_kubeconfig()
+                if kubeconfig is not None:
+                    canarytoken = Canarytoken(value=kubeconfig[0])
+                else:
+                    raise Exception('Kubeconfig was not generated.')
 
             if token_type == "web":
                 #always enable the browser scanner by default
@@ -154,12 +163,14 @@ class GeneratorPage(resource.Resource):
 
             save_canarydrop(canarydrop)
 
+            if token_type != "kubeconfig":
+                response['Url'] = canarydrop.get_url()
+                response['Hostname'] = canarydrop.get_hostname()
+                response['Url_components'] = list(canarydrop.get_url_components())
+
             response['Token'] = canarytoken.value()
-            response['Url'] = canarydrop.get_url()
-            response['Hostname'] = canarydrop.get_hostname()
             response['Auth'] = canarydrop['auth']
             response['Email'] = email
-            response['Url_components'] = list(canarydrop.get_url_components())
             save_canarydrop(canarydrop)
 
 
@@ -201,6 +212,20 @@ class GeneratorPage(resource.Resource):
                 canarydrop['aws_secret_access_key'] = keys[1]
                 canarydrop['region'] = keys[2]
                 canarydrop['output'] = keys[3]
+                save_canarydrop(canarydrop)
+            except:
+                pass
+
+            try:
+                if not request.args.get('type', None)[0] == 'kubeconfig':
+                    raise Exception()
+                if kubeconfig is None:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to retrieve the kubeconfig. Please contact support@thinkst.com.'
+                    raise Exception()
+                response['kubeconfig'] = kubeconfig[1]
+                canarydrop['kubeconfig'] = kubeconfig[1]
+                canarydrop['generate'] = False
                 save_canarydrop(canarydrop)
             except:
                 pass
@@ -379,6 +404,11 @@ class DownloadPage(resource.Resource):
                 text="[default]\naws_access_key={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
                 return text
+            elif fmt == 'kubeconfig':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename=kubeconfig')
+                return base64.b64decode(canarydrop['kubeconfig']).encode('utf-8')
             elif fmt == 'slackapi':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",

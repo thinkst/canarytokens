@@ -563,6 +563,32 @@ def update_tor_exit_nodes_loop():
     d = getPage('https://check.torproject.org/exit-addresses')
     d.addCallback(update_tor_exit_nodes)
 
+def get_certificate(key, _type=None):
+    certificate = db.hgetall("certificate:{}".format(key))
+    if certificate is not None and _type is not None:
+        return certificate.get(_type, None)
+
+    return certificate
+
+def save_certificate(key, cert_obj):
+    db.hmset("certificate:{}".format(key), cert_obj)
+
+def save_kc_endpoint(endpoint):
+    db.set("kubeconfig_server_endpoint", endpoint)
+
+def get_kc_endpoint():
+    return db.get("kubeconfig_server_endpoint")
+
+def save_kc_hit_for_aggregation(key, hits, update=False):
+    hit_key = "kchit:{}".format(key)
+    db.hset(hit_key, 'hits', hits)
+
+    if not update:
+        # typical timeout sent with each kubectl caching discovery request is 32s, and 5 requests are sent as part of each kubectl execution
+        db.expire(hit_key, 5*32)
+
+def get_kc_hits(key):
+    return (db.hgetall("kchit:{}".format(key)), db.pttl("kchit:{}".format(key)))
 def wireguard_keymap_add(public_key, canarytoken):
     db.hset(KEY_WIREGUARD_KEYMAP, public_key, canarytoken)
 

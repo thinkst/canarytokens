@@ -9,6 +9,7 @@ httplib2==0.9.1
 lxml==3.4.4
 mandrill==1.0.57
 pytz==2015.4
+PyYAML==5.4.1
 redis==2.10.3
 requests==2.20.0
 simplejson==3.16.0
