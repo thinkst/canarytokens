@@ -60,7 +60,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=4">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=5">
     <style>
     .ps__rail-x,
     .ps__rail-y {
@@ -121,6 +121,7 @@
                     <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR Code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
                     <li data-type="aws_keys"       data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
+                    <li data-type="kubeconfig"     data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig Token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="fast_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast Redirect</span><div class="explanation">Alert when a URL is visited, User is redirected</div></a></li>
                     <li data-type="slow_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow Redirect</span><div class="explanation">Alert when a URL is visited, User is redirected (Moar info is grabbed!)</div></a></li>
                   </ul>
@@ -681,6 +682,23 @@ START REPLICA;
                   </p>
                 </div>
               </div>
+              <div class="result kubeconfig">
+                <h3>Your Kubeconfig Token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="kubeconfig">Download your tokened Kubeconfig file</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>You'll get an alert when someone tries to use your Kubeconfig.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Place the file at ~/.kube/config on a host, tempting an attacker to use it.</li>
+                      <li>Place the file in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
             </div>
             <div class="col-md-1">
             </div>
@@ -692,7 +710,7 @@ START REPLICA;
       <footer class="footer">
         <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>
         <p>&copy; <a href="https://canary.tools/" target="_blank">Thinkst Canary</a> 2015&ndash;{{now.year}}</p>
-        <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Applied Research.</p>
+        <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
       </footer>
 
     </div> <!-- /container -->
@@ -1045,6 +1063,13 @@ START REPLICA;
           });
         }
 
+        var _handleKubeconfigResponse = function(data) {
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+          });
+        }
+
         var _handleWebImageRequest = function(form) {
           return new FormData(form[0]);
           var inputs = form.find('input').filter(function(i, e) {return (e.name && e.value && e.value != "") || false});
@@ -1145,6 +1170,7 @@ START REPLICA;
                                   'signed_exe': _handlerSignedExeResponse,
                                   'fast_redirect': _handleFastRedirectResponse,
                                   'slow_redirect': _handleSlowRedirectResponse,
+                                  'kubeconfig': _handleKubeconfigResponse,
                                   'wireguard': _handleWireGuardResponse,
                                   'default':   _handleDefaultResponse
                                  };

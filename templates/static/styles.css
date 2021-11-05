@@ -543,6 +543,9 @@
       a.icon-redirect:before {
         background-image: url("/resources/redirect.png");
       }
+      a.icon-kubernetes:before {
+        background-image: url("/resources/kubernetes_icon.png");
+      }
 
       @media (max-width: 768px) {
         input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder {

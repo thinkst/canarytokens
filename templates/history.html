@@ -192,27 +192,27 @@
               </table>
             {%endif%}
 
-                {% for field in canarydrop['triggered_list'][item] %}
-                  {% if canarydrop['triggered_list'][item][field] != None and
+            <table class="table table-bordered table-hover">
+              <col width="25%">
+              <col width="75%">
+              <tr class="header_row">
+                <td colspan="2">
+                  Basic Info
+                  </td>
+                  </tr>
+                  <tr class="info_row">
+                    <td>
+                      Memo
+                      </td>
+                      <td>
+                        {{ canarydrop['memo']|e }}
+                        </td>
+                        </tr>
+                      {% for field in canarydrop['triggered_list'][item] %}
+                        {% if canarydrop['triggered_list'][item][field] != None and
                         canarydrop['triggered_list'][item][field] is defined and
                         field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
-                    {% if field not in ['src_ip','input_channel'] %}
-                    <table class="table table-bordered table-hover">
-                      <col width="25%">
-                      <col width="75%">
-                      <tr class="header_row">
-                         <td colspan="2">
-                           Basic Info
-                         </td>
-                      </tr>
-                      <tr class="info_row">
-                          <td>
-                           Memo
-                         </td>
-                         <td>
-                           {{ canarydrop['memo']|e }}
-                         </td>
-                      </tr>
+                          {% if field not in ['src_ip','input_channel'] %}
                       <tr class="info_row">
                         {% if field == 'src_data' and 'aws_keys_event_source_ip' in canarydrop['triggered_list'][item][field] %}
                           <td>
@@ -300,10 +300,10 @@
                          </td>
                          {% endif %}
                       </tr>
-                    </table>
+                      {%endif%}
                     {%endif%}
-                  {%endif%}
-                {% endfor %}
+                  {% endfor %}
+                    </table>
                 {% if canarydrop['triggered_list'][item]['additional_info'] %}
                   <table class="table table-bordered table-hover">
                                 <b>Additional Info</b>
@@ -359,7 +359,7 @@
       <footer class="footer">
         <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>
         <p>&copy; Thinkst Canary 2015&ndash;{{now.year}}</p>
-        <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Applied Research.</p>
+        <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
       </footer>
 
     </div> <!-- /container -->
