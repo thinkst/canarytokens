@@ -221,7 +221,7 @@ class ChannelKubeConfig():
         self.server_cert_path = "kubeconfig_server"
         self.port = port
         self.ip = ip
-        self.channel_name = 'Kubeconfig Token'
+        self.channel_name = 'Kubeconfig'
 
         server_endpoint = "%s:%s" % (ip, port)
         save_kc_endpoint(server_endpoint)
