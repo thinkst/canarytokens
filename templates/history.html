@@ -432,7 +432,7 @@
 
             var content = '';
             for(info in geo_info[x]){
-              if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname'){
+              if(geo_info[x][info]==undefined || info == 'org' || info == 'postal' || info=='hostname' || info == 'asn'){
                 continue;
               }
               if(info=='ip'){
