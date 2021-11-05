@@ -105,7 +105,6 @@ class mTLS(basic.LineReceiver):
         try:
             if not is_ca_generation_request:
                 ca = get_certificate(ca_cert_path)
-
                 if not ca:
                     log.warn("CA with key {} not found in redis".format(ca_cert_path))
                     return None
@@ -113,55 +112,69 @@ class mTLS(basic.LineReceiver):
                 ca_key = load_privatekey(FILETYPE_PEM, base64.b64decode(ca.get('k').encode('ascii')))
                 cert_authority = load_certificate(FILETYPE_PEM, base64.b64decode(ca.get('c').encode('ascii')))
 
-            client_key = PKey()
-            client_key.generate_key(TYPE_RSA, 4096)
+                client_key = PKey()
+                client_key.generate_key(TYPE_RSA, 4096)
 
-            x509 = X509()
-            x509.set_version(2)
-            x509.set_serial_number(random.randint(0,100000000))
+                x509 = X509()
+                x509.set_version(2)
+                x509.set_serial_number(random.randint(0,100000000))
 
-            client_subj = x509.get_subject()
-            client_subj.commonName = username
+                client_subj = x509.get_subject()
+                client_subj.commonName = username
 
-            if is_ca_generation_request:
-                ca_extension = X509Extension("basicConstraints", True, "CA:TRUE, pathlen:0")
-                key_usage = X509Extension("keyUsage", False, "cRLSign,digitalSignature,keyCertSign")
-            else:
                 ca_extension = X509Extension("basicConstraints", False, "CA:FALSE")
                 key_usage = X509Extension("keyUsage", True, "digitalSignature")
 
-            if username == 'kubernetes-apiserver' and not is_ca_generation_request:
-                san_list = ['IP:{}'.format(ip), 'DNS:kubernetes', 'DNS:kubernetes.default', 'DNS:kubernetes.default.svc', 'DNS:kubernetes.default.svc.cluster', 'DNS:kubernetes.svc.cluster.local']
-                x509.add_extensions([
-                    ca_extension,
-                    X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
-                    X509Extension("extendedKeyUsage", True, "clientAuth"),
-                    X509Extension("subjectAltName", False, ', '.join(san_list).encode()),
-                    key_usage
-                ])
-            else:
-                x509.add_extensions([
-                    ca_extension,
-                    X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
-                    X509Extension("extendedKeyUsage", True, "clientAuth"),
-                    key_usage
-                ])
+                if username == 'kubernetes-apiserver':
+                    san_list = ['IP:{}'.format(ip), 'DNS:kubernetes', 'DNS:kubernetes.default', 'DNS:kubernetes.default.svc', 'DNS:kubernetes.default.svc.cluster', 'DNS:kubernetes.svc.cluster.local']
+                    x509.add_extensions([
+                        ca_extension,
+                        X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
+                        X509Extension("extendedKeyUsage", True, "clientAuth"),
+                        X509Extension("subjectAltName", False, ', '.join(san_list).encode()),
+                        key_usage
+                    ])
+                else:
+                    x509.add_extensions([
+                        ca_extension,
+                        X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
+                        X509Extension("extendedKeyUsage", True, "clientAuth"),
+                        key_usage
+                    ])
 
-            if is_ca_generation_request:
-                x509.set_issuer(client_subj)
-            else:
                 x509.set_issuer(cert_authority.get_subject())
-
-            x509.set_pubkey(client_key)
-
-            x509.gmtime_adj_notBefore(0)
-            # default certificate validity is 1 year
-            x509.gmtime_adj_notAfter(1*365*24*60*60)
-
-            if is_ca_generation_request:
-                x509.sign(client_key, 'sha256')
-            else:
+                x509.set_pubkey(client_key)
+                x509.gmtime_adj_notBefore(0)
+                # default certificate validity is 1 year
+                x509.gmtime_adj_notAfter(1*365*24*60*60 - 1)
                 x509.sign(ca_key, 'sha256')
+            else:
+                client_key = PKey()
+                client_key.generate_key(TYPE_RSA, 4096)
+
+                x509 = X509()
+                x509.set_version(2)
+                x509.set_serial_number(random.randint(0,100000000))
+
+                client_subj = x509.get_subject()
+                client_subj.commonName = username
+
+                ca_extension = X509Extension("basicConstraints", True, "CA:TRUE, pathlen:0")
+                key_usage = X509Extension("keyUsage", False, "cRLSign,digitalSignature,keyCertSign")
+
+                x509.add_extensions([
+                    ca_extension,
+                    X509Extension("subjectKeyIdentifier", False, "hash", subject=x509),
+                    X509Extension("extendedKeyUsage", True, "clientAuth"),
+                    key_usage
+                ])
+
+                x509.set_issuer(client_subj)
+                x509.set_pubkey(client_key)
+                x509.gmtime_adj_notBefore(0)
+                # default certificate validity is 1 year
+                x509.gmtime_adj_notAfter(1*365*24*60*60 - 1)
+                x509.sign(client_key, 'sha256')
 
             b64_cert = base64.b64encode(dump_certificate(FILETYPE_PEM, x509).encode('ascii')).decode('ascii')
             b64_key = base64.b64encode(dump_privatekey(FILETYPE_PEM, client_key).encode('ascii')).decode('ascii')

@@ -13,7 +13,7 @@ UnauthorizedResponseBody = {"kind":"Status","apiVersion":"v1","metadata":{},"sta
 BadRequestResponseBody = {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"Bad Request","reason":"Bad Request","code":400}
 ForbiddenResponseBody = {"kind": "Status","apiVersion": "v1","metadata":{},"status": "Failure","message":"forbidden: User \"system:anonymous\" cannot get path \"{}\"","reason": "Forbidden","details": {},"code": 403}
 
-ClientCA = "kubeconfig_client"
+ClientCA = "kubeconfig_client_ca"
 
 log = Logger()
 
