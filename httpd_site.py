@@ -96,7 +96,8 @@ class GeneratorPage(resource.Resource):
                                       'signed_exe',
                                       'fast_redirect',
                                       'slow_redirect',
-                                      'kubeconfig']:
+                                      'kubeconfig',
+                                      'log4shell']:
                     raise Exception()
             except:
                 raise Exception('Unknown type')

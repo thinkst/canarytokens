@@ -124,6 +124,7 @@
                     <li data-type="kubeconfig"     data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig Token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="fast_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast Redirect</span><div class="explanation">Alert when a URL is visited, User is redirected</div></a></li>
                     <li data-type="slow_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow Redirect</span><div class="explanation">Alert when a URL is visited, User is redirected (Moar info is grabbed!)</div></a></li>
+                    <li data-type="log4shell"      data-memo-placeholder="Placewhere log line is inserted"><a href="#" class="icon icon-log4shell"><span class="title">Log4Shell</span><div class="explanation">Alert when a log4j log line is vulnerable to CVE-2021-44228</div></a></li>
                   </ul>
                 </div>
               </div>
@@ -699,6 +700,18 @@ START REPLICA;
                   </p>
                 </div>
               </div>
+              <div class="result log4shell">
+                <h3>Your log4shell token is active!</h3>
+                <div class="artifacts">
+                  <p>The next step is to copy the log4j snippet below and test your systems for the log4shell issue.</p>
+                  {{ inputcopy('result_log4shell') }}
+                </div>
+                <div class="advice">
+                  <p>If the log line is consumed by a vulnerable log4j library, it will generate a an alert on this token.</p>
+                  <p>If this does trigger a Canarytoken alert, we recommend repeating the test but using only a plain DNS token. This will confirm the application isn't simply resolving every hostname, but is actually related to log4j.</p>
+                  <p>You can read more on this issue at <a href="https://www.lunasec.io/docs/blog/log4j-zero-day/">LunaSec</a></p>
+                </div>
+              </div>
             </div>
             <div class="col-md-1">
             </div>
@@ -1142,6 +1155,9 @@ START REPLICA;
           $('#signed_exe').prop('download', data['file_name']);
           $('#signed_exe').text('Save ' + data['file_name']);
         }
+        var _handlerLog4ShellResponse = function(data) {
+          $('#result_log4shell').val('${jndi:ldap://'+data['Hostname']+'/a}');
+        }
         var _handleDefaultRequest = function(form) {
           return new FormData(form[0]);
         }
@@ -1172,6 +1188,7 @@ START REPLICA;
                                   'slow_redirect': _handleSlowRedirectResponse,
                                   'kubeconfig': _handleKubeconfigResponse,
                                   'wireguard': _handleWireGuardResponse,
+                                  'log4shell': _handlerLog4ShellResponse,
                                   'default':   _handleDefaultResponse
                                  };
 
