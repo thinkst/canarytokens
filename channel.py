@@ -108,7 +108,7 @@ class InputChannel(Channel):
         if 'src_data' in kwargs and 'aws_keys_event_user_agent' in kwargs['src_data']:
             msg['useragent'] = kwargs['src_data']['aws_keys_event_user_agent']
         
-        if 'src_ip' in kwargs and 'log4_shell_computer_name' in kwargs['src_data']:
+        if 'src_data' in kwargs and 'log4_shell_computer_name' in kwargs['src_data']:
             msg['log4_shell_computer_name'] = kwargs['src_data']['log4_shell_computer_name']
 
         if params.get('body_length', 999999999) <= 140:
