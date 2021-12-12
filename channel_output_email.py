@@ -93,6 +93,9 @@ class EmailOutputChannel(OutputChannel):
             except Exception:
                 vars['Location'] = self.data['location']
 
+        if 'log4_shell_computer_name' in self.data:
+            vars['Log4JComputerName'] = self.data['log4_shell_computer_name']
+
         return vars
 
     def do_send_alert(self, input_channel=None, canarydrop=None, **kwargs):
