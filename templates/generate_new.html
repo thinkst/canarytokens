@@ -707,7 +707,7 @@ START REPLICA;
                   {{ inputcopy('result_log4shell') }}
                 </div>
                 <div class="advice">
-                  <p>If the log line is consumed by a vulnerable log4j library, it will generate a an alert on this token.</p>
+                  <p>If the log line is consumed by a vulnerable log4j library, it will generate an alert on this token.</p>
                   <p>If this does trigger a Canarytoken alert, we recommend repeating the test but using only a plain DNS token. This will confirm the application isn't simply resolving every hostname, but is actually related to log4j.</p>
                   <p>You can read more on this issue at <a href="https://www.lunasec.io/docs/blog/log4j-zero-day/">LunaSec</a></p>
                 </div>
@@ -1156,7 +1156,7 @@ START REPLICA;
           $('#signed_exe').text('Save ' + data['file_name']);
         }
         var _handlerLog4ShellResponse = function(data) {
-          $('#result_log4shell').val('${jndi:ldap://'+data['Hostname']+'/a}');
+          $('#result_log4shell').val('${jndi:ldap://${env:COMPUTERNAME}.L4J.'+data['Hostname']+'/a}');
         }
         var _handleDefaultRequest = function(form) {
           return new FormData(form[0]);

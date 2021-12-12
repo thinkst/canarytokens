@@ -211,6 +211,11 @@ class ChannelDNS(InputChannel):
         data['windows_desktopini_access_domain'] = domain
         return data
 
+    def _log4_shell(self, computer_name=None):
+        data = {}
+        data['log4_shell_computer_name'] = computer_name
+        return data
+
     def look_for_source_data(self, token=None, value=None):
         try:
             value = value.lower()
@@ -222,6 +227,7 @@ class ChannelDNS(InputChannel):
             dtrace_process       = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.', re.IGNORECASE)
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
             desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.', re.IGNORECASE)
+            log4_shell           = re.compile('([A-Za-z0-9.-]*)\.L4J\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
@@ -253,6 +259,10 @@ class ChannelDNS(InputChannel):
             m = dtrace_file_open.match(value)
             if m:
                 return self._dtrace_file_open(uid=m.group(2), hostname=m.group(3), filename=m.group(4))
+
+            m = log4_shell.match(value)
+            if m:
+                return self._log4_shell(computer_name=m.group(1))
 
         except Exception as e:
             log.error(e)
@@ -366,6 +376,10 @@ class ChannelDNS(InputChannel):
             if 'aws_keys_event_source_ip' in kwargs['src_data']:
                 additional_report += '\nAWS Keys used by: {ip}'\
                     .format(ip=kwargs['src_data']['aws_keys_event_source_ip'])
+
+            if 'log4_shell_computer_name' in kwargs['src_data']:
+                additional_report += '\nComputer name from Log4J shell: {computer_name}'\
+                    .format(computer_name=kwargs['src_data']['log4_shell_computer_name'])
 
         return additional_report
 
