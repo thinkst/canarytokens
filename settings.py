@@ -36,25 +36,26 @@ TOKEN_RETURN="gif" #could be gif, fortune
 MAX_UPLOAD_SIZE=1024 * 1024 * 1
 WEB_IMAGE_UPLOAD_PATH='/uploads'
 
-CANARY_AWSID_URL = "https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens"
-
 for envvar in ['SMTP_PORT', 'SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_SERVER', 'AWSID_URL',
                'MAILGUN_DOMAIN_NAME', 'MAILGUN_API_KEY','MAILGUN_BASE_URL','MANDRILL_API_KEY','SENDGRID_API_KEY',
                'PUBLIC_IP','PUBLIC_DOMAIN','ALERT_EMAIL_FROM_ADDRESS','ALERT_EMAIL_FROM_DISPLAY',
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS', 'TOKEN_RETURN', 'MAX_UPLOAD_SIZE',
                'WEB_IMAGE_UPLOAD_PATH', 'DEBUG', 'IPINFO_API_KEY', 'SWITCHBOARD_LOG_COUNT',
                'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT', 'FRONTEND_LOG_SIZE', 'MAX_HISTORY',
-               'MAX_ALERTS_PER_MINUTE', 'WG_PRIVATE_KEY_SEED', 'WG_PRIVATE_KEY_N']:
+               'MAX_ALERTS_PER_MINUTE', 'WG_PRIVATE_KEY_SEED', 'WG_PRIVATE_KEY_N', 'AWSID_URL']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
         if not hasattr(settingsmodule, envvar):
             setattr(settingsmodule, envvar, '')
 
+if getattr(settingsmodule, 'AWSID_URL') == '':
+    setattr(settingsmodule, 'AWSID_URL', "https://1luncdvp6l.execute-api.us-east-2.amazonaws.com/prod/CreateUserAPITokens")
+
 if type(DEBUG) == str:
     DEBUG = (DEBUG == "True")
 
-for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY']:
+for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY', 'AWSID_URL']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar].split(','))
     except KeyError:

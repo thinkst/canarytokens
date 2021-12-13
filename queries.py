@@ -192,7 +192,7 @@ def get_aws_keys(token=None, server=None):
             log.error('Length of the Server Name and token is too long. Will not work on AWS')
             return False
 
-        url = str(settings.CANARY_AWSID_URL)
+        url = str(settings.AWSID_URL)
 
         resp = requests.get('{url}?data={d}'.format(url=url,d=data))
         if not resp:
