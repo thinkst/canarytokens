@@ -55,7 +55,7 @@ if getattr(settingsmodule, 'AWSID_URL') == '':
 if type(DEBUG) == str:
     DEBUG = (DEBUG == "True")
 
-for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY', 'AWSID_URL']:
+for envvar in ['DOMAINS', 'NXDOMAINS','GOOGLE_API_KEY']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar].split(','))
     except KeyError:
