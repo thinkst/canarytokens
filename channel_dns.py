@@ -213,7 +213,7 @@ class ChannelDNS(InputChannel):
 
     def _log4_shell(self, computer_name=None):
         data = {}
-        if len(computer_name) <= 1:
+        if len(computer_name) <= 1 or computer_name[0] != 'x':
             computer_name = 'Not Obtained'
         else:
             computer_name = computer_name[1:]
