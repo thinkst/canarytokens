@@ -53,6 +53,7 @@ jobs:
           images: |
             thinkst/canarytokens
           tags: |
+            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
             type=schedule
             type=ref,event=branch
             type=ref,event=pr
