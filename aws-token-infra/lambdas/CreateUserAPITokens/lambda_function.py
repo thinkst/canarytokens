@@ -86,5 +86,3 @@ def lambda_handler(event, context):
     else:
         print('No query string found. Please use ?data=<encoded_data>.')
         return respond(ValueError('No query string found. Please use ?data=<encoded_data>.'))
-
-

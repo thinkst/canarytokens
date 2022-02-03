@@ -46,12 +46,18 @@ resource "aws_iam_role" "create_user_api_tokens" {
 EOF
 }
 
+data "archive_file" "create_user_api_tokens_lambda" {
+    type        = "zip"
+    source_file  = "./lambdas/${var.create_user_api_tokens_name}/lambda_function.py"
+    output_path = "./lambdas/${var.create_user_api_tokens_name}/lambda_function_payload.zip"
+}
+
 resource "aws_lambda_function" "create_user_api_tokens" {
   filename      = "./lambdas/${var.create_user_api_tokens_name}/lambda_function_payload.zip"
   function_name = var.create_user_api_tokens_name
   role          = aws_iam_role.create_user_api_tokens.arn
   handler       = "lambda_function.lambda_handler"
-  source_code_hash = filebase64sha256("./lambdas/${var.create_user_api_tokens_name}/lambda_function_payload.zip")
+  source_code_hash = "${data.archive_file.create_user_api_tokens_lambda.output_base64sha256}"
   timeout       = 60
 
   runtime = "python3.9"
@@ -260,12 +266,18 @@ resource "aws_iam_role" "process_user_api_tokens_logs" {
 EOF
 }
 
+data "archive_file" "process_user_api_tokens_logs_lambda" {
+    type        = "zip"
+    source_file  = "./lambdas/${var.process_user_api_tokens_logs}/lambda_function.py"
+    output_path = "./lambdas/${var.process_user_api_tokens_logs}/lambda_function_payload.zip"
+}
+
 resource "aws_lambda_function" "process_user_api_tokens_logs" {
   filename      = "./lambdas/${var.process_user_api_tokens_logs}/lambda_function_payload.zip"
   function_name = var.process_user_api_tokens_logs
   role          = aws_iam_role.process_user_api_tokens_logs.arn
   handler       = "lambda_function.lambda_handler"
-  source_code_hash = filebase64sha256("./lambdas/${var.process_user_api_tokens_logs}/lambda_function_payload.zip")
+  source_code_hash = "${data.archive_file.process_user_api_tokens_logs_lambda.output_base64sha256}"
   timeout       = 60
 
   runtime = "python3.9"
@@ -305,14 +317,14 @@ resource "aws_iam_policy" "process_user_api_tokens_logs_lambda_logs" {
       ],
       "Resource": "*"
     },
-    {
-      "Effect": "Allow",
-      "Action": [
-          "dynamodb:PutItem",
-          "dynamodb:GetItem"
-      ],
-      "Resource": "arn:aws:dynamodb:us-east-2:${data.aws_caller_identity.current.account_id}:table/${aws_dynamodb_table.awsidtoken_table.name}"
-    },
+      {
+        "Effect": "Allow",
+        "Action": [
+            "dynamodb:PutItem",
+            "dynamodb:GetItem"
+        ],
+        "Resource": "arn:aws:dynamodb:us-east-2:${data.aws_caller_identity.current.account_id}:table/${aws_dynamodb_table.awsidtoken_table.name}"
+      },
     {
         "Effect": "Allow",
         "Action": "logs:CreateLogGroup",
@@ -450,12 +462,18 @@ resource "aws_iam_role" "api_tokens_safety_net" {
 EOF
 }
 
+data "archive_file" "api_tokens_safety_net_lambda" {
+    type        = "zip"
+    source_file  = "./lambdas/${var.api_tokens_safety_net_name}/lambda_function.py"
+    output_path = "./lambdas/${var.api_tokens_safety_net_name}/lambda_function_payload.zip"
+}
+
 resource "aws_lambda_function" "api_tokens_safety_net" {
   filename      = "./lambdas/${var.api_tokens_safety_net_name}/lambda_function_payload.zip"
   function_name = var.api_tokens_safety_net_name
   role          = aws_iam_role.api_tokens_safety_net.arn
   handler       = "lambda_function.lambda_handler"
-  source_code_hash = filebase64sha256("./lambdas/${var.api_tokens_safety_net_name}/lambda_function_payload.zip")
+  source_code_hash = "${data.archive_file.api_tokens_safety_net_lambda.output_base64sha256}"
   timeout       = 600
 
   runtime = "python3.9"

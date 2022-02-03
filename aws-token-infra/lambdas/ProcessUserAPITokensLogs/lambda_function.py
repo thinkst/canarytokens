@@ -1,5 +1,3 @@
-
-
 import os
 import gzip
 import json
@@ -36,6 +34,7 @@ def lambda_handler(event, context):
             agent = ""
             if 'userAgent' in msg:
                 agent = msg['userAgent']
+
             ip = msg['sourceIPAddress']
 
             encoded_info = id_record['userName'].split('@@')
@@ -45,6 +44,9 @@ def lambda_handler(event, context):
 
             url = "http://{}/{}".format(server, token)
             data = {"ip": ip, "user_agent": agent}
+            if 'eventName' in msg:
+                data['eventName'] = msg['eventName']
+
             data = urllib.parse.urlencode(data).encode("utf8")
 
             req = urllib.request.Request(url, data)
