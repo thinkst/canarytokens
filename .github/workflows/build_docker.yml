@@ -1,0 +1,70 @@
+name: "Build Docker Image"
+
+on:
+  push:
+    branches:
+      - "master"
+      - "dev"
+
+  workflow_dispatch:
+    inputs:
+      canarytokens-docker-branch:
+        description: "Branch of the canarytokens-docker repo to pull for build. Defaults to master"
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      COPYFILE_DISABLE: 1
+
+    steps:
+      # Checkout canarytokens-docker repo. This lands in ./canarytokens-docker
+      - name: Set canarytokens-docker-branch
+        run: |
+          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "master"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
+          echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> $GITHUB_ENV
+
+      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        with:
+          repository: thinkst/canarytokens-docker
+          path: .
+          ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Fixup the build branch
+        run: |
+          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
+          echo "Building for ${GITHUB_REF##*/}"
+          cat /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            thinkst/canarytokens
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: /home/runner/work/canarytokens/canarytokens/canarytokens
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
