@@ -233,24 +233,6 @@
                   AWS API Key
                 </td>
               </tr>
-          {% if 'AWS Key Log Data' in canarydrop['triggered_list'][item]['additional_info'] and  canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data'].get('safety_net', None) %}
-              <tr class="info_row">
-                <td>
-                  Evasion Attempted {{ whatsthis('https://help.canary.tools/hc/en-gb/articles/4415516925585-AWS-API-Key-Canarytoken-safety-net-triggered')}}
-                </td>
-                <td>
-                  Yes 
-                </td>
-              </tr>
-              <tr class="info_row">
-                <td>
-                  Key Last Used
-                </td>
-                <td>
-                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data'].get('last_used', None)|e }} 
-                </td>
-              </tr>
-          {% endif %}
           {% if 'useragent' in canarydrop['triggered_list'][item][field] %}
               <tr class="info_row">
                 <td>
@@ -342,9 +324,27 @@
                             </td>
                           </tr>
       {% elif info == 'AWS Key Log Data'%}
-        {% continue %}
+        {% if canarydrop['triggered_list'][item]['additional_info'][info].get('safety_net', None) %}
+              <tr class="info_row">
+                <td>
+                  Evasion Attempted {{ whatsthis('https://help.canary.tools/hc/en-gb/articles/4415516925585-AWS-API-Key-Canarytoken-safety-net-triggered')}}
+                </td>
+                <td>
+                  Yes 
+                </td>
+              </tr>
+              <tr class="info_row">
+                <td>
+                  Key Last Used
+                </td>
+                <td>
+                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data'].get('last_used', None)|e }} 
+                </td>
+              </tr>
+          {% continue %}
+        {% endif %}
       {%endif%}
-      {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
+      {% elif canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
                         {% continue %}
       {% endif %}
       {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
