@@ -665,3 +665,11 @@
       #wireguard-app img {
         height: 40px;
       }
+
+      a:focus.what-is-this, a:hover.what-is-this {
+        text-decoration: none;
+      }
+
+      a.what-is-this svg {
+        width: 19px;
+      }
