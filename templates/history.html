@@ -327,7 +327,7 @@
         {% if canarydrop['triggered_list'][item]['additional_info'][info].get('safety_net', None) %}
               <tr class="info_row">
                 <td>
-                  Evasion Attempted {{ whatsthis('https://help.canary.tools/hc/en-gb/articles/4415516925585-AWS-API-Key-Canarytoken-safety-net-triggered')}}
+                  Evasion Attempt {{ whatsthis('https://help.canary.tools/hc/en-gb/articles/4415516925585-AWS-API-Key-Canarytoken-safety-net-triggered')}}
                 </td>
                 <td>
                   Yes 
@@ -338,7 +338,7 @@
                   Key Last Used
                 </td>
                 <td>
-                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data'].get('last_used', None)|e }} 
+                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data']['last_used'][0]|e }}
                 </td>
               </tr>
           {% continue %}

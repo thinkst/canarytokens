@@ -125,10 +125,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 src_ip    = request.args.get('ip', [None])[0]
                 safety_net = request.args.get('safety_net', [None])[0]
                 last_used  = request.args.get('last_used', [None])[0]
-                additional_info = {'AWS Key Log Data': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip', 'safety_net', 'last_used']}}
-                if safety_net and last_used:
-                    additional_info['AWS Key Log Data']['Safety Net'] = 'The API key was used on an untracked AWS API, last recorded at {}'.format(last_used)
-
+                additional_info = {'AWS Key Log Data': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip']}}
+               
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
                 return self.GIF
 

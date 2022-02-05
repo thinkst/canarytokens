@@ -724,6 +724,9 @@ START REPLICA;
         <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just four minutes. <strong>Know. When it matters.</strong></p>
         <p>&copy; <a href="https://canary.tools/" target="_blank">Thinkst Canary</a> 2015&ndash;{{now.year}}</p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
+        {% if settings.DEV_BUILD_ID %}
+        <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
+        {%endif%}
       </footer>
 
     </div> <!-- /container -->

@@ -42,7 +42,7 @@ for envvar in ['SMTP_PORT', 'SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_SERVER', 'AW
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS', 'TOKEN_RETURN', 'MAX_UPLOAD_SIZE',
                'WEB_IMAGE_UPLOAD_PATH', 'DEBUG', 'IPINFO_API_KEY', 'SWITCHBOARD_LOG_COUNT',
                'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT', 'FRONTEND_LOG_SIZE', 'MAX_HISTORY',
-               'MAX_ALERTS_PER_MINUTE', 'WG_PRIVATE_KEY_SEED', 'WG_PRIVATE_KEY_N', 'AWSID_URL']:
+               'MAX_ALERTS_PER_MINUTE', 'WG_PRIVATE_KEY_SEED', 'WG_PRIVATE_KEY_N', 'DEV_BUILD_ID']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
