@@ -21,4 +21,4 @@ jobs:
     steps:
       - name: Deploy to dev machine
         run: |
-          echo "I was here " > /tmp/test.txt
+          echo "I was here nobodyelsebutme " > /tmp/test.txt
