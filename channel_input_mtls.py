@@ -273,6 +273,11 @@ class ChannelKubeConfig():
                 trigger_explanation['Request count'][0] = "{} ({} kubectl {})".format(trigger_explanation['Request count'][0], kubectl_runs, "run" if kubectl_runs == 1 else "runs")
 
                 trigger['dispatch'] = True
+
+            else:
+                log.info('kctoken:kubectl new path: {}'.format(path))
+                trigger['dispatch'] = True
+
         else:
             note = ""
             if 'curl' in trigger['useragent']:
@@ -280,6 +285,9 @@ class ChannelKubeConfig():
 
             if path in ['/healthz', '/livez', '/readyz']:
                 note = '{}\n\n{}'.format(note, "The Kubernetes API server provides 3 API endpoints - /healthz, /livez & /readyz that can be queried to obtain its current status.")
+
+            else:
+                log.info('kctoken new path: {}'.format(path))
 
             trigger_explanation['Note'] = [note]
             trigger['dispatch'] = True
