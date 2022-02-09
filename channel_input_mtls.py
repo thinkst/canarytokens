@@ -239,7 +239,6 @@ class ChannelKubeConfig():
         self.service = SSLServer(port, factory, self._get_ssl_context())
 
     def add_intelligence(self, trigger, canarydrop=None, dispatcher=None):
-        trigger['dispatch'] = False
         aggregation_key = "{}:{}".format(trigger['tf'], trigger['ip'])
 
         _hits = get_kc_hits(aggregation_key)
@@ -276,8 +275,6 @@ class ChannelKubeConfig():
             else:
                 log.info('kctoken:kubectl new path: {}'.format(path))
 
-            trigger['dispatch'] = True
-
         else:
             note = ""
             if 'curl' in trigger['useragent']:
@@ -290,15 +287,13 @@ class ChannelKubeConfig():
                 log.info('kctoken new path: {}'.format(path))
 
             trigger_explanation['Note'] = [note]
-            trigger['dispatch'] = True
 
-        if trigger['dispatch']:
-            dispatcher(
-                canarydrop=canarydrop,
-                src_ip=trigger['ip'],
-                useragent=trigger['useragent'],
-                location=path,
-                additional_info=trigger['additional_info'])
+        dispatcher(
+            canarydrop=canarydrop,
+            src_ip=trigger['ip'],
+            useragent=trigger['useragent'],
+            location=path,
+            additional_info=trigger['additional_info'])
 
     def _get_ssl_context(self):
 
