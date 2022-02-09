@@ -267,16 +267,16 @@ class ChannelKubeConfig():
         trigger['additional_info'] = {'Trigger Information' : trigger_explanation}
 
         if 'kubectl' in trigger['useragent']:
-            if path == '/api' and '/api' in hits and hit_count % 5 == 0:
-                kubectl_runs = hit_count/5
-                trigger_explanation['Note'] = ['Caching discovery request: kubectl sends out 5 requests to the \'/api\' endpoint asking for information on supported API versions and endpoints - which is then cached for future requests.']
-                trigger_explanation['Request count'][0] = "{} ({} kubectl {})".format(trigger_explanation['Request count'][0], kubectl_runs, "run" if kubectl_runs == 1 else "runs")
-
-                trigger['dispatch'] = True
+            if path == '/api':
+                if '/api' in hits and hit_count % 5 == 0:
+                    kubectl_runs = hit_count/5
+                    trigger_explanation['Note'] = ['Caching discovery request: kubectl sends out 5 requests to the \'/api\' endpoint asking for information on supported API versions and endpoints - which is then cached for future requests.']
+                    trigger_explanation['Request count'][0] = "{} ({} kubectl {})".format(trigger_explanation['Request count'][0], kubectl_runs, "run" if kubectl_runs == 1 else "runs")
 
             else:
                 log.info('kctoken:kubectl new path: {}'.format(path))
-                trigger['dispatch'] = True
+
+            trigger['dispatch'] = True
 
         else:
             note = ""
