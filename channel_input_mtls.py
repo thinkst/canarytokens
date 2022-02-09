@@ -91,8 +91,7 @@ class mTLS(basic.LineReceiver):
                     canarydrop=self.canarydrop,
                     src_ip=trigger['ip'],
                     useragent=trigger['useragent'],
-                    location=trigger['location'],
-                    additional_info=trigger['additional_info']
+                    location=trigger['location']
                 )
 
         except (NoCanarytokenPresent, NoCanarytokenFound):
@@ -232,65 +231,11 @@ class ChannelKubeConfig():
             bodies=kc.bodies,
             ca_cert_path=self.client_ca_cert_path,
             channel_name=self.channel_name,
-            enricher=self.add_intelligence,
+            enricher=None,
             switchboard=switchboard
         )
 
         self.service = SSLServer(port, factory, self._get_ssl_context())
-
-    def add_intelligence(self, trigger, canarydrop=None, dispatcher=None):
-        trigger['dispatch'] = False
-        aggregation_key = "{}:{}".format(trigger['tf'], trigger['ip'])
-
-        _hits = get_kc_hits(aggregation_key)
-        hits = {} if not _hits[0] else json.loads(_hits[0]['hits'])
-        path = trigger['location']
-        offset = long(round(time()*1000))
-
-        if not hits or path not in hits:
-            hits[path] = {'count': 1, 'first_seen': offset}
-            save_kc_hit_for_aggregation(aggregation_key, json.dumps(hits), update=(not hits))
-        else:
-            hits[path]['count'] += 1
-            save_kc_hit_for_aggregation(aggregation_key, json.dumps(hits), update=True)
-
-        hit_count = int(hits[path]['count'])
-        observation_time =  offset - long(hits[path]['first_seen'])
-        unit_string = "seconds" if observation_time/1000.0 > 1 else "second"
-        request_count = "{} in the last ~{} {}".format(hit_count, int(ceil(observation_time/1000.0)), unit_string) if observation_time > 0 else str(hit_count)
-
-        trigger_explanation = {
-            'Request path': [path],
-            'Request count': [request_count]
-        }
-
-        trigger['additional_info'] = {'Trigger Information' : trigger_explanation}
-
-        if 'kubectl' in trigger['useragent']:
-            if path == '/api' and '/api' in hits and hit_count % 5 == 0:
-                kubectl_runs = hit_count/5
-                trigger_explanation['Note'] = ['Caching discovery request: kubectl sends out 5 requests to the \'/api\' endpoint asking for information on supported API versions and endpoints - which is then cached for future requests.']
-                trigger_explanation['Request count'][0] = "{} ({} kubectl {})".format(trigger_explanation['Request count'][0], kubectl_runs, "run" if kubectl_runs == 1 else "runs")
-
-                trigger['dispatch'] = True
-        else:
-            note = ""
-            if 'curl' in trigger['useragent']:
-                note = 'Triggered by cURL: this request succeeded in triggering the token because the authentication material in the kubeconfig token was included with the request by using the --cacert, --key and --cert flags of cURL'
-
-            if path in ['/healthz', '/livez', '/readyz']:
-                note = '{}\n\n{}'.format(note, "The Kubernetes API server provides 3 API endpoints - /healthz, /livez & /readyz that can be queried to obtain its current status.")
-
-            trigger_explanation['Note'] = [note]
-            trigger['dispatch'] = True
-
-        if trigger['dispatch']:
-            dispatcher(
-                canarydrop=canarydrop,
-                src_ip=trigger['ip'],
-                useragent=trigger['useragent'],
-                location=path,
-                additional_info=trigger['additional_info'])
 
     def _get_ssl_context(self):
 
