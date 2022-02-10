@@ -93,6 +93,7 @@ class GeneratorPage(resource.Resource):
                                       'sql_server',
                                       'my_sql',
                                       'aws_keys',
+                                      'secure_note',
                                       'signed_exe',
                                       'fast_redirect',
                                       'slow_redirect',
@@ -168,6 +169,9 @@ class GeneratorPage(resource.Resource):
                 response['Url'] = canarydrop.get_url()
                 response['Hostname'] = canarydrop.get_hostname()
                 response['Url_components'] = list(canarydrop.get_url_components())
+
+            if token_type == "secure_note":
+                canarydrop['secure_note'] = request.args['secure_note_text']
 
             response['Token'] = canarytoken.value()
             response['Auth'] = canarydrop['auth']

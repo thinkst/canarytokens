@@ -105,6 +105,7 @@
                   <span id="selected_token">Select your token</span>
                   <input name="type" type="hidden">
                 	<ul id="dropdown" class="dropdown">
+                        <li data-type="secure_note"    data-memo-placeholder="Password for the zip file"><a href="#" class="icon icon-secure-note"><span class="title">Secure note</span><div class="explanation">Get alerted when the link to your note is visited</div></a></li>
                 		<li data-type="web"            data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
                 		<li data-type="dns"            data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
                     <li data-type="aws_keys"       data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
@@ -148,6 +149,9 @@
                 </div>
                 <div class="field-optional field-signed_exe hidden">
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
+                </div>
+                <div class="field-optional field-secure_note hidden">
+                  <textarea class="form-control" type="text" tabindex=3 name="secure_note_text" placeholder="The password for the zip file is 'hunter2'"></textarea>
                 </div>
                 <div class="field-optional field-cloned_website hidden">
                   <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
@@ -261,6 +265,18 @@
                       <li>This URL is just an example. Apart from the hostname and the actual token (the random string), you can change all other parts of the URL.</li>
                     </ul>
                   </p>
+                </div>
+              </div>
+              <div class="result secure_note">
+                <h3>Your secure note is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this URL to your clipboard and use as you wish:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_secure_note', refresh=True) }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone requests the URL.</p>
                 </div>
               </div>
               <div class="result dns">
@@ -1066,6 +1082,17 @@ START REPLICA;
           $('#result_dns').val(data['Hostname']);
         };
 
+        var _handleWebResponse = function(data) {
+          $('#result_secure_note').val(data['Url']);
+          $('#result_secure_note').siblings('.refresh').on('click', function() {
+            url = [data['Url_components'][0].random(),
+                   data['Url_components'][1].random(),
+                   data['Token'],
+                   data['Url_components'][2].random()].join('/');
+            $('#result_secure_note').val(url);
+          });
+        };
+
         var _handleAWSKeysResponse = function(data){
           $('#result_aws_keys').val('[default]'+
           '\naws_access_key_id = '+ data['aws_access_key_id']+
@@ -1186,6 +1213,7 @@ START REPLICA;
                                   'smtp': _handleSMTPResponse,
                                   'sql_server': _handleSQLServerResponse,
                                   'my_sql': _handleMySQLResponse,
+                                  'secure_note': _handleWebResponse,
                                   'signed_exe': _handlerSignedExeResponse,
                                   'fast_redirect': _handleFastRedirectResponse,
                                   'slow_redirect': _handleSlowRedirectResponse,
