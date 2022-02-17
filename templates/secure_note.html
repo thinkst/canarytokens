@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <title>Fortune</title>
+    <link rel="icon" type="image/png" href="/resources/favicon.png">
+    <link href="//fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+    <style>
+    html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #000;
+  perspective: 340px;
+}
+
+.stars {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  box-shadow: 19px 167px #e3e3e3, -188px 116px #ededed, -659px 35px #f0f0f0, 117px -259px #c4c4c4, -50px -322px #d1d1d1, -618px -83px #d6d6d6, 612px 81px #f0f0f0, 581px -420px #d9d9d9, -220px 62px #e8e8e8, 373px -159px #dedede, 571px 445px #c7c7c7, 544px 120px #f7f7f7, 750px -438px #dbdbdb, 364px -219px #e3e3e3, 681px 376px #c9c9c9, -541px -232px #f7f7f7, 140px 438px whitesmoke, 63px -166px #fafafa, -247px 427px white, -449px -192px #d4d4d4, -709px -434px whitesmoke, -736px -200px white, -716px -320px #d1d1d1, -169px 301px #e8e8e8, 415px 60px white, -635px -156px #e6e6e6, 423px 452px #dbdbdb, -372px 139px #f7f7f7, 131px -134px white, -677px 78px #e8e8e8, -101px 282px #c4c4c4, -445px -154px #fcfcfc, -344px -54px #e0e0e0, 38px 354px #e0e0e0, 371px -224px #fafafa, 100px -416px white, -358px 202px #fafafa, -377px 166px #fafafa, -331px -443px #d4d4d4, 21px -390px #e0e0e0, -101px -163px #d4d4d4, -716px -419px #e6e6e6, 557px -134px #e0e0e0, 134px 227px #e3e3e3, -117px -449px #fafafa, 221px -146px #fcfcfc, 337px -286px #fafafa, -275px -307px #f2f2f2, 305px -342px #c2c2c2, 102px -217px white, -309px 70px whitesmoke, 508px 383px #f7f7f7, -106px -422px #ededed, -466px 338px #cccccc, 19px -420px #dedede, -366px 86px #fcfcfc, 311px 446px #ededed, -420px -412px #d1d1d1, 60px 294px #f7f7f7, 388px 282px #c9c9c9, -528px 266px whitesmoke, 733px 128px #fafafa, 440px -183px #c2c2c2, 72px 6px #d4d4d4, 533px -16px whitesmoke, 596px -109px #c7c7c7, -604px -355px #e3e3e3, -346px 211px #fafafa, -86px -95px #cfcfcf, -16px 368px #c2c2c2, 41px 8px #d4d4d4, -72px 396px #d1d1d1, -610px -128px white, 315px 371px #e8e8e8, -345px -235px #c7c7c7, 666px 195px #dedede, -584px -476px #f2f2f2, 532px -357px #ededed, 68px -212px #e6e6e6, 263px -190px #ededed, 153px -267px whitesmoke, -679px -65px #fcfcfc, 433px -7px #f0f0f0, -529px -40px #fafafa, -167px 352px #ededed, -202px 380px #f0f0f0, 416px -96px #e6e6e6, 108px -479px whitesmoke, -678px -60px #c7c7c7, -477px -59px white, -333px -85px #e0e0e0, -646px -43px #f0f0f0, 535px 355px #ededed, -149px 329px #cccccc, -703px -427px #dedede, 696px 114px #d9d9d9, -707px 134px #d4d4d4, 294px 394px #e3e3e3, 653px 126px #fafafa, -95px -100px #f0f0f0, 620px 270px #cccccc, -435px 320px #ededed, -640px 57px #d1d1d1, 266px 159px #e6e6e6, -69px 354px #d6d6d6, -718px 432px #c7c7c7, -540px -344px #f7f7f7, -627px 370px #c7c7c7, 18px -120px #cfcfcf, -556px -407px #c9c9c9, 540px 220px #d1d1d1, -118px -268px #d6d6d6, -68px -309px #fcfcfc, -484px 416px #cccccc, -352px 55px #f2f2f2, 264px 261px #dedede, 238px -120px #c9c9c9, 169px -477px #f7f7f7, -365px -281px #c7c7c7, -385px -314px #c4c4c4, 675px 224px #e8e8e8, 235px -158px #d4d4d4, 677px 127px white, 620px -225px #e3e3e3, 83px -13px #f2f2f2, 508px 460px #f7f7f7, 72px -83px #e6e6e6, -573px -310px #dedede, 283px 154px #fcfcfc, 45px -16px #fcfcfc, -314px 31px #fafafa, 31px -437px #cccccc, 398px -59px #dbdbdb, 221px 444px whitesmoke, -50px -474px #c2c2c2, 543px 213px whitesmoke, 34px 98px #dedede, 277px 160px #dedede, -305px 61px #d4d4d4, 232px -133px #f0f0f0, 213px 312px #ededed, -414px -156px #c2c2c2, 455px -273px white, -289px 109px whitesmoke, -230px -244px white, 258px -173px #e3e3e3, -650px -273px #d9d9d9, 311px -210px #f2f2f2, -208px 40px #f2f2f2, -76px -330px #e8e8e8, 562px -224px #cfcfcf, -207px -255px #d6d6d6, 666px 47px #fafafa, -389px -473px #cccccc, 729px -161px #f2f2f2, -590px -429px #e8e8e8, -305px -117px #f0f0f0, 20px -298px #d9d9d9, 405px -183px #ebebeb, -69px 204px whitesmoke, -46px 393px #c4c4c4, 197px -346px #f0f0f0, 335px 374px #fafafa, -192px 31px white, -666px -198px #dedede, 197px 340px #c4c4c4, 580px 418px #d4d4d4, -227px -238px #cfcfcf, 693px -239px #f2f2f2, 606px 366px #c9c9c9, 544px -249px #f7f7f7, -382px -296px #c7c7c7, 278px 57px #c7c7c7, -44px 17px #cfcfcf, -598px -237px #ededed, -325px -86px #e6e6e6, 264px 271px #ededed, 529px 253px #d6d6d6, -705px 477px #f0f0f0, 649px 408px #c2c2c2, -741px 133px #fcfcfc, 557px 253px #f7f7f7, -621px -303px #f2f2f2, 337px -44px #e0e0e0, 119px -140px #ededed, -526px 88px #fafafa, 469px -38px #d1d1d1, 630px 25px #dedede, 329px -408px #d1d1d1, -221px -381px #fcfcfc, 241px 180px #d6d6d6, 429px 255px whitesmoke, -324px -15px #e6e6e6, -102px -203px whitesmoke, -430px 413px white, -663px 166px #d6d6d6, 381px -284px #f2f2f2, 443px 165px #ebebeb, 511px 253px #fcfcfc, 575px 393px #fafafa, -57px 472px #e3e3e3, 592px -223px #fcfcfc, -103px 9px #f2f2f2, 171px -219px #fcfcfc, 81px 282px #f7f7f7, 532px 10px #d9d9d9, 45px -402px #c7c7c7, 49px -315px #cfcfcf, -338px -37px #d9d9d9, -597px 472px #d9d9d9, -596px -63px #d1d1d1, 653px 430px #f2f2f2, -641px 411px #f2f2f2, -64px -182px #c9c9c9, 292px -187px #e3e3e3, 587px 26px #f7f7f7, -284px -110px #f0f0f0, -103px 276px #d1d1d1, -119px -34px #d1d1d1, -535px 229px #d4d4d4, -723px 345px #d1d1d1, -180px 213px #e8e8e8, 452px 180px #cfcfcf, -648px -248px #fcfcfc, -476px -96px #cfcfcf, -461px -115px #c2c2c2, -539px -170px #cccccc, 612px -361px #e6e6e6, -305px -11px #c9c9c9, -548px 37px #e0e0e0, -203px -163px #e6e6e6, -192px 218px #d4d4d4, 10px -301px #cccccc, 519px -72px #c7c7c7, 457px 22px #f2f2f2, -639px 84px #c9c9c9, 546px 480px #e0e0e0, 438px 139px #d1d1d1, 221px 146px whitesmoke, -689px -315px #e8e8e8, 665px 402px #d9d9d9, -439px -276px #dbdbdb, 595px 254px #d9d9d9, -5px 264px #dedede, -45px 94px #f7f7f7, 572px -153px white, -181px 191px #d1d1d1, 628px 323px #d9d9d9, -714px 167px #c4c4c4, 523px -109px #d6d6d6, 475px 415px #d4d4d4, 541px 45px #e8e8e8, 613px -56px #fafafa, 146px 461px #e3e3e3, -703px -303px #c4c4c4, 455px 473px #d6d6d6, -204px -413px #f7f7f7, -560px -214px #c2c2c2, -748px -105px #dedede, -395px 438px #d1d1d1, -544px -225px #c4c4c4, -600px -398px #f7f7f7, -103px 253px white, 741px 197px #e0e0e0, -591px 280px white, 96px 355px #cccccc, 502px -118px #e0e0e0, 576px 207px #d1d1d1, 137px 471px #dbdbdb, -98px 265px #cccccc, 244px 337px whitesmoke, -673px 436px #e3e3e3, -371px 429px #c2c2c2, -198px -258px #d6d6d6, -686px 438px #c4c4c4, 516px -304px #c4c4c4, -296px 216px #f0f0f0, 154px -283px #d6d6d6, 194px -217px #d4d4d4, 486px 103px #fcfcfc, -298px 243px #e6e6e6, 443px 442px #e0e0e0, 636px -250px #e0e0e0, 638px -20px #c2c2c2, 366px -471px #c4c4c4, 402px 432px #d9d9d9, 663px -52px #e3e3e3, 583px 309px whitesmoke, 694px 348px #c7c7c7, 19px 374px #fafafa, 93px -299px #f7f7f7, 581px 360px #d1d1d1, 437px 422px #f7f7f7, -739px 189px #f7f7f7, 241px -425px #c2c2c2, 465px 319px #dbdbdb, -383px 454px whitesmoke, -510px -181px #d4d4d4, 259px 363px #c9c9c9, -730px 470px #f2f2f2, -281px 328px #fafafa, 703px -176px #f0f0f0, -54px -400px #c2c2c2, -397px -430px #e8e8e8, 525px -343px #e0e0e0, -730px -58px #e8e8e8, 228px 457px white, -17px 337px #d9d9d9, -507px 471px #c4c4c4, 119px 72px #cfcfcf, 343px 320px #fafafa, -6px 118px #f7f7f7, -49px -102px #cfcfcf, 398px 268px #c4c4c4, 241px -449px #e3e3e3, 355px 263px #d1d1d1, -429px 19px white, -728px -441px #e0e0e0, -181px -329px #c9c9c9, -148px -120px #ebebeb, -222px 345px #e8e8e8, -341px 305px #e3e3e3, -376px 172px #dedede, -120px 364px #c7c7c7, 561px -270px #dedede, -701px -4px #c7c7c7, 662px 308px #cccccc, -125px -105px whitesmoke, 147px -144px #cfcfcf, -656px -203px #cccccc, 645px 432px #ededed, 742px -107px #c4c4c4, -343px 460px #dedede, -423px 326px #e3e3e3, 611px 1px #d4d4d4, -236px 93px #c2c2c2, -192px 358px #d6d6d6, 315px -86px #ebebeb, -136px 48px #ededed, 629px 60px white, -353px 212px #e0e0e0, 220px 378px #f2f2f2, 1px 474px #ededed, -100px 434px #f2f2f2, 552px -349px #e8e8e8, -409px 407px whitesmoke, 706px 348px #e3e3e3, -129px 272px #d1d1d1, -119px -382px #e0e0e0, 139px -42px #e8e8e8, -651px -468px #c4c4c4;
+  animation: fly 3s linear infinite;
+  transform-style: preserve-3d;
+}
+.stars:before, .stars:after {
+  content: "";
+  position: absolute;
+  width: inherit;
+  height: inherit;
+  box-shadow: inherit;
+}
+.stars:before {
+  transform: translateZ(-300px);
+  opacity: .6;
+}
+.stars:after {
+  transform: translateZ(-600px);
+  opacity: .4;
+}
+
+@keyframes fly {
+  from {
+    transform: translateZ(0px);
+    opacity: .6;
+  }
+  to {
+    transform: translateZ(300px);
+    opacity: 1;
+  }
+}
+      body
+        {
+          padding: 30px;
+        }
+      .outer-div
+        {
+          position: relative;
+          top: 50%;
+          transform: translateY(-50%);
+          padding: 30px;
+          background-color: #130d0d;
+          opacity: 0.9;
+          max-width: 760px;
+          margin: 0 auto;
+        }
+      .inner-div
+        {
+          margin: 0 auto;
+          max-width: 800px;
+          background-color: #382222;
+          border-radius: 3px;
+          white-space: pre;
+          padding:30px;
+          opacity: 0.9;
+          font-family: 'Comfortaa', cursive;
+          color: #9bff53;
+        }
+      .inner-div > span {
+        opacity: 1.0;
+        font-size: 1.16em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars"></div>
+    <div class="outer-div"><div class="inner-div"><span>{{note}}</span></div></div>
+  </body>
+</html>
+<!--
+Starfield code is Copyright (c) 2016 by Keith Clark (http://codepen.io/keithclark/pen/ibEnk)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->

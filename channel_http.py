@@ -76,6 +76,11 @@ class CanarytokenPage(resource.Resource, InputChannel):
                                            redirect_url=canarydrop._drop['redirect_url']).encode('utf8')
 
             if request.getHeader('Accept') and "text/html" in request.getHeader('Accept'):
+                if canarydrop._drop['type'] == 'secure_note':
+
+                    template = env.get_template('secure_note.html')
+                    return template.render(note=canarydrop._drop['secure_note']).encode('utf8')
+
                 if canarydrop['browser_scanner_enabled']:
                     template = env.get_template('browser_scanner.html')
                     return template.render(key=canarydrop._drop['hit_time'],
@@ -126,7 +131,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 safety_net = request.args.get('safety_net', [None])[0]
                 last_used  = request.args.get('last_used', [None])[0]
                 additional_info = {'AWS Key Log Data': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip']}}
-               
+
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
                 return self.GIF
 
