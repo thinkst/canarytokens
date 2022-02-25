@@ -171,7 +171,8 @@ class GeneratorPage(resource.Resource):
                 response['Url_components'] = list(canarydrop.get_url_components())
 
             if token_type == "secure_note":
-                canarydrop['secure_note'] = request.args['secure_note_text'][0]
+                canarydrop['secure_note_text'] = request.args['secure_note_text'][0]
+                canarydrop['secure_note_ciphertext'] = request.args['secure_note_ciphertext'][0]
 
             response['Token'] = canarytoken.value()
             response['Auth'] = canarydrop['auth']

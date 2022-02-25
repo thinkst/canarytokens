@@ -79,7 +79,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 if canarydrop._drop['type'] == 'secure_note':
 
                     template = env.get_template('secure_note.html')
-                    return template.render(note=canarydrop._drop['secure_note']).encode('utf8')
+                    return template.render(note=canarydrop._drop['secure_note_text'], note_ciphertext=canarydrop._drop['secure_note_ciphertext']).encode('utf8')
 
                 if canarydrop['browser_scanner_enabled']:
                     template = env.get_template('browser_scanner.html')

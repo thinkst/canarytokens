@@ -152,6 +152,7 @@
                 </div>
                 <div class="field-optional field-secure_note hidden">
                   <textarea class="form-control" type="text" tabindex=3 name="secure_note_text" placeholder="The password for the zip file is 'hunter2'"></textarea>
+                  <input type="hidden" name="secure_note_ciphertext">
                 </div>
                 <div class="field-optional field-cloned_website hidden">
                   <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
@@ -275,6 +276,7 @@
                     {{ inputcopy('result_secure_note', refresh=True) }}
                   </div>
                 </div>
+                <input id="result_secure_note_secret_key" readonly>
                 <div class="advice">
                   <p>Remember, it gets triggered whenever someone requests the URL.</p>
                 </div>
@@ -1082,8 +1084,9 @@ START REPLICA;
           $('#result_dns').val(data['Hostname']);
         };
 
-        var _handleWebResponse = function(data) {
+        var _handleSecureNoteResponse = function(data) {
           $('#result_secure_note').val(data['Url']);
+          $('#result_secure_note_secret_key').val(document.secreykey_b64);
           $('#result_secure_note').siblings('.refresh').on('click', function() {
             url = [data['Url_components'][0].random(),
                    data['Url_components'][1].random(),
@@ -1133,6 +1136,50 @@ START REPLICA;
         }
         var _handleClonedWebsiteResponse = function(data) {
           $('#result_cloned_website').val(data['clonedsite_js']);
+        }
+
+        function encryptText(plaintext, key) {
+          let data = new TextEncoder().encode(plaintext);
+          return window.crypto.subtle.encrypt(
+            {
+              name: "AES-GCM",
+
+              //Don't re-use initialization vectors!
+              //Always generate a new iv every time your encrypt!
+              //Recommended to use 12 bytes length
+              iv: window.crypto.getRandomValues(new Uint8Array(12)),
+
+              //Tag length (optional)
+              tagLength: 128, //can be 32, 64, 96, 104, 112, 120 or 128 (default)
+            },
+            key, //from generateKey or importKey above
+            data //ArrayBuffer of data you want to encrypt
+            )
+            .then(function(encrypted){
+                //returns an ArrayBuffer containing the encrypted data
+                return new Uint8Array(encrypted);
+            })
+        }
+
+        var _handleSecureNoteRequest = async function(form) {
+          let plaintext = $('input[name=secure_note_text]').val();
+          let key = await window.crypto.subtle.generateKey(
+            {
+                name: "AES-GCM",
+                length: 256, //can be  128, 192, or 256
+            },
+            true, //whether the key is extractable (i.e. can be used in exportKey)
+            ["encrypt", "decrypt"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+          );
+          let ciphertext = await encryptText(plaintext, key);
+          let secretkey = new Uint8Array(await window.crypto.subtle.exportKey("raw", key));
+          ciphertext_b64 = btoa(String.fromCharCode.apply(null, ciphertext));
+          document.secreykey_b64 = btoa(String.fromCharCode.apply(null, secretkey));
+          $('input[name=secure_note_ciphertext]').val(ciphertext_b64);
+          let fd = new FormData(form[0]);
+
+          fd.set("secure_note_text", "[message was encrypted]"); // prevent plaintext note being sent to the server
+          return fd;
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
@@ -1197,6 +1244,7 @@ START REPLICA;
 
         var _requestCallbacks  = {'web_image': _handleWebImageRequest,
                                   'cloned_website': _handleClonedWebsiteRequest,
+                                  'secure_note': _handleSecureNoteRequest,
                                   'default':   _handleDefaultRequest};
 
         var _responseCallbacks = {'web': _handleWebResponse,
@@ -1213,7 +1261,7 @@ START REPLICA;
                                   'smtp': _handleSMTPResponse,
                                   'sql_server': _handleSQLServerResponse,
                                   'my_sql': _handleMySQLResponse,
-                                  'secure_note': _handleWebResponse,
+                                  'secure_note': _handleSecureNoteResponse,
                                   'signed_exe': _handlerSignedExeResponse,
                                   'fast_redirect': _handleFastRedirectResponse,
                                   'slow_redirect': _handleSlowRedirectResponse,
@@ -1223,7 +1271,8 @@ START REPLICA;
                                   'default':   _handleDefaultResponse
                                  };
 
-        function processForm( e ){
+        async function processForm( e ){
+            e.preventDefault();
             var type = $('input[name=type]').val();
             var data;
 
@@ -1232,7 +1281,8 @@ START REPLICA;
               cb = _requestCallbacks['default'];
             }
 
-            data = cb($(this));
+            data = cb($(this))
+            data = await Promise.resolve(data);
 
             // Safari Web Browser can't handle input types of file to be empty fields and Edge can't handle incomplete formData fields, but doesn't mind if they are empty.
             // Thus it is checked whether the browser is Edge and if so the data is left in its original format. If it is any other browser, all empty input fields
