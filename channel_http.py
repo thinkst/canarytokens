@@ -126,7 +126,10 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 safety_net = request.args.get('safety_net', [None])[0]
                 last_used  = request.args.get('last_used', [None])[0]
                 additional_info = {'AWS Key Log Data': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip']}}
-               
+
+                if safety_net:
+                    log.info('AWS Safety Net triggered for {}'.format(token.value()))
+
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
                 return self.GIF
 
