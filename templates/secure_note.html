@@ -1,88 +1,280 @@
-<html>
+{% macro textareacopy(name)%}
+<textarea id="{{name}}" class="result-data" readonly=""> </textarea>
+<button
+  class="btn btn-success btn-clipboard tooltip"
+  type="button"
+  data-clipboard-target="#{{name}}"
+>
+  <img src="/resources/clippy.svg" alt="Copy to clipboard" />
+</button>
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Canarytokens is a free tool that helps you discover you’ve been breached by having attackers announce themselves.  The tokens allow you to implant traps around your network and notifies you as soon as they are triggered."
+    />
+    <meta
+      property="og:description"
+      content="Canarytokens is a free tool that helps you discover you’ve been breached by having attackers announce themselves.  The tokens allow you to implant traps around your network and notifies you as soon as they are triggered."
+    />
+    <meta name="author" content="Thinkst Applied Research" />
+    <meta property="og:title" content="Know.  Before it matters" />
+    <meta property="og:url" content="https://canarytokens.org" />
+    <meta property="og:site_name" content="Canarytokens" />
+    <meta
+      property="og:image"
+      content="https://canary.tools/static/images/ico_canary.png"
+    />
+    <meta property="og:image:width" content="52" />
+    <meta property="og:image:height" content="52" />
+    <meta
+      name="keywords"
+      content="Canary token,Canarytokens,Canary token,Canary tokens,Honeytoken,Honeytokens,Web bug,DNS token,URL token,Thinkst,Thinkst Applied Research"
+    />
+    <link rel="icon" href="../../favicon.ico" />
+    <link href="/resources/perfect-scrollbar.css" rel="stylesheet" />
 
-<head>
-    <title>Fortune</title>
-    <link rel="icon" type="image/png" href="/resources/favicon.png">
-    <link href="//fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+    <title>Canarytokens</title>
+    <link rel="icon" type="image/png" href="/resources/favicon.png" />
+
+    <!-- Bootstrap core CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+      integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+      crossorigin="anonymous"
+    />
+
+    <!-- Custom styles for this template -->
+    <link
+      href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css"
+      integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ="
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css"
+      integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0="
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/resources/styles.min.css?ver=6"
+    />
     <style>
-
+      .ps__rail-x,
+      .ps__rail-y {
+        opacity: 0.6;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div class="outer-div">
-        <div id="decryption">
-            <form style="display: none" id="decrypt_form">
-                <label for="secret_key">Secret Key</label>
-                <input name="secret_key" id="secret_key" />
-                <button>Decrypt</button>
-            </form>
-            <noscript>
-                You must have javascript enabled to decrypt
-            </noscript>
-            <p id="note_ciphertext">{{note_ciphertext}}</p>
-            <p id="initialization_vector_b64">{{initialization_vector}}</p>
+  <body>
+    <div class="container">
+      <div class="header clearfix">
+        <h3 class="text-muted">
+          <a style="color: inherit; text-decoration: inherit" href="/">
+            <img alt="logo" src="/resources/logo.png" class="logo" />
+          </a>
+        </h3>
+        <div style="display: flex; justify-content: space-between">
+          <a
+            href="http://blog.thinkst.com/p/canarytokensorg-quick-free-detection.html"
+            target="_blank"
+            >What is this and why should I care?</a
+          >
+          <a
+            style="margin-left: 50px"
+            href="https://docs.canarytokens.org/guide/"
+            target="_blank"
+            >Documentation</a
+          >
         </div>
-        <div id="note_output" style="display: none;">
-            <p id="note_text">{{note}}</p>
+      </div>
+
+      <div class="jumbotron">
+        <div>
+          <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-1"></div>
+          </div>
+          <div class="row results">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+              <div class="secure_note">
+                <h3>Your secure note is below</h3>
+                <div class="artifacts">
+                  <p>The owner of the email registered with this token has been notified of this access attempt.</p>
+                  <div id="decryption">
+                    <form style="display: none" id="decrypt_form">
+                      <div class="row">
+                        <label class="col-3" for="secret_key">Secret Key</label>
+                        <input type="text" class="form-control col-9" name="secret_key" id="secret_key" />
+                      </div>
+                      <div class="row">
+                        <label class="col-3" for="note_ciphertext">Note Ciphertext</label>
+                        <input readonly class="form-control col-9" name="note_ciphertext" id="note_ciphertext" value="{{note_ciphertext}}"></input>
+                      </div>
+                      <div class="row">
+                        <label class="col-3" for="initialization_vector_b64">Initialization Vector</label>
+                        <input readonly class="form-control col-9" name="initialization_vector_b64" id="initialization_vector_b64" value="{{initialization_vector}}"></input>
+                      </div>
+
+                      <button type="submit" class="btn btn-success">Decrypt</button>
+                    </form>
+
+                  </div>
+                  <p>Decrypted note contents:</p>
+                  <div class="form-control">
+                    <noscript>
+                      You must have javascript enabled to decrypt
+                    </noscript>
+                    <div id="note_output" style="display: none">
+                      {{ textareacopy('note_text') }}
+                    </div>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>
+                    Remember, it gets triggered whenever someone requests the
+                    URL.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-1"></div>
+          </div>
         </div>
+      </div>
+
+      <footer class="footer">
+        <p>
+          Brought to you by
+          <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>,
+          our insanely easy-to-use honeypot solution that deploys in just four
+          minutes. <strong>Know. When it matters.</strong>
+        </p>
+        <p>
+          &copy;
+          <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>
+          2015&ndash;{{now.year}}
+        </p>
+        <p id="mainsite" class="hidden">
+          This <a href="https://canarytokens.org/">Canarytokens</a> installation
+          is unaffiliated with Thinkst Canary.
+        </p>
+        {% if settings.DEV_BUILD_ID %}
+        <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
+        {%endif%}
+      </footer>
     </div>
+    <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="//v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js"
+      integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg="
+      crossorigin="anonymous"
+    ></script>
+    <script src="/resources/site.js"></script>
     <script>
-        function onsubmit(e) {
-            e.preventDefault();
-            console.log("Doing decryption");
+      function onsubmit(e) {
+        e.preventDefault();
+        console.log("Doing decryption");
 
-            let secret_key = document.getElementById("secret_key").value;
-            do_decryption(secret_key, ciphertext)
-        }
+        let secret_key = document.getElementById("secret_key").value;
+        do_decryption(secret_key, ciphertext);
+      }
 
-        let initialization_vector_b64 = document.getElementById("initialization_vector_b64").innerHTML;
-        let ciphertext = document.getElementById("note_ciphertext").innerHTML;
-        let form = document.getElementById("decrypt_form");
-        form.onsubmit = onsubmit;
-        form.style.display = "block";
+      let initialization_vector_b64 = document.getElementById(
+        "initialization_vector_b64"
+      ).value;
+      let ciphertext = document.getElementById("note_ciphertext").value;
+      let form = document.getElementById("decrypt_form");
+      form.onsubmit = onsubmit;
+      form.style.display = "block";
 
-        async function do_decryption(secret_key) {
-            let key_arraybuffer = Uint8Array.from(atob(secret_key), c => c.charCodeAt(0))
-            let key =
-                await window.crypto.subtle.importKey(
-                    "raw", //can be "jwk" or "raw"
-                    key_arraybuffer,
-                    {   //this is the algorithm options
-                        name: "AES-GCM",
-                    },
-                    false, //whether the key is extractable (i.e. can be used in exportKey)
-                    ["decrypt"]
-                );
-            let data = Uint8Array.from(atob(ciphertext), c => c.charCodeAt(0));
-            console.log({data})
+      async function do_decryption(secret_key) {
+        let key_arraybuffer = Uint8Array.from(atob(secret_key), (c) =>
+          c.charCodeAt(0)
+        );
+        let key = await window.crypto.subtle.importKey(
+          "raw", //can be "jwk" or "raw"
+          key_arraybuffer,
+          {
+            //this is the algorithm options
+            name: "AES-GCM",
+          },
+          false, //whether the key is extractable (i.e. can be used in exportKey)
+          ["decrypt"]
+        );
+        let data = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0));
+        console.log({ data });
 
-            let initialization_vector = Uint8Array.from(atob(initialization_vector_b64), c => c.charCodeAt(0));
-            let plaintext_arraybuffer =
-                await window.crypto.subtle.decrypt(
-                    {
-                        name: "AES-GCM",
-                        iv: initialization_vector,
-                        tagLength: 128, //The tagLength you used to encrypt (if any)
-                    },
-                    key, //from generateKey or importKey above
-                    data //ArrayBuffer of the data
-                )
-                    .catch(function (err) {
-                        console.error(err);
-                    });
-            let plaintext = new TextDecoder().decode(plaintext_arraybuffer);
-            document.getElementById("note_text").innerText = plaintext;
-            document.getElementById("decryption").style.display = "none";
-            document.getElementById("note_output").style.display = "block";
-        }
+        let initialization_vector = Uint8Array.from(
+          atob(initialization_vector_b64),
+          (c) => c.charCodeAt(0)
+        );
+        let plaintext_arraybuffer = await window.crypto.subtle
+          .decrypt(
+            {
+              name: "AES-GCM",
+              iv: initialization_vector,
+              tagLength: 128, //The tagLength you used to encrypt (if any)
+            },
+            key, //from generateKey or importKey above
+            data //ArrayBuffer of the data
+          )
+          .catch(function (err) {
+            console.error(err);
+          });
+        let plaintext = new TextDecoder().decode(plaintext_arraybuffer);
+        document.getElementById("note_text").value = plaintext;
+        document.getElementById("note_text").style.minHeight = "8em";
+        document.getElementById("decryption").style.display = "none";
+        document.getElementById("note_output").style.display = "block";
+      }
 
-        let fragmentParams = new URLSearchParams(document.location.hash.replace("#","?"))
-        if(fragmentParams.has("secret_key")) {
-            let secret_key = fragmentParams.get("secret_key")
-            do_decryption(secret_key);
-        }
+      let fragmentParams = new URLSearchParams(
+        document.location.hash.replace("#", "?")
+      );
+      if (fragmentParams.has("secret_key")) {
+        let secret_key = fragmentParams.get("secret_key");
+        document.getElementById("secret_key").value = secret_key;
+        console.log("setting readonly secret_key");
+        document.getElementById("secret_key").readOnly = true;
+        do_decryption(secret_key);
+      }
+
+      var clipboard = new Clipboard(".btn-clipboard");
+      clipboard.on("success", function (e) {
+        $(e.trigger).tooltipster("content", "Copied!");
+        $(e.trigger).tooltipster("open");
+      });
+      clipboard.on("failure", function (e) {
+        $(e.trigger).tooltipster("content", "cmd/ctrl + c to copy");
+        $(e.trigger).tooltipster("open");
+      });
+      $(".btn-clipboard").removeClass("tooltip");
     </script>
-</body>
-
+  </body>
 </html>

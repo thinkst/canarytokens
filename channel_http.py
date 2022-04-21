@@ -20,6 +20,7 @@ from channel import InputChannel
 from queries import get_canarydrop, add_canarydrop_hit, add_additional_info_to_hit
 from constants import INPUT_CHANNEL_HTTP
 from settings import TOKEN_RETURN, MAX_UPLOAD_SIZE, WEB_IMAGE_UPLOAD_PATH
+import settings
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -77,12 +78,14 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
             if request.getHeader('Accept') and "text/html" in request.getHeader('Accept'):
                 if canarydrop._drop['type'] == 'secure_note':
-
+                    now = datetime.datetime.now()
                     template = env.get_template('secure_note.html')
                     return template.render(
-                        note=canarydrop._drop['secure_note_text'],
+                        # note=canarydrop._drop['secure_note_text'],
                         note_ciphertext=canarydrop._drop['secure_note_ciphertext'],
-                        initialization_vector=canarydrop._drop['secure_note_initialization_vector']
+                        initialization_vector=canarydrop._drop['secure_note_initialization_vector'],
+                        now=now,
+                        settings=settings
                     ).encode('utf8')
 
                 if canarydrop['browser_scanner_enabled']:

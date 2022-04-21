@@ -277,7 +277,6 @@
                     {{ inputcopy('result_secure_note', refresh=True) }}
                   </div>
                 </div>
-                <input id="result_secure_note_secret_key" readonly>
                 <div class="advice">
                   <p>Remember, it gets triggered whenever someone requests the URL.</p>
                 </div>
@@ -1087,7 +1086,6 @@ START REPLICA;
 
         var _handleSecureNoteResponse = function(data) {
           $('#result_secure_note').val(data['Url'] + "#secret_key=" + encodeURIComponent(document.secreykey_b64));
-          $('#result_secure_note_secret_key').val(document.secreykey_b64);
           $('#result_secure_note').siblings('.refresh').on('click', function() {
             url = [data['Url_components'][0].random(),
                    data['Url_components'][1].random(),
