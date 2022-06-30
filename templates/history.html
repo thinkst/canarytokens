@@ -306,7 +306,7 @@
     {% for info in canarydrop['triggered_list'][item]['additional_info'] %}
                     <tr class="header_row">
                        <td colspan="2">
-                         {{info}}
+                         {{info|e}}
                        </td>
                     </tr>
       {%if info == 'iOS-App'%}
@@ -353,7 +353,7 @@
                           <td>
                             {{ canarydrop['triggered_list'][item]['additional_info'][info][info_item][0] == '1'
                                   if info_item in ['enabled','installed']
-                                  else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ') }}
+                                  else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ')|e }}
                           </td>
                         </tr>
       {% endfor %}
