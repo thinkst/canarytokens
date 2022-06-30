@@ -98,9 +98,9 @@ except KeyError:
 if WEB_IMAGE_UPLOAD_PATH and not os.path.exists(WEB_IMAGE_UPLOAD_PATH):
     os.mkdir(WEB_IMAGE_UPLOAD_PATH)
 
-REDIS_HOST='redis'
-REDIS_PORT=6379
-REDIS_DB='0'
+REDIS_HOST=os.environ('REDIS_HOST', 'redis')
+REDIS_PORT=os.environ('REDIS_PORT', '6379')
+REDIS_DB=os.environ('REDIS_DB', '0')
 
 TWILIO_ENABLED=False
 TWILIO_FROM_NUMBER=""
