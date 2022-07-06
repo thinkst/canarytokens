@@ -6,7 +6,7 @@ cssselect==0.9.1
 docopt==0.4.0
 gnureadline==6.3.3
 httplib2==0.9.1
-lxml==3.4.4
+lxml==4.9.1
 mandrill==1.0.57
 pytz==2015.4
 PyYAML==5.4.1
