@@ -47,7 +47,7 @@
               <a class="nav-link" href="/generate">New token</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link manage-link" href="/manage?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">Manage this token</a>
+              <a class="nav-link manage-link" href="/manage?token={{canarydrop['canarytoken'].value()}}&auth={{canarydrop['auth']}}">Manage this token</a>
             </li>
           </ul>
         </nav>
@@ -58,7 +58,7 @@
         </h3>
       </div>
       <div class="history-header">
-        <h3>History for Canarytoken: <p class="token-length">{{canarydrop['canarytoken']}}</p></h3>
+        <h3>History for Canarytoken: <p class="token-length">{{canarydrop['canarytoken'].value()}}</p></h3>
       </div>
       <div class="alert alert-info alert-dismissible" role="alert" style="text-align: center;">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -234,7 +234,7 @@
                   AWS API Key
                 </td>
               </tr>
-          {% if 'useragent' in canarydrop['triggered_list'][item][field] %}
+          {% if canarydrop['triggered_list'][item][field] is iterable and 'useragent' in canarydrop['triggered_list'][item][field] %}
               <tr class="info_row">
                 <td>
                   User-agent
@@ -328,7 +328,7 @@
                          {{info|e}}
                        </td>
                     </tr>
-      {%if info == 'iOS-App'%}
+      {% if info == 'iOS-App' %}
                       <script type="text/javascript">
                         appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['additional_info'][info]}})
                       </script>
@@ -341,14 +341,14 @@
                               <img src="data:image/png;base64,{{canarydrop.get_secretkeeper_photo_as_base64(item)}}"/>
                             </td>
                           </tr>
-      {% elif info == 'AWS Key Log Data'%}
+      {% elif info == 'AWS Key Log Data' %}
         {% if canarydrop['triggered_list'][item]['additional_info'][info].get('safety_net', None) %}
               <tr class="info_row">
                 <td>
                   Evasion Attempt {{ whatsthis('https://help.canary.tools/hc/en-gb/articles/4415516925585-AWS-API-Key-Canarytoken-safety-net-triggered')}}
                 </td>
                 <td>
-                  Yes 
+                  Yes
                 </td>
               </tr>
               <tr class="info_row">
@@ -359,12 +359,11 @@
                   {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data']['last_used'][0]|e }}
                 </td>
               </tr>
-          {% continue %}
         {% endif %}
-      {% elif canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ == 'str' %}
-                        {% continue %}
       {% endif %}
-      {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
+      {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ != 'str' %}
+        {% if not (info == 'AWS Key Log Data' and canarydrop['triggered_list'][item]['additional_info'][info].get('safety_net', None)) %}
+          {% for info_item in canarydrop['triggered_list'][item]['additional_info'][info] %}
                         <tr class="info_row">
                           <td>
                             {{info_item}}
@@ -372,10 +371,12 @@
                           <td>
                             {{ canarydrop['triggered_list'][item]['additional_info'][info][info_item][0] == '1'
                                   if info_item in ['enabled','installed']
-                                  else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ')|e }}
+                                  else canarydrop['triggered_list'][item]['additional_info'][info][info_item]|join(', ') }}
                           </td>
                         </tr>
-      {% endfor %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
     {% endfor %}
                   </table>
   {% endif %}
@@ -408,10 +409,10 @@
     <script>
 
     function jsonDownload() {
-      window.location = "/download?fmt=incidentlist_json&token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}";
+      window.location = "/download?fmt=incidentlist_json&token={{canarydrop['canarytoken'].value()}}&auth={{canarydrop['auth']}}";
     }
     function csvDownload() {
-      window.location = "/download?fmt=incidentlist_csv&token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}";
+      window.location = "/download?fmt=incidentlist_csv&token={{canarydrop['canarytoken'].value()}}&auth={{canarydrop['auth']}}";
     }
 
     var green_icon = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
