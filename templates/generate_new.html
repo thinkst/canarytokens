@@ -152,8 +152,9 @@
                 <input class="form-control" type="text" id="endpoints" tabindex=1 placeholder="Provide an email address or webhook URL (or both space separated)">
                 <div class="error-field" id="endpoints_errors"></div>
                 <input type="hidden" name="email">
-                <input type="hidden" name="webhook">
+                <input type="hidden" name="webhook_url">
                 <input type="hidden" name="fmt">
+                <input type="hidden" name="sql_server_sql_action">
                 <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
                 <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
                 <div class="error-field" id="memo_errors"></div>
@@ -840,8 +841,8 @@ START REPLICA;
         <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
         <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
-        {% if settings.DEV_BUILD_ID %}
-        <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
+        {% if build_id %}
+        <p>Build ID: {{ build_id }}</p>
         {%endif%}
       </footer>
 
@@ -930,7 +931,7 @@ START REPLICA;
           }
         }
         $('input[name=email]').val(email);
-        $('input[name=webhook]').val(webhook);
+        $('input[name=webhook_url]').val(webhook);
         endpoints.removeClass('error-outline').addClass('success-outline');
       }
       var checkMemo = function() {
@@ -1189,40 +1190,40 @@ START REPLICA;
         $('.btn-clipboard').removeClass('tooltip');
 
         var _handleWebResponse = function(data) {
-          $('#result_web').val(data['Url']);
+          $('#result_web').val(data['token_url']);
           $('#result_web').siblings('.refresh').on('click', function() {
-            url = [data['Url_components'][0].random(),
-                   data['Url_components'][1].random(),
-                   data['Token'],
-                   data['Url_components'][2].random()].join('/');
+            url = [data['url_components'][0].random(),
+                   data['url_components'][1].random(),
+                   data['token'],
+                   data['url_components'][2].random()].join('/');
             $('#result_web').val(url);
           });
         };
 
         var _handleFastRedirectResponse = function(data) {
-          $('#result_fast_redirect').val(data['Url']);
+          $('#result_fast_redirect').val(data['token_url']);
           $('#result_fast_redirect').siblings('.refresh').on('click', function() {
-            url = [data['Url_components'][0].random(),
-                   data['Url_components'][1].random(),
-                   data['Token'],
-                   data['Url_components'][2].random()].join('/');
+            url = [data['url_components'][0].random(),
+                   data['url_components'][1].random(),
+                   data['token'],
+                   data['url_components'][2].random()].join('/');
             $('#result_fast_redirect').val(url);
           });
         };
 
         var _handleSlowRedirectResponse = function(data) {
-          $('#result_slow_redirect').val(data['Url']);
+          $('#result_slow_redirect').val(data['token_url']);
           $('#result_slow_redirect').siblings('.refresh').on('click', function() {
-            url = [data['Url_components'][0].random(),
-                   data['Url_components'][1].random(),
-                   data['Token'],
-                   data['Url_components'][2].random()].join('/');
+            url = [data['url_components'][0].random(),
+                   data['url_components'][1].random(),
+                   data['token'],
+                   data['url_components'][2].random()].join('/');
             $('#result_slow_redirect').val(url);
           });
         };
 
         var _handleDNSResponse = function(data) {
-          $('#result_dns').val(data['Hostname']);
+          $('#result_dns').val(data['hostname']);
         };
 
         var _handleCCResponse = function(data) {
@@ -1251,7 +1252,7 @@ START REPLICA;
           $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         }
 
@@ -1275,7 +1276,7 @@ START REPLICA;
         var _handleKubeconfigResponse = function(data) {
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         }
 
@@ -1289,7 +1290,7 @@ START REPLICA;
         var _handleFileDownloadResponse = function(data) {
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         }
 
@@ -1297,12 +1298,17 @@ START REPLICA;
           $('input[name=type]').val('clonedsite');
           return new FormData(form[0]);
         }
+        var _handleSqlServerRequest = function(form) {
+          $('input[name=sql_server_sql_action]').val($('#selected_sql_action').text());
+          return new FormData(form[0]);
+        }
+
         var _handleClonedWebsiteResponse = function(data) {
           $('#result_cloned_website').val(data['clonedsite_js']);
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
-          $('#qrcode_png').siblings('a').prop('download', data['Token']+'.png');
+          $('#qrcode_png').siblings('a').prop('download', data['token']+'.png');
           $('#qrcode_png').prop('src', data['qrcode_png']);
         }
         var _handleWireGuardResponse = function(data) {
@@ -1310,17 +1316,17 @@ START REPLICA;
           $('#wg_conf').text(data['wg_conf']);
         }
         var _handleSVNResponse = function(data){
-          $('#result_svn').val('svn propset svn:externals "extras http://'+data['Hostname']+'" .')
+          $('#result_svn').val('svn propset svn:externals "extras http://'+data['hostname']+'" .')
         }
         var _handleSMTPResponse = function(data) {
           try {
-            $('#result_smtp').val(data['Token']+'@'+data['Hostname'].split(/\.(.+)/)[1]);
+            $('#result_smtp').val(data['token']+'@'+data['hostname'].split(/\.(.+)/)[1]);
           } catch(err) {
-            $('#result_smtp').val(data['Token']+'@'+document.domain);
+            $('#result_smtp').val(data['token']+'@'+document.domain);
           }
         }
         var _handleSQLServerResponse = function(data) {
-          $('.sql_hostname').text(data['Hostname']);
+          $('.sql_hostname').text(data['hostname']);
           if ($('#selected_sql_action').text() == 'SELECT') {
             $('.sql-select').removeClass('hidden');
             $('.sql_function_name').text($('input[name=sql_server_function_name]').val());
@@ -1333,17 +1339,17 @@ START REPLICA;
           }
         }
         var _handleMySQLResponse = function(data) {
-          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['Hostname']}', MASTER_USER='${data['Token']}\", @@lc_time_names, @@hostname, \"';\");`
+          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
 
           $('.mysql-cmd').text(btoa(cmd));
           $('.mysql-cmd-decoded').text(cmd);
 
           $(".mysqldownload").click(function() {
-            var token = data['Token'];
+            var token = data['token'];
             var encodedEl = $("#mysql-encoded");
             var encoded = encodedEl.is(":checked");
 
-            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['Auth'] + '&encoded=' + encoded, '_blank').focus();
+            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['auth_token'] + '&encoded=' + encoded, '_blank').focus();
           });
         }
         var _handlerSignedExeResponse = function(data) {
@@ -1352,7 +1358,7 @@ START REPLICA;
           $('#signed_exe').text('Save ' + data['file_name']);
         }
         var _handlerLog4ShellResponse = function(data) {
-          $('#result_log4shell').val('${jndi:ldap://x${hostName}.L4J.'+data['Hostname']+'/a}');
+          $('#result_log4shell').val('${jndi:ldap://x${hostName}.L4J.'+data['hostname']+'/a}');
         }
         var _handleDefaultRequest = function(form) {
           return new FormData(form[0]);
@@ -1363,6 +1369,7 @@ START REPLICA;
 
         var _requestCallbacks  = {'web_image': _handleWebImageRequest,
                                   'cloned_website': _handleClonedWebsiteRequest,
+                                  'sql_server': _handleSqlServerRequest,
                                   'default':   _handleDefaultRequest};
 
         var _responseCallbacks = {'web': _handleWebResponse,
@@ -1423,6 +1430,7 @@ START REPLICA;
                 beforeSend: function(){$('#save').prop('disabled','disabled');$('.error-field').hide()},
                 dataType: 'json',
                 type: 'post',
+                enctype: false,
                 contentType: false,
                 processData: false,
                 data: data,
@@ -1430,21 +1438,21 @@ START REPLICA;
                     $('#save').prop('disabled',false);
 
                     //$('.loader').addClass('hide');
-                    if (data['Error'] !== null){
-                      if (data['Error'] == '1'){
+                    if (data['error'] !== null){
+                      if (data['error'] == '1'){
                           $('#endpoints_errors').html('Provide an email and/or a webhook endpoint');
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                           $('#endpoints_errors').show();
-                      } else if (data['Error'] == '2'){
+                      } else if (data['error'] == '2'){
                           $('#memo_errors').html('Provide a memo to remind you what this token is used for.');
                           $('#memo_errors').show();
                           $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['Error'] == '3'){
-                          $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"text":"test"}\' URL</pre></p>');
+                      } else if (data['error'] == '3'){
+                          $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"":""}\' URL</pre></p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['Error'] == '4'){
-                          $('#file_upload_errors').html(data['Message']);
+                      } else if (data['error'] == '4'){
+                          $('#file_upload_errors').html(data['error_message']);
                           $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
                           $('#file_upload_errors').show();
                       } else if (data['Error'] == '5'){
@@ -1475,7 +1483,7 @@ START REPLICA;
                       }
                       cb(data)
 
-                      $('a.manage-link').prop('href', '/manage?token='+data['Token']+'&auth='+data['Auth']);
+                      $('a.manage-link').prop('href', '/manage?token='+data['token']+'&auth='+data['auth_token']);
                       $('nav').removeClass('hidden');
                     }
                 },
