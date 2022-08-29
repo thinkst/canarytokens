@@ -44,7 +44,7 @@
             <a class="nav-link" href="/generate">New token</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/history?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">History</a>
+            <a class="nav-link" href="/history?token={{canarydrop.canarytoken.value()}}&auth={{canarydrop.auth}}">History</a>
           </li>
         </ul>
       </nav>
@@ -66,27 +66,27 @@
           <div class="col-md-1">
           </div>
         </div>
-        {% if canarydrop['alert_email_recipient']%}
+        {% if canarydrop.alert_email_recipient%}
         <div class="row setting">
             <div class="col-xs-12 col-md-6 key">
-              Email alerts<br/><small>{{canarydrop['alert_email_recipient'] | e}}</small>
+              Email alerts<br/><small>{{canarydrop.alert_email_recipient | e}}</small>
             </div>
             <div class="col-xs-12 col-md-6 value">
               <input class="settings_checkbox" type="checkbox" name="email_enable" {%if canarydrop['alert_email_enabled']%}checked{%endif%}>
             </div>
         </div>
         {%endif%}
-        {% if canarydrop['alert_webhook_url']%}
+        {% if canarydrop.alert_webhook_url%}
         <div class="row setting">
           <div class="col-md-6 key">
-            Webhook reporting<br/><small>{{canarydrop['alert_webhook_url'] | e}}</small>
+            Webhook reporting<br/><small>{{canarydrop.alert_webhook_url | e}}</small>
           </div>
           <div class="col-md-6 value">
             <input class="settings_checkbox" type="checkbox" name="webhook_enable" {%if canarydrop['alert_webhook_enabled']%}checked{%endif%}>
           </div>
         </div>
         {%endif%}
-        {% if canarydrop['type'] in ["web", "web_image"]%}
+        {% if canarydrop.type in ["web", "web_image"]%}
         <div class="row setting">
           <div class="col-md-6 key">
             Browser scanner<br/><small>Runs Javascript fingerprinting when the token is browsed</small>
@@ -96,7 +96,7 @@
           </div>
         </div>
         {%endif%}
-        {% if canarydrop['type'] == "web_image"%}
+        {% if canarydrop.type == "web_image"%}
         <div class="row setting">
           <div class="col-md-6 key">
             Custom web image<br/><small>Serve your alternative image</small>
@@ -177,6 +177,15 @@
                 </div>
               </div>
             </div>
+            <div class="result kubeconfig">
+              <h5>Here's your Kubeconfig Token:</h5>
+              <div class="artifacts">
+                <div class="form-control">
+                  <a class="btn btn-large btn-success file-download" data-fmt="kubeconfig">Download your tokened Kubeconfig file</a>
+                </div>
+              </div>
+            </div>
+
             <div class="result adobe_pdf">
               <h5>Here's your tokened PDF document:</h5>
               <div class="artifacts">
@@ -193,15 +202,76 @@
                 </div>
               </div>
             </div>
+            <div class="result signed_exe">
+              <h3>Here's  your Signed Executable token:</h3>
+              <div class="artifacts">
+                <p>Save this file and deploy on Windows machines:</p>
+                <div class="form-control">
+                  <a id="signed_exe" href="" download="" class="btn btn-success"></a>
+                </div>
+              </div>
+            </div>
             <div class="result clonedsite">
               <h5>Here's your tokened Javascript:</h5>
               <div class="artifacts">
                 <div class="form-control">
-                  {% if canarydrop['type'] == 'clonedsite'%}
+                  {% if canarydrop.type == 'clonedsite'%}
                   {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript()) }}
                   {%endif%}
                 </div>
               </div>
+            </div>
+            <div class="result log4shell">
+              <h3>Here's your log4shell token:</h3>
+              <div class="artifacts">
+                <p>The next step is to copy the log4j snippet below and test your systems for the log4shell issue.</p>
+                {{ inputcopy('result_log4shell') }}
+              </div>
+            </div>
+            <div class="result my_sql">
+              <h3>Here's your MySQL token:</h3>
+              <div class="artifacts">
+                <p>There are two ways you can use this token:</p>
+                <p class="mysql-text">1.) Insert it into a MySQL dump of your own:</p>
+                <div class="form-control">
+                  <div id="mysql-statement" class="pre-like">
+SET @b = '<span class="mysql-cmd"></span>';
+SET @s2 = FROM_BASE64(@b);
+PREPARE stmt1 FROM @s2;
+EXECUTE stmt1;
+PREPARE stmt2 FROM @bb;
+EXECUTE stmt2;
+START REPLICA;
+
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#mysql-statement">
+<img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                  </div>
+                  <div id="mysql-statement-decoded" class="pre-like hidden">
+
+
+
+<span class="mysql-cmd-decoded"></span>
+PREPARE stmt FROM @bb;
+EXECUTE stmt;
+START REPLICA;
+
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#mysql-statement-decoded">
+<img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+                  </div>
+                </div>
+                <h4 style="margin-top: 10px;">OR</h4>
+                <p class="mysql-text">2.) Download a (pseudo) random MySQL dump with a token already embedded in it</p>
+                <div class="form-control">
+                  <a class="btn btn-large btn-success mysqldownload" data-fmt="my_sql">Download a MySQL Dump file</a>
+                </div>
+              </div>
+              <div class="mysql-encoded-button">
+                <input checked type="checkbox" id="mysql-encoded" name="mysql-encoded">
+                <label for="mysql-encoded">Encode snippet to make it harder to spot</label><br>
+              </div>
+
             </div>
             <div class="result sql_server">
               <div class="artifacts">
@@ -325,9 +395,9 @@
               <h5>Your QR Code token:</h5>
               <div class="artifacts">
                 <div class="form-control">
-                  {% if canarydrop['type'] == 'qr_code'%}
-                  <img id="qrcode_png" src="{{canarydrop.get_qrcode_data_uri_png()}}"/>
-                  <a href="{{canarydrop.get_qrcode_data_uri_png()}}" download="{{canarydrop['canarytoken']}}.png" class="btn btn-success">Download</a>
+                  {% if canarydrop.type == 'qr_code'%}
+                  <img id="qrcode_png" src="{{qr_code}}"/>
+                  <a href="{{qr_code}}" download="{{canarydrop.canarytoken.value()}}.png" class="btn btn-success">Download</a>
                   {%endif%}
                 </div>
               </div>
@@ -344,9 +414,9 @@
               <h5>Your WireGuard VPN client config:</h5>
               <div class="artifacts">
                 <div class="form-control">
-                  {% if canarydrop['type'] == 'wireguard'%}
-                  <img id="wg_qrcode" src="{{ canarydrop.get_wg_qrcode() }}" />
-                  <pre id="wg_conf">{{ canarydrop.get_wg_conf() }}</pre>
+                  {% if canarydrop.type == 'wireguard'%}
+                  <img id="wg_qrcode" src="{{ wg_qr_code }}" />
+                  <pre id="wg_conf">{{ wg_conf }}</pre>
                   {%endif%}
                 </div>
               </div>
@@ -360,11 +430,11 @@
 
       <div class="row">
       <div class="col-md-12">
-        <h6 style="text-align: center;">This token has {% if canarydrop['triggered_list']|length == 1 %}been triggered once.
-        {% elif canarydrop['triggered_list']|length == 2 %}been triggered twice.
-        {% elif canarydrop['triggered_list']|length > 2%}been triggered {{canarydrop['triggered_list']|length}} times.
+        <h6 style="text-align: center;">This token has {% if canarydrop.triggered_details.hits|length == 1 %}been triggered once.
+        {% elif canarydrop.triggered_details.hits|length == 2 %}been triggered twice.
+        {% elif canarydrop.triggered_details.hits|length > 2%}been triggered {{canarydrop.triggered_details.hits|length}} times.
         {%else%}not been triggered yet{%endif%}
-        {% if canarydrop['triggered_list']|length > 0 %} View its <a href="/history?token={{canarydrop['canarytoken']}}&auth={{canarydrop['auth']}}">history</a>{%endif%}
+        {% if canarydrop.triggered_details.hits|length > 0 %} View its <a href="/history?token={{canarydrop.canarytoken.value()}}&auth={{canarydrop.auth}}">history</a>{%endif%}
         </h6>
         <br>
         </div>
@@ -403,11 +473,10 @@
       return this[Math.floor((Math.random()*this.length))];
     }
     var canarydrop = {{canarydrop.serialize()|tojson}};
-
     var save_settings = function(checkbox) {
 
-      var data = {'token': canarydrop['canarytoken'],
-                  'auth':  canarydrop['auth'],
+      var data = {'token': canarydrop['token'],
+                  'auth':  canarydrop.auth,
                   'setting': checkbox.name,
                   'value': checkbox.value};
       $.ajax({
@@ -458,13 +527,13 @@
       $('.btn-clipboard').removeClass('tooltip');
 
       var _handleWebResponse = function(data) {
-        $('#result_web').val(data['generated_url']);
+        $('#result_web').val(data['token_url']);
       };
       var _handleFastRedirectResponse = function(data) {
-        $('#result_fast_redirect').val(data['generated_url']);
+        $('#result_fast_redirect').val(data['token_url']);
       };
       var _handleSlowRedirectResponse = function(data) {
-        $('#result_slow_redirect').val(data['generated_url']);
+        $('#result_slow_redirect').val(data['token_url']);
       };
       var _handleDNSResponse = function(data) {
         $('#result_dns').val(data['generated_hostname']);
@@ -472,7 +541,7 @@
       var _handleFileDownloadResponse = function(data) {
         $('a.file-download').each(function (i, e){
           e = $(e);
-          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
+          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth']);
         });
       }
       var _handleClonedWebsiteResponse = function(data) {
@@ -484,19 +553,19 @@
         $('#result_svn').val('svn propset svn:externals "extras http://'+data['generated_hostname']+'" .')
       }
       var _handleSMTPResponse = function(data) {
-        $('#result_smtp').val(data['canarytoken']+'@'+document.domain);
+        $('#result_smtp').val(data['token']+'@'+document.domain);
       }
       var _handleSQLServerResponse = function(data) {
         $('.sql_hostname').text(data['generated_hostname']);
-        if ($('#selected_sql_action').text() == 'SELECT') {
+        if (data['sql_server_sql_action'] == 'SELECT') {
           $('.sql-select').removeClass('hidden');
-          $('.sql_function_name').text($('input[name=sql_server_function_name]').val());
-          $('.sql_view_name').text($('input[name=sql_server_view_name]').val());
+          $('.sql_function_name').text(data['sql_server_function_name']);
+          $('.sql_view_name').text(data['sql_server_view_name']);
         } else {
           $('.sql-insert-update-delete').removeClass('hidden');
-          $('.sql_trigger_name').text($('input[name=sql_server_trigger_name]').val());
-          $('.sql_table_name').text($('input[name=sql_server_table_name]').val())
-          $('.sql_action').text($('#selected_sql_action').text())
+          $('.sql_trigger_name').text(data['sql_server_trigger_name']);
+          $('.sql_table_name').text(data['sql_server_table_name']);
+          $('.sql_action').text(data['sql_server_sql_action']);
         }
       }
       var _handlerSignedExeResponse = function(data) {
@@ -514,9 +583,26 @@
         $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
         $('a.file-download').each(function (i, e){
           e = $(e);
-          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
+          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth']);
         });
       }
+      var _handleMySQLResponse = function(data) {
+          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['generated_hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
+
+          $('.mysql-cmd').text(btoa(cmd));
+          $('.mysql-cmd-decoded').text(cmd);
+
+          $(".mysqldownload").click(function() {
+            var token = data['token'];
+            var encodedEl = $("#mysql-encoded");
+            var encoded = encodedEl.is(":checked");
+
+            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['auth_token'] + '&encoded=' + encoded, '_blank').focus();
+          });
+        }
+        var _handlerLog4ShellResponse = function(data) {
+          $('#result_log4shell').val('${jndi:ldap://x${hostName}.L4J.'+data['generated_hostname']+'/a}');
+        }
 
       var _handleDefaultResponse = function(data) {
         return;
@@ -530,8 +616,11 @@
                                 'ms_excel' : _handleFileDownloadResponse,
                                 'adobe_pdf' : _handleFileDownloadResponse,
                                 'windows_dir' : _handleFileDownloadResponse,
+                                'kubeconfig' : _handleFileDownloadResponse,
+                                'log4shell' : _handlerLog4ShellResponse,
                                 'clonedsite' : _handleClonedWebsiteResponse,
                                 'qr_code': _handleQrCodeResponse,
+                                'my_sql': _handleMySQLResponse,
                                 'svn': _handleSVNResponse,
                                 'smtp': _handleSMTPResponse,
                                 'sql_server': _handleSQLServerResponse,

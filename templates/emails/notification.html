@@ -119,10 +119,10 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Location'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Log4JComputerName'] %}
+                      {% if BasicDetails['Log4_shell_computer_name'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Log4Shell Hostname</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Log4JComputerName'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Log4_shell_computer_name'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}
@@ -170,10 +170,10 @@
                                   <td>
                                     <table class="data" style="border: 1px solid #cccccc; font-size: 14px; border-collapse: collapse;" width="100%">
                                       <tr>
-                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">Manage this Canarytoken <a href="{{ ManageLink }}">here</a></td> 
+                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">Manage this Canarytoken <a href="{{ ManageLink }}">here</a></td>
                                       </tr>
                                       <tr>
-                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">More info on this token <a href="{{ HistoryLink }}">here</a></td> 
+                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">More info on this token <a href="{{ HistoryLink }}">here</a></td>
                                       </tr>
                                     </table>
                                   </td>
