@@ -193,7 +193,7 @@ class GeneratorPage(resource.Resource):
                 pass
 
             try:
-                procname = request.args['cmd_process']
+                procname = request.args['cmd_process'][0]
                 if not procname:
                     raise KeyError
                 
