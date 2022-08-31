@@ -80,6 +80,7 @@ class GeneratorPage(resource.Resource):
                 token_type = request.args.get('type', None)[0]
                 if token_type not in ['web',
                                       'dns',
+                                      'cmd',
                                       'web_image',
                                       'ms_word',
                                       'ms_excel',
