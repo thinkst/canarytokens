@@ -9,8 +9,7 @@ from cStringIO import StringIO
 
 import settings
 
-REG_TEMPLATE = """
-Windows Registry Editor Version 5.00
+REG_TEMPLATE = """Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\{PROCESS}]
 "GlobalFlag"=dword:00000200
@@ -21,7 +20,7 @@ Windows Registry Editor Version 5.00
 """
 
 def make_canary_msreg(url=None, process_name='klist.exe'):
-    output_buf = StringIO(REG_TEMPLATE.format(TOKEN_DNS=url, PROCESS=process_name)
+    output_buf = StringIO(REG_TEMPLATE.format(TOKEN_DNS=url, PROCESS=process_name))
     # TODO add registry file generation code
     return output_buf.getvalue()
 
