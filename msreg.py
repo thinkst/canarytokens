@@ -20,8 +20,8 @@ Windows Registry Editor Version 5.00
 "MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \"&{Resolve-DnsName -Name \\\"$env:computername.$env:username.CMD.{TOKEN_DNS}}\\\"}\""
 """
 
-def make_canary_msreg(url=None):
-    output_buf = StringIO()
+def make_canary_msreg(url=None, process_name='klist.exe'):
+    output_buf = StringIO(REG_TEMPLATE.format(TOKEN_DNS=url, PROCESS=process_name)
     # TODO add registry file generation code
     return output_buf.getvalue()
 
