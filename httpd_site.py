@@ -34,6 +34,7 @@ from msexcel import make_canary_msexcel
 from kubeconfig import get_kubeconfig
 from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
+from msreg import make_canary_msreg
 import settings
 import datetime
 import tempfile
@@ -393,6 +394,10 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename={token}.xlsx'\
                                   .format(token=token))
                 return make_canary_msexcel(url=canarydrop.get_url())
+            elif fmt == 'cmd':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition", 'attachment; filename={token}.reg'.format(token=token))
+                return make_canary_msreg(url=canarydrop.get_hostname())
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
                 request.setHeader("Content-Disposition",
