@@ -193,6 +193,17 @@ class GeneratorPage(resource.Resource):
                 pass
 
             try:
+                procname = request.args['cmd_process']
+                if not procname:
+                    raise KeyError
+                
+                canarydrop['cmd_process'] = procname
+                save_canarydrop(canarydrop)
+            except (IndexError, KeyError):
+                pass
+
+
+            try:
                 if not request.args.get('type', None)[0] == 'qr_code':
                     raise Exception()
                 response['qrcode_png'] = canarydrop.get_qrcode_data_uri_png()
@@ -397,7 +408,7 @@ class DownloadPage(resource.Resource):
             elif fmt == 'cmd':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition", 'attachment; filename={token}.reg'.format(token=token))
-                return make_canary_msreg(url=canarydrop.get_hostname())
+                return make_canary_msreg(url=canarydrop.get_hostname(), process_name=canarydrop['cmd_process'])
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
                 request.setHeader("Content-Disposition",
