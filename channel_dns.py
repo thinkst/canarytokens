@@ -133,6 +133,21 @@ class ChannelDNS(InputChannel):
         data = {}
         data['mysql_username'] = base64.b32decode(username.replace('.','').replace('-','=').upper())
         return data
+    
+    def _cmd_data(self, computer_name=None, user_name=None):
+        data = {}
+        if user_name is None or user_name == '':
+            uname = 'Not Obtained'
+        else:
+            uname = user_name
+        if computer_name is None or computer_name == '':
+            name = 'Not Obtained'
+        else:
+            name = computer_name
+        data['cmd_computer_name'] = name
+        data['cmd_user_name'] = uname
+        return data
+
 
     def _linux_inotify_data(self, filename=None):
         data = {}
@@ -232,6 +247,7 @@ class ChannelDNS(InputChannel):
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
             desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.', re.IGNORECASE)
             log4_shell           = re.compile('([A-Za-z0-9.-]*)\.L4J\.', re.IGNORECASE)
+            cmd_computername     = re.compile('([A-Za-z0-9.-]*)\.([A-Za-z0-9.-]*)\.CMD\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
@@ -267,6 +283,10 @@ class ChannelDNS(InputChannel):
             m = log4_shell.match(value)
             if m:
                 return self._log4_shell(computer_name=m.group(1))
+            
+            m = cmd_computername.match(value)
+            if m:
+                return self._cmd_data(computer_name=m.group(1), user_name=m.group(2))
 
         except Exception as e:
             log.error(e)
@@ -384,6 +404,10 @@ class ChannelDNS(InputChannel):
             if 'log4_shell_computer_name' in kwargs['src_data']:
                 additional_report += '\nComputer name from Log4J shell: {computer_name}'\
                     .format(computer_name=kwargs['src_data']['log4_shell_computer_name'])
+            
+            if 'cmd_computer_name' in kwargs['src_data'] and 'cmd_user_name' in kwargs['src_data']:
+                additional_report += '\nCommand name from command execution on {computer_name} by {user_name}'\
+                    .format(computer_name=kwargs['src_data']['cmd_computer_name'], user_name=kwargs['src_data']['cmd_user_name'])
 
         return additional_report
 
