@@ -11,6 +11,8 @@ REG_TEMPLATE = """Windows Registry Editor Version 5.00
 """
 
 def make_canary_msreg(url=None, process_name='klist.exe'):
+    if process_name.find('.exe') == -1:
+        process_name += '.exe'
     output_buf = StringIO(REG_TEMPLATE.format(TOKEN_DNS=url, PROCESS=process_name))
     # TODO add registry file generation code
     return output_buf.getvalue()
