@@ -6,3 +6,5 @@ tokensvenv/*
 .vscode
 .DS_Store
 .coverage
+switchboard/switchboard.env
+frontend/frontend.env
