@@ -1,0 +1,13 @@
+# A set of private config that are used when running
+# the full test suite locally.
+
+export CANARY_SENDGRID_API_KEY="Key_to_use_for_local_testing"
+export CANARY_ALERT_EMAIL_FROM_ADDRESS="tester@example.com"
+export CANARY_ALERT_EMAIL_FROM_DISPLAY="testing-display@example.com"
+export CANARY_ALERT_EMAIL_SUBJECT="Canarytokens Alert"
+export CANARY_AWSID_URL="https://some_lambda.amazonaws.com/CreateUserAPITokens"
+
+export CANARY_TESTING_AWS_ACCESS_KEY_ID="KeyToReuseWhenTesting"
+export CANARY_TESTING_AWS_SECRET_ACCESS_KEY="KeyToReuseWhenTesting"
+export CANARY_TESTING_AWS_REGION=us-east-2
+export CANARY_TESTING_AWS_OUTPUT=json
