@@ -1,0 +1,73 @@
+--Set quoted identifier on
+SET ANSI_NULLS, QUOTED_IDENTIFIER ON
+GO
+
+--Use master database
+USE master
+GO
+
+--create a table-view function to query the canary hostname
+CREATE function FUNCTION1(@RAND FLOAT) returns @output table (col1 varchar(max))
+AS
+BEGIN
+    declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+    --setup the variables
+    set @tokendomain = '{token}';
+    set @size = 128;
+    set @done = 0;
+    set @random = cast(round(@RAND*100,0) as varchar(2));
+    set @random = concat(@random, '.');
+    set @username = 'r';
+
+    --loop runs until the UNC path is 128 chars or less
+    while @done <= 0
+    begin
+        --convert username into base64
+        select @base64 = (SELECT
+            CAST(N'' AS XML).value(
+                'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                , 'VARCHAR(MAX)'
+            )   Base64Encoding
+        FROM (
+            SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+        ) AS bin_sql_server_temp);
+
+        --replace base64 padding as dns will choke on =
+        select @base64 = replace(@base64,'=','0')
+
+        --construct the UNC path
+        select @unc = concat('//',@base64,'.',@random,@tokendomain,'/a')
+
+        -- if too big, trim the username and try again
+        if len(@unc) <= @size
+            set @done = 1
+        else
+            --trim from the front, to keep the username and lose domain details
+            select @username = substring(@username, 2, len(@username)-1)
+    end;
+
+    exec master.dbo.xp_dirtree @unc --WITH RESULT SETS (([result] varchar(max)));
+
+    return
+END
+GO
+
+--create a view that calls the function
+CREATE view {view} as select * from master.dbo.FUNCTION1(rand());
+GO
+
+--change permissions on FUNCTION1 to SELECT for [public]
+GRANT SELECT ON FUNCTION1 TO PUBLIC
+GO
+
+--change permissions on VIEW to SELECT for [public]
+GRANT SELECT ON {view} TO PUBLIC
+GO
+
+--don't allow [public] to view the definitions
+REVOKE VIEW ANY DEFINITION TO PUBLIC
+GO
+
+--trigger token
+SELECT * FROM {view}
