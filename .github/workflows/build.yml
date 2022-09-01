@@ -87,7 +87,7 @@ jobs:
             type=sha
 
       - name: Build and push (Switchboard)
-        id: docker_build
+        id: docker_build_switchboard
         uses: docker/build-push-action@v2
         with:
           context: ./switchboard
@@ -111,7 +111,7 @@ jobs:
             type=sha
 
       - name: Build and push (Backend)
-        id: docker_build
+        id: docker_build_backend
         uses: docker/build-push-action@v2
         with:
           context: ./backend
