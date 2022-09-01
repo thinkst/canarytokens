@@ -72,7 +72,7 @@ you to audit the software for security holes.
 
 Source code also allows you to port Canarytokens to new platforms, fix bugs, and
 add new features. You are highly encouraged to submit a Pull Request on our
-Github (https://github.com/thinkst/canarytokens) (or contact info@thinkst.com)
+GitHub (https://github.com/thinkst/canarytokens) (or contact info@thinkst.com)
 for possible incorporation into the main distribution. By sending these changes
 to Thinkst, or checking them into the Canarytokens  source code repository, it
 is understood (unless you specify otherwise) that you are offering the
