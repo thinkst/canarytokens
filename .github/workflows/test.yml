@@ -111,7 +111,7 @@ jobs:
 
       - name: Run integration tests (against local V3)
         run: |
-          export CANARY_AWSID_URL=${{ secrets.AWSID_URL }}
+          export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
           export CANARY_SENTRY_ENVIRONMENT=ci
