@@ -136,16 +136,12 @@ class ChannelDNS(InputChannel):
     
     def _cmd_data(self, computer_name=None, user_name=None):
         data = {}
-        if user_name is None or user_name == '':
-            uname = 'Not Obtained'
-        else:
-            uname = user_name
-        if computer_name is None or computer_name == '':
-            name = 'Not Obtained'
-        else:
-            name = computer_name
-        data['cmd_computer_name'] = name
-        data['cmd_user_name'] = uname
+        data['cmd_computer_name'] = 'Not Obtained'
+        data['cmd_user_name'] = 'Not Obtained'
+        if user_name and user_name != '':
+            data['cmd_user_name'] = user_name
+        if computer_name and computer_name != '':
+            data['cmd_computer_name'] = computer_name
         return data
 
 
@@ -247,7 +243,7 @@ class ChannelDNS(InputChannel):
             dtrace_file_open     = re.compile('([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.', re.IGNORECASE)
             desktop_ini_browsing = re.compile('([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.', re.IGNORECASE)
             log4_shell           = re.compile('([A-Za-z0-9.-]*)\.L4J\.', re.IGNORECASE)
-            cmd_computername     = re.compile('([A-Za-z0-9.-]*)\.([A-Za-z0-9.-]*)\.CMD\.', re.IGNORECASE)
+            cmd_computername     = re.compile('(.+)\.UN\.(.+)\.CMD\.', re.IGNORECASE)
 
             m = desktop_ini_browsing.match(value)
             if m:
