@@ -81,9 +81,7 @@ else:
     )
 # This is a tmp personal slack account for testing / learning
 # TODO: Make this a thinkst slack webhook.
-slack_webhook_test = (
-    "https://hooks.slack.com/services/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"
-)
+slack_webhook_test = "https://hooks.slack.com/services/Not/valid"
 
 # Note: Limit connections to ngrok as the max is 20 and the tokens server keeps
 # a few open as well.
