@@ -3,7 +3,7 @@ name: TestSuite
 on:
   push:
     branches:
-      - "T4627_py3_main"
+      - "T4627_py3_main-disable"
 
 jobs:
   tests:
