@@ -1,0 +1,53 @@
+{
+    // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+    // https://github.com/microsoft/vscode-dev-containers/tree/v0.177.0/containers/docker-from-docker-compose
+        "name": "CanarytokensDevelopmentBox",
+        "dockerComposeFile": "docker-compose.yml",
+        "service": "app",
+        "workspaceFolder": "/workspace",
+
+        // Use this environment variable if you need to bind mount your local source code into a new container.
+        "remoteEnv": {
+            "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+        },
+
+        // Set *default* container specific settings.json values on container create.
+        "settings": {
+            "python.pythonPath": "/usr/local/bin/python",
+            "python.linting.enabled": true,
+            "python.linting.pylintEnabled": true,
+            "python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+            "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+            "python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+            "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+            "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+            "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+            "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+            "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+            "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+        },
+
+        // Add the IDs of extensions you want installed when the container is created.
+        "extensions": [
+			"ms-azuretools.vscode-docker",
+			"ms-python.python",
+			"hashicorp.terraform",
+			"pomdtr.excalidraw-editor",
+			"eamodio.gitlens",
+			"njpwerner.autodocstring",
+			"ms-vsliveshare.vsliveshare",
+			"streetsidesoftware.code-spell-checker",
+			"cweijan.vscode-redis-client"
+		],
+
+        // Use 'postCreateCommand' to run commands after the container is created.
+        "postCreateCommand": "python -m pip install poetry && poetry install -E 'twisted web' && poetry run pre-commit install",
+
+        // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+        "remoteUser": "vscode",
+
+        "features": {
+            "terraform": "latest",
+            "github-cli": "latest"
+        }
+    }

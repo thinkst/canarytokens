@@ -1,0 +1,71 @@
+version: '3'
+
+services:
+  # All development happens in this container.
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
+        USER_UID: 1000
+        USER_GID: 1000
+
+    init: true
+    volumes:
+      # Forwards the local Docker socket to the container.
+      - /var/run/docker.sock:/var/run/docker-host.sock
+      # Update this to wherever you want VS Code to mount the folder of your project
+      - ..:/workspace:cached
+      - $HOME/Work/.gitconfig:/workspace/.gitconfig:ro
+      - uploads:/uploads/
+    ports:
+      - "5354:5354/udp"
+      - "51820:51820/udp"
+    # Overrides default command so things don't shut down after the process ends.
+    entrypoint: /usr/local/share/docker-init.sh
+    command: sleep infinity
+    depends_on:
+      - redis
+      - mysql
+    cap_add:
+    # Used to test wireguard token locally.
+      - NET_ADMIN
+      - SYS_MODULE
+
+  redis:
+    image: redis
+    container_name: "redis-store"
+    ports:
+      - "6379:6379"
+    volumes:
+      - db-data:/data
+  # To test against the python 2 implementation uncomment this block
+  # and add a frontend.env file to `.devcontainer`
+  # frontend:
+  #   restart: always
+  #   image: thinkst/canarytokens:dev
+  #   ports:
+  #     - "8082:8082"
+  #   links:
+  #    - redis
+  #   env_file:
+  #    - frontend.env
+  #   volumes:
+  #   - uploads:/uploads/
+  #   - log-volume:/logs
+  #   container_name: frontend
+  #   command: bash -c "rm -f frontend.pid; twistd -noy frontend.tac --pidfile=frontend.pid"
+
+  # Used to test mysql token.
+  mysql:
+    image: mysql@sha256:940fdfa3dc408fb792a8cceb21cafda4b7cd56ce4fbc32833766bdd2a57d6a4f
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    ports:
+      - "3306:3306"
+
+volumes:
+  db-data:
+  log-volume:
+  uploads:
