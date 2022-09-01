@@ -1,22 +1,19 @@
 name: Build
 on:
-  push:
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force a build.'
+        required: false
+        default: false
+        type: boolean
+  workflow_run:
+    workflows:
+      - TestSuite
+    types:
+      - completed
     branches:
-      - "T4627_py3_main"
-  # workflow_dispatch:
-  #   inputs:
-  #     force_build:
-  #       description: 'Force a build.'
-  #       required: false
-  #       default: false
-  #       type: boolean
-  # workflow_run:
-  #   workflows:
-  #     - TestSuite
-  #   types:
-  #     - completed
-  #   branches:
-  #     - main
+      - main
 
 jobs:
   build:
