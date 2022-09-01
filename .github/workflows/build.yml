@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || inputs.force_build}}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' || inputs.force_build}}
     runs-on: ubuntu-latest
     env:
       AWS_REGION: 'eu-west-1'
