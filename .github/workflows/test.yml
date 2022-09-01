@@ -1,0 +1,159 @@
+name: TestSuite
+
+on:
+  push:
+    branches:
+      - "py3_main"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: 'eu-west-1'
+    permissions:
+      id-token: write
+      contents: read
+    services:
+      redis:
+        # TODO: ensure this is identical to whatever is in the compose files. Simple linter should suffice.
+        image: redis@sha256:03f00cd789243846888e2f834c762f53b224b9970b434a192b0f6b533d7e219c
+        #
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql@sha256:940fdfa3dc408fb792a8cceb21cafda4b7cd56ce4fbc32833766bdd2a57d6a4f
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::164951611079:role/Canarytokens-staging-github-action
+          role-session-name: GitHubActions-${{ github.actor }}-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Get full python version
+        id: full-python-version
+        run: |
+          echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
+      - name: Install deps
+        run: |
+          sudo apt update -y
+          sudo apt install libzbar0 -y
+          sudo apt install wireguard
+          sudo apt install mysql-client
+          sudo apt-get install subversion
+          sudo apt-get install openssh-server
+          curl -sSL https://install.python-poetry.org | python -
+          poetry config virtualenvs.in-project true
+          sudo apt-get update -y
+          sudo apt-get install -y apt-transport-https ca-certificates curl
+          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+          echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          sudo apt-get update -y
+          sudo apt-get install -y kubectl
+          sudo apt-get install -y osslsigncode
+      - name: Set up cache
+        uses: actions/cache@v1
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install python dependencies
+        run: |
+          poetry install -E 'twisted web'
+
+      - name: Check pre-commit is happy
+        run: |
+            poetry run pre-commit install
+            SKIP=no-commit-to-branch poetry run pre-commit run --all-files
+
+      - name: Run unit tests
+        env:
+          CANARY_ALERT_EMAIL_FROM_ADDRESS: tester@jingwei.in
+          CANARY_ALERT_EMAIL_FROM_DISPLAY: testing-display@jingwei.in
+          CANARY_ALERT_EMAIL_SUBJECT: Canarytokens Alert
+        # Here we gather coverage info on all tests.
+        run: |
+          export CANARY_AWSID_URL=${{ secrets.AWSID_URL }}
+          export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
+          export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
+          export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
+          poetry run coverage run  --source=./canarytokens --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" -m pytest tests/units/ --runv3
+
+      - name: Check coverage is over threshold percentage for unit tests
+        # Here we check coverage info on all tests
+        run: |
+          poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" --fail-under 90
+
+      - name: Run integration tests (against local V3)
+        run: |
+          export CANARY_AWSID_URL=${{ secrets.AWSID_URL }}
+          export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
+          export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
+          export CANARY_SENTRY_ENVIRONMENT=ci
+          export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq '.Parameter.Value')
+          make switchboard &
+          make backend &
+          sleep 10
+          export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
+          export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
+          LIVE=False poetry run coverage run  --source=./canarytokens --omit=tests/integration/test_custom_binary.py -m pytest tests/integration --runv3
+
+      - name: Run integration tests (against V2)
+        continue-on-error: true
+        # Here we gather coverage info on integration tests.
+        run: |
+          export CANARY_AWSID_URL=${{ secrets.AWSID_URL }}
+          export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
+          export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
+          LIVE=True poetry run coverage run  --source=./tests/integration --omit=tests/integration/test_custom_binary.py -m pytest tests/integration --runv2
+
+      - name: Check coverage is over threshold percentage for integration tests
+        # Here we check coverage info that all integration tests where indeed run.
+        run: |
+          poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" -m
+          poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" --fail-under 90
+
+
+  windows-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deps
+        run: |
+          (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python -
+          $env:path = $env:path + ";C:\Users\runneradmin\.poetry\bin"; poetry config virtualenvs.in-project true
+      - name: Install python dependencies
+        # poetry cache clear --all pypi ref: https://stackoverflow.com/questions/72551057/poetry-gives-toomanyindirects-error-suddenly
+        # Remove when this is resolved.
+        run: |
+          $env:path = $env:path + ";C:\Users\runneradmin\.poetry\bin"; poetry cache clear --all pypi
+          $env:path = $env:path + ";C:\Users\runneradmin\.poetry\bin"; poetry install -E 'twisted web'
+      - name: Integration Tests
+        run: |
+          $env:LIVE = 'True'
+          $env:path = $env:path + ";C:\Users\runneradmin\.poetry\bin"; poetry run coverage run --source=.\tests\integration -m pytest .\tests\integration\test_custom_binary.py  --runv2
