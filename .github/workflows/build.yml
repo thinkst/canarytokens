@@ -69,8 +69,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Docker meta
-        id: meta
+
+      - name: Docker meta (Switchboard)
+        id: meta_switchboard
         uses: docker/metadata-action@v3
         with:
           images: |
@@ -85,13 +86,37 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
 
-      - name: Build and push
+      - name: Build and push (Switchboard)
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: ./switchboard
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta_switchboard.outputs.tags }}
+
+      - name: Docker meta (Backend)
+        id: meta_backend
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            thinkst/canarytokens_backend
+          tags: |
+            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Build and push (Backend)
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta_backend.outputs.tags }}
 
       - name: Build, tag, and push Backend image to Amazon ECR
         env:
