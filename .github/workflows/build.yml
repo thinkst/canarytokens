@@ -74,7 +74,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            thinkst/canarytokensV3Switchboard
+            thinkst/canarytokens_switchboard
           tags: |
             type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
             type=schedule
