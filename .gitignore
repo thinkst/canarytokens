@@ -6,3 +6,5 @@ tokensvenv/*
 .vscode
 .DS_Store
 .coverage
+backend/canarytokens-0.3.0-py3-none-any.whl
+private_settings.sh
