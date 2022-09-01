@@ -37,7 +37,8 @@
 			"njpwerner.autodocstring",
 			"ms-vsliveshare.vsliveshare",
 			"streetsidesoftware.code-spell-checker",
-			"cweijan.vscode-redis-client"
+			"cweijan.vscode-redis-client",
+			"me-dutour-mathieu.vscode-github-actions"
 		],
 
         // Use 'postCreateCommand' to run commands after the container is created.
