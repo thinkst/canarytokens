@@ -8,3 +8,4 @@ tokensvenv/*
 .coverage
 switchboard/switchboard.env
 frontend/frontend.env
+private_settings.sh
