@@ -502,6 +502,9 @@ class TokenResponse(BaseModel):
     url_components: Optional[List[List[str]]]
     error: Optional[str]
     error_message: Optional[str]
+    # Used by tokenCheck script.
+    # Aliased to token_url
+    Url: Union[HttpUrl, Literal[""], None]
 
     @root_validator(pre=True)
     # TODO: fix pydantic vs mypy - it's possible
@@ -511,15 +514,15 @@ class TokenResponse(BaseModel):
             ("Auth", "auth_token"),
             ("Url", "token_url"),
         ]
-
         for old_key, new_key in keys_to_convert:  # pragma: no cover
-            if old_key in values:
-                values[new_key] = values.pop(old_key)
+            if old_key in values and values[old_key] is not None:
+                values[new_key] = values.get(old_key)
 
-        return {k.lower(): v for k, v in values.items()}
+        return {k: v for k, v in values.items()}
 
     def __init__(__pydantic_self__, **data: Any) -> None:
         data["webhook_url"] = data.pop("webhook", "")
+        data["Url"] = data["token_url"]
         super().__init__(**data)
 
 

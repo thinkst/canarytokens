@@ -501,8 +501,7 @@ START REPLICA;
     }
     var canarydrop = {{canarydrop.serialize()|tojson}};
     var save_settings = function(checkbox) {
-
-      var data = {'token': canarydrop['token'],
+      var data = {'token': canarydrop.canarytoken,
                   'auth':  canarydrop.auth,
                   'setting': checkbox.name,
                   'value': checkbox.value};

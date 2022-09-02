@@ -294,15 +294,13 @@ async def generate(request: Request) -> AnyTokenResponse:
     """
     if request.headers.get("Content-Type", "application/json") == "application/json":
         token_request_details = parse_obj_as(AnyTokenRequest, await request.json())
-    elif "multipart/form-data" in request.headers["Content-Type"]:
+    else:
         # Need a mutable copy of the form data
         token_request_form = dict(await request.form())
         token_request_form["token_type"] = token_request_form.pop(
             "type", token_request_form.get("token_type", None)
         )
         token_request_details = parse_obj_as(AnyTokenRequest, token_request_form)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid data")
 
     if token_request_details.webhook_url:
         try:
