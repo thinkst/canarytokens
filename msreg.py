@@ -11,7 +11,7 @@ REG_TEMPLATE = """Windows Registry Editor Version 5.00
 ; magic unique canarytoken that will be fired when this command is executed
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\{PROCESS}]
 "ReportingMode"=dword:00000001
-"MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \\\"&{{Resolve-DnsName -Name \\\\\\\"$env:computername.UN.$env:username.CMD.{TOKEN_DNS}\\\\\\\"}}\\\""
+"MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \\\"&{{$u=$(\\\\\\\"u$env:username\\\\\\\" -replace(\\\\\\\"[^\x00-\x7F]\s\\\\\\\", ''))[0..63] -join \\\\\\\"\\\\\\\";$c=$(\\\\\\\"c$env:computername\\\\\\\" -replace(\\\\\\\"[^\x00-\x7F]\s\\\\\\\", ''))[0..63] -join \\\\\\\"\\\\\\\";Resolve-DnsName -Name \\\\\\\"$c.UN.$u.CMD.{TOKEN_DNS}\\\\\\\"}}\\\""
 """
 
 def make_canary_msreg(url=None, process_name='klist.exe'):

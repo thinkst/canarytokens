@@ -139,9 +139,9 @@ class ChannelDNS(InputChannel):
         data['cmd_computer_name'] = 'Not Obtained'
         data['cmd_user_name'] = 'Not Obtained'
         if user_name and user_name != '':
-            data['cmd_user_name'] = user_name
+            data['cmd_user_name'] = user_name[1:]
         if computer_name and computer_name != '':
-            data['cmd_computer_name'] = computer_name
+            data['cmd_computer_name'] = computer_name[1:]
         return data
 
 
