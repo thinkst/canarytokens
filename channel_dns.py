@@ -402,7 +402,7 @@ class ChannelDNS(InputChannel):
                     .format(computer_name=kwargs['src_data']['log4_shell_computer_name'])
             
             if 'cmd_computer_name' in kwargs['src_data'] and 'cmd_user_name' in kwargs['src_data']:
-                additional_report += '\nCommand name from command execution on {computer_name} by {user_name}'\
+                additional_report += '\nCommand execution on {computer_name} by {user_name}'\
                     .format(computer_name=kwargs['src_data']['cmd_computer_name'], user_name=kwargs['src_data']['cmd_user_name'])
 
         return additional_report
