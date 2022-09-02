@@ -198,7 +198,7 @@ class GeneratorPage(resource.Resource):
                     raise KeyError
                 
                 canarydrop['cmd_process'] = procname
-                canarydrop['memo'] += "\r\n<br />\r\n<br />This token was created to monitor the execution of: " + procname
+                canarydrop['memo'] += "\r\n\r\nThis token was created to monitor the execution of: " + procname
                 save_canarydrop(canarydrop)
             except (IndexError, KeyError):
                 pass
