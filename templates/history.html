@@ -284,6 +284,23 @@
                   {{ canarydrop['triggered_list'][item][field]['generic_data']|e }}
                 </td>
               </tr>
+        {% elif field == 'src_data' and field in canarydrop['triggered_list'][item] and 'cmd_computer_name' in canarydrop['triggered_list'][item][field] and 'cmd_user_name' in canarydrop['triggered_list'][item][field] %}
+              <tr class="info_row">
+                <td>
+                  User executing command
+                </td>
+                <td>
+                  {{ canarydrop['triggered_list'][item][field]['cmd_user_name']|e }}
+                </td>
+              </tr>
+              <tr class="info_row">
+                <td>
+                  Computer executing command
+                </td>
+                <td>
+                  {{ canarydrop['triggered_list'][item][field]['cmd_computer_name']|e }}
+                </td>
+              </tr>
         {% elif canarydrop['triggered_list'][item][field] %}
               <tr class="info_row">
                 <td>
