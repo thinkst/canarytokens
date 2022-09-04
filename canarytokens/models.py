@@ -871,8 +871,8 @@ class BrowserInfo(BaseModel):
     version: list[str]
     os: list[str]
     browser: list[str]
-    r: list[str]
-    l: list[str]
+    r: Optional[list[str]]
+    l: Optional[list[str]]
 
 
 class AWSKeyAdditionalInfo(BaseModel):
