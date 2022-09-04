@@ -23,19 +23,13 @@ from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.settings import BackendSettings, Settings
 from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 
-backend_settings = BackendSettings(
-    _env_file=f"{os.path.realpath('.')}/backend/backend.env"
-)
-switchboard_settings = Settings(
-    _env_file=f"{os.path.realpath('.')}/backend/{backend_settings.SWITCHBOARD_SETTINGS_PATH}"
-)
-
 
 @pytest.mark.parametrize("version", [v2, v3])
 def test_mysql_token(
     version: Union[V2, V3],
     webhook_receiver: str,
     backend_settings: BackendSettings,
+    settings: Settings,
     runv2: bool,
     runv3: bool,
 ):
@@ -61,8 +55,8 @@ def test_mysql_token(
             mysql_usage=Canarydrop.generate_mysql_usage(
                 token=token_info.token,
                 domain=listen_domain,
-                port=switchboard_settings.CHANNEL_MYSQL_PORT,
-                encoded=switchboard_settings.CHANNEL_MYSQL_PORT,
+                port=settings.CHANNEL_MYSQL_PORT,
+                encoded=settings.CHANNEL_MYSQL_PORT,
             ),
             template=Path(backend_settings.TEMPLATES_PATH) / "mysql_tables.zip",
         )
