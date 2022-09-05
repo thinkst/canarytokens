@@ -206,9 +206,7 @@
                 <td>
                   Memo
                 </td>
-                <td>
-                  {{ canarydrop['memo']|e }}
-                </td>
+                <td style="white-space: pre-line;">{{ canarydrop['memo']|e }}</td>
               </tr>
   {% for field in canarydrop['triggered_list'][item] %}
     {% if canarydrop['triggered_list'][item][field] != None and
