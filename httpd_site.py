@@ -34,6 +34,7 @@ from msexcel import make_canary_msexcel
 from kubeconfig import get_kubeconfig
 from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
+from msreg import make_canary_msreg
 import settings
 import datetime
 import tempfile
@@ -80,6 +81,7 @@ class GeneratorPage(resource.Resource):
                 token_type = request.args.get('type', None)[0]
                 if token_type not in ['web',
                                       'dns',
+                                      'cmd',
                                       'web_image',
                                       'ms_word',
                                       'ms_excel',
@@ -189,6 +191,18 @@ class GeneratorPage(resource.Resource):
                 response['clonedsite'] =  clonedsite
             except (IndexError, KeyError):
                 pass
+
+            try:
+                procname = request.args['cmd_process'][0]
+                if not procname:
+                    raise KeyError
+                
+                canarydrop['cmd_process'] = procname
+                canarydrop['memo'] += "\r\n\r\n(This token was created to monitor the execution of: " + procname + ")"
+                save_canarydrop(canarydrop)
+            except (IndexError, KeyError):
+                pass
+
 
             try:
                 if not request.args.get('type', None)[0] == 'qr_code':
@@ -392,6 +406,10 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename={token}.xlsx'\
                                   .format(token=token))
                 return make_canary_msexcel(url=canarydrop.get_url())
+            elif fmt == 'cmd':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition", 'attachment; filename={token}.reg'.format(token=token))
+                return make_canary_msreg(url=canarydrop.get_hostname(), process_name=canarydrop['cmd_process'])
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
                 request.setHeader("Content-Disposition",

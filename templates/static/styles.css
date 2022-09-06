@@ -549,6 +549,9 @@
       a.icon-log4shell:before {
         background-image: url("/resources/log4j.png");
       }
+      a.icon-msreg:before {
+        background-image: url("/resources/msreg.png");
+      }
 
       @media (max-width: 768px) {
         input.form-control:-moz-placeholder, textarea.form-control:-moz-placeholder {
