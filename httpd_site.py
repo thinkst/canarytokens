@@ -716,6 +716,18 @@ class SettingsPage(resource.Resource):
 
         return simplejson.dumps(response)
 
+class AUP(resource.Resource):
+    isLeaf = True
+
+    def getChild(self, name, request):
+        if name == '':
+            return self
+        return Resource.getChild(self, name, request)
+
+    def render_GET(self, request):
+        template = env.get_template('terms.html')
+        return template.render().encode('utf8')
+
 class CanarytokensHttpd():
     def __init__(self, port=80):
         self.port = port
@@ -728,6 +740,7 @@ class CanarytokensHttpd():
         root.putChild("settings", SettingsPage())
         root.putChild("history", HistoryPage())
         root.putChild("resources", LimitedFile("/srv/templates/static"))
+        root.putChild("terms", AUP())
 
         with open('/srv/templates/robots.txt', 'r') as f:
             root.putChild("robots.txt", Data(f.read(), "text/plain"))
