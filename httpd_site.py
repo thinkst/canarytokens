@@ -725,8 +725,9 @@ class AUP(resource.Resource):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
+        now = datetime.datetime.now()
         template = env.get_template('terms.html')
-        return template.render().encode('utf8')
+        return template.render(now=now).encode('utf8')
 
 class CanarytokensHttpd():
     def __init__(self, port=80):
