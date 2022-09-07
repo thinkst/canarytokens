@@ -726,7 +726,7 @@ class AUP(resource.Resource):
 
     def render_GET(self, request):
         now = datetime.datetime.now()
-        template = env.get_template('terms.html')
+        template = env.get_template('legal.html')
         return template.render(now=now).encode('utf8')
 
 class CanarytokensHttpd():
@@ -741,7 +741,7 @@ class CanarytokensHttpd():
         root.putChild("settings", SettingsPage())
         root.putChild("history", HistoryPage())
         root.putChild("resources", LimitedFile("/srv/templates/static"))
-        root.putChild("terms", AUP())
+        root.putChild("legal", AUP())
 
         with open('/srv/templates/robots.txt', 'r') as f:
             root.putChild("robots.txt", Data(f.read(), "text/plain"))
