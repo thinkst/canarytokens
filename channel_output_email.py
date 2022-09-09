@@ -97,7 +97,11 @@ class EmailOutputChannel(OutputChannel):
             vars['Log4JComputerName'] = self.data['log4_shell_computer_name']
         
         if 'cmd_computer_name' in self.data and 'cmd_user_name' in self.data:
-            vars['CMDInformation'] = self.data['cmd_user_name'] + ' executed the command on: ' + self.data['cmd_computer_name']
+            vars['CMDInformation'] = 'User {user} executed "{process}" on the host {computer}'.format(
+                user=self.data['cmd_user_name'],
+                process=self.data['cmd_process'],
+                computer=self.data['cmd_computer_name']
+            )
 
         return vars
 

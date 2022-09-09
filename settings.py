@@ -42,7 +42,8 @@ for envvar in ['SMTP_PORT', 'SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_SERVER', 'AW
                'ALERT_EMAIL_SUBJECT','DOMAINS','NXDOMAINS', 'TOKEN_RETURN', 'MAX_UPLOAD_SIZE',
                'WEB_IMAGE_UPLOAD_PATH', 'DEBUG', 'IPINFO_API_KEY', 'SWITCHBOARD_LOG_COUNT',
                'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LOG_COUNT', 'FRONTEND_LOG_SIZE', 'MAX_HISTORY',
-               'MAX_ALERTS_PER_MINUTE', 'WG_PRIVATE_KEY_SEED', 'WG_PRIVATE_KEY_N', 'DEV_BUILD_ID']:
+               'MAX_ALERTS_PER_MINUTE', 'WG_PRIVATE_KEY_SEED', 'WG_PRIVATE_KEY_N', 'DEV_BUILD_ID',
+               'CACHED_DNS_REQUEST_PERIOD']:
     try:
         setattr(settingsmodule, envvar, os.environ['CANARY_'+envvar])
     except KeyError:
@@ -82,6 +83,12 @@ for log_config in ['SWITCHBOARD_LOG_COUNT', 'SWITCHBOARD_LOG_SIZE', 'FRONTEND_LO
         val = 5000000
 
     setattr(settingsmodule, log_config, int(val))
+
+# Configure the caching period for deduplicating DNS requests. Default period is 10
+try:
+    setattr(settingsmodule, 'CACHED_DNS_REQUEST_PERIOD', int(getattr(settingsmodule, 'CACHED_DNS_REQUEST_PERIOD')))
+except:
+    setattr(settingsmodule, 'CACHED_DNS_REQUEST_PERIOD', 10)
 
 # Configure the maximum number of saved hits on any token. Default list size is 10
 try:
