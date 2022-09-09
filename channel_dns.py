@@ -7,9 +7,10 @@ log = Logger()
 from constants import INPUT_CHANNEL_DNS
 from tokens import Canarytoken
 from canarydrop import Canarydrop
-from exception import NoCanarytokenPresent, NoCanarytokenFound
+from exception import NoCanarytokenPresent, NoCanarytokenFound, IncompleteRequest, DuplicateDNSRequest
 from channel import InputChannel
 from queries import get_canarydrop, get_all_canary_domains
+from redismanager import db, KEY_CACHED_DNS_REQUEST
 
 import settings
 import math
@@ -315,6 +316,22 @@ class ChannelDNS(InputChannel):
 
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
 
+            if canarydrop._drop['type'] == 'cmd':
+                query_cmp = query.name.name.lower()
+                cmd_regex = re.compile('(.+)\.UN\.(.+)\.CMD\.', re.IGNORECASE)
+                valid = cmd_regex.match(query_cmp)
+
+                # Ignore incomplete sensitive cmd requests
+                if not valid:
+                    raise IncompleteRequest('Incomplete request for sensitive cmd token')
+
+                # Ignore duplicate requests
+                cached_key = KEY_CACHED_DNS_REQUEST + query_cmp
+                if db.exists(cached_key):
+                    log.debug('Ignoring duplicate DNS request')
+                    raise DuplicateDNSRequest('Duplicate request for sensitive cmd token')
+                db.setex(cached_key, settings.CACHED_DNS_REQUEST_PERIOD, True)
+
             src_data = self.look_for_source_data(token=token.value(), value=query.name.name)
 
             if canarydrop._drop['type'] == 'my_sql':
@@ -323,7 +340,7 @@ class ChannelDNS(InputChannel):
             else:
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
 
-        except (NoCanarytokenPresent, NoCanarytokenFound):
+        except (NoCanarytokenPresent, NoCanarytokenFound, DuplicateDNSRequest, IncompleteRequest):
             # If we dont find a canarytoken, lets just continue. No need to log.
             pass
         except Exception as e:

@@ -31,3 +31,9 @@ class LinkedInFailure(Exception):
 
 class BitcoinFailure(Exception):
     pass
+
+class IncompleteRequest(Exception):
+    pass
+
+class DuplicateDNSRequest(Exception):
+    pass
