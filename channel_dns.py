@@ -340,7 +340,7 @@ class ChannelDNS(InputChannel):
             else:
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, src_data=src_data)
 
-        except (NoCanarytokenPresent, NoCanarytokenFound):
+        except (NoCanarytokenPresent, NoCanarytokenFound, DuplicateDNSRequest, IncompleteRequest):
             # If we dont find a canarytoken, lets just continue. No need to log.
             pass
         except Exception as e:

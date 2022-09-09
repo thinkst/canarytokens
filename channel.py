@@ -117,6 +117,9 @@ class InputChannel(Channel):
         if 'src_data' in kwargs and 'cmd_user_name' in kwargs['src_data']:
             msg['cmd_user_name'] = kwargs['src_data']['cmd_user_name']
 
+        if 'cmd_process' in canarydrop._drop:
+            msg['cmd_process'] = canarydrop._drop['cmd_process']
+
         if params.get('body_length', 999999999) <= 140:
             msg['body'] = """Canarydrop@{time} via {channel_name}: """\
                 .format(channel_name=self.name,
