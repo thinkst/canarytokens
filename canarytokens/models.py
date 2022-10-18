@@ -171,6 +171,7 @@ class TokenTypes(str, enum.Enum):
     SLOW_REDIRECT = "slow_redirect"
     KUBECONFIG = "kubeconfig"
     LOG4SHELL = "log4shell"
+    CMD = "cmd"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -320,6 +321,17 @@ class PDFTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
 
+class CMDTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
+    cmd_process_name: str
+
+    @validator("cmd_process_name")
+    def check_process_name(value: str):
+        if not value.endswith(".exe"):
+            raise ValueError(f"cmd_process_name must end in .exe. Given: {value}")
+        return value
+
+
 class KubeconfigTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
 
@@ -462,6 +474,7 @@ class WindowsDirectoryTokenRequest(TokenRequest):
 
 AnyTokenRequest = Annotated[
     Union[
+        CMDTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
@@ -514,15 +527,18 @@ class TokenResponse(BaseModel):
             ("Auth", "auth_token"),
             ("Url", "token_url"),
         ]
+
         for old_key, new_key in keys_to_convert:  # pragma: no cover
             if old_key in values and values[old_key] is not None:
                 values[new_key] = values.get(old_key)
 
-        return {k: v for k, v in values.items()}
+        return {k.lower(): v for k, v in values.items()}
 
     def __init__(__pydantic_self__, **data: Any) -> None:
         data["webhook_url"] = data.pop("webhook", "")
-        data["Url"] = data["token_url"]
+        if "token_url" in data:
+            data["Url"] = data.get("token_url")
+
         super().__init__(**data)
 
 
@@ -537,6 +553,11 @@ class AWSKeyTokenResponse(TokenResponse):
 class PDFTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
     hostname: str  # Hostname Local testing fails this check TODO: FIXME
+
+
+class CMDTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
+    reg_file: str
 
 
 class QRCodeTokenResponse(TokenResponse):
@@ -571,7 +592,7 @@ class KubeconfigTokenResponse(TokenResponse):
             data["hostname"] = data.pop("Hostname")
         if "Url_components" in data:  # pragma: no cover
             data["url_components"] = data.pop("Url_components")
-        if "Url" in data:  # pragma: no cover
+        if "Url" in data and data["Url"]:  # pragma: no cover
             data["token_url"] = data.pop("Url")
 
         if data.get("hostname", "") == "":  # pragma: no cover
@@ -720,6 +741,7 @@ class MySQLTokenResponse(TokenResponse):
 
 AnyTokenResponse = Annotated[
     Union[
+        CMDTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
         SvnTokenResponse,
@@ -1061,6 +1083,10 @@ class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
 
+class CMDTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
+
+
 class SMTPTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
     mail: SMTPMailField
@@ -1166,6 +1192,7 @@ class WireguardTokenHit(TokenHit):
 
 AnyTokenHit = Annotated[
     Union[
+        CMDTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
         PDFTokenHit,
@@ -1280,6 +1307,11 @@ class DNSTokenHistory(TokenHistory[DNSTokenHit]):
 class PDFTokenHistory(TokenHistory[PDFTokenHit]):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
     hits: List[PDFTokenHit]
+
+
+class CMDTokenHistory(TokenHistory[CMDTokenHit]):
+    token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
+    hits: List[CMDTokenHit]
 
 
 class SlowRedirectTokenHistory(TokenHistory[SlowRedirectTokenHit]):
@@ -1402,6 +1434,7 @@ class SvnTokenHistory(TokenHistory[SvnTokenHit]):
 # TokenHistory where they differ only in `token_type`.
 AnyTokenHistory = Annotated[
     Union[
+        CMDTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
         PDFTokenHistory,
@@ -1539,6 +1572,7 @@ class DownloadFmtTypes(str, enum.Enum):
     INCIDENTLISTCSV = "incidentlist_csv"
     MYSQL = "my_sql"
     QRCODE = "qr_code"
+    CMD = "cmd"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -1605,6 +1639,10 @@ class DownloadAWSKeysRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.AWSKEYS] = DownloadFmtTypes.AWSKEYS
 
 
+class DownloadCMDRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
+
+
 class DownloadKubeconfigRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.KUBECONFIG] = DownloadFmtTypes.KUBECONFIG
 
@@ -1616,6 +1654,7 @@ class DownloadSplackApiRequest(TokenDownloadRequest):
 AnyDownloadRequest = Annotated[
     Union[
         DownloadAWSKeysRequest,
+        DownloadCMDRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
         DownloadKubeconfigRequest,
@@ -1704,6 +1743,15 @@ class DownloadQRCodeResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListCSVResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadCMDResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN

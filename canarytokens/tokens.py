@@ -79,6 +79,7 @@ desktop_ini_browsing_pattern = re.compile(
     re.IGNORECASE,
 )
 log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
+cmd_process_pattern = re.compile(r"(.+)\.UN\.(.+)\.CMD\.", re.IGNORECASE)
 
 GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"  # 1x1 GIF
 
@@ -93,6 +94,7 @@ source_data_extractors = {
     "dtrace_file_open": dtrace_file_open,
     "desktop_ini_browsing": desktop_ini_browsing_pattern,
     "log4_shell": log4_shell_pattern,
+    "cmd_process": cmd_process_pattern,
 }
 
 # DESIGN: keeping the lib and apps separate called for some
@@ -306,6 +308,20 @@ class Canarytoken(object):
         #     )
 
         # return data
+
+    @staticmethod
+    def _cmd_process(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
+        """"""
+        computer_name = matches.group(1)
+        user_name = matches.group(2)
+        data = {}
+        data["cmd_computer_name"] = "Not Obtained"
+        data["cmd_user_name"] = "Not Obtained"
+        if user_name and user_name != "u":
+            data["cmd_user_name"] = user_name[1:]
+        if computer_name and computer_name != "c":
+            data["cmd_computer_name"] = computer_name[1:]
+        return {"src_data": data}
 
     @staticmethod
     def _desktop_ini_browsing(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
