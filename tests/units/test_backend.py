@@ -56,7 +56,7 @@ from canarytokens.models import (
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import Settings
 from canarytokens.tokens import Canarytoken
-from tests.utils import get_basic_hit
+from tests.utils import get_basic_hit, get_token_request
 
 
 def test_read_docs(test_client: TestClient) -> None:
@@ -156,7 +156,9 @@ def test_creating_all_tokens(
         memo="test stuff break stuff fix stuff test stuff",
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",
+        cmd_process_name="klist.exe",
     )
+
     try:
         resp = test_client.post(
             "/generate",
@@ -186,13 +188,7 @@ def test_download_canarydrop_json_details(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     dns_resp = token_response_type(**resp.json())
     resp_dl = test_client.get(
@@ -216,13 +212,7 @@ def test_download_canarydrop_csv_details(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     dns_resp = token_response_type(**resp.json())
     resp_dl = test_client.get(
@@ -269,11 +259,7 @@ def test_token_download_requests(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     dns_resp = token_response_type(**resp.json())
     resp_dl = test_client.get(
@@ -299,13 +285,7 @@ def test_email_enable_token_settings_requests(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
@@ -354,13 +334,7 @@ def test_webhook_enable_token_settings_requests(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
@@ -407,13 +381,7 @@ def test_browser_scanner_enable_token_settings_requests(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
@@ -461,13 +429,7 @@ def test_web_image_enable_token_settings_requests(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
@@ -513,13 +475,7 @@ def test_canarydrop_manage_page(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
     manage_resp = test_client.get(
@@ -543,15 +499,7 @@ def test_history_page(
 ) -> None:
     resp = test_client.post(
         "/generate",
-        data=token_request_type(
-            email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
-            memo="test stuff break stuff fix stuff test stuff",
-            redirect_url="https://youtube.com",
-            clonedsite="https://test.com",
-            # signed_exe=UploadedExe() TODO: add support for testing these.
-            # web_image=UploadedImage()
-        ).json(),
+        data=get_token_request(token_request_type).json(),
     )
     token_info = token_response_type(**resp.json())
 

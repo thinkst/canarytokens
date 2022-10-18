@@ -64,6 +64,25 @@ def test_log4_shell_pattern(query, computer_name, should_match):
         assert not should_match
 
 
+@pytest.mark.parametrize(
+    "query, cmd_computer_name,cmd_user_name,should_match,",
+    [
+        ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", True),
+        ("c.UN.ubrokenuser.CMD.sometoken.com", "Not Obtained", "brokenuser", True),
+        # ("xbrokenpc.L4.sometoken.com", "brokenpc", False),
+    ],
+)
+def test_cmd_process_pattern(query, cmd_computer_name, cmd_user_name, should_match):
+    if (m := t.cmd_process_pattern.match(query)) and m is not None:
+        data = t.Canarytoken._cmd_process(m)
+        assert should_match
+        assert data["src_data"]["cmd_computer_name"] == cmd_computer_name
+        assert data["src_data"]["cmd_user_name"] == cmd_user_name
+
+    else:
+        assert not should_match
+
+
 def test_canarytoken_create_and_fetch():
     ct = t.Canarytoken()
     ct_new = t.Canarytoken(value=ct.value())
