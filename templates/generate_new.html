@@ -107,6 +107,7 @@
                 		<li data-type="web"            data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
                 		<li data-type="dns"            data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
                     <li data-type="aws_keys"       data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
+                    <li data-type="cmd"            data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-exe"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel Document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
                     <li data-type="kubeconfig"     data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig Token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
@@ -145,6 +146,9 @@
                 <div class="error-field" id="memo_errors"></div>
                 <div class="field-optional field-web_image hidden">
                   {{ fileupload('web_image', text="Replace the default 1x1 GIF with your own image (PNG, GIF, JPG)") }}
+                </div>
+                <div class="field-optional field-cmd hidden">
+                  <input class="form-control" type="text" tabindex=3 name="cmd_process_name" placeholder="Name of process to monitor (e.g. klist.exe)">
                 </div>
                 <div class="field-optional field-signed_exe hidden">
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
@@ -318,6 +322,24 @@
                       <li>Drop the file on a Windows network share.</li>
                       <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
                       <li>Attach to an email with a tempting Subject line.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result cmd">
+                <h3>Your sensitive process execution token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="cmd">Download your MS registry file</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Once installed (with admin permissions) you'll get an alert whenever someone (or someone's code) runs your sensitive process. It will automatically provide the command used, computer the command ran on, and the user invoking the command.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Ideal candidates are executables often used by attackers but seldom used by regular users (e.g., whoami.exe, net.exe, wmic.exe, etc.).</li>
+                      <li>You can use this for attacker tools that are not present on your system (e.g., mimikatz.exe), and if they are ever downloaded and run you'll get an alert!</li>
+                      <li>Use a network management tool to deploy across your organization.</li>
                     </ul>
                   </p>
                 </div>
@@ -1184,6 +1206,7 @@ START REPLICA;
                                   'web_image': _handleWebResponse,
                                   'ms_word' : _handleFileDownloadResponse,
                                   'ms_excel' : _handleFileDownloadResponse,
+                                  'cmd':       _handleFileDownloadResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,

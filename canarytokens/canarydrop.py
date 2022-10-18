@@ -116,6 +116,8 @@ class Canarydrop(BaseModel):
     browser_scanner_enabled: Optional[bool]
     # Wireguard specific stuff
     wg_key: Optional[str]
+    # cmd specific stuff
+    cmd_process: Optional[str]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
