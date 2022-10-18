@@ -19,6 +19,7 @@ from canarytokens.models import (
     V3,
     AdditionalInfo,
     AnyTokenHit,
+    AnyTokenRequest,
     AnyTokenResponse,
     AWSKeyAdditionalInfo,
     AWSKeyTokenResponse,
@@ -47,8 +48,8 @@ from canarytokens.tokens import Canarytoken
 # TODO: Grab from env var to test the intended deployment
 if strtobool(os.getenv("LIVE", "False")):
     v2 = V2(
-        canarytokens_sld="honeypdfs.com",
-        canarytokens_domain="honeypdfs.com",
+        canarytokens_sld="canarytokens.org",
+        canarytokens_domain="canarytokens.org",
         canarytokens_dns_port=53,
         scheme="http",
         canarytokens_http_port=-1,
@@ -65,8 +66,8 @@ else:
 
 if strtobool(os.getenv("LIVE", "False")):
     v3 = V3(
-        canarytokens_sld="jingwei.tools",
-        canarytokens_domain="jingwei.tools",
+        canarytokens_sld="honeypdfs.com",
+        canarytokens_domain="honeypdfs.net",
         canarytokens_dns_port=53,
         scheme="https",
         canarytokens_http_port=-1,
@@ -426,6 +427,17 @@ def make_token_alert_detail(
         time=datetime.utcnow(),
         manage_url="https://this.is/manage/token",
         src_ip="127.0.0.1",
+    )
+
+
+def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
+    return token_request_type(
+        email="test@test.com",
+        webhook_url="https://hooks.slack.com/test",
+        memo="test stuff break stuff fix stuff test stuff",
+        redirect_url="https://youtube.com",
+        clonedsite="https://test.com",
+        cmd_process_name="klist.exe",
     )
 
 

@@ -33,7 +33,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 import canarytokens
-from canarytokens import kubeconfig, queries
+from canarytokens import kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens.awskeys import get_aws_key
@@ -48,6 +48,8 @@ from canarytokens.models import (
     AWSKeyTokenResponse,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
+    CMDTokenRequest,
+    CMDTokenResponse,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -56,6 +58,8 @@ from canarytokens.models import (
     DNSTokenResponse,
     DownloadAWSKeysRequest,
     DownloadAWSKeysResponse,
+    DownloadCMDRequest,
+    DownloadCMDResponse,
     DownloadIncidentListCSVRequest,
     DownloadIncidentListCSVResponse,
     DownloadIncidentListJsonRequest,
@@ -202,6 +206,7 @@ async def _parse_for_x(request: Request, expected_type: Any) -> Any:
         data = await request.form()
     else:
         raise HTTPException(status_code=422, detail="Invalid data")
+
     return parse_obj_as(expected_type, data)
 
 
@@ -293,13 +298,15 @@ async def generate(request: Request) -> AnyTokenResponse:
     Whatt
     """
     if request.headers.get("Content-Type", "application/json") == "application/json":
-        token_request_details = parse_obj_as(AnyTokenRequest, await request.json())
+        data = await request.json()
+        token_request_details = parse_obj_as(AnyTokenRequest, data)
     else:
         # Need a mutable copy of the form data
         token_request_form = dict(await request.form())
         token_request_form["token_type"] = token_request_form.pop(
             "type", token_request_form.get("token_type", None)
         )
+
         token_request_details = parse_obj_as(AnyTokenRequest, token_request_form)
 
     if token_request_details.webhook_url:
@@ -474,6 +481,22 @@ def create_download_response(download_request_details, canarydrop: Canarydrop):
     """"""
     raise NotImplementedError(
         f"DownloadRequest {download_request_details} not supported."
+    )
+
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadCMDRequest, canarydrop: Canarydrop
+) -> DownloadCMDResponse:
+    """"""
+    return DownloadCMDResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=msreg.make_canary_msreg(
+            token_hostname=canarydrop.get_hostname(),
+            process_name=canarydrop.cmd_process,
+        ),
+        filename=f"{canarydrop.canarytoken.value()}.reg",
     )
 
 
@@ -870,6 +893,29 @@ def _create_aws_key_token_response(
         aws_secret_access_key=canarydrop.aws_secret_access_key,
         region=canarydrop.aws_region,
         output=canarydrop.aws_output,
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: CMDTokenRequest, canarydrop: Canarydrop
+) -> CMDTokenResponse:
+    canarydrop.cmd_process = token_request_details.cmd_process_name
+    queries.save_canarydrop(canarydrop=canarydrop)
+    return CMDTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        reg_file=msreg.make_canary_msreg(
+            token_hostname=canarydrop.get_hostname(),
+            process_name=canarydrop.cmd_process,
+        ),
     )
 
 
