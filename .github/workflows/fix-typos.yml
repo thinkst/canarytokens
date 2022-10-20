@@ -1,8 +1,12 @@
 name: Automatically fix typos
+
 on:
   push:
     branches:
       - master
+
+permissions:
+  pull-requests: write
 
 jobs:
   build:
