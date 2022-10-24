@@ -80,6 +80,19 @@ class InputChannel(Channel):
         payload['attachments'] = [attachment]
         return payload
 
+
+    def format_google_chat_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+        manage_link = '{protocol}://{host}/manage?token={token}&auth={auth}'\
+                      .format(protocol=protocol,
+                           host=host,
+                           token=canarydrop['canarytoken'],
+                           auth= canarydrop['auth'])
+        return {"text": "<{manage_link}|Canarytoken Triggered> !\n  - Memo: {memo}\n  - Manage: {manage_link}>".format(name=self.name, memo=canarydrop.memo, manage_link=manage_link)}
+
+
     def format_canaryalert(self, canarydrop=None, protocol=settings.PROTOCOL,
                            host=settings.PUBLIC_DOMAIN, params=None, **kwargs):
         msg = {}
@@ -107,7 +120,7 @@ class InputChannel(Channel):
 
         if 'src_data' in kwargs and 'aws_keys_event_user_agent' in kwargs['src_data']:
             msg['useragent'] = kwargs['src_data']['aws_keys_event_user_agent']
-        
+
         if 'src_data' in kwargs and 'log4_shell_computer_name' in kwargs['src_data']:
             msg['log4_shell_computer_name'] = kwargs['src_data']['log4_shell_computer_name']
 
