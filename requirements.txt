@@ -1,7 +1,7 @@
 pyOpenSSL==17.5.0
 Jinja2==2.11.0
 MarkupSafe==0.23
-Twisted==19.10.0
+Twisted==22.10.0
 cssselect==0.9.1
 docopt==0.4.0
 gnureadline==6.3.3
