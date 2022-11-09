@@ -171,8 +171,8 @@ class mTLS(basic.LineReceiver):
                 x509.set_issuer(client_subj)
                 x509.set_pubkey(client_key)
                 x509.gmtime_adj_notBefore(0)
-                # default certificate validity is 1 year
-                x509.gmtime_adj_notAfter(1*365*24*60*60 - 1)
+                # default certificate validity is 10 years with kubeadm
+                x509.gmtime_adj_notAfter(10*365*24*60*60 - 1)
                 x509.sign(client_key, 'sha256')
 
             b64_cert = base64.b64encode(dump_certificate(FILETYPE_PEM, x509).encode('ascii')).decode('ascii')
@@ -259,11 +259,11 @@ class ChannelKubeConfig():
         if not server_cert:
             try:
                 if not server_cert_ca:
-                    ca = mTLS.generate_new_certificate(is_ca_generation_request=True, ca_cert_path=self.server_ca_cert_path, username="kubernetes-apiserver")
+                    ca = mTLS.generate_new_certificate(is_ca_generation_request=True, ca_cert_path=self.server_ca_cert_path, username="kubernetes-ca")
                     if ca is not None:
                         save_certificate(self.server_ca_cert_path, ca)
 
-                _server_cert = mTLS.generate_new_certificate(ca_cert_path=self.server_ca_cert_path, username="kubernetes-apiserver", ip=self.ip)
+                _server_cert = mTLS.generate_new_certificate(ca_cert_path=self.server_ca_cert_path, username="kube-apiserver", ip=self.ip)
 
                 if _server_cert is not None:
                     save_certificate(self.server_cert_path, _server_cert)
