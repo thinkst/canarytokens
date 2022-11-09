@@ -1,5 +1,5 @@
 from channel_input_mtls import mTLS
-from queries import get_certificate, get_kc_endpoint
+from queries import get_kc_endpoint
 from collections import OrderedDict
 from twisted.logger import Logger
 
@@ -7,7 +7,6 @@ import copy
 import yaml
 import random
 import base64
-import settings
 
 UnauthorizedResponseBody = {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"Unauthorized","reason":"Unauthorized","code":401}
 BadRequestResponseBody = {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"Bad Request","reason":"Bad Request","code":400}
@@ -48,17 +47,10 @@ class KubeConfig():
 
             kc['apiVersion'] = 'v1'
             kc['kind'] = 'Config'
-            kc['clusters'] = [{'cluster': {'certificate-authority-data': None, 'server': None}, 'name': None}]
+            kc['clusters'] = [{'cluster': {'insecure-skip-tls-verify': True, 'server': None}, 'name': None}]
             kc['users'] = [{'name': None, 'user': {'client-certificate-data': None, 'client-key-data': None}}]
             kc['contexts'] = [{'context': {'cluster': None, 'user': None}, 'name': None}]
             kc['current-context'] = None
-
-            _ca_data = get_certificate(self.ca_cert_path)
-            if not _ca_data:
-                print "Client CA was not found, kubeconfig generation failed"
-                return None
-
-            ca_data = _ca_data.get('c')
 
             # username can be randomly generated here
             username = self._get_random_username()
@@ -68,7 +60,6 @@ class KubeConfig():
 
             cluster_endpoint = "https://%s" % self.server_endpoint
 
-            kc['clusters'][0]['cluster']['certificate-authority-data'] = ca_data.encode('utf-8')
             kc['clusters'][0]['cluster']['server'] = cluster_endpoint
             kc['clusters'][0]['name'] = cluster_name
 
