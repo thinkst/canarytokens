@@ -124,7 +124,7 @@ class mTLS(basic.LineReceiver):
                 ca_extension = X509Extension("basicConstraints", False, "CA:FALSE")
                 key_usage = X509Extension("keyUsage", True, "digitalSignature")
 
-                if username == 'kubernetes-apiserver':
+                if username == 'kube-apiserver':
                     san_list = ['IP:{}'.format(ip), 'DNS:kubernetes', 'DNS:kubernetes.default', 'DNS:kubernetes.default.svc', 'DNS:kubernetes.default.svc.cluster', 'DNS:kubernetes.svc.cluster.local']
                     x509.add_extensions([
                         ca_extension,
