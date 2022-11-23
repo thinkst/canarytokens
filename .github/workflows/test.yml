@@ -3,8 +3,8 @@ name: TestSuite
 on:
   push:
     branches:
-      - "T4627_py3_main"
-      - "T5182_email_block_list_py3"
+      - "T4627_py3_main-disable"
+      - "T5116_fix_mtls_config"
 
 jobs:
   tests:
