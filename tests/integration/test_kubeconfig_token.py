@@ -8,6 +8,7 @@ import pytest
 import requests
 
 from canarytokens.models import (
+    V2,
     KubeconfigTokenHistory,
     KubeconfigTokenRequest,
     KubeconfigTokenResponse,
@@ -65,6 +66,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         "fmt": fmt,
     }
 
+    print("get download")
     download_resp = requests.get(
         url=f"{version.server_url}/download",
         params=kubeconfig_request_params,
@@ -83,21 +85,25 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         download_resp.headers["Content-Disposition"].split(" ")[1].split("=")[1]
     )
 
+    print("write to file")
     # create temp directory and file
     tmpdir = tempfile.mkdtemp()
     kubeconfig_file = "{tmpdir}/{file}".format(tmpdir=tmpdir, file=kubeconfig_file_name)
     with open(kubeconfig_file, "wb") as f:
         f.write(token_info_kubeconfig_contents)
 
+    cmd = [
+        "kubectl",
+        "--kubeconfig={kubeconfig}".format(kubeconfig=kubeconfig_file),
+        "get",
+        "nodes",
+    ]
+    if isinstance(version, V2):
+        cmd.append("--insecure-skip-tls-verify")
     # trigger token
+    print(f"start subprocess: {cmd}")
     get_nodes_output = subprocess.run(
-        [
-            "kubectl",
-            "--insecure-skip-tls-verify",
-            "--kubeconfig={kubeconfig}".format(kubeconfig=kubeconfig_file),
-            "get",
-            "nodes",
-        ],
+        cmd,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )

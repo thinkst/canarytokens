@@ -29,13 +29,11 @@ def test_kubeconfig_mtls_create_and_save_cert(setup_db):
     """Create and load a `KubeConfig` and check that
     the returned token and config are of the correct shape.
     """
-    client_ca_cert_path = kubeconfig.ClientCA
-    ca = mTLS.generate_new_certificate(
-        is_ca_generation_request=True,
-        ca_cert_path=client_ca_cert_path,
+    client_ca_redis_key = kubeconfig.ClientCA
+    ca = mTLS.generate_new_ca(
         username="kubernetes-ca",
     )
-    save_certificate(client_ca_cert_path, ca)
+    save_certificate(client_ca_redis_key, ca)
     token, base64config = get_kubeconfig()
     config_file = base64.b64decode(base64config)
     assert len(token) == 25
@@ -59,8 +57,9 @@ def test_kubeconfig_mtls_create_and_save_cert(setup_db):
 
 def test_channel_mtls_ssl_context(setup_db):
     ssl_context = ChannelKubeConfig._get_ssl_context(
-        client_ca_cert_path=kubeconfig.ClientCA,
-        server_cert_path=kubeconfig.ServerCA,
+        client_ca_redis_key=kubeconfig.ClientCA,
+        server_ca_redis_key=kubeconfig.ServerCA,
+        server_cert_redis_key=kubeconfig.ServerCert,
         ip="127.0.0.1",
     )
     assert isinstance(ssl_context, CertificateOptions)
@@ -91,14 +90,14 @@ def test_mtls_factory_revieve_lines(
     queries.save_canarydrop(canarydrop)
     switchboard = Switchboard()
     kuc = kubeconfig.KubeConfig(
-        ca_cert_path=kc.ClientCA,
+        client_ca_redis_key=kc.ClientCA,
+        server_ca_redis_key=kc.ServerCA,
         server_endpoint_ip="127.0.0.1",
         server_endpoint_port=settings.CHANNEL_MTLS_KUBECONFIG_PORT,
     )
     mtls_factory = mTLSFactory(
         headers=kuc.kc_headers,
         bodies=kuc.bodies,
-        ca_cert_path=kc.ClientCA,
         channel_name="mTLS",
         enricher=None,
         backend_scheme=backend_settings.BACKEND_SCHEME,

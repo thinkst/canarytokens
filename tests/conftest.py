@@ -216,7 +216,7 @@ def settings() -> Settings:
         BACKEND_SETTINGS_PATH="../backend/backend.env",
         LISTEN_DOMAIN="127.0.0.1",
         NXDOMAINS=["nx.127.0.0.1"],
-        PUBLIC_IP="10.0.1.3",
+        PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
         DOMAINS=["127.0.0.1"],
         CHANNEL_HTTP_PORT=Port(8084),
         CHANNEL_SMTP_PORT=Port(25)
@@ -303,12 +303,17 @@ def setup_db(settings: Settings):
     try:
         ca = get_certificate(kubeconfig.ClientCA)
     except LookupError:
-        ca = mTLS.generate_new_certificate(
-            is_ca_generation_request=True,
-            ca_cert_path=kubeconfig.ClientCA,
+        ca = mTLS.generate_new_ca(
             username="kubernetes-ca",
         )
         save_certificate(kubeconfig.ClientCA, ca)
+    try:
+        ca = get_certificate(kubeconfig.ServerCA)
+    except LookupError:
+        ca = mTLS.generate_new_ca(
+            username="kube-apiserver",
+        )
+        save_certificate(kubeconfig.ServerCA, ca)
     db = DB.get_db()
     prefixes_to_persist = [KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP]
     for key in db.scan_iter():

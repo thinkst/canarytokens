@@ -2,7 +2,7 @@ import json
 import random
 from datetime import datetime
 from ipaddress import IPv4Address
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from OpenSSL.crypto import (
     FILETYPE_PEM,
@@ -54,11 +54,10 @@ class ChirpData(TypedDict):
 
 
 class mTLS(basic.LineReceiver):
-    def __init__(self, factory, headers, bodies, ca_cert_path, enricher=None):
+    def __init__(self, factory, headers, bodies, enricher=None):
         self.factory = factory
         self.headers = headers
         self.bodies = bodies
-        self.client_ca_cert_path = ca_cert_path
         self.lines = []
         self.enricher = enricher
         self.last_hit = datetime.utcnow()
@@ -153,106 +152,106 @@ class mTLS(basic.LineReceiver):
 
     @staticmethod
     def generate_new_certificate(
-        ca_cert_path, username, is_ca_generation_request=False, ip=None
+        ca_redis_key, username, ip=None, is_server_cert=False
     ) -> KubeCerts:
         log.debug("generating new certificate")
-        if not is_ca_generation_request:
-            ca = get_certificate(ca_cert_path)
-            if not ca:
-                log.warn("CA with key {} not found in redis".format(ca_cert_path))
-                return None
+        ca = get_certificate(ca_redis_key)
+        if not ca:
+            log.warn("CA with key {} not found in redis".format(ca_redis_key))
+            return None
 
-            ca_key = load_privatekey(FILETYPE_PEM, ca.get("k"))
-            cert_authority = load_certificate(FILETYPE_PEM, ca.get("c"))
+        ca_key = load_privatekey(FILETYPE_PEM, ca.get("k"))
+        cert_authority = load_certificate(FILETYPE_PEM, ca.get("c"))
 
-            client_key = PKey()
-            client_key.generate_key(TYPE_RSA, 4096)
+        client_key = PKey()
+        client_key.generate_key(TYPE_RSA, 4096)
 
-            x509 = X509()
-            x509.set_version(2)
-            x509.set_serial_number(random.randint(0, 100000000))
+        x509 = X509()
+        x509.set_version(2)
+        x509.set_serial_number(random.randint(0, 100000000))
 
-            client_subj = x509.get_subject()
-            client_subj.commonName = username
+        client_subj = x509.get_subject()
+        client_subj.commonName = username
 
-            ca_extension = X509Extension(b"basicConstraints", False, b"CA:FALSE")
-            key_usage = X509Extension(b"keyUsage", True, b"digitalSignature")
+        ca_extension = X509Extension(b"basicConstraints", True, b"CA:FALSE")
+        key_usage = X509Extension(
+            b"keyUsage", True, b"digitalSignature,keyEncipherment"
+        )
 
-            if username == "kubernetes-apiserver":
-                san_list = [
-                    "IP:{}".format(ip),
-                    "DNS:kubernetes",
-                    "DNS:kubernetes.default",
-                    "DNS:kubernetes.default.svc",
-                    "DNS:kubernetes.default.svc.cluster",
-                    "DNS:kubernetes.svc.cluster.local",
-                ]
-                x509.add_extensions(
-                    [
-                        ca_extension,
-                        X509Extension(
-                            b"subjectKeyIdentifier", False, b"hash", subject=x509
-                        ),
-                        X509Extension(b"extendedKeyUsage", True, b"clientAuth"),
-                        X509Extension(
-                            b"subjectAltName", False, ", ".join(san_list).encode()
-                        ),
-                        key_usage,
-                    ]
-                )
-            else:
-                x509.add_extensions(
-                    [
-                        ca_extension,
-                        X509Extension(
-                            b"subjectKeyIdentifier", False, b"hash", subject=x509
-                        ),
-                        X509Extension(b"extendedKeyUsage", True, b"clientAuth"),
-                        key_usage,
-                    ]
-                )
-
-            x509.set_issuer(cert_authority.get_subject())
-            x509.set_pubkey(client_key)
-            x509.gmtime_adj_notBefore(0)
-            # default certificate validity is 1 year
-            x509.gmtime_adj_notAfter(1 * 365 * 24 * 60 * 60 - 1)
-            x509.sign(ca_key, "sha256")
+        if ip:  # username == "kubernetes-apiserver":
+            san_list = [
+                "IP:{}".format(ip),
+                "DNS:kubernetes",
+                "DNS:kubernetes.default",
+                "DNS:kubernetes.default.svc",
+                "DNS:kubernetes.default.svc.cluster",
+                "DNS:kubernetes.svc.cluster.local",
+            ]
         else:
-            client_key = PKey()
-            client_key.generate_key(TYPE_RSA, 4096)
+            san_list = None
 
-            x509 = X509()
-            x509.set_version(2)
-            x509.set_serial_number(random.randint(0, 100000000))
-
-            client_subj = x509.get_subject()
-            client_subj.commonName = username
-
-            ca_extension = X509Extension(
-                b"basicConstraints", True, b"CA:TRUE, pathlen:0"
-            )
-            key_usage = X509Extension(
-                b"keyUsage", False, b"cRLSign,digitalSignature,keyCertSign"
-            )
-
-            x509.add_extensions(
-                [
-                    ca_extension,
-                    X509Extension(
-                        b"subjectKeyIdentifier", False, b"hash", subject=x509
-                    ),
-                    X509Extension(b"extendedKeyUsage", True, b"clientAuth"),
-                    key_usage,
-                ]
+        extensions = [
+            ca_extension,
+            X509Extension(
+                b"authorityKeyIdentifier", False, b"keyid", issuer=cert_authority
+            ),
+            X509Extension(b"extendedKeyUsage", True, b"serverAuth")
+            if is_server_cert
+            else X509Extension(b"extendedKeyUsage", True, b"clientAuth"),
+            key_usage,
+        ]
+        if san_list:
+            extensions.append(
+                X509Extension(b"subjectAltName", False, ", ".join(san_list).encode())
             )
 
-            x509.set_issuer(client_subj)
-            x509.set_pubkey(client_key)
-            x509.gmtime_adj_notBefore(0)
-            # default certificate validity is 1 year
-            x509.gmtime_adj_notAfter(1 * 365 * 24 * 60 * 60 - 1)
-            x509.sign(client_key, "sha256")
+        x509.add_extensions(extensions)
+
+        x509.set_issuer(cert_authority.get_subject())
+        x509.set_pubkey(client_key)
+        x509.gmtime_adj_notBefore(0)
+        # default certificate validity is 1 year
+        x509.gmtime_adj_notAfter(1 * 365 * 24 * 60 * 60 - 1)
+        x509.sign(ca_key, "sha256")
+
+        return {
+            "f": mTLS._get_digest(dump_certificate(FILETYPE_PEM, x509)),
+            "c": dump_certificate(FILETYPE_PEM, x509),
+            "k": dump_privatekey(FILETYPE_PEM, client_key),
+        }
+
+    @staticmethod
+    def generate_new_ca(username) -> KubeCerts:
+        log.debug("generating new certificate")
+        client_key = PKey()
+        client_key.generate_key(TYPE_RSA, 4096)
+
+        x509 = X509()
+        x509.set_version(2)
+        x509.set_serial_number(random.randint(0, 100000000))
+
+        client_subj = x509.get_subject()
+        client_subj.commonName = username
+
+        ca_extension = X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0")
+        key_usage = X509Extension(
+            b"keyUsage", False, b"digitalSignature,keyCertSign,keyEncipherment"
+        )
+
+        x509.add_extensions(
+            [
+                ca_extension,
+                X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=x509),
+                key_usage,
+            ]
+        )
+
+        x509.set_issuer(client_subj)
+        x509.set_pubkey(client_key)
+        x509.gmtime_adj_notBefore(0)
+        # default ca validity is 10 years with kubeadm
+        x509.gmtime_adj_notAfter(10 * 365 * 24 * 60 * 60 - 1)
+        x509.sign(client_key, "sha256")
 
         return {
             "f": mTLS._get_digest(dump_certificate(FILETYPE_PEM, x509)),
@@ -275,7 +274,6 @@ class mTLSFactory(Factory, InputChannel):
         self,
         headers,
         bodies,
-        ca_cert_path,
         backend_hostname: str,
         backend_scheme: str,
         switchboard: Switchboard,
@@ -284,7 +282,6 @@ class mTLSFactory(Factory, InputChannel):
     ):
         self.headers = headers
         self.bodies = bodies
-        self.client_ca_cert_path = ca_cert_path
         self.enricher = enricher
 
         self.switchboard = switchboard
@@ -302,7 +299,6 @@ class mTLSFactory(Factory, InputChannel):
             factory=self,
             headers=self.headers,
             bodies=self.bodies,
-            ca_cert_path=self.client_ca_cert_path,
             enricher=self.enricher,
         )
 
@@ -316,8 +312,9 @@ class ChannelKubeConfig:
     ):
         from canarytokens import kubeconfig
 
-        self.client_ca_cert_path = kubeconfig.ClientCA
-        self.server_cert_path = kubeconfig.ServerCA
+        self.client_ca_redis_key = kubeconfig.ClientCA
+        self.server_ca_redis_key = kubeconfig.ServerCA
+        self.server_cert_redis_key = kubeconfig.ServerCert
         self.port = switchboard_settings.CHANNEL_MTLS_KUBECONFIG_PORT
         self.ip = IPv4Address(switchboard_settings.PUBLIC_IP)
         self.channel_name = INPUT_CHANNEL_MTLS
@@ -325,14 +322,14 @@ class ChannelKubeConfig:
         save_kc_endpoint(ip=self.ip, port=self.port)
 
         kc = kubeconfig.KubeConfig(
-            ca_cert_path=self.client_ca_cert_path,
+            client_ca_redis_key=self.client_ca_redis_key,
+            server_ca_redis_key=self.server_ca_redis_key,
             server_endpoint_ip=self.ip,
             server_endpoint_port=self.port,
         )
         factory = mTLSFactory(
             headers=kc.kc_headers,
             bodies=kc.bodies,
-            ca_cert_path=self.client_ca_cert_path,
             channel_name=self.channel_name,
             enricher=None,
             backend_scheme=backend_settings.BACKEND_SCHEME,
@@ -344,68 +341,62 @@ class ChannelKubeConfig:
             self.port,
             factory,
             self._get_ssl_context(
-                client_ca_cert_path=self.client_ca_cert_path,
-                server_cert_path=self.server_cert_path,
+                client_ca_redis_key=self.client_ca_redis_key,
+                server_ca_redis_key=self.server_ca_redis_key,
+                server_cert_redis_key=self.server_cert_redis_key,
                 ip=self.ip,
             ),
         )
 
     @staticmethod
-    def get_or_create_ca(
-        ca_cert_path: str,
-        username: str,
-        ip: Optional[str] = None,
-        private: bool = False,
-    ):
-        """"""
-        log.debug("get_or_create ca")
-        try:
-            ca = get_certificate(ca_cert_path)
-            log.debug("cert found")
-        except LookupError:
-            # Generate cert if not found.
-            log.debug("generating cert")
-            ca = mTLS.generate_new_certificate(
-                is_ca_generation_request=True,
-                ca_cert_path=ca_cert_path,
-                username=username,
-                ip=ip,
-            )
-            save_certificate(ca_cert_path, ca)
-        log.debug(f"{ca = }")
-
-        ca_pem = "{}\n{}".format(
-            ca.get("c").decode(),
-            ca.get("k").decode(),
-        )
-        if private:
-            log.debug("private")
-            return PrivateCertificate.loadPEM(ca_pem)
-        else:
-            log.debug("not private")
-            return Certificate.loadPEM(ca_pem)
-
-    @staticmethod
     def _get_ssl_context(
-        *, client_ca_cert_path: str, server_cert_path: str, ip: str
+        *,
+        client_ca_redis_key: str,
+        server_ca_redis_key: str,
+        server_cert_redis_key: str,
+        ip: str,
     ) -> CertificateOptions:
-        # TODO: refactor this function and improve code complexity.
         log.debug("_get_ssl_context")
-        client_cert = ChannelKubeConfig.get_or_create_ca(
-            ca_cert_path=client_ca_cert_path,
-            username="kubernetes-ca",
-        )
-        server_cert = ChannelKubeConfig.get_or_create_ca(
-            ca_cert_path=server_cert_path,
-            username="kubernetes-apiserver",
-        )
 
-        server_ca_cert_path = server_cert_path + "_ca"
-        server_cert = ChannelKubeConfig.get_or_create_ca(
-            ca_cert_path=server_ca_cert_path,
-            username="kubernetes-apiserver",
-            ip=ip,
-            private=True,
-        )
+        certs = {}
+        # TODO figure out how to get this nice with black
+        #    redis_key, issuer, username, kind
+        params = [
+            (client_ca_redis_key, None, "kubernetes-ca", Certificate),
+            (server_ca_redis_key, None, "kubernetes-ca", Certificate),
+            (
+                server_cert_redis_key,
+                server_ca_redis_key,
+                "kube-apiserver",
+                PrivateCertificate,
+            ),
+        ]
+        for redis_key, issuer, username, kind in params:
+            log.debug(f"checking for: {redis_key}")
+            try:
+                # if it's there we use it
+                cert = get_certificate(redis_key)
+                log.debug("cert found")
+            except LookupError:
+                # Generate cert if not found.
+                log.debug("generating cert")
+                if redis_key.endswith("_ca"):
+                    cert = mTLS.generate_new_ca(username=username)
+                else:
+                    cert = mTLS.generate_new_certificate(
+                        ca_redis_key=issuer,
+                        username=username,
+                        ip=ip,
+                        is_server_cert=True,
+                    )
 
-        return server_cert.options(client_cert)
+            save_certificate(redis_key, cert)
+            log.debug(f"{cert.get('f') = }")
+
+            cert_pem = "{}\n{}".format(
+                cert.get("c").decode(),
+                cert.get("k").decode(),
+            )
+            certs[redis_key] = kind.loadPEM(cert_pem)
+
+        return certs[server_cert_redis_key].options(certs[client_ca_redis_key])
