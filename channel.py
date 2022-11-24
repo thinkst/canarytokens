@@ -114,6 +114,9 @@ class InputChannel(Channel):
         if 'src_data' in kwargs and 'cmd_computer_name' in kwargs['src_data']:
             msg['cmd_computer_name'] = kwargs['src_data']['cmd_computer_name']
 
+        if 'src_data' in kwargs and 'generic_data' in kwargs['src_data']:
+            msg['generic_data'] = kwargs['src_data']['generic_data']
+
         if 'src_data' in kwargs and 'cmd_user_name' in kwargs['src_data']:
             msg['cmd_user_name'] = kwargs['src_data']['cmd_user_name']
 
