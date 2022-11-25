@@ -178,7 +178,7 @@ class mTLS(basic.LineReceiver):
             b"keyUsage", True, b"digitalSignature,keyEncipherment"
         )
 
-        if ip:  # username == "kubernetes-apiserver":
+        if ip:
             san_list = [
                 "IP:{}".format(ip),
                 "DNS:kubernetes",
@@ -359,8 +359,6 @@ class ChannelKubeConfig:
         log.debug("_get_ssl_context")
 
         certs = {}
-        # TODO figure out how to get this nice with black
-        #    redis_key, issuer, username, kind
         params = [
             (client_ca_redis_key, None, "kubernetes-ca", Certificate),
             (server_ca_redis_key, None, "kubernetes-ca", Certificate),
