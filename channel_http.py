@@ -65,10 +65,13 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 for k, v in request.requestHeaders.getAllRawHeaders()
             }
             request_args = {k: ','.join(v) for k, v in request.args.iteritems()}
-            self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
-                          useragent=useragent, location=location,
-                          referer=referer, request_headers=request_headers, 
-                          request_args=request_args)
+            if canarydrop['type'] == 'cc':
+                self.dispatch(canarydrop=canarydrop, last4=request.getHeader('Last4'), amount='$'+request.getHeader('Amount'), merchant=request.getHeader('Merchant'))
+            else:
+                self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
+                            useragent=useragent, location=location,
+                            referer=referer, request_headers=request_headers,
+                            request_args=request_args)
 
             if 'redirect_url' in canarydrop._drop and canarydrop._drop['redirect_url']:
                 # if fast redirect
@@ -187,7 +190,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                         log.error('Error in secretkeeper_photo post: {error}'.format(error=e))
                 else:
                     additional_info = {k:v for k,v in request.args.iteritems() if k not in ['key','canarytoken','name']}
-                    canarydrop.add_additional_info_to_hit(hit_time=key,additional_info={request.args['name'][0]:additional_info})
+                    canarydrop.add_additional_info_to_hit(hit_time=key, additional_info={request.args['name'][0]:additional_info})
                 return 'success'
             else:
                 return self.render_GET(request)
@@ -195,7 +198,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
             return self.render_GET(request)
 
     def format_additional_data(self, **kwargs):
-        log.info(kwargs)
         additional_report = ''
         if kwargs.has_key('src_ip') and kwargs['src_ip']:
             additional_report += 'Source IP: {ip}'.format(ip=kwargs['src_ip'])
@@ -205,6 +207,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
             additional_report += '\nCloned site is at: {location}'.format(location=kwargs['location'])
         if kwargs.has_key('referer') and kwargs['referer']:
             additional_report += '\nReferring site: {referer}'.format(referer=kwargs['referer'])
+        if kwargs.has_key('request_headers') and kwargs['request_headers']:
+            additional_report += '\nAdditional header info: {0}'.format(kwargs['request_headers'])
         return additional_report
 
     def init(self, switchboard=None):

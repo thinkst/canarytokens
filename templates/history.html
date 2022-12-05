@@ -111,6 +111,8 @@
                 <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
   {% if canarydrop['type'] == 'aws_keys' %}
                                   <b>Channel:</b> AWS API Key Token
+  {% elif canarydrop['type'] == 'cc' %}
+                                  <b>Channel:</b> Credit Card Token
   {% else %}
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
   {% endif %}
@@ -174,7 +176,7 @@
                 </script>
               </table>
   {%endif%}
-  {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None %}
+  {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None and canarydrop['type'] != 'cc' %}
               <table class="table table-bordered table-hover">
                 <col width="25%">
                 <col width="75%">

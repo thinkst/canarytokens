@@ -59,7 +59,8 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=7">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.css?ver=7">
+    <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
     <style>
     .ps__rail-x,
     .ps__rail-y {
@@ -110,6 +111,7 @@
 				            <li data-type="cmd"            data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
+                    <li data-type="cc"             data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token (beta)</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li>
                     <li data-type="kubeconfig"     data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="wireguard"      data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
@@ -339,6 +341,59 @@
                       <li>Ideal candidates are executables often used by attackers but seldom used by regular users (e.g., whoami.exe, net.exe, wmic.exe, etc.).</li>
                       <li>You can use this for attacker tools that are not present on your system (e.g., mimikatz.exe), and if they are ever downloaded and run you'll get an alert!</li>
                       <li>Use a network management tool to deploy across your organization.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result cc">
+                <h3>Your credit card token is active!</h3>
+                <br>
+                <div class="artifacts">
+                  <div class="form-control" style="padding: 20px;">
+                    <div class="credit-card">
+                      <div id="ccRender">
+
+                      </div>
+                      <div class="copy-card">
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-name"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Name:</span>
+                            <span id="copy-name">Harold Boyd</span>
+                          </div>
+                        </span>
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Card Number:</span>
+                            <span id="copy-card"></span>
+                          </div>
+                        </span>
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Expiration Date:</span>
+                            <span id="copy-expiry"></span>
+                          </div>
+                        </span>
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Security Code:</span>
+                            <span id="copy-cvc"></span></div>
+                        </span>
+                      </div>
+                    </div>
+                    <a class="btn btn-large btn-success file-download" data-fmt="cc">Download your credit card data</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>If the card number is ever used in an authorization, the transaction will be declined, but you will be alerted.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Stick this in a database that stores payment information and get alerted if it is ever breached.</li>
+                      <li>You can use any name or address in association with the card number and CVC.</li>
+                      <li>Put it in a document with other personal information regarding e.g., travel preferences in case someone snoops around your computer.</li>
                     </ul>
                   </p>
                 </div>
@@ -742,9 +797,9 @@ START REPLICA;
 
 
       <footer class="footer">
-        <p>Brought to you by <a href="https://canary.tools/" target="_blank">Thinkst Canary</a>, our insanely easy-to-use honeypot solution that deploys in just 3 minutes. <strong>Know. When it matters.</strong></p>
-        <p>&copy; <a href="https://canary.tools/" target="_blank">Thinkst Canary</a> 2015&ndash;{{now.year}}</p>
-        <p>By using this service, you agree with our <a href="/legal">terms of use.</a></p>
+        <a href="http://canary.tools/why" target="_blank" class="banner"></a>
+        <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
+        <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
         {% if settings.DEV_BUILD_ID %}
         <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
@@ -1100,6 +1155,24 @@ START REPLICA;
           $('#result_dns').val(data['Hostname']);
         };
 
+        var _handleCCResponse = function(data) {
+          console.log(data)
+          let exp = data['expiration'].split('/')
+          let month = exp[0]
+          let year = exp[1]
+          month = month.length === 2 ? month : `0${month}`
+          year = year.substr(-2)
+          $('#copy-name').text(data['name'])
+          $('#copy-card').text(data['number'])
+          $('#copy-expiry').text(`${month}/${year}`)
+          $('#copy-cvc').text(data['cvc'])
+          $('#ccRender').html(data['rendered_html'])
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+          });
+        };
+
         var _handleAWSKeysResponse = function(data){
           $('#result_aws_keys').val('[default]'+
           '\naws_access_key_id = '+ data['aws_access_key_id']+
@@ -1213,6 +1286,7 @@ START REPLICA;
                                   'ms_word' : _handleFileDownloadResponse,
                                   'ms_excel' : _handleFileDownloadResponse,
                                   'cmd': _handleFileDownloadResponse,
+                                  'cc': _handleCCResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,

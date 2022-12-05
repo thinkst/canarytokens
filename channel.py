@@ -163,6 +163,15 @@ class InputChannel(Channel):
         if 'src_ip' in kwargs:
             msg['src_ip'] = kwargs['src_ip']
 
+        if 'last4' in kwargs:
+            msg['last4'] = kwargs['last4']
+
+        if 'amount' in kwargs:
+            msg['amount'] = kwargs['amount']
+
+        if 'merchant' in kwargs:
+            msg['merchant'] = kwargs['merchant']
+
         msg['time'] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")
         msg['channel'] = self.name
 

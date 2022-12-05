@@ -1,4 +1,5 @@
 import base64
+import subprocess, json
 import simplejson
 import cgi
 
@@ -35,6 +36,7 @@ from kubeconfig import get_kubeconfig
 from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
 from msreg import make_canary_msreg
+import extendtoken
 import settings
 import datetime
 import tempfile
@@ -71,7 +73,7 @@ class GeneratorPage(resource.Resource):
     def render_POST(self, request):
         request.responseHeaders.addRawHeader(b"content-type", b"application/json")
         response = { 'Error': None,
-                     'Error_Message': None,
+                     'Message': None,
                      'Url': "",
                      'Url_components': None,
                      'Token': "",
@@ -94,6 +96,7 @@ class GeneratorPage(resource.Resource):
                                       'clonedsite',
                                       'qr_code',
                                       'svn',
+                                      'cc',
                                       'smtp',
                                       'sql_server',
                                       'my_sql',
@@ -112,36 +115,36 @@ class GeneratorPage(resource.Resource):
                 webhook = request.args.get('webhook', None)[0]
                 if not email and not webhook:
                     response['Error'] = 1
-                    response['Error_Message'] = 'No email/webhook supplied'
+                    response['Message'] = 'No email/webhook supplied'
                     raise Exception('No email/webhook supplied')
             except IndexError:
                 response['Error'] = 1
-                response['Error_Message'] = 'No email supplied'
+                response['Message'] = 'No email supplied'
                 raise Exception('No email supplied')
             try:
                 memo  = ''.join(request.args.get('memo', None))
                 if not memo:
                     response['Error'] = 2
-                    response['Error_Message'] = 'No memo supplied'
+                    response['Message'] = 'No memo supplied'
                     raise Exception('No memo supplied')
             except TypeError:
                 response['Error'] = 2
-                response['Error_Message'] = 'No memo supplied'
+                response['Message'] = 'No memo supplied'
                 raise Exception('No memo supplied')
 
             if webhook and not is_webhook_valid(webhook):
                 response['Error'] = 3
-                response['Error_Message'] = 'Invalid webhook supplied. Confirm you can POST to this URL.'
+                response['Message'] = 'Invalid webhook supplied. Confirm you can POST to this URL.'
                 raise Exception('Invalid webhook supplied. Confirm you can POST to this URL.')
 
             if email:
                 if not is_valid_email(email):
                     response['Error'] = 5
-                    response['Error_Message'] = 'Invalid email supplied'
+                    response['Message'] = 'Invalid email supplied'
                     raise Exception('Invalid email supplied')
                 if is_email_blocked(email):
                     response['Error'] = 6
-                    response['Error_Message'] = 'Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal'
+                    response['Message'] = 'Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal'
                     raise Exception('Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal')
 
             alert_email_enabled = False if not email else True
@@ -235,7 +238,7 @@ class GeneratorPage(resource.Resource):
                 keys = get_aws_keys(token=canarytoken.value(), server=get_all_canary_domains()[0])
                 if not keys:
                     response['Error'] = 4
-                    response['Error_Message'] = 'Failed to retrieve AWS API keys. Please contact support@thinkst.com.'
+                    response['Message'] = 'Failed to retrieve AWS API keys. Please contact support@thinkst.com.'
                     raise Exception()
                 response['aws_access_key_id'] = keys[0]
                 response['aws_secret_access_key'] = keys[1]
@@ -250,11 +253,41 @@ class GeneratorPage(resource.Resource):
                 pass
 
             try:
+                if not request.args.get('type', None)[0] == 'cc':
+                    raise Exception()
+                # import rpdb;rpdb.set_trace()
+                user, token = extendtoken.ExtendAPI.fetch_credentials(path=settings.EXTEND_CREDENTIALS_PATH)
+                log.info('Extend User is {}'.format(user))
+                eapi = extendtoken.ExtendAPI(email=user, token=token, card_name=settings.EXTEND_CARD_NAME)
+                cc = eapi.create_credit_card(metadata=canarydrop.get_url())
+                response['rendered_html'] = cc.render_html()
+                response['name'] = cc.name
+                response['number'] = cc.number
+                response['expiration'] = cc.expiration
+                response['cvc'] = cc.cvc
+                canarydrop['cc_csv'] = cc.to_csv()
+                save_canarydrop(canarydrop)
+            except extendtoken.ExtendAPIRateLimitException as e:
+                log.error('ExtendAPI Error: {}'.format(e.args))
+                response['Error'] = 4
+                response['Message'] = 'Credit Card Rate-Limiting currently in place. Please try again later.'
+            except extendtoken.ExtendAPIException as e:
+                log.error('ExtendAPI Error: {}'.format(e.args))
+                response['Error'] = 4
+                response['Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
+            except extendtoken.ExtendAPICardsException as e:
+                log.error('ExtendAPI Error: {}'.format(e.args))
+                response['Error'] = 4
+                response['Message'] = 'Failed to generate credit card due to a configuration error. Please contact support@thinkst.com.'
+            except Exception as e:
+                pass
+
+            try:
                 if not request.args.get('type', None)[0] == 'kubeconfig':
                     raise Exception()
                 if kubeconfig is None:
                     response['Error'] = 4
-                    response['Error_Message'] = 'Failed to retrieve the kubeconfig. Please contact support@thinkst.com.'
+                    response['Message'] = 'Failed to retrieve the kubeconfig. Please contact support@thinkst.com.'
                     raise Exception()
                 response['kubeconfig'] = kubeconfig[1]
                 canarydrop['kubeconfig'] = kubeconfig[1]
@@ -428,6 +461,10 @@ class DownloadPage(resource.Resource):
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition", 'attachment; filename={token}.reg'.format(token=token))
                 return make_canary_msreg(url=canarydrop.get_hostname(), process_name=canarydrop['cmd_process'])
+            elif fmt == 'cc':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition", 'attachment; filename=creditcard.csv')
+                return canarydrop['cc_csv']
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
                 request.setHeader("Content-Disposition",

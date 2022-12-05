@@ -50,6 +50,9 @@ class EmailOutputChannel(OutputChannel):
         else:
             template = ("A {Type} Canarytoken has been triggered")
 
+        if self.data['tokentype'] == 'cc':
+            return "A credit card Canarytoken has been triggered"
+
         if 'src_ip' in self.data:
             template += " by the Source IP {src}.".format(src=self.data['src_ip'])
 
@@ -105,6 +108,15 @@ class EmailOutputChannel(OutputChannel):
                 process=self.data.get('cmd_process'),
                 computer=self.data['cmd_computer_name']
             )
+
+        if 'tokentype' in self.data and self.data['tokentype'] == 'cc':
+            vars = { 'Description' : self.data['description'],
+                 'Channel'     : 'Credit Card',
+                 'Time'        : self.data['time'],
+                 'Canarytoken' : self.data['last4'],
+                 'Amount'      : self.data['amount'],
+                 'Merchant'    : self.data['merchant']
+                }
 
         return vars
 
