@@ -520,7 +520,8 @@ def is_webhook_valid(url):
         return False
 
     slack = "https://hooks.slack.com"
-    if (slack in url):
+    google_chat = "https://chat.googleapis.com/"
+    if (slack in url or google_chat in url):
         payload = {'text': 'Validating new canarytokens webhook'}
     else:
         payload = {"manage_url": "http://example.com/test/url/for/webhook",
