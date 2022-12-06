@@ -55,7 +55,7 @@ class InputChannel(Channel):
 
         return payload
 
-    def format_slack_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
+    def format_slack_canaryalert(self, canarydrop, protocol=settings.PROTOCOL,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {}
         fields = []
@@ -80,7 +80,7 @@ class InputChannel(Channel):
         payload['attachments'] = [attachment]
         return payload
 
-    def format_googlechat_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
+    def format_googlechat_canaryalert(self, canarydrop, protocol=settings.PROTOCOL,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {
             "cardsV2": [
