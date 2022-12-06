@@ -137,9 +137,10 @@ class InputChannel(Channel):
         )
 
         for (label, text) in kwargs.items():
-            payload["cardsV2"][0]["card"]["sections"][1]["widgets"].append(
-                decorated_text(label=label, text=text)
-            )
+            if label and text:
+                payload["cardsV2"][0]["card"]["sections"][1]["widgets"].append(
+                    decorated_text(label=label, text=text)
+                )
 
         return payload
 
