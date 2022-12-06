@@ -100,12 +100,6 @@ class InputChannel(Channel):
         }
         if not host or host == '':
             host=settings.PUBLIC_IP
-        
-        paragraph_text = lambda text: {
-            "textParagraph": {
-                "text": text,
-            }
-        }
 
         decorated_text = lambda label, text: {
             "decoratedText": {
