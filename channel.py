@@ -120,7 +120,7 @@ class InputChannel(Channel):
         for (label, text) in [
             ('Channel', self.name),
             ('Time', datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")),
-            ('Canarytoken', canarydrop.canarytoken),
+            ('Canarytoken', canarydrop.canarytoken.value()),
             ('Token Reminder', canarydrop.memo),
             ('Manage URL', '<a href="{protocol}://{host}/manage?token={token}&auth={auth}">{protocol}://{host}/manage?token={token}&auth={auth}</a>' \
                                 .format(protocol=protocol,
@@ -136,8 +136,7 @@ class InputChannel(Channel):
             section(header='Additional Details')
         )
 
-        for label in kwargs:
-            text = kwargs[label]
+        for (label, text) in kwargs.items():
             payload["cardsV2"][0]["card"]["sections"][1]["widgets"].append(
                 decorated_text(label=label, text=text)
             )
