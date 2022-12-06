@@ -55,7 +55,7 @@ class InputChannel(Channel):
 
         return payload
 
-    def format_slack_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
+    def format_slack_canaryalert(self, canarydrop, protocol=settings.PROTOCOL,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
         payload = {}
         fields = []
@@ -78,6 +78,70 @@ class InputChannel(Channel):
         fields.append({'title':'Manage','value': manage_link})
         attachment['fields'] = fields
         payload['attachments'] = [attachment]
+        return payload
+
+    def format_googlechat_canaryalert(self, canarydrop, protocol=settings.PROTOCOL,
+                                   host=settings.PUBLIC_DOMAIN, **kwargs):
+        payload = {
+            "cardsV2": [
+                {
+                    "cardId": "unique-card-id",
+                    "card": {
+                        "header": {
+                            "title": "Canarytoken Triggered",
+                            "imageUrl": "https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
+                            "imageType": "CIRCLE",
+                            "imageAltText": "Thinkst Canary",
+                        },
+                        "sections": [],
+                    },
+                }
+            ],
+        }
+        if not host or host == '':
+            host=settings.PUBLIC_IP
+
+        decorated_text = lambda label, text: {
+            "decoratedText": {
+                "topLabel": label,
+                "text": text,
+            }
+        }
+
+        section = lambda header: {
+            "header": header,
+            "collapsible": False,
+            "widgets": [],
+        }
+
+        payload["cardsV2"][0]["card"]["sections"].append(
+            section(header='Alert Details')
+        )
+        for (label, text) in [
+            ('Channel', self.name),
+            ('Time', datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")),
+            ('Canarytoken', canarydrop.canarytoken.value()),
+            ('Token Reminder', canarydrop.memo),
+            ('Manage URL', '<a href="{protocol}://{host}/manage?token={token}&auth={auth}">{protocol}://{host}/manage?token={token}&auth={auth}</a>' \
+                                .format(protocol=protocol,
+                                                        host=host,
+                                                        token=canarydrop['canarytoken'],
+                                                        auth=canarydrop['auth'])),
+        ]:
+            payload["cardsV2"][0]["card"]["sections"][0]["widgets"].append(
+                decorated_text(label=label, text=text)
+            )
+        
+        payload["cardsV2"][0]["card"]["sections"].append(
+            section(header='Additional Details')
+        )
+
+        for (label, text) in kwargs.items():
+            if label and text:
+                payload["cardsV2"][0]["card"]["sections"][1]["widgets"].append(
+                    decorated_text(label=label, text=text)
+                )
+
         return payload
 
     def format_canaryalert(self, canarydrop=None, protocol=settings.PROTOCOL,

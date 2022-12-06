@@ -36,11 +36,16 @@ class WebhookOutputChannel(OutputChannel):
 
     def do_send_alert(self, input_channel=None, canarydrop=None, **kwargs):
 
-        slack = "https://hooks.slack.com"
+        slack_hook_base_url = "https://hooks.slack.com"
+        googlechat_hook_base_url = "https://chat.googleapis.com/"
 
         try:
-            if (slack in canarydrop['alert_webhook_url']):
+            if (slack_hook_base_url in canarydrop['alert_webhook_url']):
                 payload = input_channel.format_slack_canaryalert(
+                                            canarydrop=canarydrop,
+                                            **kwargs)
+            elif (googlechat_hook_base_url in canarydrop['alert_webhook_url']):
+                payload = input_channel.format_googlechat_canaryalert(
                                             canarydrop=canarydrop,
                                             **kwargs)
             else:
