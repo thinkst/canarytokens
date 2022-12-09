@@ -138,8 +138,9 @@ class InputChannel(Channel):
 
         for (label, text) in kwargs.items():
             if label and text:
+                message_text = simplejson.dumps(text) if isinstance(text, dict) else '{}'.format(text)
                 payload["cardsV2"][0]["card"]["sections"][1]["widgets"].append(
-                    decorated_text(label=label, text='{}'.format(text))
+                    decorated_text(label=label, text=message_text)
                 )
 
         return payload
