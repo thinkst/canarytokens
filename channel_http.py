@@ -57,19 +57,29 @@ class CanarytokenPage(resource.Resource, InputChannel):
             request_headers = {
                 k.decode(): flatten_singletons([s.decode() for s in v])
                 for k, v in request.requestHeaders.getAllRawHeaders()
-                if k not in [
-                    'User-Agent',
-                    'x-forwarded-for',
-                ]
+                # if k not in [
+                #     'User-Agent',
+                #     'X-Forwarded-For',
+                #     'X-Real-Ip',
+                # ]
             }
             useragent = request.getHeader('User-Agent')
             src_ip    = request.getHeader('x-forwarded-for')
             #location and refere are for cloned sites
             location  = request.args.get('l', [None])[0]
             referer   = request.args.get('r', [None])[0]
+            request_args = {
+                k: v
+                for k, v in request.args.iteritems()
+                if k not in [
+                    'l', 'r', 'ts_key', 'canarydrop', 'src_ip', 
+                    'useragent', 'location', 'referer', 'request_headers'
+                ]
+            }
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
-                          referer=referer, request_headers=request_headers)
+                          referer=referer, request_headers=request_headers, 
+                          request_args=request_args)
 
             if 'redirect_url' in canarydrop._drop and canarydrop._drop['redirect_url']:
                 # if fast redirect
