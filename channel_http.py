@@ -1,3 +1,4 @@
+import re
 import simplejson
 import datetime
 import os
@@ -36,6 +37,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
+        print('channel_http.py:CanarytokenPage.render_GET({})'.format(request))
         #A GET request to a token URL can trigger one of a few responses:
         # 1. Check if link has been clicked on (rather than loaded from an
         #    <img>) by looking at the Accept header, then:
@@ -53,6 +55,11 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 canarydrop._drop['hit_time'] = request.args.get('ts_key', [None])[0]
             else:
                 canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
+            useragent = request.getHeader('User-Agent')
+            src_ip    = request.getHeader('x-forwarded-for')
+            #location and refere are for cloned sites
+            location  = request.args.get('l', [None])[0]
+            referer   = request.args.get('r', [None])[0]
             flatten_singletons = lambda l: l[0] if len(l) == 1 else l
             request_headers = {
                 k.decode(): flatten_singletons([s.decode() for s in v])
@@ -63,13 +70,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 #     'X-Real-Ip',
                 # ]
             }
-            useragent = request.getHeader('User-Agent')
-            src_ip    = request.getHeader('x-forwarded-for')
-            #location and refere are for cloned sites
-            location  = request.args.get('l', [None])[0]
-            referer   = request.args.get('r', [None])[0]
             request_args = {
-                k: v
+                k: flatten_singletons(v)
                 for k, v in request.args.iteritems()
                 if k not in [
                     'l', 'r', 'ts_key', 'canarydrop', 'src_ip', 
@@ -122,6 +124,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return self.GIF
 
     def render_POST(self, request):
+        print('channel_http.py:CanarytokenPage.render_POST({})'.format(request))
         try:
             token = Canarytoken(value=request.path)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))

@@ -35,6 +35,10 @@ class WebhookOutputChannel(OutputChannel):
 
 
     def do_send_alert(self, input_channel=None, canarydrop=None, **kwargs):
+        print('do_send_alert(input_channel={input_channel}, canarydrop, **kwargs={kwargs})'.format(
+            input_channel=input_channel,
+            kwargs=kwargs
+        ))
 
         slack_hook_base_url = "https://hooks.slack.com"
         googlechat_hook_base_url = "https://chat.googleapis.com/"
