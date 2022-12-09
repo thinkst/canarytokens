@@ -39,9 +39,6 @@ class InputChannel(Channel):
 
     def format_webhook_canaryalert(self,canarydrop=None, protocol=settings.PROTOCOL,
                                    host=settings.PUBLIC_DOMAIN, **kwargs):
-        print('format_webhook_canaryalert(..., **kwargs={kwargs})'.format(
-            kwargs=kwargs
-        ))
         payload = {}
         if not host or host == '':
             host=settings.PUBLIC_IP
@@ -234,7 +231,6 @@ Manage your settings for this Canarydrop:
         return msg
 
     def dispatch(self, **kwargs):
-        print('channel.py:InputChannel.dispatch(**kwargs={})'.format(kwargs))
         self.switchboard.dispatch(input_channel=self.name, **kwargs)
 
 

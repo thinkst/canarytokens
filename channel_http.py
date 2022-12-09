@@ -37,7 +37,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
-        print('channel_http.py:CanarytokenPage.render_GET({})'.format(request))
         #A GET request to a token URL can trigger one of a few responses:
         # 1. Check if link has been clicked on (rather than loaded from an
         #    <img>) by looking at the Accept header, then:
@@ -64,20 +63,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
             request_headers = {
                 k.decode(): flatten_singletons([s.decode() for s in v])
                 for k, v in request.requestHeaders.getAllRawHeaders()
-                # if k not in [
-                #     'User-Agent',
-                #     'X-Forwarded-For',
-                #     'X-Real-Ip',
-                # ]
             }
-            request_args = {
-                k: flatten_singletons(v)
-                for k, v in request.args.iteritems()
-                if k not in [
-                    'l', 'r', 'ts_key', 'canarydrop', 'src_ip', 
-                    'useragent', 'location', 'referer', 'request_headers'
-                ]
-            }
+            request_args = {k: ','.join(v) for k, v in request.args.iteritems()}
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
                           referer=referer, request_headers=request_headers, 
@@ -124,7 +111,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
         return self.GIF
 
     def render_POST(self, request):
-        print('channel_http.py:CanarytokenPage.render_POST({})'.format(request))
         try:
             token = Canarytoken(value=request.path)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
