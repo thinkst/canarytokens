@@ -60,12 +60,18 @@ class WebhookOutputChannel(OutputChannel):
 
         def handle_response(response):
             if response.code != 200:
-                log.error("Failed sending request to webhook {url} with code {error}".format(url=canarydrop['alert_webhook_url'],error=response.code))
+                log.error("Failed sending request to webhook {url} with code {error}. Payload: {payload}".format(
+                    url=canarydrop['alert_webhook_url'],
+                    error=response.code,
+                    payload=payload))
             else:
                 log.info('Webhook sent to {url}'.format(url=canarydrop['alert_webhook_url']))
 
         def handle_error(result):
-            log.error("Failed sending request to webhook {url} with error {error}".format(url=canarydrop['alert_webhook_url'],error=result))
+            log.error("Failed sending request to webhook {url} with error {error}. Payload: {payload}".format(
+                url=canarydrop['alert_webhook_url'],
+                error=result,
+                payload=payload))
 
         agent = Agent(reactor)
         body = BytesProducer(payload)
