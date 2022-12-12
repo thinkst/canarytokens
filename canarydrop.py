@@ -32,7 +32,7 @@ class Canarydrop(object):
              'imgur_token' ,'imgur', 'auth', 'browser_scanner_enabled', 'web_image_path',\
              'web_image_enabled', 'type', 'clonedsite', 'aws_secret_access_key',\
              'aws_access_key_id', 'redirect_url', 'region', 'output', 'slack_api_key',\
-             'wg_key', 'kubeconfig', 'cmd_process']
+             'wg_key', 'kubeconfig', 'cmd_process', 'cc_csv']
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}

@@ -453,7 +453,7 @@ class DownloadPage(resource.Resource):
                 return make_canary_msreg(url=canarydrop.get_hostname(), process_name=canarydrop['cmd_process'])
             elif fmt == 'cc':
                 request.setHeader("Content-Type", "text/plain")
-                request.setHeader("Content-Disposition", 'attachment; filename=creditcard.csv'.format(token=token))
+                request.setHeader("Content-Disposition", 'attachment; filename=creditcard.csv')
                 return canarydrop['cc_csv']
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
