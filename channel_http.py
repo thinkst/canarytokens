@@ -1,3 +1,4 @@
+import re
 import simplejson
 import datetime
 import os
@@ -58,9 +59,16 @@ class CanarytokenPage(resource.Resource, InputChannel):
             #location and refere are for cloned sites
             location  = request.args.get('l', [None])[0]
             referer   = request.args.get('r', [None])[0]
+            flatten_singletons = lambda l: l[0] if len(l) == 1 else l
+            request_headers = {
+                k.decode(): flatten_singletons([s.decode() for s in v])
+                for k, v in request.requestHeaders.getAllRawHeaders()
+            }
+            request_args = {k: ','.join(v) for k, v in request.args.iteritems()}
             self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                           useragent=useragent, location=location,
-                          referer=referer)
+                          referer=referer, request_headers=request_headers, 
+                          request_args=request_args)
 
             if 'redirect_url' in canarydrop._drop and canarydrop._drop['redirect_url']:
                 # if fast redirect
