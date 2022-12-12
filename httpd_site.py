@@ -258,13 +258,15 @@ class GeneratorPage(resource.Resource):
                 # TODO call out to py3
                 cc = {
                     'rendered_html': '<div><span>01234 5678 9012</span></div>',
-                    'csv': 'name,number,cvc\nBob Bobby,012345324234,321'
+                    'csv': 'name,number,cvc\nBob Bobby,012345324234,321',
+                    'number': '01234 5678 9012'
                 }
                 if not cc:
                     response['Error'] = 4
                     response['Error_Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
                     raise Exception()
                 response['rendered_html'] = cc['rendered_html']
+                response['number'] = cc['number']
                 canarydrop['cc_csv'] = cc['csv']
                 save_canarydrop(canarydrop)
             except:
