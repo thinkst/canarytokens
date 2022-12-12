@@ -140,7 +140,7 @@
                       {% if BasicDetails['Amount'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Transaction amount</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>${{ BasicDetails['Amount'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Amount'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}
