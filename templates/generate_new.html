@@ -110,6 +110,7 @@
 				            <li data-type="cmd"            data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
+                    <li data-type="cc"             data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li>
                     <li data-type="kubeconfig"     data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="wireguard"      data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
@@ -339,6 +340,24 @@
                       <li>Ideal candidates are executables often used by attackers but seldom used by regular users (e.g., whoami.exe, net.exe, wmic.exe, etc.).</li>
                       <li>You can use this for attacker tools that are not present on your system (e.g., mimikatz.exe), and if they are ever downloaded and run you'll get an alert!</li>
                       <li>Use a network management tool to deploy across your organization.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result cc">
+                <h3>Your credit card token is active!</h3>
+                <div class="artifacts">
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="cc">Download your credit card data as a CSV</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>If the card number is ever used in an authorization, the transaction will be declined, but you will be alerted.</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Stick this in a database that stores payment information and get alerted if it is ever breached.</li>
+                      <li>You can use any name or address in association with the card number and CVC.</li>
+                      <li>Put it in a document with other personal information regarding e.g., travel preferences in case someone snoops around your computer.</li>
                     </ul>
                   </p>
                 </div>
@@ -1100,6 +1119,10 @@ START REPLICA;
           $('#result_dns').val(data['Hostname']);
         };
 
+        var _handleCCResponse = function(data) {
+          $('#result_cc').val(data['rendered_html'])
+        };
+
         var _handleAWSKeysResponse = function(data){
           $('#result_aws_keys').val('[default]'+
           '\naws_access_key_id = '+ data['aws_access_key_id']+
@@ -1213,6 +1236,7 @@ START REPLICA;
                                   'ms_word' : _handleFileDownloadResponse,
                                   'ms_excel' : _handleFileDownloadResponse,
                                   'cmd': _handleFileDownloadResponse,
+                                  'cc': _handleCCResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,

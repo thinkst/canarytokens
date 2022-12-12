@@ -507,6 +507,9 @@
       a.icon-word:before {
         background-image: url("/resources/word.png");
       }
+      a.icon-cc:before {
+        background-image: url("/resources/credit-card.png");
+      }
       a.icon-excel:before {
         background-image: url("/resources/excel.png");
       }

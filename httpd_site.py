@@ -35,6 +35,8 @@ from kubeconfig import get_kubeconfig
 from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
 from msreg import make_canary_msreg
+from cctoken import CreditCard
+import extendtoken
 import settings
 import datetime
 import tempfile
@@ -94,6 +96,7 @@ class GeneratorPage(resource.Resource):
                                       'clonedsite',
                                       'qr_code',
                                       'svn',
+                                      'cc',
                                       'smtp',
                                       'sql_server',
                                       'my_sql',
@@ -245,6 +248,21 @@ class GeneratorPage(resource.Resource):
                 canarydrop['aws_secret_access_key'] = keys[1]
                 canarydrop['region'] = keys[2]
                 canarydrop['output'] = keys[3]
+                save_canarydrop(canarydrop)
+            except:
+                pass
+            
+            try:
+                if not request.args.get('type', None)[0] == 'cc':
+                    raise Exception()
+                eapi = extendtoken.ExtendApi(settings.EXTEND_USERNAME, settings.EXTENDPASSWORD)
+                cc = eapi.create_credit_card(metadata=canarydrop.get_hostname())
+                if not cc:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
+                    raise Exception()
+                response['rendered_html'] = cc.render_html()
+                canarydrop['cc_csv'] = cc.to_csv()
                 save_canarydrop(canarydrop)
             except:
                 pass
