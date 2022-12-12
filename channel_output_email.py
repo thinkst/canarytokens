@@ -113,9 +113,9 @@ class EmailOutputChannel(OutputChannel):
             vars = { 'Description' : self.data['description'],
                  'Channel'     : 'Credit Card',
                  'Time'        : self.data['time'],
-                 'Canarytoken' : self.data['Last4'],
-                 'Amount'      : self.data['Amount'],
-                 'Merchant'    : self.data['Merchant']
+                 'Canarytoken' : self.data['last4'],
+                 'Amount'      : self.data['amount'],
+                 'Merchant'    : self.data['merchant']
                 }
 
         return vars
