@@ -205,6 +205,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
             additional_report += '\nCloned site is at: {location}'.format(location=kwargs['location'])
         if kwargs.has_key('referer') and kwargs['referer']:
             additional_report += '\nReferring site: {referer}'.format(referer=kwargs['referer'])
+        if kwargs.has_key('request_headers') and kwargs['request_headers']:
+            additional_report += '\nAdditional header info: {0}'.format(kwargs['request_headers'])
         return additional_report
 
     def init(self, switchboard=None):
