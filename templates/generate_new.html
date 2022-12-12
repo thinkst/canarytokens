@@ -348,6 +348,7 @@
                 <h3>Your credit card token is active!</h3>
                 <div class="artifacts">
                   <div class="form-control">
+                    {{ inputcopy('result_cc') }}
                     <a class="btn btn-large btn-success file-download" data-fmt="cc">Download your credit card data as a CSV</a>
                   </div>
                 </div>
@@ -1120,7 +1121,7 @@ START REPLICA;
         };
 
         var _handleCCResponse = function(data) {
-          $('#result_cc').val(data['rendered_html'])
+          $('#result_cc').html(data['rendered_html'])
         };
 
         var _handleAWSKeysResponse = function(data){

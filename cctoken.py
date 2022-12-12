@@ -5,6 +5,8 @@
 
 from typing import Optional, Dict
 from abc import ABCMeta, abstractmethod
+from io import StringIO
+import csv
 
 class CreditCard(object):
     '''Simple class to represent a credit card and its associated owner information.'''
@@ -20,7 +22,15 @@ class CreditCard(object):
     
     def render_html(self) -> str:
         '''Returns an HTML div to render the card info on a website'''
-        pass
+        return ''
+
+    def to_csv(self) -> str:
+        f = StringIO
+        fn = ['name', 'type', 'number', 'cvc', 'exp', 'billing_zip']
+        writer = csv.DictWriter(f, fieldnames=fn)
+        writer.writeheader()
+        writer.writerow(self.to_dict())
+        return f.getvalue()
 
     def to_dict(self) -> Dict[str, str]:
         '''Returns the CC information as a python dict'''

@@ -35,8 +35,6 @@ from kubeconfig import get_kubeconfig
 from mysql import make_canary_mysql_dump
 from authenticode import make_canary_authenticode_binary
 from msreg import make_canary_msreg
-from cctoken import CreditCard
-import extendtoken
 import settings
 import datetime
 import tempfile
@@ -255,14 +253,19 @@ class GeneratorPage(resource.Resource):
             try:
                 if not request.args.get('type', None)[0] == 'cc':
                     raise Exception()
-                eapi = extendtoken.ExtendApi(settings.EXTEND_USERNAME, settings.EXTENDPASSWORD)
-                cc = eapi.create_credit_card(metadata=canarydrop.get_url())
+                #eapi = extendtoken.ExtendApi(settings.EXTEND_USERNAME, settings.EXTENDPASSWORD)
+                #cc = eapi.create_credit_card(metadata=canarydrop.get_url())
+                # TODO call out to py3
+                cc = {
+                    'rendered_html': '<div><span>01234 5678 9012</span></div>',
+                    'csv': 'name,number,cvc\nBob Bobby,012345324234,321'
+                }
                 if not cc:
                     response['Error'] = 4
                     response['Error_Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
                     raise Exception()
-                response['rendered_html'] = cc.render_html()
-                canarydrop['cc_csv'] = cc.to_csv()
+                response['rendered_html'] = cc['rendered_html']
+                canarydrop['cc_csv'] = cc['csv']
                 save_canarydrop(canarydrop)
             except:
                 pass
@@ -446,6 +449,10 @@ class DownloadPage(resource.Resource):
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition", 'attachment; filename={token}.reg'.format(token=token))
                 return make_canary_msreg(url=canarydrop.get_hostname(), process_name=canarydrop['cmd_process'])
+            elif fmt == 'cc':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition", 'attachment; filename=creditcard.csv'.format(token=token))
+                return canarydrop['cc_csv']
             elif fmt == 'pdf':
                 request.setHeader("Content-Type", "application/pdf")
                 request.setHeader("Content-Disposition",
