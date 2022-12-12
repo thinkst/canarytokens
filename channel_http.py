@@ -66,7 +66,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
             }
             request_args = {k: ','.join(v) for k, v in request.args.iteritems()}
             if canarydrop['type'] == 'cc':
-                self.dispatch(canarydrop=canarydrop, Last4=request.getHeader('Last4'), Amount=request.getHeader('Amount'), Merchant=request.getHeader('Merchant'))
+                self.dispatch(canarydrop=canarydrop, Last4=request.getHeader('Last4'), Amount='$'+request.getHeader('Amount'), Merchant=request.getHeader('Merchant'))
             else:
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                             useragent=useragent, location=location,
