@@ -10,7 +10,7 @@ import csv
 
 class CreditCard(object):
     '''Simple class to represent a credit card and its associated owner information.'''
-    def __init__(self, id, name : str, number : Optional[str], cvc : Optional[str], billing_zip : str, expiration : Optional[str] = None, address : Optional[str] = None, kind : Optional[str] = None):
+    def __init__(self, id, name : str, number : Optional[str], cvc : Optional[str], billing_zip : str, expiration : Optional[str] = None, address : str = '', kind : Optional[str] = None):
         self.id = id
         self.name : str = name
         self.number : Optional[str] = number
@@ -22,14 +22,17 @@ class CreditCard(object):
     
     def render_html(self) -> str:
         '''Returns an HTML div to render the card info on a website'''
-        return ''
+        return '''<div id="cccontainer" style="background-image: url('/resources/cc-background-{kind}.png'); height: 290px; width: 460px;"><span id="ccname" style="left: 50px; top: 140px; font-family: 'Open Sans'; position: absolute; font-size: 20pt; color: white;">{name}</span><span id="ccnumber" style="left: 50px; top: 165px; font-family: 'Open Sans'; position: absolute; font-size: 20pt; color: white; word-spacing: .45em;">{number}</span><span id="ccexpires" style="left: 50px; top: 235px; position: absolute; font-family: 'Open Sans'; font-size: 18pt; color: white;">{expiration}</span><span id="cccvc" style="left: 245px; top: 235px; position: absolute; font-family: 'Open Sans'; font-size: 18pt; color: white;">{cvc}</span></div>'''.format(kind=self.kind, cvc=self.cvc, number=self.number, name=self.name, expiration=self.expiration)
 
     def to_csv(self) -> str:
-        f = StringIO
+        f = StringIO()
         fn = ['name', 'type', 'number', 'cvc', 'exp', 'billing_zip']
+        sd = self.to_dict()
+        del sd['address']
+        del sd['id']
         writer = csv.DictWriter(f, fieldnames=fn)
         writer.writeheader()
-        writer.writerow(self.to_dict())
+        writer.writerow(sd)
         return f.getvalue()
 
     def to_dict(self) -> Dict[str, str]:
