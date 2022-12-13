@@ -12,7 +12,8 @@ from redismanager import db, KEY_CANARYDROP, KEY_CANARY_DOMAINS,\
      KEY_BITCOIN_ACCOUNTS, KEY_BITCOIN_ACCOUNT, KEY_CANARY_NXDOMAINS,\
      KEY_CLONEDSITE_TOKEN, KEY_CLONEDSITE_TOKENS, KEY_CANARY_IP_CACHE, \
      KEY_CANARY_GOOGLE_API_KEY, KEY_TOR_EXIT_NODES, KEY_WEBHOOK_IDX, KEY_EMAIL_IDX, \
-     KEY_WIREGUARD_KEYMAP, KEY_KUBECONFIG_SERVEREP, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_HITS
+     KEY_EMAIL_BLOCK_LIST, KEY_DOMAIN_BLOCK_LIST, KEY_WIREGUARD_KEYMAP, \
+     KEY_KUBECONFIG_SERVEREP, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_HITS
 
 from twisted.logger import Logger
 log = Logger()
@@ -547,6 +548,34 @@ def is_webhook_valid(url):
     except requests.exceptions.RequestException as e:
         log.error('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
         return False
+
+def normalize_email(email):
+    [user, domain] = email.split('@')
+    if domain in ['gmail.com', 'googlemail.com', 'google.com']:
+        delabelled = user.split('+')[0]
+        san_user = delabelled.replace('.', '')
+        return '{}@{}'.format(san_user, domain)
+    else:
+        return email
+
+def block_email(email):
+    san = normalize_email(email)
+    db.sadd(KEY_EMAIL_BLOCK_LIST, san)
+
+def unblock_email(email):
+    san = normalize_email(email)
+    db.srem(KEY_EMAIL_BLOCK_LIST, san)
+
+def block_domain(domain):
+    db.sadd(KEY_DOMAIN_BLOCK_LIST, domain)
+
+def unblock_domain(domain):
+    db.srem(KEY_DOMAIN_BLOCK_LIST, domain)
+
+def is_email_blocked(email):
+    san = normalize_email(email)
+    domain = email.split('@')[1]
+    return db.sismember(KEY_DOMAIN_BLOCK_LIST, domain) or db.sismember(KEY_EMAIL_BLOCK_LIST, san)
 
 def is_tor_relay(ip):
     if not db.exists(KEY_TOR_EXIT_NODES):

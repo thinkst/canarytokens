@@ -24,7 +24,7 @@ from queries import save_canarydrop, save_imgur_token, get_canarydrop,\
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
                     save_clonedsite_token, get_all_canary_sites, get_canary_google_api_key,\
-                    is_webhook_valid, get_aws_keys, get_all_canary_domains
+                    is_webhook_valid, get_aws_keys, get_all_canary_domains, is_email_blocked
 
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
@@ -125,6 +125,10 @@ class GeneratorPage(resource.Resource):
             if webhook and not is_webhook_valid(webhook):
                 response['Error'] = 3
                 raise Exception('Invalid webhook supplied. Confirm you can POST to this URL.')
+            
+            if email and is_email_blocked(email):
+                response['Error'] = 5
+                raise Exception('Blocked email supplied')
 
             alert_email_enabled = False if not email else True
             alert_webhook_enabled = False if not webhook else True
