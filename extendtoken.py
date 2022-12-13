@@ -5,7 +5,7 @@
 
 from os import environ
 from cctoken import ApiProvider, CreditCard
-import requests, datetime
+import requests, datetime, time
 from datagen import generate_person
 from typing import List, Optional, Tuple, Dict
 
@@ -129,9 +129,16 @@ class ExtendAPI(ApiProvider):
         out = CreditCard("", first_name + ' ' + last_name, None, None, '', expiry_str, None, kind = self.kind)
         if req.status_code == 200 and req.json().get('error', '') == '':
             out.id = req.json().get('virtualCard')['id']
-            vc_info = self.get_card_info(out.id)
-            out.cvc = vc_info['virtualCard']['securityCode']
-            out.number = vc_info['virtualCard']['vcn']
+            retry = 0
+            while retry < 3:
+                time.sleep(0.5)
+                vc_info = self.get_card_info(out.id)
+                if 'vcn' in vc_info['virtualCard'].keys():
+                    out.cvc = vc_info['virtualCard']['securityCode']
+                    out.number = vc_info['virtualCard']['vcn']
+                    break
+                else:
+                    retry += 1
         else:
             print('Error: ' + str(req.json()))
         self.cancel_card(out.id)
@@ -155,7 +162,7 @@ class ExtendAPI(ApiProvider):
         if billing_zip is None:
             billing_zip = fake_person['billing_zip']
         if metadata is None:
-            metadata = {}
+            metadata = ''
         cc = self.make_card(first_name, last_name, token_url=metadata)
         cc.address = address
         cc.billing_zip = billing_zip
