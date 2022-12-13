@@ -259,7 +259,7 @@ class GeneratorPage(resource.Resource):
                 cc_bytes = subprocess.check_output(['python3', 'cc_runner.py', canarydrop.get_url()])
                 cc = json.loads(cc_bytes.decode('utf-8'))
 
-                if not cc:
+                if not cc or not 'number' in cc:
                     response['Error'] = 4
                     response['Error_Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
                     raise Exception()

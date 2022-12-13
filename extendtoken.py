@@ -108,7 +108,8 @@ class ExtendAPI(ApiProvider):
     def make_card(self, first_name : str, last_name : str, token_url : str, limit_cents : int = 100) -> CreditCard:
         '''Creates a new CreditCard via Extend's CreateVirtualCard API'''
         cc = self.get_parent_card_id()
-        now_ts = datetime.datetime.now().isoformat() + '+0000'
+        now_ts = datetime.datetime.now() - datetime.timedelta(days=1)
+        now_ts = now_ts.isoformat() + '+0000'
         expiry = datetime.datetime.now() + datetime.timedelta(weeks=52)
         future_ts = expiry.isoformat() + '+0000'
         expiry_str = str(expiry.month) + '/' + str(expiry.year)
@@ -129,19 +130,16 @@ class ExtendAPI(ApiProvider):
         out = CreditCard("", first_name + ' ' + last_name, None, None, '', expiry_str, None, kind = self.kind)
         if req.status_code == 200 and req.json().get('error', '') == '':
             out.id = req.json().get('virtualCard')['id']
-            retry = 0
-            while retry < 3:
-                time.sleep(0.5)
-                vc_info = self.get_card_info(out.id)
-                if 'vcn' in vc_info['virtualCard'].keys():
-                    out.cvc = vc_info['virtualCard']['securityCode']
-                    out.number = vc_info['virtualCard']['vcn']
-                    break
-                else:
-                    retry += 1
+            vc_info = self.get_card_info(out.id)
+            if 'vcn' in vc_info['virtualCard'].keys():
+                out.cvc = vc_info['virtualCard']['securityCode']
+                out.number = vc_info['virtualCard']['vcn']
+                self.cancel_card(out.id)
+            else:
+                print("ERROR GETTING CARD INFO")
+                # TODO grab another ready card data
         else:
             print('Error: ' + str(req.json()))
-        self.cancel_card(out.id)
         return out
 
     def cancel_card(self, card_id) -> None:
