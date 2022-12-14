@@ -38,23 +38,12 @@ from pydantic import (
 )
 from pydantic.generics import GenericModel
 from typing_extensions import Annotated
+from canarytokens.constants import CANARYTOKEN_LENGTH, MEMO_MAX_CHARACTERS
 
-# DESIGN: We'll want a constraint on this but what is sensible as a user and what is practical for out system?
-MEMO_MAX_CHARACTERS = 1000
-# fmt: off
-CANARYTOKEN_ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-                        'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-                        'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-                        '4', '5', '6', '7', '8', '9']
-# fmt: on
-CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
     re.IGNORECASE,
 )
-
-CANARY_PDF_TEMPLATE_OFFSET: int = 793
-
 
 class Memo(ConstrainedStr):
     max_length: int = MEMO_MAX_CHARACTERS

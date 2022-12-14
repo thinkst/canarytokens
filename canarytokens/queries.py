@@ -28,6 +28,8 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_CANARYDROP,
     KEY_CANARYDROPS_TIMELINE,
     KEY_CANARYTOKEN_ALERT_COUNT,
+    KEY_DOMAIN_BLOCK_LIST,
+    KEY_EMAIL_BLOCK_LIST,
     KEY_EMAIL_IDX,
     KEY_KUBECONFIG_CERTS,
     KEY_KUBECONFIG_SERVEREP,
@@ -848,7 +850,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         headers={"content-type": "application/json"},
         timeout=10,
     )
-    # TODO: this accepts 3xx which is probably too leanient. We probably want any 2xx code.
+    # TODO: this accepts 3xx which is probably too lenient. We probably want any 2xx code.
     response.raise_for_status()
     # return True
     # except requests.exceptions.Timeout as e:
@@ -862,6 +864,42 @@ def validate_webhook(url, token_type: models.TokenTypes):
     #         ),
     #     )
     #     return False
+
+
+def normalize_email(email):
+    [user, domain] = email.split("@")
+    if domain in ["gmail.com", "googlemail.com", "google.com"]:
+        delabelled = user.split("+")[0]
+        san_user = delabelled.replace(".", "")
+        return "{}@{}".format(san_user, domain)
+    else:
+        return email
+
+
+def block_email(email):
+    san = normalize_email(email)
+    DB.get_db().sadd(KEY_EMAIL_BLOCK_LIST, san)
+
+
+def unblock_email(email):
+    san = normalize_email(email)
+    DB.get_db().srem(KEY_EMAIL_BLOCK_LIST, san)
+
+
+def block_domain(domain):
+    DB.get_db().sadd(KEY_DOMAIN_BLOCK_LIST, domain)
+
+
+def unblock_domain(domain):
+    DB.get_db().srem(KEY_DOMAIN_BLOCK_LIST, domain)
+
+
+def is_email_blocked(email):
+    san = normalize_email(email)
+    domain = email.split("@")[1]
+    return DB.get_db().sismember(
+        KEY_DOMAIN_BLOCK_LIST, domain
+    ) or DB.get_db().sismember(KEY_EMAIL_BLOCK_LIST, san)
 
 
 def is_tor_relay(ip):

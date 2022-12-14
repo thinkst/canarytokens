@@ -125,6 +125,7 @@ from canarytokens.queries import (
     add_canary_path_element,
     get_all_canary_domains,
     get_all_canary_sites,
+    is_email_blocked,
     remove_canary_domain,
     save_canarydrop,
     validate_webhook,
@@ -320,6 +321,8 @@ async def generate(request: Request) -> AnyTokenResponse:
             raise HTTPException(
                 status_code=400, detail="Failed to validate webhook - timed out."
             )
+    elif token_request_details.email and is_email_blocked(token_request_details.email):
+        raise HTTPException(status_code=400, detail="Email is blocked.")
     # TODO: refactor this. KUBECONFIG token creates it's own token
     # value and cannot follow same path as before.
     if token_request_details.token_type == TokenTypes.KUBECONFIG:

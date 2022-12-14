@@ -1281,6 +1281,10 @@ START REPLICA;
                           $('#file_upload_errors').html(data['error_message']);
                           $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
                           $('#file_upload_errors').show();
+                      } else if (data['Error'] == '5'){
+                          $('#endpoints_errors').html('<p>Blocked email supplied. <br>Please see our <a href="/legal">Acceptable Use Policy</a>.</p>');
+                          $('#endpoints_errors').show();
+                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
                       } else {
                           $('#memo_errors').html('An unexpected error occured');
                           $('#memo_errors').show();
