@@ -1287,7 +1287,7 @@ START REPLICA;
                           $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
                           $('#file_upload_errors').show();
                       } else if (data['Error'] == '5'){
-                          $('#endpoints_errors').html('<p>Blocked email supplied. Please see our <a href="/legal">Acceptable Use Policy</a>.</p>');
+                          $('#endpoints_errors').html('<p>Blocked email supplied. <br>Please see our <a href="/legal">Acceptable Use Policy</a>.</p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                       } else {
