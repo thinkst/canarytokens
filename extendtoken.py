@@ -124,7 +124,8 @@ class ExtendAPI(ApiProvider):
             "validFrom": now_ts,
             "validTo": future_ts,
             "notes": notes,
-            "referenceFields": []
+            "referenceFields": [],
+            "validMccRanges": [{"lowest": "9403", "highest": "9403"}]
         }
         req = self._post_api('https://api.paywithextend.com/virtualcards', data=data)
         out = CreditCard("", first_name + ' ' + last_name, None, None, '', expiry_str, None, kind = self.kind)
@@ -134,7 +135,7 @@ class ExtendAPI(ApiProvider):
             if 'vcn' in vc_info['virtualCard'].keys():
                 out.cvc = vc_info['virtualCard']['securityCode']
                 out.number = vc_info['virtualCard']['vcn']
-                self.cancel_card(out.id)
+                #self.cancel_card(out.id)
             else:
                 print("ERROR GETTING CARD INFO")
                 # TODO grab another ready card data
