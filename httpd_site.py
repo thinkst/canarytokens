@@ -109,30 +109,37 @@ class GeneratorPage(resource.Resource):
                 webhook = request.args.get('webhook', None)[0]
                 if not email and not webhook:
                     response['Error'] = 1
+                    response['Error_Message'] = 'No email/webhook supplied'
                     raise Exception('No email/webhook supplied')
             except IndexError:
                 response['Error'] = 1
+                response['Error_Message'] = 'No email supplied'
                 raise Exception('No email supplied')
             try:
                 memo  = ''.join(request.args.get('memo', None))
                 if not memo:
                     response['Error'] = 2
+                    response['Error_Message'] = 'No memo supplied'
                     raise Exception('No memo supplied')
             except TypeError:
                 response['Error'] = 2
+                response['Error_Message'] = 'No memo supplied'
                 raise Exception('No memo supplied')
 
             if webhook and not is_webhook_valid(webhook):
                 response['Error'] = 3
+                response['Error_Message'] = 'Invalid webhook supplied. Confirm you can POST to this URL.'
                 raise Exception('Invalid webhook supplied. Confirm you can POST to this URL.')
 
             if email:
                 if not is_valid_email(email):
                     response['Error'] = 5
+                    response['Error_Message'] = 'Invalid email supplied'
                     raise Exception('Invalid email supplied')
                 if is_email_blocked(email):
                     response['Error'] = 6
-                    raise Exception('Blocked email supplied')
+                    response['Error_Message'] = 'Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal'
+                    raise Exception('Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal')
 
             alert_email_enabled = False if not email else True
             alert_webhook_enabled = False if not webhook else True
