@@ -260,7 +260,7 @@
 
       .wrapper-dropdown.active .dropdown {
           border-bottom: 1px solid rgba(0,0,0,0.2);
-          max-height: 400px;
+          max-height: 443px;
           overflow: scroll;
       }
 
