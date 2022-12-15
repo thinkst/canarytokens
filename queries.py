@@ -1,3 +1,4 @@
+import re
 import requests
 import datetime
 import simplejson
@@ -548,6 +549,17 @@ def is_webhook_valid(url):
     except requests.exceptions.RequestException as e:
         log.error('Failed sending test payload to webhook: {url} with error {error}'.format(url=url,error=e))
         return False
+
+def is_valid_email(email):
+    # This validation checks that no disallowed characters are in the section of the email
+    # address before the @
+    #Ripped from https://www.regular-expressions.info/email.html
+    regex = re.compile(r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+    match = regex.search(email.lower())
+    if not match:
+        return False
+    else:
+        return True
 
 def normalize_email(email):
     [user, domain] = email.split('@')
