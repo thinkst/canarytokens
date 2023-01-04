@@ -44,8 +44,11 @@ from cStringIO import StringIO
 import csv
 import wireguard as wg
 
-env = Environment(loader=FileSystemLoader('templates'),
+unsafe_env = Environment(loader=FileSystemLoader('templates'),
                   extensions=['jinja2.ext.loopcontrols'])
+env = Environment(loader=FileSystemLoader('templates'),
+                  extensions=['jinja2.ext.loopcontrols'],
+                  autoescape=True)
 
 with open('/srv/templates/error_http.html', 'r') as f:
     twisted.web.resource.ErrorPage.template = f.read()
@@ -59,7 +62,7 @@ class GeneratorPage(resource.Resource):
         return Resource.getChild(self, name, request)
 
     def render_GET(self, request):
-        template = env.get_template('generate_new.html')
+        template = unsafe_env.get_template('generate_new.html')
         sites_len = len(get_all_canary_sites())
         now = datetime.datetime.now()
         return template.render(settings=settings, sites_len=sites_len, now=now).encode('utf8')
@@ -211,7 +214,7 @@ class GeneratorPage(resource.Resource):
                 procname = request.args['cmd_process'][0]
                 if not procname:
                     raise KeyError
-                
+
                 canarydrop['cmd_process'] = procname
                 canarydrop['memo'] += "\r\n\r\n(This token was created to monitor the execution of: " + procname + ")"
                 save_canarydrop(canarydrop)
@@ -537,7 +540,7 @@ class DownloadPage(resource.Resource):
 
         except Exception as e:
             log.error('Unexpected error in POST download: {err}'.format(err=e))
-            template = env.get_template('error.html')
+            template = unsafe_env.get_template('error.html')
             return template.render(error=e.message).encode('utf8')
 
         return NoResource().render(request)
@@ -570,9 +573,9 @@ class ManagePage(resource.Resource):
         now = datetime.datetime.now()
         try:
             canarydrop['type']
-            template = env.get_template('manage_new.html')
+            template = unsafe_env.get_template('manage_new.html')
         except KeyError:
-            template = env.get_template('manage.html')
+            template = unsafe_env.get_template('manage.html')
         return template.render(canarydrop=canarydrop, API_KEY=g_api_key, now=now).encode('utf8')
 
     def render_POST(self, request):
@@ -621,14 +624,14 @@ class ManagePage(resource.Resource):
             save_canarydrop(canarydrop=canarydrop)
 
             g_api_key = get_canary_google_api_key()
-            template = env.get_template('manage.html')
+            template = unsafe_env.get_template('manage.html')
             return template.render(canarydrop=canarydrop, saved=True,
                                         settings=settings, API_KEY=g_api_key).encode('utf8')
 
         except Exception as e:
             import traceback
             log.error('Exception in manage.html: {e}, {stack}'.format(e=e, stack=traceback.format_exc()))
-            template = env.get_template('manage.html')
+            template = unsafe_env.get_template('manage.html')
             return template.render(canarydrop=canarydrop, error=e,
                                         settings=settings).encode('utf8')
 
@@ -741,7 +744,7 @@ class AUP(resource.Resource):
 
     def render_GET(self, request):
         now = datetime.datetime.now()
-        template = env.get_template('legal.html')
+        template = unsafe_env.get_template('legal.html')
         return template.render(now=now).encode('utf8')
 
 class CanarytokensHttpd():
