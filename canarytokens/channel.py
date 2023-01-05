@@ -149,6 +149,7 @@ class InputChannel(Channel):
             channel=cls.CHANNEL,
             token_type=canarydrop.type,
             src_ip=canarydrop.triggered_details.latest_hit().src_ip,
+            src_data=canarydrop.triggered_details.latest_hit().src_data,
             time=datetime.datetime.utcnow(),
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
@@ -277,7 +278,7 @@ class InputChannel(Channel):
 
     def dispatch(self, *, canarydrop: Canarydrop, token_hit: AnyTokenHit) -> None:
         """
-        Spins off a `switchboard.dispatch` which notifies on all neccessary channels.
+        Spins off a `switchboard.dispatch` which notifies on all necessary channels.
         """
         log.info(f"reactor is running?: {twisted.internet.reactor.running}")
         d = threads.deferToThread(

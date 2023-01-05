@@ -279,7 +279,7 @@ class TokenRequest(BaseModel):
             return self.v2_dict()
         elif isinstance(version, V3):
             return json_safe_dict(self)
-        raise NotImplementedError("version must used.")
+        raise NotImplementedError("version must be either V2 or V3.")
 
     def v2_dict(self) -> Dict[str, Any]:
         webhook_url = self.webhook_url or ""
@@ -827,7 +827,7 @@ class GeoIPInfo(BaseModel):
     loc: Tuple[float, float]  # '-33.9778,18.6167'
     org: Optional[str]  # 'AS29975 Vodacom'
     city: str  # 'Cape Town'
-    # TODO: Validate contry code pycountry?? add a dependency for this??
+    # TODO: Validate country code pycountry?? add a dependency for this??
     country: str  # 'ZA',
     region: str  # 'Western Cape'
     #  TODO: validate this domain
@@ -1403,8 +1403,10 @@ class SMTPTokenHistory(TokenHistory[SMTPTokenHit]):
     hits: List[SMTPTokenHit] = []
 
     def get_additional_data_for_notification(self) -> Dict[str, Dict[str, str]]:
-        most_recent_hit = sorted(self.hits, key=lambda o: o.time_of_hit)[-1]
-        return {"mail": json_safe_dict(most_recent_hit.mail)}
+        latest_hit = self.latest_hit()
+        if latest_hit is None:
+            return {}
+        return {"mail": json_safe_dict(latest_hit.mail)}
 
 
 class WireguardTokenHistory(TokenHistory[WireguardTokenHit]):
@@ -1476,15 +1478,16 @@ class TokenAlertDetails(BaseModel):
     channel: str = "DNS"
     token_type: TokenTypes = TokenTypes.DNS
     src_ip: Optional[str] = "127.0.0.1"
+    src_data: Optional[dict[str, Any]] = None
     token: str = "default_token_for_v2"
 
-    # Design: Is this a good name? Should it be time of trigger. Or time we recieved the event? Or time we sent this out?
+    # Design: Is this a good name? Should it be time of trigger. Or time we received the event? Or time we sent this out?
     time: datetime
     memo: Memo
     manage_url: HttpUrl
     # DESIGN/TODO: pin this dict down and make it a type.
     # We know what this can be.
-    additional_data: Optional[Dict[str, Any]]
+    additional_data: Optional[dict[str, Any]]
 
     @validator("time", pre=True)
     def validate_time(cls, value):

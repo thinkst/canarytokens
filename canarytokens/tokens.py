@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import math
 import random
 import re
 from datetime import datetime
@@ -65,7 +67,7 @@ sql_server_username = re.compile(
 )
 mysql_username = re.compile(r"([A-Za-z0-9.-]*)\.M[0-9]{3}\.", re.IGNORECASE)
 linux_inotify = re.compile(r"([A-Za-z0-9.-]*)\.L[0-9]{2}\.", re.IGNORECASE)
-generic = re.compile(r"([A-Za-z0-9.-]*)\.G[0-9]{2}\.", re.IGNORECASE)
+generic = re.compile(r"([A-Z2-7.-]*)\.G[0-9]{2}\.", re.IGNORECASE)
 dtrace_process = re.compile(
     r"([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.",
     re.IGNORECASE,
@@ -234,23 +236,23 @@ class Canarytoken(object):
     #     data["linux_inotify_filename_access"] = base64.b32decode(filename)
     #     return data
 
-    # @staticmethod
-    # def _generic(matches: Match[AnyStr]) -> Dict[str, str]:
-    #     data = {}
-    #     generic_data = matches.group(1)
-    #     generic_data = generic_data.replace(".", "").upper()
-    #     # this channel doesn't have padding, add if needed
-    #     # TODO: put this padding logic into utils somewhere.
-    #     generic_data += "=" * int(
-    #         (math.ceil(float(len(generic_data)) / 8) * 8 - len(generic_data)),
-    #     )
-    #     try:
-    #         # TODO: this can smuggle in all sorts of data we need to sanitise
-    #         #
-    #         data["generic_data"] = base64.b32decode(generic_data)
-    #     except TypeError:
-    #         data["generic_data"] = f"Unrecoverable data: {generic_data}"
-    #     return data
+    @staticmethod
+    def _generic(matches: Match[AnyStr]) -> Dict[str, str]:
+        data = {}
+        generic_data = matches.group(1)
+        generic_data = generic_data.replace(".", "").upper()
+        # this channel doesn't have padding, add if needed
+        # TODO: put this padding logic into utils somewhere.
+        generic_data += "=" * int(
+            (math.ceil(float(len(generic_data)) / 8) * 8 - len(generic_data)),
+        )
+        try:
+            # TODO: this can smuggle in all sorts of data we need to sanitise
+            #
+            data["generic_data"] = base64.b32decode(generic_data)
+        except TypeError:
+            data["generic_data"] = f"Unrecoverable data: {generic_data}"
+        return {"src_data": data}
 
     @staticmethod
     def _dtrace_process_data(matches: Match[AnyStr]) -> Dict[str, str]:
@@ -356,7 +358,7 @@ class Canarytoken(object):
         """"""
         useragent = request.getHeader("User-Agent") or "No useragent specified"
         src_ip = request.getHeader("x-real-ip") or request.client.host
-        # DESIGN/TODO: this makes a call to thrid party enusre we happy with fails here
+        # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
         #              and have default.
         is_tor_relay = queries.is_tor_relay(src_ip)
         src_ips = request.getHeader("x-forwarded-for") or ""
@@ -543,7 +545,7 @@ class Canarytoken(object):
                 request.setHeader("Content-Type", "text/html")
                 # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up responce template
+                # set-up response template
                 browser_scanner_template_params = {
                     "key": latest_hit_time,
                     "canarytoken": canarydrop.canarytoken.value,
@@ -572,7 +574,7 @@ class Canarytoken(object):
             # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
-            # read custome image
+            # read custom image
             with canarydrop.web_image_path.open(mode="rb") as fp:
                 contents = fp.read()
             return contents
