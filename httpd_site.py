@@ -754,15 +754,21 @@ class CanarytokensHttpd():
         root = Resource()
         root.putChild("", Redirect("generate"))
         root.putChild("generate", GeneratorPage())
-        root.putChild("manage", ManagePage())
         root.putChild("download", DownloadPage())
-        root.putChild("settings", SettingsPage())
         root.putChild("history", HistoryPage())
-        root.putChild("resources", LimitedFile("/srv/templates/static"))
         root.putChild("legal", AUP())
+        root.putChild("manage", ManagePage())
+        root.putChild("resources", LimitedFile("/srv/templates/static"))
+        root.putChild("settings", SettingsPage())
+
+        well_known = Resource()
+        root.putChild(".well-known", well_known)
 
         with open('/srv/templates/robots.txt', 'r') as f:
             root.putChild("robots.txt", Data(f.read(), "text/plain"))
+
+        with open('/srv/templates/security.txt', 'r') as f:
+            well_known.putChild("security.txt", Data(f.read(), "text/plain"))
 
         wrapped = EncodingResourceWrapper(root, [GzipEncoderFactory()])
         site = server.Site(wrapped)

@@ -1,0 +1,5 @@
+Contact: mailto:security@thinkst.com
+Contact: https://github.com/thinkst/canarytokens/security/advisories/new
+Expires: 2023-12-31T21:59:00.000Z
+Encryption: https://thinkst.com/pgp/security.txt
+Preferred-Languages: en
