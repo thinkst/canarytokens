@@ -540,7 +540,7 @@
       a.icon-aws:before {
         background-image: url("/resources/aws.png");
       }
-      a.icon-azure-id:before {
+      a.icon-azureid:before {
         background-image: url("/resources/azure-id.png");
       }
       a.icon-redirect:before {
