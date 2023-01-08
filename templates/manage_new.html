@@ -530,6 +530,21 @@
         });
       }
 
+      var _handleAzureIDResponse = function(data){
+        $('#result_azure_id').val('{'+
+        '\n    "appId" = "'+ data['app_id'] + '"' +
+        '\n    "displayName" = "azure-cli-'+ data['cert_name'] + '"' +
+        '\n    "fileWithCertAndPrivateKey" = "'+ data['cert_file_name'] + '"' +
+        '\n    "password" = null' +
+        '\n    "tenant" = "'+ data['tenant_id'] + '"' +
+        '\n}');
+        $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
+        $('a.file-download').each(function (i, e){
+          e = $(e);
+          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['Auth']);
+        });
+      }
+
       var _handleDefaultResponse = function(data) {
         return;
       }
@@ -537,6 +552,7 @@
       var _responseCallbacks = {'web': _handleWebResponse,
                                 'dns': _handleDNSResponse,
                                 'aws_keys': _handleAWSKeysResponse,
+                                'azure_id':_handleAzureIDResponse,
                                 'web_image': _handleWebResponse,
                                 'ms_word' : _handleFileDownloadResponse,
                                 'ms_excel' : _handleFileDownloadResponse,
