@@ -33,7 +33,7 @@ class Canarydrop(object):
              'web_image_enabled', 'type', 'clonedsite', 'aws_secret_access_key',\
              'aws_access_key_id', 'redirect_url', 'region', 'output', 'slack_api_key',\
              'wg_key', 'kubeconfig', 'cmd_process',\
-             'app_id', 'cert', 'tenant_id', 'cert_name']
+             'app_id', 'cert', 'tenant_id', 'cert_name', 'cert_file_name']
 
     def __init__(self, generate=False, **kwargs):
         self._drop = {}
