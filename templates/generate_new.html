@@ -768,7 +768,7 @@ START REPLICA;
                     {{ textareacopy('result_azure_id') }}
                   </div>
                   <div class="form-control">
-                    <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download your AWS Creds</a>
+                    <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download Azure Certificate</a>
                   </div>
                 </div>
                 <div class="advice">
@@ -1248,7 +1248,7 @@ START REPLICA;
           '\n    "fileWithCertAndPrivateKey" = "'+ data['app_id'] + '"' +
           '\n    "password" = null' +
           '\n    "tenant" = "'+ data['tenant_id'] + '"' +
-          '}' +
+          '\n}' +
           '\n\ncert = '+ data['cert']);
           $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){

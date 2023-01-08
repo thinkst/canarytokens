@@ -499,6 +499,12 @@ class DownloadPage(resource.Resource):
                 text="[default]\naws_access_key_id={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
                 return text
+            elif fmt == 'azure_id':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename=credentials_cert')
+                text="{cert}".format(cert=canarydrop['cert'])
+                return text
             elif fmt == 'kubeconfig':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
