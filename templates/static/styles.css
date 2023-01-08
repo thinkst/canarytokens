@@ -909,6 +909,9 @@
       a.icon-aws:before {
         background-image: url("/resources/aws.png");
       }
+      a.icon-azure-id:before {
+        background-image: url("/resources/azure-logo.svg");
+      }
       a.icon-redirect:before {
         background-image: url("/resources/redirect.png");
       }

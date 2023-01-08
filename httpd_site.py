@@ -25,7 +25,7 @@ from queries import is_valid_email, save_canarydrop, save_imgur_token, get_canar
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
                     save_clonedsite_token, get_all_canary_sites, get_canary_google_api_key,\
-                    is_webhook_valid, get_aws_keys, get_all_canary_domains, is_email_blocked
+                    is_webhook_valid, get_azure_id, get_aws_keys, get_all_canary_domains, is_email_blocked
 
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
@@ -101,6 +101,7 @@ class GeneratorPage(resource.Resource):
                                       'sql_server',
                                       'my_sql',
                                       'aws_keys',
+                                      'azure_id',
                                       'signed_exe',
                                       'fast_redirect',
                                       'slow_redirect',
@@ -280,6 +281,26 @@ class GeneratorPage(resource.Resource):
                 response['Error'] = 4
                 response['Message'] = 'Failed to generate credit card due to a configuration error. Please contact support@thinkst.com.'
             except Exception as e:
+                pass
+
+            try:
+                if not request.args.get('type', None)[0] == 'azure_id':
+                    raise Exception()
+                keys = get_azure_id(token=canarytoken.value(), server=get_all_canary_domains()[0])
+                if not keys:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to retrieve Azure ID. Please contact support@thinkst.com.'
+                    raise Exception()
+                response['app_id'] = keys[0]
+                response['cert'] = keys[1]
+                response['tenant_id'] = keys[2]
+                response['cert_name'] = keys[3]
+                canarydrop['app_id'] = keys[0]
+                canarydrop['cert'] = keys[1]
+                canarydrop['tenant_id'] = keys[2]
+                canarydrop['cert_name'] = keys[3]
+                save_canarydrop(canarydrop)
+            except:
                 pass
 
             try:
