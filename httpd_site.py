@@ -227,6 +227,17 @@ class GeneratorPage(resource.Resource):
 
 
             try:
+                azure_id_cert_file_name = request.args['azure_id_cert_file_name'][0]
+                if not azure_id_cert_file_name:
+                    raise KeyError
+
+                canarydrop['cert_file_name'] = azure_id_cert_file_name
+                save_canarydrop(canarydrop)
+            except (IndexError, KeyError):
+                pass
+                
+
+            try:
                 if not request.args.get('type', None)[0] == 'qr_code':
                     raise Exception()
                 response['qrcode_png'] = canarydrop.get_qrcode_data_uri_png()
@@ -502,7 +513,7 @@ class DownloadPage(resource.Resource):
             elif fmt == 'azure_id':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
-                                  'attachment; filename=credentials_cert')
+                                  'attachment; filename={file_name}'.format(file_name=canarydrop['cert_file_name']))
                 text="{cert}".format(cert=canarydrop['cert'])
                 return text
             elif fmt == 'kubeconfig':
