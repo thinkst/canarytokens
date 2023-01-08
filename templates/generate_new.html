@@ -1154,10 +1154,14 @@ START REPLICA;
         }
 
         var _handleAzureIDResponse = function(data){
-          $('#result_azure_id').val('app_id = '+ data['app_id']+
-          '\ncert = '+ data['cert']+
-          '\ntenant_id = '+ data['tenant_id']+
-          '\ncert_name = '+ data['cert_name']);
+          $('#result_azure_id').val('{'+
+          '\n    "appId" = "'+ data['app_id'] + '"'
+          '\n    "displayName" = "azure-cli-'+ data['cert_name'] + '"'
+          '\n    "fileWithCertAndPrivateKey" = "'+ data['app_id'] + '"'
+          '\n    "password" = null'
+          '\n    "tenant" = "'+ data['tenant_id'] + '"'
+          '}'
+          '\n\ncert = '+ data['cert']);
           $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
