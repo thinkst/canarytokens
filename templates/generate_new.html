@@ -1157,11 +1157,10 @@ START REPLICA;
           $('#result_azure_id').val('{'+
           '\n    "appId" = "'+ data['app_id'] + '"' +
           '\n    "displayName" = "azure-cli-'+ data['cert_name'] + '"' +
-          '\n    "fileWithCertAndPrivateKey" = "'+ data['app_id'] + '"' +
+          '\n    "fileWithCertAndPrivateKey" = "'+ data['cert_file_name'] + '"' +
           '\n    "password" = null' +
           '\n    "tenant" = "'+ data['tenant_id'] + '"' +
-          '\n}' +
-          '\n\ncert = '+ data['cert']);
+          '\n}');
           $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
