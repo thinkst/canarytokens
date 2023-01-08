@@ -910,7 +910,7 @@
         background-image: url("/resources/aws.png");
       }
       a.icon-azure-id:before {
-        background-image: url("/resources/azure-logo.svg");
+        background-image: url("/resources/azure-id.png");
       }
       a.icon-redirect:before {
         background-image: url("/resources/redirect.png");
