@@ -226,7 +226,7 @@ def get_azure_id(token=None, server=None):
             log.error('No AUTH token provided for AZURE ID creation')
             return False
 
-        url = f'{token_url}?code={token_auth}'
+        url = '{token_url}?code={token_auth}'.format(token_url=token_url, token_auth=token_auth)
         data = {
             'token': token,
             'domain': server
