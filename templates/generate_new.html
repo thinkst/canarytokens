@@ -150,6 +150,9 @@
                 <div class="field-optional field-signed_exe hidden">
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
                 </div>
+                <div class="field-optional field-azure_id_cert_name hidden">
+                  <input class="form-control" type="text" tabindex=3 name="azure_id_cert_name" placeholder="File Name of Azure ID Certificate">
+                </div>
                 <div class="field-optional field-cmd hidden">
                   <input class="form-control" type="text" tabindex=3 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
                 </div>
@@ -902,6 +905,17 @@ START REPLICA;
         return cmd.removeClass('error-outline').addClass('success-outline');
       }
 
+      var checkAzureIdCertName= function() {
+        azure_id_cert_name = $('input[name=azure_id_cert_name]');
+        if (! azure_id_cert_name.parents('.field-azure_id_cert_name').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (azure_id_cert_name.val().length == 0) {
+            return azure_id_cert_name.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return azure_id_cert_name.removeClass('error-outline').addClass('success-outline');
+      }
+
       var _checkSQLServerSelectedAction = function() {
         sql_server_selected_action = $('#selected_sql_action');
 
@@ -976,6 +990,7 @@ START REPLICA;
         checkSignedExe();
         checkClonedWebsite();
         checkCmd();
+        checkAzureIdCertName();
         checkSQLServer();
 
         //invert UI elements, depending on whether there are errors or not
