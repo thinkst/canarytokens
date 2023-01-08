@@ -541,7 +541,7 @@
         $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
         $('a.file-download').each(function (i, e){
           e = $(e);
-          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['Auth']);
+          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
         });
       }
 
