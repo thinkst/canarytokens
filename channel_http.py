@@ -145,6 +145,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 return self.GIF
 
             if canarydrop._drop['type'] == 'azure_id':
+                log.info("DEBUG: {}".format(request))
                 canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
                 useragent = request.args.get('user_agent', [None])[0]
                 src_ip    = request.args.get('ip', [None])[0]
