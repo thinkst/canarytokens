@@ -10,7 +10,7 @@ def gen_cc_token(url : str) -> None:
     password = os.environ.get('CANARY_EXTEND_PASSWORD', '')
 
     # Just so it returns something...
-    cc = CreditCard('123', 'Harold Boyd', '0000 1234 12334242', '1234', expiration='12/23', kind='AMEX', billing_zip='05089')
+    cc = CreditCard('123', 'Harold Boyd', '370021994416137', '123', expiration='12/23', kind='AMEX', billing_zip='05089')
 
     eapi = ExtendAPI(username, password)
     cc = eapi.create_credit_card(metadata=url)

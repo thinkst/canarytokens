@@ -355,11 +355,16 @@
 
       .jumbotron .btn.btn-clipboard {
         background-color: #9d8;
-        padding: .5rem;
+        padding: 5px .5rem;
         font-size: inherit;
+        cursor: pointer;
+        margin-left: -5px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
       }
       .btn-clipboard > img {
         max-width: 15px;
+        height: 15px;
       }
 
 
@@ -367,8 +372,54 @@
         width: 80%;
         border: none;
         font-family: monospace;
+        padding: 5px 12px;
+        font-size: 17px;
+        line-height: 20px;
+        color: #24292e;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        outline: none;
+        box-shadow: rgba(225, 228, 232, 0.2) 0px 1px 0px 0px inset;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      .result-data:focus{
+        outline: none;
+        box-shadow: #01ac4b 0px 0px 0px 1px;
       }
 
+      @media screen and (max-width: 600px) {
+        #cccontainer {
+          height: 190px !important;
+          width: auto !important;
+          background-repeat: no-repeat;
+          background-size: contain;
+        }
+        #cccontainer #ccname {
+          left: 25px !important;
+          top: 70px !important;
+          font-size: 15pt !important;
+        }
+        #cccontainer #ccnumber {
+          left: 25px !important;
+          top: 95px !important;
+          font-size: 13pt !important;
+        }
+        #cccontainer #ccexpires {
+          left: 25px !important;
+          top: 145px !important;
+          font-size: 12pt !important;
+        }
+        #cccontainer #cccvc {
+          left: 145px !important;
+          top: 145px !important;
+          font-size: 12pt !important;
+        }
+      }
       .advice {
         text-align: left;
         margin-top: 2rem;
@@ -387,6 +438,7 @@
         font-size: 1.5rem;
         vertical-align: middle;
         text-decoration: none;
+        margin-right: 5px;
       }
       a.refresh:hover{
         cursor: pointer;
