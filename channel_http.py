@@ -144,6 +144,15 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
                 return self.GIF
 
+            if canarydrop._drop['type'] == 'azure_id':
+                canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
+                useragent = request.args.get('user_agent', [None])[0]
+                src_ip    = request.args.get('ip', [None])[0]
+                additional_info = {'Azure ID Auth Details': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip']}}
+
+                self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
+                return self.GIF
+
             key = request.args['key'][0]
             if key and token:
                 if key == 'aws_s3':
