@@ -145,12 +145,48 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 return self.GIF
 
             if canarydrop._drop['type'] == 'azure_id':
+                log.error("\n\ndroptype: azure_id")
                 canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
-                useragent = request.args.get('user_agent', [None])[0]
-                src_ip    = request.args.get('ip', [None])[0]
-                additional_info = {'Azure ID Auth Details': {k:v for k,v in request.args.iteritems() if k not in ['user_agent', 'ip']}}
 
-                self.dispatch(canarydrop=canarydrop, src_ip=src_ip, useragent=useragent, additional_info=additional_info)
+                json_data = simplejson.loads(request.content.read())
+                src_ip = json_data.get('ip','127.0.0.1')
+                log.error("src_ip: {}".format(src_ip))
+
+                auth_details = json_data.get('auth_details', '')
+                if type(auth_details) == list:
+                    out = ''
+                    for d in auth_details:
+                        out += "\n{}: {}".format(d['key'], d['value'])
+                    auth_details = out
+                log.error("auth_details: {}".format(auth_details))
+
+                location_details = json_data.get('location', {})
+                geo_details = location_details.get('geoCoordinates', {})
+
+                additional_info = {}
+                additional_info["Azure ID Log Data"] = {
+                    "Date": [json_data.get('time','Not Available')],
+                    "Authentication": [auth_details],
+                }
+                additional_info["Microsoft Azure"] = {
+                    "Resource": [json_data.get('resource','Not Available')],
+                    "App ID": [json_data.get('app_id','Not Available')],
+                    "Cert ID": [json_data.get('cert_id','Not Available')],
+                }
+                additional_info["Location"] = {
+                    "city": [location_details.get('city','Not Available')],
+                    "state": [location_details.get('state','Not Available')],
+                    "countryOrRegion": [location_details.get('countryOrRegion','Not Available')],
+                }
+                additional_info["Coordinates"] = {
+                    "latitude": [geo_details.get('latitude','Not Available')],
+                    "longitude": [geo_details.get('longitude','Not Available')],
+                }
+
+                log.error("Dispatching")
+                self.dispatch(canarydrop=canarydrop, src_ip=src_ip, additional_info=additional_info)
+
+                log.error("Return")
                 return self.GIF
 
             key = request.args['key'][0]
