@@ -145,12 +145,10 @@ class CanarytokenPage(resource.Resource, InputChannel):
                 return self.GIF
 
             if canarydrop._drop['type'] == 'azure_id':
-                log.error("\n\ndroptype: azure_id")
                 canarydrop._drop['hit_time'] = datetime.datetime.utcnow().strftime("%s.%f")
 
                 json_data = simplejson.loads(request.content.read())
                 src_ip = json_data.get('ip','127.0.0.1')
-                log.error("src_ip: {}".format(src_ip))
 
                 auth_details = json_data.get('auth_details', '')
                 if type(auth_details) == list:
@@ -158,7 +156,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
                     for d in auth_details:
                         out += "\n{}: {}".format(d['key'], d['value'])
                     auth_details = out
-                log.error("auth_details: {}".format(auth_details))
 
                 location_details = json_data.get('location', {})
                 geo_details = location_details.get('geoCoordinates', {})
@@ -183,10 +180,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
                     "longitude": [geo_details.get('longitude','Not Available')],
                 }
 
-                log.error("Dispatching")
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip, additional_info=additional_info)
 
-                log.error("Return")
                 return self.GIF
 
             key = request.args['key'][0]
