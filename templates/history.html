@@ -113,6 +113,8 @@
                                   <b>Channel:</b> AWS API Key Token
   {% elif canarydrop['type'] == 'cc' %}
                                   <b>Channel:</b> Credit Card Token
+  {% elif canarydrop['type'] == 'azure_id' %}
+                                  <b>Channel:</b>Azure Login Certificate Token
   {% else %}
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
   {% endif %}
