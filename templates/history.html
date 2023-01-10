@@ -112,7 +112,7 @@
   {% if canarydrop['type'] == 'aws_keys' %}
                                   <b>Channel:</b> AWS API Key Token
   {% elif canarydrop['type'] == 'azure_id' %}
-                                  <b>Channel:</b>Azure Login Certificate Token
+                                  <b>Channel:</b> Azure Login Certificate Token
   {% else %}
                                   <b>Channel:</b> {{ canarydrop['triggered_list'][item]['input_channel'] }}
   {% endif %}
@@ -242,6 +242,14 @@
                 </td>
               </tr>
           {% endif %}
+        {% elif canarydrop['type'] == 'azure_id' %}
+                <td>
+                  Token Type
+                </td>
+                <td>
+                  Azure Login Certificate Token
+                </td>
+              </tr>
         {% elif canarydrop['type'] ==  'wireguard' and field == 'src_data' %}
               <tr class="info_row">
                 <td>
