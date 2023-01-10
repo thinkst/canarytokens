@@ -16,7 +16,9 @@ def gen_cc_token(url : str) -> None:
     cc = eapi.create_credit_card(metadata=url)
     out = {
         'rendered_html': cc.render_html(),
+        'expiration': cc.expiration,
         'number': cc.number,
+        'cvc': cc.cvc,
         'csv': cc.to_csv()
     }
     print(json.dumps(out))

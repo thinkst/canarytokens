@@ -60,6 +60,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/resources/styles.css?ver=7">
+    <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
     <style>
     .ps__rail-x,
     .ps__rail-y {
@@ -354,10 +355,10 @@
                         Card: <span id="copy-card"></span>
                         <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
                       </span>
-                      <span>CVC:  <span id="copy-cvc">123</span>
+                      <span>CVC:  <span id="copy-cvc"></span>
                         <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
                       </span>
-                      <span>Exp:  <span id="copy-expiry">12/23</span>
+                      <span>Exp:  <span id="copy-expiry"></span>
                         <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
                       </span>
                     </div>
@@ -1136,8 +1137,6 @@ START REPLICA;
         };
 
         var _handleCCResponse = function(data) {
-          // $('#result_cc').val(data['number']);
-          console.log(data)
           $('#copy-card').text(data['number'])
           $('#copy-expiry').text(data['expiration'])
           $('#copy-cvc').text(data['cvc'])

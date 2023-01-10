@@ -413,13 +413,50 @@
       .copy-card img:hover {
         cursor: pointer;
         border-radius: 50%;
-        border: 1px solid #5cb85c;
+        border: 1px solid #24b47e;
         padding: 2px;
       }
       .copy-card .btn-clipboard.hide-button {
         background: white;
         border: none;
         outline: none;
+      }
+      #cccontainer {
+        font-family: 'OCR A Extended', sans-serif;
+        position: relative;
+        margin: auto;
+        background-image: url(/resources/cc-background-AMEX.png);
+        height: 255px;
+        width: 400px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        color: white;
+      }
+
+      #cccontainer #ccname {
+        left: 40px;
+        top: 95px;
+        position: absolute;
+        font-size: 19pt;
+      }
+      #cccontainer #ccnumber {
+        left: 40px;
+        top: 125px;
+        position: absolute;
+        font-size: 17pt;
+        word-spacing: 0.45em;
+      }
+      #cccontainer #ccexpires {
+        left: 35px;
+        top: 195px;
+        position: absolute;
+        font-size: 18pt;
+      }
+      #cccontainer #cccvc {
+        left: 200px;
+        top: 195px;
+        position: absolute;
+        font-size: 18pt;
       }
 
       @media screen and (max-width: 600px) {
