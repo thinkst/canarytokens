@@ -392,7 +392,44 @@
         box-shadow: #01ac4b 0px 0px 0px 1px;
       }
 
+      .copy-card {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        font-size: 15px;
+        margin: 15px 0 20px 0;
+      }
+      .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
+        font-family: monospace;
+        color: #646464;
+      }
+
+      .copy-card img {
+        width: 17px;
+        height: 17px;
+        margin-bottom: 3px;
+      }
+
+      .copy-card img:hover {
+        cursor: pointer;
+        border-radius: 50%;
+        border: 1px solid #5cb85c;
+        padding: 2px;
+      }
+      .copy-card .btn-clipboard.hide-button {
+        background: white;
+        border: none;
+        outline: none;
+      }
+
       @media screen and (max-width: 600px) {
+        .copy-card {
+          justify-content: space-between;
+          margin: 10px 0 10px 0;
+        }
+        .copy-card span {
+          margin-bottom: 5px;
+        }
         #cccontainer {
           height: 190px !important;
           width: auto !important;

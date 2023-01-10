@@ -349,7 +349,18 @@
                 <br>
                 <div class="artifacts">
                   <div class="form-control" style="padding: 20px;">
-                    {{ inputcopy('result_cc') }}
+                    <div class="copy-card">
+                      <span>
+                        Card: <span id="copy-card"></span>
+                        <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                      </span>
+                      <span>CVC:  <span id="copy-cvc">123</span>
+                        <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                      </span>
+                      <span>Exp:  <span id="copy-expiry">12/23</span>
+                        <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                      </span>
+                    </div>
                     <div id="ccRender" style="margin-top: 15px; margin-bottom: 20px;">
 
                     </div>
@@ -1125,7 +1136,11 @@ START REPLICA;
         };
 
         var _handleCCResponse = function(data) {
-          $('#result_cc').val(data['number']);
+          // $('#result_cc').val(data['number']);
+          console.log(data)
+          $('#copy-card').text(data['number'])
+          $('#copy-expiry').text(data['expiration'])
+          $('#copy-cvc').text(data['cvc'])
           $('#ccRender').html(data['rendered_html'])
           $('a.file-download').each(function (i, e){
             e = $(e);
