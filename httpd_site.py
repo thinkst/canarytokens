@@ -251,7 +251,7 @@ class GeneratorPage(resource.Resource):
                 save_canarydrop(canarydrop)
             except:
                 pass
-            
+
             try:
                 if not request.args.get('type', None)[0] == 'cc':
                     raise Exception()

@@ -70,7 +70,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
             else:
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                             useragent=useragent, location=location,
-                            referer=referer, request_headers=request_headers, 
+                            referer=referer, request_headers=request_headers,
                             request_args=request_args)
 
             if 'redirect_url' in canarydrop._drop and canarydrop._drop['redirect_url']:
@@ -198,8 +198,6 @@ class CanarytokenPage(resource.Resource, InputChannel):
             return self.render_GET(request)
 
     def format_additional_data(self, **kwargs):
-        # TODO Figure out why this needed to be commented out?
-        #log.info(kwargs)
         additional_report = ''
         if kwargs.has_key('src_ip') and kwargs['src_ip']:
             additional_report += 'Source IP: {ip}'.format(ip=kwargs['src_ip'])

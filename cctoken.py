@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # (C) 2022 Thinkst Applied Research
 # Base class for implementing a credit card token
 
@@ -19,7 +17,7 @@ class CreditCard(object):
         self.cvc = cvc
         self.address = address
         self.kind = kind
-    
+
     def render_html(self):
         '''Returns an HTML div to render the card info on a website'''
         return '''<div id="cccontainer"><span id="ccname">{name}</span><span id="ccnumber">{number}</span><span id="ccexpires">{expiration}</span><span id="cccvc">{cvc}</span></div>'''.format(kind=self.kind, cvc=self.cvc, number=self.__format_token(), name=self.name, expiration=self.expiration)
@@ -63,17 +61,17 @@ class CreditCard(object):
 #     '''Abstract base class for a credit card API provider'''
 #     def __init__(self):
 #         pass
-    
+#
 #     @abstractmethod
 #     def create_credit_card(self, first_name = None, last_name = None, address = None, billing_zip = None):
 #         '''Abstract method to create a virtual credit card number'''
 #         pass
-    
+#
 #     @abstractmethod
 #     def get_credit_card(self, id):
 #         '''Abstract method to get a virtual credit card'''
 #         pass
-
+#
 #     @abstractmethod
 #     def get_latest_transaction(self, cc : CreditCard):
 #         '''Abstract method to get the latest transaction for a credit card'''

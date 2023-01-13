@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Functionality for an Extend-based CC canarytoken
 # (C) 2022 Thinkst Labs
 
@@ -24,7 +22,7 @@ class ExtendAPI(object):
         req = self._post_api('https://api.paywithextend.com/signin', {'email': self.email, 'password': password})
         self.token = req.json().get('token')
         self.refresh_token = req.json().get('refresh_token')
-    
+
     def _post_api(self, endpoint , data=None):
         '''Performs a POST against the passed endpoint with the data passed'''
         headers = {'Content-Type': 'application/json', 'Accept': 'application/vnd.paywithextend.v2021-03-12+json'}
@@ -71,15 +69,15 @@ class ExtendAPI(object):
         req = self._post_api('https://api.paywithextend.com/renewauth', {'refreshToken': self.refresh_token, 'email': self.email})
         self.token = req.json().get('token')
         self.refresh_token = req.json().get('refresh_token')
-    
+
     @classmethod
     def fetch_token(cls, path=None):
         if not path:
             raise Exception("No path supplied")
-        
+
         if not os.path.exists(path):
             raise Exception("File does not exist: {}".format(path))
-        
+
         with open(path) as f:
             return f.read().strip()
 
@@ -90,22 +88,22 @@ class ExtendAPI(object):
         for vc in req.json().get('virtualCards', []):
             cards.append((vc['recipient']['firstName'] + ' ' + vc['recipient']['lastName'], vc.get('id')))
         return cards
-    
+
     def get_card_info(self, card_id):
         '''Returns all the data about a passed card_id available'''
         req = self._get_api('https://v.paywithextend.com/virtualcards/' + card_id)
         return req.json()
-    
+
     def get_transaction(self, txn_id):
         '''Returns more details about a specific transaction'''
         req = self._get_api('https://api.paywithextend.com/transactions/' + txn_id)
         return req.json()
-    
+
     def get_card_transactions(self, card_id):
         '''Gets all the recent card transactions for a given card_id'''
         req = self._get_api('https://api.paywithextend.com/virtualcards/{0}/transactions?status=DECLINED,PENDING,CLEARED'.format(card_id))
         return req.json().get('transactions', [])
-    
+
     def get_latest_transaction(self, cc):
         '''Gets the latest transaction for a given credit card'''
         txns = self.get_card_transactions(cc.id)
@@ -179,11 +177,11 @@ class ExtendAPI(object):
         cc.address = address
         cc.billing_zip = billing_zip
         return cc
-    
+
     def get_credit_card(self, id):
         '''Abstract method to get a virtual credit card'''
         pass
-    
+
     def get_transaction_events(self, since=None):
         '''Returns a list of recent transactions for the org'''
         txns = []

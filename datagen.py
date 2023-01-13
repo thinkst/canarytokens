@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # (C) 2022 Thinkst Applied Research 
 # Helper functions to generate synthetic data for CC generation
 
