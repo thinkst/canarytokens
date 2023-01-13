@@ -5,7 +5,7 @@
 
 from typing import Optional, Dict
 from abc import ABCMeta, abstractmethod
-from io import StringIO
+from io import BytesIO
 import csv
 
 class CreditCard(object):
@@ -25,7 +25,7 @@ class CreditCard(object):
         return '''<div id="cccontainer"><span id="ccname">{name}</span><span id="ccnumber">{number}</span><span id="ccexpires">{expiration}</span><span id="cccvc">{cvc}</span></div>'''.format(kind=self.kind, cvc=self.cvc, number=self.__format_token(), name=self.name, expiration=self.expiration)
 
     def to_csv(self):
-        f = StringIO()
+        f = BytesIO()
         fn = ['name', 'type', 'number', 'cvc', 'exp', 'billing_zip']
         sd = self.to_dict()
         del sd['address']
@@ -48,6 +48,16 @@ class CreditCard(object):
             'exp': str(self.expiration)
         }
         return out
+
+    def __format_token(self):
+        digits = 4
+        if self.kind != "AMEX":
+            split = [self.number[i:i+digits] for i in range(0, len(self.number), digits)]
+            return " ".join(split)
+        else:
+            split = [self.number[0:4], self.number[4:10], self.number[10:15]]
+            return " ".join(split)
+
 
 # class ApiProvider(metaclass = ABCMeta):
 #     '''Abstract base class for a credit card API provider'''

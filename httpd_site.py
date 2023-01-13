@@ -252,26 +252,25 @@ class GeneratorPage(resource.Resource):
             except:
                 pass
             
-            if not request.args.get('type', None)[0] == 'cc':
-                raise Exception()
-            token = extendtoken.ExtendAPI.fetch_token(path=settings.EXTEND_TOKEN_PATH)
-            eapi = extendtoken.ExtendAPI(email=settings.EXTEND_USERNAME, token=token)
-            cc = eapi.create_credit_card(metadata=canarydrop.get_url())
-            # cc_bytes = subprocess.check_output(['python3', 'cc_runner.py', canarydrop.get_url()])
-            # cc = json.loads(cc_bytes.decode('utf-8'))
-            # import rpdb;rpdb.set_trace()
-            if not cc:
-                response['Error'] = 4
-                response['Error_Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
-                raise Exception()
-                
-            response['rendered_html'] = cc.render_html()
-            response['number'] = cc.number
-            response['expiration'] = cc.expiration
-            response['cvc'] = cc.cvc
-            canarydrop['cc_csv'] = cc.to_csv()
-            save_canarydrop(canarydrop)
+            try:
+                if not request.args.get('type', None)[0] == 'cc':
+                    raise Exception()
+                token = extendtoken.ExtendAPI.fetch_token(path=settings.EXTEND_TOKEN_PATH)
+                eapi = extendtoken.ExtendAPI(email=settings.EXTEND_USERNAME, token=token)
+                cc = eapi.create_credit_card(metadata=canarydrop.get_url())
+                if not cc:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
+                    raise Exception()
 
+                response['rendered_html'] = cc.render_html()
+                response['number'] = cc.number
+                response['expiration'] = cc.expiration
+                response['cvc'] = cc.cvc
+                canarydrop['cc_csv'] = cc.to_csv()
+                save_canarydrop(canarydrop)
+            except:
+                pass
 
             try:
                 if not request.args.get('type', None)[0] == 'kubeconfig':

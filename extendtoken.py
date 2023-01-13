@@ -150,7 +150,6 @@ class ExtendAPI(object):
             "referenceFields": [],
             "validMccRanges": [{"lowest": "9403", "highest": "9403"}]
         }
-        # import rpdb;rpdb.set_trace()
 
         req = self._post_api('https://api.paywithextend.com/virtualcards', data=data)
         out = CreditCard("", first_name + ' ' + last_name, None, None, '', expiry_str, None, kind = self.kind)
@@ -165,6 +164,7 @@ class ExtendAPI(object):
                 print("ERROR GETTING CARD DETAILS")
         else:
             print('Error: ' + str(req.json()))
+            return None
         return out
 
     def cancel_card(self, card_id):
@@ -187,6 +187,8 @@ class ExtendAPI(object):
         if metadata is None:
             metadata = ''
         cc = self.make_card(first_name, last_name, token_url=metadata)
+        if not cc:
+            return None
         cc.address = address
         cc.billing_zip = billing_zip
         return cc
