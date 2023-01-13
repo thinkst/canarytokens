@@ -10,21 +10,21 @@ import csv
 
 class CreditCard(object):
     '''Simple class to represent a credit card and its associated owner information.'''
-    def __init__(self, id, name : str, number : Optional[str], cvc : Optional[str], billing_zip : str, expiration : Optional[str] = None, address : str = '', kind : Optional[str] = None):
+    def __init__(self, id, name, number, cvc, billing_zip, expiration = None, address = '', kind = None):
         self.id = id
-        self.name : str = name
-        self.number : Optional[str] = number
-        self.billing_zip : str = billing_zip
-        self.expiration : Optional[str] = expiration
-        self.cvc : Optional[str] = cvc
-        self.address : str = address
-        self.kind : Optional[str] = kind
+        self.name = name
+        self.number = number
+        self.billing_zip = billing_zip
+        self.expiration = expiration
+        self.cvc = cvc
+        self.address = address
+        self.kind = kind
     
-    def render_html(self) -> str:
+    def render_html(self):
         '''Returns an HTML div to render the card info on a website'''
         return '''<div id="cccontainer" style="position: relative; margin: auto; background-image: url('/resources/cc-background-{kind}.png'); height: 290px; width: 460px;"><span id="ccname" style="left: 45px; top: 135px; font-family: 'Open Sans'; position: absolute; font-size: 20pt; color: white;">{name}</span><span id="ccnumber" style="left: 45px; top: 160px; font-family: 'Open Sans'; position: absolute; font-size: 20pt; color: white; word-spacing: .45em;">{number}</span><span id="ccexpires" style="left: 45px; top: 230px; position: absolute; font-family: 'Open Sans'; font-size: 18pt; color: white;">{expiration}</span><span id="cccvc" style="left: 240px; top: 230px; position: absolute; font-family: 'Open Sans'; font-size: 18pt; color: white;">{cvc}</span></div>'''.format(kind=self.kind, cvc=self.cvc, number=self.number, name=self.name, expiration=self.expiration)
 
-    def to_csv(self) -> str:
+    def to_csv(self):
         f = StringIO()
         fn = ['name', 'type', 'number', 'cvc', 'exp', 'billing_zip']
         sd = self.to_dict()
@@ -35,7 +35,7 @@ class CreditCard(object):
         writer.writerow(sd)
         return f.getvalue()
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self):
         '''Returns the CC information as a python dict'''
         out = {
             'id': str(self.id),
@@ -49,27 +49,26 @@ class CreditCard(object):
         }
         return out
 
-class ApiProvider(metaclass = ABCMeta):
-    '''Abstract base class for a credit card API provider'''
-    def __init__(self):
-        pass
+# class ApiProvider(metaclass = ABCMeta):
+#     '''Abstract base class for a credit card API provider'''
+#     def __init__(self):
+#         pass
     
-    @abstractmethod
-    def create_credit_card(self, first_name : Optional[str] = None, last_name : Optional[str] = None, address : Optional[str] = None, billing_zip : Optional[str] = None) -> CreditCard:
-        '''Abstract method to create a virtual credit card number'''
-        pass
+#     @abstractmethod
+#     def create_credit_card(self, first_name = None, last_name = None, address = None, billing_zip = None):
+#         '''Abstract method to create a virtual credit card number'''
+#         pass
     
-    @abstractmethod
-    def get_credit_card(self, id : str) -> CreditCard:
-        '''Abstract method to get a virtual credit card'''
-        pass
+#     @abstractmethod
+#     def get_credit_card(self, id):
+#         '''Abstract method to get a virtual credit card'''
+#         pass
 
-    @abstractmethod
-    def get_latest_transaction(self, cc : CreditCard) -> Optional[Dict[str, str]]:
-        '''Abstract method to get the latest transaction for a credit card'''
-        pass
+#     @abstractmethod
+#     def get_latest_transaction(self, cc : CreditCard):
+#         '''Abstract method to get the latest transaction for a credit card'''
+#         pass
 
 class CCToken(object):
-    def __init__(self, api_provider : ApiProvider):
+    def __init__(self, api_provider):
         pass
-
