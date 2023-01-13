@@ -10,6 +10,8 @@ import requests, datetime, time
 from datagen import generate_person
 from typing import List, Optional, Tuple, Dict
 
+class ExtendAPIException(Exception):
+    pass
 class ExtendAPI(object):
     '''Class for interacting with the Extend API for virtual card management'''
     def __init__(self, email = environ.get('EXTEND_EMAIL', ''), password = environ.get('EXTEND_PASSWORD', ''), token = None):
@@ -20,50 +22,55 @@ class ExtendAPI(object):
             return
 
         req = self._post_api('https://api.paywithextend.com/signin', {'email': self.email, 'password': password})
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            print(req.json())
-            self.token = req.json().get('token')
-            self.refresh_token = req.json().get('refresh_token')
-        else:
-            print(req.json())
+        self.token = req.json().get('token')
+        self.refresh_token = req.json().get('refresh_token')
     
     def _post_api(self, endpoint , data=None):
         '''Performs a POST against the passed endpoint with the data passed'''
         headers = {'Content-Type': 'application/json', 'Accept': 'application/vnd.paywithextend.v2021-03-12+json'}
         if self.token != None:
             headers['Authorization'] = 'Bearer {}'.format(self.token)
-        return requests.post(endpoint, json=data, headers=headers)
-    
-    #def g(self, endpoint, data = None):
-    #    return self._get_api(endpoint=endpoint, data=data)
+        resp = requests.post(endpoint, json=data, headers=headers)
+        if resp.status_code != 200 or resp.json().get('error', '') != '':
+            raise ExtendAPIException('ExtendAPI call failed. Response code {}, error={}'.format(resp.status_code, resp.json().get('error')))
+        return resp
 
     def _get_api(self, endpoint, data=None):
         '''Performs a GET against the passed endpoint'''
         headers = {'Content-Type': 'application/json', 'Accept': 'application/vnd.paywithextend.v2021-03-12+json'}
         if self.token != None:
             headers['Authorization'] = 'Bearer {}'.format(self.token)
-        return requests.get(endpoint, headers=headers, json=data)
+        resp = requests.get(endpoint, headers=headers, json=data)
+        if resp.status_code != 200 or resp.json().get('error', '') != '':
+            raise ExtendAPIException('ExtendAPI call failed. Response code {}, error={}'.format(resp.status_code, resp.json().get('error')))
+        return resp
+
     
     def _put_api(self, endpoint, data=None):
         '''Performs a PUT against the passed endpoint'''
         headers = {'Content-Type': 'application/json', 'Accept': 'application/vnd.paywithextend.v2021-03-12+json'}
         if self.token != None:
             headers['Authorization'] = 'Bearer {}'.format(self.token)
-        return requests.put(endpoint, headers=headers, json=data)
+        resp = requests.put(endpoint, headers=headers, json=data)
+        if resp.status_code != 200 or resp.json().get('error', '') != '':
+            raise ExtendAPIException('ExtendAPI call failed. Response code {}, error={}'.format(resp.status_code, resp.json().get('error')))
+        return resp
 
     def _delete_api(self, endpoint):
         '''Performs a DELETE against the passed endpoint'''
         headers = {'Content-Type': 'application/json', 'Accept': 'application/vnd.paywithextend.v2021-03-12+json'}
         if self.token:
             headers['Authorization'] = 'Bearer {}'.format(self.token)
-        return requests.delete(endpoint, headers=headers)
+        resp = requests.delete(endpoint, headers=headers)
+        if resp.status_code != 200 or resp.json().get('error', '') != '':
+            raise ExtendAPIException('ExtendAPI call failed. Response code {}, error={}'.format(resp.status_code, resp.json().get('error')))
+        return resp
 
     def refresh_auth_token(self):
         '''Refreshes the auth session token'''
         req = self._post_api('https://api.paywithextend.com/renewauth', {'refreshToken': self.refresh_token, 'email': self.email})
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            self.token = req.json().get('token')
-            self.refresh_token = req.json().get('refresh_token')
+        self.token = req.json().get('token')
+        self.refresh_token = req.json().get('refresh_token')
     
     @classmethod
     def fetch_token(cls, path=None):
@@ -80,32 +87,24 @@ class ExtendAPI(object):
         '''Returns a list of tuples of (card owner, card id)'''
         req = self._get_api('https://api.paywithextend.com/virtualcards?count=50&page=0')
         cards = []
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            for vc in req.json().get('virtualCards', []):
-                cards.append((vc['recipient']['firstName'] + ' ' + vc['recipient']['lastName'], vc.get('id')))
-        else:
-            print(req.text)
+        for vc in req.json().get('virtualCards', []):
+            cards.append((vc['recipient']['firstName'] + ' ' + vc['recipient']['lastName'], vc.get('id')))
         return cards
     
     def get_card_info(self, card_id):
         '''Returns all the data about a passed card_id available'''
         req = self._get_api('https://v.paywithextend.com/virtualcards/' + card_id)
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            return req.json()
-        return None
+        return req.json()
     
     def get_transaction(self, txn_id):
         '''Returns more details about a specific transaction'''
         req = self._get_api('https://api.paywithextend.com/transactions/' + txn_id)
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            return req.json()
-        return None
+        return req.json()
     
     def get_card_transactions(self, card_id):
         '''Gets all the recent card transactions for a given card_id'''
         req = self._get_api('https://api.paywithextend.com/virtualcards/{0}/transactions?status=DECLINED,PENDING,CLEARED'.format(card_id))
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            return req.json().get('transactions', [])
+        return req.json().get('transactions', [])
     
     def get_latest_transaction(self, cc):
         '''Gets the latest transaction for a given credit card'''
@@ -124,9 +123,7 @@ class ExtendAPI(object):
     def get_parent_card_id(self):
         '''Gets the ID of the organization's real CC'''
         req = self._get_api('https://api.paywithextend.com/creditcards', {"count": 1})
-        if req.status_code == 200:
-            return req.json().get('creditCards')[0]['id']
-        return ''
+        return req.json().get('creditCards')[0]['id']
 
     def make_card(self, first_name, last_name, token_url, limit_cents=100):
         '''Creates a new CreditCard via Extend's CreateVirtualCard API'''
@@ -150,28 +147,20 @@ class ExtendAPI(object):
             "referenceFields": [],
             "validMccRanges": [{"lowest": "9403", "highest": "9403"}]
         }
-
-        req = self._post_api('https://api.paywithextend.com/virtualcards', data=data)
         out = CreditCard("", first_name + ' ' + last_name, None, None, '', expiry_str, None, kind = self.kind)
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            out.id = req.json().get('virtualCard')['id']
-            vc_info = self.get_card_info(out.id)
-            if 'vcn' in vc_info['virtualCard'].keys():
-                out.cvc = vc_info['virtualCard']['securityCode']
-                out.number = vc_info['virtualCard']['vcn']
-                #self.cancel_card(out.id)
-            else:
-                print("ERROR GETTING CARD DETAILS")
+        req = self._post_api('https://api.paywithextend.com/virtualcards', data=data)
+        out.id = req.json().get('virtualCard')['id']
+        vc_info = self.get_card_info(out.id)
+        if 'vcn' in vc_info['virtualCard'].keys():
+            out.cvc = vc_info['virtualCard']['securityCode']
+            out.number = vc_info['virtualCard']['vcn']
         else:
-            print('Error: ' + str(req.json()))
-            return None
+            print("ERROR GETTING CARD DETAILS")
         return out
 
     def cancel_card(self, card_id):
         '''Cancels a passed card'''
         req = self._put_api('https://api.paywithextend.com/virtualcards/' + card_id + '/cancel')
-        if req.status_code != 200:
-            print("Error cancelling: " + card_id)
 
     def create_credit_card(self, first_name=None, last_name=None, address=None, billing_zip=None, metadata = None):
         '''Creates a cardholder and associated virtual card for the passed person, if not passed, will generate fake data to use'''
@@ -187,8 +176,6 @@ class ExtendAPI(object):
         if metadata is None:
             metadata = ''
         cc = self.make_card(first_name, last_name, token_url=metadata)
-        if not cc:
-            return None
         cc.address = address
         cc.billing_zip = billing_zip
         return cc
@@ -201,30 +188,25 @@ class ExtendAPI(object):
         '''Returns a list of recent transactions for the org'''
         txns = []
         req = self._get_api('https://api.paywithextend.com/events')
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            for event in req.json().get('events'):
-                if since != None:
-                    if since > datetime.datetime.fromisoformat(event['timestamp'].split('+')[0]):
-                        # We've gone far enough back to not need to continue
-                        return txns
-                if 'transaction' in event['type']:
-                    txns.append(event['data'])
-            if req.json().get('pagination')['numberOfPages'] > 1:
-                page = 1
-                while page < req.json().get('pagination')['numberOfPages']:
-                    req = self._get_api('https://api.paywithextend.com/events?page={0}'.format(str(page)))
-                    if req.status_code == 200 and req.json().get('error', '') == '':
-                        for event in req.json().get('events'):
-                            if since != None:
-                                if since > datetime.datetime.fromisoformat(event['timestamp'].split('+')[0]):
-                                    # We've gone far enough back to not need to continue
-                                    return txns
-                            if 'transaction' in event['type']:
-                                txns.append(event['data'])
-                    else:
-                        print("Error fetching further pages of data")
-                        return txns
-                    page += 1
+        for event in req.json().get('events'):
+            if since != None:
+                if since > datetime.datetime.fromisoformat(event['timestamp'].split('+')[0]):
+                    # We've gone far enough back to not need to continue
+                    return txns
+            if 'transaction' in event['type']:
+                txns.append(event['data'])
+        if req.json().get('pagination')['numberOfPages'] > 1:
+            page = 1
+            while page < req.json().get('pagination')['numberOfPages']:
+                req = self._get_api('https://api.paywithextend.com/events?page={0}'.format(str(page)))
+                for event in req.json().get('events'):
+                    if since != None:
+                        if since > datetime.datetime.fromisoformat(event['timestamp'].split('+')[0]):
+                            # We've gone far enough back to not need to continue
+                            return txns
+                    if 'transaction' in event['type']:
+                        txns.append(event['data'])
+                page += 1
         return txns
 
     def subscribe_to_txns(self, url):
@@ -237,10 +219,7 @@ class ExtendAPI(object):
             'url': url
         }
         req = self._post_api('https://api.paywithextend.com/subscriptions', body)
-        if req.status_code == 200 and req.json().get('error', '') == '':
-            return req.json()
-        print("Error: " + str(req.json()))
-        return {}
+        return req.json()
 
     def delete_subscription(self, sub_id):
         self._delete_api('https://api.paywithextend.com/subscriptions/' + sub_id)
@@ -248,9 +227,6 @@ class ExtendAPI(object):
     def get_transaction_info_from_event(self, eventid):
         '''Returns the virtual card ID from a transaction event'''
         res = self._get_api('https://api.paywithextend.com/events/' + eventid)
-        if res.status_code != 200 or res.json().get('error', '') != '':
-            print("Error retrieving event!")
-            return None
         return res.json().get('event', {}).get('data', {})
 
     def issue_test_transaction(self, cc, amount):
