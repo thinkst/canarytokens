@@ -1,6 +1,6 @@
 # Security Policy
 
-Thinkst welcomes bug reports and takes them seriously. Our primary reporting channel is security@thinkst.com, however security bugs in our open source software can also be reported on GitHub. We don't run a bug bounty for canarytokens.org, but we will send swag for fixable bugs and code contributions.
+Thinkst welcomes bug reports and takes them seriously. Our primary reporting channel is security@thinkst.com, however, security bugs in our open-source software can also be reported on GitHub. We don't run a bug bounty for canarytokens.org, but we will send swag for fixable bugs and code contributions.
 
 If you report a security bug we will request a CVE on your behalf and it will be acknowledged in a GitHub Advisory. Denial-of-Service bugs are reportable but please don’t test them on our production system.
 
