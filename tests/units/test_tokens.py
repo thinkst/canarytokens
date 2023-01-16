@@ -193,3 +193,14 @@ def test_create_token_hit(setup_db, token_type, hit_info):
         src_ip=src_ip,
         hit_info=hit_info,
     )
+
+
+@pytest.mark.parametrize(
+    "in_url, expected_out",
+    [("JBSWY3DPGIQQ.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", b"Hello2!")],
+)
+def test_generic_data(in_url: str, expected_out: dict[str, str]):
+    src_data = t.Canarytoken.look_for_source_data(in_url)
+    assert "src_data" in src_data
+    assert "generic_data" in src_data["src_data"]
+    assert src_data["src_data"]["generic_data"] == expected_out

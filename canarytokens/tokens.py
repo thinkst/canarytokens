@@ -6,7 +6,7 @@ import random
 import re
 from datetime import datetime
 from functools import cache
-from typing import Any, AnyStr, Dict, Match, Optional
+from typing import Any, AnyStr, Match, Optional
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
@@ -185,7 +185,7 @@ class Canarytoken(object):
         return False
 
     @staticmethod
-    def look_for_source_data(query_name: str) -> Dict[str, str]:
+    def look_for_source_data(query_name: str) -> dict[str, str]:
         for source_name, source_extractor in source_data_extractors.items():
             if (m := source_extractor.match(query_name)) is not None:
                 return getattr(Canarytoken, f"_{source_name}")(m)
@@ -237,7 +237,7 @@ class Canarytoken(object):
     #     return data
 
     @staticmethod
-    def _generic(matches: Match[AnyStr]) -> Dict[str, str]:
+    def _generic(matches: Match[AnyStr]) -> dict[str, str]:
         data = {}
         generic_data = matches.group(1)
         generic_data = generic_data.replace(".", "").upper()
@@ -255,7 +255,7 @@ class Canarytoken(object):
         return {"src_data": data}
 
     @staticmethod
-    def _dtrace_process_data(matches: Match[AnyStr]) -> Dict[str, str]:
+    def _dtrace_process_data(matches: Match[AnyStr]) -> dict[str, str]:
         raise NotImplementedError("Please implement me! ")
         # data = {}
         # try:
@@ -283,7 +283,7 @@ class Canarytoken(object):
         # return data
 
     @staticmethod
-    def _dtrace_file_open(matches: Match[AnyStr]) -> Dict[str, str]:
+    def _dtrace_file_open(matches: Match[AnyStr]) -> dict[str, str]:
         raise NotImplementedError("Please implement me")
         # data = {}
         # try:
@@ -339,7 +339,7 @@ class Canarytoken(object):
         }
 
     @staticmethod
-    def _log4_shell(matches: Match[AnyStr]) -> Dict[str, Dict[str, str]]:
+    def _log4_shell(matches: Match[AnyStr]) -> dict[str, dict[str, str]]:
         data = {}
         computer_name = matches.group(1)
         if isinstance(computer_name, bytes):
@@ -588,7 +588,7 @@ class Canarytoken(object):
         *,
         input_channel: str,
         src_ip: Optional[str],
-        hit_info: Dict[str, Any],
+        hit_info: dict[str, Any],
         time_of_hit: Optional[str] = None,
     ):
         # DESIGN: we can do better. Dispatch on token_type.
