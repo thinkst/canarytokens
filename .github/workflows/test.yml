@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "T4627_py3_main-disable"
+      - "T5210_py3_email_generic_data"
 
 jobs:
   tests:

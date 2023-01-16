@@ -1,4 +1,6 @@
+import os
 import struct
+from distutils.util import strtobool
 
 import pytest
 from twisted.internet.testing import StringTransport
@@ -17,6 +19,9 @@ from canarytokens.tokens import Canarytoken
 switchboard = Switchboard()
 
 
+@pytest.mark.skipif(
+    not strtobool(os.getenv("LIVE", "False")), reason="Only test on live system"
+)
 @pytest.mark.parametrize(
     "buf, expected_additional_info",
     [
