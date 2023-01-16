@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "T4627_py3_main"
+      - "T5210_py3_email_generic_data"
   # workflow_dispatch:
   #   inputs:
   #     force_build:
