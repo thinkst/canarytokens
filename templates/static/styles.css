@@ -59,6 +59,42 @@
         text-align: center;
       }
 
+      .footer .banner {
+        display: block;
+        max-width: 46rem;
+        margin: auto;
+        margin-bottom: 20px;
+        height: 210px;
+        background-image: url('/resources/thinkst-canary-banner-hi-res-2.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+      }
+
+      .footer a {
+        color: #38d47f;
+      }
+
+      @media screen and (max-width: 425px) {
+        .footer {
+          padding: 0;
+          font-size: 14px;
+        }
+        .footer p {
+          margin-bottom: 10px;
+        }
+        .footer .banner {
+          background-image: url('/resources/thinkst-canary-banner-mobile-2.png');
+          height: 390px;
+        }
+      }
+
+      @media screen and (max-width: 375px) {
+        .footer .banner {
+          height: 335px;
+        }
+      }
+
       .incident-size{
         margin :0px auto;
         display: none;
