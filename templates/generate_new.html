@@ -780,7 +780,7 @@ START REPLICA;
       <footer class="footer">
         <a href="http://canary.tools" target="_blank" class="banner"></a>
         <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
-        <p>By Using This Service, you Agree to Our <a href="/legal">Terms of Use.</a></p>
+        <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
         {% if settings.DEV_BUILD_ID %}
         <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
@@ -1137,8 +1137,13 @@ START REPLICA;
         };
 
         var _handleCCResponse = function(data) {
+          let exp = data['expiration'].split('/')
+          let month = exp[0]
+          let year = exp[1]
+          month = month.length === 2 ? month : `0${month}`
+          year = year.substr(-2)
           $('#copy-card').text(data['number'])
-          $('#copy-expiry').text(data['expiration'])
+          $('#copy-expiry').text(`${month}/${year}`)
           $('#copy-cvc').text(data['cvc'])
           $('#ccRender').html(data['rendered_html'])
           $('a.file-download').each(function (i, e){

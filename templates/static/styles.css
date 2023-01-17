@@ -85,7 +85,8 @@
         }
         .footer .banner {
           background-image: url('/resources/thinkst-canary-banner-mobile-2.png');
-          height: 390px;
+          height: 300px;
+          margin-top: 10px;
         }
       }
 
