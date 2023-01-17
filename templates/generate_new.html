@@ -1142,10 +1142,8 @@ START REPLICA;
           let year = exp[1]
           month = month.length === 2 ? month : `0${month}`
           year = year.substr(-2)
-          console.log(data)
           $('#copy-card').text(data['number'])
           $('#copy-expiry').text(`${month}/${year}`)
-          // $('#copy-expiry').text(data['expiration'])
           $('#copy-cvc').text(data['cvc'])
           $('#ccRender').html(data['rendered_html'])
           $('a.file-download').each(function (i, e){
