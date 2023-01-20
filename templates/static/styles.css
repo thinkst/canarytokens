@@ -541,6 +541,7 @@
       @media screen and (max-width: 768px) {
         .credit-card {
           flex-wrap: wrap;
+          margin-bottom: 0;
         }
 
         .copy-card {
@@ -558,7 +559,7 @@
           margin: 10px auto;
         }
         .copy-card span {
-          margin-bottom: 5px;
+          margin-bottom: 3px;
           display: flex;
         }
         .copy-card .card-detail .title {

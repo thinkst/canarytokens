@@ -259,6 +259,7 @@ class GeneratorPage(resource.Resource):
                 eapi = extendtoken.ExtendAPI(email=settings.EXTEND_USERNAME, token=token)
                 cc = eapi.create_credit_card(metadata=canarydrop.get_url())
                 response['rendered_html'] = cc.render_html()
+                response['name'] = cc.name
                 response['number'] = cc.number
                 response['expiration'] = cc.expiration
                 response['cvc'] = cc.cvc
