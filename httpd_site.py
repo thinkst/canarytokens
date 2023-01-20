@@ -294,16 +294,11 @@ class GeneratorPage(resource.Resource):
                 azure_id_cert_file_name = request.args['azure_id_cert_file_name'][0]
                 if not azure_id_cert_file_name:
                     raise Exception()
-                response['app_id'] = keys[0]
-                response['cert'] = keys[1]
-                response['tenant_id'] = keys[2]
-                response['cert_name'] = keys[3]
-                response['cert_file_name'] = azure_id_cert_file_name
-                canarydrop['app_id'] = keys[0]
-                canarydrop['cert'] = keys[1]
-                canarydrop['tenant_id'] = keys[2]
-                canarydrop['cert_name'] = keys[3]
-                canarydrop['cert_file_name'] = azure_id_cert_file_name
+                response['app_id'] = canarydrop['app_id'] = keys[0]
+                response['cert'] = canarydrop['cert'] = keys[1]
+                response['tenant_id'] = canarydrop['tenant_id'] = keys[2]
+                response['cert_name'] = canarydrop['cert_name'] = keys[3]
+                response['cert_file_name'] = canarydrop['cert_file_name'] = azure_id_cert_file_name
                 save_canarydrop(canarydrop)
             except:
                 pass
