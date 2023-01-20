@@ -299,16 +299,15 @@ async def generate(request: Request) -> AnyTokenResponse:
     Whatt
     """
     if request.headers.get("Content-Type", "application/json") == "application/json":
-        data = await request.json()
-        token_request_details = parse_obj_as(AnyTokenRequest, data)
+        token_request_data = await request.json()
     else:
         # Need a mutable copy of the form data
-        token_request_form = dict(await request.form())
-        token_request_form["token_type"] = token_request_form.pop(
-            "type", token_request_form.get("token_type", None)
+        token_request_data = dict(await request.form())
+        token_request_data["token_type"] = token_request_data.pop(
+            "type", token_request_data.get("token_type", None)
         )
 
-        token_request_details = parse_obj_as(AnyTokenRequest, token_request_form)
+    token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
 
     if token_request_details.webhook_url:
         try:
@@ -321,7 +320,8 @@ async def generate(request: Request) -> AnyTokenResponse:
             raise HTTPException(
                 status_code=400, detail="Failed to validate webhook - timed out."
             )
-    elif token_request_details.email and is_email_blocked(token_request_details.email):
+
+    if token_request_details.email and is_email_blocked(token_request_details.email):
         raise HTTPException(status_code=400, detail="Email is blocked.")
     # TODO: refactor this. KUBECONFIG token creates it's own token
     # value and cannot follow same path as before.
