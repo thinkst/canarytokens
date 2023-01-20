@@ -27,7 +27,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import APIKeyQuery
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import HttpUrl, parse_obj_as
+from pydantic import HttpUrl, ValidationError, parse_obj_as
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -126,6 +126,7 @@ from canarytokens.queries import (
     get_all_canary_domains,
     get_all_canary_sites,
     is_email_blocked,
+    is_valid_email,
     remove_canary_domain,
     save_canarydrop,
     validate_webhook,
@@ -294,10 +295,25 @@ def generate_page(request: Request) -> HTMLResponse:
     "/generate",
     tags=["Create Canarytokens"],
 )
-async def generate(request: Request) -> AnyTokenResponse:
+async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen is large
     """
     Whatt
     """
+    response_error = (
+        lambda error, message: JSONResponse(  # noqa: E731  # lambda is cleaner
+            {
+                "Error": error,
+                "Error_Message": message,
+                "Url": "",
+                "Url_components": None,
+                "Token": "",
+                "Email": "",
+                "Hostname": "",
+                "Auth": "",
+            }
+        )
+    )
+
     if request.headers.get("Content-Type", "application/json") == "application/json":
         token_request_data = await request.json()
     else:
@@ -307,7 +323,13 @@ async def generate(request: Request) -> AnyTokenResponse:
             "type", token_request_data.get("token_type", None)
         )
 
-    token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
+    try:
+        token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
+    except ValidationError:  # DESIGN: can we specialise on what went wrong?
+        return response_error(1, "No email/webhook supplied or malformed request")
+
+    if not token_request_details.memo:
+        return response_error(2, "No memo supplied")
 
     if token_request_details.webhook_url:
         try:
@@ -315,14 +337,28 @@ async def generate(request: Request) -> AnyTokenResponse:
                 token_request_details.webhook_url, token_request_details.token_type
             )
         except requests.exceptions.HTTPError:
-            raise HTTPException(status_code=400, detail="Failed to validate webhook")
+            # raise HTTPException(status_code=400, detail="Failed to validate webhook")
+            return response_error(
+                3, "Invalid webhook supplied. Confirm you can POST to this URL."
+            )
         except requests.exceptions.ConnectTimeout:
-            raise HTTPException(
-                status_code=400, detail="Failed to validate webhook - timed out."
+            # raise HTTPException(
+            #     status_code=400, detail="Failed to validate webhook - timed out."
+            # )
+            return response_error(
+                3, "Webhook timed out. Confirm you can POST to this URL."
             )
 
-    if token_request_details.email and is_email_blocked(token_request_details.email):
-        raise HTTPException(status_code=400, detail="Email is blocked.")
+    if token_request_details.email:
+        if not is_valid_email(token_request_details.email):
+            return response_error(5, "Invalid email supplied")
+
+        if is_email_blocked(token_request_details.email):
+            # raise HTTPException(status_code=400, detail="Email is blocked.")
+            return response_error(
+                6,
+                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
+            )
     # TODO: refactor this. KUBECONFIG token creates it's own token
     # value and cannot follow same path as before.
     if token_request_details.token_type == TokenTypes.KUBECONFIG:

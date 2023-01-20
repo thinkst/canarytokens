@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import datetime
 import json
+import re
 import secrets
 from ipaddress import IPv4Address
 from typing import Dict, List, Literal, Optional, Tuple, Union
@@ -864,6 +865,20 @@ def validate_webhook(url, token_type: models.TokenTypes):
     #         ),
     #     )
     #     return False
+
+
+def is_valid_email(email):
+    # This validation checks that no disallowed characters are in the section of the email
+    # address before the @
+    # Ripped from https://www.regular-expressions.info/email.html
+    regex = re.compile(
+        r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    )
+    match = regex.search(email.lower())
+    if not match:
+        return False
+    else:
+        return True
 
 
 def normalize_email(email):
