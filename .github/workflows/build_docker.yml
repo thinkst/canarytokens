@@ -3,7 +3,8 @@ name: "Build Docker Image"
 on:
   push:
     branches:
-      - "T5173_AZURE_API_Keys"
+      - "master"
+      - "dev"
 
   workflow_dispatch:
     inputs:
