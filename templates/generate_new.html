@@ -350,20 +350,39 @@
                 <br>
                 <div class="artifacts">
                   <div class="form-control" style="padding: 20px;">
-                    <div class="copy-card">
-                      <span>
-                        Card: <span id="copy-card"></span>
-                        <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
-                      </span>
-                      <span>CVC:  <span id="copy-cvc"></span>
-                        <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
-                      </span>
-                      <span>Exp:  <span id="copy-expiry"></span>
-                        <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
-                      </span>
-                    </div>
-                    <div id="ccRender" style="margin-top: 15px; margin-bottom: 20px;">
+                    <div class="credit-card">
+                      <div id="ccRender">
 
+                      </div>
+                      <div class="copy-card">
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-name"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Name:</span>
+                            <span id="copy-name">Harold Boyd</span>
+                          </div>
+                        </span>
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Card:</span>
+                            <span id="copy-card"></span>
+                          </div>
+                        </span>
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Expiration Date:</span>
+                            <span id="copy-expiry"></span>
+                          </div>
+                        </span>
+                        <span class="card-detail">
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <div>
+                            <span class="title">Security Code:</span>
+                            <span id="copy-cvc"></span></div>
+                        </span>
+                      </div>
                     </div>
                     <a class="btn btn-large btn-success file-download" data-fmt="cc">Download your credit card data</a>
                   </div>
@@ -779,8 +798,8 @@ START REPLICA;
 
       <footer class="footer">
         <a href="http://canary.tools/why" target="_blank" class="banner"></a>
-        <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
         <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
+        <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
         {% if settings.DEV_BUILD_ID %}
         <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
@@ -1137,6 +1156,7 @@ START REPLICA;
         };
 
         var _handleCCResponse = function(data) {
+          console.log(data)
           let exp = data['expiration'].split('/')
           let month = exp[0]
           let year = exp[1]

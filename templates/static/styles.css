@@ -15,13 +15,13 @@
       .error-outline {
         outline: none;
         border-color: #1ecaed;
-        box-shadow: 0 0 10px red;
+        box-shadow: 0 0 13px #ec6161;
       }
 
       .success-outline {
         outline: none;
         border-color: #1ecaed;
-        box-shadow: 0 0 10px green;
+        box-shadow: 0 0 10px #38d47f;
       }
 
       a.fileupload-clear:hover {
@@ -189,8 +189,8 @@
 
       .form-control:focus {
         outline: none;
-        border-color: #9ecaed;
-        box-shadow: 0 0 10px #9ecaed;
+        border: none;
+        box-shadow: 0 0 14px #4a4a4a;
       }
 
       .step:last-child {
@@ -224,7 +224,7 @@
           margin-top: -3px;
           border-width: 6px 6px 0 6px;
           border-style: solid;
-          border-color: #4cbeff transparent;
+          border-color: #38d47f transparent;
       }
       .success-outline.wrapper-dropdown:after {
         border-color: green transparent;
@@ -265,6 +265,9 @@
           transition: all 0.3s ease-out;
           border-bottom: 1px solid #e6e8ea;
       }
+      .wrapper-dropdown .dropdown li a:hover {
+        color: #38d47f !important;
+      }
 
       .wrapper-dropdown .dropdown li:last-of-type a {
           border: none;
@@ -285,19 +288,20 @@
 
       .wrapper-dropdown.active {
           border-radius: 5px 5px 0 0;
-          background: #4cbeff;
+          background: #38d47f;
           box-shadow: none;
           border-bottom: 2px solid #eceeef;
           color: white;
+          border: none;
       }
 
       .wrapper-dropdown.active:after {
-          border-color: #82d1ff transparent;
+          border-color: #FFF transparent;
       }
 
       .wrapper-dropdown.active .dropdown {
           border-bottom: 1px solid rgba(0,0,0,0.2);
-          max-height: 443px;
+          max-height: 400px;
           overflow: scroll;
       }
 
@@ -366,6 +370,11 @@
 
       #save.btn-fullwidth {
         width: 100%;
+        background-color: #38d47f;
+      }
+      a.btn-success.btn {
+        background-color: #38d47f;
+        width: 100%;
       }
       @media (min-width: 500px) {
         #save.btn-fullwidth {
@@ -375,7 +384,7 @@
       #save.btn-disabled {
         font-size: 1rem;
         width: 14rem;
-        background-color: #faa;
+        background-color: #ec6161;
         border: none;
       }
       a.btn-success.btn:hover, a.btn-success.btn:focus {
@@ -429,16 +438,42 @@
         box-shadow: #01ac4b 0px 0px 0px 1px;
       }
 
+      .credit-card {
+        display: flex;
+        justify-content: space-evenly;
+        margin-bottom: 15px;
+      }
+
+      .copy-card .card-detail {
+        display: flex;
+      }
+
+      .copy-card .card-detail div {
+        display: flex;
+        flex-direction: column;
+        margin-left: 10px;
+        align-items: flex-start;
+      }
+
+      .copy-card .card-detail .title {
+        font-size: 14px;
+        margin-bottom: 5px;
+        font-weight: 300;
+      }
+
       .copy-card {
         display: flex;
         flex-wrap: wrap;
+        flex-direction: column;
         justify-content: space-around;
         font-size: 15px;
         margin: 15px 0 20px 0;
       }
-      .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
+      .copy-card #copy-name .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
         font-family: monospace;
         color: #646464;
+        font-weight: 600;
+        font-size: 16px;
       }
 
       .copy-card img {
@@ -458,53 +493,84 @@
         border: none;
         outline: none;
       }
+
+      #ccRender {
+        margin-top: 15px;
+        margin-bottom: 20px;
+        width: 335px;
+      }
+
       #cccontainer {
         font-family: 'OCR A Extended', sans-serif;
         position: relative;
         margin: auto;
         background-image: url(/resources/cc-background-AMEX.png);
-        height: 255px;
-        width: 400px;
+        height: 205px;
+        /* width: 00px; */
         background-repeat: no-repeat;
         background-size: contain;
         color: white;
       }
 
       #cccontainer #ccname {
-        left: 40px;
-        top: 95px;
+        left: 30px;
+        top: 75px;
         position: absolute;
-        font-size: 19pt;
+        font-size: 16pt;
       }
       #cccontainer #ccnumber {
-        left: 40px;
-        top: 125px;
+        left: 30px;
+        top: 100px;
         position: absolute;
-        font-size: 17pt;
+        font-size: 14pt;
         word-spacing: 0.45em;
       }
       #cccontainer #ccexpires {
-        left: 35px;
-        top: 195px;
+        left: 25px;
+        top: 160px;
         position: absolute;
-        font-size: 18pt;
+        font-size: 13pt;
       }
       #cccontainer #cccvc {
-        left: 200px;
-        top: 195px;
+        left: 165px;
+        top: 160px;
         position: absolute;
-        font-size: 18pt;
+        font-size: 13pt;
+      }
+
+      @media screen and (max-width: 768px) {
+        .credit-card {
+          flex-wrap: wrap;
+        }
+
+        .copy-card {
+          display: grid;
+          grid-template-columns: auto auto;
+          column-gap: 20px;
+          row-gap: 20px;
+        }
       }
 
       @media screen and (max-width: 600px) {
         .copy-card {
-          justify-content: space-between;
-          margin: 10px 0 10px 0;
+          column-gap: 10px;
+          row-gap: 10px;
+          margin: 10px auto;
         }
         .copy-card span {
           margin-bottom: 5px;
           display: flex;
         }
+        .copy-card .card-detail .title {
+          font-size: 11px;
+          text-align: left;
+        }
+
+        .copy-card #copy-name, .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
+          font-size: 11px;
+          text-align: left;
+        }
+
         #cccontainer {
           height: 190px !important;
           width: auto !important;
@@ -560,6 +626,18 @@
         }
       }
       @media screen and (min-width: 320px) and (max-width: 375px) {
+        .copy-card .card-detail .title {
+          font-size: 9.5px;
+          text-align: left;
+        }
+        .copy-card #copy-name, .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
+          font-size: 10px;
+          text-align: left;
+        }
+        .copy-card img {
+          width: 15px;
+          height: 15px;
+        }
         #cccontainer {
           height: 130px !important;
           width: 190px !important;
