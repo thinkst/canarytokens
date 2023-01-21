@@ -128,7 +128,7 @@ class ExtendAPI(object):
         cc = self.get_parent_card_id()
         now_ts = datetime.datetime.now() - datetime.timedelta(days=1)
         now_ts = now_ts.isoformat() + '+0000'
-        expiry = datetime.datetime.now() + datetime.timedelta(weeks=52)
+        expiry = datetime.datetime.now() + datetime.timedelta(weeks=2*52)
         future_ts = expiry.isoformat() + '+0000'
         expiry_str = str(expiry.month) + '/' + str(expiry.year)
         notes = token_url
