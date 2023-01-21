@@ -11,7 +11,7 @@
       }
 
       .step {
-        border-bottom: 5px solid #fff;
+        border-bottom: 2px solid #fff;
         padding: 1rem 0rem;
       }
 
@@ -192,7 +192,7 @@
 
       .form-control:focus {
         outline: none;
-        border: none;
+        border-color: #dadada;
         box-shadow: 0 0 14px #4a4a4a;
       }
 
@@ -378,6 +378,10 @@
       a.btn-success.btn {
         background-color: #38d47f;
         width: 100%;
+        border-color: #38d47f;
+      }
+      button.btn.btn-success:disabled {
+        opacity: .85;
       }
       @media (min-width: 500px) {
         #save.btn-fullwidth {
@@ -449,7 +453,7 @@
 
       .copy-card .card-detail {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
       }
 
       .copy-card .card-detail div {
@@ -473,7 +477,7 @@
         font-size: 15px;
         margin: 15px 0 20px 0;
       }
-      .copy-card #copy-name .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
+      .copy-card #copy-name, .copy-card #copy-card, .copy-card #copy-expiry, .copy-card #copy-cvc {
         font-family: monospace;
         color: #646464;
         font-weight: 600;

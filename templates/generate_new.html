@@ -59,7 +59,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.css?ver=7">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=8">
     <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
     <style>
     .ps__rail-x,
@@ -88,10 +88,6 @@
             <img alt="logo" src="/resources/logo.png" class="logo">
           </a>
         </h3>
-        <div style="display:flex; justify-content:space-between">
-          <a href="http://blog.thinkst.com/p/canarytokensorg-quick-free-detection.html" target="_blank">What is this and why should I care?</a>
-          <a style="margin-left: 50px;" href="https://docs.canarytokens.org/guide/" target="_blank">Documentation</a>
-        </div>
       </div>
 
       <div class="jumbotron">
@@ -1156,7 +1152,6 @@ START REPLICA;
         };
 
         var _handleCCResponse = function(data) {
-          console.log(data)
           let exp = data['expiration'].split('/')
           let month = exp[0]
           let year = exp[1]
