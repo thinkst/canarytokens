@@ -10,6 +10,10 @@ from typing import List, Optional, Tuple, Dict
 
 class ExtendAPIException(Exception):
     pass
+
+class ExtendAPIRateLimitException(Exception):
+    pass
+
 class ExtendAPI(object):
     '''Class for interacting with the Extend API for virtual card management'''
     def __init__(self, email = environ.get('EXTEND_EMAIL', ''), password = environ.get('EXTEND_PASSWORD', ''), token = None):
@@ -29,8 +33,11 @@ class ExtendAPI(object):
         if self.token != None:
             headers['Authorization'] = 'Bearer {}'.format(self.token)
         resp = requests.post(endpoint, json=data, headers=headers)
+        if resp.status_code == 422:
+            raise ExtendAPIRateLimitException('ExtendAPI call failed with 422 rate limit.')
         if resp.status_code != 200 or resp.json().get('error', '') != '':
             raise ExtendAPIException('ExtendAPI call failed. Response code {}, error={}'.format(resp.status_code, resp.json().get('error')))
+
         return resp
 
     def _get_api(self, endpoint, data=None):

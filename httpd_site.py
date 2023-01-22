@@ -265,6 +265,10 @@ class GeneratorPage(resource.Resource):
                 response['cvc'] = cc.cvc
                 canarydrop['cc_csv'] = cc.to_csv()
                 save_canarydrop(canarydrop)
+            except extendtoken.ExtendAPIRateLimitException as e:
+                log.error('ExtendAPI Error: {}'.format(e.args))
+                response['Error'] = 4
+                response['Message'] = 'Credit Card Rate-Limiting currently in place. Please try again later.'
             except extendtoken.ExtendAPIException as e:
                 log.error('ExtendAPI Error: {}'.format(e.args))
                 response['Error'] = 4
