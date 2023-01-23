@@ -132,16 +132,17 @@ class ExtendAPI(object):
         '''Gets the ID of the organization's real CC'''
         resp = self._get_api('https://api.paywithextend.com/creditcards')
         cards = resp.json().get('creditCards')
+        # import rpdb; rpdb.set_trace()
         if len(cards) == 0:
             raise ExtendAPICardsException('No cards returned from Extend')
 
         filtered_cards = [x for x in cards if x['displayName'] == self.card_name]
 
         if len(filtered_cards) == 0:
-            raise ExtendAPICardsException('No card is called {]'.format (self.card_name))
+            raise ExtendAPICardsException('No card is called {}'.format (self.card_name))
 
         if len(filtered_cards) > 1:
-            raise ExtendAPICardsException('Multiple cards are called {]'.format (self.card_name))
+            raise ExtendAPICardsException('Multiple cards are called {}'.format (self.card_name))
 
         return filtered_cards[0]['id']
 

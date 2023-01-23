@@ -253,10 +253,11 @@ class GeneratorPage(resource.Resource):
                 pass
 
             try:
+
                 if not request.args.get('type', None)[0] == 'cc':
                     raise Exception()
                 token = extendtoken.ExtendAPI.fetch_token(path=settings.EXTEND_TOKEN_PATH)
-                eapi = extendtoken.ExtendAPI(email=settings.EXTEND_USERNAME, token=token)
+                eapi = extendtoken.ExtendAPI(email=settings.EXTEND_USERNAME, token=token, card_name=settings.EXTEND_CARD_NAME)
                 cc = eapi.create_credit_card(metadata=canarydrop.get_url())
                 response['rendered_html'] = cc.render_html()
                 response['name'] = cc.name
@@ -277,7 +278,7 @@ class GeneratorPage(resource.Resource):
                 log.error('ExtendAPI Error: {}'.format(e.args))
                 response['Error'] = 4
                 response['Message'] = 'Failed to generate credit card due to a configuration error. Please contact support@thinkst.com.'
-            except:
+            except Exception as e:
                 pass
 
             try:
