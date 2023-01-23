@@ -14,12 +14,15 @@ class ExtendAPIException(Exception):
 class ExtendAPIRateLimitException(Exception):
     pass
 
+class ExtendAPICardsException(Exception):
+    pass
 class ExtendAPI(object):
     '''Class for interacting with the Extend API for virtual card management'''
-    def __init__(self, email = environ.get('EXTEND_EMAIL', ''), password = environ.get('EXTEND_PASSWORD', ''), token = None):
+    def __init__(self, email = environ.get('EXTEND_EMAIL', ''), password = environ.get('EXTEND_PASSWORD', ''), token = None, card_name = environ.get('EXTEND_CARD_NAME', '')):
         self.email = email
         self.token = token
         self.kind = 'AMEX'
+        self.card_name = card_name
         if self.token:
             return
 
@@ -127,8 +130,20 @@ class ExtendAPI(object):
 
     def get_parent_card_id(self):
         '''Gets the ID of the organization's real CC'''
-        req = self._get_api('https://api.paywithextend.com/creditcards', {"count": 1})
-        return req.json().get('creditCards')[0]['id']
+        resp = self._get_api('https://api.paywithextend.com/creditcards')
+        cards = resp.json().get('creditCards')
+        if len(cards) == 0:
+            raise ExtendAPICardsException('No cards returned from Extend')
+
+        filtered_cards = [x for x in cards if x['displayName'] == self.card_name]
+
+        if len(filtered_cards) == 0:
+            raise ExtendAPICardsException('No card is called {]'.format (self.card_name))
+
+        if len(filtered_cards) > 1:
+            raise ExtendAPICardsException('Multiple cards are called {]'.format (self.card_name))
+
+        return filtered_cards[0]['id']
 
     def make_card(self, first_name, last_name, token_url, limit_cents=100):
         '''Creates a new CreditCard via Extend's CreateVirtualCard API'''

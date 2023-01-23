@@ -273,6 +273,10 @@ class GeneratorPage(resource.Resource):
                 log.error('ExtendAPI Error: {}'.format(e.args))
                 response['Error'] = 4
                 response['Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
+            except extendtoken.ExtendAPICardsException as e:
+                log.error('ExtendAPI Error: {}'.format(e.args))
+                response['Error'] = 4
+                response['Message'] = 'Failed to generate credit card due to a configuration error. Please contact support@thinkst.com.'
             except:
                 pass
 
