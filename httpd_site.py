@@ -459,7 +459,7 @@ class DownloadPage(resource.Resource):
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
                                   'attachment; filename=credentials')
-                text="[default]\naws_access_key={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
+                text="[default]\naws_access_key_id={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
                 return text
             elif fmt == 'azure_id':
