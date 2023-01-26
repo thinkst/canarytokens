@@ -3,6 +3,7 @@
 
 from os import environ
 import os.path
+import simplejson
 from cctoken import CreditCard
 import requests, datetime, time
 from datagen import generate_person
@@ -81,7 +82,7 @@ class ExtendAPI(object):
         self.refresh_token = req.json().get('refresh_token')
 
     @classmethod
-    def fetch_token(cls, path=None):
+    def fetch_credentials(cls, path=None):
         if not path:
             raise Exception("No path supplied")
 
@@ -89,7 +90,9 @@ class ExtendAPI(object):
             raise Exception("File does not exist: {}".format(path))
 
         with open(path) as f:
-            return f.read().strip()
+            credentials =  simplejson.loads(f.read().strip())
+
+        return credentials['EXTEND_EMAIL_ADDRESS'], credentials['EXTEND_API_KEY']
 
     def get_virtual_cards(self):
         '''Returns a list of tuples of (card owner, card id)'''

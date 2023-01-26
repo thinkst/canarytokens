@@ -253,11 +253,12 @@ class GeneratorPage(resource.Resource):
                 pass
 
             try:
-
                 if not request.args.get('type', None)[0] == 'cc':
                     raise Exception()
-                token = extendtoken.ExtendAPI.fetch_token(path=settings.EXTEND_TOKEN_PATH)
-                eapi = extendtoken.ExtendAPI(email=settings.EXTEND_USERNAME, token=token, card_name=settings.EXTEND_CARD_NAME)
+                # import rpdb;rpdb.set_trace()
+                user, token = extendtoken.ExtendAPI.fetch_credentials(path=settings.EXTEND_CREDENTIALS_PATH)
+                log.info('Extend User is {}'.format(user))
+                eapi = extendtoken.ExtendAPI(email=user, token=token, card_name=settings.EXTEND_CARD_NAME)
                 cc = eapi.create_credit_card(metadata=canarydrop.get_url())
                 response['rendered_html'] = cc.render_html()
                 response['name'] = cc.name
