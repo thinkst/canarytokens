@@ -30,7 +30,9 @@ class CanaryMySQLProtocol(Protocol):
             if len(self.buf) < MIN_LENGTH:
                 return
             self.handleQuery()
-        except (NoCanarytokenFound, Exception) as e:
+        except NoCanarytokenFound:
+            pass
+        except Exception as e:
             log.error('Error: {}'.format(e))
         self.transport.loseConnection()
 
