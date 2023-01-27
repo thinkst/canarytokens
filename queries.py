@@ -210,43 +210,6 @@ def get_aws_keys(token=None, server=None):
         log.error('Error getting aws keys: {err}'.format(err=e))
         return False
 
-def get_azure_id(token=None, server=None):
-    if not (token or server) or len(token)==0 or len(server)==0:
-        log.error('Empty values passed through to get_azure_id function.')
-        return False
-    try:
-        token_url = str(settings.AZURE_ID_TOKEN_URL)
-        token_auth = str(settings.AZURE_ID_TOKEN_AUTH)
-
-        if token_url == '':
-            log.error('No URL provided for AZURE ID creation')
-            return False
-
-        if token_auth == '':
-            log.error('No AUTH token provided for AZURE ID creation')
-            return False
-
-        url = '{token_url}?code={token_auth}'.format(token_url=token_url, token_auth=token_auth)
-        data = {
-            'token': token,
-            'domain': server
-        }
-
-        resp = requests.post(url=url, json=data)
-        if not resp:
-            log.error('Bad response from getting AZURE ID')
-            return False
-        resp_json = resp.json()
-        app_id = resp_json['app_id']
-        cert = resp_json['cert']
-        tenant_id = resp_json['tenant_id']
-        cert_name = resp_json['cert_name']
-        return (app_id, cert, tenant_id, cert_name)
-    except Exception as e:
-        log.error('Error getting azure id: {err}'.format(err=e))
-        return False
-
-
 
 def validate_hostname(hostname):
     import re

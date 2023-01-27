@@ -107,7 +107,6 @@
                 		<li data-type="web"            data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
                 		<li data-type="dns"            data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
                     <li data-type="aws_keys"       data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
-                    <li data-type="azure_id"       data-memo-placeholder="Azure Service Principal Login details on Code Sign server 3"><a href="#" class="icon icon-azureid"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
 				            <li data-type="cmd"            data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
@@ -149,9 +148,6 @@
                 </div>
                 <div class="field-optional field-signed_exe hidden">
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
-                </div>
-                <div class="field-optional field-azure_id hidden">
-                  <input class="form-control" type="text" tabindex=3 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate">
                 </div>
                 <div class="field-optional field-cmd hidden">
                   <input class="form-control" type="text" tabindex=3 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
@@ -708,30 +704,6 @@ START REPLICA;
                   </p>
                 </div>
               </div>
-              <div class="result azure_id">
-                <h3>Your Azure Service Principal Login is active!</h3>
-                <div class="artifacts">
-                  <p>Copy this credential pair to your clipboard to use as desired:</p>
-                  <div class="form-control">
-                    {{ textareacopy('result_azure_id') }}
-                  </div>
-                  <div class="form-control">
-                    <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download Azure Certificate</a>
-                  </div>
-                </div>
-                <div class="advice">
-                  <p>This canarytoken is triggered when someone uses this Service Principal Login to access Azure programmatically (through the API).</p>
-                  <p>The Service Principal Login is unique. i.e. There is no chance of somebody guessing these credentials.</p>
-                  <p>If this token fires, it is a clear indication that this Service Principal Login has "leaked".</p>
-                  <p>Ideas for use:
-                    <ul>
-                      <li>TBD!! These credentials are often stored in a file called ~/.aws/credentials on linux/OSX systems. Generate a fake credential pair for your senior developers
-                        and sysadmins and keep it on their machines. If someone tries to access AWS with the pair you generated for Bob, chances are that Bob's been compromised.</li>
-                      <li>Place the credentials in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission</li>
-                    </ul>
-                  </p>
-                </div>
-              </div>
               <div class="result kubeconfig">
                 <h3>Your Kubeconfig Token is active!</h3>
                 <div class="artifacts">
@@ -905,17 +877,6 @@ START REPLICA;
         return cmd.removeClass('error-outline').addClass('success-outline');
       }
 
-      var checkAzureIdCertName= function() {
-        azure_id_cert_file_name = $('input[name=azure_id_cert_file_name]');
-        if (! azure_id_cert_file_name.parents('.field-azure_id').hasClass('hidden')) {
-          //only perform checks if field is visible. could be multiple checks
-          if (azure_id_cert_file_name.val().length == 0) {
-            return azure_id_cert_file_name.addClass('error-outline').removeClass('success-outline');
-          }
-        }
-        return azure_id_cert_file_name.removeClass('error-outline').addClass('success-outline');
-      }
-
       var _checkSQLServerSelectedAction = function() {
         sql_server_selected_action = $('#selected_sql_action');
 
@@ -990,7 +951,6 @@ START REPLICA;
         checkSignedExe();
         checkClonedWebsite();
         checkCmd();
-        checkAzureIdCertName();
         checkSQLServer();
 
         //invert UI elements, depending on whether there are errors or not
@@ -1153,21 +1113,6 @@ START REPLICA;
           });
         }
 
-        var _handleAzureIDResponse = function(data){
-          $('#result_azure_id').val('{'+
-          '\n    "appId" = "'+ data['app_id'] + '"' +
-          '\n    "displayName" = "azure-cli-'+ data['cert_name'] + '"' +
-          '\n    "fileWithCertAndPrivateKey" = "'+ data['cert_file_name'] + '"' +
-          '\n    "password" = null' +
-          '\n    "tenant" = "'+ data['tenant_id'] + '"' +
-          '\n}');
-          $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
-          $('a.file-download').each(function (i, e){
-            e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
-          });
-        }
-
         var _handleKubeconfigResponse = function(data) {
           $('a.file-download').each(function (i, e){
             e = $(e);
@@ -1264,7 +1209,6 @@ START REPLICA;
         var _responseCallbacks = {'web': _handleWebResponse,
                                   'dns': _handleDNSResponse,
                                   'aws_keys':_handleAWSKeysResponse,
-                                  'azure_id':_handleAzureIDResponse,
                                   'web_image': _handleWebResponse,
                                   'ms_word' : _handleFileDownloadResponse,
                                   'ms_excel' : _handleFileDownloadResponse,
