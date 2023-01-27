@@ -14,6 +14,12 @@
         border-bottom: 2px solid #fff;
         padding: 1rem 0rem;
       }
+      .goodtick {
+        height: 100px;
+        margin: auto;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
 
       .error-outline {
         outline: none;
@@ -308,6 +314,22 @@
           overflow: scroll;
       }
 
+      input#search-token {
+        width: 100%;
+        height: 45px;
+        border: none;
+        border-bottom: 1px solid #eceeef;
+        text-align: center;
+        color: #888888;
+      }
+      input#search-token:focus, input#search-token:focus-visible {
+        outline: #eceeef;
+      }
+
+      input#search-token::placeholder {
+        color: #c7c7c7;
+      }
+
       .explanation {
         font-size: smaller;
         color: #999;
@@ -379,6 +401,7 @@
         background-color: #38d47f;
         width: 100%;
         border-color: #38d47f;
+        color: white;
       }
       button.btn.btn-success:disabled {
         opacity: .85;
@@ -500,7 +523,17 @@
         background: white;
         border: none;
         outline: none;
-        height: 20px;
+        height: 22px;
+        width: 22px;
+        background-image: url(/resources/copy-inactive.svg);
+        background-size: 22px;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      .copy-card .btn-clipboard.hide-button:hover {
+        background-image: url(/resources/copy-hover.svg);
+        cursor: pointer;
       }
 
       #ccRender {
@@ -677,6 +710,34 @@
         text-align: left;
         margin-top: 2rem;
       }
+
+      .advice li {
+        list-style: none;
+        position: relative;
+        margin: 20px 0 20px 0;
+        font-size: 15px;
+        /* color: #666666; */
+      }
+      .advice li::before {
+        content: '';
+        background-image: url('/resources/idea.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 2em;
+        height: 100%;
+        width: 30px;
+        position: absolute;
+        left: -40px;
+      }
+
+      @media screen and (max-width: 600px) {
+        .advice li {
+          margin: 10px 0 10px 0;
+          font-size: 14px;
+        }
+       }
+
 
       .create-link {
         text-align: center;

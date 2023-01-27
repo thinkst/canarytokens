@@ -59,7 +59,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=8">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=9">
     <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
     <style>
     .ps__rail-x,
@@ -101,28 +101,29 @@
                   <span id="selected_token">Select your token</span>
                   <input name="type" type="hidden">
                 	<ul id="dropdown" class="dropdown">
-                		<li data-type="web"            data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
-                		<li data-type="dns"            data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
-                    <li data-type="aws_keys"       data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
-				            <li data-type="cmd"            data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
-                    <li data-type="ms_word"        data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
-                    <li data-type="ms_excel"       data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
-                    <li data-type="cc"             data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token (beta)</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li>
-                    <li data-type="kubeconfig"     data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
-                    <li data-type="wireguard"      data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
-                    <li data-type="cloned_website" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
-                    <li data-type="qr_code"        data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
-                    <li data-type="my_sql"         data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
-                    <li data-type="windows_dir"    data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
-                    <li data-type="log4shell"      data-memo-placeholder="Placewhere log line is inserted"><a href="#" class="icon icon-log4shell"><span class="title">Log4Shell</span><div class="explanation">Alert when a log4j log line is vulnerable to CVE-2021-44228</div></a></li>
-                    <li data-type="fast_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast redirect</span><div class="explanation">Alert when a URL is visited, User is redirected</div></a></li>
-                    <li data-type="slow_redirect"  data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow redirect</span><div class="explanation">Alert when a URL is visited, User is redirected (Moar info is grabbed!)</div></a></li>
-                		<li data-type="web_image"      data-memo-placeholder="Image embedded in router X's admin interface"><a href="#" class="icon icon-web-image"><span class="title">Custom image web bug</span><div class="explanation">Alert when an image you uploaded is viewed</div></a></li>
-                    <li data-type="adobe_pdf"      data-memo-placeholder="PDF document placed at U:\Users\Sipho\Reports\feb.pdf"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
-                    <li data-type="signed_exe"     data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
-                    <li data-type="sql_server"     data-memo-placeholder="SELECT SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">Microsoft SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
-                    <li data-type="svn"            data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
-                    <li data-type="smtp"           data-memo-placeholder="Email address in Events database"><a href="#" class="icon icon-email"><span class="title">Unique email address</span><div class="explanation">Alert when an email is sent to a unique address</div></a></li>
+                    <li id="prevent-default"><input type="search" placeholder="Search token by name Eg. command token" id="search-token"></li>
+                		<li data-type="web"            class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
+                		<li data-type="dns"            class="token-item" data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
+                    <li data-type="aws_keys"       class="token-item" data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
+				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
+                    <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
+                    <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
+                    <li data-type="cc"             class="token-item" data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token (beta)</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li>
+                    <li data-type="kubeconfig"     class="token-item" data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
+                    <li data-type="wireguard"      class="token-item" data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
+                    <li data-type="cloned_website" class="token-item" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
+                    <li data-type="qr_code"        class="token-item" data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
+                    <li data-type="my_sql"         class="token-item" data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
+                    <li data-type="windows_dir"    class="token-item" data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
+                    <li data-type="log4shell"      class="token-item" data-memo-placeholder="Placewhere log line is inserted"><a href="#" class="icon icon-log4shell"><span class="title">Log4Shell</span><div class="explanation">Alert when a log4j log line is vulnerable to CVE-2021-44228</div></a></li>
+                    <li data-type="fast_redirect"  class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast redirect</span><div class="explanation">Alert when a URL is visited, User is redirected</div></a></li>
+                    <li data-type="slow_redirect"  class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow redirect</span><div class="explanation">Alert when a URL is visited, User is redirected (Moar info is grabbed!)</div></a></li>
+                		<li data-type="web_image"      class="token-item" data-memo-placeholder="Image embedded in router X's admin interface"><a href="#" class="icon icon-web-image"><span class="title">Custom image web bug</span><div class="explanation">Alert when an image you uploaded is viewed</div></a></li>
+                    <li data-type="adobe_pdf"      class="token-item" data-memo-placeholder="PDF document placed at U:\Users\Sipho\Reports\feb.pdf"><a href="#" class="icon icon-pdf"><span class="title">Acrobat Reader PDF document</span><div class="explanation">Get alerted when a PDF document is opened in Acrobat Reader</div></a></li>
+                    <li data-type="signed_exe"     class="token-item" data-memo-placeholder="Tokened whoami.exe on web server WEB01"><a href="#" class="icon icon-exe"><span class="title">Custom exe / binary</span><div class="explanation">Fire an alert when an EXE or DLL is executed</div></a></li>
+                    <li data-type="sql_server"     class="token-item" data-memo-placeholder="SELECT SQL Server token on SQL01/CreditCards"><a href="#" class="icon icon-sqlserver"><span class="title">Microsoft SQL Server</span><div class="explanation">Get alerted when MS SQL Server databases are accessed</div></a></li>
+                    <li data-type="svn"            class="token-item" data-memo-placeholder="SVN token on REPO01/ourmainrepo"><a href="#" class="icon icon-svn"><span class="title">SVN</span><div class="explanation">Alert when someone checks out an SVN repository</div></a></li>
+                    <li data-type="smtp"           class="token-item" data-memo-placeholder="Email address in Events database"><a href="#" class="icon icon-email"><span class="title">Unique email address</span><div class="explanation">Alert when an email is sent to a unique address</div></a></li>
                   </ul>
                 </div>
               </div>
@@ -194,7 +195,7 @@
             <div class="col-md-1">
             </div>
             <div class="col-md-10">
-              <img src="/resources/goodtick.png">
+              <img class="goodtick" src="/resources/canarytokens-done.png">
             </div>
             <div class="col-md-1">
             </div>
@@ -214,7 +215,7 @@
                 <div class="advice">
                   <p>Remember, it gets triggered whenever someone requests the URL.</p>
                   <p>If the URL is requested as an image (e.g. &lt;img src=""&gt;) then a 1x1 image is served. If the URL is surfed in a browser then a blank page is served with fingerprinting Javascript.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>In an email with a juicy subject line.</li>
                       <li>Embedded in documents.</li>
@@ -234,7 +235,7 @@
                 </div>
                 <div class="advice">
                   <p>The token is similar to the Web token, however, when the link is loaded the view will be immediately redirected to the specified redirect URL.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Replace links with these to capture user information before user is redirected to where they want to go.</li>
                       <li>Embedded in documents.</li>
@@ -254,7 +255,7 @@
                 </div>
                 <div class="advice">
                   <p>The token is similar to the Fast Redirect token, however, when the link is loaded the user's browser / browser plugin information is captured.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Replace links with these to capture user information before user is redirected to where they want to go.</li>
                       <li>Embedded in documents.</li>
@@ -275,7 +276,7 @@
                 <div class="advice">
                   <p>Remember, it gets triggered whenever someone performs a DNS lookup of the hostname.</p>
                   <p>The source IP address shown in the alert is the <emph>DNS server</emph>, not the end user.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Include in a PTR entry for dark IP space of your internal network. Quick way to determine if someone is walking your internal DNS without configuring DNS logging and monitoring.</li>
                       <li>Leave in a .bash_history, or .ssh/config, or ~/servers.txt</li>
@@ -297,7 +298,7 @@
                 </div>
                 <div class="advice">
                   <p>Remember, it gets triggered whenever someone sends an email to the address.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>In a database with a USERS table, drop a fake record in there with this email address. If it gets triggered you know someone has accessed your data.</li>
                     </ul>
@@ -314,7 +315,7 @@
                 <div class="advice">
                   <p>You'll get an alert whenever this document is opened in Microsoft Office, on Windows or Mac OS.</p>
                   <p>You can rename the document without affecting its operation.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Drop the file on a Windows network share.</li>
                       <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
@@ -332,7 +333,7 @@
                 </div>
                 <div class="advice">
                   <p>Once installed (with admin permissions) you'll get an alert whenever someone (or someone's code) runs your sensitive process. It will automatically provide the command used, computer the command ran on, and the user invoking the command.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Ideal candidates are executables often used by attackers but seldom used by regular users (e.g., whoami.exe, net.exe, wmic.exe, etc.).</li>
                       <li>You can use this for attacker tools that are not present on your system (e.g., mimikatz.exe), and if they are ever downloaded and run you'll get an alert!</li>
@@ -352,28 +353,28 @@
                       </div>
                       <div class="copy-card">
                         <span class="card-detail">
-                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-name"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-name"></button>
                           <div>
                             <span class="title">Name:</span>
-                            <span id="copy-name">Harold Boyd</span>
+                            <span id="copy-name"></span>
                           </div>
                         </span>
                         <span class="card-detail">
-                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-card"></button>
                           <div>
                             <span class="title">Card Number:</span>
                             <span id="copy-card"></span>
                           </div>
                         </span>
                         <span class="card-detail">
-                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-expiry"></button>
                           <div>
                             <span class="title">Expiration Date:</span>
                             <span id="copy-expiry"></span>
                           </div>
                         </span>
                         <span class="card-detail">
-                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"><img src="/resources/copy-icon.svg" alt="Copy" ></button>
+                          <button class="btn-clipboard tooltip hide-button" data-clipboard-target="#copy-cvc"></button>
                           <div>
                             <span class="title">Security Code:</span>
                             <span id="copy-cvc"></span></div>
@@ -385,7 +386,7 @@
                 </div>
                 <div class="advice">
                   <p>If the card number is ever used in an authorization, the transaction will be declined, but you will be alerted.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Stick this in a database that stores payment information and get alerted if it is ever breached.</li>
                       <li>You can use any name or address in association with the card number and CVC.</li>
@@ -404,7 +405,7 @@
                 <div class="advice">
                   <p>You'll get an alert whenever this document is opened in Microsoft Office, on Windows or Mac OS.</p>
                   <p>You can rename the document without affecting its operation.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Drop the file on a Windows network share.</li>
                       <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
@@ -423,7 +424,7 @@
                 <div class="advice">
                   <p>You'll get an alert whenever this document is opened with Acrobat Reader, regardless of the user's security preferences in Reader.</p>
                   <p>You can rename the document without affecting its operation.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Drop the file on a Windows network share.</li>
                       <li>Leave the file on a web server in an inaccessible directory, to detect webserver breaches.</li>
@@ -442,7 +443,7 @@
                 <div class="advice">
                   <p>Unzip this file in a folder, and get notified when someone browses the folder in Windows Explorer. It will even trigger if someone is browsing the folder via a network share!</p>
                   <p>The alert will include the network domain and username of the browsing user, if present.<p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Unzip the file on a juicely named Windows network share.</li>
                       <li>Unzip the file on your CEO's laptop on a folder on their Desktop.</li>
@@ -460,7 +461,7 @@
                 </div>
                 <div class="advice">
                   <p>Remember, this token is triggered whenever the binary file is executed. For EXEs, this means direct execution and for DLLs, it means they were loaded.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Decide on a few default binaries commonly used by attackers, and token them.</li>
                     </ul>
@@ -477,7 +478,7 @@
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll include the Javascript. When the Javascript is run it checks whether the domain is expected. If not, it fires the token and you get an alert.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Run the script through an <a href="https://www.google.com/search?q=JavaScript+Obfuscator">obfuscator</a> to make it harder to pick up.</li>
                       <li>Deploy on the login pages of your sensitive sites, such as OWA or tender systems.</li>
@@ -606,7 +607,7 @@
                 <div class="advice">
                   <p>When the actions are run, your Canarytoken will be triggered.</p>
                   <p>Since DNS is used as the underlying transport, the Source IP will be that of a DNS server, not the databserver.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Deploy a SELECT token with a tempting VIEW name such as USER_DETAILS.</li>
                     </ul>
@@ -658,7 +659,7 @@ START REPLICA;
                 </div>
                 <div class="advice">
                   <p>When the MySQL statements are run, your Canarytoken will be triggered.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Attackers who find MySQL dump files will usually throw them into a temporary database to query the data.
                         When a dump file with this snippet is ingested, it will let us know.</li>
@@ -677,7 +678,7 @@ START REPLICA;
                 </div>
                 <div class="advice">
                   <p>When someone scans the QR Code with a reader, it will trigger the URL tied to your token and fire an alert.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>On containers left in secure locations.</li>
                       <li>Underneath your phone battery when crossing international borders.</li>
@@ -723,7 +724,7 @@ START REPLICA;
                   <p>Remember, it gets triggered whenever someone clones the SVN repo.</p>
                   <p>Don't forget to run <pre>svn commit</pre> after you've added the token.</p>
                   <p>The source IP address shown in the alert is the <emph>DNS server</emph>, not the end user.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Token a dummy SVN repo to detect when attackers are enumerating repos.</li>
                       <li>Token an old repo which shouldn't be touched any longer.</li>
@@ -746,7 +747,7 @@ START REPLICA;
                   <p>This canarytoken is triggered when someone uses this credential pair to access AWS programmatically (through the API).</p>
                   <p>The key is unique. i.e. There is no chance of somebody guessing these credentials.</p>
                   <p>If this token fires, it is a clear indication that this set of keys has "leaked".</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>These credentials are often stored in a file called ~/.aws/credentials on linux/OSX systems. Generate a fake credential pair for your senior developers
                         and sysadmins and keep it on their machines. If someone tries to access AWS with the pair you generated for Bob, chances are that Bob's been compromised.</li>
@@ -764,7 +765,7 @@ START REPLICA;
                 </div>
                 <div class="advice">
                   <p>You'll get an alert when someone tries to use your Kubeconfig.</p>
-                  <p>Ideas for use:
+                  <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Place the file at ~/.kube/config on a host, tempting an attacker to use it.</li>
                       <li>Place the file in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission.</li>
@@ -815,6 +816,19 @@ START REPLICA;
     <script src="/resources/site.js"></script>
     <script src="/resources/perfect-scrollbar.min.js"></script>
     <script>
+      // Search through the tokens dropdown by token name
+      var input = document.getElementById('search-token');
+      input.onkeyup = function () {
+          var filter = input.value.toUpperCase();
+          var tokens = document.getElementsByClassName('token-item');
+          for (var i = 0; i < tokens.length; i++) {
+              var token = tokens[i].getElementsByClassName('title')[0].innerHTML;
+              if (token.toUpperCase().includes(filter))
+                  tokens[i].style.display = 'list-item';
+              else
+                  tokens[i].style.display = 'none';
+          }
+      }
       Array.prototype.random = function () {
         return this[Math.floor((Math.random()*this.length))];
       }
@@ -1041,7 +1055,9 @@ START REPLICA;
               var obj = this;
 
               obj.dd.on('click', function(event){
-                  $(this).toggleClass('active');
+                  if (event.target.type !== 'search') {
+                    $(this).toggleClass('active');
+                  }
                   if ($(event.target).parents().hasClass('dropdown') && obj.click_cb) {
                     obj.click_cb(event);
                   }
@@ -1054,6 +1070,10 @@ START REPLICA;
 		    var dd = new DropDown( $('#type'),
                                 function(event) {
                                   var list_item = $(event.target).parents('li');
+                                  if (!list_item.data('type')) {
+                                    event.preventDefault()
+                                    return;
+                                  }
                                   $('#dropdown').data('selected', list_item.data('type'))
                                   $('#selected_token').text(list_item.find('span.title').text());
                                   ToggleOptionalFields(list_item.data('type'));
