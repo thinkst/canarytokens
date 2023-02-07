@@ -1310,9 +1310,6 @@ START REPLICA;
                     $('#file_upload_errors').html("File too large.");
                     $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
                     $('#file_upload_errors').show();
-                  } else if (jqXhr['responseJSON'] && jqXhr['responseJSON']['detail']){
-                    $('#file_upload_errors').html("An error has occurred: " + jqXhr['responseJSON']['detail'] + ".");
-                    $('#file_upload_errors').show();
                   } else{
                     $('#file_upload_errors').html("An error has occurred: " + errorThrown + ".");
                     $('#file_upload_errors').show();

@@ -252,7 +252,7 @@ class InputChannel(Channel):
         canarydrop: Canarydrop,
         protocol: str,
         host: str,  # DESIGN: Shift this to settings. Do we need to have this logic here?
-    ) -> Union[TokenAlertDetailsSlack, TokenAlertDetailGeneric]:
+    ) -> Union[TokenAlertDetailsSlack, TokenAlertDetailGeneric, GoogleChatPayload]:
         # TODO: Need to add `host` and `protocol` that can be used to manage the token.
         googlechat_hook_base_url = "https://chat.googleapis.com"
         details = cls.gather_alert_details(

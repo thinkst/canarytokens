@@ -5,7 +5,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import format_as_googlechat_canaryalert
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
-from canarytokens.models import TokenTypes
+from canarytokens.models import GoogleChatPayload, TokenTypes
 from canarytokens.settings import Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
@@ -209,3 +209,47 @@ def test_googlechat_webhook_format(setup_db, webhook_receiver, settings: Setting
     assert type(webhook_payload_json["cardsV2"][0]["card"]["sections"][1]) is dict
     for key in ["header", "collapsible", "widgets"]:
         assert key in webhook_payload_json["cardsV2"][0]["card"]["sections"][1].keys()
+
+
+def test_canaryalert_googlechat_webhook(setup_db, webhook_receiver, settings: Settings):
+    """
+    Tests if a google chat webhook payload, is produced given a googlechat webhook receiver.
+    """
+    googlechat_webhook_receiver = (
+        "https://chat.googleapis.com/v1/spaces/random/messages?key=temp_key"
+    )
+
+    switchboard = Switchboard()
+    input_channel = ChannelDNS(
+        switchboard=switchboard,
+        settings=settings,
+        backend_hostname="test.com",
+        backend_scheme="https",
+        listen_domain=settings.LISTEN_DOMAIN,
+    )
+
+    cd = Canarydrop(
+        type=TokenTypes.DNS,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=googlechat_webhook_receiver,
+        canarytoken=Canarytoken(),
+        memo="memo",
+        browser_scanner_enabled=False,
+    )
+    token_hit = Canarytoken.create_token_hit(
+        token_type=TokenTypes.DNS,
+        input_channel="not_valid",
+        src_ip="127.0.0.1",
+        hit_info={"some": "data"},
+    )
+    cd.add_canarydrop_hit(token_hit=token_hit)
+
+    canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
+        canarydrop=cd,
+        protocol=input_channel.backend_scheme,
+        host=input_channel.backend_hostname,
+    )
+    assert isinstance(canaryalert_webhook_payload, GoogleChatPayload)
