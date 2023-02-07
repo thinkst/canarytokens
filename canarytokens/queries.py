@@ -794,7 +794,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         models.TokenAlertDetails,
         models.TokenAlertDetailsSlack,
         models.GoogleChatPayload,
-    ]    
+    ]
     if slack in url:
         payload = models.TokenAlertDetailsSlack(
             attachments=[
@@ -818,14 +818,12 @@ def validate_webhook(url, token_type: models.TokenTypes):
                 imageType="CIRCLE",
                 imageAltText="Thinkst Canary",
             ),
-            sections=[
-                models.GoogleChatSection(header="Testing Webhook"),
-            ],
+            sections=[],
         )
         # make google chat payload
         payload = models.GoogleChatPayload(
             cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
-        )        
+        )
     else:
         payload = models.TokenAlertDetails(
             manage_url=HttpUrl(
