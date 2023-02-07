@@ -138,7 +138,6 @@ def test_broken_2_webhook(setup_db, webhook_receiver, settings: Settings):
     )
 
 
-
 def test_googlechat_webhook_format(setup_db, webhook_receiver, settings: Settings):
 
     switchboard = Switchboard()

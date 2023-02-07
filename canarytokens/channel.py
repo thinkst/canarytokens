@@ -21,7 +21,7 @@ from canarytokens.models import (
     GoogleChatCardV2,
     GoogleChatHeader,
     GoogleChatPayload,
-    GoogleChatSection,    
+    GoogleChatSection,
     Memo,
     SlackAttachment,
     SlackField,
@@ -54,6 +54,7 @@ def format_as_slack_canaryalert(details: TokenAlertDetails) -> TokenAlertDetails
         attachments=attchments,
     )
 
+
 def format_as_googlechat_canaryalert(details: TokenAlertDetails) -> GoogleChatPayload:
     # construct google chat alert , top section
     top_section = GoogleChatSection(header="Alert Details")
@@ -84,6 +85,7 @@ def format_as_googlechat_canaryalert(details: TokenAlertDetails) -> GoogleChatPa
     return GoogleChatPayload(
         cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
     )
+
 
 class Channel(object):
     CHANNEL = "Base"
@@ -265,7 +267,7 @@ class InputChannel(Channel):
         elif canarydrop.alert_webhook_url and (
             str(canarydrop.alert_webhook_url).startswith(googlechat_hook_base_url)
         ):
-            return format_as_googlechat_canaryalert(details=details)            
+            return format_as_googlechat_canaryalert(details=details)
         else:
             return TokenAlertDetailGeneric(**details.dict())
 

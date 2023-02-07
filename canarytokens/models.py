@@ -71,6 +71,7 @@ class Hostname(ConstrainedStr):
         r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{1,61}[a-zA-Z0-9])\.){1,61}([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{1,61}[A-Za-z0-9]){1,253}$"
     )
 
+
 class Canarytoken(ConstrainedStr):
     max_length: int = CANARYTOKEN_LENGTH
     regex = CANARYTOKEN_RE
@@ -1523,6 +1524,7 @@ class SlackAttachment(BaseModel):
         # HACK: We can do better here.
         data["fallback"] = f"Canarytoken Triggered: {data['title_link']}"
         super().__init__(**data)
+
 
 class GoogleChatDecoratedText(BaseModel):
     topLabel: str = ""
