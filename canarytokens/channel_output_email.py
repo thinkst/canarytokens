@@ -76,6 +76,9 @@ class EmailOutputChannel(OutputChannel):
             ]:
                 BasicDetails[field_name.capitalize()] = field_value
 
+        if details.src_data and "generic_data" in details.src_data:
+            BasicDetails["GenericData"] = details.src_data["generic_data"].decode()
+
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),

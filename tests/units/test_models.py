@@ -216,7 +216,7 @@ def test_create_canarydrop(token_types, drop_types):
         cd = Canarydrop(**data)
         assert cd.triggered_details.token_type == cd.type
 
-    for tt, td in zip(reversed(token_types), drop_types):
+    for tt, td in zip(token_types[1:] + [token_types[0]], drop_types):
         data = {
             "generate": True,
             "triggered_details": {"token_type": tt, "hits": []},
