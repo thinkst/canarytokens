@@ -882,7 +882,7 @@ def is_valid_email(email):
 
 
 def normalize_email(email):
-    [user, domain] = email.split("@")
+    [user, domain] = email.lower().split("@")
     if domain in ["gmail.com", "googlemail.com", "google.com"]:
         delabelled = user.split("+")[0]
         san_user = delabelled.replace(".", "")
@@ -892,26 +892,26 @@ def normalize_email(email):
 
 
 def block_email(email):
-    san = normalize_email(email)
+    san = normalize_email(email).lower()
     DB.get_db().sadd(KEY_EMAIL_BLOCK_LIST, san)
 
 
 def unblock_email(email):
-    san = normalize_email(email)
+    san = normalize_email(email).lower()
     DB.get_db().srem(KEY_EMAIL_BLOCK_LIST, san)
 
 
 def block_domain(domain):
-    DB.get_db().sadd(KEY_DOMAIN_BLOCK_LIST, domain)
+    DB.get_db().sadd(KEY_DOMAIN_BLOCK_LIST, domain.lower())
 
 
 def unblock_domain(domain):
-    DB.get_db().srem(KEY_DOMAIN_BLOCK_LIST, domain)
+    DB.get_db().srem(KEY_DOMAIN_BLOCK_LIST, domain.lower())
 
 
 def is_email_blocked(email):
-    san = normalize_email(email)
-    domain = email.split("@")[1]
+    san = normalize_email(email).lower()
+    domain = email.split("@")[1].lower()
     return DB.get_db().sismember(
         KEY_DOMAIN_BLOCK_LIST, domain
     ) or DB.get_db().sismember(KEY_EMAIL_BLOCK_LIST, san)

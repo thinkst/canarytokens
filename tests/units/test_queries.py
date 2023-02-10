@@ -308,3 +308,26 @@ def test_add_add_get_return_for_token(setup_db):
     assert queries.get_return_for_token() == "fortune"
     queries.add_return_for_token("gif")
     assert queries.get_return_for_token() == "gif"
+
+
+@pytest.mark.parametrize(
+    "target, expect_block",
+    [
+        ("a@b.com", ["a@b.com", "A@B.COM"]),
+        ("a+b@gMail.com", ["a+b@gMail.com", "a@gmail.com", "a+c@gmail.com"]),
+        ("A.b+c@gmail.com", ["A.b+c@gmail.com", "ab@gmail.com", "aB+d@gmail.com"]),
+    ],
+)
+def test_block_email(target: str, expect_block: list[str], setup_db: None):
+    queries.block_email(target)
+    for test_target in expect_block:
+        assert queries.is_email_blocked(test_target)
+
+
+@pytest.mark.parametrize(
+    "target, expect_block", [("b.com", ["a@b.com", "A@B.COM", "b@b.com"])]
+)
+def test_block_domain(target: str, expect_block: list[str], setup_db: None):
+    queries.block_domain(target)
+    for test_target in expect_block:
+        assert queries.is_email_blocked(test_target)

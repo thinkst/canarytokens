@@ -38,12 +38,17 @@ from pydantic import (
 )
 from pydantic.generics import GenericModel
 from typing_extensions import Annotated
-from canarytokens.constants import CANARYTOKEN_LENGTH, MEMO_MAX_CHARACTERS
+from canarytokens.constants import (
+    CANARYTOKEN_ALPHABET,
+    CANARYTOKEN_LENGTH,
+    MEMO_MAX_CHARACTERS,
+)
 
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
     re.IGNORECASE,
 )
+
 
 class Memo(ConstrainedStr):
     max_length: int = MEMO_MAX_CHARACTERS
