@@ -582,8 +582,6 @@
         }
         cb(data)
 
-        $('.jumbotron').css('height', $('.success').innerHeight())
-
         $('.manage-link > a').prop('href', '/manage?token='+data['Token']+'&auth='+data['Auth']);
       }
       displayToken(canarydrop);
