@@ -763,7 +763,7 @@ START REPLICA;
               <div class="result azure_id">
                 <h3>Your Azure Service Principal Login is active!</h3>
                 <div class="artifacts">
-                  <p>Copy this credential pair to your clipboard to use as desired:</p>
+                  <p>The token can be triggered by running the following command after the certificate was downloaded:</p>
                   <div class="form-control">
                     {{ textareacopy('result_azure_id') }}
                   </div>
@@ -1242,13 +1242,7 @@ START REPLICA;
         }
 
         var _handleAzureIDResponse = function(data){
-          $('#result_azure_id').val('{'+
-          '\n    "appId" = "'+ data['app_id'] + '"' +
-          '\n    "displayName" = "azure-cli-'+ data['cert_name'] + '"' +
-          '\n    "fileWithCertAndPrivateKey" = "'+ data['cert_file_name'] + '"' +
-          '\n    "password" = null' +
-          '\n    "tenant" = "'+ data['tenant_id'] + '"' +
-          '\n}');
+          $('#result_azure_id').val('az login --service-principal -u "'+ data['app_id'] + '" -p "'+ data['cert_file_name'] + '" --tenant "'+ data['tenant_id'] + '"');
           $('#result_azure_id').css('height','100px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
