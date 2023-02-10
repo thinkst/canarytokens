@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "dev"
+      - "T5173_AZURE_API_Keys"
 
   workflow_dispatch:
     inputs:
