@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "T4627_py3_main"
+      - "T5182_email_block_list_py3"
 
 jobs:
   tests:
