@@ -1598,7 +1598,7 @@ class GoogleChatCardV2(BaseModel):
     card: GoogleChatCard
 
 
-class GoogleChatPayload(BaseModel):
+class TokenAlertDetailsGoogleChat(BaseModel):
     cardsV2: List[GoogleChatCardV2]
 
     def json_safe_dict(self) -> Dict[str, str]:

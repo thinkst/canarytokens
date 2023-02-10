@@ -5,7 +5,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import format_as_googlechat_canaryalert
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
-from canarytokens.models import GoogleChatPayload, TokenTypes
+from canarytokens.models import TokenAlertDetailsGoogleChat, TokenTypes
 from canarytokens.settings import Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
@@ -252,4 +252,4 @@ def test_canaryalert_googlechat_webhook(setup_db, webhook_receiver, settings: Se
         protocol=input_channel.backend_scheme,
         host=input_channel.backend_hostname,
     )
-    assert isinstance(canaryalert_webhook_payload, GoogleChatPayload)
+    assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsGoogleChat)

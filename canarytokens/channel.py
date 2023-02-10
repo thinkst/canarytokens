@@ -20,13 +20,13 @@ from canarytokens.models import (
     GoogleChatCard,
     GoogleChatCardV2,
     GoogleChatHeader,
-    GoogleChatPayload,
     GoogleChatSection,
     Memo,
     SlackAttachment,
     SlackField,
     TokenAlertDetailGeneric,
     TokenAlertDetails,
+    TokenAlertDetailsGoogleChat,
     TokenAlertDetailsSlack,
     TokenTypes,
 )
@@ -55,7 +55,9 @@ def format_as_slack_canaryalert(details: TokenAlertDetails) -> TokenAlertDetails
     )
 
 
-def format_as_googlechat_canaryalert(details: TokenAlertDetails) -> GoogleChatPayload:
+def format_as_googlechat_canaryalert(
+    details: TokenAlertDetails,
+) -> TokenAlertDetailsGoogleChat:
     # construct google chat alert , top section
     top_section = GoogleChatSection(header="Alert Details")
     top_section.add_widgets(
@@ -82,7 +84,7 @@ def format_as_googlechat_canaryalert(details: TokenAlertDetails) -> GoogleChatPa
         sections=[top_section, additional_section],
     )
     # make google chat payload
-    return GoogleChatPayload(
+    return TokenAlertDetailsGoogleChat(
         cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
     )
 
@@ -252,7 +254,9 @@ class InputChannel(Channel):
         canarydrop: Canarydrop,
         protocol: str,
         host: str,  # DESIGN: Shift this to settings. Do we need to have this logic here?
-    ) -> Union[TokenAlertDetailsSlack, TokenAlertDetailGeneric, GoogleChatPayload]:
+    ) -> Union[
+        TokenAlertDetailsSlack, TokenAlertDetailGeneric, TokenAlertDetailsGoogleChat
+    ]:
         # TODO: Need to add `host` and `protocol` that can be used to manage the token.
         googlechat_hook_base_url = "https://chat.googleapis.com"
         details = cls.gather_alert_details(
