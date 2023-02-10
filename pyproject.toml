@@ -37,7 +37,6 @@ twisted = ["Twisted", "sentry-sdk"]
 pytest = "^7.1.0"
 black = "^22.1.0"
 pre-commit = "^2.17.0"
-isort = "^5.10.1"
 mypy = "^0.941"
 coverage = "^6.3.2"
 requests = "^2.27.1"
@@ -65,9 +64,6 @@ deepdiff = "^5.8.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.isort]
-profile = "black"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

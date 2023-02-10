@@ -71,6 +71,7 @@ def format_as_googlechat_canaryalert(
     )
     # construct google chat alert , additional section
     additional_section = GoogleChatSection(header="Additional Details")
+    additional_section.add_widgets(widgets_info=details.src_data)
     additional_section.add_widgets(widgets_info=details.additional_data)
 
     # construct google chat alert card

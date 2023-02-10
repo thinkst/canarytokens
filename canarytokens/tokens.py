@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import base64
-import math
 import random
 import re
 from datetime import datetime
@@ -243,15 +242,15 @@ class Canarytoken(object):
         generic_data = generic_data.replace(".", "").upper()
         # this channel doesn't have padding, add if needed
         # TODO: put this padding logic into utils somewhere.
-        generic_data += "=" * int(
-            (math.ceil(float(len(generic_data)) / 8) * 8 - len(generic_data)),
+        generic_data_padded = generic_data.ljust(
+            len(generic_data) + (-len(generic_data) % 8), "="
         )
         try:
             # TODO: this can smuggle in all sorts of data we need to sanitise
             #
-            data["generic_data"] = base64.b32decode(generic_data)
+            data["generic_data"] = base64.b32decode(generic_data_padded)
         except TypeError:
-            data["generic_data"] = f"Unrecoverable data: {generic_data}"
+            data["generic_data"] = f"Unrecoverable data: {generic_data_padded}"
         return {"src_data": data}
 
     @staticmethod
