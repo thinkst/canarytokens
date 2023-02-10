@@ -105,7 +105,7 @@
                 		<li data-type="web"            class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
                 		<li data-type="dns"            class="token-item" data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
                     <li data-type="aws_keys"       class="token-item" data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
-                    <li data-type="azure_id"       data-memo-placeholder="Azure Service Principal Login details on Code Sign server 3"><a href="#" class="icon icon-azure-id"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
+                    <li data-type="azure_id"       class="token-item" data-memo-placeholder="Azure Service Principal Login details on Code Sign server 3"><a href="#" class="icon icon-azure-id"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
@@ -777,8 +777,8 @@ START REPLICA;
                   <p>If this token fires, it is a clear indication that this Service Principal Login has "leaked".</p>
                   <p>Ideas for use:
                     <ul>
-                      <li>TBD!! These credentials are often stored in a file called ~/.aws/credentials on linux/OSX systems. Generate a fake credential pair for your senior developers
-                        and sysadmins and keep it on their machines. If someone tries to access AWS with the pair you generated for Bob, chances are that Bob's been compromised.</li>
+                      <li>Most systems have a ~/.azure folder (much like the ~/.aws or ~/.ssh). Create a config file with the config details from the token and place it
+                        near the certificate (ensuring that the config value has a path to the certificate).</li>
                       <li>Place the credentials in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission</li>
                     </ul>
                   </p>
