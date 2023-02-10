@@ -1,0 +1,188 @@
+{% macro fileupload(name, text='Drag and drop a file here or click') %}
+<div class="fileupload-wrapper form-control">
+  <div class="fileupload-message">
+    <span class="file-icon"></span>
+    <p>{{text}}</p>
+  </div>
+  <div class="fileupload-filename hidden">
+    <p>
+      <span></span>
+      <a href="#" class="fileupload-clear" aria-label="remove" title="remove">×</a>
+    </p>
+  </div>
+  <input type="file" id="fileupload-{{name}}" name="{{name}}" class="fileupload">
+</div>
+{%- endmacro %}
+
+{% macro inputcopy(name, refresh=None)%}
+  <input id="{{name}}" class="result-data" value="testempty" readonly="">
+  {% if refresh %}
+  <a class="refresh">&#x21bb;</a>
+  {%endif%}
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+
+{% macro textareacopy(name)%}
+  <textarea id="{{name}}" class="result-data" readonly="">
+  </textarea>
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Canarytokens is a free tool that helps you discover you’ve been breached by having attackers announce themselves.  The tokens allow you to implant traps around your network and notifies you as soon as they are triggered.">
+    <meta property="og:description"content="Canarytokens is a free tool that helps you discover you’ve been breached by having attackers announce themselves.  The tokens allow you to implant traps around your network and notifies you as soon as they are triggered.">
+    <meta name="author" content="Thinkst Applied Research">
+    <meta property="og:title" content="Know.  Before it matters">
+    <meta property="og:url" content="https://canarytokens.org">
+    <meta property="og:site_name" content="Canarytokens"/>
+    <meta property="og:image" content="https://canary.tools/static/images/ico_canary.png">
+    <meta property="og:image:width" content="52">
+    <meta property="og:image:height" content="52">
+    <meta name="keywords" content="Canary token,Canarytokens,Canary token,Canary tokens,Honeytoken,Honeytokens,Web bug,DNS token,URL token,Thinkst,Thinkst Applied Research">
+    <link rel="icon" href="../../favicon.ico">
+    <link href="/resources/perfect-scrollbar.css" rel="stylesheet">
+
+    <title>Canarytokens</title>
+    <link rel="icon" type="image/png" href="/resources/favicon.png">
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=7">
+    <style>
+    .ps__rail-x,
+    .ps__rail-y {
+      opacity: 0.6;
+    }
+    .terms {
+        padding: 25px 40px;
+    }
+    @media screen and (max-width: 600px) {
+        .terms {
+            padding: 20px 15px;
+        }
+        .terms ol {
+            padding-inline-start: 15px;
+        }
+    }
+    .terms > h3 {
+        margin-bottom: 25px;
+    }
+    .terms ol {
+        list-style-type: none;
+    }
+    .terms ol h3 {
+        margin-bottom: 15px;
+    }
+    .terms li {
+        line-height: 25px;
+        text-align: left;
+        margin: 10px 0;
+    }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav class="hidden">
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link" href="/generate">New token</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link manage-link" href="">Manage this token</a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">
+          <a style="color: inherit; text-decoration: inherit;" href="/">
+            <img alt="logo" src="/resources/logo.png" class="logo">
+          </a>
+        </h3>
+      </div>
+
+    <div class="jumbotron terms">
+        <h3>Acceptable Use Policy</h3>
+        <ol>
+            <li>
+                <h4>1. Introduction</h4> 
+                <p>1.1. We provide the Canarytokens service free of charge. We do so as a public service because we believe that everyone should be able to detect attackers and compromises.</p>
+                <p>1.2. We will work hard to keep the service up and running.</p>
+                <p>
+                    1.3. We love technical creativity, so you can use the service for any lawful purpose, but there are some ways you can never use Canarytokens.
+                </p>
+                <p>
+                    1.4. If you use the service for a purpose that we don’t allow <a href="#cant-do">(covered below)</a> or help others (people or algorithms) do so, you breach the policy, and we may suspend or terminate your use of the service. (There is a good chance you are also a jerk).
+                </p>
+            </li>
+            <li>
+                <h4>2. What we do with your information</h4>
+                <p>2.1. We don't sell the information you provide to us when you use this service.</p>
+                <p>2.2. We sometimes make use of third parties when providing the service (like mail delivery via Mailgun or use of AWS for hosting). We keep them to a minimum, we vet them carefully, and we never give away more information than is needed to make the service work.</p>
+            </li>
+            <li>
+                <h4>3. Your actions have consequences</h4>
+                <p>3.1. You understand that your actions could have legal consequences and may result in criminal or civil liability. We do not endorse, take responsibility, or accept liability for your actions.</p>
+            </li>
+            <li id="cant-do">
+                <h4>4. What you can’t do</h4>
+                <p>4.1. You may not use, or help others to use, Canarytokens for any illegal or harmful purposes.</p>
+                <p>4.2. You may not use, or help others to use, Canarytokens to interfere unlawfully with the connections or security of networks, systems, or other users.</p>
+                <p>4.3 You may not use (or abuse) the system to cause a disruption to other users.</p>
+            </li>
+            <li>
+                <h4>5. Investigation and enforcement</h4>
+                <p>
+                    5.1. We will investigate any potential breaches of this policy. During and after an investigation, we can alter or
+                    remove any content that breaches this policy and (while we are aware that snitches get stitches) may share this
+                    content or related information with any relevant third party, including law enforcement agencies.
+                </p>
+            </li>
+            <li>
+                <h4>6. Changes</h4>
+                <p>
+                    6.1. We may change the terms of this policy at any time. We will notify you of any changes by placing a notice on the
+                    legal page of this website. If you disagree with the change, you must stop using the services. If you continue to
+                    use the services following notification of a change to the terms, the changed terms will apply to you, and you will
+                    be deemed to have accepted such terms.
+                </p>
+            </li>
+        </ol>
+    </div>
+
+
+    <footer class="footer">
+      <a href="http://canary.tools/why" target="_blank" class="banner"></a>
+      <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
+      <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
+      <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
+    </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="//v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script src="/resources/site.js"></script>
+    <script src="/resources/perfect-scrollbar.min.js"></script>
+  </body>
+</html>

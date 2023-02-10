@@ -302,14 +302,14 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     response_error = (
         lambda error, message: JSONResponse(  # noqa: E731  # lambda is cleaner
             {
-                "Error": error,
-                "Error_Message": message,
-                "Url": "",
-                "Url_components": None,
-                "Token": "",
-                "Email": "",
-                "Hostname": "",
-                "Auth": "",
+                "error": str(error),
+                "error_message": message,
+                "url": "",
+                "url_components": None,
+                "token": "",
+                "email": "",
+                "hostname": "",
+                "auth": "",
             }
         )
     )
@@ -495,6 +495,15 @@ async def settings_post(
         return JSONResponse({"message": "success"})
     else:
         return JSONResponse({"message": "failure"}, status_code=400)
+
+
+@app.get(
+    "/legal",
+    tags=["Canarytokens legal page"],
+    response_class=HTMLResponse,
+)
+def legal_page(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse("legal.html", {"request": request})
 
 
 @app.get(
