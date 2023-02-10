@@ -789,8 +789,13 @@ def validate_webhook(url, token_type: models.TokenTypes):
     url -- Webhook url
     """
     slack = "https://hooks.slack.com"
-    payload: Union[models.TokenAlertDetails, models.TokenAlertDetailsSlack]
-    if slack in url:
+    googlechat_hook_base_url = "https://chat.googleapis.com"
+    payload: Union[
+        models.TokenAlertDetails,
+        models.TokenAlertDetailsSlack,
+        models.TokenAlertDetailsGoogleChat,
+    ]
+    if url.startswith(slack):
         payload = models.TokenAlertDetailsSlack(
             attachments=[
                 models.SlackAttachment(
@@ -803,6 +808,21 @@ def validate_webhook(url, token_type: models.TokenTypes):
                     ],
                 )
             ]
+        )
+    elif url.startswith(googlechat_hook_base_url):
+        # construct google chat alert card
+        card = models.GoogleChatCard(
+            header=models.GoogleChatHeader(
+                title="Validating new canarytokens webhook",
+                imageUrl="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
+                imageType="CIRCLE",
+                imageAltText="Thinkst Canary",
+            ),
+            sections=[],
+        )
+        # make google chat payload
+        payload = models.TokenAlertDetailsGoogleChat(
+            cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
         )
     else:
         payload = models.TokenAlertDetails(
