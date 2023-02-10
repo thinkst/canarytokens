@@ -71,7 +71,10 @@ def format_as_googlechat_canaryalert(
     )
     # construct google chat alert , additional section
     additional_section = GoogleChatSection(header="Additional Details")
-    additional_section.add_widgets(widgets_info=details.additional_data)
+    if details.src_data:
+        additional_section.add_widgets(widgets_info=details.src_data)
+    if details.additional_data:
+        additional_section.add_widgets(widgets_info=details.additional_data)
 
     # construct google chat alert card
     card = GoogleChatCard(
@@ -149,6 +152,7 @@ class InputChannel(Channel):
             channel=cls.CHANNEL,
             token_type=canarydrop.type,
             src_ip=canarydrop.triggered_details.latest_hit().src_ip,
+            src_data=canarydrop.triggered_details.latest_hit().src_data,
             time=datetime.datetime.utcnow(),
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
@@ -277,7 +281,7 @@ class InputChannel(Channel):
 
     def dispatch(self, *, canarydrop: Canarydrop, token_hit: AnyTokenHit) -> None:
         """
-        Spins off a `switchboard.dispatch` which notifies on all neccessary channels.
+        Spins off a `switchboard.dispatch` which notifies on all necessary channels.
         """
         log.info(f"reactor is running?: {twisted.internet.reactor.running}")
         d = threads.deferToThread(
