@@ -499,6 +499,21 @@ class DownloadPage(resource.Resource):
                 text="[default]\naws_access_key_id={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
                 return text
+            elif fmt == 'azure_id_config':
+                file_name_download=canarydrop['cert_file_name']
+                if file_name_download.endswith('.pem'):
+                    file_name_download = file_name_download.replace('.pem','.json')
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={file_name}'.format(file_name=file_name_download))
+                text='{'
+                text+='\n  "appId":"{app_id}"'.format(app_id=canarydrop['app_id'])
+                text+='\n  "displayName":"azure-cli-{cert_name}"'.format(cert_name=canarydrop['cert_name'])
+                text+='\n  "fileWithCertAndPrivateKey":"{cert_file_name}"'.format(cert_file_name=canarydrop['cert_file_name'])
+                text+='\n  "password":null'
+                text+='\n  "tenant":"{tenant_id}"'.format(tenant_id=canarydrop['tenant_id'])
+                text+='\n}'
+                return text
             elif fmt == 'azure_id':
                 request.setHeader("Content-Type", "text/plain")
                 request.setHeader("Content-Disposition",
