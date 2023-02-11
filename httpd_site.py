@@ -507,10 +507,10 @@ class DownloadPage(resource.Resource):
                 request.setHeader("Content-Disposition",
                                   'attachment; filename={file_name}'.format(file_name=file_name_download))
                 text='{'
-                text+='\n  "appId":"{app_id}"'.format(app_id=canarydrop['app_id'])
-                text+='\n  "displayName":"azure-cli-{cert_name}"'.format(cert_name=canarydrop['cert_name'])
-                text+='\n  "fileWithCertAndPrivateKey":"{cert_file_name}"'.format(cert_file_name=canarydrop['cert_file_name'])
-                text+='\n  "password":null'
+                text+='\n  "appId":"{app_id}",'.format(app_id=canarydrop['app_id'])
+                text+='\n  "displayName":"azure-cli-{cert_name}",'.format(cert_name=canarydrop['cert_name'])
+                text+='\n  "fileWithCertAndPrivateKey":"{cert_file_name}",'.format(cert_file_name=canarydrop['cert_file_name'])
+                text+='\n  "password":null,'
                 text+='\n  "tenant":"{tenant_id}"'.format(tenant_id=canarydrop['tenant_id'])
                 text+='\n}'
                 return text
