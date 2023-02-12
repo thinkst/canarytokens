@@ -48,7 +48,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
         request.setHeader("Server", "Apache")
         try:
-            token = Canarytoken(value=request.path)
+            token = Canarytoken(value=request.uri)
             canarydrop = Canarydrop(**get_canarydrop(canarytoken=token.value()))
             if request.args.get('ts_key',[None])[0]:
                 canarydrop._drop['hit_time'] = request.args.get('ts_key', [None])[0]
