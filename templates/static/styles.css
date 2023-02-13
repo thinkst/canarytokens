@@ -446,6 +446,7 @@
 
       .result-data {
         width: 80%;
+        min-height: 100px;
         border: none;
         font-family: monospace;
         padding: 5px 12px;
@@ -808,13 +809,13 @@
 
       .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-primary, .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
         color: #fff;
-        background-color: #5cb85c;
-        border-color: #5cb85c;
+        background-color: #38d47f;
+        border-color: #38d47f;
       }
 
       .jumbotron .btn.btn-clipboard {
-        background-color: #5cb85c;
-        border-color: #5cb85c;
+        background-color: #38d47f;
+        border-color: #38d47f;
         color: #fff;
       }
 
@@ -908,6 +909,9 @@
       }
       a.icon-aws:before {
         background-image: url("/resources/aws.png");
+      }
+      a.icon-azureid:before {
+        background-image: url("/resources/azure-id.png");
       }
       a.icon-redirect:before {
         background-image: url("/resources/redirect.png");

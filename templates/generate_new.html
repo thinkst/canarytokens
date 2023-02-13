@@ -31,6 +31,20 @@
     <img src="/resources/clippy.svg" alt="Copy to clipboard">
   </button>
 {%- endmacro %}
+
+{% macro textareacopydownload(name, download_fmt, value="")%}
+<textarea id="{{name}}" class="result-data" readonly="">{{value}}
+</textarea>
+<div style="flex-direction: column;margin-left: 0.2rem;" class="btn-group">
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}" style="margin-bottom: 0.2rem;">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+<a class="btn btn-clipboard tooltip file-download" data-fmt="{{download_fmt}}" style="border-radius: 0;">
+  <img src="/resources/download.svg" alt="Download text area">
+</a>
+</div>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -105,6 +119,7 @@
                 		<li data-type="web"            class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
                 		<li data-type="dns"            class="token-item" data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
                     <li data-type="aws_keys"       class="token-item" data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
+                    <li data-type="azure_id"       class="token-item" data-memo-placeholder="Azure Service Principal Login details on Code Sign Server 3"><a href="#" class="icon icon-azure-id"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
@@ -147,6 +162,9 @@
                 </div>
                 <div class="field-optional field-signed_exe hidden">
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
+                </div>
+                <div class="field-optional field-azure_id hidden">
+                  <input class="form-control" type="text" tabindex=3 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate, like: Code_Sign_Server_3.pem">
                 </div>
                 <div class="field-optional field-cmd hidden">
                   <input class="form-control" type="text" tabindex=3 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
@@ -756,6 +774,30 @@ START REPLICA;
                   </p>
                 </div>
               </div>
+              <div class="result azure_id">
+                <h3>Your Azure Service Principal Login is active!</h3>
+                <div class="artifacts">
+                  <p>Save this json config file along with the certificate:</p>
+                  <div class="form-control">
+                    {{ textareacopydownload('result_azure_id', 'azure_id_config') }}
+                  </div>
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download Azure Certificate</a>
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>This canarytoken is triggered when someone uses this Service Principal Login to access Azure programmatically (through the API).</p>
+                  <p>The Service Principal Login is unique. i.e. There is no chance of somebody guessing these credentials.</p>
+                  <p>If this token fires, it is a clear indication that this Service Principal Login has "leaked".</p>
+                  <p>Ideas for use:
+                    <ul>
+                      <li>Most systems have a ~/.azure folder (much like the ~/.aws or ~/.ssh). Create a config file with the config details from the token and place it
+                        near the certificate (ensuring that the config value has a path to the certificate).</li>
+                      <li>Place the credentials in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
               <div class="result kubeconfig">
                 <h3>Your Kubeconfig Token is active!</h3>
                 <div class="artifacts">
@@ -795,8 +837,8 @@ START REPLICA;
 
       <footer class="footer">
         <a href="http://canary.tools/why" target="_blank" class="banner"></a>
-        <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
         <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
+        <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
         {% if settings.DEV_BUILD_ID %}
         <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
@@ -942,6 +984,17 @@ START REPLICA;
         return cmd.removeClass('error-outline').addClass('success-outline');
       }
 
+      var checkAzureIdCertName= function() {
+        azure_id_cert_file_name = $('input[name=azure_id_cert_file_name]');
+        if (! azure_id_cert_file_name.parents('.field-azure_id').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (azure_id_cert_file_name.val().length == 0) {
+            return azure_id_cert_file_name.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return azure_id_cert_file_name.removeClass('error-outline').addClass('success-outline');
+      }
+
       var _checkSQLServerSelectedAction = function() {
         sql_server_selected_action = $('#selected_sql_action');
 
@@ -1016,6 +1069,7 @@ START REPLICA;
         checkSignedExe();
         checkClonedWebsite();
         checkCmd();
+        checkAzureIdCertName();
         checkSQLServer();
 
         //invert UI elements, depending on whether there are errors or not
@@ -1201,6 +1255,21 @@ START REPLICA;
           });
         }
 
+        var _handleAzureIDResponse = function(data){
+          $('#result_azure_id').val('{'+
+            '\n  "appId":"'+ data['app_id'] + '"' +
+            '\n  "displayName":"azure-cli-'+ data['cert_name'] + '"' +
+            '\n  "fileWithCertAndPrivateKey":"'+ data['cert_file_name'] + '"' +
+            '\n  "password":null' +
+            '\n  "tenant":"'+ data['tenant_id'] + '"' +
+            '\n}');
+          $('#result_azure_id').css('height','160px').css('text-align','left').css('width','90%').css('font-size','.75rem');
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+          });
+        }
+
         var _handleKubeconfigResponse = function(data) {
           $('a.file-download').each(function (i, e){
             e = $(e);
@@ -1297,6 +1366,7 @@ START REPLICA;
         var _responseCallbacks = {'web': _handleWebResponse,
                                   'dns': _handleDNSResponse,
                                   'aws_keys':_handleAWSKeysResponse,
+                                  'azure_id':_handleAzureIDResponse,
                                   'web_image': _handleWebResponse,
                                   'ms_word' : _handleFileDownloadResponse,
                                   'ms_excel' : _handleFileDownloadResponse,

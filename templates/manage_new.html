@@ -12,6 +12,20 @@
   <img src="/resources/clippy.svg" alt="Copy to clipboard">
 </button>
 {%- endmacro %}
+
+{% macro textareacopydownload(name, download_fmt, value="")%}
+<textarea id="{{name}}" class="result-data" readonly="">{{value}}
+</textarea>
+<div style="flex-direction: column;margin-left: 0.2rem;" class="btn-group">
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}" style="margin-bottom: 0.2rem;">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+<a class="btn btn-clipboard tooltip file-download" data-fmt="{{download_fmt}}" style="border-radius: 0;">
+  <img src="/resources/download.svg" alt="Download text area">
+</a>
+</div>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,6 +164,18 @@
                 </div>
                 <div class="form-control">
                   <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
+                </div>
+              </div>
+            </div>
+            <div class="result azure_id">
+              <h5>Here's your Azure Service Principal Login:</h5>
+              <div class="artifacts">
+                <p>Save this json config file along with the certificate:</p>
+                <div class="form-control">
+                  {{ textareacopydownload('result_azure_id', 'azure_id_config') }}
+                </div>
+                <div class="form-control">
+                  <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download Azure Certificate</a>
                 </div>
               </div>
             </div>
@@ -519,6 +545,21 @@
         });
       }
 
+      var _handleAzureIDResponse = function(data){
+        $('#result_azure_id').val('{'+
+          '\n  "appId":"'+ data['app_id'] + '"' +
+          '\n  "displayName":"azure-cli-'+ data['cert_name'] + '"' +
+          '\n  "fileWithCertAndPrivateKey":"'+ data['cert_file_name'] + '"' +
+          '\n  "password":null' +
+          '\n  "tenant":"'+ data['tenant_id'] + '"' +
+          '\n}');
+        $('#result_azure_id').css('height','160px').css('text-align','left').css('width','90%').css('font-size','.75rem');
+        $('a.file-download').each(function (i, e){
+          e = $(e);
+          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
+        });
+      }
+
       var _handleDefaultResponse = function(data) {
         return;
       }
@@ -526,6 +567,7 @@
       var _responseCallbacks = {'web': _handleWebResponse,
                                 'dns': _handleDNSResponse,
                                 'aws_keys': _handleAWSKeysResponse,
+                                'azure_id':_handleAzureIDResponse,
                                 'web_image': _handleWebResponse,
                                 'ms_word' : _handleFileDownloadResponse,
                                 'ms_excel' : _handleFileDownloadResponse,
@@ -554,8 +596,6 @@
           cb =_responseCallbacks['default'];
         }
         cb(data)
-
-        $('.jumbotron').css('height', $('.success').innerHeight())
 
         $('.manage-link > a').prop('href', '/manage?token='+data['Token']+'&auth='+data['Auth']);
       }

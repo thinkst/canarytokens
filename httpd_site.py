@@ -25,7 +25,7 @@ from queries import is_valid_email, save_canarydrop, save_imgur_token, get_canar
                     create_linkedin_account, create_bitcoin_account,\
                     get_linkedin_account, get_bitcoin_account, \
                     save_clonedsite_token, get_all_canary_sites, get_canary_google_api_key,\
-                    is_webhook_valid, get_aws_keys, get_all_canary_domains, is_email_blocked
+                    is_webhook_valid, get_azure_id, get_aws_keys, get_all_canary_domains, is_email_blocked
 
 from exception import NoCanarytokenPresent
 from ziplib import make_canary_zip
@@ -101,6 +101,7 @@ class GeneratorPage(resource.Resource):
                                       'sql_server',
                                       'my_sql',
                                       'aws_keys',
+                                      'azure_id',
                                       'signed_exe',
                                       'fast_redirect',
                                       'slow_redirect',
@@ -280,6 +281,26 @@ class GeneratorPage(resource.Resource):
                 response['Error'] = 4
                 response['Message'] = 'Failed to generate credit card due to a configuration error. Please contact support@thinkst.com.'
             except Exception as e:
+                pass
+
+            try:
+                if not request.args.get('type', None)[0] == 'azure_id':
+                    raise Exception()
+                keys = get_azure_id(token=canarytoken.value(), server=get_all_canary_domains()[0])
+                if not keys:
+                    response['Error'] = 4
+                    response['Error_Message'] = 'Failed to retrieve Azure ID. Please contact support@thinkst.com.'
+                    raise Exception()
+                azure_id_cert_file_name = request.args['azure_id_cert_file_name'][0]
+                if not azure_id_cert_file_name:
+                    raise Exception()
+                response['app_id'] = canarydrop['app_id'] = keys[0]
+                response['cert'] = canarydrop['cert'] = keys[1]
+                response['tenant_id'] = canarydrop['tenant_id'] = keys[2]
+                response['cert_name'] = canarydrop['cert_name'] = keys[3]
+                response['cert_file_name'] = canarydrop['cert_file_name'] = azure_id_cert_file_name
+                save_canarydrop(canarydrop)
+            except:
                 pass
 
             try:
@@ -477,6 +498,27 @@ class DownloadPage(resource.Resource):
                                   'attachment; filename=credentials')
                 text="[default]\naws_access_key_id={id}\naws_secret_access_key={k}\nregion={r}\noutput={o}"\
                         .format(id=canarydrop['aws_access_key_id'], k=canarydrop['aws_secret_access_key'], r=canarydrop['region'], o=canarydrop['output'])
+                return text
+            elif fmt == 'azure_id_config':
+                file_name_download=canarydrop['cert_file_name']
+                if file_name_download.endswith('.pem'):
+                    file_name_download = file_name_download.replace('.pem','.json')
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={file_name}'.format(file_name=file_name_download))
+                text='{'
+                text+='\n  "appId":"{app_id}"'.format(app_id=canarydrop['app_id'])
+                text+='\n  "displayName":"azure-cli-{cert_name}"'.format(cert_name=canarydrop['cert_name'])
+                text+='\n  "fileWithCertAndPrivateKey":"{cert_file_name}"'.format(cert_file_name=canarydrop['cert_file_name'])
+                text+='\n  "password":null'
+                text+='\n  "tenant":"{tenant_id}"'.format(tenant_id=canarydrop['tenant_id'])
+                text+='\n}'
+                return text
+            elif fmt == 'azure_id':
+                request.setHeader("Content-Type", "text/plain")
+                request.setHeader("Content-Disposition",
+                                  'attachment; filename={file_name}'.format(file_name=canarydrop['cert_file_name']))
+                text="{cert}".format(cert=canarydrop['cert'])
                 return text
             elif fmt == 'kubeconfig':
                 request.setHeader("Content-Type", "text/plain")
