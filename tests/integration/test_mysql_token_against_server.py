@@ -34,7 +34,7 @@ def test_mysql_token(
     settings: Settings,
     runv2: bool,
     runv3: bool,
-):
+):  # pragma: no cover
     run_or_skip(version, runv2=runv2, runv3=runv3)
     token_request = MySQLTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
