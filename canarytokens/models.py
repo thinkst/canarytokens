@@ -38,22 +38,16 @@ from pydantic import (
 )
 from pydantic.generics import GenericModel
 from typing_extensions import Annotated
+from canarytokens.constants import (
+    CANARYTOKEN_ALPHABET,
+    CANARYTOKEN_LENGTH,
+    MEMO_MAX_CHARACTERS,
+)
 
-# DESIGN: We'll want a constraint on this but what is sensible as a user and what is practical for out system?
-MEMO_MAX_CHARACTERS = 1000
-# fmt: off
-CANARYTOKEN_ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-                        'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-                        'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-                        '4', '5', '6', '7', '8', '9']
-# fmt: on
-CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
     re.IGNORECASE,
 )
-
-CANARY_PDF_TEMPLATE_OFFSET: int = 793
 
 
 class Memo(ConstrainedStr):
@@ -268,7 +262,7 @@ class TokenRequest(BaseModel):
 
     @root_validator
     def check_email_or_webhook_opt(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if not (values.get("webhook_url") or values.get("email")):
+        if not values.get("webhook_url") and not values.get("email"):
             raise ValueError("either webhook or email is required")
         return values
 
@@ -530,7 +524,7 @@ class TokenResponse(BaseModel):
 
     @root_validator(pre=True)
     # TODO: fix pydantic vs mypy - it's possible
-    def normalize_names(cls, values: dict[str, Any]) -> dict[str, any]:  # type: ignore
+    def normalize_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             # TODO: make is consistent.
             ("Auth", "auth_token"),
@@ -689,14 +683,14 @@ class Log4ShellTokenResponse(TokenResponse):
     # src_data: dict[str, str]
 
     @root_validator(pre=True)
-    def set_token_usage_info(cls, values: dict[str, Any]) -> dict[str, any]:  # type: ignore
+    def set_token_usage_info(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         values[
             "token_with_usage_info"
         ] = f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
         return values
 
     @root_validator(pre=True)
-    def set_token_usage(cls, values: dict[str, Any]) -> dict[str, any]:  # type: ignore
+    def set_token_usage(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         values[
             "token_usage"
         ] = f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
@@ -910,7 +904,7 @@ class AWSKeyAdditionalInfo(BaseModel):
     aws_key_log_data: dict[str, list[str]]
 
     @root_validator(pre=True)
-    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, any]:  # type: ignore
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             # TODO: make this consistent.
             ("AWS Key Log Data", "aws_key_log_data"),
@@ -942,7 +936,7 @@ class AdditionalInfo(BaseModel):
         return data
 
     @root_validator(pre=True)
-    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, any]:  # type: ignore
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             # TODO: make is consistent.
             ("MySQL Client", "mysql_client"),

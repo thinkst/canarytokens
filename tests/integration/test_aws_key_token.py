@@ -24,7 +24,7 @@ from tests.utils import get_token_history as utils_get_token_history
 from tests.utils import run_or_skip, v2, v3
 
 
-def get_token_history(token_info, version) -> Dict[str, str]:
+def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cover
     token_history_request = DownloadIncidentListJsonRequest(
         token=token_info.token,
         # TODO: auth vs. auth_token choose one at least at the object level
@@ -53,7 +53,7 @@ def get_token_history(token_info, version) -> Dict[str, str]:
     ),
     reason="avoid using up an AWS user each time we run tests, and AWS can't trigger unless live",
 )
-def test_aws_key_token(version, webhook_receiver, runv2, runv3):
+def test_aws_key_token(version, webhook_receiver, runv2, runv3):  # pragma: no cover
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
     # Make the token
@@ -112,6 +112,13 @@ def test_aws_key_token(version, webhook_receiver, runv2, runv3):
     assert len(token_history.hits) == 1
 
 
+@pytest.mark.skipif(
+    (
+        strtobool(os.getenv("SKIP_AWS_KEY_TEST", "True"))
+        or not strtobool(os.getenv("LIVE", "False"))
+    ),
+    reason="avoid using up an AWS user each time we run tests, and AWS can't trigger unless live",
+)
 @pytest.mark.parametrize(
     "version",
     [
@@ -119,7 +126,9 @@ def test_aws_key_token(version, webhook_receiver, runv2, runv3):
         v3,
     ],
 )
-def test_aws_token_post_request_processing(version: Union[V2, V3], runv2, runv3):
+def test_aws_token_post_request_processing(
+    version: Union[V2, V3], runv2, runv3
+):  # pragma: no cover
     """When an AWS Token is triggered a lambda makes a POST request
     back to the http channel. This is tested here using `aws_token_fire`
     which run code akin to the lambda.

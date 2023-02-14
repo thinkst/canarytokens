@@ -16,9 +16,10 @@ from canarytokens.channel_input_mtls import (
     mTLS,
     mTLSFactory,
 )
+from canarytokens.constants import CANARYTOKEN_ALPHABET
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.kubeconfig import KubeConfig, get_kubeconfig
-from canarytokens.models import CANARYTOKEN_ALPHABET, TokenTypes
+from canarytokens.models import TokenTypes
 from canarytokens.queries import save_certificate
 from canarytokens.settings import BackendSettings, Settings
 from canarytokens.switchboard import Switchboard

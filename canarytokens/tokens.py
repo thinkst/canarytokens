@@ -13,49 +13,13 @@ from twisted.web.http import Request
 from twisted.web.util import redirectTo
 
 from canarytokens import canarydrop, queries
-from canarytokens.constants import INPUT_CHANNEL_HTTP
+from canarytokens.constants import (
+    CANARYTOKEN_ALPHABET,
+    CANARYTOKEN_LENGTH,
+    INPUT_CHANNEL_HTTP,
+)
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
-
-canarytoken_ALPHABET = [
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-    "k",
-    "l",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "u",
-    "v",
-    "w",
-    "x",
-    "y",
-    "z",
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-]
-canarytoken_LENGTH = 25  # equivalent to 128-bit id
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -121,9 +85,9 @@ def get_template_env():
 class Canarytoken(object):
     CANARY_RE = re.compile(
         ".*(["
-        + "".join(canarytoken_ALPHABET)
+        + "".join(CANARYTOKEN_ALPHABET)
         + "]{"
-        + str(canarytoken_LENGTH)
+        + str(CANARYTOKEN_LENGTH)
         + "}).*",
         re.IGNORECASE,
     )
@@ -149,12 +113,8 @@ class Canarytoken(object):
     @staticmethod
     def generate() -> str:
         """Return a new canarytoken."""
-        # TODO: Use random.choice
         return "".join(
-            [
-                canarytoken_ALPHABET[random.randint(0, len(canarytoken_ALPHABET) - 1)]
-                for x in range(0, canarytoken_LENGTH)
-            ],
+            [random.choice(CANARYTOKEN_ALPHABET) for x in range(0, CANARYTOKEN_LENGTH)],
         )
 
     @staticmethod
