@@ -4,6 +4,7 @@ import os
 from unittest import mock
 
 import pytest
+import requests
 from fastapi.testclient import TestClient
 from pydantic import HttpUrl
 
@@ -48,6 +49,7 @@ from canarytokens.models import (
     QRCodeTokenRequest,
     QRCodeTokenResponse,
     TokenTypes,
+    WebBugTokenRequest,
     WebhookSettingsRequest,
     WebImageSettingsRequest,
     WindowsDirectoryTokenRequest,
@@ -692,3 +694,51 @@ def test_aws_keys(
         assert token_info.aws_secret_access_key
         assert token_info.region == "us-east-2"
         assert token_info.output == "json"
+
+
+@pytest.mark.parametrize(
+    "block_target, test_target",
+    [
+        ("a@b.c", "a@b.c"),
+        ("a+b@gmail.com", "a+c@gmail.com"),
+        ("c.com", "b@c.com"),
+    ],
+)
+def test_block_user(
+    block_target,
+    test_target,
+    test_client: TestClient,
+    setup_db: None,
+) -> None:
+    # block clock_target
+    (block_func, unblock_func) = [
+        (queries.block_domain, queries.unblock_domain),
+        (queries.block_email, queries.unblock_email),
+    ]["@" in block_target]
+    block_func(block_target)
+
+    # try to make with test_target, make sure it fails
+    token_request = WebBugTokenRequest(
+        email=test_target,
+        webhook_url="https://hooks.slack.com/test",
+        memo="test stuff break stuff fix stuff test stuff",
+        redirect_url="https://youtube.com",
+        clonedsite="https://test.com",
+        cmd_process_name="klist.exe",
+    )
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        resp = test_client.post(
+            "/generate",
+            json=token_request.json_safe_dict(),
+        )
+        resp.raise_for_status()
+
+    # unblock and try again, make sure it works
+    unblock_func(block_target)
+
+    resp = test_client.post(
+        "/generate",
+        json=token_request.json_safe_dict(),
+    )
+    resp.raise_for_status()

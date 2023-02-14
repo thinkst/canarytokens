@@ -5,8 +5,8 @@ import dns
 import pytest
 from pydantic import HttpUrl
 
+from canarytokens.constants import CANARY_PDF_TEMPLATE_OFFSET as STREAM_OFFSET
 from canarytokens.models import (
-    CANARY_PDF_TEMPLATE_OFFSET,
     V2,
     Memo,
     PDFTokenHistory,
@@ -46,7 +46,6 @@ def test_pdf_token(version, webhook_receiver, runv2, runv3):
     )
 
     # Extract the token url from the PDF
-    STREAM_OFFSET = CANARY_PDF_TEMPLATE_OFFSET
     stream_size = int(re.findall(rb"\/Length ([0-9]+)\/", contents[STREAM_OFFSET:])[0])
     stream_start = STREAM_OFFSET + contents[STREAM_OFFSET:].index(b"stream\r\n") + 8
     stream = contents[stream_start : stream_start + stream_size]  # noqa: E203

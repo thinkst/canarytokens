@@ -581,7 +581,13 @@ def test_slow_redirect_token(
     #
 
 
-@pytest.mark.parametrize("version", [v3, v2])
+@pytest.mark.parametrize(
+    "version",
+    [
+        # v3,
+        v2
+    ],
+)
 def test_broken_webhook_on_token_creation(version, runv2, runv3):
     token_request = ClonedWebTokenRequest(
         webhook_url=HttpUrl(url="https://something.com/nothing", scheme="https"),
@@ -592,9 +598,101 @@ def test_broken_webhook_on_token_creation(version, runv2, runv3):
     if isinstance(version, V2):
         with pytest.raises(CanaryTokenCreationError):
             _ = create_token.__wrapped__(token_request, version=version)
-    elif isinstance(version, V3):  # pragma: no cover
-        # V3 will use http codes to indicate a failed token creation
-        with pytest.raises(requests.exceptions.HTTPError):
-            _ = create_token.__wrapped__(token_request, version=version)
+    # ! in future V3 will use http codes to indicate a failed token creation
+    # elif isinstance(version, V3):  # pragma: no cover
+    #     with pytest.raises(requests.exceptions.HTTPError):
+    #         _ = create_token.__wrapped__(token_request, version=version)
     else:
         assert False, f"Unsupported version {version}"
+
+
+@pytest.mark.parametrize(
+    "version",
+    [
+        # v2,
+        v3
+    ],
+)
+@pytest.mark.parametrize(
+    "request_dict, error_code",
+    [
+        # malformed request
+        ({"x": "y"}, "1"),
+        # no memo - fails v3 validation
+        # TODO: specialise validation
+        ({"token_type": "dns", "email": "x@yz.com"}, "1"),
+        # bad webhook
+        (
+            {
+                "token_type": "dns",
+                "memo": "test",
+                "webhook_url": "https://something.com/nothing",
+            },
+            "3",
+        ),
+        # ? not sure what this is for
+        # ({'token_type': 'dns', ...}, '4'),
+        # invalid email - fails v3 validation
+        ({"token_type": "dns", "memo": "test", "email": "not_an_email"}, "1"),
+        # blocked email - skip, can't block via API
+        # ({'token_type': 'dns', ...}, '6'),
+    ],
+)
+def test_token_error_codes(
+    request_dict: dict[str, str], error_code: str, version, runv2, runv3
+):
+    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+    if isinstance(version, V2):
+        error = "Error"
+        req_kw = "data"
+    elif isinstance(version, V3):
+        error = "error"
+        req_kw = "json"
+
+    resp = requests.post(
+        url=f"{version.server_url}/generate",
+        timeout=(26, 26),
+        **{req_kw: request_dict},
+        headers={"Connection": "close"},
+    )
+    resp.raise_for_status()
+    code = resp.json()[error]
+    assert code == error_code
+
+
+#   try:
+#         token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
+#     except ValidationError:  # DESIGN: can we specialise on what went wrong?
+#         return response_error(1, "No email/webhook supplied or malformed request")
+
+#     if not token_request_details.memo:
+#         return response_error(2, "No memo supplied")
+
+#     if token_request_details.webhook_url:
+#         try:
+#             validate_webhook(
+#                 token_request_details.webhook_url, token_request_details.token_type
+#             )
+#         except requests.exceptions.HTTPError:
+#             # raise HTTPException(status_code=400, detail="Failed to validate webhook")
+#             return response_error(
+#                 3, "Invalid webhook supplied. Confirm you can POST to this URL."
+#             )
+#         except requests.exceptions.ConnectTimeout:
+#             # raise HTTPException(
+#             #     status_code=400, detail="Failed to validate webhook - timed out."
+#             # )
+#             return response_error(
+#                 3, "Webhook timed out. Confirm you can POST to this URL."
+#             )
+
+#     if token_request_details.email:
+#         if not is_valid_email(token_request_details.email):
+#             return response_error(5, "Invalid email supplied")
+
+#         if is_email_blocked(token_request_details.email):
+#             # raise HTTPException(status_code=400, detail="Email is blocked.")
+#             return response_error(
+#                 6,
+#                 "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
+#             )
