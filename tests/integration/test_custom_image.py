@@ -204,16 +204,10 @@ def test_custom_image_url(  # noqa: C901
         assert token_hit.geo_info.ip == "127.0.0.1"
 
 
+@pytest.mark.parametrize("version", [v2, v3])
 @pytest.mark.parametrize(
-    "version, file_name",
-    [
-        (v2, "canary_image.png"),
-        (v2, "Moon.jpg"),
-        (v2, "testing.gif"),
-        (v3, "canary_image.png"),
-        (v3, "Moon.jpg"),
-        (v3, "testing.gif"),
-    ],
+    "file_name",
+    ["canary_image.png", "Moon.jpg", "testing.gif"],
 )
 def test_custom_image_web_image(
     version,

@@ -4,9 +4,11 @@ import zlib
 from io import BytesIO
 from pathlib import Path
 
+from canarytokens.constants import CANARY_PDF_TEMPLATE_OFFSET as STREAM_OFFSET
+
 # PDF_FILE=settings.CANARY_PDF_TEMPLATE
 # STREAM_OFFSET=settings.CANARY_PDF_TEMPLATE_OFFSET
-STREAM_OFFSET = 793
+# STREAM_OFFSET = 793
 # CANARY_PDF_TEMPLATE_OFFSET=793
 
 
