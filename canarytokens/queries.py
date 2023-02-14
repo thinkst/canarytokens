@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import datetime
 import json
+import re
 import secrets
 from ipaddress import IPv4Address
 from typing import Dict, List, Literal, Optional, Tuple, Union
@@ -28,6 +29,8 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_CANARYDROP,
     KEY_CANARYDROPS_TIMELINE,
     KEY_CANARYTOKEN_ALERT_COUNT,
+    KEY_DOMAIN_BLOCK_LIST,
+    KEY_EMAIL_BLOCK_LIST,
     KEY_EMAIL_IDX,
     KEY_KUBECONFIG_CERTS,
     KEY_KUBECONFIG_SERVEREP,
@@ -848,7 +851,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         headers={"content-type": "application/json"},
         timeout=10,
     )
-    # TODO: this accepts 3xx which is probably too leanient. We probably want any 2xx code.
+    # TODO: this accepts 3xx which is probably too lenient. We probably want any 2xx code.
     response.raise_for_status()
     # return True
     # except requests.exceptions.Timeout as e:
@@ -862,6 +865,56 @@ def validate_webhook(url, token_type: models.TokenTypes):
     #         ),
     #     )
     #     return False
+
+
+def is_valid_email(email):
+    # This validation checks that no disallowed characters are in the section of the email
+    # address before the @
+    # Ripped from https://www.regular-expressions.info/email.html
+    regex = re.compile(
+        r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    )
+    match = regex.search(email.lower())
+    if not match:
+        return False
+    else:
+        return True
+
+
+def normalize_email(email):
+    [user, domain] = email.lower().split("@")
+    if domain in ["gmail.com", "googlemail.com", "google.com"]:
+        delabelled = user.split("+")[0]
+        san_user = delabelled.replace(".", "")
+        return "{}@{}".format(san_user, domain)
+    else:
+        return email
+
+
+def block_email(email):
+    san = normalize_email(email).lower()
+    DB.get_db().sadd(KEY_EMAIL_BLOCK_LIST, san)
+
+
+def unblock_email(email):
+    san = normalize_email(email).lower()
+    DB.get_db().srem(KEY_EMAIL_BLOCK_LIST, san)
+
+
+def block_domain(domain):
+    DB.get_db().sadd(KEY_DOMAIN_BLOCK_LIST, domain.lower())
+
+
+def unblock_domain(domain):
+    DB.get_db().srem(KEY_DOMAIN_BLOCK_LIST, domain.lower())
+
+
+def is_email_blocked(email):
+    san = normalize_email(email).lower()
+    domain = email.split("@")[1].lower()
+    return DB.get_db().sismember(
+        KEY_DOMAIN_BLOCK_LIST, domain
+    ) or DB.get_db().sismember(KEY_EMAIL_BLOCK_LIST, san)
 
 
 def is_tor_relay(ip):

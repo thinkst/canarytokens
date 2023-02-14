@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "dev"
+      - "dev_v3"
 
   workflow_dispatch:
     inputs:
@@ -76,7 +77,7 @@ jobs:
             CACHE_BUSTER_COMMIT=${{ github.sha }}
 
   dev-deploy:
-    if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev'
+    if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev_v3'
     runs-on: [self-hosted, dev]
     needs: build
     steps:
@@ -86,12 +87,12 @@ jobs:
           ./canarytokensdb_s3backup.sh
 
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml.tpl > docker-compose-letsencrypt.yml
-          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
+          sed "s/thinkst\/canarytokens:dev_v3/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3.yml.tpl > docker-compose-v3.yml
+          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" backend-v3.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker-compose -f docker-compose-letsencrypt.yml pull
-          sudo docker-compose -f docker-compose-letsencrypt.yml down
-          sudo docker-compose -f docker-compose-letsencrypt.yml up -d
+          sudo docker-compose -f docker-compose-v3.yml pull
+          sudo docker-compose -f docker-compose-v3.yml down
+          sudo docker-compose -f docker-compose-v3.yml up -d
           sudo docker system prune -f -a
 
   staging-deploy:
