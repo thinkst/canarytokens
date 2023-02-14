@@ -63,13 +63,11 @@ class mTLS(basic.LineReceiver):
         self.last_hit = datetime.utcnow()
 
     def lineReceived(self, line: bytes):
-        log.debug(f"lineReceived: {line!r}")
         self.lines.append(line)
         if not line:
             self.send_response()
 
     def send_response(self):
-        log.debug("send_response")
         client = self.transport.getPeer()
 
         req_uri = self.lines[0].split(b" ")[1]
@@ -81,7 +79,6 @@ class mTLS(basic.LineReceiver):
         user_agent = headers.get("User-Agent", "Unknown")
 
         try:
-            log.debug("trying to get cert")
             peer_certificate = Certificate.peerFromTransport(self.transport)
             f = peer_certificate.digest()
             self.sendLine(b"HTTP/1.1 401 Unauthorized")
@@ -89,7 +86,6 @@ class mTLS(basic.LineReceiver):
             self.sendLine(b"")
             self.transport.write(json.dumps(self.bodies["unauthorized"]).encode())
             self.transport.loseConnection()
-            log.debug("all good, chirping.")
             self.chirp(
                 {
                     "f": f,
@@ -359,16 +355,13 @@ class ChannelKubeConfig:
         log.debug("_get_ssl_context")
 
         certs = {}
+        # fmt: off
         params = [
             (client_ca_redis_key, None, "kubernetes-ca", Certificate),
             (server_ca_redis_key, None, "kubernetes-ca", Certificate),
-            (
-                server_cert_redis_key,
-                server_ca_redis_key,
-                "kube-apiserver",
-                PrivateCertificate,
-            ),
+            (server_cert_redis_key, server_ca_redis_key, "kube-apiserver", PrivateCertificate),
         ]
+        # fmt: on
         for redis_key, issuer, username, kind in params:
             log.debug(f"checking for: {redis_key}")
             try:

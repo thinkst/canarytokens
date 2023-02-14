@@ -172,11 +172,11 @@ def webhook_receiver() -> Generator[str, None, None]:
 
     @app.get("/alert/mock_aws_key_broken/CreateUserAPITokens")
     def serve_aws_debug_token_broken(request: Request) -> JSONResponse:
-        return JSONResponse(status_code=400)
+        return JSONResponse(content={}, status_code=400)
 
     @app.get("/broken")
     def broken(request: Request) -> JSONResponse:
-        return JSONResponse(status_code=404)
+        return JSONResponse(content={}, status_code=404)
 
     config = uvicorn.Config(
         app,

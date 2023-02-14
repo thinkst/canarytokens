@@ -4,7 +4,6 @@ import os
 from unittest import mock
 
 import pytest
-import requests
 from fastapi.testclient import TestClient
 from pydantic import HttpUrl
 
@@ -727,12 +726,11 @@ def test_block_user(
         cmd_process_name="klist.exe",
     )
 
-    with pytest.raises(requests.exceptions.HTTPError):
-        resp = test_client.post(
-            "/generate",
-            json=token_request.json_safe_dict(),
-        )
-        resp.raise_for_status()
+    resp = test_client.post(
+        "/generate",
+        json=token_request.json_safe_dict(),
+    )
+    assert resp.json()["error"] == "6"
 
     # unblock and try again, make sure it works
     unblock_func(block_target)
@@ -741,4 +739,4 @@ def test_block_user(
         "/generate",
         json=token_request.json_safe_dict(),
     )
-    resp.raise_for_status()
+    assert not resp.json()["error"]
