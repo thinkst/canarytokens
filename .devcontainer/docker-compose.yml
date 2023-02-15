@@ -22,6 +22,7 @@ services:
     ports:
       - "5354:5354/udp"
       - "51820:51820/udp"
+      - "8000:8000"
     # Overrides default command so things don't shut down after the process ends.
     entrypoint: /usr/local/share/docker-init.sh
     command: sleep infinity
@@ -36,10 +37,15 @@ services:
   redis:
     image: redis
     container_name: "redis-store"
-    ports:
-      - "6379:6379"
     volumes:
       - db-data:/data
+
+  # Used to test mysql token.
+  mysql:
+    image: mysql@sha256:940fdfa3dc408fb792a8cceb21cafda4b7cd56ce4fbc32833766bdd2a57d6a4f
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+
   # To test against the python 2 implementation uncomment this block
   # and add a frontend.env file to `.devcontainer`
   # frontend:
@@ -57,13 +63,6 @@ services:
   #   container_name: frontend
   #   command: bash -c "rm -f frontend.pid; twistd -noy frontend.tac --pidfile=frontend.pid"
 
-  # Used to test mysql token.
-  mysql:
-    image: mysql@sha256:940fdfa3dc408fb792a8cceb21cafda4b7cd56ce4fbc32833766bdd2a57d6a4f
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=1
-    ports:
-      - "3306:3306"
 
 volumes:
   db-data:

@@ -19,9 +19,9 @@ jobs:
         # TODO: ensure this is identical to whatever is in the compose files. Simple linter should suffice.
         image: redis@sha256:03f00cd789243846888e2f834c762f53b224b9970b434a192b0f6b533d7e219c
         #
-        ports:
-          # Opens tcp port 6379 on the host and service container
-          - 6379:6379
+        # ports:
+        #   # Opens tcp port 6379 on the host and service container
+        #   - 6379:6379
         # Set health checks to wait until redis has started
         options: >-
           --health-cmd "redis-cli ping"
@@ -32,8 +32,8 @@ jobs:
         image: mysql@sha256:940fdfa3dc408fb792a8cceb21cafda4b7cd56ce4fbc32833766bdd2a57d6a4f
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
-        ports:
-          - 3306:3306
+        # ports:
+        #   - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval 10s

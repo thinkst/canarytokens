@@ -51,13 +51,15 @@ def test_mysql_token(
             assert token_info.usage is not None
             assert token_info.usage[-8:] == "REPLICA;"
         listen_domain = os.getenv("TEST_HOST", "app")
+        mysql_usage = Canarydrop.generate_mysql_usage(
+            token=token_info.token,
+            domain=listen_domain,
+            port=settings.CHANNEL_MYSQL_PORT,
+            encoded=settings.CHANNEL_MYSQL_PORT,
+        )
+
         content = make_canary_mysql_dump(
-            mysql_usage=Canarydrop.generate_mysql_usage(
-                token=token_info.token,
-                domain=listen_domain,
-                port=settings.CHANNEL_MYSQL_PORT,
-                encoded=settings.CHANNEL_MYSQL_PORT,
-            ),
+            mysql_usage=mysql_usage,
             template=Path(backend_settings.TEMPLATES_PATH) / "mysql_tables.zip",
         )
         with open(gz_file, "wb") as f:
@@ -67,11 +69,13 @@ def test_mysql_token(
 
     # Trigger the token
     command = ["mysql", "-h127.0.0.1", "-uroot"]
+
+    # ! what happens if on honeypdfs??
     if not strtobool(os.getenv("CI", "False")):
         command[command.index("-h127.0.0.1")] = "-hmysql"
 
     command_input = bytes(
-        f"drop database IF EXISTS tmp_db; create database tmp_db; use tmp_db; source {dump_file}; drop database IF EXISTS tmp_db;",
+        f"drop database IF EXISTS tmp_db;\ncreate database tmp_db;\nuse tmp_db;\nsource {dump_file};\ndrop database IF EXISTS tmp_db;",
         "utf-8",
     )
     stuff = subprocess.run(command, input=command_input, capture_output=True)
