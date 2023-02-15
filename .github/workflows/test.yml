@@ -33,7 +33,7 @@ jobs:
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
         ports:
-          - 3306:3306
+          - 3307:3306
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval 10s
@@ -110,6 +110,9 @@ jobs:
       #   # Here we check coverage info on all tests
       #   run: |
       #     poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" --fail-under 90
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Run integration tests (against local V3)
         run: |

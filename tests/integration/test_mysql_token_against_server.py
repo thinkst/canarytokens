@@ -73,6 +73,8 @@ def test_mysql_token(
     # ! what happens if on honeypdfs??
     if not strtobool(os.getenv("CI", "False")):
         command[command.index("-h127.0.0.1")] = "-hmysql"
+    else:
+        command.append("-P3307")
 
     command_input = bytes(
         f"drop database IF EXISTS tmp_db;\ncreate database tmp_db;\nuse tmp_db;\nsource {dump_file};\ndrop database IF EXISTS tmp_db;",
