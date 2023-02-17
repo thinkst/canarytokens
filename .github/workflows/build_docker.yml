@@ -73,7 +73,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            CACHE_BUSTER_COMMIT=${{GITHUB_SHA}}
+            CACHE_BUSTER_COMMIT=$GITHUB_SHA
 
   dev-deploy:
     if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev'
