@@ -64,6 +64,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
     download_resp = requests.get(
         url=f"{version.server_url}/download",
         params=kubeconfig_request_params,
+        timeout=(60, 60),
     )
     # Extract kubeconfig downloaded file contents
     kubeconfig_file_downloaded_contents = download_resp.content
@@ -94,6 +95,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
     ]
     if isinstance(version, V2):
         cmd.append("--insecure-skip-tls-verify")
+
     # trigger token
     print(f"start subprocess: {cmd}")
     get_nodes_output = subprocess.run(
