@@ -92,6 +92,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         "--kubeconfig={kubeconfig}".format(kubeconfig=kubeconfig_file),
         "get",
         "nodes",
+        "-v=9",
     ]
     if isinstance(version, V2):
         cmd.append("--insecure-skip-tls-verify")
