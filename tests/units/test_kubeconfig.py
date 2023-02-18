@@ -29,7 +29,7 @@ def test_kubeconfig_mtls_create_and_save_cert(setup_db):
     """Create and load a `KubeConfig` and check that
     the returned token and config are of the correct shape.
     """
-    client_ca_redis_key = kubeconfig.ClientCA
+    client_ca_redis_key = kubeconfig.ClientCA + "_test"
     ca = mTLS.generate_new_ca(
         username="kubernetes-ca",
     )

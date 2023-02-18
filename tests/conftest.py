@@ -1,4 +1,5 @@
 import contextlib
+from ipaddress import IPv4Address
 import logging
 import os
 import threading
@@ -295,25 +296,38 @@ def setup_db_connection_only(settings: Settings):
 
 
 @pytest.fixture(scope="function", autouse=False)
-def setup_db(settings: Settings):
+def setup_db(settings: Settings):  # noqa: C901
     redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     DB.set_db_details(hostname=redis_hostname, port=6379)
     # Kubeconfig token needs a client cert in redis.
     # DESIGN: This is a red flag! Will need a refactor at some point.
+    # Get or generate the client CA
     try:
-        ca = get_certificate(kubeconfig.ClientCA)
+        client_ca = get_certificate(kubeconfig.ClientCA)
     except LookupError:
-        ca = mTLS.generate_new_ca(
+        client_ca = mTLS.generate_new_ca(
             username="kubernetes-ca",
         )
-        save_certificate(kubeconfig.ClientCA, ca)
+        save_certificate(kubeconfig.ClientCA, client_ca)
+    # Get or generate the server CA
     try:
-        ca = get_certificate(kubeconfig.ServerCA)
+        server_ca = get_certificate(kubeconfig.ServerCA)
     except LookupError:
-        ca = mTLS.generate_new_ca(
-            username="kube-apiserver",
+        server_ca = mTLS.generate_new_ca(
+            username="kubernetes-ca",
         )
-        save_certificate(kubeconfig.ServerCA, ca)
+        save_certificate(kubeconfig.ServerCA, server_ca)
+    # Get or generate the server cert, issued by server CA
+    try:
+        server_cert = get_certificate(kubeconfig.ServerCert)
+    except LookupError:
+        server_cert = mTLS.generate_new_certificate(
+            ca_redis_key=kubeconfig.ServerCA,
+            username="kubernetes-ca",
+            ip=IPv4Address(settings.PUBLIC_IP),
+            is_server_cert=True,
+        )
+        save_certificate(kubeconfig.ServerCert, server_cert)
     db = DB.get_db()
     prefixes_to_persist = [KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP]
     for key in db.scan_iter():
