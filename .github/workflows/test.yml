@@ -99,7 +99,6 @@ jobs:
           CANARY_ALERT_EMAIL_FROM_DISPLAY: testing-display@jingwei.in
           CANARY_ALERT_EMAIL_SUBJECT: Canarytokens Alert
         # Here we gather coverage info on all tests.
-        continue-on-error: true
         run: |
           export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
@@ -128,7 +127,6 @@ jobs:
           LIVE=False poetry run coverage run  --source=./canarytokens --omit=tests/integration/test_custom_binary.py -m pytest tests/integration --runv3
 
       - name: Run integration tests (against V2)
-        continue-on-error: true
         # Here we gather coverage info on integration tests.
         run: |
           export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
