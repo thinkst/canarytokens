@@ -16,7 +16,7 @@ from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import AnyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 from canarytokens.utils import coerce_to_float
@@ -153,16 +153,16 @@ class CanarytokenPage(InputChannel, resource.Resource):
     def __init__(
         self,
         switchboard: Switchboard,
-        backend_scheme: str,
-        backend_hostname: str,
+        frontend_scheme: str,
+        frontend_hostname: str,
         name: Optional[str] = None,
         unique_channel: bool = False,
     ) -> None:
         name = name or self.CHANNEL
         super().__init__(
             switchboard,
-            backend_scheme,
-            backend_hostname,
+            frontend_scheme,
+            frontend_hostname,
             name,
             unique_channel,
         )
@@ -171,7 +171,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
 class ChannelHTTP:
     def __init__(
         self,
-        backend_settings: BackendSettings,
+        frontend_settings: FrontendSettings,
         settings: Settings,
         switchboard: Switchboard,
     ):
@@ -179,8 +179,8 @@ class ChannelHTTP:
 
         self.canarytoken_page = CanarytokenPage(
             switchboard=switchboard,
-            backend_hostname=backend_settings.BACKEND_HOSTNAME,
-            backend_scheme=backend_settings.BACKEND_SCHEME,
+            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
         )
         wrapped = EncodingResourceWrapper(self.canarytoken_page, [GzipEncoderFactory()])
         self.site = server.Site(wrapped)

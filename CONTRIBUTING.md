@@ -8,7 +8,7 @@ Use: `coverage run --source=./canarytokens/{new_token}.py -m pytest tests/units/
 3. Adding `new_token` models. Add `{new_token_type}TokenRequest`, `{new_token_type}TokenResponse` and `{new_token_type}` to `canarytokens/models.py::Class TokenTypes`.
 Add `{new_token_type}TokenHit` and `{new_token_type}TokenHistory`.
 Finally add these as entries to `AnyTokenHit, AnyTokenHistory, AnyTokenRequest, AnyTokenResponse`. This allows `parse_obj_as(AnyTokenXXX, data)` to return hydrated object.
-4. Token creation happens in `./backend/app.py`. Add a `create_response` handler. This handler should hold all Token specific creation logic.
+4. Token creation happens in `./frontend/app.py`. Add a `create_response` handler. This handler should hold all Token specific creation logic.
 example:
 ```
 @create_response.register
@@ -18,7 +18,7 @@ def _(
     ...
     # Save canarydrop with token specific details
 ```
-5. Download happens in `./backend/app.py`. Add a `create_download_response` handler. This handler should hold all the token download specifics. Create a `Download{new_token_type}Request` and `Download{new_token_type}Response`
+5. Download happens in `./frontend/app.py`. Add a `create_download_response` handler. This handler should hold all the token download specifics. Create a `Download{new_token_type}Request` and `Download{new_token_type}Response`
 Example:
 ```
 @create_download_response.register

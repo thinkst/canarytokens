@@ -21,7 +21,7 @@ from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.kubeconfig import KubeConfig, get_kubeconfig
 from canarytokens.models import TokenTypes
 from canarytokens.queries import save_certificate
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 
 
@@ -65,8 +65,8 @@ def test_channel_mtls_ssl_context(setup_db):
     assert isinstance(ssl_context, CertificateOptions)
 
 
-def test_mtls_factory_revieve_lines(
-    backend_settings: BackendSettings, settings: Settings, setup_db
+def test_mtls_factory_receive_lines(
+    frontend_settings: FrontendSettings, settings: Settings, setup_db
 ):
     """
     Test the mTLSFactory and its protocol:mTLS can receive lines and dispatch a `chirp`.
@@ -100,8 +100,8 @@ def test_mtls_factory_revieve_lines(
         bodies=kuc.bodies,
         channel_name="mTLS",
         enricher=None,
-        backend_scheme=backend_settings.BACKEND_SCHEME,
-        backend_hostname=backend_settings.BACKEND_HOSTNAME,
+        frontend_scheme=frontend_settings.FRONTEND_SCHEME,
+        frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
         switchboard=switchboard,
     )
     mtls = mtls_factory.buildProtocol("127.0.0.1")
@@ -134,10 +134,10 @@ def test_mtls_factory_revieve_lines(
         mtls.chirp(trigger=chirp_data)
 
 
-def test_ChannelKubeConfig(backend_settings, settings: Settings, setup_db):
+def test_ChannelKubeConfig(frontend_settings, settings: Settings, setup_db):
     switchboard = Switchboard()
     kube_channel = ChannelKubeConfig(
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=switchboard,
     )

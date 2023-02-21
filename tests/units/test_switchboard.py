@@ -18,8 +18,8 @@ def test_switchboard_input_channel_check_names(settings):
         switchboard=switchboard,
         settings=settings,
         listen_domain="tokens.co.za",
-        backend_scheme="https",
-        backend_hostname="test.com",
+        frontend_scheme="https",
+        frontend_hostname="test.com",
     )
     # switchboard.add_input_channel(name="http")
     assert dns_input_channel.name in switchboard.input_channels
@@ -55,16 +55,16 @@ async def test_switchboard_register_input_channel(settings, alert_webhook_url):
 
     webhook_output_channel = WebhookOutputChannel(
         switchboard=switchboard,
-        backend_hostname="test.com",
-        backend_scheme="https",
+        frontend_hostname="test.com",
+        frontend_scheme="https",
     )
     switchboard.add_input_channel(
         name="tester",
         channel=InputChannel(
             switchboard=switchboard,
             name="tester",
-            backend_hostname="",
-            backend_scheme="",
+            frontend_hostname="",
+            frontend_scheme="",
         ),
     )
     canarytoken = Canarytoken()

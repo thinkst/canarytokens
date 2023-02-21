@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     PUBLIC_IP: str
     NXDOMAINS: List[str]
     DOMAINS: List[str]
-    BACKEND_SETTINGS_PATH: str
+    FRONTEND_SETTINGS_PATH: str
     USING_NGINX: bool = False
     TEMPLATES_PATH: str = "../templates"
 
@@ -55,12 +55,12 @@ class Settings(BaseSettings):
         env_prefix = "CANARY_"
 
 
-class BackendSettings(BaseSettings):
+class FrontendSettings(BaseSettings):
 
     API_APP_TITLE: str = "Canarytokens"
     API_VERSION_STR: str = "v1"
-    BACKEND_HOSTNAME: str
-    BACKEND_SCHEME: str
+    FRONTEND_HOSTNAME: str
+    FRONTEND_SCHEME: str
     SWITCHBOARD_SETTINGS_PATH: str
 
     SENTRY_DSN: HttpUrl
@@ -85,6 +85,6 @@ class BackendSettings(BaseSettings):
 
     class Config:
         allow_mutation = False
-        env_file = "backend.env"
+        env_file = "frontend.env"
         env_file_encoding = "utf-8"
         env_prefix = "CANARY_"

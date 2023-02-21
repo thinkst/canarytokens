@@ -1,7 +1,7 @@
 # Design: An API same as before for testing.This could remain separate
 # or get pulled into the v3 frontend.
 # RFC - V3
-# Keeping a backend separate has a few advantages:
+# Keeping a frontend separate has a few advantages:
 #               1) Offer api based token creation.
 #               2) deferred porting frontend and token creation at the same time.
 #
@@ -132,16 +132,16 @@ from canarytokens.queries import (
     validate_webhook,
 )
 from canarytokens.redismanager import DB
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.tokens import Canarytoken
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.ziplib import make_canary_zip
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
-backend_settings = BackendSettings(_env_file=dir_path / "backend.env")
+frontend_settings = FrontendSettings(_env_file=dir_path / "frontend.env")
 switchboard_settings = Settings(
-    _env_file=dir_path / backend_settings.SWITCHBOARD_SETTINGS_PATH
+    _env_file=dir_path / frontend_settings.SWITCHBOARD_SETTINGS_PATH
 )
 if switchboard_settings.USING_NGINX:
     canary_http_channel = f"http://{switchboard_settings.DOMAINS[0]}"
@@ -149,8 +149,8 @@ else:
     canary_http_channel = f"http://{switchboard_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
 
 sentry_sdk.init(
-    dsn=backend_settings.SENTRY_DSN,
-    environment=backend_settings.SENTRY_ENVIRONMENT,
+    dsn=frontend_settings.SENTRY_DSN,
+    environment=frontend_settings.SENTRY_ENVIRONMENT,
     traces_sample_rate=0.2,
     integrations=[
         RedisIntegration(),
@@ -173,18 +173,18 @@ tags_metadata = [
 
 
 app = FastAPI(
-    title=backend_settings.API_APP_TITLE,
+    title=frontend_settings.API_APP_TITLE,
     version=canarytokens.__version__,
     openapi_tags=tags_metadata,
 )
 app.mount(
-    backend_settings.STATIC_FILES_APPLICATION_SUB_PATH,
-    StaticFiles(directory=backend_settings.STATIC_FILES_PATH),
-    name=backend_settings.STATIC_FILES_APPLICATION_INTERNAL_NAME,
+    frontend_settings.STATIC_FILES_APPLICATION_SUB_PATH,
+    StaticFiles(directory=frontend_settings.STATIC_FILES_PATH),
+    name=frontend_settings.STATIC_FILES_APPLICATION_INTERNAL_NAME,
 )
-templates = Jinja2Templates(directory=backend_settings.TEMPLATES_PATH)
+templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
-if backend_settings.BACKEND_HOSTNAME != "127.0.0.1":
+if frontend_settings.FRONTEND_HOSTNAME != "127.0.0.1":
     # Add sentry when running on a domain.
     app.add_middleware(SentryAsgiMiddleware)
 
@@ -263,7 +263,7 @@ def startup_event():
     remove_canary_domain()
 
     add_canary_domain(domain=switchboard_settings.LISTEN_DOMAIN)
-    add_canary_google_api_key(backend_settings.GOOGLE_API_KEY)
+    add_canary_google_api_key(frontend_settings.GOOGLE_API_KEY)
     add_canary_nxdomain(domain=switchboard_settings.NXDOMAINS[0])
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
@@ -558,7 +558,7 @@ def _(
         auth=download_request_details.auth,
         content=make_canary_msword(
             canarydrop.token_url,
-            template=Path(backend_settings.TEMPLATES_PATH) / "template.docx",
+            template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
         ),
         filename=f"{canarydrop.canarytoken.value()}.docx",
     )
@@ -587,7 +587,7 @@ def _(
         auth=download_request_details.auth,
         content=make_canary_msexcel(
             canarydrop.token_url,
-            template=Path(backend_settings.TEMPLATES_PATH) / "template.xlsx",
+            template=Path(frontend_settings.TEMPLATES_PATH) / "template.xlsx",
         ),
         filename=f"{canarydrop.canarytoken.value()}.xlsx",
     )
@@ -601,7 +601,7 @@ def _(download_request_details: DownloadPDFRequest, canarydrop: Canarydrop) -> R
         auth=download_request_details.auth,
         content=make_canary_pdf(
             hostname=canarydrop.get_hostname(nxdomain=True).encode(),
-            template=Path(backend_settings.TEMPLATES_PATH) / "template.pdf",
+            template=Path(frontend_settings.TEMPLATES_PATH) / "template.pdf",
         ),
         filename=f"{canarydrop.canarytoken.value()}.pdf",
     )
@@ -637,7 +637,7 @@ def _(
                 port=switchboard_settings.CHANNEL_MYSQL_PORT,
                 encoded=download_request_details.encoded,
             ),
-            template=Path(backend_settings.TEMPLATES_PATH) / "mysql_tables.zip",
+            template=Path(frontend_settings.TEMPLATES_PATH) / "mysql_tables.zip",
         ),
         filename=f"{canarydrop.canarytoken.value()}_mysql_dump.sql.gz",
     )
@@ -1009,11 +1009,11 @@ def _(
             status_code=400, detail="Uploaded authenticode file must be an exe or dll"
         )
 
-    if len(filebody) > backend_settings.MAX_EXE_UPLOAD_SIZE:
+    if len(filebody) > frontend_settings.MAX_EXE_UPLOAD_SIZE:
         raise HTTPException(
             status_code=400,
             detail="File too large. File size must be < {size} MB. {size_given} MB given.".format(
-                size=backend_settings.MAX_EXE_UPLOAD_SIZE / (1024 * 1024),
+                size=frontend_settings.MAX_EXE_UPLOAD_SIZE / (1024 * 1024),
                 size_given=len(filebody) / (1024 * 1024),
             ),
         )
@@ -1061,7 +1061,7 @@ def _(
         CustomImageTokenResponse: Custom image response.
     """
     # ensure there is an upload folder
-    if not backend_settings.WEB_IMAGE_UPLOAD_PATH:
+    if not frontend_settings.WEB_IMAGE_UPLOAD_PATH:
         raise HTTPException(status_code=400, detail="Image upload not supported")
 
     # extract uploaded file contents
@@ -1076,8 +1076,8 @@ def _(
     # extract file bytes and check file size
     token_request_details.web_image.file.seek(0)
     filebody = token_request_details.web_image.file.read()
-    if len(filebody) > backend_settings.MAX_WEB_IMAGE_UPLOAD_SIZE:
-        max_size = str(backend_settings.MAX_WEB_IMAGE_UPLOAD_SIZE / (1024 * 1024))
+    if len(filebody) > frontend_settings.MAX_WEB_IMAGE_UPLOAD_SIZE:
+        max_size = str(frontend_settings.MAX_WEB_IMAGE_UPLOAD_SIZE / (1024 * 1024))
         raise HTTPException(
             status_code=400,
             detail=f"File too large. File size must be < {max_size} MB.",
@@ -1086,7 +1086,7 @@ def _(
     random_name = hashlib.md5(os.urandom(32)).hexdigest()
     filepath = "{pathjoin}.{extension}".format(
         pathjoin=os.path.join(
-            backend_settings.WEB_IMAGE_UPLOAD_PATH, random_name[:2], random_name[2:]
+            frontend_settings.WEB_IMAGE_UPLOAD_PATH, random_name[:2], random_name[2:]
         ),
         extension=filename.lower()[-3:],
     )
@@ -1227,10 +1227,10 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
         token_url=HttpUrl(
             canarydrop.get_url(
                 [
-                    f"{backend_settings.BACKEND_SCHEME}://{switchboard_settings.DOMAINS[0]}"
+                    f"{frontend_settings.FRONTEND_SCHEME}://{switchboard_settings.DOMAINS[0]}"
                 ]
             ),
-            scheme=backend_settings.BACKEND_SCHEME,
+            scheme=frontend_settings.FRONTEND_SCHEME,
         ),
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),

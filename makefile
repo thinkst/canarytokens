@@ -4,9 +4,9 @@ SHELL=/bin/bash
 switchboard:
 	cd switchboard; poetry run twistd -noy switchboard.tac --pidfile=switchboard.pid
 
-.PHONY: backend
-backend:
-	cd backend; poetry run uvicorn app:app --reload
+.PHONY: frontend
+frontend:
+	cd frontend; poetry run uvicorn app:app --reload
 
 .PHONY: testv3
 testv3:

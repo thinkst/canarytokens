@@ -15,7 +15,7 @@ from canarytokens.models import (
     TokenAlertDetails,
     TokenTypes,
 )
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -83,7 +83,7 @@ def test_log4shell_rendered_html(settings: Settings):
     assert "SRV01" in email_template
 
 
-def test_sendgrid_send(settings: Settings, backend_settings: BackendSettings):
+def test_sendgrid_send(settings: Settings, frontend_settings: FrontendSettings):
     sb = Switchboard()
     details = TokenAlertDetails(
         channel="DNS",
@@ -97,7 +97,7 @@ def test_sendgrid_send(settings: Settings, backend_settings: BackendSettings):
     )
 
     email_output_channel = EmailOutputChannel(
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
         settings=settings,
         switchboard=sb,
     )
@@ -117,10 +117,14 @@ def test_sendgrid_send(settings: Settings, backend_settings: BackendSettings):
     assert len(message_id) > 0
 
 
-def test_do_send_alert(backend_settings: BackendSettings, settings: Settings, setup_db):
+def test_do_send_alert(
+    frontend_settings: FrontendSettings, settings: Settings, setup_db
+):
 
     email_channel = EmailOutputChannel(
-        backend_settings=backend_settings, settings=settings, switchboard=Switchboard()
+        frontend_settings=frontend_settings,
+        settings=settings,
+        switchboard=Switchboard(),
     )
     canarydrop = Canarydrop(
         canarytoken=Canarytoken(),
@@ -144,8 +148,8 @@ def test_do_send_alert(backend_settings: BackendSettings, settings: Settings, se
         token_hit=None,
         input_channel=InputChannel(
             switchboard=Switchboard(),
-            backend_hostname="127.0.0.1",
-            backend_scheme="http",
+            frontend_hostname="127.0.0.1",
+            frontend_scheme="http",
             name="DNS",
         ),
     )
@@ -156,7 +160,7 @@ def test_do_send_alert(backend_settings: BackendSettings, settings: Settings, se
 
 
 def test_do_send_alert_retries(
-    backend_settings: BackendSettings, settings: Settings, setup_db
+    frontend_settings: FrontendSettings, settings: Settings, setup_db
 ):
     """
     Test that email alert failures are retried and that the details and
@@ -166,7 +170,9 @@ def test_do_send_alert_retries(
     # Ensure we not hitting the sandbox which accepts all.
     settings.__dict__["SENDGRID_SANDBOX_MODE"] = False
     email_channel = EmailOutputChannel(
-        backend_settings=backend_settings, settings=settings, switchboard=Switchboard()
+        frontend_settings=frontend_settings,
+        settings=settings,
+        switchboard=Switchboard(),
     )
     recipient = EmailStr("benjamin+test@thinkst.com")
     canarydrop = Canarydrop(
@@ -192,8 +198,8 @@ def test_do_send_alert_retries(
             token_hit=None,
             input_channel=InputChannel(
                 switchboard=Switchboard(),
-                backend_hostname="127.0.0.1",
-                backend_scheme="http",
+                frontend_hostname="127.0.0.1",
+                frontend_scheme="http",
                 name="DNS",
             ),
         )

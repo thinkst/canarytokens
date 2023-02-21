@@ -3,8 +3,8 @@ name: TestSuite
 on:
   push:
     branches:
-      - "T4627_py3_main-disable"
-      - "T5116_fix_mtls_config"
+      - "T4627_py3_main"
+      - "T5234_v3_deploy_workflow"
 
 jobs:
   tests:
@@ -120,7 +120,7 @@ jobs:
           export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq '.Parameter.Value')
           redis-cli flushall
           make switchboard &
-          make backend &
+          make frontend &
           sleep 10
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`

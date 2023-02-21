@@ -83,7 +83,7 @@ jobs:
 
           cd /home/ubuntu/canarytokens-docker
           sed "s/thinkst\/canarytokens:dev_v3/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3.yml.tpl > docker-compose-v3.yml
-          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" backend-v3.env
+          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend-v3.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
           sudo docker-compose -f docker-compose-v3.yml pull
           sudo docker-compose -f docker-compose-v3.yml down

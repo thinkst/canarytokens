@@ -82,7 +82,7 @@ def test_mysql_handleQuery(setup_db):
     assert ret_hit.dict() == history.hits[0].dict()
 
 
-def test_mysql_channel(backend_settings, settings):
+def test_mysql_channel(frontend_settings, settings):
     """
     Creates a MySQL Channel and checks that it returns the expected response when we connect to it.
 
@@ -110,8 +110,8 @@ def test_mysql_channel(backend_settings, settings):
     canarytokens_mysql = ChannelMySQL(
         port=settings.CHANNEL_MYSQL_PORT,
         switchboard=switchboard,
-        backend_scheme=backend_settings.BACKEND_SCHEME,
-        backend_hostname=backend_settings.BACKEND_HOSTNAME,
+        frontend_scheme=frontend_settings.FRONTEND_SCHEME,
+        frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
     )
     mysql_factory = canarytokens_mysql.service.args[1]
     protocol: CanaryMySQLProtocol = mysql_factory.buildProtocol(addr="1.0.0.1")
