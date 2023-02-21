@@ -182,7 +182,7 @@ class EmailOutputChannel(OutputChannel):
 
             def handleResponse(response):
                 if not response.code in range(200, 300):
-                    log.error('A mailgun error occurred for {}'.format(canarydrop.canarytoken.value()))
+                    log.error('MailGun HTTP Error code {} sending mail for {}'.format(response.code, canarydrop.canarytoken.value()))
                     return
 
                 log.info('Sent alert to {recipient} for token {token}'.format(recipient=canarydrop['alert_email_recipient'], token=canarydrop.canarytoken.value()))
