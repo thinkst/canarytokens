@@ -162,7 +162,7 @@ class EmailOutputChannel(OutputChannel):
             if settings.DEBUG:
                 pprint.pprint(data)
             else:
-                result = requests.post(url, auth=auth, data=data)
+                result = requests.post(url, auth=auth, data=data, timeout=5)
                 #Raise an error if the returned status is 4xx or 5xx
                 result.raise_for_status()
 
