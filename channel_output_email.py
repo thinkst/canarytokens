@@ -16,13 +16,6 @@ from sendgrid.helpers.mail import *
 from email.MIMEText import MIMEText
 import smtplib
 
-import twisted
-import StringIO
-from twisted.web.client import Agent, FileBodyProducer
-from twisted.web.http_headers import Headers
-import json
-from base64 import b64encode
-
 try:
     # Python 3
     import urllib.request as urllib
@@ -152,44 +145,34 @@ class EmailOutputChannel(OutputChannel):
             log.error("No email settings found")
 
     def mailgun_send(self, msg=None, canarydrop=None):
-        base_url = 'https://api.mailgun.net'
-        if settings.MAILGUN_BASE_URL:
-            base_url = settings.MAILGUN_BASE_URL
-        url = '{}/v3/{}/messages'.format(base_url, settings.MAILGUN_DOMAIN_NAME)
-        auth = ('api', settings.MAILGUN_API_KEY)
-        data = {
-            'from': '{name} <{address}>'.format(name=msg['from_display'],address=msg['from_address']),
-            'to': canarydrop['alert_email_recipient'],
-            'subject': msg['subject'],
-            'text':  msg['body'],
-            'html': self.format_report_html()
-        }
+        try:
+            base_url = 'https://api.mailgun.net'
+            if settings.MAILGUN_BASE_URL:
+                base_url = settings.MAILGUN_BASE_URL
+            url = '{}/v3/{}/messages'.format(base_url, settings.MAILGUN_DOMAIN_NAME)
+            auth = ('api', settings.MAILGUN_API_KEY)
+            data = {
+                'from': '{name} <{address}>'.format(name=msg['from_display'],address=msg['from_address']),
+                'to': canarydrop['alert_email_recipient'],
+                'subject': msg['subject'],
+                'text':  msg['body'],
+                'html': self.format_report_html()
+            }
 
-        if settings.DEBUG:
-            pprint.pprint(data)
-        else:
-            authorization = b64encode(":".join(auth))
-            agent = Agent(twisted.internet.reactor)
-            body = json.dumps(data).encode("utf-8")
-            deferred = agent.request(
-                'POST',
-                url,
-                Headers({
-                    'Content-Type': ['application/json'],
-                    'authorization': 'Basic ' + authorization,
-                }),
-                FileBodyProducer(StringIO.StringIO(body)))
+            if settings.DEBUG:
+                pprint.pprint(data)
+            else:
+                result = requests.post(url, auth=auth, data=data)
+                #Raise an error if the returned status is 4xx or 5xx
+                result.raise_for_status()
 
-            def handleResponse(response):
-                if not response.code in range(200, 300):
-                    log.error('A mailgun error occurred for {}'.format(canarydrop.canarytoken.value()))
-                log.info('Sent alert to {recipient} for token {token}'.format(recipient=canarydrop['alert_email_recipient'], token=canarydrop.canarytoken.value()))
+            log.info('Sent alert to {recipient} for token {token}'\
+                        .format(recipient=canarydrop['alert_email_recipient'],
+                                token=canarydrop.canarytoken.value()))
 
-            def handleError(failure):
-                log.error('A mailgun error occurred for {}'.format(canarydrop.canarytoken.value()))
+        except requests.exceptions.HTTPError as e:
+            log.error('A mailgun error occurred: %s - %s' % (e.__class__, e))
 
-            deferred.addCallback(handleResponse)
-            deferred.addErrback(handleError)
 
 
     def mandrill_send(self, msg=None, canarydrop=None):
