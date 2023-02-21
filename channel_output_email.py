@@ -176,7 +176,7 @@ class EmailOutputChannel(OutputChannel):
                 url,
                 Headers({
                     'Content-Type': ['application/json'],
-                    'authorization': 'Basic ' + authorization,
+                    'Authorization': ['Basic ' + authorization],
                 }),
                 FileBodyProducer(StringIO.StringIO(body)))
 
