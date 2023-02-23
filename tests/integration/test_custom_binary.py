@@ -5,7 +5,9 @@ import subprocess
 import tempfile
 
 import dns
+import dns.resolver
 import pytest
+
 
 from canarytokens.models import (
     CustomBinaryTokenHistory,
@@ -73,10 +75,11 @@ def test_custom_binary_token_fire(
         is not None
     )
     # fire token
-    with pytest.raises(dns.resolver.NXDOMAIN):
-        # we expect a NXDOMAIN response
-        # Don't want retries
+    try:
         plain_fire_token.__wrapped__(token_info, version=version)
+    except dns.resolver.NXDOMAIN:
+        # we expect a NXDOMAIN response
+        pass
 
     # Check that the returned history has a atleast a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)

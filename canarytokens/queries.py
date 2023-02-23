@@ -186,7 +186,7 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
         mapping=canarydrop.serialize(),
     )
 
-    log.info("Saved canarydrop: {canarydrop}", canarydrop=canarydrop.serialize())
+    log.info(f"Saved canarydrop for token: {canarydrop.canarytoken.value()}")
 
     # if the canarydrop is new, save to the timeline
     if DB.get_db().zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) is None:
