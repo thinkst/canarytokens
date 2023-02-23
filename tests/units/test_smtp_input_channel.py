@@ -28,7 +28,7 @@ def test_canary_message(setup_db):
     message["Subject"] = "Twisted is great!"
     message["From"] = "fromtest@test.com"
     message["To"] = ", ".join(["me@test.com", "you@test.com"])
-    with open("tests/data/canary_image.png", mode="rb") as fp:
+    with open("data/canary_image.png", mode="rb") as fp:
         part_image = MIMEImage(fp.read())
 
     link = b"https://some.link/in/email"
@@ -91,7 +91,7 @@ async def test_canary_esmtp(frontend_settings, setup_db):
     message["Subject"] = "Twisted is great!"
     message["From"] = "fromtest@test.com"
     message["To"] = ", ".join(["me@test.com", "you@test.com"])
-    with open("tests/data/canary_image.png", mode="rb") as fp:
+    with open("data/canary_image.png", mode="rb") as fp:
         part_image = MIMEImage(fp.read())
 
     link = "https://some.link/in/email"

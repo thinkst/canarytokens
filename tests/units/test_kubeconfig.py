@@ -109,12 +109,12 @@ def test_mtls_factory_receive_lines(
 
     proto_helpers.StringTransport()
     mtls.makeConnection(proto_helpers.StringTransport())
-    with open("tests/data/kubeconfig_lines.txt", mode="r") as fp:
+    with open("data/kubeconfig_lines.txt", mode="r") as fp:
         lines = fp.readlines()
     for line in lines:
         mtls.lineReceived(line.strip().encode())
     mtls.send_response()
-    with open("tests/data/kubeconfig_chirp.json") as fp:
+    with open("data/kubeconfig_chirp.json") as fp:
         data = json.load(fp=fp)
     # chirp_data = {k:v if isinstance(v, bytes) else v.encode() for k, v in data.items()}
     chirp_data: ChirpData = {

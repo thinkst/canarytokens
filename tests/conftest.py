@@ -259,8 +259,8 @@ def settings_env_vars() -> Generator[None, None, None]:
     with mock.patch.dict(
         os.environ,
         {
-            "CANARY_STATIC_FILES_PATH": "templates/static",
-            "CANARY_TEMPLATES_PATH": "templates",
+            # "CANARY_STATIC_FILES_PATH": "templates/static",
+            # "CANARY_TEMPLATES_PATH": "templates",
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "not_a_key_id",
             "CANARY_TESTING_AWS_SECRET_ACCESS_KEY": "not_a_secret_key",
             "CANARY_TESTING_AWS_REGION": "us-east-2",
@@ -277,8 +277,8 @@ def frontend_settings() -> FrontendSettings:
         FRONTEND_SCHEME="http",
         FRONTEND_HOSTNAME="127.0.0.1",
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https://"),
-        TEMPLATES_PATH="./templates",
-        STATIC_FILES_PATH="./templates/static",
+        TEMPLATES_PATH="../templates",
+        STATIC_FILES_PATH="../templates/static",
         STATIC_FILES_APPLICATION_SUB_PATH="/resources",
         STATIC_FILES_APPLICATION_INTERNAL_NAME="resources",
         GOOGLE_API_KEY="nothing_here",

@@ -104,12 +104,14 @@ jobs:
           export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
           export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
-          poetry run coverage run  --source=./canarytokens --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" -m pytest tests/units/ --runv3
+          export RET_DIR=`pwd`
+          cd tests
+          poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3
 
       - name: Check coverage is over threshold percentage for unit tests
         # Here we check coverage info on all tests
         run: |
-          poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" --fail-under 90
+          poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 90
 
       - name: Run integration tests (against local V3)
         run: |
@@ -118,13 +120,15 @@ jobs:
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
           export CANARY_SENTRY_ENVIRONMENT=ci
           export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq '.Parameter.Value')
+          cd $RET_DIR
           redis-cli flushall
           make switchboard &
           make frontend &
           sleep 10
+          cd tests
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
-          LIVE=False poetry run coverage run  --source=./canarytokens --omit=tests/integration/test_custom_binary.py -m pytest tests/integration --runv3
+          LIVE=False poetry run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration --runv3
 
       - name: Run integration tests (against V2)
         # Here we gather coverage info on integration tests.
@@ -132,7 +136,7 @@ jobs:
           export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
-          LIVE=True poetry run coverage run  --source=./tests/integration --omit=tests/integration/test_custom_binary.py -m pytest tests/integration --runv2
+          LIVE=True poetry run coverage run  --source=integration --omit=integration/test_custom_binary.py -m pytest integration --runv2
 
       - name: Check coverage is over threshold percentage for integration tests
         # Here we check coverage info that all integration tests where indeed run.
@@ -161,4 +165,5 @@ jobs:
       - name: Integration Tests
         run: |
           $env:LIVE = 'True'
-          poetry run coverage run --source=.\tests\integration -m pytest .\tests\integration\test_custom_binary.py  --runv2
+          cd tests
+          poetry run coverage run --source=.\integration -m pytest .\integration\test_custom_binary.py  --runv2

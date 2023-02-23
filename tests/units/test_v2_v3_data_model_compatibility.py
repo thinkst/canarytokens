@@ -46,7 +46,7 @@ allowed_attrs = [
 
 
 @pytest.mark.parametrize(
-    "data_file", [o for o in Path("tests/data/v2_drops").rglob("*.json")]
+    "data_file", [o for o in Path("data/v2_drops").rglob("*.json")]
 )
 def test_triggered_details_vs_list(setup_db_connection_only, data_file):
     """V2 stores `triggered_list` holding all the token hit information.
@@ -79,7 +79,7 @@ def test_triggered_details_vs_list(setup_db_connection_only, data_file):
 
 
 @pytest.mark.parametrize(
-    "data_file", sorted([o for o in Path("tests/data/v2_drops/").rglob("*.json")])
+    "data_file", sorted([o for o in Path("data/v2_drops/").rglob("*.json")])
 )
 def test_loading_drops(setup_db_connection_only, data_file):
     """
@@ -152,7 +152,7 @@ def test_dump_v2_drops(setup_db_connection_only):
     """Easy way to create v2 data files."""
     pytest.skip()
     # counter = Counter()
-    data_path = Path("tests/data/v2_tmp")
+    data_path = Path("data/v2_tmp")
     for key in DB.get_db().scan_iter("canarydrop:*"):
         data = DB.get_db().hgetall(key)
         if not data.get("type", False):

@@ -51,7 +51,7 @@ def test_custom_image_url(  # noqa: C901
     file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(mimetype=file_name[-3:])
 
-    with open("tests/data/{file}".format(file=file_name), "rb") as fp:
+    with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
         # create SpooledTemporaryFile
@@ -220,7 +220,7 @@ def test_custom_image_web_image(
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
     file_mimetype = "image/{mimetype}".format(mimetype=file_name[-3:])
-    with open("tests/data/{file}".format(file=file_name), "rb") as fp:
+    with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file = fp.read()
         # create SpooledTemporaryFile
