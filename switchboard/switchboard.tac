@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import sentry_sdk
@@ -30,11 +29,8 @@ from canarytokens.utils import get_deployed_commit_sha
 # from caa_monkeypatch import monkey_patch_caa_support
 # monkey_patch_caa_support()
 
-dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
-switchboard_settings = Settings(_env_file=dir_path / "switchboard.env")
-frontend_settings = FrontendSettings(
-    _env_file=switchboard_settings.FRONTEND_SETTINGS_PATH
-)
+switchboard_settings = Settings()
+frontend_settings = FrontendSettings()
 
 sentry_sdk.utils.MAX_STRING_LENGTH = 8192
 sentry_sdk.init(

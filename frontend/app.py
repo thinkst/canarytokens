@@ -137,12 +137,8 @@ from canarytokens.tokens import Canarytoken
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.ziplib import make_canary_zip
 
-dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
-
-frontend_settings = FrontendSettings(_env_file=dir_path / "frontend.env")
-switchboard_settings = Settings(
-    _env_file=dir_path / frontend_settings.SWITCHBOARD_SETTINGS_PATH
-)
+frontend_settings = FrontendSettings()
+switchboard_settings = Settings()
 if switchboard_settings.USING_NGINX:
     canary_http_channel = f"http://{switchboard_settings.DOMAINS[0]}"
 else:

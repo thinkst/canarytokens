@@ -150,7 +150,6 @@ def webhook_receiver() -> Generator[str, None, None]:
         """
         # TODO: loading settings here is likely no needed - should be not needed.
         switchboard_settings = Settings(
-            FRONTEND_SETTINGS_PATH="../frontend/frontend.env",
             LISTEN_DOMAIN="127.0.0.1",
             NXDOMAINS=["nxdomain.127.0.0.1"],
             PUBLIC_IP="10.0.1.3",
@@ -214,7 +213,6 @@ def runv3(request: pytest.FixtureRequest) -> bool:
 @pytest.fixture(scope="session")
 def settings() -> Settings:
     return Settings(
-        FRONTEND_SETTINGS_PATH="../frontend/frontend.env",
         LISTEN_DOMAIN="127.0.0.1",
         NXDOMAINS=["nx.127.0.0.1"],
         PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
@@ -235,7 +233,6 @@ def fake_settings_for_aws_keys():
     details.
     """
     return Settings(
-        FRONTEND_SETTINGS_PATH="../frontend/frontend.env",
         LISTEN_DOMAIN="127.0.0.1",
         NXDOMAINS=["noexample.com"],
         PUBLIC_IP="10.0.1.3",
@@ -277,7 +274,6 @@ def settings_env_vars() -> Generator[None, None, None]:
 @pytest.fixture(scope="session")
 def frontend_settings() -> FrontendSettings:
     return FrontendSettings(
-        SWITCHBOARD_SETTINGS_PATH="./switchboard/switchboard.env",
         FRONTEND_SCHEME="http",
         FRONTEND_HOSTNAME="127.0.0.1",
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https://"),
