@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     CHANNEL_DNS_PORT: Port = Port(5354)
     CHANNEL_HTTP_PORT: Port = Port(8083)
     CHANNEL_SMTP_PORT: Port = Port(2500)
-    CHANNEL_MYSQL_PORT: Port = Port(6033)
+    CHANNEL_MYSQL_PORT: Port = Port(3306)
     CHANNEL_MTLS_KUBECONFIG_PORT: Port = Port(6443)
     CHANNEL_WIREGUARD_PORT: Port = Port(51820)
     # TODO: Remove this default here and added it where it's used. This is too opinionated.

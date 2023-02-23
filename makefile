@@ -10,8 +10,8 @@ backend:
 
 .PHONY: testv3
 testv3:
-	TEST_HOST=`docker network inspect canarytokensv3_devcontainer_default | jq '.[0].Containers | to_entries[].value | select(.Name == "canarytokensv3_devcontainer-app-1").IPv4Address' | sed -E 's/"//g; s/\/[0-9]+//'` \
-	poetry run coverage run --source=./canarytokens -m pytest tests/ --runv3
+	TEST_HOST=`docker network inspect canarytokens_devcontainer_default | jq '.[0].Containers | to_entries[].value | select(.Name == "canarytokens_devcontainer-app-1").IPv4Address' | sed -E 's/"//g; s/\/[0-9]+//'` \
+	poetry run coverage run --source=./canarytokens -m pytest tests/ --runv3 -v
 	poetry run coverage report -m
 
 .PHONY: testv3live

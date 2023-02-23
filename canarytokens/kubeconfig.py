@@ -42,16 +42,25 @@ ForbiddenResponseBody = {
 }
 
 ClientCA = "kubeconfig_client_ca"
-ServerCA = "kubeconfig_server"
+ServerCA = "kubeconfig_server_ca"
+ServerCert = "kubeconfig_server_cert"
 log = Logger()
 
 
 class KubeConfig:
-    def __init__(self, ca_cert_path, server_endpoint_ip, server_endpoint_port):
-        self.ca_cert_path = ca_cert_path
+    def __init__(
+        self,
+        client_ca_redis_key,
+        server_ca_redis_key,
+        server_endpoint_ip,
+        server_endpoint_port,
+    ):
+        self.client_ca_redis_key = client_ca_redis_key
+        self.server_ca_redis_key = server_ca_redis_key
         self.server_endpoint_url = (
             f"https://{server_endpoint_ip}:{server_endpoint_port}"
         )
+        self.server_endpoint_ip = server_endpoint_ip
         self.bodies = {
             "unauthorized": copy.deepcopy(UnauthorizedResponseBody),
             "forbidden": copy.deepcopy(ForbiddenResponseBody),
@@ -93,17 +102,18 @@ class KubeConfig:
         Returns:
             Tuple[str, str]: Returns the token and associated kubeconfig. (token, kubeconfig)
         """
-        _ca_data = get_certificate(self.ca_cert_path)
-
-        ca_data = _ca_data.get("c")
 
         # username can be randomly generated here
         username = self._get_random_username()
         cluster_name = "k8s-prod-cluster"
 
         client_auth = mTLS.generate_new_certificate(
-            ca_cert_path=self.ca_cert_path, username=username
+            ca_redis_key=self.client_ca_redis_key,
+            username=username,
+            ip=self.server_endpoint_ip,
         )
+        server_ca = get_certificate(self.server_ca_redis_key)
+        ca_data = server_ca.get("c")
 
         # Using an OrderedDict here to ensure the output kubeconfig matches the ideal kubeconfig structure
         kc = OrderedDict()
@@ -162,7 +172,8 @@ def get_kubeconfig():
         log.error("Kubeconfig endpoint is not set.")
         raise LookupError("Kubeconfig endpoint lookup failed.")
     return KubeConfig(
-        ca_cert_path=ClientCA,
+        client_ca_redis_key=ClientCA,
+        server_ca_redis_key=ServerCA,
         server_endpoint_ip=server_endpoint_ip,
         server_endpoint_port=server_endpoint_port,
     ).get_kubeconfig()

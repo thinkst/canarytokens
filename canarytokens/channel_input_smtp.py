@@ -43,9 +43,8 @@ class CanaryMessage:
     def lineReceived(self, line: bytes):
         """
         Reads each line of the SMTP message and parses it into,
-        lines, attachents, headers etc.
+        lines, attachments, headers etc.
         """
-        log.info(f"lineReceived: {line=}")
         if line == b"" and not self.headers_finished:
             self.headers_finished = True
 
