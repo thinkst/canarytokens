@@ -51,7 +51,7 @@ if strtobool(os.getenv("LIVE", "False")):
         canarytokens_sld="canarytokens.org",
         canarytokens_domain="canarytokens.org",
         canarytokens_dns_port=53,
-        scheme="http",
+        scheme="https",
         canarytokens_http_port=-1,
     )
 else:
@@ -361,7 +361,6 @@ def set_token_settings(setting: SettingsRequest, version: Union[V2, V3]):
     retry_when_raised=(requests.exceptions.HTTPError, CanaryTokenCreationError)
 )
 def create_token(token_request: TokenRequest, version: Union[V2, V3]):
-
     generate_url = f"{version.server_url}/generate"
     kwargs = {}
     if isinstance(version, V2):

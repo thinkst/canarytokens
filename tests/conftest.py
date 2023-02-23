@@ -1,4 +1,5 @@
 import contextlib
+from ipaddress import IPv4Address
 import logging
 import os
 import threading
@@ -172,11 +173,11 @@ def webhook_receiver() -> Generator[str, None, None]:
 
     @app.get("/alert/mock_aws_key_broken/CreateUserAPITokens")
     def serve_aws_debug_token_broken(request: Request) -> JSONResponse:
-        return JSONResponse(status_code=400)
+        return JSONResponse(content={}, status_code=400)
 
     @app.get("/broken")
     def broken(request: Request) -> JSONResponse:
-        return JSONResponse(status_code=404)
+        return JSONResponse(content={}, status_code=404)
 
     config = uvicorn.Config(
         app,
@@ -216,7 +217,7 @@ def settings() -> Settings:
         BACKEND_SETTINGS_PATH="../backend/backend.env",
         LISTEN_DOMAIN="127.0.0.1",
         NXDOMAINS=["nx.127.0.0.1"],
-        PUBLIC_IP="10.0.1.3",
+        PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
         DOMAINS=["127.0.0.1"],
         CHANNEL_HTTP_PORT=Port(8084),
         CHANNEL_SMTP_PORT=Port(25)
@@ -295,20 +296,38 @@ def setup_db_connection_only(settings: Settings):
 
 
 @pytest.fixture(scope="function", autouse=False)
-def setup_db(settings: Settings):
+def setup_db(settings: Settings):  # noqa: C901
     redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     DB.set_db_details(hostname=redis_hostname, port=6379)
     # Kubeconfig token needs a client cert in redis.
     # DESIGN: This is a red flag! Will need a refactor at some point.
+    # Get or generate the client CA
     try:
-        ca = get_certificate(kubeconfig.ClientCA)
+        client_ca = get_certificate(kubeconfig.ClientCA)
     except LookupError:
-        ca = mTLS.generate_new_certificate(
-            is_ca_generation_request=True,
-            ca_cert_path=kubeconfig.ClientCA,
+        client_ca = mTLS.generate_new_ca(
             username="kubernetes-ca",
         )
-        save_certificate(kubeconfig.ClientCA, ca)
+        save_certificate(kubeconfig.ClientCA, client_ca)
+    # Get or generate the server CA
+    try:
+        server_ca = get_certificate(kubeconfig.ServerCA)
+    except LookupError:
+        server_ca = mTLS.generate_new_ca(
+            username="kubernetes-ca",
+        )
+        save_certificate(kubeconfig.ServerCA, server_ca)
+    # Get or generate the server cert, issued by server CA
+    try:
+        server_cert = get_certificate(kubeconfig.ServerCert)
+    except LookupError:
+        server_cert = mTLS.generate_new_certificate(
+            ca_redis_key=kubeconfig.ServerCA,
+            username="kubernetes-ca",
+            ip=IPv4Address(settings.PUBLIC_IP),
+            is_server_cert=True,
+        )
+        save_certificate(kubeconfig.ServerCert, server_cert)
     db = DB.get_db()
     prefixes_to_persist = [KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP]
     for key in db.scan_iter():
