@@ -52,7 +52,7 @@ def lambda_handler(event, context):
                 print('No record for key')
                 continue
 
-            # print("Token info retreived from DynamoDB: server={}, token={}, lastalerted={}".format(server, token, last_alerted_timestamp))
+            # print("Token info retrieved from DynamoDB: server={}, token={}, lastalerted={}".format(server, token, last_alerted_timestamp))
             if last_used_timestamp > last_alerted_timestamp:
                 url = "http://{}/{}".format(server, token)
                 data = {"safety_net": True, "last_used": row['access_key_1_last_used_date']}

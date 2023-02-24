@@ -87,8 +87,8 @@ class EmailOutputChannel(OutputChannel):
         if 'tokentype' in self.data:
             vars['TokenType'] = self.data['tokentype']
 
-        if 'referer' in self.data:
-            vars['Referer'] = self.data['referer']
+        if 'referrer' in self.data:
+            vars['Referrer'] = self.data['referrer']
 
         if 'location' in self.data:
             try:

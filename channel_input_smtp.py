@@ -26,10 +26,10 @@ class CanaryMessageDelivery:
     def __init__(self):
         print 'Created CanaryMessageDelivery()'
 
-    def receivedHeader(self, helo, origin, recipients):
+    def receivedHeader(self, hello, origin, recipients):
         return "Received: CanaryMessageDelivery"
 
-    def validateFrom(self, helo, origin):
+    def validateFrom(self, hello, origin):
         return origin
 
     def validateTo(self, user):
@@ -107,7 +107,7 @@ class CanaryESMTP(smtp.ESMTP):
         smtp.ESMTP.__init__(self, **kwargs)
         self.mail = {'recipients': [],
                      'sender': '',
-                     'helo': {},
+                     'hello': {},
                      'headers': [],
                      'links': [],
                      'attachments': []}
@@ -119,15 +119,15 @@ class CanaryESMTP(smtp.ESMTP):
         except KeyError:
             return smtp.ESMTP.greeting(self)
 
-    def receivedHeader(self, helo, origin, recipients):
-        self.mail['helo']['client_name'] = helo[0]
-        self.mail['helo']['client_ip'] = helo[1]
+    def receivedHeader(self, hello, origin, recipients):
+        self.mail['hello']['client_name'] = hello[0]
+        self.mail['hello']['client_ip'] = hello[1]
         self.mail['sender'] = str(origin)
         for r in recipients:
             address = r.dest.addrstr
             self.mail['recipients'].append(address)
 
-    def validateFrom(self, helo, origin):
+    def validateFrom(self, hello, origin):
         return origin
 
     def validateTo(self, user):
@@ -186,8 +186,8 @@ Headers     :
 {headers}""".format(
                 recipients = ', '.join(mail['recipients']),
                 sender = mail['sender'],
-                client_ip= mail['helo']['client_ip'],
-                client_name = mail['helo']['client_name'],
+                client_ip= mail['hello']['client_ip'],
+                client_name = mail['hello']['client_name'],
                 links = ', '.join(mail['links']),
                 attachments = '\n\n'.join(mail['attachments']),
                 headers = '\n'.join(mail['headers']))

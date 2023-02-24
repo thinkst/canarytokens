@@ -21,7 +21,7 @@ def authenticode_sign_binary(token, inputfile, outputfile):
         f.write(newdata)
         f.close()
 
-        os.system('echo "00"> {tmpdir}/ser'.format(tmpdir=tmpdir))
+        os.system('echo "00"> {tmpdir}/set'.format(tmpdir=tmpdir))
         os.system('touch {tmpdir}/db  {tmpdir}/db.attr'.format(tmpdir=tmpdir))
         os.system('openssl req -x509 -new -keyout {tmpdir}/rootCA.key -out {tmpdir}/rootCA.crt -config {tmpdir}/root-ca.conf -days 365 -nodes'.format(tmpdir=tmpdir))
         os.system('openssl req -new -keyout {tmpdir}/cert.key -out {tmpdir}/cert.csr -nodes -subj "/C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Windows"'.format(tmpdir=tmpdir))

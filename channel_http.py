@@ -58,7 +58,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
             src_ip    = request.getHeader('x-forwarded-for')
             #location and refere are for cloned sites
             location  = request.args.get('l', [None])[0]
-            referer   = request.args.get('r', [None])[0]
+            referrer   = request.args.get('r', [None])[0]
             flatten_singletons = lambda l: l[0] if len(l) == 1 else l
             request_headers = {
                 k.decode(): flatten_singletons([s.decode() for s in v])
@@ -70,7 +70,7 @@ class CanarytokenPage(resource.Resource, InputChannel):
             else:
                 self.dispatch(canarydrop=canarydrop, src_ip=src_ip,
                             useragent=useragent, location=location,
-                            referer=referer, request_headers=request_headers,
+                            referrer=referrer, request_headers=request_headers,
                             request_args=request_args)
 
             if 'redirect_url' in canarydrop._drop and canarydrop._drop['redirect_url']:
@@ -245,8 +245,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
             additional_report += '\nUser-agent: {useragent}'.format(useragent=kwargs['useragent'])
         if kwargs.has_key('location') and kwargs['location']:
             additional_report += '\nCloned site is at: {location}'.format(location=kwargs['location'])
-        if kwargs.has_key('referer') and kwargs['referer']:
-            additional_report += '\nReferring site: {referer}'.format(referer=kwargs['referer'])
+        if kwargs.has_key('referrer') and kwargs['referrer']:
+            additional_report += '\nReferring site: {referrer}'.format(referrer=kwargs['referrer'])
         if kwargs.has_key('request_headers') and kwargs['request_headers']:
             additional_report += '\nAdditional header info: {0}'.format(kwargs['request_headers'])
         return additional_report

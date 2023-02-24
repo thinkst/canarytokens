@@ -107,10 +107,10 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['User-Agent'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Referer'] %}
+                      {% if BasicDetails['Referrer'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Referer'] | e}}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referrer</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Referrer'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['Location'] %}

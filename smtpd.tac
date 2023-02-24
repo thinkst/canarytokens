@@ -15,10 +15,10 @@ class CanaryMessageDelivery:
     def __init__(self):
         print 'Created CanaryMessageDelivery()'
 
-    def receivedHeader(self, helo, origin, recipients):
+    def receivedHeader(self, hello, origin, recipients):
         return "Received: CanaryMessageDelivery"
 
-    def validateFrom(self, helo, origin):
+    def validateFrom(self, hello, origin):
         return origin
 
     def validateTo(self, user):
@@ -95,10 +95,10 @@ class CanaryESMTP(smtp.ESMTP):
         except KeyError:
             return smtp.ESMTP.greeting(self)
 
-    def receivedHeader(self, helo, origin, recipients):
+    def receivedHeader(self, hello, origin, recipients):
         return "Received: CanaryMessageDelivery"
 
-    def validateFrom(self, helo, origin):
+    def validateFrom(self, hello, origin):
         return origin
 
     def validateTo(self, user):

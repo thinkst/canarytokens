@@ -568,7 +568,7 @@ def is_webhook_valid(url):
                    "additional_data": {
                         "src_ip": "1.1.1.1",
                         "useragent": "Mozilla/5.0...",
-                        "referer": "http://example.com/referrer",
+                        "referrer": "http://example.com/referrer",
                         "location": "http://example.com/location"
                     },
                "channel": "HTTP",

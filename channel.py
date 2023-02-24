@@ -154,8 +154,8 @@ class InputChannel(Channel):
         if 'useragent' in kwargs:
             msg['useragent'] = kwargs['useragent']
 
-        if 'referer' in kwargs:
-            msg['referer'] = kwargs['referer']
+        if 'referrer' in kwargs:
+            msg['referrer'] = kwargs['referrer']
 
         if 'location' in kwargs:
             msg['location'] = kwargs['location']
