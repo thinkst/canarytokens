@@ -65,6 +65,7 @@ class FrontendSettings(BaseSettings):
 
     SENTRY_DSN: HttpUrl
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
+    SENTRY_ENABLE: bool = True
 
     TEMPLATES_PATH: str = "../templates"
     STATIC_FILES_PATH: str

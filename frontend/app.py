@@ -144,16 +144,17 @@ if switchboard_settings.USING_NGINX:
 else:
     canary_http_channel = f"http://{switchboard_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
 
-sentry_sdk.init(
-    dsn=frontend_settings.SENTRY_DSN,
-    environment=frontend_settings.SENTRY_ENVIRONMENT,
-    traces_sample_rate=0.2,
-    integrations=[
-        RedisIntegration(),
-        FastApiIntegration(),
-    ],
-    release=canarytokens.utils.get_deployed_commit_sha(),
-)
+if frontend_settings.SENTRY_ENABLE:
+    sentry_sdk.init(
+        dsn=frontend_settings.SENTRY_DSN,
+        environment=frontend_settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=0.2,
+        integrations=[
+            RedisIntegration(),
+            FastApiIntegration(),
+        ],
+        release=canarytokens.utils.get_deployed_commit_sha(),
+    )
 
 
 tags_metadata = [
@@ -180,15 +181,19 @@ app.mount(
 )
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
-if frontend_settings.FRONTEND_HOSTNAME != "127.0.0.1":
+if (
+    frontend_settings.SENTRY_ENABLE
+    and frontend_settings.FRONTEND_HOSTNAME != "127.0.0.1"
+):
     # Add sentry when running on a domain.
     app.add_middleware(SentryAsgiMiddleware)
 
 
 def capture_exception(error: BaseException, context: tuple[str, Any]):
-    with sentry_sdk.configure_scope() as scope:
-        scope.set_context(*context)
-        sentry_sdk.capture_exception(error)
+    if frontend_settings.SENTRY_ENABLE:
+        with sentry_sdk.configure_scope() as scope:
+            scope.set_context(*context)
+            sentry_sdk.capture_exception(error)
 
 
 auth_key = APIKeyQuery(name="auth", description="Auth key for a token")
