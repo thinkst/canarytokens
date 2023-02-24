@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
         with:
           repository: thinkst/canarytokens-docker
-          path: .
+          path: canarytokens-docker
           ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
 
       - name: Set up Docker Buildx
@@ -42,9 +42,9 @@ jobs:
 
       - name: Fixup the build branch
         run: |
-          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
+          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
           echo "Building for ${GITHUB_REF##*/}"
-          cat /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
+          cat /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
 
       - name: Docker meta
         id: meta
@@ -64,11 +64,16 @@ jobs:
 
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
-          context: /home/runner/work/canarytokens/canarytokens/canarytokens
+          context: /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_BUSTER_COMMIT=${{ github.sha }}
 
   dev-deploy:
     if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev'
