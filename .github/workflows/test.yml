@@ -105,17 +105,13 @@ jobs:
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
           export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           export CANARY_SENTRY_ENVIRONMENT=ci
-          export RET_DIR=`pwd`
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3
-          pwd
-          ls -la
 
       - name: Check coverage is over threshold percentage for unit tests
         # Here we check coverage info on all tests
         run: |
-          pwd
-          ls -la
+          cd tests
           poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 90
 
       - name: Run integration tests (against local V3)
@@ -125,7 +121,6 @@ jobs:
           # export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
           # export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq '.Parameter.Value')
           redis-cli flushall
-          cd $RET_DIR
           make switchboard &
           make frontend &
           cd tests
@@ -140,11 +135,13 @@ jobs:
           # export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           # export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
           # export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
+          cd tests
           LIVE=True poetry run coverage run  --source=integration --omit=integration/test_custom_binary.py -m pytest integration --runv2
 
       - name: Check coverage is over threshold percentage for integration tests
         # Here we check coverage info that all integration tests where indeed run.
         run: |
+          cd tests
           poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" -m
           poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" --fail-under 90
 
