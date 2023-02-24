@@ -108,10 +108,14 @@ jobs:
           export RET_DIR=`pwd`
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3
+          pwd
+          ls -la
 
       - name: Check coverage is over threshold percentage for unit tests
         # Here we check coverage info on all tests
         run: |
+          pwd
+          ls -la
           poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 90
 
       - name: Run integration tests (against local V3)
