@@ -59,18 +59,18 @@ class WebhookOutputChannel(OutputChannel):
     def generic_webhook_send(self, payload=None, canarydrop=None):
 
         def handle_response(response):
-            if response.code != 200:
-                log.error("Failed sending request to webhook {url} with code {error}. Payload: {payload}".format(
-                    url=canarydrop['alert_webhook_url'],
-                    error=response.code,
-                    payload=payload))
+            if 200 <= response.code < 300:
+                log.info('Request successfully sent to webhook {url}'.format(url=canarydrop['alert_webhook_url']))
             else:
-                log.info('Webhook sent to {url}'.format(url=canarydrop['alert_webhook_url']))
+                log.error("Webhook {url} responded with status code {status_code}. Payload: {payload}".format(
+                    url=canarydrop['alert_webhook_url'],
+                    status_code=response.code,
+                    payload=payload))
 
-        def handle_error(result):
-            log.error("Failed sending request to webhook {url} with error {error}. Payload: {payload}".format(
+        def handle_error(error):
+            log.error("Failed to send request to webhook {url} with error {error}. Payload: {payload}".format(
                 url=canarydrop['alert_webhook_url'],
-                error=result,
+                error=error,
                 payload=payload))
 
         agent = Agent(reactor)
