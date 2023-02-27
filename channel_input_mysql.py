@@ -33,7 +33,7 @@ class CanaryMySQLProtocol(Protocol):
         except NoCanarytokenFound:
             pass
         except Exception as e:
-            log.error('Error: {}'.format(e))
+            log.error('Error in MySQL channel: {} | Data received: {}'.format(e, data))
         self.transport.loseConnection()
 
     def handleQuery(self):
