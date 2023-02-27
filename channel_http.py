@@ -48,8 +48,8 @@ class CanarytokenPage(resource.Resource, InputChannel):
 
         request.setHeader("Server", "Apache")
         try:
-            manage_uris = ['generate', 'download', 'history', 'manage', 'resources', 'settings']
-            if any([x in request.path for x in manage_uris]):
+            manage_uris = ['/generate', '/download?', '/history?', '/manage?', '/resources/', '/settings']
+            if any([request.path.find(x) == 0 for x in manage_uris]):
                 token = Canarytoken(value=request.path)
             else:
                 token = Canarytoken(value=request.uri)
