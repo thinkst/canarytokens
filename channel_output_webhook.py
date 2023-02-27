@@ -59,7 +59,7 @@ class WebhookOutputChannel(OutputChannel):
     def generic_webhook_send(self, payload=None, canarydrop=None):
 
         def handle_response(response):
-            if response.code != 200:
+            if not response.code in range(200,300):
                 log.error("Failed sending request to webhook {url} with code {error}. Payload: {payload}".format(
                     url=canarydrop['alert_webhook_url'],
                     error=response.code,
