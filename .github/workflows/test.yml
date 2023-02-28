@@ -100,6 +100,8 @@ jobs:
           CANARY_ALERT_EMAIL_SUBJECT: Canarytokens Alert
         # Here we gather coverage info on all tests.
         run: |
+          mv frontend/frontend.env.dist frontend/frontend.env
+          mv switchboard/switchboard.env.dist switchboard/switchboard.env
           export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
@@ -116,10 +118,6 @@ jobs:
 
       - name: Run integration tests (against local V3)
         run: |
-          # export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
-          # export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
-          # export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
-          # export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq '.Parameter.Value')
           redis-cli flushall
           make switchboard &
           make frontend &
@@ -132,9 +130,6 @@ jobs:
       - name: Run integration tests (against V2)
         # Here we gather coverage info on integration tests.
         run: |
-          # export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
-          # export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
-          # export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
           cd tests
           LIVE=True poetry run coverage run  --source=integration --omit=integration/test_custom_binary.py -m pytest integration --runv2
 
@@ -155,7 +150,6 @@ jobs:
           python -m pip install --user pipx
           python -m pipx ensurepath
           python -m pipx install poetry==1.3.2
-          # (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
       - name: Install python dependencies
         # poetry cache clear --all pypi ref: https://stackoverflow.com/questions/72551057/poetry-gives-toomanyindirects-error-suddenly
         # Remove when this is resolved.

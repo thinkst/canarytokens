@@ -27,6 +27,7 @@ from typing import (
 
 from fastapi import Response
 from pydantic import (
+    AnyHttpUrl,
     BaseModel,
     ConstrainedInt,
     ConstrainedStr,
@@ -62,7 +63,7 @@ class Port(ConstrainedInt):
 class Hostname(ConstrainedStr):
     max_length: int = 253
     regex = re.compile(
-        r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{1,61}[a-zA-Z0-9])\.){1,61}([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{1,61}[A-Za-z0-9]){1,253}$"
+        r"^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$"
     )
 
 
@@ -1478,7 +1479,7 @@ class TokenAlertDetails(BaseModel):
     # Design: Is this a good name? Should it be time of trigger. Or time we received the event? Or time we sent this out?
     time: datetime
     memo: Memo
-    manage_url: HttpUrl
+    manage_url: AnyHttpUrl
     # DESIGN/TODO: pin this dict down and make it a type.
     # We know what this can be.
     additional_data: Optional[dict[str, Any]]
@@ -1622,14 +1623,13 @@ class UserName(ConstrainedStr):
 
 
 class User(BaseModel):
+    # for backwards compatibility only
+    # use can_send_alert() and do_accounting() from queries.py instead
     # DESIGN: We need to see how users are handled:
     #         Users hold the `alert_expiry`, `alert_limit`, `alert_count`
     #         Do we want to attach this to the token?
     name: UserName
     email: Optional[EmailStr] = None
-    # alert_expiry -> attach this to a user or a token?
-    # alert_limit -> attach this to a user or a token?
-    # alert_count -> attach this to a user or a token?
 
     def can_send_alert(self, canarydrop):
         return True  # TODO: user object may need some work.

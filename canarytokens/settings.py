@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
     SENDGRID_API_KEY: SecretStr = SecretStr("NoSendgridAPIKeyFound")
     SENDGRID_SANDBOX_MODE: bool = True
+    MAX_ALERTS_PER_MINUTE: int = 1000
 
     SENTRY_DSN: HttpUrl
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"

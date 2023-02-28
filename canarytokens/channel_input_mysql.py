@@ -40,7 +40,7 @@ class CanaryMySQLProtocol(Protocol):
             self.factory.dispatch(canarydrop=canarydrop, token_hit=hit)
             print(f"alert dispatched for token {canarydrop.canarytoken.value()}: {hit}")
         except (NoCanarytokenFound, Exception) as e:
-            log.error(f"Error: {e}")
+            log.error(f"Error in MySQL channel: {e} | Data received: {data}")
         self.transport.loseConnection()
 
     @staticmethod

@@ -73,7 +73,7 @@ add_return_for_token(switchboard_settings.TOKEN_RETURN)
 
 application = service.Application("Canarydrops Switchboard")
 
-switchboard = Switchboard()
+switchboard = Switchboard(switchboard_settings)
 
 email_output_channel = EmailOutputChannel(
     switchboard=switchboard,

@@ -410,7 +410,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     )
 
     # add generate random hostname an token
-    canarydrop.token_url = canarydrop.get_url([canary_http_channel])
+    canarydrop.token_url = canarydrop.get_url(canary_domains=[canary_http_channel])
     canarydrop.generated_hostname = canarydrop.get_hostname()
 
     save_canarydrop(canarydrop)

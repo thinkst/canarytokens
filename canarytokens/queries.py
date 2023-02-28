@@ -497,7 +497,7 @@ def do_accounting(canarydrop: cand.Canarydrop, alert_expiry: int):
     )
 
 
-def can_send_alert(canarydrop: cand.Canarydrop, alert_limit: int = 60):
+def can_send_alert(canarydrop: cand.Canarydrop, alert_limit: int):
     alert_count = lookup_canarytoken_alert_count(canarydrop.canarytoken)
     return alert_count < alert_limit
 
