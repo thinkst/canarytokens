@@ -63,7 +63,8 @@ class Port(ConstrainedInt):
 class Hostname(ConstrainedStr):
     max_length: int = 253
     regex = re.compile(
-        r"^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$"
+        r"^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
+        re.IGNORECASE,
     )
 
 

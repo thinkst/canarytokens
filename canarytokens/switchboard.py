@@ -25,6 +25,8 @@ class Switchboard:
         """Return a new Switchboard instance."""
         if switchboard_settings:
             self.settings = switchboard_settings
+        else:
+            self.settings = None
         self.input_channels = {}
         self.output_channels: Dict[str, channel.OutputChannel] = {}
         log.info("Canarytokens switchboard started")
