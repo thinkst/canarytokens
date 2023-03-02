@@ -18,7 +18,7 @@ from canarytokens.constants import INPUT_CHANNEL_SMTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
 from canarytokens.models import SMTPHeloField, SMTPMailField, SMTPTokenHit
 from canarytokens.queries import get_canarydrop
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -187,7 +187,7 @@ class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
     protocol = CanaryESMTP
     CHANNEL = INPUT_CHANNEL_SMTP
 
-    def __init__(self, switchboard: Switchboard, backend_settings: BackendSettings):
+    def __init__(self, switchboard: Switchboard, frontend_settings: FrontendSettings):
         self.responses = {"data_success": b"Finished", "greeting": b"Hello there"}
         self.switchboard = switchboard
         # DESIGN: Ideally pass these in rather than have multiple inheritance
@@ -197,8 +197,8 @@ class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
             switchboard=self.switchboard,
             name=self.CHANNEL,
             unique_channel=False,
-            backend_hostname=backend_settings.BACKEND_HOSTNAME,
-            backend_scheme=backend_settings.BACKEND_SCHEME,
+            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
         )
 
     def buildProtocol(self, addr):
@@ -240,13 +240,13 @@ class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
 class ChannelSMTP:
     def __init__(
         self,
-        backend_settings: BackendSettings,
+        frontend_settings: FrontendSettings,
         switchboard_settings: Settings,
         switchboard: Switchboard,
     ):
         self.service = internet.TCPServer(
             switchboard_settings.CHANNEL_SMTP_PORT,
             CanarySMTPFactory(
-                switchboard=switchboard, backend_settings=backend_settings
+                switchboard=switchboard, frontend_settings=frontend_settings
             ),
         )

@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     PUBLIC_IP: str
     NXDOMAINS: List[str]
     DOMAINS: List[str]
-    BACKEND_SETTINGS_PATH: str
+    FRONTEND_SETTINGS_PATH: str = "../frontend/frontend.env"
     USING_NGINX: bool = False
     TEMPLATES_PATH: str = "../templates"
 
@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
     SENDGRID_API_KEY: SecretStr = SecretStr("NoSendgridAPIKeyFound")
     SENDGRID_SANDBOX_MODE: bool = True
+    MAX_ALERTS_PER_MINUTE: int = 1000
 
     SENTRY_DSN: HttpUrl
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
@@ -50,21 +51,22 @@ class Settings(BaseSettings):
 
     class Config:
         allow_mutation = False
-        env_file = "switchboard.env"
+        env_file = "../switchboard/switchboard.env"
         env_file_encoding = "utf-8"
         env_prefix = "CANARY_"
 
 
-class BackendSettings(BaseSettings):
+class FrontendSettings(BaseSettings):
 
     API_APP_TITLE: str = "Canarytokens"
     API_VERSION_STR: str = "v1"
-    BACKEND_HOSTNAME: str
-    BACKEND_SCHEME: str
-    SWITCHBOARD_SETTINGS_PATH: str
+    FRONTEND_HOSTNAME: str
+    FRONTEND_SCHEME: str
+    SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
 
     SENTRY_DSN: HttpUrl
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
+    SENTRY_ENABLE: bool = True
 
     TEMPLATES_PATH: str = "../templates"
     STATIC_FILES_PATH: str
@@ -85,6 +87,6 @@ class BackendSettings(BaseSettings):
 
     class Config:
         allow_mutation = False
-        env_file = "backend.env"
+        env_file = "../frontend/frontend.env"
         env_file_encoding = "utf-8"
         env_prefix = "CANARY_"

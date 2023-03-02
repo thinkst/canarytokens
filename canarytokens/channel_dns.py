@@ -85,15 +85,15 @@ class ChannelDNS(InputChannel):
         self,
         listen_domain: str,
         switchboard: Switchboard,
-        backend_scheme: str,
-        backend_hostname: str,
+        frontend_scheme: str,
+        frontend_hostname: str,
         settings: Settings,
         # **kwargs,
     ):
         super(ChannelDNS, self).__init__(
             switchboard=switchboard,
-            backend_scheme=backend_scheme,
-            backend_hostname=backend_hostname,
+            frontend_scheme=frontend_scheme,
+            frontend_hostname=frontend_hostname,
             name=self.CHANNEL,
         )
         # TODO: Fix the kwargs here. No need to be vague.

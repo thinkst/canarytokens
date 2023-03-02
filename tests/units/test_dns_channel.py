@@ -33,8 +33,8 @@ def test_query_types(setup_db, settings, query_string, q_type, expected_result_t
     resolver = ChannelDNS(
         listen_domain=settings.LISTEN_DOMAIN,
         switchboard=switchboard,
-        backend_scheme="http",
-        backend_hostname="127.0.0.1",
+        frontend_scheme="http",
+        frontend_hostname="127.0.0.1",
         settings=settings,
     )
     # Make token so nxdomain lookup is tested.
@@ -76,8 +76,8 @@ def test_channel_dns_query(setup_db, settings, token_type):
     resolver = ChannelDNS(
         listen_domain=settings.LISTEN_DOMAIN,
         switchboard=switchboard,
-        backend_scheme="http",
-        backend_hostname="127.0.0.1",
+        frontend_scheme="http",
+        frontend_hostname="127.0.0.1",
         settings=settings,
     )
     canarytoken = Canarytoken()

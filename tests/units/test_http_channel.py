@@ -11,7 +11,7 @@ from canarytokens import canarydrop, queries
 from canarytokens.awskeys import get_aws_key
 from canarytokens.channel_http import ChannelHTTP
 from canarytokens.models import AWSKeyTokenHistory, TokenTypes
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -25,12 +25,12 @@ switchboard = Switchboard()
         TokenTypes.WEB,
     ],
 )
-def test_channel_http_GET(setup_db, settings, backend_settings, token_type):
+def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
     """
     Test canarytokens http (GET) channel.
     """
     http_channel = ChannelHTTP(
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
         switchboard=switchboard,
         settings=settings,
     )
@@ -74,7 +74,7 @@ def test_channel_http_GET(setup_db, settings, backend_settings, token_type):
     ],
 )
 def test_channel_http_GET_and_POST_back(
-    setup_db, backend_settings, settings, token_type, request_args
+    setup_db, frontend_settings, settings, token_type, request_args
 ):
     """
     Test ChannelHTTP handles POST back info. SLOW_REDIRECT is
@@ -85,7 +85,7 @@ def test_channel_http_GET_and_POST_back(
 
     http_channel = ChannelHTTP(
         settings=settings,
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
         switchboard=switchboard,
     )
     canarytoken = Canarytoken()
@@ -146,14 +146,14 @@ def test_channel_http_GET_and_POST_back(
         )
 
 
-def test_channel_http_GET_random_endpoint(setup_db, settings, backend_settings):
+def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings):
     """
     Test ChannelHTTP handles random non-token endpoints.
     """
     from twisted.web.test.requesthelper import DummyChannel
 
     http_channel = ChannelHTTP(
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
         switchboard=switchboard,
         settings=settings,
     )
@@ -218,14 +218,14 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, backend_settings):
 )
 def test_POST_aws_token_back(
     input_data: dict[bytes, Sequence[bytes]],
-    backend_settings: BackendSettings,
+    frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: Settings,
     setup_db: None,
 ):
     settings = fake_settings_for_aws_keys
     http_channel = ChannelHTTP(
         settings=settings,
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
         switchboard=switchboard,
     )
 

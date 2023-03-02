@@ -35,7 +35,7 @@ from canarytokens.queries import (  # get_kc_hits,; save_kc_hit_for_aggregation,
     save_certificate,
     save_kc_endpoint,
 )
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -270,8 +270,8 @@ class mTLSFactory(Factory, InputChannel):
         self,
         headers,
         bodies,
-        backend_hostname: str,
-        backend_scheme: str,
+        frontend_hostname: str,
+        frontend_scheme: str,
         switchboard: Switchboard,
         channel_name=None,
         enricher=None,
@@ -284,8 +284,8 @@ class mTLSFactory(Factory, InputChannel):
         InputChannel.__init__(
             self,
             switchboard=self.switchboard,
-            backend_hostname=backend_hostname,
-            backend_scheme=backend_scheme,
+            frontend_hostname=frontend_hostname,
+            frontend_scheme=frontend_scheme,
             name=channel_name if channel_name is not None else self.CHANNEL,
             unique_channel=False,
         )
@@ -302,7 +302,7 @@ class mTLSFactory(Factory, InputChannel):
 class ChannelKubeConfig:
     def __init__(
         self,
-        backend_settings: BackendSettings,
+        frontend_settings: FrontendSettings,
         switchboard_settings: Settings,
         switchboard=None,
     ):
@@ -328,8 +328,8 @@ class ChannelKubeConfig:
             bodies=kc.bodies,
             channel_name=self.channel_name,
             enricher=None,
-            backend_scheme=backend_settings.BACKEND_SCHEME,
-            backend_hostname=backend_settings.BACKEND_HOSTNAME,
+            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
+            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
             switchboard=switchboard,
         )
 
