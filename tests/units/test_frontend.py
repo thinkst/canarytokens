@@ -591,7 +591,7 @@ def test_aws_keys_broken(
     with mock.patch.dict(
         os.environ,
         {
-            "CANARY_AWSID_URL": aws_url,  # backend will ask webhook_receiver for creds
+            "CANARY_AWSID_URL": aws_url,  # frontend will ask webhook_receiver for creds
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "",  # awskeys.py won't give fake creds
         },
         clear=False,
@@ -605,11 +605,11 @@ def test_aws_keys_broken(
                 if k not in ["AWSID_URL", "TESTING_AWS_ACCESS_KEY_ID"]
             },
         )
-        from backend.app import _create_aws_key_token_response
+        from frontend.app import _create_aws_key_token_response
 
         token_request_details = AWSKeyTokenRequest(
             webhook_url=webhook_receiver,
-            memo=Memo("Testing AWS Key token generation in backend"),
+            memo=Memo("Testing AWS Key token generation in frontend"),
         )
 
         canarytoken = Canarytoken()
@@ -646,7 +646,7 @@ def test_aws_keys(
     with mock.patch.dict(
         os.environ,
         {
-            "CANARY_AWSID_URL": aws_url,  # backend will ask webhook_receiver for creds
+            "CANARY_AWSID_URL": aws_url,  # frontend will ask webhook_receiver for creds
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "",  # awskeys.py won't give fake creds
         },
         clear=False,
@@ -660,11 +660,11 @@ def test_aws_keys(
                 if k not in ["AWSID_URL", "TESTING_AWS_ACCESS_KEY_ID"]
             },
         )
-        from backend.app import _create_aws_key_token_response
+        from frontend.app import _create_aws_key_token_response
 
         token_request_details = AWSKeyTokenRequest(
             webhook_url=webhook_receiver,
-            memo=Memo("Testing AWS Key token generation in backend"),
+            memo=Memo("Testing AWS Key token generation in frontend"),
         )
 
         canarytoken = Canarytoken()

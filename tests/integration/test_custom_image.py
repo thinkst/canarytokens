@@ -1,4 +1,3 @@
-import difflib
 from tempfile import SpooledTemporaryFile
 
 import pytest
@@ -51,7 +50,7 @@ def test_custom_image_url(  # noqa: C901
     file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(mimetype=file_name[-3:])
 
-    with open("tests/data/{file}".format(file=file_name), "rb") as fp:
+    with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
         # create SpooledTemporaryFile
@@ -220,74 +219,65 @@ def test_custom_image_web_image(
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
     file_mimetype = "image/{mimetype}".format(mimetype=file_name[-3:])
-    with open("tests/data/{file}".format(file=file_name), "rb") as fp:
+    with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file = fp.read()
-        # create SpooledTemporaryFile
-        temp_file = SpooledTemporaryFile()
-        temp_file.write(input_file)
-        temp_file.seek(0)
-        # initialize request
-        web_image = UploadedImage(
-            filename=file_name, content_type=file_mimetype, file=temp_file
-        )
-        memo = "custom web token memo!"
-        token_request = CustomImageTokenRequest(
-            token_type=TokenTypes.WEB_IMAGE,
-            web_image=web_image,
-            webhook_url=webhook_receiver,
-            memo=Memo(memo),
-        )
 
-        # Create custom image token
-        resp = create_token(token_request=token_request, version=version)
-        token_info = CustomImageTokenResponse(**resp)
+    # create SpooledTemporaryFile
+    temp_file = SpooledTemporaryFile()
+    temp_file.write(input_file)
+    temp_file.seek(0)
+    # initialize request
+    web_image = UploadedImage(
+        filename=file_name, content_type=file_mimetype, file=temp_file
+    )
+    memo = "custom web token memo!"
+    token_request = CustomImageTokenRequest(
+        token_type=TokenTypes.WEB_IMAGE,
+        web_image=web_image,
+        webhook_url=webhook_receiver,
+        memo=Memo(memo),
+    )
 
-        # ensure web_image is enabled
-        _res = set_token_settings(
-            setting=WebImageSettingsRequest(
-                value="on",
-                token=token_info.token,
-                auth=token_info.auth_token,
+    # Create custom image token
+    resp = create_token(token_request=token_request, version=version)
+    token_info = CustomImageTokenResponse(**resp)
+
+    # ensure web_image is enabled
+    _res = set_token_settings(
+        setting=WebImageSettingsRequest(
+            value="on",
+            token=token_info.token,
+            auth=token_info.auth_token,
+        ),
+        version=version,
+    )
+    # check success of the web_image settings update
+    if isinstance(version, V2):
+        assert _res["result"] == "success"
+    elif isinstance(version, V3):
+        assert _res["message"] == "success"
+
+    # Trigger the token
+    _resp = trigger_http_token(
+        token_info=token_info,
+        version=version,
+        headers={
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Accept": "{mimetype}".format(
+                mimetype=file_mimetype,
             ),
-            version=version,
-        )
-        # check success of the web_image settings update
-        if isinstance(version, V2):
-            assert _res["result"] == "success"
-        elif isinstance(version, V3):
-            assert _res["message"] == "success"
+        },
+        stream=True,
+    )
 
-        # Trigger the token
-        _resp = trigger_http_token(
-            token_info=token_info,
-            version=version,
-            headers={
-                "Referrer-Policy": "strict-origin-when-cross-origin",
-                "Accept": "{mimetype}".format(
-                    mimetype=file_mimetype,
-                ),
-            },
-            stream=True,
-        )
+    # extract incoming file's bytes
+    incoming_file = _resp.content
 
-        # extract incoming file's bytes
-        incoming_file = _resp.content
-
-        # compare file lengths
-        assert len(input_file) == len(incoming_file)
-
-        # comapare bytes between files
-        num_diffs = 0
-        difference = difflib.Differ().compare(input_file, incoming_file)
-        for diff in difference:
-            # no match if diff starts with "-"
-            if diff.startswith("-"):
-                num_diffs = num_diffs + 1
-        assert num_diffs == 0
+    # compare bytes between files
+    assert input_file == incoming_file
 
     # check the memo
-
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats:
         assert len(stats) == 1

@@ -30,7 +30,7 @@ from canarytokens.queries import (
     save_kc_endpoint,
 )
 from canarytokens.redismanager import DB, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP
-from canarytokens.settings import BackendSettings, Port, Settings
+from canarytokens.settings import FrontendSettings, Port, Settings
 
 # TODO: Once webhooker can handle more / faster traffic these will get upped
 # DESIGN: ngrok to get a basic webhook(er). This can be a lambda or a docker service.
@@ -150,7 +150,6 @@ def webhook_receiver() -> Generator[str, None, None]:
         """
         # TODO: loading settings here is likely no needed - should be not needed.
         switchboard_settings = Settings(
-            BACKEND_SETTINGS_PATH="../backend/backend.env",
             LISTEN_DOMAIN="127.0.0.1",
             NXDOMAINS=["nxdomain.127.0.0.1"],
             PUBLIC_IP="10.0.1.3",
@@ -214,7 +213,6 @@ def runv3(request: pytest.FixtureRequest) -> bool:
 @pytest.fixture(scope="session")
 def settings() -> Settings:
     return Settings(
-        BACKEND_SETTINGS_PATH="../backend/backend.env",
         LISTEN_DOMAIN="127.0.0.1",
         NXDOMAINS=["nx.127.0.0.1"],
         PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
@@ -235,7 +233,6 @@ def fake_settings_for_aws_keys():
     details.
     """
     return Settings(
-        BACKEND_SETTINGS_PATH="../backend/backend.env",
         LISTEN_DOMAIN="127.0.0.1",
         NXDOMAINS=["noexample.com"],
         PUBLIC_IP="10.0.1.3",
@@ -255,15 +252,15 @@ def fake_settings_for_aws_keys():
 @pytest.fixture(scope="session", autouse=True)
 def settings_env_vars() -> Generator[None, None, None]:
     """
-    `app` from backend/app.py is loaded by the test_backend
+    `app` from frontend/app.py is loaded by the test_frontend
     file and relative paths to `templates` differs. This ensures the
     `app` if launched by the testing harness has sensible defaults.
     """
     with mock.patch.dict(
         os.environ,
         {
-            "CANARY_STATIC_FILES_PATH": "templates/static",
-            "CANARY_TEMPLATES_PATH": "templates",
+            # "CANARY_STATIC_FILES_PATH": "templates/static",
+            # "CANARY_TEMPLATES_PATH": "templates",
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "not_a_key_id",
             "CANARY_TESTING_AWS_SECRET_ACCESS_KEY": "not_a_secret_key",
             "CANARY_TESTING_AWS_REGION": "us-east-2",
@@ -275,14 +272,13 @@ def settings_env_vars() -> Generator[None, None, None]:
 
 
 @pytest.fixture(scope="session")
-def backend_settings() -> BackendSettings:
-    return BackendSettings(
-        SWITCHBOARD_SETTINGS_PATH="./switchboard/switchboard.env",
-        BACKEND_SCHEME="http",
-        BACKEND_HOSTNAME="127.0.0.1",
+def frontend_settings() -> FrontendSettings:
+    return FrontendSettings(
+        FRONTEND_SCHEME="http",
+        FRONTEND_HOSTNAME="127.0.0.1",
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https://"),
-        TEMPLATES_PATH="./templates",
-        STATIC_FILES_PATH="./templates/static",
+        TEMPLATES_PATH="../templates",
+        STATIC_FILES_PATH="../templates/static",
         STATIC_FILES_APPLICATION_SUB_PATH="/resources",
         STATIC_FILES_APPLICATION_INTERNAL_NAME="resources",
         GOOGLE_API_KEY="nothing_here",
@@ -360,7 +356,7 @@ def setup_db(settings: Settings):  # noqa: C901
 
 @pytest.fixture(scope="session", autouse=False)
 def test_client(settings_env_vars: None) -> Generator[TestClient, None, None]:
-    from backend.app import app
+    from frontend.app import app
 
     with TestClient(app) as client:
         yield client
