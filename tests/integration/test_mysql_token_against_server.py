@@ -20,7 +20,7 @@ from canarytokens.models import (
     MySQLTokenResponse,
 )
 from canarytokens.mysql import make_canary_mysql_dump
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 
 
@@ -28,7 +28,7 @@ from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 def test_mysql_token(
     version: Union[V2, V3],
     webhook_receiver: str,
-    backend_settings: BackendSettings,
+    frontend_settings: FrontendSettings,
     settings: Settings,
     runv2: bool,
     runv3: bool,
@@ -60,7 +60,7 @@ def test_mysql_token(
 
         content = make_canary_mysql_dump(
             mysql_usage=mysql_usage,
-            template=Path(backend_settings.TEMPLATES_PATH) / "mysql_tables.zip",
+            template=Path(frontend_settings.TEMPLATES_PATH) / "mysql_tables.zip",
         )
         with open(gz_file, "wb") as f:
             f.write(content)
@@ -84,7 +84,7 @@ def test_mysql_token(
     print(f"\nmysql: {stuff}")
     remove(dump_file)
 
-    # the v3 backend in docker runs slower than this test,
+    # the v3 frontend in docker runs slower than this test,
     # so we need to wait to let it save the hit before requesting it
     if isinstance(version, V3):
         sleep(1)

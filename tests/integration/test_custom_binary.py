@@ -44,7 +44,7 @@ def test_custom_binary_token_fire(
 ):
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
-    with open("tests/data/{file}".format(file=file_name), "rb") as fp:
+    with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
         # create SpooledTemporaryFile
@@ -110,7 +110,7 @@ def test_custom_binary(
 ):
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
-    with open("tests\\data\\{file}".format(file=file_name), "rb") as fp:
+    with open("data\\{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
         # create SpooledTemporaryFile

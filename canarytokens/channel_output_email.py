@@ -18,7 +18,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL
 from canarytokens.models import AnyTokenHit, TokenAlertDetails, TokenTypes
-from canarytokens.settings import BackendSettings, Settings
+from canarytokens.settings import FrontendSettings, Settings
 from canarytokens.switchboard import Switchboard
 from canarytokens.utils import retry_on_returned_error, token_type_as_readable
 
@@ -34,7 +34,7 @@ class EmailOutputChannel(OutputChannel):
     def __init__(
         self,
         switchboard: Switchboard,
-        backend_settings: BackendSettings,
+        frontend_settings: FrontendSettings,
         settings: Settings,
         name: Optional[str] = None,
     ):
@@ -44,8 +44,8 @@ class EmailOutputChannel(OutputChannel):
         self.email_subject = settings.ALERT_EMAIL_SUBJECT
         super().__init__(
             switchboard,
-            backend_scheme=backend_settings.BACKEND_SCHEME,
-            backend_hostname=backend_settings.BACKEND_HOSTNAME,
+            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
+            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
             name=name,
         )
 
@@ -123,8 +123,8 @@ class EmailOutputChannel(OutputChannel):
     ):
         alert_details = input_channel.format_email_canaryalert(
             canarydrop=canarydrop,
-            host=self.backend_hostname,
-            protocol=self.backend_scheme,
+            host=self.frontend_hostname,
+            protocol=self.frontend_scheme,
         )
         #
         queries.add_mail_to_send_status(

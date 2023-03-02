@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       canarytokens-docker-branch:
-        description: "Branch of the canarytokens-docker repo to pull for build. Defaults to master"
+        description: "Branch of the canarytokens-docker repo to pull for build. Defaults to T5234_v3_deploy_workflow"
         required: false
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       # Checkout canarytokens-docker repo. This lands in ./canarytokens-docker
       - name: Set canarytokens-docker-branch
         run: |
-          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "master"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
+          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "T5234_v3_deploy_workflow"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
           echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> $GITHUB_ENV
 
       - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
@@ -44,6 +44,7 @@ jobs:
       - name: Fixup the build branch
         run: |
           sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
+          sed -i'' "s/_COMMIT_HASH_/${GITHUB_SHA##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
           echo "Building for ${GITHUB_REF##*/}"
           cat /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
 
@@ -83,7 +84,7 @@ jobs:
 
           cd /home/ubuntu/canarytokens-docker
           sed "s/thinkst\/canarytokens:dev_v3/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3.yml.tpl > docker-compose-v3.yml
-          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" backend-v3.env
+          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend-v3.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
           sudo docker-compose -f docker-compose-v3.yml pull
           sudo docker-compose -f docker-compose-v3.yml down

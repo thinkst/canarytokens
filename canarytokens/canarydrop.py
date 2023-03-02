@@ -413,8 +413,11 @@ if (document.domain = "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_
 
     def alertable(
         self,
+        alert_limit: int,
     ):
-        return queries.can_send_alert(canarydrop=self)  # and self.can_notify_again()
+        return queries.can_send_alert(
+            canarydrop=self, alert_limit=alert_limit
+        )  # and self.can_notify_again()
 
     def alerting(self) -> None:
         self.user.do_accounting(canarydrop=self)
