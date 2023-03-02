@@ -28,8 +28,8 @@ class WebhookOutputChannel(OutputChannel):
 
         payload = input_channel.format_webhook_canaryalert(
             canarydrop=canarydrop,
-            host=self.backend_hostname,
-            protocol=self.backend_scheme,
+            host=self.frontend_hostname,
+            protocol=self.frontend_scheme,
         )
 
         self.generic_webhook_send(

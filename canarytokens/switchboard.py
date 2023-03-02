@@ -3,7 +3,7 @@ Class that receives alerts, and dispatches them to the registered endpoint.
 """
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 from twisted.logger import Logger
 
@@ -11,6 +11,7 @@ from canarytokens import channel, queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import DuplicateChannel, InvalidChannel
 from canarytokens.models import AnyTokenHit
+from canarytokens.settings import Settings
 
 log = Logger()
 
@@ -19,8 +20,13 @@ class Switchboard:
     # DESIGN: Do we need this to be a class?
     def __init__(
         self,
+        switchboard_settings: Optional[Settings] = None,
     ):
         """Return a new Switchboard instance."""
+        if switchboard_settings:
+            self.settings = switchboard_settings
+        else:
+            self.settings = None
         self.input_channels = {}
         self.output_channels: Dict[str, channel.OutputChannel] = {}
         log.info("Canarytokens switchboard started")
@@ -57,7 +63,9 @@ class Switchboard:
                 f"{token_hit.input_channel} not in input channels: {self.input_channels}"
             )
 
-        if not canarydrop.alertable():
+        if not canarydrop.alertable(
+            alert_limit=self.settings.MAX_ALERTS_PER_MINUTE if self.settings else 1000
+        ):
             log.warn(
                 "Token {token} is not alertable at this stage.".format(
                     token=canarydrop.canarytoken.value(),

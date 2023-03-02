@@ -28,7 +28,7 @@ def test_canary_message(setup_db):
     message["Subject"] = "Twisted is great!"
     message["From"] = "fromtest@test.com"
     message["To"] = ", ".join(["me@test.com", "you@test.com"])
-    with open("tests/data/canary_image.png", mode="rb") as fp:
+    with open("data/canary_image.png", mode="rb") as fp:
         part_image = MIMEImage(fp.read())
 
     link = b"https://some.link/in/email"
@@ -57,7 +57,7 @@ def test_canary_message(setup_db):
     )
 
 
-async def test_canary_esmtp(backend_settings, setup_db):
+async def test_canary_esmtp(frontend_settings, setup_db):
     """
     A shot-gun test that sets up an SMTP token, runs the
     ESMTP parsing logic and checks that the resulting hit
@@ -78,7 +78,7 @@ async def test_canary_esmtp(backend_settings, setup_db):
     # class which is a CanaryESMTP.
     canary_smtp = CanarySMTPFactory(
         switchboard=switchboard,
-        backend_settings=backend_settings,
+        frontend_settings=frontend_settings,
     )
     protocol: CanaryESMTP = canary_smtp.buildProtocol(addr="1.0.0.1")
     canary_smtp.protocol = protocol
@@ -91,7 +91,7 @@ async def test_canary_esmtp(backend_settings, setup_db):
     message["Subject"] = "Twisted is great!"
     message["From"] = "fromtest@test.com"
     message["To"] = ", ".join(["me@test.com", "you@test.com"])
-    with open("tests/data/canary_image.png", mode="rb") as fp:
+    with open("data/canary_image.png", mode="rb") as fp:
         part_image = MIMEImage(fp.read())
 
     link = "https://some.link/in/email"

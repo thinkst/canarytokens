@@ -98,14 +98,14 @@ class Channel(object):
     def __init__(
         self,
         switchboard: sb.Switchboard,
-        backend_scheme: str,
-        backend_hostname: str,
+        frontend_scheme: str,
+        frontend_hostname: str,
         name: Optional[str] = None,
     ):
         self.switchboard: sb.Switchboard = switchboard
         # DESIGN: What does Switchboard / channels need to know about back/frontend
-        self.backend_scheme = backend_scheme
-        self.backend_hostname = backend_hostname
+        self.frontend_scheme = frontend_scheme
+        self.frontend_hostname = frontend_hostname
         self.name = name or self.CHANNEL
         log.info("Started channel {name}".format(name=self.name))
 
@@ -116,15 +116,15 @@ class InputChannel(Channel):
     def __init__(
         self,
         switchboard: sb.Switchboard,
-        backend_scheme: str,
-        backend_hostname: str,
+        frontend_scheme: str,
+        frontend_hostname: str,
         name: str,
         unique_channel: bool = False,
     ) -> None:
         super(InputChannel, self).__init__(
             switchboard=switchboard,
-            backend_scheme=backend_scheme,
-            backend_hostname=backend_hostname,
+            frontend_scheme=frontend_scheme,
+            frontend_hostname=frontend_hostname,
             name=name,
         )
         self.register_input_channel(unique_channel)
@@ -156,7 +156,7 @@ class InputChannel(Channel):
             time=datetime.datetime.utcnow(),
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
-            # TODO: this manage url should come from the backend / settings object.
+            # TODO: this manage url should come from the frontend / settings object.
             manage_url="{protocol}://{host}/manage?token={token}&auth={auth}".format(
                 protocol=protocol,
                 host=host,
@@ -305,14 +305,14 @@ class OutputChannel(Channel):
     def __init__(
         self,
         switchboard: sb.Switchboard,
-        backend_scheme: str,
-        backend_hostname: str,
+        frontend_scheme: str,
+        frontend_hostname: str,
         name: Optional[str] = None,
     ):
         super(OutputChannel, self).__init__(
             switchboard=switchboard,
-            backend_scheme=backend_scheme,
-            backend_hostname=backend_hostname,
+            frontend_scheme=frontend_scheme,
+            frontend_hostname=frontend_hostname,
             name=name,
         )
         self.register_output_channel()

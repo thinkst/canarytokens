@@ -171,15 +171,15 @@ class ChannelWireGuard(InputChannel):
         self,
         port: int,
         switchboard: Switchboard,
-        backend_scheme: str,
-        backend_hostname: str,
+        frontend_scheme: str,
+        frontend_hostname: str,
         switchboard_settings: Settings,
     ) -> None:
         InputChannel.__init__(
             self,
             switchboard=switchboard,
-            backend_scheme=backend_scheme,
-            backend_hostname=backend_hostname,
+            frontend_scheme=frontend_scheme,
+            frontend_hostname=frontend_hostname,
             name=self.CHANNEL,
             unique_channel=True,
         )
