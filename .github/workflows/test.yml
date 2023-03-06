@@ -61,23 +61,16 @@ jobs:
         run: |
           echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
       - name: Install deps
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libzbar0 wireguard mysql-client subversion openssh-server apt-transport-https ca-certificates curl kubectl osslsigncode redis-tools
+          version: 1.0
+      - name: Install poetry
         run: |
-          sudo apt update -y
-          sudo apt install libzbar0 -y
-          sudo apt install wireguard
-          sudo apt install mysql-client
-          sudo apt-get install subversion
-          sudo apt-get install openssh-server
           curl -sSL https://install.python-poetry.org | python -
           poetry config virtualenvs.in-project true
-          sudo apt-get update -y
-          sudo apt-get install -y apt-transport-https ca-certificates curl
-          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-          echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-          sudo apt-get update -y
-          sudo apt-get install -y kubectl
-          sudo apt-get install -y osslsigncode
-          sudo apt install redis-tools
+          # sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+          # echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
       - name: Set up cache
         uses: actions/cache@v1
         with:
