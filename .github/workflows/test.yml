@@ -63,14 +63,17 @@ jobs:
       - name: Install deps
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: libzbar0 wireguard mysql-client subversion openssh-server apt-transport-https ca-certificates curl kubectl osslsigncode redis-tools
+          packages: libzbar0 wireguard mysql-client subversion openssh-server apt-transport-https ca-certificates curl osslsigncode redis-tools
           version: 1.0
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python -
           poetry config virtualenvs.in-project true
           # sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
           # echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          # sudo apt-get install kubectl
       - name: Set up cache
         uses: actions/cache@v1
         with:
