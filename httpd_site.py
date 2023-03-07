@@ -268,18 +268,14 @@ class GeneratorPage(resource.Resource):
                 response['cvc'] = cc.cvc
                 canarydrop['cc_csv'] = cc.to_csv()
                 save_canarydrop(canarydrop)
-            except extendtoken.ExtendAPIRateLimitException as e:
+            except (
+                extendtoken.ExtendAPIRateLimitException,
+                extendtoken.ExtendAPIException,
+                extendtoken.ExtendAPICardsException
+            ) as e:
                 log.error('ExtendAPI Error: {}'.format(e.args))
                 response['Error'] = 4
                 response['Message'] = 'Credit Card Rate-Limiting currently in place. Please try again later.'
-            except extendtoken.ExtendAPIException as e:
-                log.error('ExtendAPI Error: {}'.format(e.args))
-                response['Error'] = 4
-                response['Message'] = 'Failed to generate credit card. Please contact support@thinkst.com.'
-            except extendtoken.ExtendAPICardsException as e:
-                log.error('ExtendAPI Error: {}'.format(e.args))
-                response['Error'] = 4
-                response['Message'] = 'Failed to generate credit card due to a configuration error. Please contact support@thinkst.com.'
             except Exception as e:
                 pass
 
