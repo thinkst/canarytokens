@@ -61,7 +61,7 @@ jobs:
         run: |
           echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
       - name: Install deps
-      - uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libzbar0 wireguard mysql-client subversion openssh-server apt-transport-https ca-certificates curl kubectl osslsigncode redis-tools
           version: 1.0

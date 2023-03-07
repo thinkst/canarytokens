@@ -42,7 +42,7 @@ services:
 
   # Used to test mysql token.
   mysql:
-    image: mysql@sha256:940fdfa3dc408fb792a8cceb21cafda4b7cd56ce4fbc32833766bdd2a57d6a4f
+    image: mysql@sha256:dad4eee297ae4453beddfdf5921c001a26cb14be2bb1748f25e18747fcb3ba7c
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
 
