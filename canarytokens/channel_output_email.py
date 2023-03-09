@@ -3,12 +3,14 @@ Output channel that sends emails. Relies on Sendgrid to actually send mails.
 """
 from pathlib import Path
 from textwrap import dedent
+import textwrap
 from typing import Optional
 
 import minify_html
+import requests
 import sendgrid
 from jinja2 import Template
-from pydantic import EmailStr, SecretStr
+from pydantic import EmailStr, HttpUrl, SecretStr
 from python_http_client.exceptions import HTTPError
 from sendgrid.helpers.mail import Content, From, Mail, MailSettings, SandBoxMode, To
 from twisted.logger import Logger
@@ -40,7 +42,7 @@ class EmailOutputChannel(OutputChannel):
     ):
         self.settings = settings
         self.from_email = settings.ALERT_EMAIL_FROM_ADDRESS
-        self.from_email_display = settings.ALERT_EMAIL_FROM_DISPLAY
+        self.from_display = settings.ALERT_EMAIL_FROM_DISPLAY
         self.email_subject = settings.ALERT_EMAIL_SUBJECT
         super().__init__(
             switchboard,
@@ -89,6 +91,33 @@ class EmailOutputChannel(OutputChannel):
         return minify_html.minify(rendered_html)
 
     @staticmethod
+    def format_report_text(details: TokenAlertDetails, body_length: int = 999999999):
+        """Returns a string containing an incident report in text,
+        suitable for emailing"""
+
+        if body_length <= 140:
+            body = """Canarydrop@{time} via {channel_name}: """.format(
+                channel_name=details.channel, time=details.time
+            )
+            capacity = 140 - len(body)
+            body += details.memo[:capacity]
+        else:
+            additional_data = "\n" + "\n".join(
+                f"{k}: {v}" for k, v in details.additional_data.items()
+            )
+            body = textwrap.dedent(
+                f"""
+                One of your canarydrops was triggered.
+                Channel: {details.channel}
+                Time   : {details.time}
+                Memo   : {details.memo}{additional_data}
+                Manage your settings for this Canarydrop:
+                {details.manage_url}
+                """
+            ).strip()
+        return body
+
+    @staticmethod
     def format_report_intro(details: TokenAlertDetails):
         details.channel
         details.token_type
@@ -131,17 +160,32 @@ class EmailOutputChannel(OutputChannel):
             recipient=canarydrop.alert_email_recipient,
             details=alert_details,
         )
-        if self.settings.SENDGRID_API_KEY:
+        if self.settings.MAILGUN_API_KEY:
+            sent_successfully, message_id = EmailOutputChannel.mailgun_send(
+                email_address=canarydrop.alert_email_recipient,
+                email_subject=self.email_subject,
+                email_content_html=EmailOutputChannel.format_report_html(
+                    alert_details,
+                    Path(f"{self.settings.TEMPLATES_PATH}/emails/notification.html"),
+                ),
+                email_content_text=EmailOutputChannel.format_report_text(alert_details),
+                from_email=EmailStr(self.from_email),
+                from_display=self.from_display,
+                api_key=self.settings.MAILGUN_API_KEY,
+                base_url=self.settings.MAILGUN_BASE_URL,
+                mailgun_domain=self.settings.MAILGUN_DOMAIN_NAME,
+            )
+        elif self.settings.SENDGRID_API_KEY:
             sent_successfully, message_id = EmailOutputChannel.sendgrid_send(
                 api_key=self.settings.SENDGRID_API_KEY,
                 email_address=canarydrop.alert_email_recipient,
-                email_content=EmailOutputChannel.format_report_html(
+                email_content_html=EmailOutputChannel.format_report_html(
                     alert_details,
                     Path(f"{self.settings.TEMPLATES_PATH}/emails/notification.html"),
                 ),
                 from_email=EmailStr(self.from_email),
                 email_subject=self.email_subject,
-                from_email_display=self.from_email_display,
+                from_display=self.from_display,
                 sandbox_mode=False,
                 # self.settings.SENDGRID_SANDBOX_MODE,
             )
@@ -175,10 +219,10 @@ class EmailOutputChannel(OutputChannel):
         *,
         api_key: SecretStr,
         email_address: EmailStr,
-        email_content: str,
+        email_content_html: str,
         from_email: EmailStr,
-        from_email_display: EmailStr,
-        email_subject=str,
+        from_display: EmailStr,
+        email_subject: str,
         sandbox_mode: bool = False,
     ) -> tuple[bool, str]:
 
@@ -188,7 +232,7 @@ class EmailOutputChannel(OutputChannel):
 
         from_email = From(
             email=from_email,
-            name=from_email_display,
+            name=from_display,
             subject=email_subject,
         )
         to_emails = [
@@ -196,7 +240,7 @@ class EmailOutputChannel(OutputChannel):
                 email=email_address,
             )
         ]
-        content = Content("text/html", email_content)
+        content = Content("text/html", email_content_html)
         mail = Mail(
             from_email=from_email,
             to_emails=to_emails,
@@ -249,6 +293,49 @@ class EmailOutputChannel(OutputChannel):
         #     queries.put_mail_on_sent_queue(mail_key=mail_key, details=alert_details)
         # return mail_key is not None
 
+    @staticmethod
+    def should_retry_mailgun(success: bool, message_id: str) -> bool:
+        if not success:
+            log.error("Failed to send mail via mailgun.")
+        return not success
+
+    @retry_on_returned_error(retry_if=should_retry_mailgun)
+    @staticmethod
+    def mailgun_send(
+        *,
+        email_address: EmailStr,
+        email_content_html: str,
+        email_content_text: str,
+        email_subject: str,
+        from_email: EmailStr,
+        from_display: str,
+        api_key: SecretStr,
+        base_url: HttpUrl,
+        mailgun_domain: str,
+    ) -> tuple[bool, str]:
+        sent_successfully = False
+        message_id = ""
+        try:
+            url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
+            auth = ("api", api_key.get_secret_value().strip())
+            data = {
+                "from": f"{from_display} <{from_email}>",
+                "to": email_address,
+                "subject": email_subject,
+                "text": email_content_text,
+                "html": email_content_html,
+            }
+            response = requests.post(url, auth=auth, data=data)
+            # Raise an error if the returned status is 4xx or 5xx
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            log.error("A mailgun error occurred: %s - %s" % (e.__class__, e))
+        else:
+            sent_successfully = True
+            message_id = response.json().get("id")
+        finally:
+            return sent_successfully, message_id
+
     # def get_basic_details(self,):
 
     #     vars = { 'Description' : self.data['description'],
@@ -280,35 +367,6 @@ class EmailOutputChannel(OutputChannel):
     #         vars['Log4JComputerName'] = self.data['log4_shell_computer_name']
 
     #     return vars
-
-    # def mailgun_send(self, msg=None, canarydrop=None):
-    #     try:
-    #         base_url = 'https://api.mailgun.net'
-    #         if settings.MAILGUN_BASE_URL:
-    #             base_url = settings.MAILGUN_BASE_URL
-    #         url = '{}/v3/{}/messages'.format(base_url, settings.MAILGUN_DOMAIN_NAME)
-    #         auth = ('api', settings.MAILGUN_API_KEY)
-    #         data = {
-    #             'from': '{name} <{address}>'.format(name=msg['from_display'],address=msg['from_address']),
-    #             'to': canarydrop['alert_email_recipient'],
-    #             'subject': msg['subject'],
-    #             'text':  msg['body'],
-    #             'html': self.format_report_html()
-    #         }
-
-    #         if settings.DEBUG:
-    #             pprint.pprint(data)
-    #         else:
-    #             result = requests.post(url, auth=auth, data=data)
-    #             #Raise an error if the returned status is 4xx or 5xx
-    #             result.raise_for_status()
-
-    #         log.info('Sent alert to {recipient} for token {token}'\
-    #                     .format(recipient=canarydrop['alert_email_recipient'],
-    #                             token=canarydrop.canarytoken.value()))
-
-    #     except requests.exceptions.HTTPError as e:
-    #         log.error('A mailgun error occurred: %s - %s' % (e.__class__, e))
 
     # def mandrill_send(self, msg=None, canarydrop=None):
     #     try:

@@ -104,14 +104,49 @@ def test_sendgrid_send(settings: Settings, frontend_settings: FrontendSettings):
 
     success, message_id = email_output_channel.sendgrid_send(
         api_key=settings.SENDGRID_API_KEY,
-        email_content=EmailOutputChannel.format_report_html(
+        email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
         email_address=EmailStr("benjamin+token-tester@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
-        from_email_display=settings.ALERT_EMAIL_FROM_DISPLAY,
+        from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
         sandbox_mode=True,
+    )
+    assert success
+    assert len(message_id) > 0
+
+
+def test_mailgun_send(settings: Settings, frontend_settings: FrontendSettings):
+    sb = Switchboard()
+    details = TokenAlertDetails(
+        channel="DNS",
+        token=Canarytoken().value(),
+        token_type=TokenTypes.DNS,
+        src_ip="127.0.0.1",
+        time=datetime.datetime.now(),
+        memo="This is a test Memo",
+        manage_url="https://some.link/manage/here",
+        additional_data={},
+    )
+
+    email_output_channel = EmailOutputChannel(
+        frontend_settings=frontend_settings,
+        settings=settings,
+        switchboard=sb,
+    )
+    success, message_id = email_output_channel.mailgun_send(
+        email_content_html=EmailOutputChannel.format_report_html(
+            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        ),
+        email_content_text=EmailOutputChannel.format_report_text(details),
+        email_address=EmailStr("benjamin+token-tester@thinkst.com"),
+        from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
+        email_subject=settings.ALERT_EMAIL_SUBJECT,
+        from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
+        api_key=settings.MAILGUN_API_KEY,
+        base_url=settings.MAILGUN_BASE_URL,
+        mailgun_domain=settings.MAILGUN_DOMAIN_NAME,
     )
     assert success
     assert len(message_id) > 0
