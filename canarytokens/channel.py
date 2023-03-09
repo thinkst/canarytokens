@@ -262,6 +262,7 @@ class InputChannel(Channel):
         TokenAlertDetailsSlack, TokenAlertDetailGeneric, TokenAlertDetailsGoogleChat
     ]:
         # TODO: Need to add `host` and `protocol` that can be used to manage the token.
+        slack_hook_base_url = "https://hooks.slack.com"
         googlechat_hook_base_url = "https://chat.googleapis.com"
         details = cls.gather_alert_details(
             canarydrop,
@@ -269,7 +270,7 @@ class InputChannel(Channel):
             host=host,
         )
         if canarydrop.alert_webhook_url and (
-            "https://hooks.slack.com" in canarydrop.alert_webhook_url
+            str(canarydrop.alert_webhook_url).startswith(slack_hook_base_url)
         ):
             return format_as_slack_canaryalert(details=details)
         elif canarydrop.alert_webhook_url and (
