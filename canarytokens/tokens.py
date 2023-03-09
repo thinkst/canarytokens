@@ -325,12 +325,27 @@ class Canarytoken(object):
         src_ip_chain = [o.strip() for o in src_ips.split(",")]
         # TODO: 'ts_key' -> which tokens fire this?
         hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s")])[0]
+        flatten_singletons = lambda l: l[0] if len(l) == 1 else l  # noqa: E731
+        request_headers = {
+            k.decode(): flatten_singletons([s.decode() for s in v])
+            for k, v in request.requestHeaders.getAllRawHeaders()
+        }
+        request_args = (
+            {
+                k.decode(): ",".join([s.decode() for s in v])
+                for k, v in request.args.items()
+            }
+            if isinstance(request.args, dict)
+            else {}
+        )
         return {
             "useragent": useragent,
             "x_forwarded_for": src_ip_chain,
             "src_ip": src_ip,
             "time_of_hit": hit_time,
             "is_tor_relay": is_tor_relay,
+            "request_headers": request_headers,
+            "request_args": request_args,
         }
 
     @staticmethod
@@ -442,7 +457,7 @@ class Canarytoken(object):
     @staticmethod
     def _get_info_for_web(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
-        return http_general_info, {"useragent": http_general_info["useragent"]}
+        return http_general_info, {}
 
     @staticmethod
     def _get_response_for_web(

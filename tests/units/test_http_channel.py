@@ -65,11 +65,11 @@ def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
         (TokenTypes.FAST_REDIRECT, {}),
         (
             TokenTypes.SLOW_REDIRECT,
-            {b"l": ["https://test.com"], b"r": ["https://test.com"]},
+            {b"l": [b"https://test.com"], b"r": [b"https://test.com"]},
         ),
         (
             TokenTypes.CLONEDSITE,
-            {b"l": ["https://test.com"], b"r": ["https://test.com"]},
+            {b"l": [b"https://test.com"], b"r": [b"https://test.com"]},
         ),
     ],
 )

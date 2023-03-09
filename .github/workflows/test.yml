@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "T4627_py3_main"
-      - "T5234_v3_deploy_workflow"
+      - "T5212_webhook_post_args"
 
 jobs:
   tests:

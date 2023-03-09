@@ -488,7 +488,13 @@ def test_all_requests_have_a_response():
                 "useragent": "python 3.10",
                 "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
             },
-            {"useragent": "python 3.10"},
+            {
+                "location": None,
+                "referer": None,
+                "request_args": {},
+                "request_headers": None,
+                "useragent": "python 3.10",
+            },
         ),
         (
             Log4ShellTokenHistory,
