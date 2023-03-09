@@ -18,7 +18,7 @@ repos:
     -   id: check-yaml
     -   id: debug-statements
     -   id: no-commit-to-branch
-        # Github only allows branch protection for teams or enterprise.
+        # GitHub only allows branch protection for teams or enterprise.
         args: ['--pattern', '^(?!T\d+.*)']
 -   repo: https://github.com/psf/black
     rev: 22.3.0
