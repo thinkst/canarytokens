@@ -926,6 +926,8 @@ class AdditionalInfo(BaseModel):
     # TODO: split this off - additional info can be handled separately.
     #       See `AWSKeyAdditionalInfo`
     mysql_client: Optional[dict[str, list[str]]]
+    r: Optional[list[str]]
+    l: Optional[list[str]]
 
     def serialize_for_v2(self) -> dict:
         data = json_safe_dict(self)
@@ -1129,6 +1131,8 @@ class SQLServerTokenHit(TokenHit):
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
     useragent: str
+    request_headers: Optional[dict[str, str]]
+    request_args: Optional[dict[str, str]]
     additional_info: AdditionalInfo = AdditionalInfo()
 
     class Config:
@@ -1361,9 +1365,20 @@ class WebBugTokenHistory(TokenHistory[WebBugTokenHit]):
             Dict[str, str]: Key value pairs to include in webhook / email info.
         """
         latest_hit = self.latest_hit()
-        if latest_hit is None:
-            return {}
-        return {"useragent": latest_hit.useragent}
+        additional_data = {}
+        if latest_hit is not None:
+            additional_data["useragent"] = latest_hit.useragent
+            additional_data["location"] = (
+                latest_hit.additional_info.l if latest_hit.additional_info.l else None
+            )
+            additional_data["referer"] = (
+                latest_hit.additional_info.r if latest_hit.additional_info.r else None
+            )
+            additional_data["request_headers"] = latest_hit.request_headers
+            additional_data["request_args"] = (
+                latest_hit.request_args if latest_hit.request_args else {}
+            )
+        return additional_data
 
 
 class ClonedWebTokenHistory(TokenHistory[ClonedWebTokenHit]):
@@ -1580,9 +1595,14 @@ class GoogleChatSection(BaseModel):
         for (label, text) in widgets_info.items():
             if not label or not text:
                 continue
+            message_text = (
+                json.dumps(text) if isinstance(text, dict) else "{}".format(text)
+            )
             self.widgets.append(
                 GoogleChatWidget(
-                    decoratedText=GoogleChatDecoratedText(topLabel=label, text=text)
+                    decoratedText=GoogleChatDecoratedText(
+                        topLabel=label, text=message_text
+                    )
                 )
             )
 
