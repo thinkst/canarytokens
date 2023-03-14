@@ -95,9 +95,11 @@ jobs:
 
       - name: Run unit tests
         env:
-          CANARY_ALERT_EMAIL_FROM_ADDRESS: tester@jingwei.in
-          CANARY_ALERT_EMAIL_FROM_DISPLAY: testing-display@jingwei.in
-          CANARY_ALERT_EMAIL_SUBJECT: Canarytokens Alert
+          CANARY_MAILGUN_DOMAIN_NAME: syruppdfs.com
+          CANARY_MAILGUN_BASE_URL: https://api.eu.mailgun.net
+          CANARY_ALERT_EMAIL_FROM_ADDRESS: noreply@syruppdfs.com
+          CANARY_ALERT_EMAIL_FROM_DISPLAY: Canarytoken Mail
+          CANARY_ALERT_EMAIL_SUBJECT: Your Canarytoken was Triggered
         # Here we gather coverage info on all tests.
         run: |
           mv frontend/frontend.env.dist frontend/frontend.env
@@ -105,7 +107,8 @@ jobs:
           export CANARY_AWSID_URL=$(aws ssm get-parameter --name "/staging/awsid_url" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
           export CANARY_TESTING_AWS_ACCESS_KEY_ID=${{ secrets.TESTING_AWS_ACCESS_KEY_ID }}
           export CANARY_TESTING_AWS_SECRET_ACCESS_KEY=${{ secrets.TESTING_AWS_SECRET_ACCESS_KEY }}
-          export CANARY_SENDGRID_API_KEY=$(aws ssm get-parameter --name "/staging/sendgrid_api_key" --with-decryption --region eu-west-1 | jq -r '.Parameter.Value')
+          export CANARY_SENDGRID_API_KEY=${{ secrets.TESTING_SENDGRID_API_KEY }}
+          export CANARY_MAILGUN_API_KEY=${{ secrets.TESTING_MAILGUN_API_KEY }}
           export CANARY_SENTRY_ENVIRONMENT=ci
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3

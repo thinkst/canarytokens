@@ -204,6 +204,9 @@ def test_do_send_alert_retries(
     settings.__dict__["ALERT_EMAIL_FROM_ADDRESS"] = "illegal@address.com"
     # Ensure we not hitting the sandbox which accepts all.
     settings.__dict__["SENDGRID_SANDBOX_MODE"] = False
+    # We can't trigger a failure this way with mailgun
+    settings.__dict__["MAILGUN_API_KEY"] = None
+
     email_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
         settings=settings,

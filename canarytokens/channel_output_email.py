@@ -299,8 +299,8 @@ class EmailOutputChannel(OutputChannel):
             log.error("Failed to send mail via mailgun.")
         return not success
 
-    @retry_on_returned_error(retry_if=should_retry_mailgun)
     @staticmethod
+    @retry_on_returned_error(retry_if=should_retry_mailgun)
     def mailgun_send(
         *,
         email_address: EmailStr,
