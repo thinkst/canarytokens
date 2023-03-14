@@ -40,9 +40,15 @@ class Settings(BaseSettings):
     ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("illegal@email.com")
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
-    SENDGRID_API_KEY: SecretStr = SecretStr("NoSendgridAPIKeyFound")
-    SENDGRID_SANDBOX_MODE: bool = True
     MAX_ALERTS_PER_MINUTE: int = 1000
+
+    MAILGUN_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
+    MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
+        "https://api.mailgun.net", scheme="https"
+    )
+    MAILGUN_DOMAIN_NAME: Optional[str]
+    SENDGRID_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
+    SENDGRID_SANDBOX_MODE: bool = True
 
     SENTRY_DSN: HttpUrl
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
