@@ -576,7 +576,7 @@ def is_webhook_valid(url):
     try:
         response = requests.post(url,
                                  simplejson.dumps(payload),
-                                 headers={'content-type': 'application/json'},
+                                 headers={'content-type': 'application/json', 'user-agent': 'Canarytokens'},
                                  timeout=10)
         response.raise_for_status()
         return True
