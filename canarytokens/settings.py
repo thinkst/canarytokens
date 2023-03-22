@@ -8,7 +8,6 @@ from canarytokens.models import Port
 
 
 class Settings(BaseSettings):
-
     CHANNEL_DNS_PORT: Port = Port(5354)
     CHANNEL_HTTP_PORT: Port = Port(8083)
     CHANNEL_SMTP_PORT: Port = Port(2500)
@@ -63,7 +62,6 @@ class Settings(BaseSettings):
 
 
 class FrontendSettings(BaseSettings):
-
     API_APP_TITLE: str = "Canarytokens"
     API_VERSION_STR: str = "v1"
     FRONTEND_HOSTNAME: str

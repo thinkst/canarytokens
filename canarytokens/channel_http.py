@@ -8,7 +8,7 @@ from twisted.python.failure import Failure
 # from canarytokens.channel_dns import create_token_hit
 from twisted.web import resource, server
 from twisted.web.resource import EncodingResourceWrapper, Resource
-from twisted.web.server import GzipEncoderFactory
+from twisted.web.server import GzipEncoderFactory, Request
 
 from canarytokens import queries
 from canarytokens.channel import InputChannel
@@ -43,7 +43,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return self
         return Resource.getChild(self, name, request)
 
-    def render_GET(self, request):
+    def render_GET(self, request: Request):
         # A GET request to a token URL can trigger one of a few responses:
         # 1. Check if link has been clicked on (rather than loaded from an
         #    <img>) by looking at the Accept header, then:
@@ -54,7 +54,18 @@ class CanarytokenPage(InputChannel, resource.Resource):
         #  2b. Serve our default 1x1 gif
 
         try:
-            canarytoken = Canarytoken(value=request.path)
+            manage_uris = [
+                "/generate",
+                "/download?",
+                "/history?",
+                "/manage?",
+                "/resources/",
+                "/settings",
+            ]
+            if any([request.path.find(x.encode()) == 0 for x in manage_uris]):
+                canarytoken = Canarytoken(value=request.path)
+            else:
+                canarytoken = Canarytoken(value=request.uri)
         except NoCanarytokenFound as e:
             log.info(
                 f"HTTP GET on path {request.path} did not correspond to a token. Error: {e}"
@@ -98,7 +109,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         request.setHeader("Server", "Apache")
         return resp
 
-    def render_POST(self, request):
+    def render_POST(self, request: Request):
         try:
             token = Canarytoken(value=request.path)
         except NoCanarytokenFound as e:

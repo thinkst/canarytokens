@@ -118,6 +118,14 @@ class Canarydrop(BaseModel):
     wg_key: Optional[str]
     # cmd specific stuff
     cmd_process: Optional[str]
+    # CC specific stuff
+    cc_kind: Optional[str]
+    cc_number: Optional[str]
+    cc_cvc: Optional[str]
+    cc_expiration: Optional[str]
+    cc_name: Optional[str]
+    cc_billing_zip: Optional[str]
+    cc_rendered_html: Optional[str]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
@@ -281,7 +289,6 @@ class Canarydrop(BaseModel):
         return generated_hostname
 
     def get_hostname(self, with_random=False, as_url=False, nxdomain=False):
-
         random_hostname = self.generate_random_hostname(
             with_random=with_random,
             nxdomain=nxdomain,

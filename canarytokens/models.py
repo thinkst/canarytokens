@@ -1,4 +1,6 @@
 from __future__ import annotations
+from abc import ABCMeta, abstractmethod
+import csv
 
 import enum
 import json
@@ -8,8 +10,9 @@ import socket
 from dataclasses import dataclass
 from datetime import datetime
 from distutils.util import strtobool
+from fastapi.responses import JSONResponse
 from functools import cached_property
-from io import BytesIO
+from io import BytesIO, StringIO
 from ipaddress import IPv4Address
 from tempfile import SpooledTemporaryFile
 from typing import (
@@ -48,6 +51,19 @@ from canarytokens.constants import (
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
     re.IGNORECASE,
+)
+
+response_error = lambda error, message: JSONResponse(  # noqa: E731  # lambda is cleaner
+    {
+        "error": str(error),
+        "error_message": message,
+        "url": "",
+        "url_components": None,
+        "token": "",
+        "email": "",
+        "hostname": "",
+        "auth": "",
+    }
 )
 
 
@@ -153,6 +169,98 @@ class KubeCerts(TypedDict):
     k: bytes  # Key
 
 
+class CreditCard(BaseModel):
+    id: str
+    number: Optional[str]
+    cvc: Optional[str]
+    expiration: Optional[str]
+    kind: Optional[str]
+    name: str
+    billing_zip: str
+    address: str
+
+    def render_html(self) -> str:
+        """Returns an HTML div to render the card info on a website"""
+        # return """<div id="cccontainer" style="position: relative; margin: auto; background-image: url('/resources/cc-background-{kind}.png'); height: 290px; width: 460px;"><span id="ccname" style="left: 45px; top: 135px; font-family: 'Open Sans'; position: absolute; font-size: 20pt; color: white;">{name}</span><span id="ccnumber" style="left: 45px; top: 160px; font-family: 'Open Sans'; position: absolute; font-size: 20pt; color: white; word-spacing: .45em;">{number}</span><span id="ccexpires" style="left: 45px; top: 230px; position: absolute; font-family: 'Open Sans'; font-size: 18pt; color: white;">{expiration}</span><span id="cccvc" style="left: 240px; top: 230px; position: absolute; font-family: 'Open Sans'; font-size: 18pt; color: white;">{cvc}</span></div>""".format(
+        #     kind=self.kind,
+        #     cvc=self.cvc,
+        #     number=self.number,
+        #     name=self.name,
+        #     expiration=self.expiration,
+        # )
+        return f"""<div id="cccontainer"><span id="ccname">{self.name}</span><span id="ccnumber">{self.__format_token()}</span><span id="ccexpires">{self.expiration}</span><span id="cccvc">{self.cvc}</span></div>"""
+
+    def to_csv(self) -> str:
+        f = StringIO()
+        fn = ["name", "type", "number", "cvc", "exp", "billing_zip"]
+        sd = self.to_dict()
+        del sd["address"]
+        del sd["id"]
+        writer = csv.DictWriter(f, fieldnames=fn)
+        writer.writeheader()
+        writer.writerow(sd)
+        return f.getvalue()
+
+    def to_dict(self) -> Dict[str, str]:
+        """Returns the CC information as a python dict"""
+        out = {
+            "id": str(self.id),
+            "name": self.name,
+            "number": str(self.number),
+            "cvc": str(self.cvc),
+            "billing_zip": str(self.billing_zip),
+            "type": str(self.kind),
+            "address": str(self.address),
+            "exp": str(self.expiration),
+        }
+        return out
+
+    def __format_token(self):
+        digits = 4
+        if self.kind != "AMEX":
+            split = [
+                self.number[i : i + digits]  # noqa: E203
+                for i in range(0, len(self.number), digits)
+            ]
+            return " ".join(split)
+        else:
+            split = [self.number[0:4], self.number[4:10], self.number[10:15]]
+            return " ".join(split)
+
+
+class ApiProvider(metaclass=ABCMeta):
+    """Abstract base class for a credit card API provider"""
+
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def create_credit_card(
+        self,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        address: Optional[str] = None,
+        billing_zip: Optional[str] = None,
+    ) -> CreditCard:
+        """Abstract method to create a virtual credit card number"""
+        pass
+
+    @abstractmethod
+    def get_credit_card(self, id: str) -> CreditCard:
+        """Abstract method to get a virtual credit card"""
+        pass
+
+    @abstractmethod
+    def get_latest_transaction(self, cc: CreditCard) -> Optional[Dict[str, str]]:
+        """Abstract method to get the latest transaction for a credit card"""
+        pass
+
+
+# class CCToken(object):
+#     def __init__(self, api_provider: ApiProvider):
+#         pass
+
+
 class TokenTypes(str, enum.Enum):
     """Enumerates all supported token types"""
 
@@ -177,6 +285,7 @@ class TokenTypes(str, enum.Enum):
     KUBECONFIG = "kubeconfig"
     LOG4SHELL = "log4shell"
     CMD = "cmd"
+    CC = "cc"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -337,6 +446,10 @@ class CMDTokenRequest(TokenRequest):
         return value
 
 
+class CCTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.CC] = TokenTypes.CC
+
+
 class KubeconfigTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
 
@@ -479,6 +592,7 @@ class WindowsDirectoryTokenRequest(TokenRequest):
 
 AnyTokenRequest = Annotated[
     Union[
+        CCTokenRequest,
         CMDTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
@@ -563,6 +677,17 @@ class PDFTokenResponse(TokenResponse):
 class CMDTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     reg_file: str
+
+
+class CCTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.CC] = TokenTypes.CC
+    kind: str
+    number: str
+    cvc: str
+    expiration: str
+    name: str
+    billing_zip: str
+    rendered_html: str
 
 
 class QRCodeTokenResponse(TokenResponse):
@@ -746,6 +871,7 @@ class MySQLTokenResponse(TokenResponse):
 
 AnyTokenResponse = Annotated[
     Union[
+        CCTokenResponse,
         CMDTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
@@ -1090,6 +1216,10 @@ class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
 
+class CCTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.CC] = TokenTypes.CC
+
+
 class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
 
@@ -1201,6 +1331,7 @@ class WireguardTokenHit(TokenHit):
 
 AnyTokenHit = Annotated[
     Union[
+        CCTokenHit,
         CMDTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
@@ -1316,6 +1447,11 @@ class DNSTokenHistory(TokenHistory[DNSTokenHit]):
 class PDFTokenHistory(TokenHistory[PDFTokenHit]):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
     hits: List[PDFTokenHit]
+
+
+class CCTokenHistory(TokenHistory[CCTokenHit]):
+    token_type: Literal[TokenTypes.CC] = TokenTypes.CC
+    hits: List[CMDTokenHit]
 
 
 class CMDTokenHistory(TokenHistory[CMDTokenHit]):
@@ -1456,6 +1592,7 @@ class SvnTokenHistory(TokenHistory[SvnTokenHit]):
 # TokenHistory where they differ only in `token_type`.
 AnyTokenHistory = Annotated[
     Union[
+        CCTokenHistory,
         CMDTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
@@ -1679,6 +1816,7 @@ class DownloadFmtTypes(str, enum.Enum):
     MYSQL = "my_sql"
     QRCODE = "qr_code"
     CMD = "cmd"
+    CC = "cc"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -1749,6 +1887,10 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
+class DownloadCCRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CC] = DownloadFmtTypes.CC
+
+
 class DownloadKubeconfigRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.KUBECONFIG] = DownloadFmtTypes.KUBECONFIG
 
@@ -1760,6 +1902,7 @@ class DownloadSplackApiRequest(TokenDownloadRequest):
 AnyDownloadRequest = Annotated[
     Union[
         DownloadAWSKeysRequest,
+        DownloadCCRequest,
         DownloadCMDRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
@@ -1849,6 +1992,15 @@ class DownloadQRCodeResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListCSVResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadCCResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN
