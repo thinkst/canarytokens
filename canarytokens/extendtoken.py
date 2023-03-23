@@ -27,10 +27,10 @@ class ExtendAPI(ApiProvider):
 
     def __init__(
         self,
-        email=environ.get("EXTEND_EMAIL", ""),
-        password=environ.get("EXTEND_PASSWORD", ""),
+        email=environ.get("CANARY_EXTEND_EMAIL", ""),
+        password=environ.get("CANARY_EXTEND_PASSWORD", ""),
         token=None,
-        card_name=environ.get("EXTEND_CARD_NAME", ""),
+        card_name=environ.get("CANARY_EXTEND_CARD_NAME", ""),
     ):
         self.email = email
         self.token = token
