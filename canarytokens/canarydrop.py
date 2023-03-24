@@ -16,7 +16,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta
 from hashlib import md5
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, parse_obj_as, root_validator
 
@@ -119,12 +119,14 @@ class Canarydrop(BaseModel):
     # cmd specific stuff
     cmd_process: Optional[str]
     # CC specific stuff
+    cc_id: Optional[str]
     cc_kind: Optional[str]
     cc_number: Optional[str]
     cc_cvc: Optional[str]
     cc_expiration: Optional[str]
     cc_name: Optional[str]
     cc_billing_zip: Optional[str]
+    cc_address: Optional[str]
     cc_rendered_html: Optional[str]
 
     @root_validator(pre=True)
@@ -174,7 +176,7 @@ class Canarydrop(BaseModel):
     def add_additional_info_to_hit(
         self,
         hit_time: str,
-        additional_info: Dict[str, str],
+        additional_info: dict[str, str],
     ) -> None:
         """ """
         trigger_details = queries.get_canarydrop_triggered_details(self.canarytoken)
@@ -240,11 +242,15 @@ class Canarydrop(BaseModel):
             queries.get_all_canary_pages(),
         )
 
-    def generate_random_url(self, canary_domains: List[str]):
+    def generate_random_url(self, canary_domains: list[str]):
         """
         Return a URL generated at random with the saved Canarytoken.
         The random URL is also saved into the Canarydrop.
         """
+        # TODO: check how we want this caching to work. Use a property if needed.
+        #       Or @lru.cache() or as it was but it's non-obvious
+        if self.generated_url:
+            return self.generated_url
         (path_elements, pages) = self.get_url_components()
 
         generated_url = random.choice(canary_domains) + "/"
@@ -260,13 +266,11 @@ class Canarydrop(BaseModel):
 
         path.append(pages[random.randint(0, len(pages) - 1)])
         generated_url += "/".join(path)
-        # TODO: check how we want this caching to work. Use a property if needed.
-        #       Or @lru.cache() or as it was but it's non-obvious
-        # self.generated_url = generated_url
-        # self.generated_url
+        # cache
+        self.generated_url = generated_url
         return generated_url
 
-    def get_url(self, canary_domains: List[str]):
+    def get_url(self, canary_domains: list[str]):
         return self.generate_random_url(canary_domains)
 
     def generate_random_hostname(self, with_random=False, nxdomain=False):
@@ -351,7 +355,7 @@ if (document.domain = "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_
     ):
         """Return a list containing the output channels configured in this
         Canarydrop."""
-        channels: List[str] = []
+        channels: list[str] = []
         if self.alert_email_enabled and self.alert_email_recipient:
             channels.append(OUTPUT_CHANNEL_EMAIL)
         if self.alert_webhook_enabled and self.alert_webhook_url:
@@ -456,12 +460,12 @@ if (document.domain = "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_
 
         return csvOutput.getvalue()
 
-    def format_triggered_details_of_history_page(self) -> Dict[str, Any]:
+    def format_triggered_details_of_history_page(self) -> dict[str, Any]:
         """
         Helper function as history.html still relies on v2 format.
         TODO: remove this when history.html is updated.
         Returns:
-            Dict[str, Any]: v2 formatted incident list.
+            dict[str, Any]: v2 formatted incident list.
         """
 
         return self.triggered_details.serialize_for_v2(readable_time_format=True)

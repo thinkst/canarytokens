@@ -119,7 +119,6 @@
                 		<li data-type="web"            class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-web"><span class="title">Web bug / URL token</span><div class="explanation">Alert when a URL is visited</div></a></li>
                 		<li data-type="dns"            class="token-item" data-memo-placeholder="Hostname in /etc/hosts of server X"><a href="#" class="icon icon-dns"><span class="title">DNS token</span><div class="explanation">Alert when a hostname is requested</div></a></li>
                     <li data-type="aws_keys"       class="token-item" data-memo-placeholder="AWS keys placed on Jim's laptop"><a href="#" class="icon icon-aws"><span class="title">AWS keys</span><div class="explanation">Alert when AWS key is used</div></a></li>
-                    <!-- <li data-type="azure_id"       class="token-item" data-memo-placeholder="Azure Service Principal Login details on Code Sign Server 3"><a href="#" class="icon icon-azure-id"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li> -->
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
@@ -152,8 +151,9 @@
                 <input class="form-control" type="text" id="endpoints" tabindex=1 placeholder="Provide an email address or webhook URL (or both space separated)">
                 <div class="error-field" id="endpoints_errors"></div>
                 <input type="hidden" name="email">
-                <input type="hidden" name="webhook">
+                <input type="hidden" name="webhook_url">
                 <input type="hidden" name="fmt">
+                <input type="hidden" name="sql_server_sql_action">
                 <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
                 <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
                 <div class="error-field" id="memo_errors"></div>
@@ -163,9 +163,6 @@
                 <div class="field-optional field-signed_exe hidden">
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
                 </div>
-                <!-- <div class="field-optional field-azure_id hidden">
-                  <input class="form-control" type="text" tabindex=3 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate, like: Code_Sign_Server_3.pem">
-                </div> -->
                 <div class="field-optional field-cmd hidden">
                   <input class="form-control" type="text" tabindex=3 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
                 </div>
@@ -774,30 +771,6 @@ START REPLICA;
                   </p>
                 </div>
               </div>
-              <!-- <div class="result azure_id">
-                <h3>Your Azure Service Principal Login is active!</h3>
-                <div class="artifacts">
-                  <p>Save this json config file along with the certificate:</p>
-                  <div class="form-control">
-                    {{ textareacopydownload('result_azure_id', 'azure_id_config') }}
-                  </div>
-                  <div class="form-control">
-                    <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download Azure Certificate</a>
-                  </div>
-                </div>
-                <div class="advice">
-                  <p>This canarytoken is triggered when someone uses this Service Principal Login to access Azure programmatically (through the API).</p>
-                  <p>The Service Principal Login is unique. i.e. There is no chance of somebody guessing these credentials.</p>
-                  <p>If this token fires, it is a clear indication that this Service Principal Login has "leaked".</p>
-                  <p>Ideas for use:
-                    <ul>
-                      <li>Most systems have a ~/.azure folder (much like the ~/.aws or ~/.ssh). Create a config file with the config details from the token and place it
-                        near the certificate (ensuring that the config value has a path to the certificate).</li>
-                      <li>Place the credentials in private code repositories. If the token is triggered, it means that someone is accessing that repo without permission</li>
-                    </ul>
-                  </p>
-                </div>
-              </div> -->
               <div class="result kubeconfig">
                 <h3>Your Kubeconfig Token is active!</h3>
                 <div class="artifacts">
@@ -840,8 +813,8 @@ START REPLICA;
         <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
         <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
         <p id="mainsite" class="hidden">This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
-        {% if settings.DEV_BUILD_ID %}
-        <p>Build ID: {{ settings.DEV_BUILD_ID }}</p>
+        {% if build_id %}
+        <p>Build ID: {{ build_id }}</p>
         {%endif%}
       </footer>
 
@@ -930,7 +903,7 @@ START REPLICA;
           }
         }
         $('input[name=email]').val(email);
-        $('input[name=webhook]').val(webhook);
+        $('input[name=webhook_url]').val(webhook);
         endpoints.removeClass('error-outline').addClass('success-outline');
       }
       var checkMemo = function() {
@@ -983,17 +956,6 @@ START REPLICA;
         }
         return cmd.removeClass('error-outline').addClass('success-outline');
       }
-
-      // var checkAzureIdCertName= function() {
-      //   azure_id_cert_file_name = $('input[name=azure_id_cert_file_name]');
-      //   if (! azure_id_cert_file_name.parents('.field-azure_id').hasClass('hidden')) {
-      //     //only perform checks if field is visible. could be multiple checks
-      //     if (azure_id_cert_file_name.val().length == 0) {
-      //       return azure_id_cert_file_name.addClass('error-outline').removeClass('success-outline');
-      //     }
-      //   }
-      //   return azure_id_cert_file_name.removeClass('error-outline').addClass('success-outline');
-      // }
 
       var _checkSQLServerSelectedAction = function() {
         sql_server_selected_action = $('#selected_sql_action');
@@ -1069,7 +1031,6 @@ START REPLICA;
         checkSignedExe();
         checkClonedWebsite();
         checkCmd();
-        // checkAzureIdCertName();
         checkSQLServer();
 
         //invert UI elements, depending on whether there are errors or not
@@ -1124,10 +1085,6 @@ START REPLICA;
 		    var dd = new DropDown( $('#type'),
                                 function(event) {
                                   var list_item = $(event.target).parents('li');
-                                  if (!list_item.data('type')) {
-                                    event.preventDefault()
-                                    return;
-                                  }
                                   $('#dropdown').data('selected', list_item.data('type'))
                                   $('#selected_token').text(list_item.find('span.title').text());
                                   ToggleOptionalFields(list_item.data('type'));
@@ -1189,40 +1146,40 @@ START REPLICA;
         $('.btn-clipboard').removeClass('tooltip');
 
         var _handleWebResponse = function(data) {
-          $('#result_web').val(data['Url']);
+          $('#result_web').val(data['token_url']);
           $('#result_web').siblings('.refresh').on('click', function() {
-            url = [data['Url_components'][0].random(),
-                   data['Url_components'][1].random(),
-                   data['Token'],
-                   data['Url_components'][2].random()].join('/');
+            url = [data['url_components'][0].random(),
+                   data['url_components'][1].random(),
+                   data['token'],
+                   data['url_components'][2].random()].join('/');
             $('#result_web').val(url);
           });
         };
 
         var _handleFastRedirectResponse = function(data) {
-          $('#result_fast_redirect').val(data['Url']);
+          $('#result_fast_redirect').val(data['token_url']);
           $('#result_fast_redirect').siblings('.refresh').on('click', function() {
-            url = [data['Url_components'][0].random(),
-                   data['Url_components'][1].random(),
-                   data['Token'],
-                   data['Url_components'][2].random()].join('/');
+            url = [data['url_components'][0].random(),
+                   data['url_components'][1].random(),
+                   data['token'],
+                   data['url_components'][2].random()].join('/');
             $('#result_fast_redirect').val(url);
           });
         };
 
         var _handleSlowRedirectResponse = function(data) {
-          $('#result_slow_redirect').val(data['Url']);
+          $('#result_slow_redirect').val(data['token_url']);
           $('#result_slow_redirect').siblings('.refresh').on('click', function() {
-            url = [data['Url_components'][0].random(),
-                   data['Url_components'][1].random(),
-                   data['Token'],
-                   data['Url_components'][2].random()].join('/');
+            url = [data['url_components'][0].random(),
+                   data['url_components'][1].random(),
+                   data['token'],
+                   data['url_components'][2].random()].join('/');
             $('#result_slow_redirect').val(url);
           });
         };
 
         var _handleDNSResponse = function(data) {
-          $('#result_dns').val(data['Hostname']);
+          $('#result_dns').val(data['hostname']);
         };
 
         var _handleCCResponse = function(data) {
@@ -1251,31 +1208,14 @@ START REPLICA;
           $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         }
-
-        // var _handleAzureIDResponse = function(data){
-        //   const token_config_obj = {
-        //     appId: data['app_id'],
-        //     displayName: 'azure-cli-'+data['cert_name'],
-        //     fileWithCertAndPrivateKey: data['cert_file_name'],
-        //     password: null,
-        //     tenant: data['tenant_id'],
-        //   };
-        //   const token_config_JSON = JSON.stringify(token_config_obj, null, 2);
-        //   $('#result_azure_id').val(token_config_JSON);
-        //   $('#result_azure_id').css('height','160px').css('text-align','left').css('width','90%').css('font-size','.75rem');
-        //   $('a.file-download').each(function (i, e){
-        //     e = $(e);
-        //     e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
-        //   });
-        // }
 
         var _handleKubeconfigResponse = function(data) {
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         }
 
@@ -1289,7 +1229,7 @@ START REPLICA;
         var _handleFileDownloadResponse = function(data) {
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         }
 
@@ -1297,12 +1237,17 @@ START REPLICA;
           $('input[name=type]').val('clonedsite');
           return new FormData(form[0]);
         }
+        var _handleSqlServerRequest = function(form) {
+          $('input[name=sql_server_sql_action]').val($('#selected_sql_action').text());
+          return new FormData(form[0]);
+        }
+
         var _handleClonedWebsiteResponse = function(data) {
           $('#result_cloned_website').val(data['clonedsite_js']);
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
-          $('#qrcode_png').siblings('a').prop('download', data['Token']+'.png');
+          $('#qrcode_png').siblings('a').prop('download', data['token']+'.png');
           $('#qrcode_png').prop('src', data['qrcode_png']);
         }
         var _handleWireGuardResponse = function(data) {
@@ -1310,17 +1255,17 @@ START REPLICA;
           $('#wg_conf').text(data['wg_conf']);
         }
         var _handleSVNResponse = function(data){
-          $('#result_svn').val('svn propset svn:externals "extras http://'+data['Hostname']+'" .')
+          $('#result_svn').val('svn propset svn:externals "extras http://'+data['hostname']+'" .')
         }
         var _handleSMTPResponse = function(data) {
           try {
-            $('#result_smtp').val(data['Token']+'@'+data['Hostname'].split(/\.(.+)/)[1]);
+            $('#result_smtp').val(data['token']+'@'+data['hostname'].split(/\.(.+)/)[1]);
           } catch(err) {
-            $('#result_smtp').val(data['Token']+'@'+document.domain);
+            $('#result_smtp').val(data['token']+'@'+document.domain);
           }
         }
         var _handleSQLServerResponse = function(data) {
-          $('.sql_hostname').text(data['Hostname']);
+          $('.sql_hostname').text(data['hostname']);
           if ($('#selected_sql_action').text() == 'SELECT') {
             $('.sql-select').removeClass('hidden');
             $('.sql_function_name').text($('input[name=sql_server_function_name]').val());
@@ -1333,17 +1278,17 @@ START REPLICA;
           }
         }
         var _handleMySQLResponse = function(data) {
-          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['Hostname']}', MASTER_USER='${data['Token']}\", @@lc_time_names, @@hostname, \"';\");`
+          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
 
           $('.mysql-cmd').text(btoa(cmd));
           $('.mysql-cmd-decoded').text(cmd);
 
           $(".mysqldownload").click(function() {
-            var token = data['Token'];
+            var token = data['token'];
             var encodedEl = $("#mysql-encoded");
             var encoded = encodedEl.is(":checked");
 
-            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['Auth'] + '&encoded=' + encoded, '_blank').focus();
+            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['auth_token'] + '&encoded=' + encoded, '_blank').focus();
           });
         }
         var _handlerSignedExeResponse = function(data) {
@@ -1352,7 +1297,7 @@ START REPLICA;
           $('#signed_exe').text('Save ' + data['file_name']);
         }
         var _handlerLog4ShellResponse = function(data) {
-          $('#result_log4shell').val('${jndi:ldap://x${hostName}.L4J.'+data['Hostname']+'/a}');
+          $('#result_log4shell').val('${jndi:ldap://x${hostName}.L4J.'+data['hostname']+'/a}');
         }
         var _handleDefaultRequest = function(form) {
           return new FormData(form[0]);
@@ -1363,6 +1308,7 @@ START REPLICA;
 
         var _requestCallbacks  = {'web_image': _handleWebImageRequest,
                                   'cloned_website': _handleClonedWebsiteRequest,
+                                  'sql_server': _handleSqlServerRequest,
                                   'default':   _handleDefaultRequest};
 
         var _responseCallbacks = {'web': _handleWebResponse,
@@ -1423,6 +1369,7 @@ START REPLICA;
                 beforeSend: function(){$('#save').prop('disabled','disabled');$('.error-field').hide()},
                 dataType: 'json',
                 type: 'post',
+                enctype: false,
                 contentType: false,
                 processData: false,
                 data: data,
@@ -1430,33 +1377,33 @@ START REPLICA;
                     $('#save').prop('disabled',false);
 
                     //$('.loader').addClass('hide');
-                    if (data['Error'] !== null){
-                      if (data['Error'] == '1'){
+                    if (data['error'] !== null){
+                      if (data['error'] == '1'){
                           $('#endpoints_errors').html('Provide an email and/or a webhook endpoint');
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                           $('#endpoints_errors').show();
-                      } else if (data['Error'] == '2'){
+                      } else if (data['error'] == '2'){
                           $('#memo_errors').html('Provide a memo to remind you what this token is used for.');
                           $('#memo_errors').show();
                           $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['Error'] == '3'){
-                          $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"text":"test"}\' URL</pre></p>');
+                      } else if (data['error'] == '3'){
+                          $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"":""}\' URL</pre></p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['Error'] == '4'){
-                          $('#file_upload_errors').html(data['Message']);
+                      } else if (data['error'] == '4'){
+                          $('#file_upload_errors').html(data['error_message']);
                           $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
                           $('#file_upload_errors').show();
-                      } else if (data['Error'] == '5'){
+                      } else if (data['error'] == '5'){
                           $('#endpoints_errors').html('<p>Invalid email supplied.</p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['Error'] == '6'){
+                      } else if (data['error'] == '6'){
                           $('#endpoints_errors').html('<p>Blocked email supplied. <br>Please see our <a href="/legal">Acceptable Use Policy</a>.</p>');
                           $('#endpoints_errors').show();
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                       } else {
-                          $('#memo_errors').html('An unexpected error occurred');
+                          $('#memo_errors').html('An unexpected error occured');
                           $('#memo_errors').show();
                           $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
                       }
@@ -1475,7 +1422,7 @@ START REPLICA;
                       }
                       cb(data)
 
-                      $('a.manage-link').prop('href', '/manage?token='+data['Token']+'&auth='+data['Auth']);
+                      $('a.manage-link').prop('href', '/manage?token='+data['token']+'&auth='+data['auth_token']);
                       $('nav').removeClass('hidden');
                     }
                 },

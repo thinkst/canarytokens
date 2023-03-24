@@ -1218,6 +1218,9 @@ class PDFTokenHit(TokenHit):
 
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
+    last4: str
+    amount: str
+    merchant: str
 
 
 class CMDTokenHit(TokenHit):
@@ -1451,7 +1454,7 @@ class PDFTokenHistory(TokenHistory[PDFTokenHit]):
 
 class CCTokenHistory(TokenHistory[CCTokenHit]):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
-    hits: List[CMDTokenHit]
+    hits: List[CCTokenHit]
 
 
 class CMDTokenHistory(TokenHistory[CMDTokenHit]):

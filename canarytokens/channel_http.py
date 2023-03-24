@@ -55,14 +55,14 @@ class CanarytokenPage(InputChannel, resource.Resource):
 
         try:
             manage_uris = [
-                "/generate",
-                "/download?",
-                "/history?",
-                "/manage?",
-                "/resources/",
-                "/settings",
+                b"/generate",
+                b"/download?",
+                b"/history?",
+                b"/manage?",
+                b"/resources/",
+                b"/settings",
             ]
-            if any([request.path.find(x.encode()) == 0 for x in manage_uris]):
+            if any([request.path.find(x) >= 0 for x in manage_uris]):
                 canarytoken = Canarytoken(value=request.path)
             else:
                 canarytoken = Canarytoken(value=request.uri)
