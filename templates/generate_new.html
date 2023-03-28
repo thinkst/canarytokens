@@ -1195,7 +1195,7 @@ START REPLICA;
           $('#ccRender').html(data['rendered_html'])
           $('a.file-download').each(function (i, e){
             e = $(e);
-            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['Token']+'&auth='+data['Auth']);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
         };
 

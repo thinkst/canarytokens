@@ -1,13 +1,12 @@
 import datetime
 import json
 import os
-from os import environ
+from typing import Optional
 
 import requests
 
-from canarytokens.models import ApiProvider, CreditCard
 from canarytokens.datagen import generate_person
-from typing import Optional
+from canarytokens.models import ApiProvider, CreditCard
 
 
 class ExtendAPIException(Exception):
@@ -27,10 +26,10 @@ class ExtendAPI(ApiProvider):
 
     def __init__(
         self,
-        email=environ.get("CANARY_EXTEND_EMAIL", ""),
-        password=environ.get("CANARY_EXTEND_PASSWORD", ""),
+        email,
+        password,
+        card_name,
         token=None,
-        card_name=environ.get("CANARY_EXTEND_CARD_NAME", ""),
     ):
         self.email = email
         self.token = token
@@ -59,16 +58,22 @@ class ExtendAPI(ApiProvider):
             raise ExtendAPIRateLimitException(
                 "ExtendAPI call failed with 422 rate limit."
             )
-        if resp.status_code != 200 or resp.json().get("error", "") != "":
+        print(resp.content)
+        try:
+            json_error, text_error = resp.json().get("error", ""), ""
+        except requests.exceptions.JSONDecodeError:
+            json_error, text_error = "", resp.text
+        if resp.status_code != 200 or json_error:
             raise ExtendAPIException(
                 "ExtendAPI call failed. Response code {}, error={}".format(
-                    resp.status_code, resp.json().get("error")
+                    resp.status_code, repr(json_error + text_error)
                 )
             )
-
         return resp
 
-    def _get_api(self, endpoint: str, data: Optional[str] = None) -> requests.Response:
+    def _get_api(
+        self, endpoint: str, data: Optional[str] = None
+    ) -> requests.Response:  # pragma: no cover
         """Performs a GET against the passed endpoint"""
         headers = {
             "Content-Type": "application/json",
@@ -85,7 +90,9 @@ class ExtendAPI(ApiProvider):
             )
         return resp
 
-    def _put_api(self, endpoint: str, data: Optional[str] = None) -> requests.Response:
+    def _put_api(
+        self, endpoint: str, data: Optional[str] = None
+    ) -> requests.Response:  # pragma: no cover
         """Performs a PUT against the passed endpoint"""
         headers = {
             "Content-Type": "application/json",
@@ -102,7 +109,7 @@ class ExtendAPI(ApiProvider):
             )
         return resp
 
-    def _delete_api(self, endpoint: str):
+    def _delete_api(self, endpoint: str):  # pragma: no cover
         """Performs a DELETE against the passed endpoint"""
         headers = {
             "Content-Type": "application/json",
@@ -119,7 +126,7 @@ class ExtendAPI(ApiProvider):
             )
         return resp
 
-    def _refresh_auth_token(self):
+    def _refresh_auth_token(self):  # pragma: no cover
         """Refreshes the auth session token"""
         req = self._post_api(
             "https://api.paywithextend.com/renewauth",
@@ -129,7 +136,7 @@ class ExtendAPI(ApiProvider):
         self.refresh_token = req.json().get("refresh_token")
 
     @classmethod
-    def fetch_credentials(cls, path=None):
+    def fetch_credentials(cls, path=None):  # pragma: no cover
         if not path:
             raise Exception("No path supplied")
 
@@ -141,7 +148,7 @@ class ExtendAPI(ApiProvider):
 
         return credentials["EXTEND_EMAIL_ADDRESS"], credentials["EXTEND_API_KEY"]
 
-    def get_virtual_cards(self) -> list[tuple[str, str]]:
+    def get_virtual_cards(self) -> list[tuple[str, str]]:  # pragma: no cover
         """Returns a list of tuples of (card owner, card id)"""
         req = self._get_api(
             "https://api.paywithextend.com/virtualcards?count=50&page=0"
@@ -161,12 +168,14 @@ class ExtendAPI(ApiProvider):
         req = self._get_api("https://v.paywithextend.com/virtualcards/" + card_id)
         return req.json()
 
-    def get_transaction(self, txn_id: str) -> Optional[dict[str, str]]:
+    def get_transaction(
+        self, txn_id: str
+    ) -> Optional[dict[str, str]]:  # pragma: no cover
         """Returns more details about a specific transaction"""
         req = self._get_api("https://api.paywithextend.com/transactions/" + txn_id)
         return req.json()
 
-    def get_card_transactions(self, card_id) -> list[dict]:
+    def get_card_transactions(self, card_id) -> list[dict]:  # pragma: no cover
         """Gets all the recent card transactions for a given card_id"""
         req = self._get_api(
             "https://api.paywithextend.com/virtualcards/{0}/transactions?status=DECLINED,PENDING,CLEARED".format(
@@ -175,7 +184,9 @@ class ExtendAPI(ApiProvider):
         )
         return req.json().get("transactions", [])
 
-    def get_latest_transaction(self, cc: CreditCard) -> Optional[dict[str, str]]:
+    def get_latest_transaction(
+        self, cc: CreditCard
+    ) -> Optional[dict[str, str]]:  # pragma: no cover
         """Gets the latest transaction for a given credit card"""
         txns = self.get_card_transactions(cc.id)
         if len(txns) == 0:
@@ -189,7 +200,7 @@ class ExtendAPI(ApiProvider):
                 max_tx = txn
         return {max_dt.toisoformat(): max_tx}
 
-    def get_parent_card_id(self) -> str:
+    def get_parent_card_id(self) -> str:  # pragma: no cover
         """Gets the ID of the organization's real CC"""
         resp = self._get_api("https://api.paywithextend.com/creditcards")
         cards = resp.json().get("creditCards")
@@ -210,7 +221,13 @@ class ExtendAPI(ApiProvider):
         return filtered_cards[0]["id"]
 
     def make_card(
-        self, first_name: str, last_name: str, token_url: str, limit_cents: int = 100
+        self,
+        token_url: str,
+        first_name: str,
+        last_name: str,
+        address: str,
+        billing_zip: str,
+        limit_cents: int = 100,
     ) -> CreditCard:
         """Creates a new CreditCard via Extend's CreateVirtualCard API"""
         cc = self.get_parent_card_id()
@@ -238,9 +255,9 @@ class ExtendAPI(ApiProvider):
             name=first_name + " " + last_name,
             number=None,
             cvc=None,
-            billing_zip="",
+            billing_zip=billing_zip,
             expiration=expiry_str,
-            address=None,
+            address=address,
             kind=self.kind,
         )
         req = self._post_api("https://api.paywithextend.com/virtualcards", data=data)
@@ -253,7 +270,7 @@ class ExtendAPI(ApiProvider):
             print("ERROR GETTING CARD DETAILS")
         return out
 
-    def cancel_card(self, card_id) -> None:
+    def cancel_card(self, card_id) -> None:  # pragma: no cover
         """Cancels a passed card"""
         _ = self._put_api(
             "https://api.paywithextend.com/virtualcards/" + card_id + "/cancel"
@@ -261,11 +278,11 @@ class ExtendAPI(ApiProvider):
 
     def create_credit_card(
         self,
-        first_name: Optional[str],
-        last_name: Optional[str],
-        address: Optional[str],
-        billing_zip: Optional[str],
-        metadata: Optional[str],
+        token_url: str,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        address: Optional[str] = None,
+        billing_zip: Optional[str] = None,
     ) -> CreditCard:
         """Creates a cardholder and associated virtual card for the passed person, if not passed, will generate fake data to use"""
         fake_person = generate_person()
@@ -277,18 +294,22 @@ class ExtendAPI(ApiProvider):
             address = fake_person["address"]
         if billing_zip is None:
             billing_zip = fake_person["billing_zip"]
-        if metadata is None:
-            metadata = ""
-        cc = self.make_card(first_name, last_name, token_url=metadata)
-        cc.address = address
-        cc.billing_zip = billing_zip
+
+        cc = self.make_card(
+            token_url=token_url,
+            first_name=first_name,
+            last_name=last_name,
+            address=address,
+            billing_zip=billing_zip,
+        )
+
         return cc
 
     def get_credit_card(self, id: str) -> CreditCard:
         """Abstract method to get a virtual credit card"""
         pass
 
-    def get_transaction_events(  # noqa C901
+    def get_transaction_events(  # noqa C901  # pragma: no cover
         self, since: Optional[datetime.datetime] = None
     ) -> list:
         """Returns a list of recent transactions for the org"""
@@ -321,7 +342,7 @@ class ExtendAPI(ApiProvider):
                 page += 1
         return txns
 
-    def subscribe_to_txns(self, url: str):
+    def subscribe_to_txns(self, url: str):  # pragma: no cover
         """Adds a subscription to send transaction events to the passed webhook url"""
         parent_cc = self.get_parent_card_id()
         events = [
@@ -335,15 +356,17 @@ class ExtendAPI(ApiProvider):
         req = self._post_api("https://api.paywithextend.com/subscriptions", body)
         return req.json()
 
-    def delete_subscription(self, sub_id):
+    def delete_subscription(self, sub_id):  # pragma: no cover
         self._delete_api("https://api.paywithextend.com/subscriptions/" + sub_id)
 
-    def get_transaction_info_from_event(self, eventid: str):
+    def get_transaction_info_from_event(self, eventid: str):  # pragma: no cover
         """Returns the virtual card ID from a transaction event"""
         res = self._get_api("https://api.paywithextend.com/events/" + eventid)
         return res.json().get("event", {}).get("data", {})
 
-    def issue_test_transaction(self, cc: CreditCard, amount: int = 1000) -> None:
+    def issue_test_transaction(
+        self, cc: CreditCard, amount: int = 1000
+    ) -> None:  # pragma: no cover
         """Issues a test transaction to the passed card"""
         return None  # This API does not work for "real" cards
         data = {"amount": amount, "type": "DECLINED"}

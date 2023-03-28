@@ -25,10 +25,6 @@ class Settings(BaseSettings):
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
     TESTING_AWS_OUTPUT: Optional[str] = "json"
 
-    EXTEND_USERNAME: Optional[str]
-    EXTEND_PASSWORD: Optional[str]
-    EXTEND_EMAIL: Optional[str]
-
     WG_PRIVATE_KEY_SEED: str
     WG_PRIVATE_KEY_N: str = "1000"
 
@@ -92,6 +88,9 @@ class FrontendSettings(BaseSettings):
 
     # 3rd party settings
     GOOGLE_API_KEY: str
+    EXTEND_EMAIL: Optional[str]
+    EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
+    EXTEND_CARD_NAME: Optional[str]
 
     class Config:
         allow_mutation = False

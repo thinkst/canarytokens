@@ -237,6 +237,7 @@ class ApiProvider(metaclass=ABCMeta):
     @abstractmethod
     def create_credit_card(
         self,
+        token_url: str,
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
         address: Optional[str] = None,

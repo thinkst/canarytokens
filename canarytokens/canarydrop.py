@@ -128,6 +128,7 @@ class Canarydrop(BaseModel):
     cc_billing_zip: Optional[str]
     cc_address: Optional[str]
     cc_rendered_html: Optional[str]
+    cc_rendered_csv: Optional[str]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):

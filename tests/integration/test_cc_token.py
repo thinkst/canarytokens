@@ -4,23 +4,17 @@ from typing import Union
 
 import pytest
 
-# import requests
-# from pydantic import HttpUrl
-
-from canarytokens.models import (
+from canarytokens.models import (  # CCTokenHistory,; CCTokenRequest,; CCTokenResponse,; DownloadIncidentListJsonRequest,; Memo,; TokenTypes,
     V2,
     V3,
-    # CCTokenHistory,
-    # CCTokenRequest,
-    # CCTokenResponse,
-    # DownloadIncidentListJsonRequest,
-    # Memo,
-    # TokenTypes,
 )
 
 # from tests.utils import aws_token_fire, create_token
 # from tests.utils import get_token_history as utils_get_token_history
 from tests.utils import v2, v3  # , run_or_skip
+
+# import requests
+# from pydantic import HttpUrl
 
 
 @pytest.mark.parametrize("version", [v2, v3])

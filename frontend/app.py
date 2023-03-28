@@ -60,6 +60,8 @@ from canarytokens.models import (
     DNSTokenResponse,
     DownloadAWSKeysRequest,
     DownloadAWSKeysResponse,
+    DownloadCCRequest,
+    DownloadCCResponse,
     DownloadCMDRequest,
     DownloadCMDResponse,
     DownloadIncidentListCSVRequest,
@@ -540,6 +542,19 @@ def _(
 
 @create_download_response.register
 def _(
+    download_request_details: DownloadCCRequest, canarydrop: Canarydrop
+) -> DownloadCCResponse:
+    """"""
+    return DownloadCCResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.cc_rendered_csv,
+        filename=f"{canarydrop.canarytoken.value()}.csv",
+    )
+
+
+@create_download_response.register
+def _(
     download_request_details: DownloadMSWordRequest, canarydrop: Canarydrop
 ) -> Response:
 
@@ -959,18 +974,30 @@ def _(
 
 @create_response.register
 def _(token_request_details: CCTokenRequest, canarydrop: Canarydrop) -> CCTokenResponse:
-    eapi = extendtoken.ExtendApi(
-        switchboard_settings.EXTEND_USERNAME, switchboard_settings.EXTENDPASSWORD
+    eapi = extendtoken.ExtendAPI(
+        email=frontend_settings.EXTEND_EMAIL,
+        password=frontend_settings.EXTEND_PASSWORD.get_secret_value(),
+        card_name=frontend_settings.EXTEND_CARD_NAME,
     )
-    cc = eapi.create_credit_card(metadata=canarydrop.get_url())
+    try:
+        cc = eapi.create_credit_card(token_url=canarydrop.token_url)
+    except extendtoken.ExtendAPIRateLimitException:
+        return response_error(
+            4, "Credit Card Rate-Limiting currently in place. Please try again later."
+        )
 
     if not cc or not cc.number:
         return response_error(
             4, "Failed to generate credit card. Please contact support@thinkst.com."
         )
-    canarydrop.cc_rendered_html = cc["rendered_html"]
-    canarydrop.cc_number = cc["number"]
-    canarydrop.cc_csv = cc["csv"]
+    canarydrop.cc_kind = cc.kind
+    canarydrop.cc_number = cc.number
+    canarydrop.cc_cvc = cc.cvc
+    canarydrop.cc_expiration = cc.expiration
+    canarydrop.cc_name = cc.name
+    canarydrop.cc_billing_zip = cc.billing_zip
+    canarydrop.cc_rendered_html = cc.render_html()
+    canarydrop.cc_rendered_csv = cc.to_csv()
     queries.save_canarydrop(canarydrop=canarydrop)
 
     return CCTokenResponse(
@@ -983,6 +1010,13 @@ def _(token_request_details: CCTokenRequest, canarydrop: Canarydrop) -> CCTokenR
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),
         url_components=list(canarydrop.get_url_components()),
+        kind=canarydrop.cc_kind,
+        number=canarydrop.cc_number,
+        cvc=canarydrop.cc_cvc,
+        expiration=canarydrop.cc_expiration,
+        name=canarydrop.cc_name,
+        billing_zip=canarydrop.cc_billing_zip,
+        rendered_html=canarydrop.cc_rendered_html,
     )
 
 
