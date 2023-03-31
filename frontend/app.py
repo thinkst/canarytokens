@@ -33,7 +33,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 import canarytokens
-from canarytokens import kubeconfig, msreg, queries
+from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens.awskeys import get_aws_key
@@ -46,6 +46,8 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    CCTokenRequest,
+    CCTokenResponse,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
     CMDTokenRequest,
@@ -58,6 +60,8 @@ from canarytokens.models import (
     DNSTokenResponse,
     DownloadAWSKeysRequest,
     DownloadAWSKeysResponse,
+    DownloadCCRequest,
+    DownloadCCResponse,
     DownloadCMDRequest,
     DownloadCMDResponse,
     DownloadIncidentListCSVRequest,
@@ -96,6 +100,7 @@ from canarytokens.models import (
     PDFTokenResponse,
     QRCodeTokenRequest,
     QRCodeTokenResponse,
+    response_error,
     SettingsResponse,
     SlowRedirectTokenRequest,
     SlowRedirectTokenResponse,
@@ -300,20 +305,6 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     """
     Whatt
     """
-    response_error = (
-        lambda error, message: JSONResponse(  # noqa: E731  # lambda is cleaner
-            {
-                "error": str(error),
-                "error_message": message,
-                "url": "",
-                "url_components": None,
-                "token": "",
-                "email": "",
-                "hostname": "",
-                "auth": "",
-            }
-        )
-    )
 
     if request.headers.get("Content-Type", "application/json") == "application/json":
         token_request_data = await request.json()
@@ -546,6 +537,19 @@ def _(
             process_name=canarydrop.cmd_process,
         ),
         filename=f"{canarydrop.canarytoken.value()}.reg",
+    )
+
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadCCRequest, canarydrop: Canarydrop
+) -> DownloadCCResponse:
+    """"""
+    return DownloadCCResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.cc_rendered_csv,
+        filename=f"{canarydrop.canarytoken.value()}.csv",
     )
 
 
@@ -965,6 +969,54 @@ def _(
             token_hostname=canarydrop.get_hostname(),
             process_name=canarydrop.cmd_process,
         ),
+    )
+
+
+@create_response.register
+def _(token_request_details: CCTokenRequest, canarydrop: Canarydrop) -> CCTokenResponse:
+    eapi = extendtoken.ExtendAPI(
+        email=frontend_settings.EXTEND_EMAIL,
+        password=frontend_settings.EXTEND_PASSWORD.get_secret_value(),
+        card_name=frontend_settings.EXTEND_CARD_NAME,
+    )
+    try:
+        cc = eapi.create_credit_card(token_url=canarydrop.token_url)
+    except extendtoken.ExtendAPIRateLimitException:
+        return response_error(
+            4, "Credit Card Rate-Limiting currently in place. Please try again later."
+        )
+
+    if not cc or not cc.number:
+        return response_error(
+            4, "Failed to generate credit card. Please contact support@thinkst.com."
+        )
+    canarydrop.cc_kind = cc.kind
+    canarydrop.cc_number = cc.number
+    canarydrop.cc_cvc = cc.cvc
+    canarydrop.cc_expiration = cc.expiration
+    canarydrop.cc_name = cc.name
+    canarydrop.cc_billing_zip = cc.billing_zip
+    canarydrop.cc_rendered_html = cc.render_html()
+    canarydrop.cc_rendered_csv = cc.to_csv()
+    queries.save_canarydrop(canarydrop=canarydrop)
+
+    return CCTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        kind=canarydrop.cc_kind,
+        number=canarydrop.cc_number,
+        cvc=canarydrop.cc_cvc,
+        expiration=canarydrop.cc_expiration,
+        name=canarydrop.cc_name,
+        billing_zip=canarydrop.cc_billing_zip,
+        rendered_html=canarydrop.cc_rendered_html,
     )
 
 

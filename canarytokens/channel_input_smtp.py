@@ -137,7 +137,6 @@ class CanaryESMTP(smtp.ESMTP):
     def greeting(
         self,
     ):
-
         self.src_ip = self.transport.getPeer().host
         try:
             return self.factory.responses["greeting"]

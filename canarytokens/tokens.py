@@ -415,6 +415,24 @@ class Canarytoken(object):
         return http_general_info, src_data
 
     @staticmethod
+    def _get_info_for_cc(request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+
+        last4 = request.getHeader("Last4")
+        amount = "$" + request.getHeader("Amount")
+        merchant = request.getHeader("Merchant")
+
+        # TODO: check if we need to nerf geo_info, src_ip and is_tor_relay
+        #       from http_general_info
+        src_data = {"last4": last4, "amount": amount, "merchant": merchant}
+        return http_general_info, src_data
+
+    @staticmethod
+    def _get_response_for_cc(canarydrop: canarydrop.Canarydrop, request: Request):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_response_for_clonedsite(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
@@ -512,7 +530,6 @@ class Canarytoken(object):
     def _get_response_for_web_image(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
-
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
             if canarydrop.browser_scanner_enabled:
                 # set response mimetype
