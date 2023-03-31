@@ -167,7 +167,7 @@
                 </div>
               </div>
             </div>
-            <div class="result azure_id">
+            <!-- <div class="result azure_id">
               <h5>Here's your Azure Service Principal Login:</h5>
               <div class="artifacts">
                 <p>Save this json config file along with the certificate:</p>
@@ -178,7 +178,7 @@
                   <a class="btn btn-large btn-success file-download" data-fmt="azure_id">Download Azure Certificate</a>
                 </div>
               </div>
-            </div>
+            </div> -->
             <div class="result smtp">
               <h5>Here's your tokened Email address:</h5>
               <div class="artifacts">
@@ -629,22 +629,22 @@ START REPLICA;
           $('#result_log4shell').val('${jndi:ldap://x${hostName}.L4J.'+data['generated_hostname']+'/a}');
         }
 
-      var _handleAzureIDResponse = function(data){
-        const token_config_obj = {
-          appId: data['app_id'],
-          displayName: 'azure-cli-'+data['cert_name'],
-          fileWithCertAndPrivateKey: data['cert_file_name'],
-          password: null,
-          tenant: data['tenant_id'],
-        };
-        const token_config_JSON = JSON.stringify(token_config_obj, null, 2);
-        $('#result_azure_id').val(token_config_JSON);
-        $('#result_azure_id').css('height','160px').css('text-align','left').css('width','90%').css('font-size','.75rem');
-        $('a.file-download').each(function (i, e){
-          e = $(e);
-          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
-        });
-      }
+      //   var _handleAzureIDResponse = function(data){
+      //   const token_config_obj = {
+      //     appId: data['app_id'],
+      //     displayName: 'azure-cli-'+data['cert_name'],
+      //     fileWithCertAndPrivateKey: data['cert_file_name'],
+      //     password: null,
+      //     tenant: data['tenant_id'],
+      //   };
+      //   const token_config_JSON = JSON.stringify(token_config_obj, null, 2);
+      //   $('#result_azure_id').val(token_config_JSON);
+      //   $('#result_azure_id').css('height','160px').css('text-align','left').css('width','90%').css('font-size','.75rem');
+      //   $('a.file-download').each(function (i, e){
+      //     e = $(e);
+      //     e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
+      //   });
+      // }
 
       var _handleDefaultResponse = function(data) {
         return;
@@ -653,7 +653,7 @@ START REPLICA;
       var _responseCallbacks = {'web': _handleWebResponse,
                                 'dns': _handleDNSResponse,
                                 'aws_keys': _handleAWSKeysResponse,
-                                'azure_id':_handleAzureIDResponse,
+                                // 'azure_id':_handleAzureIDResponse,
                                 'web_image': _handleWebResponse,
                                 'ms_word' : _handleFileDownloadResponse,
                                 'ms_excel' : _handleFileDownloadResponse,
