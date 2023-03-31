@@ -225,7 +225,6 @@ class EmailOutputChannel(OutputChannel):
         email_subject: str,
         sandbox_mode: bool = False,
     ) -> tuple[bool, str]:
-
         sendgrid_client = sendgrid.SendGridAPIClient(
             api_key=api_key.get_secret_value().strip()
         )

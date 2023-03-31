@@ -14,7 +14,6 @@ from canarytokens.ziplib import (
 
 
 def make_canary_msword(url: str, template: Path):
-
     with open(template, "rb") as f:
         input_buf = BytesIO(f.read())
     output_buf = BytesIO()

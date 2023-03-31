@@ -25,7 +25,6 @@ class WebhookOutputChannel(OutputChannel):
         canarydrop: canarydrop.Canarydrop,
         token_hit: AnyTokenHit,
     ) -> None:
-
         payload = input_channel.format_webhook_canaryalert(
             canarydrop=canarydrop,
             host=self.frontend_hostname,
@@ -42,7 +41,6 @@ class WebhookOutputChannel(OutputChannel):
         payload: Dict[str, str],
         alert_webhook_url: HttpUrl,
     ) -> None:
-
         # Design: wrap in a retry?
         try:
             response = requests.post(

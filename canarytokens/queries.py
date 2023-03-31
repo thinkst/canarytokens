@@ -45,7 +45,6 @@ log = Logger()
 
 
 def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]:
-
     canarydrop: dict = DB.get_db().hgetall(KEY_CANARYDROP + canarytoken.value())
 
     if len(canarydrop) == 0:
@@ -466,6 +465,7 @@ def get_return_for_token():
 
 #     return User(DB.get_db().hgetall(account_key))
 
+
 # TODO: add counter's / metrics so it's easy to consume.
 def lookup_canarytoken_alert_count(canarytoken: tokens.Canarytoken) -> int:
     key = KEY_CANARYTOKEN_ALERT_COUNT + canarytoken.value()
@@ -564,9 +564,9 @@ def put_mail_on_sent_queue(mail_key: str, details: models.TokenAlertDetails) -> 
     return DB.get_db().lpush(KEY_SENT_MAIL_QUEUE, sent_mail)
 
 
-def pop_mail_off_sent_queue() -> tuple[
-    Optional[str], Optional[models.TokenAlertDetails]
-]:
+def pop_mail_off_sent_queue() -> (
+    tuple[Optional[str], Optional[models.TokenAlertDetails]]
+):
     item = DB.get_db().rpop(KEY_SENT_MAIL_QUEUE, count=1)
     if item is None:
         log.info(f"No mail to send on queue: {KEY_SENT_MAIL_QUEUE}")
@@ -918,7 +918,6 @@ def is_email_blocked(email):
 
 
 def is_tor_relay(ip):
-
     if not DB.get_db().exists(KEY_TOR_EXIT_NODES):
         update_tor_exit_nodes_loop()  # FIXME: DESIGN: we call defered and expect a result in redis, Now!
     return DB.get_db().sismember(KEY_TOR_EXIT_NODES, json.dumps(ip))
