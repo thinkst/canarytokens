@@ -49,7 +49,6 @@ def _substitute_stream(
 def make_canary_pdf(
     hostname: bytes, template: Path, stream_offset: int = STREAM_OFFSET
 ):
-
     with open(template, "rb") as fp:
         contents = fp.read()
 

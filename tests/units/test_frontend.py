@@ -15,6 +15,8 @@ from canarytokens.models import (
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
     BrowserScannerSettingsRequest,
+    CCTokenRequest,
+    CCTokenResponse,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -129,10 +131,12 @@ set_of_response_classes = sorted(
 # TODO: test client uploads is not added.
 # Skipping these types for now.
 set_of_unsupported_request_classes = [
+    CCTokenRequest,
     CustomImageTokenRequest,
     CustomBinaryTokenRequest,
 ]
 set_of_unsupported_response_classes = [
+    CCTokenResponse,
     CustomImageTokenResponse,
     CustomBinaryTokenResponse,
 ]
@@ -247,6 +251,7 @@ def test_download_canarydrop_csv_details(
         (PDFTokenRequest, PDFTokenResponse, DownloadPDFRequest),
         (MySQLTokenRequest, MySQLTokenResponse, DownloadMySQLRequest),
         # (AWSKeyTokenRequest, AWSKeyTokenResponse, DownloadAWSKeysRequest),
+        # (CCTokenRequest, CCTokenResponse, DownloadCCRequest),
         (KubeconfigTokenRequest, KubeconfigTokenResponse, DownloadKubeconfigRequest),
         (QRCodeTokenRequest, QRCodeTokenResponse, DownloadQRCodeRequest),
     ],

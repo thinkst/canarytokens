@@ -173,7 +173,6 @@ class InputChannel(Channel):
         protocol: str,
         host: str,  # DESIGN: Shift this to settings. Do we need to have this logic here?
     ) -> TokenAlertDetails:
-
         details = cls.gather_alert_details(
             canarydrop,
             protocol=protocol,
@@ -329,7 +328,6 @@ class OutputChannel(Channel):
         canarydrop: Canarydrop,
         token_hit: AnyTokenHit,
     ) -> None:
-
         self.do_send_alert(
             input_channel=input_channel,
             canarydrop=canarydrop,
