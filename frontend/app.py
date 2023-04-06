@@ -37,6 +37,7 @@ from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens.awskeys import get_aws_key
+from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
@@ -46,6 +47,8 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    AzureIDTokenRequest,
+    AzureIDTokenResponse,
     CCTokenRequest,
     CCTokenResponse,
     ClonedWebTokenRequest,
@@ -60,6 +63,10 @@ from canarytokens.models import (
     DNSTokenResponse,
     DownloadAWSKeysRequest,
     DownloadAWSKeysResponse,
+    DownloadAzureIDCertRequest,
+    DownloadAzureIDCertResponse,
+    DownloadAzureIDConfigRequest,
+    DownloadAzureIDConfigResponse,
     DownloadCCRequest,
     DownloadCCResponse,
     DownloadCMDRequest,
@@ -158,7 +165,7 @@ if frontend_settings.SENTRY_ENABLE:
             RedisIntegration(),
             FastApiIntegration(),
         ],
-        release=canarytokens.utils.get_deployed_commit_sha(),
+        release=get_deployed_commit_sha(),
     )
 
 
@@ -303,7 +310,7 @@ def generate_page(request: Request) -> HTMLResponse:
 )
 async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen is large
     """
-    Whatt
+    Generate a token and return the appropriate TokenResponse
     """
 
     if request.headers.get("Content-Type", "application/json") == "application/json":
@@ -689,6 +696,42 @@ def _(
 
 @create_download_response.register
 def _(
+    download_request_details: DownloadAzureIDConfigRequest, canarydrop: Canarydrop
+) -> Response:
+    return DownloadAzureIDConfigResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=textwrap.dedent(
+            f"""
+            {{
+              "appId": "{canarydrop.app_id}",
+              "displayName": "azure-cli-{canarydrop.cert_name}",
+              "fileWithCertAndPrivateKey": "{canarydrop.cert_file_name}",
+              "password": null,
+              "tenant": "{canarydrop.tenant_id}"
+            }}
+            """
+        ).strip(),
+        filename=canarydrop.cert_file_name.replace(".pem", ".json")
+        if canarydrop.cert_file_name.endswith(".pem")
+        else canarydrop.cert_file_name,
+    )
+
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadAzureIDCertRequest, canarydrop: Canarydrop
+) -> Response:
+    return DownloadAzureIDCertResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.cert,
+        filename=canarydrop.cert_file_name,
+    )
+
+
+@create_download_response.register
+def _(
     download_request_details: DownloadKubeconfigRequest, canarydrop: Canarydrop
 ) -> Response:
     return DownloadKubeconfigResponse(
@@ -946,6 +989,62 @@ def _create_aws_key_token_response(
         aws_secret_access_key=canarydrop.aws_secret_access_key,
         region=canarydrop.aws_region,
         output=canarydrop.aws_output,
+    )
+
+
+@create_response.register
+def _create_azure_key_token_response(
+    token_request_details: AzureIDTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[Settings] = None,
+) -> AzureIDTokenResponse:
+    if settings is None:
+        settings = switchboard_settings
+
+    try:
+        if not settings.AZURE_ID_TOKEN_URL:
+            raise ValueError("No URL provided for AZURE ID creation")
+
+        if not settings.AZURE_ID_TOKEN_AUTH:
+            raise ValueError("No AUTH token provided for AZURE ID creation")
+
+        key = get_azure_id(
+            token=canarydrop.canarytoken,
+            server=get_all_canary_domains()[0],
+            cert_file_name=token_request_details.azure_id_cert_file_name,
+            azure_url=HttpUrl(
+                f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}",
+                scheme=settings.AZURE_ID_TOKEN_URL.scheme,
+            ),
+        )
+    except Exception as e:
+        capture_exception(error=e, context=("get_azure_id", None))
+        # We can fail by getting 404 from AZURE_ID_URL or failing validation
+        return response_error(
+            4, message="Failed to generate Azure IDs. We looking into it."
+        )
+
+    canarydrop.cert_file_name = key["cert_file_name"]
+    canarydrop.app_id = key["app_id"]
+    canarydrop.cert = key["cert"]
+    canarydrop.tenant_id = key["tenant_id"]
+    canarydrop.cert_name = key["cert_name"]
+    canarydrop.token_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    save_canarydrop(canarydrop)
+    return AzureIDTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.token_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        # additional information for Azure token response
+        cert_file_name=canarydrop.cert_file_name,
+        app_id=canarydrop.app_id,
+        cert=canarydrop.cert,
+        tenant_id=canarydrop.tenant_id,
+        cert_name=canarydrop.cert_name,
     )
 
 

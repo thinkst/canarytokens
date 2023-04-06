@@ -23,6 +23,7 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyAdditionalInfo,
     AWSKeyTokenResponse,
+    AzureIDTokenResponse,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -245,6 +246,28 @@ def aws_token_fire(token_info: AWSKeyTokenResponse, version: Union[V2, V3]) -> N
 
     req = urllib.request.Request(url, data)
     _ = urllib.request.urlopen(req)
+
+
+def azure_token_fire(
+    token_info: AzureIDTokenResponse, data: dict, version: Union[V2, V3]
+) -> None:
+    """Triggers an Azure token via the HTTP channel.
+    This mimics the POST we receive.
+
+    Args:
+        token_info (AzureIDTokenResponse): This is the token that gets triggered.
+        data (dict): the data that would be passed as the body
+    """
+    if version.live:
+        url = token_info.token_url
+    else:
+        # Need to hit Switchboard directly.
+        http_url = parse_obj_as(HttpUrl, token_info.token_url)
+        http_url.port = version.canarytokens_http_port
+        url = f"{http_url.scheme}://{http_url.host}:{http_url.port}{http_url.path}"
+
+    resp = requests.post(url, json=data)
+    resp.raise_for_status()
 
 
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import random
 import re
 from datetime import datetime
@@ -19,7 +20,7 @@ from canarytokens.constants import (
     INPUT_CHANNEL_HTTP,
 )
 from canarytokens.exceptions import NoCanarytokenFound
-from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
+from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, AzureIDTokenHit, TokenTypes
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -401,6 +402,70 @@ class Canarytoken(object):
                 },
             }
         return AWSKeyTokenHit(**hit_info)
+
+    @staticmethod
+    def _parse_azure_key_trigger(
+        request: Request,
+    ) -> AzureIDTokenHit:
+        """When an AzureKey token is triggered a lambda makes a POST request
+        back to switchboard. The `request` is processed, fields extracted,
+        and an `AzureIDTokenHit` is created.
+
+        Args:
+            request (twisted.web.http.Request): containing Azure Key hit information.
+
+        Returns:
+            AzureIDTokenHit: Structured Azure Key Specific hit info.
+        """
+
+        hit_time = datetime.utcnow().strftime("%s.%f")
+
+        json_data = json.loads(request.content.read())
+        src_ip = json_data.get("ip", "127.0.0.1")
+
+        auth_details = json_data.get("auth_details", "")
+        if type(auth_details) == list:
+            out = ""
+            for d in auth_details:
+                out += "\n{}: {}".format(d["key"], d["value"])
+            auth_details = out
+
+        location_details = json_data.get("location", {})
+        geo_details = location_details.get("geoCoordinates", {})
+
+        additional_info = {
+            "Azure ID Log Data": {
+                "Date": [json_data.get("time", "Not Available")],
+                "Authentication": [auth_details],
+            },
+            "Microsoft Azure": {
+                "Resource": [json_data.get("resource", "Not Available")],
+                "App ID": [json_data.get("app_id", "Not Available")],
+                "Cert ID": [json_data.get("cert_id", "Not Available")],
+            },
+            "Location": {
+                "city": [location_details.get("city", "Not Available")],
+                "state": [location_details.get("state", "Not Available")],
+                "countryOrRegion": [
+                    location_details.get("countryOrRegion", "Not Available")
+                ],
+            },
+            "Coordinates": {
+                "latitude": [geo_details.get("latitude", "Not Available")],
+                "longitude": [geo_details.get("longitude", "Not Available")],
+            },
+        }
+        hit_info = {
+            "token_type": TokenTypes.AZURE_KEYS,
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "src_ip": src_ip,
+            # "geo_info": geo_info,
+            # "is_tor_relay": is_tor_relay,
+            # "user_agent": user_agent,
+            "additional_info": additional_info,
+        }
+        return AzureIDTokenHit(**hit_info)
 
     @staticmethod
     def _get_info_for_clonedsite(request):
