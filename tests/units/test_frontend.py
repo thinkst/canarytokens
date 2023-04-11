@@ -155,14 +155,7 @@ def test_creating_all_tokens(
     test_client: TestClient,
     setup_db: None,
 ) -> None:
-    token_request = token_request_type(
-        email="test@test.com",
-        webhook_url="https://hooks.slack.com/test",
-        memo="test stuff break stuff fix stuff test stuff",
-        redirect_url="https://youtube.com",
-        clonedsite="https://test.com",
-        cmd_process_name="klist.exe",
-    )
+    token_request = get_token_request(token_request_type)
 
     try:
         resp = test_client.post(

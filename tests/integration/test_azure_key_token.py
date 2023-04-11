@@ -20,7 +20,7 @@ from tests.utils import run_or_skip, v2, v3
 
 
 @pytest.mark.skipif(
-    strtobool(os.getenv("SKIP_AZURE_KEY_TEST", "True")),
+    strtobool(os.getenv("SKIP_AZURE_ID_TEST", "True")),
     reason="avoid using up an Azure user each time we run tests",
 )
 @pytest.mark.parametrize(
@@ -58,7 +58,7 @@ from tests.utils import run_or_skip, v2, v3
                 "src_ip": "1.2.3.4",
                 "additional_info": {
                     "coordinates": {"latitude": ["-25.73"], "longitude": ["28.21"]},
-                    "azure_key_log_data": {
+                    "azure_id_log_data": {
                         "Date": ["2023-04-03T15:40:13.785374Z"],
                         "Authentication": [
                             "\nAzure AD App Authentication Library: Family: MSAL Library: MSAL.Python 1.20.0 Platform: Python"
@@ -107,7 +107,7 @@ def test_azure_token_post_request_processing(
     assert len(token_hist.hits) == 1
     hit = token_hist.hits[0]
     assert token_hist.hits[0]
-    assert hit.token_type == TokenTypes.AZURE_KEYS
+    assert hit.token_type == TokenTypes.AZURE_ID
     hit_dict = hit.dict()
     for key in expected_hit:
         assert hit_dict[key] == expected_hit[key]

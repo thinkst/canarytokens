@@ -404,10 +404,10 @@ class Canarytoken(object):
         return AWSKeyTokenHit(**hit_info)
 
     @staticmethod
-    def _parse_azure_key_trigger(
+    def _parse_azure_id_trigger(
         request: Request,
     ) -> AzureIDTokenHit:
-        """When an AzureKey token is triggered a lambda makes a POST request
+        """When an AzureID token is triggered, Azure makes a POST request
         back to switchboard. The `request` is processed, fields extracted,
         and an `AzureIDTokenHit` is created.
 
@@ -456,7 +456,7 @@ class Canarytoken(object):
             },
         }
         hit_info = {
-            "token_type": TokenTypes.AZURE_KEYS,
+            "token_type": TokenTypes.AZURE_ID,
             "time_of_hit": hit_time,
             "input_channel": INPUT_CHANNEL_HTTP,
             "src_ip": src_ip,

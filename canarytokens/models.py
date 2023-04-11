@@ -296,7 +296,7 @@ class TokenTypes(str, enum.Enum):
     SQL_SERVER = "sql_server"
     MY_SQL = "my_sql"
     AWS_KEYS = "aws_keys"
-    AZURE_KEYS = "azure_id"
+    AZURE_ID = "azure_id"
     SIGNED_EXE = "signed_exe"
     FAST_REDIRECT = "fast_redirect"
     SLOW_REDIRECT = "slow_redirect"
@@ -429,7 +429,7 @@ class AWSKeyTokenRequest(TokenRequest):
 
 
 class AzureIDTokenRequest(TokenRequest):
-    token_type: Literal[TokenTypes.AZURE_KEYS] = TokenTypes.AZURE_KEYS
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     azure_id_cert_file_name: str
 
     def v2_dict(self) -> Dict[str, Any]:
@@ -705,7 +705,7 @@ class AWSKeyTokenResponse(TokenResponse):
 
 
 class AzureIDTokenResponse(TokenResponse):
-    token_type: Literal[TokenTypes.AZURE_KEYS] = TokenTypes.AZURE_KEYS
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     app_id: str
     tenant_id: str
     cert: str
@@ -1089,8 +1089,8 @@ class AWSKeyAdditionalInfo(BaseModel):
         return {k.lower(): v for k, v in values.items()}
 
 
-class AzureKeyAdditionalInfo(BaseModel):
-    azure_key_log_data: dict[str, list[str]]
+class AzureIDAdditionalInfo(BaseModel):
+    azure_id_log_data: dict[str, list[str]]
     microsoft_azure: dict[str, list[str]]
     location: dict[str, list[str]]
     coordinates: dict[str, list[str]]
@@ -1099,7 +1099,7 @@ class AzureKeyAdditionalInfo(BaseModel):
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             # TODO: make this consistent.
-            ("Azure ID Log Data", "azure_key_log_data"),
+            ("Azure ID Log Data", "azure_id_log_data"),
             ("Microsoft Azure", "microsoft_azure"),
             ("Location", "location"),
             ("Coordinates", "coordinates"),
@@ -1119,7 +1119,7 @@ class AzureKeyAdditionalInfo(BaseModel):
         data = self.dict()
         keys_to_convert = [
             # TODO: make this consistent.
-            ("Azure ID Log Data", "azure_key_log_data"),
+            ("Azure ID Log Data", "azure_id_log_data"),
             ("Microsoft Azure", "microsoft_azure"),
             ("Location", "location"),
             ("Coordinates", "coordinates"),
@@ -1227,8 +1227,8 @@ class TokenHit(BaseModel):
 
 
 class AzureIDTokenHit(TokenHit):
-    token_type: Literal[TokenTypes.AZURE_KEYS] = TokenTypes.AZURE_KEYS
-    additional_info: Optional[AzureKeyAdditionalInfo]
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
+    additional_info: Optional[AzureIDAdditionalInfo]
 
     class Config:
         allow_population_by_field_name = True
@@ -1549,7 +1549,7 @@ class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
 
 
 class AzureIDTokenHistory(TokenHistory):
-    token_type: Literal[TokenTypes.AZURE_KEYS] = TokenTypes.AZURE_KEYS
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
 
 

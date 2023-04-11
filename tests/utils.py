@@ -24,6 +24,7 @@ from canarytokens.models import (
     AWSKeyAdditionalInfo,
     AWSKeyTokenResponse,
     AzureIDTokenResponse,
+    AzureIDAdditionalInfo,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -460,6 +461,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",
         cmd_process_name="klist.exe",
+        azure_id_cert_file_name="test.pem",
     )
 
 
@@ -479,6 +481,26 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
                 "safety_net": ["True"],
                 "last_used": ["2022-07-29T05:48:00+00:00"],
             }
+        )
+    elif token_type == TokenTypes.AZURE_ID:
+        additional_info = AzureIDAdditionalInfo(
+            coordinates={"latitude": ["-25.73"], "longitude": ["28.21"]},
+            azure_id_log_data={
+                "Date": ["2023-04-03T15:40:13.785374Z"],
+                "Authentication": [
+                    "\nAzure AD App Authentication Library: Family: MSAL Library: MSAL.Python 1.20.0 Platform: Python"
+                ],
+            },
+            location={
+                "city": ["Pretoria"],
+                "state": ["Gauteng"],
+                "countryOrRegion": ["ZA"],
+            },
+            microsoft_azure={
+                "App ID": ["some-app-id"],
+                "Resource": ["Windows Azure Service Management API"],
+                "Cert ID": ["some-cert-id"],
+            },
         )
     else:
         additional_info = AdditionalInfo()

@@ -993,7 +993,7 @@ def _create_aws_key_token_response(
 
 
 @create_response.register
-def _create_azure_key_token_response(
+def _create_azure_id_token_response(
     token_request_details: AzureIDTokenRequest,
     canarydrop: Canarydrop,
     settings: Optional[Settings] = None,

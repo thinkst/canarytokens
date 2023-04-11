@@ -127,8 +127,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
-        elif canarydrop.type == TokenTypes.AZURE_KEYS:
-            token_hit = Canarytoken._parse_azure_key_trigger(request)
+        elif canarydrop.type == TokenTypes.AZURE_ID:
+            token_hit = Canarytoken._parse_azure_id_trigger(request)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
