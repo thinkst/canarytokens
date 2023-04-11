@@ -14,6 +14,8 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    AzureIDTokenRequest,
+    AzureIDTokenResponse,
     BrowserScannerSettingsRequest,
     CCTokenRequest,
     CCTokenResponse,
@@ -131,11 +133,15 @@ set_of_response_classes = sorted(
 # TODO: test client uploads is not added.
 # Skipping these types for now.
 set_of_unsupported_request_classes = [
-    CCTokenRequest,
+    AWSKeyTokenRequest,  # don't use up an AWS key
+    AzureIDTokenRequest,  # don't use up an Azure ID
+    CCTokenRequest,  # don't use up a CC
     CustomImageTokenRequest,
     CustomBinaryTokenRequest,
 ]
 set_of_unsupported_response_classes = [
+    AWSKeyTokenResponse,
+    AzureIDTokenResponse,
     CCTokenResponse,
     CustomImageTokenResponse,
     CustomBinaryTokenResponse,
