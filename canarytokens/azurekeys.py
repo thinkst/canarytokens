@@ -8,7 +8,7 @@ from canarytokens.models import AzureID
 from canarytokens import tokens
 
 
-def get_azure_id(
+def get_azure_id(  # pragma: no cover
     token: tokens.Canarytoken,
     server: str,
     cert_file_name: str,
