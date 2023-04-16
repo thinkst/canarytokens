@@ -7,7 +7,7 @@ from pathlib import Path
 
 def authenticode_sign_binary(
     nxdomain_token_url: str, inputfile: Path, outputfile: Path
-):
+):  # pragma: no cover
     try:
         tmpdir = tempfile.mkdtemp()
 

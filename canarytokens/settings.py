@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
     TESTING_AWS_OUTPUT: Optional[str] = "json"
 
+    AZURE_ID_TOKEN_URL: HttpUrl
+    AZURE_ID_TOKEN_AUTH: str
+
     WG_PRIVATE_KEY_SEED: str
     WG_PRIVATE_KEY_N: str = "1000"
 

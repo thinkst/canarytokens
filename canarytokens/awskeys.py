@@ -1,19 +1,12 @@
 import logging
 import re
-from typing import Literal, Optional, TypedDict
+from typing import Optional
 
 import requests
 from pydantic import HttpUrl
 
 from canarytokens import tokens
-
-
-class AWSKey(TypedDict):
-    access_key_id: str
-    secret_access_key: str
-    # TODO: make enum
-    region: str
-    output: Literal["json", "yaml", "yaml-stream", "text", "table"]
+from canarytokens.models import AWSKey
 
 
 def validate_record(server: str, token: tokens.Canarytoken) -> bool:
