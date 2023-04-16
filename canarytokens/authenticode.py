@@ -4,7 +4,9 @@ from os import unlink
 from canarytokens.sign_file import authenticode_sign_binary
 
 
-def make_canary_authenticode_binary(nxdomain_token_url: str, filebody: bytes) -> bytes:
+def make_canary_authenticode_binary(
+    nxdomain_token_url: str, filebody: bytes
+) -> bytes:  # pragma: no cover
     """Takes in a nxdomain url (eg: http://{token}.nxdomain.tools) and bytes string (some binary to sign)
     and returns bytes (the signed binary).
 

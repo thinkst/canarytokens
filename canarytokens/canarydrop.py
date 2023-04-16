@@ -112,6 +112,14 @@ class Canarydrop(BaseModel):
     aws_secret_access_key: Optional[str]
     aws_output: Optional[str] = Field(alias="output")
     aws_region: Optional[str] = Field(alias="region")
+
+    # Azure key specific stuff
+    app_id: Optional[str]
+    tenant_id: Optional[str]
+    cert: Optional[str]
+    cert_name: Optional[str]
+    cert_file_name: Optional[str]
+
     # HTTP style token specific stuff
     browser_scanner_enabled: Optional[bool]
     # Wireguard specific stuff

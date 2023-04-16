@@ -14,6 +14,8 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    AzureIDTokenRequest,
+    AzureIDTokenResponse,
     BrowserScannerSettingsRequest,
     CCTokenRequest,
     CCTokenResponse,
@@ -131,11 +133,15 @@ set_of_response_classes = sorted(
 # TODO: test client uploads is not added.
 # Skipping these types for now.
 set_of_unsupported_request_classes = [
-    CCTokenRequest,
+    AWSKeyTokenRequest,  # don't use up an AWS key
+    AzureIDTokenRequest,  # don't use up an Azure ID
+    CCTokenRequest,  # don't use up a CC
     CustomImageTokenRequest,
     CustomBinaryTokenRequest,
 ]
 set_of_unsupported_response_classes = [
+    AWSKeyTokenResponse,
+    AzureIDTokenResponse,
     CCTokenResponse,
     CustomImageTokenResponse,
     CustomBinaryTokenResponse,
@@ -155,14 +161,7 @@ def test_creating_all_tokens(
     test_client: TestClient,
     setup_db: None,
 ) -> None:
-    token_request = token_request_type(
-        email="test@test.com",
-        webhook_url="https://hooks.slack.com/test",
-        memo="test stuff break stuff fix stuff test stuff",
-        redirect_url="https://youtube.com",
-        clonedsite="https://test.com",
-        cmd_process_name="klist.exe",
-    )
+    token_request = get_token_request(token_request_type)
 
     try:
         resp = test_client.post(
