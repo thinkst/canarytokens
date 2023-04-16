@@ -30,7 +30,7 @@ class ExtendAPI(ApiProvider):
         password,
         card_name,
         token=None,
-    ):
+    ):  # pragma: no cover
         self.email = email
         self.token = token
         self.kind = "AMEX"
@@ -45,7 +45,9 @@ class ExtendAPI(ApiProvider):
         self.token = req.json().get("token")
         self.refresh_token = req.json().get("refresh_token")
 
-    def _post_api(self, endpoint: str, data: Optional[str] = None) -> requests.Response:
+    def _post_api(
+        self, endpoint: str, data: Optional[str] = None
+    ) -> requests.Response:  # pragma: no cover
         """Performs a POST against the passed endpoint with the data passed"""
         headers = {
             "Content-Type": "application/json",
@@ -163,7 +165,7 @@ class ExtendAPI(ApiProvider):
             )
         return cards
 
-    def get_card_info(self, card_id) -> Optional[dict[str, str]]:
+    def get_card_info(self, card_id) -> Optional[dict[str, str]]:  # pragma: no cover
         """Returns all the data about a passed card_id available"""
         req = self._get_api("https://v.paywithextend.com/virtualcards/" + card_id)
         return req.json()
@@ -228,7 +230,7 @@ class ExtendAPI(ApiProvider):
         address: str,
         billing_zip: str,
         limit_cents: int = 100,
-    ) -> CreditCard:
+    ) -> CreditCard:  # pragma: no cover
         """Creates a new CreditCard via Extend's CreateVirtualCard API"""
         cc = self.get_parent_card_id()
         now_ts = datetime.datetime.now() - datetime.timedelta(days=1)
@@ -283,7 +285,7 @@ class ExtendAPI(ApiProvider):
         last_name: Optional[str] = None,
         address: Optional[str] = None,
         billing_zip: Optional[str] = None,
-    ) -> CreditCard:
+    ) -> CreditCard:  # pragma: no cover
         """Creates a cardholder and associated virtual card for the passed person, if not passed, will generate fake data to use"""
         fake_person = generate_person()
         if first_name is None:
@@ -305,13 +307,13 @@ class ExtendAPI(ApiProvider):
 
         return cc
 
-    def get_credit_card(self, id: str) -> CreditCard:
+    def get_credit_card(self, id: str) -> CreditCard:  # pragma: no cover
         """Abstract method to get a virtual credit card"""
         pass
 
-    def get_transaction_events(  # noqa C901  # pragma: no cover
+    def get_transaction_events(  # noqa C901
         self, since: Optional[datetime.datetime] = None
-    ) -> list:
+    ) -> list:  # pragma: no cover
         """Returns a list of recent transactions for the org"""
         txns = []
         req = self._get_api("https://api.paywithextend.com/events")

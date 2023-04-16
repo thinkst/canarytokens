@@ -159,6 +159,22 @@ class V3:
         return strtobool(os.getenv("LIVE", "FALSE"))
 
 
+class AWSKey(TypedDict):
+    access_key_id: str
+    secret_access_key: str
+    # TODO: make enum
+    region: str
+    output: Literal["json", "yaml", "yaml-stream", "text", "table"]
+
+
+class AzureID(TypedDict):
+    app_id: str
+    tenant_id: str
+    cert: str
+    cert_name: str
+    cert_file_name: str
+
+
 class KubeCerts(TypedDict):
     """Kube digest (f), cert (c) and key (k) are stored directly and not
     base64 encoded.
@@ -280,6 +296,7 @@ class TokenTypes(str, enum.Enum):
     SQL_SERVER = "sql_server"
     MY_SQL = "my_sql"
     AWS_KEYS = "aws_keys"
+    AZURE_ID = "azure_id"
     SIGNED_EXE = "signed_exe"
     FAST_REDIRECT = "fast_redirect"
     SLOW_REDIRECT = "slow_redirect"
@@ -409,6 +426,22 @@ class TokenRequest(BaseModel):
 
 class AWSKeyTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
+
+
+class AzureIDTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
+    azure_id_cert_file_name: str
+
+    def v2_dict(self) -> Dict[str, Any]:
+        webhook_url = self.webhook_url or ""
+        out_dict = {
+            "type": getattr(self, "token_type").value,
+            "email": self.email or "",
+            "memo": self.memo,
+            "webhook": str(webhook_url),
+            "azure_id_cert_file_name": self.azure_id_cert_file_name,
+        }
+        return out_dict
 
 
 class QRCodeTokenRequest(TokenRequest):
@@ -598,6 +631,7 @@ AnyTokenRequest = Annotated[
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
+        AzureIDTokenRequest,
         PDFTokenRequest,
         DNSTokenRequest,
         Log4ShellTokenRequest,
@@ -668,6 +702,15 @@ class AWSKeyTokenResponse(TokenResponse):
     aws_access_key_id: str
     aws_secret_access_key: str
     output: str
+
+
+class AzureIDTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
+    app_id: str
+    tenant_id: str
+    cert: str
+    cert_name: str
+    cert_file_name: str
 
 
 class PDFTokenResponse(TokenResponse):
@@ -880,6 +923,7 @@ AnyTokenResponse = Annotated[
         CustomBinaryTokenResponse,
         SlowRedirectTokenResponse,
         AWSKeyTokenResponse,
+        AzureIDTokenResponse,
         MsWordDocumentTokenResponse,
         Log4ShellTokenResponse,
         MsExcelDocumentTokenResponse,
@@ -1045,6 +1089,47 @@ class AWSKeyAdditionalInfo(BaseModel):
         return {k.lower(): v for k, v in values.items()}
 
 
+class AzureIDAdditionalInfo(BaseModel):
+    azure_id_log_data: dict[str, list[str]]
+    microsoft_azure: dict[str, list[str]]
+    location: dict[str, list[str]]
+    coordinates: dict[str, list[str]]
+
+    @root_validator(pre=True)
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        keys_to_convert = [
+            # TODO: make this consistent.
+            ("Azure ID Log Data", "azure_id_log_data"),
+            ("Microsoft Azure", "microsoft_azure"),
+            ("Location", "location"),
+            ("Coordinates", "coordinates"),
+        ]
+        for old_key, new_key in keys_to_convert:  # pragma: no cover
+            if old_key in values:
+                values[new_key] = values.pop(old_key)
+
+        return {k.lower(): v for k, v in values.items()}
+
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `AzureIDTokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: AzureIDTokenHit in v2 dict representation.
+        """
+        data = self.dict()
+        keys_to_convert = [
+            # TODO: make this consistent.
+            ("Azure ID Log Data", "azure_id_log_data"),
+            ("Microsoft Azure", "microsoft_azure"),
+            ("Location", "location"),
+            ("Coordinates", "coordinates"),
+        ]
+        for value, key in keys_to_convert:
+            if key in data:
+                data[value] = data.pop(key)
+        return data
+
+
 class AdditionalInfo(BaseModel):
     # the ServiceInfo keys are dynamic
     # this only works for our test
@@ -1139,6 +1224,25 @@ class TokenHit(BaseModel):
         if value == "":
             return None
         return value
+
+
+class AzureIDTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
+    additional_info: Optional[AzureIDAdditionalInfo]
+
+    class Config:
+        allow_population_by_field_name = True
+
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `AzureIDTokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: AzureIDTokenHit in v2 dict representation.
+        """
+        data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+        if "additional_info" in data:
+            data["additional_info"] = self.additional_info.serialize_for_v2()
+        return data
 
 
 class AWSKeyTokenHit(TokenHit):
@@ -1339,6 +1443,7 @@ AnyTokenHit = Annotated[
         CMDTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
+        AzureIDTokenHit,
         PDFTokenHit,
         ClonedWebTokenHit,
         Log4ShellTokenHit,
@@ -1441,6 +1546,11 @@ class TokenHistory(GenericModel, Generic[TH]):
 class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
     hits: List[AWSKeyTokenHit]
+
+
+class AzureIDTokenHistory(TokenHistory):
+    token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
+    hits: List[AzureIDTokenHit]
 
 
 class DNSTokenHistory(TokenHistory[DNSTokenHit]):
@@ -1600,6 +1710,7 @@ AnyTokenHistory = Annotated[
         CMDTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
+        AzureIDTokenHistory,
         PDFTokenHistory,
         SMTPTokenHistory,
         ClonedWebTokenHistory,
@@ -1813,6 +1924,8 @@ class DownloadFmtTypes(str, enum.Enum):
     MSEXCEL = "msexcel"
     PDF = "pdf"
     AWSKEYS = "awskeys"
+    AZUREIDCONFIG = "azure_id_config"
+    AZUREIDCERT = "azure_id"
     KUBECONFIG = "kubeconfig"
     SLACKAPI = "slackapi"
     INCIDENTLISTJSON = "incidentlist_json"
@@ -1887,6 +2000,14 @@ class DownloadAWSKeysRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.AWSKEYS] = DownloadFmtTypes.AWSKEYS
 
 
+class DownloadAzureIDConfigRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.AZUREIDCONFIG] = DownloadFmtTypes.AZUREIDCONFIG
+
+
+class DownloadAzureIDCertRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.AZUREIDCERT] = DownloadFmtTypes.AZUREIDCERT
+
+
 class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
@@ -1906,6 +2027,8 @@ class DownloadSplackApiRequest(TokenDownloadRequest):
 AnyDownloadRequest = Annotated[
     Union[
         DownloadAWSKeysRequest,
+        DownloadAzureIDConfigRequest,
+        DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
         DownloadIncidentListCSVRequest,
@@ -2033,6 +2156,26 @@ class DownloadAWSKeysResponse(TokenDownloadResponse):
     aws_secret_access_key: str
     region: str
     output: str
+
+
+class DownloadAzureIDConfigResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+    ...
+
+
+class DownloadAzureIDCertResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+    ...
 
 
 class DownloadKubeconfigResponse(TokenDownloadResponse):

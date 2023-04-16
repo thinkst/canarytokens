@@ -23,6 +23,8 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyAdditionalInfo,
     AWSKeyTokenResponse,
+    AzureIDTokenResponse,
+    AzureIDAdditionalInfo,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -247,6 +249,28 @@ def aws_token_fire(token_info: AWSKeyTokenResponse, version: Union[V2, V3]) -> N
     _ = urllib.request.urlopen(req)
 
 
+def azure_token_fire(
+    token_info: AzureIDTokenResponse, data: dict, version: Union[V2, V3]
+) -> None:
+    """Triggers an Azure token via the HTTP channel.
+    This mimics the POST we receive.
+
+    Args:
+        token_info (AzureIDTokenResponse): This is the token that gets triggered.
+        data (dict): the data that would be passed as the body
+    """
+    if version.live:
+        url = token_info.token_url
+    else:
+        # Need to hit Switchboard directly.
+        http_url = parse_obj_as(HttpUrl, token_info.token_url)
+        http_url.port = version.canarytokens_http_port
+        url = f"{http_url.scheme}://{http_url.host}:{http_url.port}{http_url.path}"
+
+    resp = requests.post(url, json=data)
+    resp.raise_for_status()
+
+
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))
 def get_token_history(
     token_info: Union[
@@ -437,6 +461,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",
         cmd_process_name="klist.exe",
+        azure_id_cert_file_name="test.pem",
     )
 
 
@@ -456,6 +481,26 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
                 "safety_net": ["True"],
                 "last_used": ["2022-07-29T05:48:00+00:00"],
             }
+        )
+    elif token_type == TokenTypes.AZURE_ID:
+        additional_info = AzureIDAdditionalInfo(
+            coordinates={"latitude": ["-25.73"], "longitude": ["28.21"]},
+            azure_id_log_data={
+                "Date": ["2023-04-03T15:40:13.785374Z"],
+                "Authentication": [
+                    "\nAzure AD App Authentication Library: Family: MSAL Library: MSAL.Python 1.20.0 Platform: Python"
+                ],
+            },
+            location={
+                "city": ["Pretoria"],
+                "state": ["Gauteng"],
+                "countryOrRegion": ["ZA"],
+            },
+            microsoft_azure={
+                "App ID": ["some-app-id"],
+                "Resource": ["Windows Azure Service Management API"],
+                "Cert ID": ["some-cert-id"],
+            },
         )
     else:
         additional_info = AdditionalInfo()
