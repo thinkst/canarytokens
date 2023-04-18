@@ -144,17 +144,17 @@ from canarytokens.queries import (
     validate_webhook,
 )
 from canarytokens.redismanager import DB
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.ziplib import make_canary_zip
 
 frontend_settings = FrontendSettings()
-switchboard_settings = Settings()
+switchboard_settings = SwitchboardSettings()
 if switchboard_settings.USING_NGINX:
-    canary_http_channel = f"http://{switchboard_settings.DOMAINS[0]}"
+    canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}"
 else:
-    canary_http_channel = f"http://{switchboard_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
+    canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
 
 if frontend_settings.SENTRY_ENABLE:
     sentry_sdk.init(
@@ -195,7 +195,7 @@ templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
 if (
     frontend_settings.SENTRY_ENABLE
-    and frontend_settings.FRONTEND_HOSTNAME != "127.0.0.1"
+    and switchboard_settings.PUBLIC_DOMAIN != "127.0.0.1"
 ):
     # Add sentry when running on a domain.
     app.add_middleware(SentryAsgiMiddleware)
@@ -275,9 +275,9 @@ def startup_event():
     remove_canary_domain()
     remove_canary_domain()
 
-    add_canary_domain(domain=switchboard_settings.LISTEN_DOMAIN)
+    add_canary_domain(domain=frontend_settings.DOMAINS[0])
     add_canary_google_api_key(frontend_settings.GOOGLE_API_KEY)
-    add_canary_nxdomain(domain=switchboard_settings.NXDOMAINS[0])
+    add_canary_nxdomain(domain=frontend_settings.NXDOMAINS[0])
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
 
@@ -431,7 +431,7 @@ async def manage_page_get(
         "canarydrop": canarydrop,
         "API_KEY": queries.get_canary_google_api_key(),
         "now": datetime.datetime.now(),
-        "public_ip": switchboard_settings.PUBLIC_IP,
+        "public_ip": frontend_settings.PUBLIC_IP,
         "wg_private_key_seed": switchboard_settings.WG_PRIVATE_KEY_SEED,
         "wg_private_key_n": switchboard_settings.WG_PRIVATE_KEY_N,
     }
@@ -439,7 +439,7 @@ async def manage_page_get(
     if canarydrop.type == TokenTypes.WIREGUARD:
         wg_conf = wg.clientConfig(
             canarydrop.wg_key,
-            switchboard_settings.PUBLIC_IP,
+            frontend_settings.PUBLIC_IP,
             switchboard_settings.WG_PRIVATE_KEY_SEED,
             switchboard_settings.WG_PRIVATE_KEY_N,
         )
@@ -578,7 +578,7 @@ def _(
 
 @create_download_response.register
 def _(download_request_details: DownloadZipRequest, canarydrop: Canarydrop) -> Response:
-    hostname = f"{canarydrop.canarytoken.value()}.{switchboard_settings.LISTEN_DOMAIN}"
+    hostname = f"{canarydrop.canarytoken.value()}.{frontend_settings.DOMAINS[0]}"
     windows_dir_content = make_canary_zip(hostname)
 
     return DownloadZipResponse(
@@ -645,7 +645,7 @@ def _(
         content=make_canary_mysql_dump(
             mysql_usage=Canarydrop.generate_mysql_usage(
                 token=canarydrop.canarytoken.value(),
-                domain=switchboard_settings.LISTEN_DOMAIN,
+                domain=frontend_settings.DOMAINS[0],
                 port=switchboard_settings.CHANNEL_MYSQL_PORT,
                 encoded=download_request_details.encoded,
             ),
@@ -902,7 +902,7 @@ def _(
 def _(
     token_request_details: WireguardTokenRequest, canarydrop: Canarydrop
 ) -> WireguardTokenResponse:
-    public_ip = switchboard_settings.PUBLIC_IP
+    public_ip = frontend_settings.PUBLIC_IP
     wg_private_key_seed = switchboard_settings.WG_PRIVATE_KEY_SEED
     wg_private_key_n = switchboard_settings.WG_PRIVATE_KEY_N
     wg_conf = wg.clientConfig(
@@ -945,11 +945,11 @@ def _(token_request_details: SQLServerTokenRequest, canarydrop: Canarydrop):
 def _create_aws_key_token_response(
     token_request_details: AWSKeyTokenRequest,
     canarydrop: Canarydrop,
-    settings: Optional[Settings] = None,
+    settings: Optional[FrontendSettings] = None,
 ) -> AWSKeyTokenResponse:
 
     if settings is None:
-        settings = switchboard_settings
+        settings = frontend_settings
 
     try:
         key = get_aws_key(
@@ -996,10 +996,10 @@ def _create_aws_key_token_response(
 def _create_azure_id_token_response(
     token_request_details: AzureIDTokenRequest,
     canarydrop: Canarydrop,
-    settings: Optional[Settings] = None,
+    settings: Optional[FrontendSettings] = None,
 ) -> AzureIDTokenResponse:
     if settings is None:
-        settings = switchboard_settings
+        settings = frontend_settings
 
     try:
         if not settings.AZURE_ID_TOKEN_URL:
@@ -1145,7 +1145,7 @@ def _(
         canarydrop (Canarydrop): Drop to associate with token and store relevant info.
 
     Raises:
-        HTTPException: 400 if file is too large. See MAX_EXE_UPLOAD_SIZE in settings.
+        HTTPException: 400 if file is too large. See MAX_UPLOAD_SIZE in settings.
         HTTPException: 400 if file is not a .exe or .dll extension.
 
     Returns:
@@ -1161,11 +1161,11 @@ def _(
             status_code=400, detail="Uploaded authenticode file must be an exe or dll"
         )
 
-    if len(filebody) > frontend_settings.MAX_EXE_UPLOAD_SIZE:
+    if len(filebody) > frontend_settings.MAX_UPLOAD_SIZE:
         raise HTTPException(
             status_code=400,
             detail="File too large. File size must be < {size} MB. {size_given} MB given.".format(
-                size=frontend_settings.MAX_EXE_UPLOAD_SIZE / (1024 * 1024),
+                size=frontend_settings.MAX_UPLOAD_SIZE / (1024 * 1024),
                 size_given=len(filebody) / (1024 * 1024),
             ),
         )
@@ -1206,7 +1206,7 @@ def _(
     Raises:
         HTTPException: status 400 if Image Upload is not supported.
         HTTPException: status 400 if file is not .png, .gif, .jpg
-        HTTPException: status 400 if file is too large. See MAX_WEB_IMAGE_UPLOAD_SIZE
+        HTTPException: status 400 if file is too large. See MAX_UPLOAD_SIZE
         HTTPException: status 400 if failed to save file.
 
     Returns:
@@ -1228,8 +1228,8 @@ def _(
     # extract file bytes and check file size
     token_request_details.web_image.file.seek(0)
     filebody = token_request_details.web_image.file.read()
-    if len(filebody) > frontend_settings.MAX_WEB_IMAGE_UPLOAD_SIZE:
-        max_size = str(frontend_settings.MAX_WEB_IMAGE_UPLOAD_SIZE / (1024 * 1024))
+    if len(filebody) > frontend_settings.MAX_UPLOAD_SIZE:
+        max_size = str(frontend_settings.MAX_UPLOAD_SIZE / (1024 * 1024))
         raise HTTPException(
             status_code=400,
             detail=f"File too large. File size must be < {max_size} MB.",
@@ -1379,16 +1379,16 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
         token_url=HttpUrl(
             canarydrop.get_url(
                 [
-                    f"{frontend_settings.FRONTEND_SCHEME}://{switchboard_settings.DOMAINS[0]}"
+                    f"{switchboard_settings.SWITCHBOARD_SCHEME}://{frontend_settings.DOMAINS[0]}"
                 ]
             ),
-            scheme=frontend_settings.FRONTEND_SCHEME,
+            scheme=switchboard_settings.SWITCHBOARD_SCHEME,
         ),
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),
         usage=Canarydrop.generate_mysql_usage(
             canarydrop.canarytoken.value(),
-            domain=switchboard_settings.LISTEN_DOMAIN,
+            domain=frontend_settings.DOMAINS[0],
             port=switchboard_settings.CHANNEL_MYSQL_PORT,
         ),
     )

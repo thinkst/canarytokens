@@ -59,7 +59,7 @@ from canarytokens.models import (
     WindowsDirectoryTokenResponse,
 )
 from canarytokens.queries import save_canarydrop
-from canarytokens.settings import Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_basic_hit, get_token_request
 
@@ -587,7 +587,7 @@ def test_authorised_page_access(
 
 def test_aws_keys_broken(
     webhook_receiver: HttpUrl,
-    settings: Settings,
+    frontend_settings: FrontendSettings,
     settings_env_vars: None,
     setup_db: None,
 ) -> None:
@@ -600,12 +600,12 @@ def test_aws_keys_broken(
         },
         clear=False,
     ):
-        local_settings = Settings(
+        local_settings = FrontendSettings(
             AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
                 k: v
-                for k, v in settings.dict().items()
+                for k, v in frontend_settings.dict().items()
                 if k not in ["AWSID_URL", "TESTING_AWS_ACCESS_KEY_ID"]
             },
         )
@@ -642,7 +642,8 @@ def test_aws_keys_broken(
 
 def test_aws_keys(
     webhook_receiver: HttpUrl,
-    settings: Settings,
+    settings: SwitchboardSettings,
+    frontend_settings: FrontendSettings,
     settings_env_vars: None,
     setup_db: None,
 ) -> None:
@@ -655,12 +656,12 @@ def test_aws_keys(
         },
         clear=False,
     ):
-        local_settings = Settings(
+        local_settings = FrontendSettings(
             AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
                 k: v
-                for k, v in settings.dict().items()
+                for k, v in frontend_settings.dict().items()
                 if k not in ["AWSID_URL", "TESTING_AWS_ACCESS_KEY_ID"]
             },
         )

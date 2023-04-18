@@ -6,7 +6,6 @@ from typing import Dict
 import requests
 from pydantic import HttpUrl
 from twisted.logger import Logger
-from twisted.python.failure import Failure
 
 from canarytokens import canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
@@ -27,8 +26,8 @@ class WebhookOutputChannel(OutputChannel):
     ) -> None:
         payload = input_channel.format_webhook_canaryalert(
             canarydrop=canarydrop,
-            host=self.frontend_hostname,
-            protocol=self.frontend_scheme,
+            host=self.hostname,
+            protocol=self.switchboard_scheme,
         )
 
         self.generic_webhook_send(
@@ -47,17 +46,15 @@ class WebhookOutputChannel(OutputChannel):
                 url=str(alert_webhook_url), json=payload, timeout=(3, 10)
             )
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            log.critical(
+        except requests.exceptions.HTTPError:
+            log.error(
                 "Failed sending request to webhook {url}.",
                 url=alert_webhook_url,
-                log_failure=Failure(e),
             )
-        except requests.exceptions.ConnectionError as e:
-            log.critical(
+        except requests.exceptions.ConnectionError:
+            log.error(
                 "Failed connecting to webhook {url}.",
                 url=alert_webhook_url,
-                log_failure=Failure(e),
             )
         else:
             log.info(f"Successfully sent to {alert_webhook_url}")

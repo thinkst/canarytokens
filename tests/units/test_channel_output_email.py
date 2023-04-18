@@ -15,12 +15,12 @@ from canarytokens.models import (
     TokenAlertDetails,
     TokenTypes,
 )
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
 
-def test_dns_rendered_html(settings: Settings):
+def test_dns_rendered_html(settings: SwitchboardSettings):
     details = TokenAlertDetails(
         channel="DNS",
         token_type=TokenTypes.DNS,
@@ -38,7 +38,7 @@ def test_dns_rendered_html(settings: Settings):
     assert "https://some.link/history/here" in email_template
 
 
-def test_slow_redirect_rendered_html(settings: Settings):
+def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
     details = TokenAlertDetails(
         channel="HTTP",
         token_type=TokenTypes.SLOW_REDIRECT,
@@ -62,7 +62,7 @@ def test_slow_redirect_rendered_html(settings: Settings):
     assert "https://fake.your/domain/stuff" in email_template
 
 
-def test_log4shell_rendered_html(settings: Settings):
+def test_log4shell_rendered_html(settings: SwitchboardSettings):
     details = TokenAlertDetails(
         channel="DNS",
         token_type=TokenTypes.LOG4SHELL,
@@ -83,7 +83,9 @@ def test_log4shell_rendered_html(settings: Settings):
     assert "SRV01" in email_template
 
 
-def test_sendgrid_send(settings: Settings, frontend_settings: FrontendSettings):
+def test_sendgrid_send(
+    settings: SwitchboardSettings, frontend_settings: FrontendSettings
+):
     sb = Switchboard()
     details = TokenAlertDetails(
         channel="DNS",
@@ -98,7 +100,7 @@ def test_sendgrid_send(settings: Settings, frontend_settings: FrontendSettings):
 
     email_output_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
-        settings=settings,
+        switchboard_settings=settings,
         switchboard=sb,
     )
 
@@ -107,7 +109,7 @@ def test_sendgrid_send(settings: Settings, frontend_settings: FrontendSettings):
         email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
-        email_address=EmailStr("benjamin+token-tester@thinkst.com"),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -117,7 +119,9 @@ def test_sendgrid_send(settings: Settings, frontend_settings: FrontendSettings):
     assert len(message_id) > 0
 
 
-def test_mailgun_send(settings: Settings, frontend_settings: FrontendSettings):
+def test_mailgun_send(
+    settings: SwitchboardSettings, frontend_settings: FrontendSettings
+):
     sb = Switchboard()
     details = TokenAlertDetails(
         channel="DNS",
@@ -132,7 +136,7 @@ def test_mailgun_send(settings: Settings, frontend_settings: FrontendSettings):
 
     email_output_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
-        settings=settings,
+        switchboard_settings=settings,
         switchboard=sb,
     )
     success, message_id = email_output_channel.mailgun_send(
@@ -140,7 +144,7 @@ def test_mailgun_send(settings: Settings, frontend_settings: FrontendSettings):
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
         email_content_text=EmailOutputChannel.format_report_text(details),
-        email_address=EmailStr("benjamin+token-tester@thinkst.com"),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -153,19 +157,19 @@ def test_mailgun_send(settings: Settings, frontend_settings: FrontendSettings):
 
 
 def test_do_send_alert(
-    frontend_settings: FrontendSettings, settings: Settings, setup_db
+    frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
 ):
 
     email_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
-        settings=settings,
+        switchboard_settings=settings,
         switchboard=Switchboard(),
     )
     canarydrop = Canarydrop(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,
         alert_email_enabled=True,
-        alert_email_recipient=EmailStr("benjamin+test@thinkst.com"),
+        alert_email_recipient=EmailStr("tokens-testing@thinkst.com"),
         memo=Memo("Test email thanks for checking!"),
         triggered_details=DNSTokenHistory(
             hits=[
@@ -183,8 +187,8 @@ def test_do_send_alert(
         token_hit=None,
         input_channel=InputChannel(
             switchboard=Switchboard(),
-            frontend_hostname="127.0.0.1",
-            frontend_scheme="http",
+            switchboard_hostname="127.0.0.1",
+            switchboard_scheme="http",
             name="DNS",
         ),
     )
@@ -195,7 +199,7 @@ def test_do_send_alert(
 
 
 def test_do_send_alert_retries(
-    frontend_settings: FrontendSettings, settings: Settings, setup_db
+    frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
 ):
     """
     Test that email alert failures are retried and that the details and
@@ -209,10 +213,10 @@ def test_do_send_alert_retries(
 
     email_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
-        settings=settings,
+        switchboard_settings=settings,
         switchboard=Switchboard(),
     )
-    recipient = EmailStr("benjamin+test@thinkst.com")
+    recipient = EmailStr("tokens-testing@thinkst.com")
     canarydrop = Canarydrop(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,
@@ -236,8 +240,8 @@ def test_do_send_alert_retries(
             token_hit=None,
             input_channel=InputChannel(
                 switchboard=Switchboard(),
-                frontend_hostname="127.0.0.1",
-                frontend_scheme="http",
+                switchboard_hostname="127.0.0.1",
+                switchboard_scheme="http",
                 name="DNS",
             ),
         )

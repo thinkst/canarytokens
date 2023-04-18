@@ -33,6 +33,7 @@ from canarytokens.models import (
     DownloadGetRequestModel,
     DownloadIncidentListJsonRequest,
     GeoIPBogonInfo,
+    KubeconfigTokenRequest,
     Log4ShellTokenResponse,
     Memo,
     SettingsRequest,
@@ -387,6 +388,7 @@ def set_token_settings(setting: SettingsRequest, version: Union[V2, V3]):
 def create_token(token_request: TokenRequest, version: Union[V2, V3]):
     generate_url = f"{version.server_url}/generate"
     kwargs = {}
+    timeout = request_timeout
     if isinstance(version, V2):
         kwargs["data"] = token_request.to_dict(version=version)
     elif isinstance(version, V3):
@@ -394,6 +396,9 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
             token_request, (CustomImageTokenRequest, CustomBinaryTokenRequest)
         ):
             kwargs["data"] = token_request.to_dict(version=version)
+        elif isinstance(token_request, KubeconfigTokenRequest):
+            timeout = (60, 60)  # the devcontainer is *slow*
+            kwargs["json"] = token_request.to_dict(version=version)
         else:
             kwargs["json"] = token_request.to_dict(version=version)
     else:
@@ -418,7 +423,7 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
 
     resp = session.post(
         url=generate_url,
-        timeout=request_timeout,
+        timeout=timeout,
         **kwargs,
         headers={"Connection": "close"},
     )

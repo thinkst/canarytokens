@@ -30,7 +30,7 @@ from canarytokens.queries import (
     save_kc_endpoint,
 )
 from canarytokens.redismanager import DB, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP
-from canarytokens.settings import FrontendSettings, Port, Settings
+from canarytokens.settings import FrontendSettings, Port, SwitchboardSettings
 
 # TODO: Once webhooker can handle more / faster traffic these will get upped
 # DESIGN: ngrok to get a basic webhook(er). This can be a lambda or a docker service.
@@ -149,24 +149,21 @@ def webhook_receiver() -> Generator[str, None, None]:
         in the same way the `CreateUserAPITokens` lambda does.
         """
         # TODO: loading settings here is likely no needed - should be not needed.
-        switchboard_settings = Settings(
-            LISTEN_DOMAIN="127.0.0.1",
+        frontend_settings = FrontendSettings(
             NXDOMAINS=["nxdomain.127.0.0.1"],
             PUBLIC_IP="10.0.1.3",
             DOMAINS=["127.0.0.1"],
-            CHANNEL_HTTP_PORT=Port(8084),
-            CHANNEL_SMTP_PORT=Port(25)
-            if strtobool(os.getenv("LIVE", "FALSE"))
-            else Port(2500),
             AWSID_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
+            AZURE_ID_TOKEN_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
+            AZURE_ID_TOKEN_AUTH="N/A=",
             SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
-            WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
+            GOOGLE_API_KEY="N/A=",
         )
         mock_key = {
-            "access_key_id": switchboard_settings.TESTING_AWS_ACCESS_KEY_ID,
-            "secret_access_key": switchboard_settings.TESTING_AWS_SECRET_ACCESS_KEY,
-            "region": switchboard_settings.TESTING_AWS_REGION,
-            "output": switchboard_settings.TESTING_AWS_OUTPUT,
+            "access_key_id": frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
+            "secret_access_key": frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
+            "region": frontend_settings.TESTING_AWS_REGION,
+            "output": frontend_settings.TESTING_AWS_OUTPUT,
         }
         return mock_key
 
@@ -211,18 +208,14 @@ def runv3(request: pytest.FixtureRequest) -> bool:
 
 
 @pytest.fixture(scope="session")
-def settings() -> Settings:
-    return Settings(
-        LISTEN_DOMAIN="127.0.0.1",
-        NXDOMAINS=["nx.127.0.0.1"],
-        PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
-        DOMAINS=["127.0.0.1"],
+def settings() -> SwitchboardSettings:
+    return SwitchboardSettings(
+        PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
         CHANNEL_SMTP_PORT=Port(25)
         if strtobool(os.getenv("LIVE", "FALSE"))
         else Port(2500),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
-        AWSID_URL=HttpUrl("https://overwrit.e/from/outside", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )
 
@@ -232,19 +225,13 @@ def fake_settings_for_aws_keys():
     """Used for unit tests that need TESTING_AWS...
     details.
     """
-    return Settings(
-        LISTEN_DOMAIN="127.0.0.1",
-        NXDOMAINS=["noexample.com"],
-        PUBLIC_IP="10.0.1.3",
-        DOMAINS=["127.0.0.1"],
+    return SwitchboardSettings(
+        PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
         CHANNEL_SMTP_PORT=Port(25)
         if strtobool(os.getenv("LIVE", "FALSE"))
         else Port(2500),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
-        AWSID_URL=HttpUrl("https://overwrit.e/from/outside", scheme="https"),
-        TESTING_AWS_ACCESS_KEY_ID="placeholder_key_id",
-        TESTING_AWS_SECRET_ACCESS_KEY="placeholder_secret_key",
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )
 
@@ -261,8 +248,8 @@ def settings_env_vars() -> Generator[None, None, None]:
         {
             # "CANARY_STATIC_FILES_PATH": "templates/static",
             # "CANARY_TEMPLATES_PATH": "templates",
-            "CANARY_TESTING_AWS_ACCESS_KEY_ID": "not_a_key_id",
-            "CANARY_TESTING_AWS_SECRET_ACCESS_KEY": "not_a_secret_key",
+            "CANARY_TESTING_AWS_ACCESS_KEY_ID": "placeholder_key_id",
+            "CANARY_TESTING_AWS_SECRET_ACCESS_KEY": "placeholder_secret_key",
             "CANARY_TESTING_AWS_REGION": "us-east-2",
             "CANARY_TESTING_AWS_OUTPUT": "json",
         },
@@ -274,25 +261,32 @@ def settings_env_vars() -> Generator[None, None, None]:
 @pytest.fixture(scope="session")
 def frontend_settings() -> FrontendSettings:
     return FrontendSettings(
-        FRONTEND_SCHEME="http",
-        FRONTEND_HOSTNAME="127.0.0.1",
+        NXDOMAINS=["nx.127.0.0.1"],
+        PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
+        DOMAINS=["127.0.0.1"],
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https://"),
         TEMPLATES_PATH="../templates",
         STATIC_FILES_PATH="../templates/static",
         STATIC_FILES_APPLICATION_SUB_PATH="/resources",
         STATIC_FILES_APPLICATION_INTERNAL_NAME="resources",
+        WEB_IMAGE_UPLOAD_PATH="../uploads",
+        AWSID_URL=HttpUrl("https://overwrit.e/from/outside", scheme="https"),
+        TESTING_AWS_ACCESS_KEY_ID="placeholder_key_id",
+        TESTING_AWS_SECRET_ACCESS_KEY="placeholder_secret_key",
         GOOGLE_API_KEY="nothing_here",
     )
 
 
 @pytest.fixture(scope="session")
-def setup_db_connection_only(settings: Settings):
+def setup_db_connection_only(settings: SwitchboardSettings):
     redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     DB.set_db_details(hostname=redis_hostname, port=6379)
 
 
 @pytest.fixture(scope="function", autouse=False)
-def setup_db(settings: Settings):  # noqa: C901
+def setup_db(  # noqa: C901
+    settings: SwitchboardSettings, frontend_settings: FrontendSettings
+):
     redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     DB.set_db_details(hostname=redis_hostname, port=6379)
     # Kubeconfig token needs a client cert in redis.
@@ -320,7 +314,7 @@ def setup_db(settings: Settings):  # noqa: C901
         server_cert = mTLS.generate_new_certificate(
             ca_redis_key=kubeconfig.ServerCA,
             username="kubernetes-ca",
-            ip=IPv4Address(settings.PUBLIC_IP),
+            ip=IPv4Address(frontend_settings.PUBLIC_IP),
             is_server_cert=True,
         )
         save_certificate(kubeconfig.ServerCert, server_cert)
@@ -331,12 +325,12 @@ def setup_db(settings: Settings):  # noqa: C901
             db.delete(key)
 
     save_kc_endpoint(
-        settings.LISTEN_DOMAIN,
+        frontend_settings.DOMAINS[0],
         settings.CHANNEL_MTLS_KUBECONFIG_PORT,
     )
 
-    add_canary_domain(settings.LISTEN_DOMAIN)
-    add_canary_nxdomain(settings.NXDOMAINS[0])
+    add_canary_domain(frontend_settings.DOMAINS[0])
+    add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
     add_canary_path_element("tags")
 
@@ -348,8 +342,8 @@ def setup_db(settings: Settings):  # noqa: C901
     # DESIGN: canarytokens needs these and adds them on startup.
     #         Tests should ensure we don't interfere too much.
     #         Remove dependence on redis as a shared global.
-    add_canary_domain(settings.LISTEN_DOMAIN)
-    add_canary_nxdomain(settings.NXDOMAINS[0])
+    add_canary_domain(frontend_settings.DOMAINS[0])
+    add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
     add_canary_path_element("tags")
 
