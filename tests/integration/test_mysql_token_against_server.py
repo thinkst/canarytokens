@@ -20,7 +20,7 @@ from canarytokens.models import (
     MySQLTokenResponse,
 )
 from canarytokens.mysql import make_canary_mysql_dump
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 
 
@@ -29,7 +29,7 @@ def test_mysql_token(
     version: Union[V2, V3],
     webhook_receiver: str,
     frontend_settings: FrontendSettings,
-    settings: Settings,
+    settings: SwitchboardSettings,
     runv2: bool,
     runv3: bool,
 ):  # pragma: no cover
@@ -70,7 +70,6 @@ def test_mysql_token(
     # Trigger the token
     command = ["mysql", "-h127.0.0.1", "-uroot"]
 
-    # ! what happens if on honeypdfs??
     if not strtobool(os.getenv("CI", "False")):
         command[command.index("-h127.0.0.1")] = "-hmysql"
     else:

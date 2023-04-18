@@ -17,7 +17,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_WIREGUARD
 from canarytokens.models import TokenTypes, WireguardTokenHit
-from canarytokens.settings import Settings
+from canarytokens.settings import SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 from canarytokens.wireguard import (
@@ -49,7 +49,9 @@ class WireGuardProtocol(DatagramProtocol):
     INITIAL_CHAIN_KEY = hash(NOISE_CONSTRUCTION)
     INITIAL_HASH = mixhash(INITIAL_CHAIN_KEY, WG_IDENTIFIER)
 
-    def __init__(self, channel: InputChannel, switchboard_settings: Settings) -> None:
+    def __init__(
+        self, channel: InputChannel, switchboard_settings: SwitchboardSettings
+    ) -> None:
         self.channel = channel
         self.devices = getDevices(
             wg_private_key_seed=switchboard_settings.WG_PRIVATE_KEY_SEED,
@@ -171,15 +173,15 @@ class ChannelWireGuard(InputChannel):
         self,
         port: int,
         switchboard: Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
-        switchboard_settings: Settings,
+        switchboard_scheme: str,
+        switchboard_hostname: str,
+        switchboard_settings: SwitchboardSettings,
     ) -> None:
         InputChannel.__init__(
             self,
             switchboard=switchboard,
-            frontend_scheme=frontend_scheme,
-            frontend_hostname=frontend_hostname,
+            switchboard_scheme=switchboard_scheme,
+            switchboard_hostname=switchboard_hostname,
             name=self.CHANNEL,
             unique_channel=True,
         )

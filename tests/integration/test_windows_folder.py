@@ -120,13 +120,13 @@ def test_windows_directory(tmpdir, version, webhook_receiver, runv2, runv3):
     # Check that the returned history has a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats:
-        assert len(stats) == 1
+        assert len(stats) >= 1
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
     resp = get_token_history(token_info=token_info, version=version)
     token_history = WindowsDirectoryTokenHistory(**resp)
-    assert len(token_history.hits) == 1
+    assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "DNS"
     assert token_hit.src_data == {

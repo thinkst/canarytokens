@@ -96,14 +96,14 @@ class CanaryMySQLFactory(InputChannel, Factory):
     def __init__(
         self,
         switchboard: Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
+        switchboard_scheme: str,
+        switchboard_hostname: str,
     ):
         InputChannel.__init__(
             self,
             switchboard=switchboard,
-            frontend_scheme=frontend_scheme,
-            frontend_hostname=frontend_hostname,
+            switchboard_scheme=switchboard_scheme,
+            switchboard_hostname=switchboard_hostname,
             name=self.CHANNEL,
         )
 
@@ -113,14 +113,14 @@ class ChannelMySQL:
         self,
         port: int,
         switchboard: Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
+        switchboard_scheme: str,
+        switchboard_hostname: str,
     ):
         self.service = internet.TCPServer(
             port,
             CanaryMySQLFactory(
                 switchboard=switchboard,
-                frontend_scheme=frontend_scheme,
-                frontend_hostname=frontend_hostname,
+                switchboard_scheme=switchboard_scheme,
+                switchboard_hostname=switchboard_hostname,
             ),
         )

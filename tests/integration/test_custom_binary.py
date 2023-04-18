@@ -30,13 +30,12 @@ from tests.utils import (
 
 
 @pytest.mark.skipif(os.name == "nt", reason="Skip if nt os (Windows OS)")
+@pytest.mark.parametrize("version", [v2, v3])
 @pytest.mark.parametrize(
-    "version,file_name,file_mimetype",
+    "file_name,file_mimetype",
     [
-        (v2, "helloWorld.exe", "application/x-msdownload"),
-        (v2, "helloWorld.dll", "application/octet-stream"),
-        (v3, "helloWorld.exe", "application/x-msdownload"),
-        (v3, "helloWorld.dll", "application/octet-stream"),
+        ("helloWorld.exe", "application/x-msdownload"),
+        ("helloWorld.dll", "application/octet-stream"),
     ],
 )
 def test_custom_binary_token_fire(

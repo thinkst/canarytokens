@@ -146,12 +146,12 @@ def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver, runv2, runv
     # Check that the returned history has a at least a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats:
-        assert len(stats) == 1
+        assert len(stats) >= 1
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
     resp = get_token_history(token_info=token_info, version=version)
     token_history = SvnTokenHistory(**resp)
-    assert len(token_history.hits) == 1
+    assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "DNS"

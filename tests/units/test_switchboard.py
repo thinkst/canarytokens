@@ -12,14 +12,13 @@ from canarytokens.tokens import Canarytoken
 pytestmark = pytest.mark.usefixtures("setup_db")
 
 
-def test_switchboard_input_channel_check_names(settings):
+def test_switchboard_input_channel_check_names(frontend_settings):
     switchboard = Switchboard()
     dns_input_channel = ChannelDNS(
         switchboard=switchboard,
-        settings=settings,
-        listen_domain="tokens.co.za",
-        frontend_scheme="https",
-        frontend_hostname="test.com",
+        frontend_settings=frontend_settings,
+        switchboard_scheme="https",
+        switchboard_hostname="test.com",
     )
     # switchboard.add_input_channel(name="http")
     assert dns_input_channel.name in switchboard.input_channels
@@ -55,16 +54,16 @@ async def test_switchboard_register_input_channel(settings, alert_webhook_url):
 
     webhook_output_channel = WebhookOutputChannel(
         switchboard=switchboard,
-        frontend_hostname="test.com",
-        frontend_scheme="https",
+        frontend_domain="test.com",
+        switchboard_scheme="https",
     )
     switchboard.add_input_channel(
         name="tester",
         channel=InputChannel(
             switchboard=switchboard,
             name="tester",
-            frontend_hostname="",
-            frontend_scheme="",
+            switchboard_hostname="",
+            switchboard_scheme="",
         ),
     )
     canarytoken = Canarytoken()

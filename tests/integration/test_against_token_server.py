@@ -38,7 +38,7 @@ from canarytokens.models import (
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
 )
-from canarytokens.settings import Settings
+from canarytokens.settings import SwitchboardSettings
 from tests.utils import (
     clear_stats_on_webhook,
     create_token,
@@ -258,7 +258,7 @@ def test_unique_email_token(
     webhook_receiver: str,
     runv2: bool,
     runv3: bool,
-    settings: Settings,
+    settings: SwitchboardSettings,
 ):
     """
     Tests unique email token. Creates a token with random memo and triggers
