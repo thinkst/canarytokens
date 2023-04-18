@@ -7,6 +7,7 @@ from twisted.names import dns, error
 from canarytokens import canarydrop, queries
 from canarytokens.channel_dns import ChannelDNS, DNSServerFactory
 from canarytokens.models import TokenTypes
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -29,13 +30,19 @@ switchboard = Switchboard()
         ("noexample.com", dns.A, lambda x: isinstance(x.value, error.DomainError)),
     ],
 )
-def test_query_types(setup_db, settings, query_string, q_type, expected_result_type):
+def test_query_types(
+    setup_db,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    query_string: str,
+    q_type: int,
+    expected_result_type,
+):
     resolver = ChannelDNS(
-        listen_domain=settings.LISTEN_DOMAIN,
         switchboard=switchboard,
-        frontend_scheme="http",
-        frontend_hostname="127.0.0.1",
-        settings=settings,
+        switchboard_scheme="http",
+        switchboard_hostname="127.0.0.1",
+        frontend_settings=frontend_settings,
     )
     # Make token so nxdomain lookup is tested.
     canarytoken = Canarytoken()
@@ -51,7 +58,7 @@ def test_query_types(setup_db, settings, query_string, q_type, expected_result_t
         redirect_url="https://youtube.com",
     )
     queries.save_canarydrop(cd)
-    query_string = query_string or settings.DOMAINS[0]
+    query_string = query_string or frontend_settings.DOMAINS[0]
     if query_string == "noexample.com":
         query_string = f"{canarytoken.value()}.{query_string}"
     m = dns.Message()
@@ -69,16 +76,20 @@ def test_query_types(setup_db, settings, query_string, q_type, expected_result_t
         TokenTypes.LOG4SHELL,
     ],
 )
-def test_channel_dns_query(setup_db, settings, token_type):
+def test_channel_dns_query(
+    setup_db,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    token_type,
+):
     """
     Test ChannelDNS.
     """
     resolver = ChannelDNS(
-        listen_domain=settings.LISTEN_DOMAIN,
         switchboard=switchboard,
-        frontend_scheme="http",
-        frontend_hostname="127.0.0.1",
-        settings=settings,
+        switchboard_scheme="http",
+        switchboard_hostname="127.0.0.1",
+        frontend_settings=frontend_settings,
     )
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -110,7 +121,7 @@ def test_channel_dns_query(setup_db, settings, token_type):
         socket.inet_ntoa(
             response_header.payload.address,
         )
-        == settings.PUBLIC_IP
+        == frontend_settings.PUBLIC_IP
     )
 
     _ = queries.get_canarydrop(canarytoken)

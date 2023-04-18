@@ -5,7 +5,7 @@ import requests
 from pydantic import HttpUrl
 
 from canarytokens.awskeys import get_aws_key
-from canarytokens.settings import Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 
 
@@ -25,22 +25,25 @@ from canarytokens.tokens import Canarytoken
     ],
 )
 def test_get_aws_key_with_query(
-    settings: Settings,
+    settings: SwitchboardSettings,
+    frontend_settings: FrontendSettings,
     webhook_receiver: str,
     path: str,
     expected_key: Optional[dict[str, str]],
 ) -> None:
     if expected_key:
         assert (
-            settings.TESTING_AWS_ACCESS_KEY_ID
-            and settings.TESTING_AWS_SECRET_ACCESS_KEY
+            frontend_settings.TESTING_AWS_ACCESS_KEY_ID
+            and frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY
         )
-        expected_key["access_key_id"] = settings.TESTING_AWS_ACCESS_KEY_ID
-        expected_key["secret_access_key"] = settings.TESTING_AWS_SECRET_ACCESS_KEY
+        expected_key["access_key_id"] = frontend_settings.TESTING_AWS_ACCESS_KEY_ID
+        expected_key[
+            "secret_access_key"
+        ] = frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY
 
         key = get_aws_key(
             token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
-            server=settings.LISTEN_DOMAIN,
+            server=frontend_settings.DOMAINS[0],
             aws_url=HttpUrl(
                 f"{webhook_receiver}/{path}/CreateUserAPITokens",
                 scheme=webhook_receiver[: webhook_receiver.index("://")],
@@ -54,7 +57,7 @@ def test_get_aws_key_with_query(
         with pytest.raises(requests.exceptions.HTTPError):
             key = get_aws_key(
                 token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
-                server=settings.LISTEN_DOMAIN,
+                server=settings.PUBLIC_DOMAIN,
                 aws_url=HttpUrl(
                     f"{webhook_receiver}/{path}/CreateUserAPITokens",
                     scheme=webhook_receiver[: webhook_receiver.index("://")],

@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "T4627_py3_main"
-      - "T5285_port_azure_token"
+      - "T5610_misc_fixes"
 
 jobs:
   tests:
@@ -110,6 +110,7 @@ jobs:
           export CANARY_SENDGRID_API_KEY=${{ secrets.TESTING_SENDGRID_API_KEY }}
           export CANARY_MAILGUN_API_KEY=${{ secrets.TESTING_MAILGUN_API_KEY }}
           export CANARY_SENTRY_ENVIRONMENT=ci
+          export CANARY_WEB_IMAGE_UPLOAD_PATH=../uploads
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
 
@@ -122,6 +123,7 @@ jobs:
       - name: Run integration tests (against local V3)
         run: |
           redis-cli flushall
+          mkdir uploads
           make switchboard &
           make frontend &
           cd tests

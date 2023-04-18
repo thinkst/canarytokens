@@ -98,14 +98,14 @@ class Channel(object):
     def __init__(
         self,
         switchboard: sb.Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
+        switchboard_scheme: str,
+        hostname: str,
         name: Optional[str] = None,
     ):
         self.switchboard: sb.Switchboard = switchboard
         # DESIGN: What does Switchboard / channels need to know about back/frontend
-        self.frontend_scheme = frontend_scheme
-        self.frontend_hostname = frontend_hostname
+        self.switchboard_scheme = switchboard_scheme
+        self.hostname = hostname
         self.name = name or self.CHANNEL
         log.info("Started channel {name}".format(name=self.name))
 
@@ -116,15 +116,15 @@ class InputChannel(Channel):
     def __init__(
         self,
         switchboard: sb.Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
+        switchboard_scheme: str,
+        switchboard_hostname: str,
         name: str,
         unique_channel: bool = False,
     ) -> None:
         super(InputChannel, self).__init__(
             switchboard=switchboard,
-            frontend_scheme=frontend_scheme,
-            frontend_hostname=frontend_hostname,
+            switchboard_scheme=switchboard_scheme,
+            hostname=switchboard_hostname,
             name=name,
         )
         self.register_input_channel(unique_channel)
@@ -305,14 +305,14 @@ class OutputChannel(Channel):
     def __init__(
         self,
         switchboard: sb.Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
+        switchboard_scheme: str,
+        frontend_domain: str,
         name: Optional[str] = None,
     ):
         super(OutputChannel, self).__init__(
             switchboard=switchboard,
-            frontend_scheme=frontend_scheme,
-            frontend_hostname=frontend_hostname,
+            switchboard_scheme=switchboard_scheme,
+            hostname=frontend_domain,
             name=name,
         )
         self.register_output_channel()

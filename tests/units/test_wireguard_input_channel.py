@@ -1,11 +1,13 @@
 from canarytokens.channel_input_wireguard import ChannelWireGuard, WireGuardProtocol
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 
 switchboard = Switchboard()
 
 
-def test_wireguard_channel(frontend_settings: FrontendSettings, settings: Settings):
+def test_wireguard_channel(
+    frontend_settings: FrontendSettings, settings: SwitchboardSettings
+):
     """
     Creates a Wireguard Channel and passes it data with an invalid timestamp
     """
@@ -13,8 +15,8 @@ def test_wireguard_channel(frontend_settings: FrontendSettings, settings: Settin
     canarytokens_wireguard = ChannelWireGuard(
         port=settings.CHANNEL_WIREGUARD_PORT,
         switchboard=switchboard,
-        frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-        frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+        switchboard_hostname=frontend_settings.DOMAINS[0],
         switchboard_settings=settings,
     )
     wireguard_protocol: WireGuardProtocol = canarytokens_wireguard.service.args[1]
