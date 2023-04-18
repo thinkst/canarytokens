@@ -11,7 +11,7 @@ from canarytokens import channel, queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import DuplicateChannel, InvalidChannel
 from canarytokens.models import AnyTokenHit
-from canarytokens.settings import Settings
+from canarytokens.settings import SwitchboardSettings
 
 log = Logger()
 
@@ -20,13 +20,13 @@ class Switchboard:
     # DESIGN: Do we need this to be a class?
     def __init__(
         self,
-        switchboard_settings: Optional[Settings] = None,
+        switchboard_settings: Optional[SwitchboardSettings] = None,
     ):
         """Return a new Switchboard instance."""
         if switchboard_settings:
-            self.settings = switchboard_settings
+            self.switchboard_settings = switchboard_settings
         else:
-            self.settings = None
+            self.switchboard_settings = None
         self.input_channels = {}
         self.output_channels: Dict[str, channel.OutputChannel] = {}
         log.info("Canarytokens switchboard started")
@@ -64,7 +64,9 @@ class Switchboard:
             )
 
         if not canarydrop.alertable(
-            alert_limit=self.settings.MAX_ALERTS_PER_MINUTE if self.settings else 1000
+            alert_limit=self.switchboard_settings.MAX_ALERTS_PER_MINUTE
+            if self.switchboard_settings
+            else 1000
         ):
             log.warn(
                 "Token {token} is not alertable at this stage.".format(

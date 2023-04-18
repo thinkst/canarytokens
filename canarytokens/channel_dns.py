@@ -13,7 +13,7 @@ from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_DNS
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import TokenTypes
-from canarytokens.settings import Settings
+from canarytokens.settings import FrontendSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -83,26 +83,25 @@ class ChannelDNS(InputChannel):
 
     def __init__(
         self,
-        listen_domain: str,
+        # listen_domain: str,
         switchboard: Switchboard,
-        frontend_scheme: str,
-        frontend_hostname: str,
-        settings: Settings,
+        switchboard_scheme: str,
+        switchboard_hostname: str,
+        frontend_settings: FrontendSettings,
         # **kwargs,
     ):
         super(ChannelDNS, self).__init__(
             switchboard=switchboard,
-            frontend_scheme=frontend_scheme,
-            frontend_hostname=frontend_hostname,
+            switchboard_scheme=switchboard_scheme,
+            switchboard_hostname=switchboard_hostname,
             name=self.CHANNEL,
         )
-        # TODO: Fix the kwargs here. No need to be vague.
-        self.settings: Settings = settings
+        self.frontend_settings: FrontendSettings = frontend_settings
 
-        self.listen_domain = listen_domain
+        # self.listen_domain = listen_domain
 
         # TODO: This should be passed in an not grabbed from redis
-        self.canary_domains = self.settings.DOMAINS
+        self.canary_domains = self.frontend_settings.DOMAINS
 
     def _do_ns_response(self, name=None):
         """
@@ -119,7 +118,7 @@ class ChannelDNS(InputChannel):
         )
         additional = dns.RRHeader(
             name=".".join(["ns1", name.decode()]),
-            payload=dns.Record_A(ttl=10, address=self.settings.PUBLIC_IP),
+            payload=dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP),
             type=dns.A,
             auth=True,
         )
@@ -157,8 +156,8 @@ class ChannelDNS(InputChannel):
         """
         Calculate the response to a query.
         """
-        log.info(f"Building A record: ip = {self.settings.PUBLIC_IP}")
-        payload = dns.Record_A(ttl=10, address=self.settings.PUBLIC_IP)
+        log.info(f"Building A record: ip = {self.frontend_settings.PUBLIC_IP}")
+        payload = dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP)
         answer = dns.RRHeader(name=name, payload=payload, type=dns.A, auth=True)
         answers = [answer]
         authority: list[str] = []
@@ -184,7 +183,7 @@ class ChannelDNS(InputChannel):
         IS_NX_DOMAIN = any(
             [
                 query.name.name.lower().decode().endswith(d)
-                for d in self.settings.NXDOMAINS
+                for d in self.frontend_settings.NXDOMAINS
             ],
         )
 
