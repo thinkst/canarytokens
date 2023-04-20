@@ -210,7 +210,6 @@ def runv3(request: pytest.FixtureRequest) -> bool:
 @pytest.fixture(scope="session")
 def settings() -> SwitchboardSettings:
     return SwitchboardSettings(
-        PUBLIC_IP="127.0.0.1",
         PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
         CHANNEL_SMTP_PORT=Port(25)
@@ -315,7 +314,7 @@ def setup_db(  # noqa: C901
         server_cert = mTLS.generate_new_certificate(
             ca_redis_key=kubeconfig.ServerCA,
             username="kubernetes-ca",
-            ip=IPv4Address(settings.PUBLIC_IP),
+            ip=IPv4Address(frontend_settings.PUBLIC_IP),
             is_server_cert=True,
         )
         save_certificate(kubeconfig.ServerCert, server_cert)
