@@ -210,6 +210,7 @@ def runv3(request: pytest.FixtureRequest) -> bool:
 @pytest.fixture(scope="session")
 def settings() -> SwitchboardSettings:
     return SwitchboardSettings(
+        PUBLIC_IP="127.0.0.1",
         PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
         CHANNEL_SMTP_PORT=Port(25)
