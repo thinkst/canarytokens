@@ -20,7 +20,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL
 from canarytokens.models import AnyTokenHit, TokenAlertDetails, TokenTypes
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.utils import retry_on_returned_error, token_type_as_readable
 
@@ -36,18 +36,17 @@ class EmailOutputChannel(OutputChannel):
     def __init__(
         self,
         switchboard: Switchboard,
-        frontend_settings: FrontendSettings,
-        settings: Settings,
+        switchboard_settings: SwitchboardSettings,
         name: Optional[str] = None,
     ):
-        self.settings = settings
-        self.from_email = settings.ALERT_EMAIL_FROM_ADDRESS
-        self.from_display = settings.ALERT_EMAIL_FROM_DISPLAY
-        self.email_subject = settings.ALERT_EMAIL_SUBJECT
+        self.switchboard_settings = switchboard_settings
+        self.from_email = switchboard_settings.ALERT_EMAIL_FROM_ADDRESS
+        self.from_display = switchboard_settings.ALERT_EMAIL_FROM_DISPLAY
+        self.email_subject = switchboard_settings.ALERT_EMAIL_SUBJECT
         super().__init__(
             switchboard,
-            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+            switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+            switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
             name=name,
         )
 
@@ -152,44 +151,48 @@ class EmailOutputChannel(OutputChannel):
     ):
         alert_details = input_channel.format_email_canaryalert(
             canarydrop=canarydrop,
-            host=self.frontend_hostname,
-            protocol=self.frontend_scheme,
+            host=self.switchboard_hostname,
+            protocol=self.switchboard_scheme,
         )
         #
         queries.add_mail_to_send_status(
             recipient=canarydrop.alert_email_recipient,
             details=alert_details,
         )
-        if self.settings.MAILGUN_API_KEY:
+        if self.switchboard_settings.MAILGUN_API_KEY:
             sent_successfully, message_id = EmailOutputChannel.mailgun_send(
                 email_address=canarydrop.alert_email_recipient,
                 email_subject=self.email_subject,
                 email_content_html=EmailOutputChannel.format_report_html(
                     alert_details,
-                    Path(f"{self.settings.TEMPLATES_PATH}/emails/notification.html"),
+                    Path(
+                        f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
+                    ),
                 ),
                 email_content_text=EmailOutputChannel.format_report_text(alert_details),
                 from_email=EmailStr(self.from_email),
                 from_display=self.from_display,
-                api_key=self.settings.MAILGUN_API_KEY,
-                base_url=self.settings.MAILGUN_BASE_URL,
-                mailgun_domain=self.settings.MAILGUN_DOMAIN_NAME,
+                api_key=self.switchboard_settings.MAILGUN_API_KEY,
+                base_url=self.switchboard_settings.MAILGUN_BASE_URL,
+                mailgun_domain=self.switchboard_settings.MAILGUN_DOMAIN_NAME,
             )
-        elif self.settings.SENDGRID_API_KEY:
+        elif self.switchboard_settings.SENDGRID_API_KEY:
             sent_successfully, message_id = EmailOutputChannel.sendgrid_send(
-                api_key=self.settings.SENDGRID_API_KEY,
+                api_key=self.switchboard_settings.SENDGRID_API_KEY,
                 email_address=canarydrop.alert_email_recipient,
                 email_content_html=EmailOutputChannel.format_report_html(
                     alert_details,
-                    Path(f"{self.settings.TEMPLATES_PATH}/emails/notification.html"),
+                    Path(
+                        f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
+                    ),
                 ),
                 from_email=EmailStr(self.from_email),
                 email_subject=self.email_subject,
                 from_display=self.from_display,
                 sandbox_mode=False,
-                # self.settings.SENDGRID_SANDBOX_MODE,
+                # self.switchboard_settings.SENDGRID_SANDBOX_MODE,
             )
-        elif self.settings.SMTP_SERVER:
+        elif self.switchboard_settings.SMTP_SERVER:
             raise NotImplementedError("SMTP_SERVER - not supported")
         else:
             log.error("No email settings found")

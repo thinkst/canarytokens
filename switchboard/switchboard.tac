@@ -19,7 +19,7 @@ from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
 from canarytokens.queries import add_return_for_token, update_tor_exit_nodes_loop
 from canarytokens.redismanager import DB
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import set_template_env
 from canarytokens.utils import get_deployed_commit_sha
@@ -29,7 +29,7 @@ from canarytokens.utils import get_deployed_commit_sha
 # from caa_monkeypatch import monkey_patch_caa_support
 # monkey_patch_caa_support()
 
-switchboard_settings = Settings()
+switchboard_settings = SwitchboardSettings()
 frontend_settings = FrontendSettings()
 
 sentry_sdk.utils.MAX_STRING_LENGTH = 8192
@@ -77,13 +77,12 @@ switchboard = Switchboard(switchboard_settings)
 
 email_output_channel = EmailOutputChannel(
     switchboard=switchboard,
-    frontend_settings=frontend_settings,
-    settings=switchboard_settings,
+    switchboard_settings=switchboard_settings,
 )
 webhook_output_channel = WebhookOutputChannel(
     switchboard=switchboard,
-    frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-    frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+    switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+    switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
 )
 
 dns_service = service.MultiService()
@@ -91,11 +90,10 @@ dns_service = service.MultiService()
 factory = DNSServerFactory(
     clients=[
         ChannelDNS(
-            listen_domain=switchboard_settings.LISTEN_DOMAIN,
             switchboard=switchboard,
-            settings=switchboard_settings,
-            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+            frontend_settings=frontend_settings,
+            switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+            switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
         ),
     ],
 )
@@ -109,15 +107,13 @@ internet.UDPServer(switchboard_settings.CHANNEL_DNS_PORT, udp_factory).setServic
 dns_service.setServiceParent(application)
 
 canarytokens_httpd = ChannelHTTP(
-    settings=switchboard_settings,
-    frontend_settings=frontend_settings,
+    switchboard_settings=switchboard_settings,
     switchboard=switchboard,
 )
 canarytokens_httpd.service.setServiceParent(application)
 
 canarytokens_smtp = ChannelSMTP(
     switchboard_settings=switchboard_settings,
-    frontend_settings=frontend_settings,
     switchboard=switchboard,
 )
 canarytokens_smtp.service.setServiceParent(application)
@@ -132,16 +128,16 @@ canarytokens_kubeconfig.service.setServiceParent(application)
 canarytokens_mysql = ChannelMySQL(
     port=switchboard_settings.CHANNEL_MYSQL_PORT,
     switchboard=switchboard,
-    frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-    frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+    switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+    switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
 )
 canarytokens_mysql.service.setServiceParent(application)
 
 canarytokens_wireguard = ChannelWireGuard(
     port=switchboard_settings.CHANNEL_WIREGUARD_PORT,
     switchboard=switchboard,
-    frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-    frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+    switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+    switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
     switchboard_settings=switchboard_settings,
 )
 canarytokens_wireguard.service.setServiceParent(application)

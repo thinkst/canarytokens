@@ -57,7 +57,7 @@ def test_canary_message(setup_db):
     )
 
 
-async def test_canary_esmtp(frontend_settings, setup_db):
+async def test_canary_esmtp(frontend_settings, settings, setup_db):
     """
     A shot-gun test that sets up an SMTP token, runs the
     ESMTP parsing logic and checks that the resulting hit
@@ -78,7 +78,7 @@ async def test_canary_esmtp(frontend_settings, setup_db):
     # class which is a CanaryESMTP.
     canary_smtp = CanarySMTPFactory(
         switchboard=switchboard,
-        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
     )
     protocol: CanaryESMTP = canary_smtp.buildProtocol(addr="1.0.0.1")
     canary_smtp.protocol = protocol

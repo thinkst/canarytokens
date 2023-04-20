@@ -92,7 +92,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         "--kubeconfig={kubeconfig}".format(kubeconfig=kubeconfig_file),
         "get",
         "nodes",
-        "-v=9",
+        # "-v=9",
     ]
     if isinstance(version, V2):
         cmd.append("--insecure-skip-tls-verify")
@@ -104,9 +104,11 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
+    print(get_nodes_output.stderr.decode())
     print("subprocess finished")
     # check return code
     assert get_nodes_output.returncode == 1
+    assert b"x509" not in get_nodes_output.stderr
 
     # Check that the returned history has a at least a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)

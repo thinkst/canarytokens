@@ -6,17 +6,21 @@ from canarytokens.channel import format_as_googlechat_canaryalert
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
 from canarytokens.models import TokenAlertDetailsGoogleChat, TokenTypes
-from canarytokens.settings import Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
 
-def test_broken_webhook(setup_db, settings: Settings):
+def test_broken_webhook(
+    setup_db,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
     switchboard = Switchboard()
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
-        frontend_scheme="https",
-        frontend_hostname="test.com",
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+        switchboard_hostname="test.com",
     )
     cd = Canarydrop(
         type=TokenTypes.DNS,
@@ -43,10 +47,9 @@ def test_broken_webhook(setup_db, settings: Settings):
             token_hit=token_hit,
             input_channel=ChannelDNS(
                 switchboard=switchboard,
-                settings=settings,
-                frontend_hostname="test.com",
-                frontend_scheme="https",
-                listen_domain=settings.LISTEN_DOMAIN,
+                frontend_settings=frontend_settings,
+                switchboard_hostname="test.com",
+                switchboard_scheme=settings.SWITCHBOARD_SCHEME,
             ),
         )
     assert any(
@@ -54,12 +57,17 @@ def test_broken_webhook(setup_db, settings: Settings):
     )
 
 
-def test_webhook(setup_db, webhook_receiver, settings: Settings):
+def test_webhook(
+    setup_db,
+    webhook_receiver,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
     switchboard = Switchboard()
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
-        frontend_scheme="https",
-        frontend_hostname="test.com",
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+        switchboard_hostname="test.com",
     )
     cd = Canarydrop(
         type=TokenTypes.DNS,
@@ -86,21 +94,25 @@ def test_webhook(setup_db, webhook_receiver, settings: Settings):
             token_hit=token_hit,
             input_channel=ChannelDNS(
                 switchboard=switchboard,
-                settings=settings,
-                frontend_hostname="test.com",
-                frontend_scheme="https",
-                listen_domain=settings.LISTEN_DOMAIN,
+                frontend_settings=frontend_settings,
+                switchboard_hostname="test.com",
+                switchboard_scheme=settings.SWITCHBOARD_SCHEME,
             ),
         )
     assert any(["Successfully sent to " in log["log_format"] for log in captured])
 
 
-def test_broken_2_webhook(setup_db, webhook_receiver, settings: Settings):
+def test_broken_2_webhook(
+    setup_db,
+    webhook_receiver,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
     switchboard = Switchboard()
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
-        frontend_scheme="https",
-        frontend_hostname="test.com",
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+        switchboard_hostname="test.com",
     )
     cd = Canarydrop(
         type=TokenTypes.DNS,
@@ -127,10 +139,9 @@ def test_broken_2_webhook(setup_db, webhook_receiver, settings: Settings):
             token_hit=token_hit,
             input_channel=ChannelDNS(
                 switchboard=switchboard,
-                settings=settings,
-                frontend_hostname="test.com",
-                frontend_scheme="https",
-                listen_domain=settings.LISTEN_DOMAIN,
+                frontend_settings=frontend_settings,
+                switchboard_hostname="test.com",
+                switchboard_scheme=settings.SWITCHBOARD_SCHEME,
             ),
         )
     assert any(
@@ -138,15 +149,19 @@ def test_broken_2_webhook(setup_db, webhook_receiver, settings: Settings):
     )
 
 
-def test_googlechat_webhook_format(setup_db, webhook_receiver, settings: Settings):
+def test_googlechat_webhook_format(
+    setup_db,
+    webhook_receiver,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
 
     switchboard = Switchboard()
     input_channel = ChannelDNS(
         switchboard=switchboard,
-        settings=settings,
-        frontend_hostname="test.com",
-        frontend_scheme="https",
-        listen_domain=settings.LISTEN_DOMAIN,
+        frontend_settings=frontend_settings,
+        switchboard_hostname="test.com",
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
     )
 
     cd = Canarydrop(
@@ -169,8 +184,8 @@ def test_googlechat_webhook_format(setup_db, webhook_receiver, settings: Setting
     cd.add_canarydrop_hit(token_hit=token_hit)
     details = input_channel.gather_alert_details(
         cd,
-        protocol=input_channel.frontend_scheme,
-        host=input_channel.frontend_hostname,
+        protocol=input_channel.switchboard_scheme,
+        host=input_channel.switchboard_hostname,
     )
     print("Webhook details = {}".format(details))
     webhook_payload = format_as_googlechat_canaryalert(details=details)
@@ -211,7 +226,12 @@ def test_googlechat_webhook_format(setup_db, webhook_receiver, settings: Setting
         assert key in webhook_payload_json["cardsV2"][0]["card"]["sections"][1].keys()
 
 
-def test_canaryalert_googlechat_webhook(setup_db, webhook_receiver, settings: Settings):
+def test_canaryalert_googlechat_webhook(
+    setup_db,
+    webhook_receiver,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
     """
     Tests if a google chat webhook payload, is produced given a googlechat webhook receiver.
     """
@@ -222,10 +242,9 @@ def test_canaryalert_googlechat_webhook(setup_db, webhook_receiver, settings: Se
     switchboard = Switchboard()
     input_channel = ChannelDNS(
         switchboard=switchboard,
-        settings=settings,
-        frontend_hostname="test.com",
-        frontend_scheme="https",
-        listen_domain=settings.LISTEN_DOMAIN,
+        frontend_settings=frontend_settings,
+        switchboard_hostname=settings.PUBLIC_DOMAIN,
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
     )
 
     cd = Canarydrop(
@@ -249,7 +268,7 @@ def test_canaryalert_googlechat_webhook(setup_db, webhook_receiver, settings: Se
 
     canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
         canarydrop=cd,
-        protocol=input_channel.frontend_scheme,
-        host=input_channel.frontend_hostname,
+        protocol=input_channel.switchboard_scheme,
+        host=input_channel.switchboard_hostname,
     )
     assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsGoogleChat)

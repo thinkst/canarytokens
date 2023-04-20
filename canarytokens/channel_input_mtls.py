@@ -35,7 +35,7 @@ from canarytokens.queries import (  # get_kc_hits,; save_kc_hit_for_aggregation,
     save_certificate,
     save_kc_endpoint,
 )
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -270,8 +270,8 @@ class mTLSFactory(Factory, InputChannel):
         self,
         headers,
         bodies,
-        frontend_hostname: str,
-        frontend_scheme: str,
+        switchboard_hostname: str,
+        switchboard_scheme: str,
         switchboard: Switchboard,
         channel_name=None,
         enricher=None,
@@ -284,8 +284,8 @@ class mTLSFactory(Factory, InputChannel):
         InputChannel.__init__(
             self,
             switchboard=self.switchboard,
-            frontend_hostname=frontend_hostname,
-            frontend_scheme=frontend_scheme,
+            switchboard_hostname=switchboard_hostname,
+            switchboard_scheme=switchboard_scheme,
             name=channel_name if channel_name is not None else self.CHANNEL,
             unique_channel=False,
         )
@@ -303,7 +303,7 @@ class ChannelKubeConfig:
     def __init__(
         self,
         frontend_settings: FrontendSettings,
-        switchboard_settings: Settings,
+        switchboard_settings: SwitchboardSettings,
         switchboard=None,
     ):
         from canarytokens import kubeconfig
@@ -312,7 +312,7 @@ class ChannelKubeConfig:
         self.server_ca_redis_key = kubeconfig.ServerCA
         self.server_cert_redis_key = kubeconfig.ServerCert
         self.port = switchboard_settings.CHANNEL_MTLS_KUBECONFIG_PORT
-        self.ip = IPv4Address(switchboard_settings.PUBLIC_IP)
+        self.ip = IPv4Address(frontend_settings.PUBLIC_IP)
         self.channel_name = INPUT_CHANNEL_MTLS
 
         save_kc_endpoint(ip=self.ip, port=self.port)
@@ -328,8 +328,8 @@ class ChannelKubeConfig:
             bodies=kc.bodies,
             channel_name=self.channel_name,
             enricher=None,
-            frontend_scheme=frontend_settings.FRONTEND_SCHEME,
-            frontend_hostname=frontend_settings.FRONTEND_HOSTNAME,
+            switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+            switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
             switchboard=switchboard,
         )
 

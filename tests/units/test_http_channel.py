@@ -17,7 +17,7 @@ from canarytokens.models import (
     CreditCard,
     TokenTypes,
 )
-from canarytokens.settings import FrontendSettings, Settings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
@@ -36,9 +36,8 @@ def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
     Test canarytokens http (GET) channel.
     """
     http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
         switchboard=switchboard,
-        settings=settings,
+        switchboard_settings=settings,
     )
 
     canarytoken = Canarytoken()
@@ -91,8 +90,7 @@ def test_channel_http_GET_and_POST_back(
     from twisted.web.test.requesthelper import DummyChannel
 
     http_channel = ChannelHTTP(
-        settings=settings,
-        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
         switchboard=switchboard,
     )
     canarytoken = Canarytoken()
@@ -161,9 +159,8 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
     from twisted.web.test.requesthelper import DummyChannel
 
     http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
         switchboard=switchboard,
-        settings=settings,
+        switchboard_settings=settings,
     )
     token_type, request_args = TokenTypes.FAST_REDIRECT, {}
     canarytoken = Canarytoken()
@@ -227,23 +224,22 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
 def test_POST_aws_token_back(
     input_data: dict[bytes, Sequence[bytes]],
     frontend_settings: FrontendSettings,
-    fake_settings_for_aws_keys: Settings,
+    fake_settings_for_aws_keys: SwitchboardSettings,
     setup_db: None,
 ):
     settings = fake_settings_for_aws_keys
     http_channel = ChannelHTTP(
-        settings=settings,
-        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
         switchboard=switchboard,
     )
 
     canarytoken = Canarytoken()
     key = get_aws_key(
         token=canarytoken,
-        server=settings.LISTEN_DOMAIN,
+        server=settings.PUBLIC_DOMAIN,
         aws_url=None,  # env var might have live url, don't use up an AWS user.
-        aws_access_key_id=settings.TESTING_AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.TESTING_AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
     )
 
     if not key:
@@ -287,12 +283,11 @@ def test_POST_aws_token_back(
 
 def test_GET_cc_token_back(
     frontend_settings: FrontendSettings,
-    settings: Settings,
+    settings: SwitchboardSettings,
     setup_db: None,
 ):
     http_channel = ChannelHTTP(
-        settings=settings,
-        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
         switchboard=switchboard,
     )
 
@@ -346,7 +341,7 @@ def test_GET_cc_token_back(
             "id": cc.id,
             "last4": cc.number[-4:],
             "notes": cd.get_url(
-                [f"{settings.DOMAINS[0]}:{settings.CHANNEL_HTTP_PORT}"]
+                [f"{frontend_settings.DOMAINS[0]}:{settings.CHANNEL_HTTP_PORT}"]
             ),
         }
     }
