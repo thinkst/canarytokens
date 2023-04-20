@@ -99,13 +99,13 @@ class Channel(object):
         self,
         switchboard: sb.Switchboard,
         switchboard_scheme: str,
-        switchboard_hostname: str,
+        hostname: str,
         name: Optional[str] = None,
     ):
         self.switchboard: sb.Switchboard = switchboard
         # DESIGN: What does Switchboard / channels need to know about back/frontend
         self.switchboard_scheme = switchboard_scheme
-        self.switchboard_hostname = switchboard_hostname
+        self.hostname = hostname
         self.name = name or self.CHANNEL
         log.info("Started channel {name}".format(name=self.name))
 
@@ -124,7 +124,7 @@ class InputChannel(Channel):
         super(InputChannel, self).__init__(
             switchboard=switchboard,
             switchboard_scheme=switchboard_scheme,
-            switchboard_hostname=switchboard_hostname,
+            hostname=switchboard_hostname,
             name=name,
         )
         self.register_input_channel(unique_channel)
@@ -306,13 +306,13 @@ class OutputChannel(Channel):
         self,
         switchboard: sb.Switchboard,
         switchboard_scheme: str,
-        switchboard_hostname: str,
+        frontend_domain: str,
         name: Optional[str] = None,
     ):
         super(OutputChannel, self).__init__(
             switchboard=switchboard,
             switchboard_scheme=switchboard_scheme,
-            switchboard_hostname=switchboard_hostname,
+            hostname=frontend_domain,
             name=name,
         )
         self.register_output_channel()

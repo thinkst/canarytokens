@@ -54,7 +54,7 @@ async def test_switchboard_register_input_channel(settings, alert_webhook_url):
 
     webhook_output_channel = WebhookOutputChannel(
         switchboard=switchboard,
-        switchboard_hostname="test.com",
+        frontend_domain="test.com",
         switchboard_scheme="https",
     )
     switchboard.add_input_channel(

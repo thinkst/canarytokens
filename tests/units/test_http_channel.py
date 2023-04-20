@@ -37,6 +37,7 @@ def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
     """
     http_channel = ChannelHTTP(
         switchboard=switchboard,
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
     )
 
@@ -90,6 +91,7 @@ def test_channel_http_GET_and_POST_back(
     from twisted.web.test.requesthelper import DummyChannel
 
     http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=switchboard,
     )
@@ -160,6 +162,7 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
 
     http_channel = ChannelHTTP(
         switchboard=switchboard,
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
     )
     token_type, request_args = TokenTypes.FAST_REDIRECT, {}
@@ -229,6 +232,7 @@ def test_POST_aws_token_back(
 ):
     settings = fake_settings_for_aws_keys
     http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=switchboard,
     )
@@ -287,6 +291,7 @@ def test_GET_cc_token_back(
     setup_db: None,
 ):
     http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=switchboard,
     )

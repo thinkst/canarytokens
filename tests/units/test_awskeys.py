@@ -43,7 +43,7 @@ def test_get_aws_key_with_query(
 
         key = get_aws_key(
             token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
-            server=settings.PUBLIC_DOMAIN,
+            server=frontend_settings.DOMAINS[0],
             aws_url=HttpUrl(
                 f"{webhook_receiver}/{path}/CreateUserAPITokens",
                 scheme=webhook_receiver[: webhook_receiver.index("://")],

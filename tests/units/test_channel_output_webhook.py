@@ -20,7 +20,7 @@ def test_broken_webhook(
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        switchboard_hostname="test.com",
+        frontend_domain="test.com",
     )
     cd = Canarydrop(
         type=TokenTypes.DNS,
@@ -67,7 +67,7 @@ def test_webhook(
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        switchboard_hostname="test.com",
+        frontend_domain="test.com",
     )
     cd = Canarydrop(
         type=TokenTypes.DNS,
@@ -112,7 +112,7 @@ def test_broken_2_webhook(
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        switchboard_hostname="test.com",
+        frontend_domain="test.com",
     )
     cd = Canarydrop(
         type=TokenTypes.DNS,
@@ -185,7 +185,7 @@ def test_googlechat_webhook_format(
     details = input_channel.gather_alert_details(
         cd,
         protocol=input_channel.switchboard_scheme,
-        host=input_channel.switchboard_hostname,
+        host=settings.PUBLIC_DOMAIN,
     )
     print("Webhook details = {}".format(details))
     webhook_payload = format_as_googlechat_canaryalert(details=details)
@@ -243,7 +243,7 @@ def test_canaryalert_googlechat_webhook(
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
-        switchboard_hostname=settings.PUBLIC_DOMAIN,
+        switchboard_hostname=frontend_settings.DOMAINS[0],
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
     )
 
@@ -269,6 +269,6 @@ def test_canaryalert_googlechat_webhook(
     canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
         canarydrop=cd,
         protocol=input_channel.switchboard_scheme,
-        host=input_channel.switchboard_hostname,
+        host=input_channel.hostname,
     )
     assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsGoogleChat)

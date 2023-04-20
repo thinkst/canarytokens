@@ -26,7 +26,7 @@ class WebhookOutputChannel(OutputChannel):
     ) -> None:
         payload = input_channel.format_webhook_canaryalert(
             canarydrop=canarydrop,
-            host=self.switchboard_hostname,
+            host=self.hostname,
             protocol=self.switchboard_scheme,
         )
 

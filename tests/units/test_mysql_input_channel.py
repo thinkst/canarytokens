@@ -111,7 +111,7 @@ def test_mysql_channel(frontend_settings, settings):
         port=settings.CHANNEL_MYSQL_PORT,
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        switchboard_hostname=settings.PUBLIC_DOMAIN,
+        switchboard_hostname=frontend_settings.DOMAINS[0],
     )
     mysql_factory = canarytokens_mysql.service.args[1]
     protocol: CanaryMySQLProtocol = mysql_factory.buildProtocol(addr="1.0.0.1")

@@ -25,13 +25,13 @@ class SwitchboardSettings(BaseSettings):
     WG_PRIVATE_KEY_N: str = "1000"
 
     FRONTEND_SETTINGS_PATH: str = "../frontend/frontend.env"
-    USING_NGINX: bool = False
+    USING_NGINX: bool = True
     TEMPLATES_PATH: str = "../templates"
 
     ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("illegal@email.com")
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
-    MAX_ALERTS_PER_MINUTE: int = 1000
+    MAX_ALERTS_PER_MINUTE: int = 1
 
     MAILGUN_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
     MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
@@ -58,8 +58,8 @@ class FrontendSettings(BaseSettings):
     API_APP_TITLE: str = "Canarytokens"
     API_VERSION_STR: str = "v1"
     PUBLIC_IP: str
-    NXDOMAINS: list[str]
     DOMAINS: list[str]
+    NXDOMAINS: list[str]
     SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
 
     SENTRY_DSN: HttpUrl
@@ -70,8 +70,6 @@ class FrontendSettings(BaseSettings):
     STATIC_FILES_PATH: str = "../templates/static"
     STATIC_FILES_APPLICATION_SUB_PATH: str = "/resources"
     STATIC_FILES_APPLICATION_INTERNAL_NAME: str = "resources"
-
-    TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
 
     # upload settings
     MAX_UPLOAD_SIZE: int = 1024 * 1024 * 1
@@ -87,8 +85,8 @@ class FrontendSettings(BaseSettings):
 
     # 3rd party settings
     AWSID_URL: HttpUrl
-    TESTING_AWS_ACCESS_KEY_ID: Optional[str]
-    TESTING_AWS_SECRET_ACCESS_KEY: Optional[str]
+    TESTING_AWS_ACCESS_KEY_ID: Optional[str] = ""
+    TESTING_AWS_SECRET_ACCESS_KEY: Optional[str] = ""
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
     TESTING_AWS_OUTPUT: Optional[str] = "json"
     AZURE_ID_TOKEN_URL: HttpUrl

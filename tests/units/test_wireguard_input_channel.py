@@ -16,7 +16,7 @@ def test_wireguard_channel(
         port=settings.CHANNEL_WIREGUARD_PORT,
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        switchboard_hostname=settings.PUBLIC_DOMAIN,
+        switchboard_hostname=frontend_settings.DOMAINS[0],
         switchboard_settings=settings,
     )
     wireguard_protocol: WireGuardProtocol = canarytokens_wireguard.service.args[1]

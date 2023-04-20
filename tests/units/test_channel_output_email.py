@@ -99,6 +99,7 @@ def test_sendgrid_send(
     )
 
     email_output_channel = EmailOutputChannel(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=sb,
     )
@@ -134,6 +135,7 @@ def test_mailgun_send(
     )
 
     email_output_channel = EmailOutputChannel(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=sb,
     )
@@ -159,6 +161,7 @@ def test_do_send_alert(
 ):
 
     email_channel = EmailOutputChannel(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=Switchboard(),
     )
@@ -209,6 +212,7 @@ def test_do_send_alert_retries(
     settings.__dict__["MAILGUN_API_KEY"] = None
 
     email_channel = EmailOutputChannel(
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=Switchboard(),
     )

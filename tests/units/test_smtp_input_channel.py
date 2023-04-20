@@ -78,6 +78,7 @@ async def test_canary_esmtp(frontend_settings, settings, setup_db):
     # class which is a CanaryESMTP.
     canary_smtp = CanarySMTPFactory(
         switchboard=switchboard,
+        frontend_settings=frontend_settings,
         switchboard_settings=settings,
     )
     protocol: CanaryESMTP = canary_smtp.buildProtocol(addr="1.0.0.1")

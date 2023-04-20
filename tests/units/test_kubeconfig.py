@@ -101,7 +101,7 @@ def test_mtls_factory_receive_lines(
         channel_name="mTLS",
         enricher=None,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        switchboard_hostname=settings.PUBLIC_DOMAIN,
+        switchboard_hostname=frontend_settings.DOMAINS[0],
         switchboard=switchboard,
     )
     mtls = mtls_factory.buildProtocol("127.0.0.1")

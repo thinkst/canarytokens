@@ -329,7 +329,7 @@ class ChannelKubeConfig:
             channel_name=self.channel_name,
             enricher=None,
             switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-            switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
+            switchboard_hostname=frontend_settings.DOMAINS[0],
             switchboard=switchboard,
         )
 

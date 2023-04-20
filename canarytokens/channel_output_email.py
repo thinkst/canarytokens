@@ -20,7 +20,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL
 from canarytokens.models import AnyTokenHit, TokenAlertDetails, TokenTypes
-from canarytokens.settings import SwitchboardSettings
+from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.utils import retry_on_returned_error, token_type_as_readable
 
@@ -36,6 +36,7 @@ class EmailOutputChannel(OutputChannel):
     def __init__(
         self,
         switchboard: Switchboard,
+        frontend_settings: FrontendSettings,
         switchboard_settings: SwitchboardSettings,
         name: Optional[str] = None,
     ):
@@ -46,7 +47,7 @@ class EmailOutputChannel(OutputChannel):
         super().__init__(
             switchboard,
             switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-            switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
+            frontend_domain=switchboard_settings.PUBLIC_DOMAIN,
             name=name,
         )
 
@@ -151,7 +152,7 @@ class EmailOutputChannel(OutputChannel):
     ):
         alert_details = input_channel.format_email_canaryalert(
             canarydrop=canarydrop,
-            host=self.switchboard_hostname,
+            host=self.switchboard_settings.PUBLIC_DOMAIN,
             protocol=self.switchboard_scheme,
         )
         #

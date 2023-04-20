@@ -342,7 +342,7 @@ def setup_db(  # noqa: C901
     # DESIGN: canarytokens needs these and adds them on startup.
     #         Tests should ensure we don't interfere too much.
     #         Remove dependence on redis as a shared global.
-    add_canary_domain(settings.PUBLIC_DOMAIN)
+    add_canary_domain(frontend_settings.DOMAINS[0])
     add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
     add_canary_path_element("tags")

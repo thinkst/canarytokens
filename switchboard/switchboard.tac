@@ -77,12 +77,13 @@ switchboard = Switchboard(switchboard_settings)
 
 email_output_channel = EmailOutputChannel(
     switchboard=switchboard,
+    frontend_settings=frontend_settings,
     switchboard_settings=switchboard_settings,
 )
 webhook_output_channel = WebhookOutputChannel(
     switchboard=switchboard,
     switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-    switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
+    frontend_domain=switchboard_settings.PUBLIC_DOMAIN,
 )
 
 dns_service = service.MultiService()
@@ -93,7 +94,7 @@ factory = DNSServerFactory(
             switchboard=switchboard,
             frontend_settings=frontend_settings,
             switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-            switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
+            switchboard_hostname=frontend_settings.DOMAINS[0],
         ),
     ],
 )
@@ -107,12 +108,14 @@ internet.UDPServer(switchboard_settings.CHANNEL_DNS_PORT, udp_factory).setServic
 dns_service.setServiceParent(application)
 
 canarytokens_httpd = ChannelHTTP(
+    frontend_settings=frontend_settings,
     switchboard_settings=switchboard_settings,
     switchboard=switchboard,
 )
 canarytokens_httpd.service.setServiceParent(application)
 
 canarytokens_smtp = ChannelSMTP(
+    frontend_settings=frontend_settings,
     switchboard_settings=switchboard_settings,
     switchboard=switchboard,
 )
@@ -129,7 +132,7 @@ canarytokens_mysql = ChannelMySQL(
     port=switchboard_settings.CHANNEL_MYSQL_PORT,
     switchboard=switchboard,
     switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-    switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
+    switchboard_hostname=frontend_settings.DOMAINS[0],
 )
 canarytokens_mysql.service.setServiceParent(application)
 
@@ -137,7 +140,7 @@ canarytokens_wireguard = ChannelWireGuard(
     port=switchboard_settings.CHANNEL_WIREGUARD_PORT,
     switchboard=switchboard,
     switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-    switchboard_hostname=switchboard_settings.PUBLIC_DOMAIN,
+    switchboard_hostname=frontend_settings.DOMAINS[0],
     switchboard_settings=switchboard_settings,
 )
 canarytokens_wireguard.service.setServiceParent(application)
