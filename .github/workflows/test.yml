@@ -93,7 +93,7 @@ jobs:
             poetry run pre-commit install
             SKIP=no-commit-to-branch poetry run pre-commit run --all-files
 
-      - name: Prep unit tests
+      - name: Run unit tests
         env:
           CANARY_MAILGUN_DOMAIN_NAME: syruppdfs.com
           CANARY_MAILGUN_BASE_URL: https://api.eu.mailgun.net
@@ -111,13 +111,6 @@ jobs:
           export CANARY_MAILGUN_API_KEY=${{ secrets.TESTING_MAILGUN_API_KEY }}
           export CANARY_SENTRY_ENVIRONMENT=ci
           export CANARY_WEB_IMAGE_UPLOAD_PATH=../uploads
-          mkdir uploads
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
-      - name: Run unit tests
-        run: |
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
 
@@ -130,6 +123,7 @@ jobs:
       - name: Run integration tests (against local V3)
         run: |
           redis-cli flushall
+          mkdir uploads
           make switchboard &
           make frontend &
           cd tests
