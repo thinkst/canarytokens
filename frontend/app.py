@@ -1212,7 +1212,6 @@ def _(
     Returns:
         CustomImageTokenResponse: Custom image response.
     """
-    print(f"{frontend_settings.WEB_IMAGE_UPLOAD_PATH = }")
     # ensure there is an upload folder
     if not frontend_settings.WEB_IMAGE_UPLOAD_PATH:
         raise HTTPException(status_code=400, detail="Image upload not supported")
@@ -1220,7 +1219,6 @@ def _(
     # extract uploaded file contents
     filename = token_request_details.web_image.filename
 
-    print(f"{filename = }")
     # check file extension
     if not filename.lower().endswith((".png", ".gif", ".jpg")):
         raise HTTPException(
@@ -1230,7 +1228,6 @@ def _(
     # extract file bytes and check file size
     token_request_details.web_image.file.seek(0)
     filebody = token_request_details.web_image.file.read()
-    print(f"{len(filebody) = }")
     if len(filebody) > frontend_settings.MAX_UPLOAD_SIZE:
         max_size = str(frontend_settings.MAX_UPLOAD_SIZE / (1024 * 1024))
         raise HTTPException(
@@ -1249,11 +1246,9 @@ def _(
     # create local file
     if not os.path.exists(os.path.dirname(filepath)):
         try:
-            print(f"{filepath = }")
             os.makedirs(os.path.dirname(filepath))
         except OSError as exc:  # Guard against race condition
             if exc.errno != errno.EEXIST:
-                print(f"{exc = }")
                 raise HTTPException(
                     status_code=400,
                     detail="Something went wrong when creating Custom Image Token ",
