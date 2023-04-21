@@ -109,7 +109,7 @@ def test_sendgrid_send(
         email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
-        email_address=EmailStr("benjamin+token-tester@thinkst.com"),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -144,7 +144,7 @@ def test_mailgun_send(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
         email_content_text=EmailOutputChannel.format_report_text(details),
-        email_address=EmailStr("benjamin+token-tester@thinkst.com"),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -169,7 +169,7 @@ def test_do_send_alert(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,
         alert_email_enabled=True,
-        alert_email_recipient=EmailStr("benjamin+test@thinkst.com"),
+        alert_email_recipient=EmailStr("tokens-testing@thinkst.com"),
         memo=Memo("Test email thanks for checking!"),
         triggered_details=DNSTokenHistory(
             hits=[
@@ -216,7 +216,7 @@ def test_do_send_alert_retries(
         switchboard_settings=settings,
         switchboard=Switchboard(),
     )
-    recipient = EmailStr("benjamin+test@thinkst.com")
+    recipient = EmailStr("tokens-testing@thinkst.com")
     canarydrop = Canarydrop(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,
