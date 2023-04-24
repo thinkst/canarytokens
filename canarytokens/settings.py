@@ -41,7 +41,7 @@ class SwitchboardSettings(BaseSettings):
     SENDGRID_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
     SENDGRID_SANDBOX_MODE: bool = True
 
-    SENTRY_DSN: HttpUrl
+    SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
     SENTRY_ENABLE: bool = True
 
@@ -62,7 +62,7 @@ class FrontendSettings(BaseSettings):
     NXDOMAINS: list[str]
     SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
 
-    SENTRY_DSN: HttpUrl
+    SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
     SENTRY_ENABLE: bool = True
 
