@@ -156,7 +156,7 @@ if switchboard_settings.USING_NGINX:
 else:
     canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
 
-if frontend_settings.SENTRY_ENABLE:
+if frontend_settings.SENTRY_DSN and frontend_settings.SENTRY_ENABLE:
     sentry_sdk.init(
         dsn=frontend_settings.SENTRY_DSN,
         environment=frontend_settings.SENTRY_ENVIRONMENT,
@@ -194,15 +194,17 @@ app.mount(
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
 if (
-    frontend_settings.SENTRY_ENABLE
+    frontend_settings.SENTRY_DSN
+    and frontend_settings.SENTRY_ENABLE
     and switchboard_settings.PUBLIC_DOMAIN != "127.0.0.1"
 ):
     # Add sentry when running on a domain.
     app.add_middleware(SentryAsgiMiddleware)
+    print(f"Sentry enabled. Environment: {frontend_settings.SENTRY_ENVIRONMENT}")
 
 
 def capture_exception(error: BaseException, context: tuple[str, Any]):
-    if frontend_settings.SENTRY_ENABLE:
+    if frontend_settings.SENTRY_DSN and frontend_settings.SENTRY_ENABLE:
         with sentry_sdk.configure_scope() as scope:
             scope.set_context(*context)
             sentry_sdk.capture_exception(error)
@@ -1170,7 +1172,7 @@ def _(
             ),
         )
     signed_contents = make_canary_authenticode_binary(
-        nxdomain_token_url=f"http://{canarydrop.get_hostname(nxdomain=True)}",
+        nxdomain_token_url=canarydrop.get_hostname(nxdomain=True, as_url=True),
         filebody=filebody,
     )
     encoded_signed_contents = "data:octet/stream;base64,{base64_file}".format(

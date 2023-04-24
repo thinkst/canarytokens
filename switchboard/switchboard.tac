@@ -2,11 +2,11 @@ from pathlib import Path
 
 import sentry_sdk
 import sentry_sdk.utils
-import twisted
-import twisted.logger
+
+# import twisted
 from sentry_sdk.integrations.redis import RedisIntegration
 from twisted.application import internet, service
-from twisted.logger import globalLogPublisher
+from twisted.logger import globalLogPublisher, Logger, LogLevel
 from twisted.names import dns
 
 from canarytokens.channel_dns import ChannelDNS, DNSServerFactory
@@ -29,42 +29,39 @@ from canarytokens.utils import get_deployed_commit_sha
 # from caa_monkeypatch import monkey_patch_caa_support
 # monkey_patch_caa_support()
 
+log = Logger()
+
 switchboard_settings = SwitchboardSettings()
 frontend_settings = FrontendSettings()
-
-sentry_sdk.utils.MAX_STRING_LENGTH = 8192
-sentry_sdk.init(
-    dsn=switchboard_settings.SENTRY_DSN,
-    environment=switchboard_settings.SENTRY_ENVIRONMENT,
-    traces_sample_rate=0.2,
-    integrations=[RedisIntegration()],
-    release=get_deployed_commit_sha(),
-)
 
 
 def sentry_observer(event):
     # DESIGN: If sentry remains choice for Application Monitoring we can rework this.
     #         Note: Twisted logging and sentry appear to be slightly at odds.
     #         Secondly: Twisted observers should be non-blocking but that assumption has not been tested / measured.
-    if (
-        event.get("log_level") == twisted.logger.LogLevel.critical
-        and "log_failure" in event
-    ):
+    if event.get("log_level") == LogLevel.critical and "log_failure" in event:
         failure = event["log_failure"]
-        exc_type = failure.type
-        exc_value = failure.value
-        traceback = failure.getTracebackObject()
-        sentry_sdk.capture_exception(error=(exc_type, exc_value, traceback))
-
     elif event.get("isError") and "failure" in event:
         failure = event["failure"]
-        exc_type = failure.type
-        exc_value = failure.value
-        traceback = failure.getTracebackObject()
-        sentry_sdk.capture_exception(error=(exc_type, exc_value, traceback))
+    else:
+        return
+    exc_type = failure.type
+    exc_value = failure.value
+    traceback = failure.getTracebackObject()
+    sentry_sdk.capture_exception(error=(exc_type, exc_value, traceback))
 
 
-globalLogPublisher.addObserver(sentry_observer)
+if switchboard_settings.SENTRY_DSN and switchboard_settings.SENTRY_ENABLE:
+    sentry_sdk.utils.MAX_STRING_LENGTH = 8192
+    sentry_sdk.init(
+        dsn=switchboard_settings.SENTRY_DSN,
+        environment=switchboard_settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=0.2,
+        integrations=[RedisIntegration()],
+        release=get_deployed_commit_sha(),
+    )
+    globalLogPublisher.addObserver(sentry_observer)
+    log.debug(f"Sentry enabled. Environment: {switchboard_settings.SENTRY_ENVIRONMENT}")
 
 DB.set_db_details(switchboard_settings.REDIS_HOST, switchboard_settings.REDIS_PORT)
 set_template_env(Path(switchboard_settings.TEMPLATES_PATH))
