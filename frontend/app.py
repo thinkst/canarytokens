@@ -1172,7 +1172,7 @@ def _(
             ),
         )
     signed_contents = make_canary_authenticode_binary(
-        nxdomain_token_url=f"http://{canarydrop.get_hostname(nxdomain=True)}",
+        nxdomain_token_url=canarydrop.get_hostname(nxdomain=True, as_url=True),
         filebody=filebody,
     )
     encoded_signed_contents = "data:octet/stream;base64,{base64_file}".format(
