@@ -38,6 +38,23 @@ class CanarytokenPage(InputChannel, resource.Resource):
         + "\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"
     )  # 1x1 GIF
 
+    def __init__(
+        self,
+        switchboard: Switchboard,
+        switchboard_scheme: str,
+        switchboard_hostname: str,
+        name: Optional[str] = None,
+        unique_channel: bool = False,
+    ) -> None:
+        name = name or self.CHANNEL
+        super().__init__(
+            switchboard,
+            switchboard_scheme,
+            switchboard_hostname,
+            name,
+            unique_channel,
+        )
+
     def getChild(self, name, request):
         if name == "":
             return self
@@ -165,23 +182,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
             raise NotImplementedError(
                 f"channel_http::CanarytokenPage::render_POST: not implemented for token type: {canarydrop.type}"
             )
-
-    def __init__(
-        self,
-        switchboard: Switchboard,
-        switchboard_scheme: str,
-        switchboard_hostname: str,
-        name: Optional[str] = None,
-        unique_channel: bool = False,
-    ) -> None:
-        name = name or self.CHANNEL
-        super().__init__(
-            switchboard,
-            switchboard_scheme,
-            switchboard_hostname,
-            name,
-            unique_channel,
-        )
 
 
 class ChannelHTTP:
