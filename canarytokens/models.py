@@ -1154,7 +1154,7 @@ class AdditionalInfo(BaseModel):
     @root_validator(pre=True)
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
-            # TODO: make is consistent.
+            # TODO: make this consistent.
             ("MySQL Client", "mysql_client"),
         ]
 
