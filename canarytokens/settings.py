@@ -33,6 +33,8 @@ class SwitchboardSettings(BaseSettings):
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
     MAX_ALERTS_PER_MINUTE: int = 1
 
+    IPINFO_API_KEY: Optional[SecretStr] = None
+
     MAILGUN_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
     MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
         "https://api.mailgun.net", scheme="https"

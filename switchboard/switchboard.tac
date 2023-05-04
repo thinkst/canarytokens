@@ -17,7 +17,11 @@ from canarytokens.channel_input_smtp import ChannelSMTP
 from canarytokens.channel_input_wireguard import ChannelWireGuard
 from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
-from canarytokens.queries import add_return_for_token, update_tor_exit_nodes_loop
+from canarytokens.queries import (
+    add_return_for_token,
+    set_ip_info_api_key,
+    update_tor_exit_nodes_loop,
+)
 from canarytokens.redismanager import DB
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
@@ -33,6 +37,9 @@ log = Logger()
 
 switchboard_settings = SwitchboardSettings()
 frontend_settings = FrontendSettings()
+
+if switchboard_settings.IPINFO_API_KEY:
+    set_ip_info_api_key(switchboard_settings.IPINFO_API_KEY.get_secret_value())
 
 
 def sentry_observer(event):

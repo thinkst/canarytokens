@@ -351,7 +351,15 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
     print(data)
 
 
-def get_geoinfo(ip):
+_ip_info_api_key = None
+
+
+def set_ip_info_api_key(ip_info_api_key):
+    global _ip_info_api_key
+    _ip_info_api_key = ip_info_api_key
+
+
+def get_geoinfo(ip: str):
     if is_ip_cached(ip):
         return get_geoinfo_from_cache(ip)
     else:
@@ -364,21 +372,18 @@ def get_geoinfo(ip):
             return ""
 
 
-def get_geoinfo_from_ip(
-    ip: str,
-    ip_info_api_key: Optional[str] = None,
-) -> Dict[str, str]:
+def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
     try:
         # This should be async
         resp = requests.get(
             "http://ipinfo.io/" + ip + "/json",
-            auth=(ip_info_api_key, "") if ip_info_api_key else None,
+            auth=(_ip_info_api_key, "") if _ip_info_api_key else None,
             timeout=(3, 3),
         )
         resp.raise_for_status()
         info = resp.json()
     except requests.exceptions.HTTPError as e:
-        log.error("ip info error: {e}", e)
+        log.error(f"ip info error: {e}")
         # not strictly Bogon , we have no info
         info = models.GeoIPBogonInfo(ip=ip, bogon=True).dict()
     return info
