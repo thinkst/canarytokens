@@ -54,6 +54,7 @@ class DNSServerFactory(server.DNSServerFactory):
 
         # try:
         log.info("Query: {} sent {}".format(src_ip, query))
+        raise Exception("Test Exception in DNS channel")
         # except UnicodeDecodeError:
         #     # Invalid query
         #     return None

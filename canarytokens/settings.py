@@ -47,6 +47,9 @@ class SwitchboardSettings(BaseSettings):
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
     SENTRY_ENABLE: bool = True
 
+    SWITCHBOARD_LOG_SIZE: Optional[int] = 500000000
+    SWITCHBOARD_LOG_COUNT: Optional[int] = 20
+
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
 
     class Config:
