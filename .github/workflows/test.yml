@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "T4627_py3_main"
-      - "T5610_misc_fixes"
+      - "T5610_log_ini"
 
 jobs:
   tests:
