@@ -1,11 +1,14 @@
-from httpx import HTTPError
-import requests
+from twisted.logger import eventAsJSON, ILogObserver, Logger, LogLevel
+from twisted.web.iweb import IBodyProducer
+from twisted.web.client import Agent
+from twisted.web.http_headers import Headers
+from twisted.internet import defer, reactor
+from twisted.internet.defer import succeed
 from zope.interface import implementer
-from twisted.logger import ILogObserver
-from twisted.logger import LogLevel
-import os
 
-from twisted.logger import eventAsJSON, Logger
+import os
+import json
+
 
 log = Logger()
 
@@ -14,6 +17,23 @@ log = Logger()
 # And the intended recipient of the mail is an incorrectly entered/obviously wrong
 # email address. eg `asd@x.xa`
 text_for_failed_email_address_entered = "A mailgun error occurred: <class 'requests.exceptions.HTTPError'> - 400 Client Error: BAD REQUEST for url: https://api.mailgun.net/v3/canarytokens.org/messages"
+
+
+@implementer(IBodyProducer)
+class BytesProducer:
+    def __init__(self, body):
+        self.body = body
+        self.length = len(body)
+
+    def startProducing(self, consumer):
+        consumer.write(self.body)
+        return succeed(None)
+
+    def pauseProducing(self):
+        pass
+
+    def stopProducing(self):
+        pass
 
 
 @implementer(ILogObserver)
@@ -52,13 +72,27 @@ class errorsToWebhookLogObserver(object):
             ):
                 # filters out non useful spam of messages seen before with these exact contents
                 return
-            url = os.getenv("ERROR_LOG_WEBHOOK").encode()
-            headers = {b"Content-Type": b"application/json"}
-            resp = requests.post(url=url, headers=headers, json=postdata)
-            try:
-                resp.raise_for_status()
-            except HTTPError:
-                log.warn("Failed to post to webhook")
+            _ = httpRequest(postdata)
+
+
+def httpRequest(postdata):
+    agent = Agent(reactor)
+    headers = {b"Content-Type": [b"application/x-www-form-urlencoded"]}
+    data_str = json.dumps(postdata)
+    body = BytesProducer(data_str.encode())
+    url = os.getenv("ERROR_LOG_WEBHOOK").encode()
+    d = agent.request(b"POST", url, Headers(headers), body)
+
+    def handle_response(response):
+        if response.code == 200:
+            d = defer.succeed("")
+        else:
+            log.warn("Failed to post to webhook")
+            d = None
+        return d
+
+    d.addCallback(handle_response)
+    return d
 
 
 def webhookLogObserver(recordSeparator="\x1e"):
