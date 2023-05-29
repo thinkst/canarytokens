@@ -18,11 +18,14 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 COPY library-scripts/*.sh /tmp/library-scripts/
 RUN apt-get update \
-    && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
-    # Use Docker script from script library to set things up
-    && /bin/bash /tmp/library-scripts/docker-debian.sh "${ENABLE_NONROOT_DOCKER}" "/var/run/docker-host.sock" "/var/run/docker.sock" "${USERNAME}" \
-    # Clean up
-    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
+    && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true"
+# Use Docker script from script library to set things up
+RUN /bin/bash /tmp/library-scripts/docker-debian.sh "${ENABLE_NONROOT_DOCKER}" "/var/run/docker-host.sock" "/var/run/docker.sock" "${USERNAME}"
+# install all the things that didn't work in that workflow
+# keep separate so the other steps cache if adding sth breaks here
+RUN /bin/bash /tmp/library-scripts/custom-installs.sh
+# Clean up
+RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 # Setting the ENTRYPOINT to docker-init.sh will configure non-root access
 # to the Docker socket. The script will also execute CMD as needed.
