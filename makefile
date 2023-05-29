@@ -6,7 +6,7 @@ switchboard:
 
 .PHONY: frontend
 frontend:
-	cd frontend; poetry run uvicorn app:app --reload
+	cd frontend; poetry run uvicorn app:app --reload --log-config log.ini
 
 .PHONY: testv3
 testv3:

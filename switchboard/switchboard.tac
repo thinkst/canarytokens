@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import sentry_sdk
@@ -6,8 +7,9 @@ import sentry_sdk.utils
 # import twisted
 from sentry_sdk.integrations.redis import RedisIntegration
 from twisted.application import internet, service
-from twisted.logger import globalLogPublisher, Logger, LogLevel
+from twisted.logger import globalLogPublisher, Logger, LogLevel, textFileLogObserver
 from twisted.names import dns
+from twisted.python import logfile
 
 from canarytokens.channel_dns import ChannelDNS, DNSServerFactory
 from canarytokens.channel_http import ChannelHTTP
@@ -17,6 +19,7 @@ from canarytokens.channel_input_smtp import ChannelSMTP
 from canarytokens.channel_input_wireguard import ChannelWireGuard
 from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
+from canarytokens.loghandlers import webhookLogObserver
 from canarytokens.queries import (
     add_return_for_token,
     set_ip_info_api_key,
@@ -40,6 +43,19 @@ frontend_settings = FrontendSettings()
 
 if switchboard_settings.IPINFO_API_KEY:
     set_ip_info_api_key(switchboard_settings.IPINFO_API_KEY.get_secret_value())
+
+
+f = logfile.LogFile.fromFullPath(
+    os.getenv("LOG_FILE", "switchboard.log"),
+    rotateLength=switchboard_settings.SWITCHBOARD_LOG_SIZE,
+    maxRotatedFiles=switchboard_settings.SWITCHBOARD_LOG_COUNT,
+)
+globalLogPublisher.addObserver(textFileLogObserver(f))
+
+if os.getenv("ERROR_LOG_WEBHOOK", None):
+    # Only create this log observer if the config is setup for it.
+    log.info("Error log webhook enabled")
+    globalLogPublisher.addObserver(webhookLogObserver())
 
 
 def sentry_observer(event):
