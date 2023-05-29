@@ -127,7 +127,7 @@ def test_windows_directory(tmpdir, version, webhook_receiver, runv2, runv3):
     resp = get_token_history(token_info=token_info, version=version)
     token_history = WindowsDirectoryTokenHistory(**resp)
     assert len(token_history.hits) >= 1
-    token_hit = token_history.hits[0]
+    token_hit = token_history.hits[-1]
     assert token_hit.input_channel == "DNS"
     assert token_hit.src_data == {
         "windows_desktopini_access_domain": test_domain,
