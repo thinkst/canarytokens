@@ -292,9 +292,9 @@ class Canarytoken(object):
         domain = matches.group(3)
         return {
             "src_data": {
-                "windows_desktopini_access_username": username,
-                "windows_desktopini_access_hostname": hostname,
-                "windows_desktopini_access_domain": domain,
+                "windows_desktopini_access_username": username.lower(),
+                "windows_desktopini_access_hostname": hostname.lower(),
+                "windows_desktopini_access_domain": domain.lower(),
             }
         }
 
