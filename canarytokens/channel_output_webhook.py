@@ -48,13 +48,11 @@ class WebhookOutputChannel(OutputChannel):
             response.raise_for_status()
         except requests.exceptions.HTTPError:
             log.error(
-                "Failed sending request to webhook {url}.",
-                url=alert_webhook_url,
+                f"Failed sending request to webhook {alert_webhook_url}.",
             )
         except requests.exceptions.ConnectionError:
             log.error(
-                "Failed connecting to webhook {url}.",
-                url=alert_webhook_url,
+                f"Failed connecting to webhook {alert_webhook_url}.",
             )
         else:
             log.info(f"Successfully sent to {alert_webhook_url}")

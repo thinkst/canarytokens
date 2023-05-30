@@ -30,13 +30,28 @@ MODE_DIRECTORY = 0x10
 
 
 @pytest.mark.parametrize(
+    "test_user,test_computer,test_domain",
+    [
+        ("uSeRnaME1", "cOMp-1", "teSTdoMAin"),
+    ],
+)
+@pytest.mark.parametrize(
     "version",
     [
         v2,
         v3,
     ],
 )
-def test_windows_directory(tmpdir, version, webhook_receiver, runv2, runv3):
+def test_windows_directory(
+    test_user: str,
+    test_computer: str,
+    test_domain: str,
+    tmpdir,
+    version,
+    webhook_receiver,
+    runv2,
+    runv3,
+):
     run_or_skip(version, runv2=runv2, runv3=runv3)
     # initialize request
     memo = "windows directory memo!"
@@ -83,9 +98,6 @@ def test_windows_directory(tmpdir, version, webhook_receiver, runv2, runv3):
 
     # extract token url from file
     extracted_url = ""
-    test_user = "username1"
-    test_computer = "comp-1"
-    test_domain = "testdomain"
     with ZipFile(input_buf, "r") as zipfile:
         for zipinfo in zipfile.filelist:
             if zipinfo.external_attr & MODE_DIRECTORY:
@@ -127,10 +139,10 @@ def test_windows_directory(tmpdir, version, webhook_receiver, runv2, runv3):
     resp = get_token_history(token_info=token_info, version=version)
     token_history = WindowsDirectoryTokenHistory(**resp)
     assert len(token_history.hits) >= 1
-    token_hit = token_history.hits[0]
+    token_hit = token_history.hits[-1]
     assert token_hit.input_channel == "DNS"
     assert token_hit.src_data == {
-        "windows_desktopini_access_domain": test_domain,
-        "windows_desktopini_access_hostname": test_computer,
-        "windows_desktopini_access_username": test_user,
+        "windows_desktopini_access_domain": test_domain.lower(),
+        "windows_desktopini_access_hostname": test_computer.lower(),
+        "windows_desktopini_access_username": test_user.lower(),
     }
