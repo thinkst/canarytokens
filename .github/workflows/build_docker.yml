@@ -43,8 +43,8 @@ jobs:
 
       - name: Fixup the build branch
         run: |
-          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
-          sed -i'' "s/_COMMIT_HASH_/${GITHUB_SHA##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens/Dockerfile
+          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
+          sed -i'' "s/_COMMIT_HASH_/${GITHUB_SHA##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
           echo "Building for ${GITHUB_REF##*/}"
           cat /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
 
