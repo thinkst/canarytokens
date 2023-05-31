@@ -329,4 +329,4 @@ class ChannelDNS(InputChannel):
     #     return additional_report
 
     def _handleMySqlErr(self, result):
-        log.error("Error dispatching MySQL alert: {}".format(result))
+        log.error(f"Error dispatching MySQL alert: {result}")

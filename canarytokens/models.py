@@ -1392,8 +1392,8 @@ class ClonedWebTokenHit(TokenHit):
 
 class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
-    referer: Union[PseudoUrl, HttpUrl]
-    location: HttpUrl
+    referer: Optional[Union[PseudoUrl, HttpUrl]]
+    location: Optional[HttpUrl]
     useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 

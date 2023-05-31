@@ -170,7 +170,7 @@ class CanaryESMTP(smtp.ESMTP):
                 )
             )
         except Exception as e:
-            log.error(e)
+            log.error(f"Error in SMTP channel while validating To field: {e}")
 
         raise smtp.SMTPBadRcpt(user)
 
