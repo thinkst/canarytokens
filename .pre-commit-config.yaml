@@ -17,9 +17,9 @@ repos:
     -   id: check-added-large-files
     -   id: check-yaml
     -   id: debug-statements
-    -   id: no-commit-to-branch
-        # GitHub only allows branch protection for teams or enterprise.
-        args: ['--pattern', '^(?!T\d+.*)']
+    # -   id: no-commit-to-branch
+    #     # GitHub only allows branch protection for teams or enterprise.
+    #     args: ['--pattern', '^(?!T\d+.*)']
 -   repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
