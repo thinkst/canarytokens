@@ -75,7 +75,7 @@ class Canarydrop(BaseModel):
     type: TokenTypes
     user: Union[User, Anonymous] = Anonymous()
 
-    token_url: Optional[str]
+    # token_url: Optional[str]
     generated_url: Optional[str]
     generated_hostname: Optional[str]
 

@@ -628,7 +628,7 @@ def test_aws_keys_broken(
 
         # add generate random hostname an token
         canary_http_channel = f"http://{local_settings.DOMAINS[0]}"
-        cd.token_url = cd.get_url([canary_http_channel])
+        cd.get_url([canary_http_channel])
         cd.generated_hostname = cd.get_hostname()
         save_canarydrop(cd)
 
@@ -684,7 +684,7 @@ def test_aws_keys(
 
         # add generate random hostname an token
         canary_http_channel = f"http://{local_settings.DOMAINS[0]}"
-        cd.token_url = cd.get_url([canary_http_channel])
+        cd.get_url([canary_http_channel])
         cd.generated_hostname = cd.get_hostname()
         save_canarydrop(cd)
 
