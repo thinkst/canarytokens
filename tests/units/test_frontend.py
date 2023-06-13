@@ -306,7 +306,7 @@ def test_email_enable_token_settings_requests(
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
 
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert not canarydrop.alert_email_enabled
@@ -322,7 +322,7 @@ def test_email_enable_token_settings_requests(
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
 
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert canarydrop.alert_email_enabled
@@ -354,7 +354,7 @@ def test_webhook_enable_token_settings_requests(
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
 
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert not canarydrop.alert_webhook_enabled
@@ -369,7 +369,7 @@ def test_webhook_enable_token_settings_requests(
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
 
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert canarydrop.alert_webhook_enabled
@@ -402,7 +402,7 @@ def test_browser_scanner_enable_token_settings_requests(
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
 
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert not canarydrop.browser_scanner_enabled
@@ -417,7 +417,7 @@ def test_browser_scanner_enable_token_settings_requests(
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
 
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert canarydrop.browser_scanner_enabled
@@ -448,7 +448,7 @@ def test_web_image_enable_token_settings_requests(
     )
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert not canarydrop.web_image_enabled
@@ -462,7 +462,7 @@ def test_web_image_enable_token_settings_requests(
     )
     assert setting_resp.status_code == 200
     assert "success" in setting_resp.content.decode()
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert canarydrop.web_image_enabled
@@ -508,20 +508,12 @@ def test_history_page(
     )
     token_info = token_response_type(**resp.json())
 
-    cd = canarydrop.Canarydrop(
-        type=token_info.token_type,
-        canarytoken=Canarytoken(value=token_info.token),
-        alert_email_enabled=False,
-        alert_email_recipient="email@test.com",
-        alert_webhook_enabled=False,
-        alert_webhook_url=None,
-        memo="memo",
-        browser_scanner_enabled=False,
-        redirect_url="https://youtube.com",
-    )
-    save_canarydrop(cd)
+    token = Canarytoken(token_info.token)
+    cd = queries.get_canarydrop(token)
+
     hit = get_basic_hit(cd.type)
     cd.add_canarydrop_hit(token_hit=hit)
+
     resp = test_client.get(
         "/history",
         params=HistoryPageRequest(

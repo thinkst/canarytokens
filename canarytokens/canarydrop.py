@@ -89,7 +89,7 @@ class Canarydrop(BaseModel):
     alert_webhook_url: Union[HttpUrl, None, Literal[""]]
 
     # web image specific stuff
-    web_image_enabled: Optional[bool]
+    web_image_enabled: bool = False
     web_image_path: Optional[Path]
     # Slow/Fast redirect specific stuff
     redirect_url: Optional[HttpUrl]

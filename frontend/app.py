@@ -257,12 +257,12 @@ async def authorise_token_access(request: Request):
         data = dict(await request.form())
     else:
         raise HTTPException(status_code=403, detail="Requires `auth` and `token`")
-    get_canarydrop_from_auth(token=data["token"], auth=data["auth"])
+    get_canarydrop_and_authenticate(token=data["token"], auth=data["auth"])
 
 
-def get_canarydrop_from_auth(token: str, auth: str = Security(auth_key)):
+def get_canarydrop_and_authenticate(token: str, auth: str = Security(auth_key)):
     try:
-        canarydrop = queries.get_canarydrop_from_auth(token=token, auth=auth)
+        canarydrop = queries.get_canarydrop_and_authenticate(token=token, auth=auth)
     except CanarydropAuthFailure:
         raise HTTPException(
             status_code=403, detail="Token not found. Invalid `auth` and `token` pair."
@@ -425,7 +425,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     dependencies=[Depends(authorise_token_access)],
 )
 async def manage_page_get(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_from_auth)
+    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
 ) -> HTMLResponse:
 
     manage_template_params = {
@@ -462,7 +462,7 @@ async def manage_page_get(
     dependencies=[Depends(authorise_token_access)],
 )
 async def history_page_get(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_from_auth)
+    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
 ) -> HTMLResponse:
 
     triggered_list = canarydrop.format_triggered_details_of_history_page()
@@ -489,7 +489,7 @@ async def history_page_get(
 async def settings_post(
     settings_request: AnySettingsRequest = Depends(parse_for_settings),
 ) -> SettingsResponse:
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=settings_request.token, auth=settings_request.auth
     )
     if canarydrop.apply_settings_change(setting_request=settings_request):
@@ -519,7 +519,7 @@ async def download(
     Given `AnyDownloadRequest` a canarydrop is retrieved and the token
     artifact or hit information is returned.
     """
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=download_request.token, auth=download_request.auth
     )
     return create_download_response(download_request, canarydrop=canarydrop)

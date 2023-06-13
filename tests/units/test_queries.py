@@ -19,7 +19,7 @@ from canarytokens.queries import (
     add_webhook_token_idx,
     delete_webhook_tokens,
     get_canarydrop,
-    get_canarydrop_from_auth,
+    get_canarydrop_and_authenticate,
     save_canarydrop,
 )
 from canarytokens.tokens import Canarytoken
@@ -194,13 +194,13 @@ def test_get_canarydrop_from_auth(setup_db):
         browser_scanner_enabled=False,
     )
     save_canarydrop(canarydrop)
-    new_drop = get_canarydrop_from_auth(
+    new_drop = get_canarydrop_and_authenticate(
         token=canarydrop.canarytoken.value(), auth=canarydrop.auth
     )
     assert new_drop.canarytoken.value() == canarydrop.canarytoken.value()
 
     with pytest.raises(CanarydropAuthFailure):
-        get_canarydrop_from_auth(
+        get_canarydrop_and_authenticate(
             token=canarydrop.canarytoken.value(), auth="wrongauthtoken"
         )
 
