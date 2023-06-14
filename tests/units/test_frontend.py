@@ -536,7 +536,7 @@ def test_history_page(
     ],
 )
 def test_authorised_page_access(
-    param_type: PageRequest, endpoint: str, verb: str, test_client: TestClient
+    param_type: PageRequest, endpoint: str, verb: str, test_client: TestClient, setup_db
 ) -> None:
     """
     For all `endpoints` that are behind auth test

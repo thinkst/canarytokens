@@ -69,8 +69,9 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
 
 def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop:
     """Fetches a drop given a `token` and it's associated `auth`."""
-    canarydrop = get_canarydrop(tokens.Canarytoken(token))
-    if canarydrop is None:
+    try:
+        canarydrop = get_canarydrop(tokens.Canarytoken(token))
+    except NoCanarytokenPresent:
         raise CanarydropAuthFailure("Canarydrop associated with token is missing.")
     if not secrets.compare_digest(token, canarydrop.canarytoken.value()):
         raise CanarydropAuthFailure(
