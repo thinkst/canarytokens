@@ -729,9 +729,8 @@ class HistoryPage(resource.Resource):
                 raise NoCanarytokenPresent()
             if canarydrop.get('triggered_list', None):
                 for timestamp in canarydrop['triggered_list'].keys():
-                    formatted_timestamp = datetime.datetime.fromtimestamp(
+                    canarydrop['triggered_list'][timestamp]['timestamp'] = datetime.datetime.fromtimestamp(
                                 float(timestamp)).strftime('%Y %b %d %H:%M:%S.%f (UTC)')
-                    canarydrop['triggered_list'][formatted_timestamp] = canarydrop['triggered_list'].pop(timestamp)
 
             if canarydrop.get('memo'):
                 canarydrop['memo'] = unicode(canarydrop['memo'], "utf8")
