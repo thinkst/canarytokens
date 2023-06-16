@@ -107,7 +107,7 @@
 {% for item in canarydrop['triggered_list']|sort(reverse=True) %}
           <div class="incident-item expand" id="item-{{item}}">
                 <p class="details-header">
-                <b>Date:</b> {{ item|e }}
+                <b>Date:</b> {{ canarydrop['triggered_list'][item]['timestamp'] }}
                 <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
   {% if canarydrop['type'] == 'aws_keys' %}
                                   <b>Channel:</b> AWS API Key Token
