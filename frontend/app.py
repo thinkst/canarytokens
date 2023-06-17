@@ -370,10 +370,10 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         canarytoken = Canarytoken()
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
-        alert_email_enabled=True,
+        alert_email_enabled=True if token_request_details.email else False,
         alert_email_recipient=token_request_details.email,
-        alert_webhook_enabled=True,
-        alert_webhook_url=token_request_details.webhook_url,
+        alert_webhook_enabled=True if token_request_details.webhook_url else False,
+        alert_webhook_url=token_request_details.webhook_url or "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
         browser_scanner_enabled=False,
