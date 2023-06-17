@@ -564,6 +564,7 @@ class Canarytoken(object):
     def _get_response_for_qr_code(
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
         return GIF
 
     @staticmethod
