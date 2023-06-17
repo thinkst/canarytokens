@@ -2,7 +2,6 @@ import datetime
 from pathlib import Path
 
 from pydantic import EmailStr
-import pytest
 from twisted.logger import capturedLogs
 
 from canarytokens import queries
@@ -84,7 +83,6 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
     assert "SRV01" in email_template
 
 
-@pytest.mark.skip()
 def test_sendgrid_send(
     settings: SwitchboardSettings, frontend_settings: FrontendSettings
 ):
