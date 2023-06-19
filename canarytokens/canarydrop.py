@@ -94,7 +94,7 @@ class Canarydrop(BaseModel):
     # Slow/Fast redirect specific stuff
     redirect_url: Optional[HttpUrl]
     # Clonedsite specific stuff
-    clonedsite: Optional[HttpUrl]
+    clonedsite: Optional[str]
     # Kubeconfig specific stuff
     kubeconfig: Optional[str]
     # SQL specific stuff
