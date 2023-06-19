@@ -534,7 +534,7 @@ class Canarytoken(object):
         return template.render(
             key=canarydrop.triggered_details.hits[-1].time_of_hit,
             canarytoken=canarydrop.canarytoken.value(),
-            redirect_url=str(canarydrop.redirect_url).encode("utf8"),
+            redirect_url=str(canarydrop.redirect_url),
         ).encode()
 
     @staticmethod
