@@ -77,7 +77,7 @@ if strtobool(os.getenv("LIVE", "False")):
     )
 else:
     v3 = V3(
-        canarytokens_sld="127.0.0.1:8000",
+        canarytokens_sld="127.0.0.1:8082",
         canarytokens_domain="127.0.0.1",
         canarytokens_dns_port=5354,
         canarytokens_http_port=8083,

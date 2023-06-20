@@ -552,13 +552,13 @@ START REPLICA;
       $('.btn-clipboard').removeClass('tooltip');
 
       var _handleWebResponse = function(data) {
-        $('#result_web').val(data['token_url']);
+        $('#result_web').val(data['generated_url']);
       };
       var _handleFastRedirectResponse = function(data) {
-        $('#result_fast_redirect').val(data['token_url']);
+        $('#result_fast_redirect').val(data['generated_url']);
       };
       var _handleSlowRedirectResponse = function(data) {
-        $('#result_slow_redirect').val(data['token_url']);
+        $('#result_slow_redirect').val(data['generated_url']);
       };
       var _handleDNSResponse = function(data) {
         $('#result_dns').val(data['generated_hostname']);

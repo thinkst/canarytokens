@@ -75,7 +75,7 @@ class Canarydrop(BaseModel):
     type: TokenTypes
     user: Union[User, Anonymous] = Anonymous()
 
-    token_url: Optional[str]
+    # token_url: Optional[str]
     generated_url: Optional[str]
     generated_hostname: Optional[str]
 
@@ -89,12 +89,12 @@ class Canarydrop(BaseModel):
     alert_webhook_url: Union[HttpUrl, None, Literal[""]]
 
     # web image specific stuff
-    web_image_enabled: Optional[bool]
+    web_image_enabled: bool = False
     web_image_path: Optional[Path]
     # Slow/Fast redirect specific stuff
     redirect_url: Optional[HttpUrl]
     # Clonedsite specific stuff
-    clonedsite: Optional[HttpUrl]
+    clonedsite: Optional[str]
     # Kubeconfig specific stuff
     kubeconfig: Optional[str]
     # SQL specific stuff
