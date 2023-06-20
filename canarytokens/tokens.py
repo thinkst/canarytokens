@@ -534,7 +534,7 @@ class Canarytoken(object):
         return template.render(
             key=canarydrop.triggered_details.hits[-1].time_of_hit,
             canarytoken=canarydrop.canarytoken.value(),
-            redirect_url=str(canarydrop.redirect_url).encode("utf8"),
+            redirect_url=str(canarydrop.redirect_url),
         ).encode()
 
     @staticmethod
@@ -564,6 +564,7 @@ class Canarytoken(object):
     def _get_response_for_qr_code(
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
         return GIF
 
     @staticmethod

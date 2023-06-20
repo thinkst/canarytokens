@@ -67,21 +67,19 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
     return cand.Canarydrop(**canarydrop)
 
 
-def get_canarydrop_from_auth(*, token: str, auth: str) -> cand.Canarydrop:
+def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop:
     """Fetches a drop given a `token` and it's associated `auth`."""
-    canarytokens = DB.get_db().smembers(KEY_AUTH_IDX + auth)
-    if len(canarytokens) != 1:
-        raise CanarydropAuthFailure(
-            f"{len(canarytokens)} tokens are associated with this auth. Tokens {canarytokens}"
-        )
-    canarydrop = get_canarydrop(tokens.Canarytoken(canarytokens.pop()))
-    if canarydrop is None:
-        raise CanarydropAuthFailure(
-            f"{len(canarytokens)} canarydrop associated with this auth is missing. Token(s) {canarytokens}"
-        )
+    try:
+        canarydrop = get_canarydrop(tokens.Canarytoken(token))
+    except NoCanarytokenPresent:
+        raise CanarydropAuthFailure("Canarydrop associated with token is missing.")
     if not secrets.compare_digest(token, canarydrop.canarytoken.value()):
         raise CanarydropAuthFailure(
-            f"{len(canarytokens)} canarydrop associated with this auth has inconsistent token. Token(s) {canarytokens}"
+            "Canarydrop associated with this auth has inconsistent token."
+        )
+    if not secrets.compare_digest(auth, canarydrop.auth):
+        raise CanarydropAuthFailure(
+            "Canarydrop authentication failed, auth token does not match."
         )
     return canarydrop
 

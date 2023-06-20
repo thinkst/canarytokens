@@ -97,7 +97,7 @@ class mTLS(basic.LineReceiver):
             )
 
         except CertificateError as e:
-            log.error("CertificateError Exception: {}".format(e))
+            log.error(f"CertificateError Exception: {e}")
             self.sendLine(b"HTTP/1.1 403 Forbidden")
             self.sendLine(self.headers())
             self.sendLine(b"")
@@ -106,7 +106,7 @@ class mTLS(basic.LineReceiver):
             self.transport.write(json.dumps(response).encode())
             self.transport.loseConnection()
         except Exception as e:
-            log.error("Exception send_response: {}".format(e))
+            log.error(f"Exception send_response: {e}")
             self.sendLine(b"HTTP/1.1 400 Bad Request")
             self.sendLine(self.headers())
             self.sendLine(b"")
