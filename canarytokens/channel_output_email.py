@@ -258,15 +258,11 @@ class EmailOutputChannel(OutputChannel):
             if response.status_code not in [202, 200]:
                 sent_successfully = False
                 log.error(
-                    "status code: {status_code}. Body: {body}",
-                    status_code=response.status_code,
-                    body=response.body,
+                    f"status code: {response.status_code}. Body: {response.body}",
                 )
         except HTTPError as e:
             log.error(
-                "A sendgrid error occurred. Status code: {status_code} {data}",
-                status_code=e.status_code,
-                data=e.to_dict,
+                f"A sendgrid error occurred. Status code: {e.status_code} {e.to_dict}",
             )
         else:
             sent_successfully = True
@@ -332,7 +328,7 @@ class EmailOutputChannel(OutputChannel):
             # Raise an error if the returned status is 4xx or 5xx
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            log.error("A mailgun error occurred: %s - %s" % (e.__class__, e))
+            log.error(f"A mailgun error occurred: {e.__class__} - {e}")
         else:
             sent_successfully = True
             message_id = response.json().get("id")

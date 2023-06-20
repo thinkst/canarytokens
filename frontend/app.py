@@ -257,12 +257,12 @@ async def authorise_token_access(request: Request):
         data = dict(await request.form())
     else:
         raise HTTPException(status_code=403, detail="Requires `auth` and `token`")
-    get_canarydrop_from_auth(token=data["token"], auth=data["auth"])
+    get_canarydrop_and_authenticate(token=data["token"], auth=data["auth"])
 
 
-def get_canarydrop_from_auth(token: str, auth: str = Security(auth_key)):
+def get_canarydrop_and_authenticate(token: str, auth: str = Security(auth_key)):
     try:
-        canarydrop = queries.get_canarydrop_from_auth(token=token, auth=auth)
+        canarydrop = queries.get_canarydrop_and_authenticate(token=token, auth=auth)
     except CanarydropAuthFailure:
         raise HTTPException(
             status_code=403, detail="Token not found. Invalid `auth` and `token` pair."
@@ -370,10 +370,10 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         canarytoken = Canarytoken()
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
-        alert_email_enabled=True,
+        alert_email_enabled=True if token_request_details.email else False,
         alert_email_recipient=token_request_details.email,
-        alert_webhook_enabled=True,
-        alert_webhook_url=token_request_details.webhook_url,
+        alert_webhook_enabled=True if token_request_details.webhook_url else False,
+        alert_webhook_url=token_request_details.webhook_url or "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
         browser_scanner_enabled=False,
@@ -410,7 +410,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     )
 
     # add generate random hostname an token
-    canarydrop.token_url = canarydrop.get_url(canary_domains=[canary_http_channel])
+    canarydrop.get_url(canary_domains=[canary_http_channel])
     canarydrop.generated_hostname = canarydrop.get_hostname()
 
     save_canarydrop(canarydrop)
@@ -425,7 +425,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     dependencies=[Depends(authorise_token_access)],
 )
 async def manage_page_get(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_from_auth)
+    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
 ) -> HTMLResponse:
 
     manage_template_params = {
@@ -449,7 +449,7 @@ async def manage_page_get(
         manage_template_params["wg_conf"] = wg_conf
         manage_template_params["wg_qr_code"] = qr_code
     elif canarydrop.type == TokenTypes.QR_CODE:
-        qr_code = segno.make(canarydrop.token_url).png_data_uri(scale=5)
+        qr_code = segno.make(canarydrop.generated_url).png_data_uri(scale=5)
         manage_template_params["qr_code"] = qr_code
 
     return templates.TemplateResponse("manage_new.html", manage_template_params)
@@ -462,7 +462,7 @@ async def manage_page_get(
     dependencies=[Depends(authorise_token_access)],
 )
 async def history_page_get(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_from_auth)
+    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
 ) -> HTMLResponse:
 
     triggered_list = canarydrop.format_triggered_details_of_history_page()
@@ -489,7 +489,7 @@ async def history_page_get(
 async def settings_post(
     settings_request: AnySettingsRequest = Depends(parse_for_settings),
 ) -> SettingsResponse:
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=settings_request.token, auth=settings_request.auth
     )
     if canarydrop.apply_settings_change(setting_request=settings_request):
@@ -519,7 +519,7 @@ async def download(
     Given `AnyDownloadRequest` a canarydrop is retrieved and the token
     artifact or hit information is returned.
     """
-    canarydrop = queries.get_canarydrop_from_auth(
+    canarydrop = queries.get_canarydrop_and_authenticate(
         token=download_request.token, auth=download_request.auth
     )
     return create_download_response(download_request, canarydrop=canarydrop)
@@ -571,7 +571,7 @@ def _(
         token=download_request_details.token,
         auth=download_request_details.auth,
         content=make_canary_msword(
-            canarydrop.token_url,
+            canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
         ),
         filename=f"{canarydrop.canarytoken.value()}.docx",
@@ -600,7 +600,7 @@ def _(
         token=download_request_details.token,
         auth=download_request_details.auth,
         content=make_canary_msexcel(
-            canarydrop.token_url,
+            canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.xlsx",
         ),
         filename=f"{canarydrop.canarytoken.value()}.xlsx",
@@ -762,7 +762,7 @@ def _(
     return DownloadQRCodeResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
-        content=segno.make(canarydrop.token_url).png_data_uri(scale=5),
+        content=segno.make(canarydrop.generated_url).png_data_uri(scale=5),
         filename=f"{canarydrop.canarytoken.value()}.png",
     )
 
@@ -783,7 +783,7 @@ def _(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -801,7 +801,7 @@ def _(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
@@ -819,7 +819,7 @@ def _(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
@@ -837,7 +837,7 @@ def _(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
@@ -855,7 +855,7 @@ def _(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
@@ -872,7 +872,7 @@ def _(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
@@ -893,7 +893,7 @@ def _(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -917,7 +917,7 @@ def _(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -936,7 +936,7 @@ def _(token_request_details: SQLServerTokenRequest, canarydrop: Canarydrop):
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -973,7 +973,7 @@ def _create_aws_key_token_response(
     canarydrop.aws_secret_access_key = key["secret_access_key"]
     canarydrop.aws_region = key["region"]
     canarydrop.aws_output = key["output"]
-    canarydrop.token_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
     save_canarydrop(canarydrop)
 
     return AWSKeyTokenResponse(
@@ -982,7 +982,7 @@ def _create_aws_key_token_response(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -1031,13 +1031,13 @@ def _create_azure_id_token_response(
     canarydrop.cert = key["cert"]
     canarydrop.tenant_id = key["tenant_id"]
     canarydrop.cert_name = key["cert_name"]
-    canarydrop.token_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
     save_canarydrop(canarydrop)
     return AzureIDTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -1081,7 +1081,7 @@ def _(token_request_details: CCTokenRequest, canarydrop: Canarydrop) -> CCTokenR
         card_name=frontend_settings.EXTEND_CARD_NAME,
     )
     try:
-        cc = eapi.create_credit_card(token_url=canarydrop.token_url)
+        cc = eapi.create_credit_card(token_url=canarydrop.generated_url)
     except extendtoken.ExtendAPIRateLimitException:
         return response_error(
             4, "Credit Card Rate-Limiting currently in place. Please try again later."
@@ -1185,7 +1185,7 @@ def _(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(nxdomain=True),
         url_components=list(canarydrop.get_url_components()),
@@ -1272,7 +1272,7 @@ def _(
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -1288,7 +1288,7 @@ def _(token_request_details: SvnTokenRequest, canarydrop: Canarydrop):
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -1304,7 +1304,7 @@ def _(token_request_details: MsWordDocumentTokenRequest, canarydrop: Canarydrop)
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -1320,7 +1320,7 @@ def _(token_request_details: MsExcelDocumentTokenRequest, canarydrop: Canarydrop
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
@@ -1335,12 +1335,12 @@ def _(token_request_details: QRCodeTokenRequest, canarydrop: Canarydrop):
         if canarydrop.alert_webhook_url
         else "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
         # additional information for QRCode token response
-        qrcode_png=segno.make(canarydrop.token_url).png_data_uri(scale=5),
+        qrcode_png=segno.make(canarydrop.generated_url).png_data_uri(scale=5),
     )
 
 
@@ -1350,7 +1350,7 @@ def _(token_request_details: SMTPTokenRequest, canarydrop: Canarydrop):
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
-        token_url=canarydrop.token_url,
+        token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),

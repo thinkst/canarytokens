@@ -1386,22 +1386,22 @@ class CustomImageTokenHit(TokenHit):
 class ClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     # TODO fix API spelling to 'referrer' (comes from JS document.referrer)
-    referer: Union[HttpUrl, PseudoUrl]
-    location: HttpUrl
+    referer: Optional[Union[PseudoUrl, HttpUrl, Literal[""]]]
+    location: Optional[Union[PseudoUrl, HttpUrl, Literal[""]]]
 
 
 class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
-    referer: Union[PseudoUrl, HttpUrl]
-    location: HttpUrl
+    referer: Optional[Union[PseudoUrl, HttpUrl, Literal[""]]]
+    location: Optional[Union[PseudoUrl, HttpUrl, Literal[""]]]
     useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
 class FastRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
-    referer: Union[PseudoUrl, HttpUrl, None]
-    location: Optional[HttpUrl]
+    referer: Optional[Union[PseudoUrl, HttpUrl, Literal[""]]]
+    location: Optional[Union[PseudoUrl, HttpUrl, Literal[""]]]
     useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 
