@@ -13,7 +13,7 @@ from urllib import request, parse
 ALERT_THRESHOLD = timedelta(hours=4, minutes=30)
 DB_TABLE_NAME = "awsidtoken_table"
 TICKET_URL = os.environ.get('TICKET_URL')
-TICKET_TEAM = os.environ.get('TICET_TEAM')
+TICKET_TEAM = os.environ.get('TICKET_TEAM')
 
 iam = boto3.client('iam')
 db = boto3.client('dynamodb')
@@ -33,7 +33,7 @@ def file_ticket(subject=None, team=TICKET_TEAM, priority=3, text=None):
     resp = request.urlopen(req)
 
 def ticket_exception(exception):
-    file_ticket(subject="AWSIDCredentialReportChecker Exception", text="An exception occurred whilst running the AWSIDCredentialReportChecker lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
+    file_ticket(subject="AWSIDCredentialReportChecker Exception", text=f"An exception occurred whilst running the AWSIDCredentialReportChecker lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
 
 aws_account_id = None
 def lambda_handler(event, context):
