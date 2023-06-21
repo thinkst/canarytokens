@@ -11,6 +11,14 @@ variable "slack_webhook_url" {
   type = string
 }
 
+variable "ticket_team" {
+  type = string
+}
+
+variable "ticket_url" {
+  type = string
+}
+
 provider "aws" {
    region = "us-east-2"
 }
@@ -478,6 +486,12 @@ resource "aws_lambda_function" "api_tokens_safety_net" {
 
   runtime = "python3.9"
 
+  environment {
+    variables = {
+      TICKET_TEAM = var.ticket_team
+      TICKET_URL = var.ticket_url
+    }
+  }
   depends_on = [
     aws_iam_role_policy_attachment.api_tokens_safety_net,
     aws_cloudwatch_log_group.api_tokens_safety_net,

@@ -1,8 +1,10 @@
 import json
 import boto3
 import csv
+import os
 import time
 import urllib
+import urllib.error
 
 from datetime import datetime, timezone, timedelta
 from io import StringIO
@@ -10,6 +12,8 @@ from urllib import request, parse
 
 ALERT_THRESHOLD = timedelta(hours=4, minutes=30)
 DB_TABLE_NAME = "awsidtoken_table"
+TICKET_URL = os.environ.get('TICKET_URL')
+TICKET_TEAM = os.environ.get('TICET_TEAM')
 
 iam = boto3.client('iam')
 db = boto3.client('dynamodb')
@@ -17,7 +21,33 @@ db = boto3.client('dynamodb')
 class NoItem(Exception):
     pass
 
+def file_ticket(subject=None, team=TICKET_TEAM, priority=3, text=None):
+    data = {}
+    data['subject'] = subject
+    data['team'] = team
+    data['priority'] = str(priority)
+    data['text'] = text
+    data['dedupe_key'] = f"key_credsreportchecker_canarytokensorg_{aws_account_id}"
+    req =  request.Request(TICKET_URL, data=json.dumps(data).encode('utf-8'))
+    req.add_header('Content-Type', 'application/json; charset=utf-8')
+    resp = request.urlopen(req)
+
+def ticket_exception(exception):
+    file_ticket(subject="AWSIDCredentialReportChecker Exception", text="An exception occurred whilst running the AWSIDCredentialReportChecker lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
+
+aws_account_id = None
 def lambda_handler(event, context):
+    global aws_account_id
+    aws_account_id = context.invoked_function_arn.split(":")[4]
+    try:
+        try:
+            check_credential_report(event, context)
+        except ReportNotGeneratedInTime as e:
+            ticket_exception(e)
+    except Exception as e:
+        ticket_exception(e)
+
+def check_credential_report(event, context):
     # TODO Take account ID as input in event. Assume role inside account and perform the credential
     # report lookup
 
@@ -52,17 +82,24 @@ def lambda_handler(event, context):
                 print('No record for key')
                 continue
 
-            # print("Token info retrieved from DynamoDB: server={}, token={}, lastalerted={}".format(server, token, last_alerted_timestamp))
+            # print("Token info retreived from DynamoDB: server={}, token={}, lastalerted={}".format(server, token, last_alerted_timestamp))
             if last_used_timestamp > last_alerted_timestamp:
-                url = "http://{}/{}".format(server, token)
-                data = {"safety_net": True, "last_used": row['access_key_1_last_used_date']}
-                data = urllib.parse.urlencode(data).encode("utf8")
-
-                req = urllib.request.Request(url, data)
-                response = urllib.request.urlopen(req)
-                print('Looking up {u} to trigger alert!'.format(u=url))
-                print('Response Code: {r}'.format(r=response.getcode()))
-                print('Response Info: {r}'.format(r=response.info()))
+                print('Safety net triggered for {}'.format(token))
+                try:
+                    url = "http://{}/{}".format(server, token)
+                    data = {"safety_net": True, "last_used": row['access_key_1_last_used_date']}
+                    data = urllib.parse.urlencode(data).encode("utf8")
+                    print('Looking up {u} to trigger alert!'.format(u=url))
+                    req = urllib.request.Request(url, data)
+                    response = urllib.request.urlopen(req)
+                    msg = f"The token is {token}. Please investigate what API was called that it was only detected by the safety net."
+                    file_ticket(subject="Canarytokens.org AWS Safety Net Caught Something", text=msg)
+                except urllib.error.URLError as e:
+                    print('Failed to trigger token: {e}'.format(e=e))
+                    ticket_exception(e)
+                    
+                #print('Response Code: {r}'.format(r=response.getcode()))
+                #print('Response Info: {r}'.format(r=response.info()))
 
 
                 db_response = db.put_item(
@@ -72,7 +109,7 @@ def lambda_handler(event, context):
                         'Domain': {'S': server},
                         'AccessKey': {'S': access_key},
                         'Canarytoken': {'S': token},
-                        'LastUsed': {'N': str(current_ts)}
+                        'LastUsed': {'N': current_ts}
                     }
                 )
                 # print('DynamoDB response: {r}'.format(r=db_response))
