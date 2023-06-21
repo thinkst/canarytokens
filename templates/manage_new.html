@@ -578,7 +578,11 @@ START REPLICA;
         $('#result_svn').val('svn propset svn:externals "extras http://'+data['generated_hostname']+'" .')
       }
       var _handleSMTPResponse = function(data) {
-        $('#result_smtp').val(data['token']+'@'+document.domain);
+        try {
+          $('#result_smtp').val(data['canarytoken']+'@'+data['generated_hostname'].split(/\.(.+)/)[1]);
+        } catch(err) {
+          $('#result_smtp').val(data['canaryoken']+'@'+document.domain);
+        }
       }
       var _handleSQLServerResponse = function(data) {
         $('.sql_hostname').text(data['generated_hostname']);
