@@ -56,13 +56,13 @@ def check_credential_report(event, context):
     # it takes a little bit of time for the report to be generated.
     # if it isn't ready this call throws an exception. retry until
     # the report is ready
-    for i in range(5):
+    for i in range(29):
         try:
             response = iam.get_credential_report()
             break
         except iam.exceptions.CredentialReportNotReadyException:
             print("Report not ready. Retrying...")
-            time.sleep(60)
+            time.sleep(30)
     else:
         raise ReportNotGeneratedInTime("Could not generate credentials report")
 
