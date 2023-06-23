@@ -1519,7 +1519,7 @@ class TokenHistory(GenericModel, Generic[TH]):
             if readable_time_format:
                 data[
                     datetime.fromtimestamp(hit.time_of_hit).strftime(
-                        "%Y-%m-%d %H:%M:%S"
+                        "%Y-%m-%d %H:%M:%S.%f"
                     )
                 ] = hit_data
             else:
