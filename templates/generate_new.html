@@ -1440,7 +1440,7 @@ START REPLICA;
                     //$('.loader').addClass('hide');
                     if (data['error'] !== null){
                       if (data['error'] == '1'){
-                          $('#endpoints_errors').html('Provide an email and/or a webhook endpoint');
+                          $('#endpoints_errors').html('Malformed request, invalid data supplied.');
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                           $('#endpoints_errors').show();
                       } else if (data['error'] == '2'){

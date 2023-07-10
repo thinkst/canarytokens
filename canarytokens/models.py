@@ -523,7 +523,7 @@ class CustomBinaryTokenRequest(TokenRequest):
 
 
 class UploadedImage(BaseModel):
-    content_type: Literal["image/png", "image/gif", "image/jpg"]
+    content_type: Literal["image/png", "image/gif", "image/jpeg"]
     filename: str
     file: SpooledTemporaryFile
 
