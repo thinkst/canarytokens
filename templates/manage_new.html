@@ -228,7 +228,7 @@
                 </div>
               </div>
             </div>
-            <div class="result signed_exe">
+            <!-- <div class="result signed_exe">
               <h3>Here's  your Signed Executable token:</h3>
               <div class="artifacts">
                 <p>Save this file and deploy on Windows machines:</p>
@@ -236,7 +236,7 @@
                   <a id="signed_exe" href="" download="" class="btn btn-success"></a>
                 </div>
               </div>
-            </div>
+            </div> -->
             <div class="result clonedsite">
               <h5>Here's your tokened Javascript:</h5>
               <div class="artifacts">
@@ -626,7 +626,7 @@ START REPLICA;
             var encodedEl = $("#mysql-encoded");
             var encoded = encodedEl.is(":checked");
 
-            window.open('download?fmt=my_sql&token=' + token + '&auth=' +data['auth_token'] + '&encoded=' + encoded, '_blank').focus();
+            window.open('download?fmt=my_sql&token=' + data['canarytoken'] + '&auth=' +data['auth'] + '&encoded=' + encoded, '_blank').focus();
           });
         }
         var _handlerLog4ShellResponse = function(data) {
@@ -692,7 +692,7 @@ START REPLICA;
 
         // $('.jumbotron').css('height', $('.success').innerHeight())
 
-        $('.manage-link > a').prop('href', '/manage?token='+data['token']+'&auth='+data['auth_token']);
+        $('.manage-link > a').prop('href', '/manage?token='+data['canarytoken']+'&auth='+data['auth']);
       }
       displayToken(canarydrop);
 
