@@ -5,7 +5,8 @@ import urllib.request
 from datetime import datetime
 from distutils.util import strtobool
 from functools import wraps
-from typing import Callable, Dict, Optional, Tuple, Union
+from logging import Logger
+from typing import Callable, Dict, Optional, Union
 
 import dns.resolver
 import pytest
@@ -47,6 +48,8 @@ from canarytokens.models import (
     WindowsDirectoryTokenResponse,
 )
 from canarytokens.tokens import Canarytoken
+
+log = Logger("test_utils")
 
 # TODO: Grab from env var to test the intended deployment
 if strtobool(os.getenv("LIVE", "False")):
@@ -168,8 +171,8 @@ def windows_directory_fire_token(
 
 
 def retry_on_failure(
-    retry_when_raised: Tuple[Exception],
-    retry_intervals: Tuple[float] = (3.0, 3.0, 5.0, 5.0),
+    retry_when_raised: tuple[Exception, ...],
+    retry_intervals: tuple[float, ...] = (3.0, 3.0, 5.0, 5.0),
 ) -> Callable:
     """Decorator to add retries to functions that depend on external systems.
 
@@ -183,16 +186,19 @@ def retry_on_failure(
     def inner(f: Callable) -> Callable:
         @wraps(f)
         def wrapper(*args, **kwargs):  # type: ignore
+            most_recent_error = None
             for interval in retry_intervals:
                 try:
                     res = f(*args, **kwargs)
-                except retry_when_raised:  # pragma: no cover
+                except retry_when_raised as e:  # pragma: no cover
+                    most_recent_error = e
                     time.sleep(interval)  # pragma: no cover
                     continue  # pragma: no cover
                 else:
                     return res
             raise Exception(
                 f"Retrying {f} failed after {len(retry_intervals)} attempts and {sum(retry_intervals)}s"
+                f"; Most recent error: {most_recent_error}"
             )  # pragma: no cover
 
         return wrapper
@@ -427,6 +433,10 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
         **kwargs,
         headers={"Connection": "close"},
     )
+    if resp.status_code >= 400:
+        log.error(
+            f"Token creation error: \n\t{token_request = }\n\t{resp.status_code = }; {resp.json() = }"
+        )
     resp.raise_for_status()
     data = resp.json()
     resp.close()

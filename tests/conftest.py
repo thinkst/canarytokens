@@ -103,7 +103,7 @@ def webhook_receiver() -> Generator[str, None, None]:
         _ = await request.body()
         data = await request.json()
         # HACK: to allow testing ot proceed. Make testing easier in the future.
-        if "http://example.com/test/url/for/webhook" == data["manage_url"]:
+        if "http://example.com/test/url/for/webhook" == data.get("manage_url", None):
             return Response(status_code=200)
         # HACK: we can do better but that would be an API change.
         token_and_auth = data["manage_url"].split("/")[-1]
