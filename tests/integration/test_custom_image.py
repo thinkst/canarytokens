@@ -48,7 +48,9 @@ def test_custom_image_url(  # noqa: C901
     run_or_skip(version, runv2=runv2, runv3=runv3)
     # custom image
     file_name = "canary_image.png"
-    file_mimetype = "image/{mimetype}".format(mimetype=file_name[-3:])
+    file_mimetype = "image/{mimetype}".format(
+        mimetype=file_name[-3:].replace("jpg", "jpeg")
+    )
 
     with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
@@ -218,7 +220,9 @@ def test_custom_image_web_image(
 ):
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
-    file_mimetype = "image/{mimetype}".format(mimetype=file_name[-3:])
+    file_mimetype = "image/{mimetype}".format(
+        mimetype=file_name[-3:].replace("jpg", "jpeg")
+    )
     with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file = fp.read()
