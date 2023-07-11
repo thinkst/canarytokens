@@ -53,7 +53,7 @@ CANARYTOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 
-response_error = lambda error, message: JSONResponse(  # noqa: E731  # lambda is cleaner
+response_error = lambda error, message, status_code=400: JSONResponse(  # noqa: E731  # lambda is cleaner
     {
         "error": str(error),
         "error_message": message,
@@ -63,7 +63,8 @@ response_error = lambda error, message: JSONResponse(  # noqa: E731  # lambda is
         "email": "",
         "hostname": "",
         "auth": "",
-    }
+    },
+    status_code=status_code,
 )
 
 
