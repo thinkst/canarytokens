@@ -142,7 +142,47 @@ def webhook_receiver() -> Generator[str, None, None]:
         stats[token] = []
         return Response(status_code=200)
 
-    @app.get("/alert/mock_aws_key/CreateUserAPITokens")
+    @app.get("/broken")
+    def broken(request: Request) -> JSONResponse:
+        return JSONResponse(content={}, status_code=404)
+
+    config = uvicorn.Config(
+        app,
+        host="127.0.0.1",
+        port=8087,
+        log_level="info",
+        limit_concurrency=10,
+        timeout_keep_alive=0,
+        backlog=5,
+    )
+    server = Server(config=config)
+    with server.run_in_thread():
+        http_tunnel = ngrok.connect(f"{server.config.port}")
+        yield f"{http_tunnel.public_url}/alert"
+        ngrok.disconnect(http_tunnel)
+        ngrok.kill()  # This seems to clean up connections faster.
+
+
+@pytest.fixture(scope="function")
+def aws_webhook_receiver() -> Generator[str, None, None]:
+    """
+    Stands up a simple web server to emulate the lambda that returns AWS keys
+
+    Endpoints:
+    /mock_aws_key/CreateUserAPITokens -> returns testing aws creds
+    /mock_aws_key_broken/CreateUserAPITokens -> returns a 400
+
+    Note: Debugging this web server you'll need rpdb.
+    Returns:
+       None: on teardown nothing is returned
+
+    Yields:
+         str: url to /
+    """
+
+    app = FastAPI()
+
+    @app.get("/mock_aws_key/CreateUserAPITokens")
     def serve_aws_debug_token(request: Request) -> dict[str, Optional[str]]:
         """
         This provides a simple test endpoint that returns AWS creds
@@ -167,13 +207,9 @@ def webhook_receiver() -> Generator[str, None, None]:
         }
         return mock_key
 
-    @app.get("/alert/mock_aws_key_broken/CreateUserAPITokens")
+    @app.get("/mock_aws_key_broken/CreateUserAPITokens")
     def serve_aws_debug_token_broken(request: Request) -> JSONResponse:
         return JSONResponse(content={}, status_code=400)
-
-    @app.get("/broken")
-    def broken(request: Request) -> JSONResponse:
-        return JSONResponse(content={}, status_code=404)
 
     config = uvicorn.Config(
         app,
@@ -186,10 +222,7 @@ def webhook_receiver() -> Generator[str, None, None]:
     )
     server = Server(config=config)
     with server.run_in_thread():
-        http_tunnel = ngrok.connect(f"{server.config.port}")
-        yield f"{http_tunnel.public_url}/alert"
-        ngrok.disconnect(http_tunnel)
-        ngrok.kill()  # This seems to clean up connections faster.
+        yield f"http://{config.host}:{config.port}"
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
