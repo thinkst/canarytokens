@@ -1054,7 +1054,7 @@ def _create_azure_id_token_response(
 def _(
     token_request_details: CMDTokenRequest, canarydrop: Canarydrop
 ) -> CMDTokenResponse:
-    canarydrop.cmd_process = token_request_details.cmd_process_name
+    canarydrop.cmd_process = token_request_details.cmd_process
     queries.save_canarydrop(canarydrop=canarydrop)
     return CMDTokenResponse(
         email=canarydrop.alert_email_recipient or "",

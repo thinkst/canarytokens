@@ -720,7 +720,7 @@ def test_block_user(
         memo="test stuff break stuff fix stuff test stuff",
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",
-        cmd_process_name="klist.exe",
+        cmd_process="klist.exe",
     )
 
     resp = test_client.post(

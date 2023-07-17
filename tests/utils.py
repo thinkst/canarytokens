@@ -512,7 +512,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         memo="test stuff break stuff fix stuff test stuff",
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",
-        cmd_process_name="klist.exe",
+        cmd_process="klist.exe",
         azure_id_cert_file_name="test.pem",
     )
 

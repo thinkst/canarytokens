@@ -472,12 +472,12 @@ class PDFTokenRequest(TokenRequest):
 
 class CMDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
-    cmd_process_name: str
+    cmd_process: str
 
-    @validator("cmd_process_name")
+    @validator("cmd_process")
     def check_process_name(value: str):
         if not value.endswith(".exe"):
-            raise ValueError(f"cmd_process_name must end in .exe. Given: {value}")
+            raise ValueError(f"cmd_process must end in .exe. Given: {value}")
         return value
 
 
