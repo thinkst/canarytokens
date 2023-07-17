@@ -1,3 +1,5 @@
+from collections import defaultdict
+import json
 import os
 import time
 import urllib.parse
@@ -337,33 +339,68 @@ def get_stats_from_webhook(webhook_receiver: str, token: str):
     if "slack" in webhook_receiver:
         # slack webhooks don't give us introspection. Or can we? TODO: take a look.
         return  # pragma: no cover
+    stats = defaultdict(list)
+    uuid = webhook_receiver.split("/")[-1]
+    time.sleep(1.0)
     resp = session.get(
-        f"{webhook_receiver}/stats/{token}",
+        f"https://webhook.site/token/{uuid}/requests",
         timeout=request_timeout,
         headers={"Connection": "close"},
     )
     resp.raise_for_status()
-    data = resp.json()
+    webhook_data = resp.json()
     resp.close()
     session.close()
-    if not data:
+    if not webhook_data["total"] > 0:
         raise ShouldBeStats("we'll wait a bit for webhooks to get hit")
-    return data
+    for req in webhook_data["data"]:
+        data = json.loads(req["content"])
+        # HACK: we can do better but that would be an API change:
+        if "http://example.com/test/url/for/webhook" != data.get("manage_url", None):
+            token_and_auth = data["manage_url"].split("/")[-1]
+            token = token_and_auth.split("&")[0].split("=")[1]
+            stats[token].append(data)
+    return stats[token]
 
 
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))
 def clear_stats_on_webhook(webhook_receiver: str, token: str):
+    """remove all requests associated with a specific token on this webhook"""
     if "slack" in webhook_receiver:
         # slack webhooks don't give us introspection. or TODO: check how to!
         return  # pragma: no cover
+    webhook_uuid = webhook_receiver.split("/")[-1]
+    # get all the requests
     resp = session.get(
-        f"{webhook_receiver}/clear_stats/{token}",
+        f"https://webhook.site/token/{webhook_uuid}/requests",
         timeout=request_timeout,
         headers={"Connection": "close"},
     )
     resp.raise_for_status()
+    webhook_data = resp.json()
     resp.close()
     session.close()
+    for req in webhook_data["data"]:
+        delete_req = False
+        data = json.loads(req["content"])
+        token_uuid = req["uuid"]
+        # HACK: we can do better but that would be an API change:
+        if "http://example.com/test/url/for/webhook" == data.get("manage_url", None):
+            delete_req = True
+        else:
+            token_and_auth = data["manage_url"].split("/")[-1]
+            current_token = token_and_auth.split("&")[0].split("=")[1]
+            if current_token == token:
+                delete_req = True
+        if delete_req:
+            resp = session.delete(
+                f"https://webhook.site/token/{webhook_uuid}/request/{token_uuid}",
+                timeout=request_timeout,
+                headers={"Connection": "close"},
+            )
+            resp.raise_for_status()
+            resp.close()
+            session.close()
 
 
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))

@@ -633,13 +633,13 @@ def test_aws_keys_broken(
 
 
 def test_aws_keys(
-    webhook_receiver: HttpUrl,
+    aws_webhook_receiver: HttpUrl,
     settings: SwitchboardSettings,
     frontend_settings: FrontendSettings,
     settings_env_vars: None,
     setup_db: None,
 ) -> None:
-    aws_url = f"{webhook_receiver}/mock_aws_key/CreateUserAPITokens"
+    aws_url = f"{aws_webhook_receiver}/mock_aws_key/CreateUserAPITokens"
     with mock.patch.dict(
         os.environ,
         {
@@ -660,7 +660,7 @@ def test_aws_keys(
         from frontend.app import _create_aws_key_token_response
 
         token_request_details = AWSKeyTokenRequest(
-            webhook_url=webhook_receiver,
+            webhook_url=aws_webhook_receiver,
             memo=Memo("Testing AWS Key token generation in frontend"),
         )
 

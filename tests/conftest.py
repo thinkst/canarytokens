@@ -4,18 +4,17 @@ import logging
 import os
 import threading
 import time
-from collections import defaultdict
 from distutils.util import strtobool
 from pathlib import Path
 from typing import Generator, Optional
 from unittest import mock
 
 import pytest
+import requests
 import uvicorn  # type: ignore
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 from pydantic import HttpUrl
-from pyngrok import ngrok  # type: ignore
 from starlette.responses import JSONResponse
 
 from canarytokens import kubeconfig
@@ -64,103 +63,28 @@ class Server(uvicorn.Server):
 @pytest.fixture(scope="function")
 def webhook_receiver() -> Generator[str, None, None]:
     """
-    Stands up a simple web server to receive webhooks and exposes endpoints to get "stats" or
-    details about what as sent to the webhook for each token.
+    Provides an alerting URL for tests.
 
-    Endpoints:
-    /alert -> endpoint the canarytokens server hits on a token trigger.
-    /alert/stats/{token} -> returns a List[Dict[str, str]] of the payloads sent to /alert (Note: creation check is ignored)
-    /alert/clear_stats/{token} -> clears the cache of info for that token.
+    It used to stand up a simple web server to receive webhooks and expose endpoints
+    to get "stats" or details about what as sent to the webhook for each token, but
+    ngrok failures have forced us to keep the structure but re-implement another way.
 
-    Note: Debugging this web server you'll need rpdb.
     Returns:
        None: on teardown nothing is returned
 
     Yields:
-         str: url to the /alert endpoint
+         str: url to the alert endpoint
     """
-    # DESIGN: Might be better in the long run to run this as a docker container.
-    #         Note: this choice uses ngrok. Perhaps GA offers a better alternative.
-    #         Leaving it as a fixture until we loading the testing / parallel tests are running.
 
-    # Stores some stats (details) of what the tokens server sends via webhooks.
-    stats = defaultdict(list)
-    app = FastAPI()
-
-    @app.post("/alert")
-    async def hook(request: Request) -> Response:
-        """
-        Provides a webhook endpoint for the tokens server to call when
-        a token is triggered.
-        The request payload is stored in `stats` a global variable.
-
-        Args:
-            request (Request): Request sent by the Canarytokens server.
-
-        Returns:
-            _type_: Returns a 200 response.
-        """
-        _ = await request.body()
-        data = await request.json()
-        # HACK: to allow testing ot proceed. Make testing easier in the future.
-        if "http://example.com/test/url/for/webhook" == data.get("manage_url", None):
-            return Response(status_code=200)
-        # HACK: we can do better but that would be an API change.
-        token_and_auth = data["manage_url"].split("/")[-1]
-        token = token_and_auth.split("&")[0].split("=")[1]
-        stats[token].append(data)
-        return Response(status_code=200)
-
-    @app.get("/alert/stats/{token}")
-    def get_stats(token: str) -> JSONResponse:
-        """
-        Gets the details for a particular token. These details are generated
-        by the Canarytokens server.
-
-        Args:
-            token (str): Valid token.
-
-        Returns:
-            JSONResponse: Json payload with the details that the Canarytokens server sent
-                    on a token trigger.
-        """
-        logger.debug(f"{token = }")
-        logger.debug(f"{stats[token] = }")
-        return JSONResponse(stats[token])
-
-    @app.get("/alert/clear_stats/{token}")
-    def clear_stats(token: str) -> Response:
-        """
-        Clears the cache of that token. This allows for retriggering
-
-        Args:
-            token (str): Valid token.
-
-        Returns:
-            Response: returns a 200 response. (TODO: should this be a 204 and a /delete ?)
-        """
-        stats[token] = []
-        return Response(status_code=200)
-
-    @app.get("/broken")
-    def broken(request: Request) -> JSONResponse:
-        return JSONResponse(content={}, status_code=404)
-
-    config = uvicorn.Config(
-        app,
-        host="127.0.0.1",
-        port=8087,
-        log_level="info",
-        limit_concurrency=10,
-        timeout_keep_alive=0,
-        backlog=5,
-    )
-    server = Server(config=config)
-    with server.run_in_thread():
-        http_tunnel = ngrok.connect(f"{server.config.port}")
-        yield f"{http_tunnel.public_url}/alert"
-        ngrok.disconnect(http_tunnel)
-        ngrok.kill()  # This seems to clean up connections faster.
+    # acquire a URL and return it
+    resp = requests.post("https://webhook.site/token")
+    resp.raise_for_status()
+    data = resp.json()
+    uuid = data["uuid"]
+    url = f"https://webhook.site/{uuid}"
+    yield url
+    # tear down the connection
+    # for webhook.site there's nothing to do; they'll delete in 7 days
 
 
 @pytest.fixture(scope="function")
@@ -181,6 +105,10 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     """
 
     app = FastAPI()
+
+    @app.get("/")
+    def serve_aws_alert_endpoint(request: Request) -> JSONResponse:
+        return JSONResponse(content={}, status_code=200)
 
     @app.get("/mock_aws_key/CreateUserAPITokens")
     def serve_aws_debug_token(request: Request) -> dict[str, Optional[str]]:
