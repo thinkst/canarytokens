@@ -11,6 +11,7 @@ from unittest import mock
 
 import pytest
 import requests
+from requests import HTTPError
 import uvicorn  # type: ignore
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
@@ -78,6 +79,15 @@ def webhook_receiver() -> Generator[str, None, None]:
 
     # acquire a URL and return it
     resp = requests.post("https://webhook.site/token")
+    attempts = 1
+    while resp.status_code == 429:  # too many requests
+        time.sleep(6.1)  # webhook.site allows 10 per minute; sometimes we're too fast
+        resp = requests.post("https://webhook.site/token")
+        attempts += 1
+        if attempts == 10:
+            raise HTTPError(
+                f"Failed to acquire a webhook after 10 attempts: {resp.status_code=}; {resp.content=}"
+            )
     resp.raise_for_status()
     data = resp.json()
     uuid = data["uuid"]
