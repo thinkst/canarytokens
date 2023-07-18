@@ -578,16 +578,16 @@ def test_authorised_page_access(
 
 
 def test_aws_keys_broken(
-    webhook_receiver: HttpUrl,
+    aws_webhook_receiver: HttpUrl,
     frontend_settings: FrontendSettings,
     settings_env_vars: None,
     setup_db: None,
 ) -> None:
-    aws_url = f"{webhook_receiver}/mock_aws_key_broken/CreateUserAPITokens"
+    aws_url = f"{aws_webhook_receiver}/mock_aws_key_broken/CreateUserAPITokens"
     with mock.patch.dict(
         os.environ,
         {
-            "CANARY_AWSID_URL": aws_url,  # frontend will ask webhook_receiver for creds
+            "CANARY_AWSID_URL": aws_url,  # frontend will ask aws_webhook_receiver for creds
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "",  # awskeys.py won't give fake creds
         },
         clear=False,
@@ -604,7 +604,7 @@ def test_aws_keys_broken(
         from frontend.app import _create_aws_key_token_response
 
         token_request_details = AWSKeyTokenRequest(
-            webhook_url=webhook_receiver,
+            webhook_url=aws_webhook_receiver,
             memo=Memo("Testing AWS Key token generation in frontend"),
         )
 
@@ -633,13 +633,13 @@ def test_aws_keys_broken(
 
 
 def test_aws_keys(
-    webhook_receiver: HttpUrl,
+    aws_webhook_receiver: HttpUrl,
     settings: SwitchboardSettings,
     frontend_settings: FrontendSettings,
     settings_env_vars: None,
     setup_db: None,
 ) -> None:
-    aws_url = f"{webhook_receiver}/mock_aws_key/CreateUserAPITokens"
+    aws_url = f"{aws_webhook_receiver}/mock_aws_key/CreateUserAPITokens"
     with mock.patch.dict(
         os.environ,
         {
@@ -660,7 +660,7 @@ def test_aws_keys(
         from frontend.app import _create_aws_key_token_response
 
         token_request_details = AWSKeyTokenRequest(
-            webhook_url=webhook_receiver,
+            webhook_url=aws_webhook_receiver,
             memo=Memo("Testing AWS Key token generation in frontend"),
         )
 
@@ -720,7 +720,7 @@ def test_block_user(
         memo="test stuff break stuff fix stuff test stuff",
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",
-        cmd_process_name="klist.exe",
+        cmd_process="klist.exe",
     )
 
     resp = test_client.post(

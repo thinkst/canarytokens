@@ -1190,7 +1190,7 @@ START REPLICA;
         $('.btn-clipboard').removeClass('tooltip');
 
         var _handleWebResponse = function(data) {
-          $('#result_web').val(data['generated_url']);
+          $('#result_web').val(data['token_url']);
           $('#result_web').siblings('.refresh').on('click', function() {
             url = [data['url_components'][0].random(),
                    data['url_components'][1].random(),
@@ -1201,7 +1201,7 @@ START REPLICA;
         };
 
         var _handleFastRedirectResponse = function(data) {
-          $('#result_fast_redirect').val(data['generated_url']);
+          $('#result_fast_redirect').val(data['token_url']);
           $('#result_fast_redirect').siblings('.refresh').on('click', function() {
             url = [data['url_components'][0].random(),
                    data['url_components'][1].random(),
@@ -1212,7 +1212,7 @@ START REPLICA;
         };
 
         var _handleSlowRedirectResponse = function(data) {
-          $('#result_slow_redirect').val(data['generated_url']);
+          $('#result_slow_redirect').val(data['token_url']);
           $('#result_slow_redirect').siblings('.refresh').on('click', function() {
             url = [data['url_components'][0].random(),
                    data['url_components'][1].random(),
@@ -1440,7 +1440,7 @@ START REPLICA;
                     //$('.loader').addClass('hide');
                     if (data['error'] !== null){
                       if (data['error'] == '1'){
-                          $('#endpoints_errors').html('Provide an email and/or a webhook endpoint');
+                          $('#endpoints_errors').html('Malformed request, invalid data supplied.');
                           $('#endpoints').addClass('error-outline').removeClass('success-outline');
                           $('#endpoints_errors').show();
                       } else if (data['error'] == '2'){

@@ -53,7 +53,7 @@ CANARYTOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 
-response_error = lambda error, message: JSONResponse(  # noqa: E731  # lambda is cleaner
+response_error = lambda error, message, status_code=400: JSONResponse(  # noqa: E731  # lambda is cleaner
     {
         "error": str(error),
         "error_message": message,
@@ -63,7 +63,8 @@ response_error = lambda error, message: JSONResponse(  # noqa: E731  # lambda is
         "email": "",
         "hostname": "",
         "auth": "",
-    }
+    },
+    status_code=status_code,
 )
 
 
@@ -471,12 +472,12 @@ class PDFTokenRequest(TokenRequest):
 
 class CMDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
-    cmd_process_name: str
+    cmd_process: str
 
-    @validator("cmd_process_name")
+    @validator("cmd_process")
     def check_process_name(value: str):
         if not value.endswith(".exe"):
-            raise ValueError(f"cmd_process_name must end in .exe. Given: {value}")
+            raise ValueError(f"cmd_process must end in .exe. Given: {value}")
         return value
 
 
@@ -523,7 +524,7 @@ class CustomBinaryTokenRequest(TokenRequest):
 
 
 class UploadedImage(BaseModel):
-    content_type: Literal["image/png", "image/gif", "image/jpg"]
+    content_type: Literal["image/png", "image/gif", "image/jpeg"]
     filename: str
     file: SpooledTemporaryFile
 
@@ -1519,7 +1520,7 @@ class TokenHistory(GenericModel, Generic[TH]):
             if readable_time_format:
                 data[
                     datetime.fromtimestamp(hit.time_of_hit).strftime(
-                        "%Y-%m-%d %H:%M:%S"
+                        "%Y-%m-%d %H:%M:%S.%f"
                     )
                 ] = hit_data
             else:

@@ -6,6 +6,7 @@ from typing import Union
 import pytest
 import requests
 from pydantic import HttpUrl
+from requests import HTTPError
 
 from canarytokens.exceptions import CanaryTokenCreationError
 from canarytokens.models import (
@@ -655,6 +656,7 @@ def test_token_error_codes(
         **{req_kw: request_dict},
         headers={"Connection": "close"},
     )
-    resp.raise_for_status()
+    with pytest.raises(HTTPError):
+        resp.raise_for_status()
     code = resp.json()[error]
     assert code == error_code

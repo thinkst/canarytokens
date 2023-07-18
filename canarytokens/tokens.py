@@ -325,7 +325,7 @@ class Canarytoken(object):
         # TODO: Check how typical clients use 'x-forwarded-for'
         src_ip_chain = [o.strip() for o in src_ips.split(",")]
         # TODO: 'ts_key' -> which tokens fire this?
-        hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s")])[0]
+        hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
         flatten_singletons = lambda l: l[0] if len(l) == 1 else l  # noqa: E731
         request_headers = {
             k.decode(): flatten_singletons([s.decode() for s in v])
@@ -379,7 +379,7 @@ class Canarytoken(object):
                 "input_channel": INPUT_CHANNEL_HTTP,
             }
         else:
-            hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s")])[0]
+            hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
             # the source IP here is the one AWS sends, not the one belonging to them
             src_ip = data["ip"][0]
             # DESIGN/TODO: this makes a call to third party ensure we happy with fails here

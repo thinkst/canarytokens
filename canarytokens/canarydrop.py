@@ -457,7 +457,7 @@ if (document.domain = "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_
             for hit in self.triggered_details.hits:
                 timestamp = hit.time_of_hit
                 hit_id = datetime.fromtimestamp(timestamp).strftime(
-                    "%Y-%m-%d %H:%M:%S.%s"
+                    "%Y-%m-%d %H:%M:%S.%f"
                 )
                 hit_dict = dict(hit)
                 data = [hit_id]
