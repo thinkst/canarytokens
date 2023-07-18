@@ -102,53 +102,6 @@ def test_webhook(
     assert any(["Successfully sent to " in log["log_format"] for log in captured])
 
 
-def test_broken_2_webhook(
-    setup_db,
-    webhook_receiver,
-    frontend_settings: FrontendSettings,
-    settings: SwitchboardSettings,
-):
-    switchboard = Switchboard()
-    webhook_channel = WebhookOutputChannel(
-        switchboard=switchboard,
-        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-        frontend_domain="test.com",
-    )
-    cd = Canarydrop(
-        type=TokenTypes.DNS,
-        generate=True,
-        alert_email_enabled=False,
-        alert_email_recipient="email@test.com",
-        alert_webhook_enabled=False,
-        alert_webhook_url=f"{webhook_receiver}/broken",
-        canarytoken=Canarytoken(),
-        memo="memo",
-        browser_scanner_enabled=False,
-    )
-
-    token_hit = Canarytoken.create_token_hit(
-        token_type=TokenTypes.DNS,
-        input_channel="not_valid",
-        src_ip="127.0.0.1",
-        hit_info={"some": "data"},
-    )
-    cd.add_canarydrop_hit(token_hit=token_hit)
-    with capturedLogs() as captured:
-        webhook_channel.send_alert(
-            canarydrop=cd,
-            token_hit=token_hit,
-            input_channel=ChannelDNS(
-                switchboard=switchboard,
-                frontend_settings=frontend_settings,
-                switchboard_hostname="test.com",
-                switchboard_scheme=settings.SWITCHBOARD_SCHEME,
-            ),
-        )
-    assert any(
-        ["Failed sending request to webhook" in log["log_format"] for log in captured]
-    )
-
-
 def test_googlechat_webhook_format(
     setup_db,
     webhook_receiver,

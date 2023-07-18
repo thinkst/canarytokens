@@ -27,7 +27,7 @@ from canarytokens.tokens import Canarytoken
 def test_get_aws_key_with_query(
     settings: SwitchboardSettings,
     frontend_settings: FrontendSettings,
-    webhook_receiver: str,
+    aws_webhook_receiver: str,
     path: str,
     expected_key: Optional[dict[str, str]],
 ) -> None:
@@ -45,8 +45,8 @@ def test_get_aws_key_with_query(
             token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
             server=frontend_settings.DOMAINS[0],
             aws_url=HttpUrl(
-                f"{webhook_receiver}/{path}/CreateUserAPITokens",
-                scheme=webhook_receiver[: webhook_receiver.index("://")],
+                f"{aws_webhook_receiver}/{path}/CreateUserAPITokens",
+                scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
             ),
             aws_access_key_id=None,
             aws_secret_access_key=None,
@@ -59,8 +59,8 @@ def test_get_aws_key_with_query(
                 token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
                 server=settings.PUBLIC_DOMAIN,
                 aws_url=HttpUrl(
-                    f"{webhook_receiver}/{path}/CreateUserAPITokens",
-                    scheme=webhook_receiver[: webhook_receiver.index("://")],
+                    f"{aws_webhook_receiver}/{path}/CreateUserAPITokens",
+                    scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
                 ),
                 aws_access_key_id=None,
                 aws_secret_access_key=None,

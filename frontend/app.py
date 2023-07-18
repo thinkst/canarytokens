@@ -327,7 +327,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     try:
         token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
     except ValidationError:  # DESIGN: can we specialise on what went wrong?
-        return response_error(1, "No email/webhook supplied or malformed request")
+        return response_error(1, "Malformed request, invalid data supplied.")
 
     if not token_request_details.memo:
         return response_error(2, "No memo supplied")
@@ -1054,7 +1054,7 @@ def _create_azure_id_token_response(
 def _(
     token_request_details: CMDTokenRequest, canarydrop: Canarydrop
 ) -> CMDTokenResponse:
-    canarydrop.cmd_process = token_request_details.cmd_process_name
+    canarydrop.cmd_process = token_request_details.cmd_process
     queries.save_canarydrop(canarydrop=canarydrop)
     return CMDTokenResponse(
         email=canarydrop.alert_email_recipient or "",
