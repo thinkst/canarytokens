@@ -66,10 +66,6 @@ def webhook_receiver() -> Generator[str, None, None]:
     """
     Provides an alerting URL for tests.
 
-    It used to stand up a simple web server to receive webhooks and expose endpoints
-    to get "stats" or details about what as sent to the webhook for each token, but
-    ngrok failures have forced us to keep the structure but re-implement another way.
-
     Returns:
        None: on teardown nothing is returned
 
@@ -93,7 +89,7 @@ def webhook_receiver() -> Generator[str, None, None]:
     uuid = data["uuid"]
     url = f"https://webhook.site/{uuid}"
     yield url
-    # tear down the connection
+    # tear down
     # for webhook.site there's nothing to do; they'll delete in 7 days
 
 
