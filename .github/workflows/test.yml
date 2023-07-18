@@ -3,8 +3,10 @@ name: TestSuite
 on:
   push:
     branches:
-      - "T4627_py3_main"
-      - "T5610_more_fixes"
+      - "py3_master"
+      - "master"
+      - "dev_v3"
+      - "dev"
 
 jobs:
   tests:
