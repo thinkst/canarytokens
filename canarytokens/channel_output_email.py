@@ -27,6 +27,108 @@ from canarytokens.utils import retry_on_returned_error, token_type_as_readable
 log = Logger()
 
 
+def should_retry_sendgrid(success: bool, message_id: str) -> bool:
+    if not success:
+        log.error("Failed to send mail via sendgrid.")
+    return not success
+
+
+def should_retry_mailgun(success: bool, message_id: str) -> bool:
+    if not success:
+        log.error("Failed to send mail via mailgun.")
+    return not success
+
+
+@retry_on_returned_error(retry_if=should_retry_sendgrid)
+def sendgrid_send(
+    *,
+    api_key: SecretStr,
+    email_address: EmailStr,
+    email_content_html: str,
+    from_email: EmailStr,
+    from_display: EmailStr,
+    email_subject: str,
+    sandbox_mode: bool = False,
+) -> tuple[bool, str]:
+    sendgrid_client = sendgrid.SendGridAPIClient(
+        api_key=api_key.get_secret_value().strip()
+    )
+
+    from_email = From(
+        email=from_email,
+        name=from_display,
+        subject=email_subject,
+    )
+    to_emails = [
+        To(
+            email=email_address,
+        )
+    ]
+    content = Content("text/html", email_content_html)
+    mail = Mail(
+        from_email=from_email,
+        to_emails=to_emails,
+        subject=email_subject,
+        html_content=content,
+    )
+    mail.mail_settings = MailSettings(sandbox_mode=SandBoxMode(enable=sandbox_mode))
+    sent_successfully = False
+    message_id = ""
+    try:
+        response = sendgrid_client.send(message=mail)
+        if response.status_code not in [202, 200]:
+            sent_successfully = False
+            log.error(
+                f"status code: {response.status_code}. Body: {response.body}",
+            )
+    except HTTPError as e:
+        log.error(
+            f"A sendgrid error occurred. Status code: {e.status_code} {e.to_dict}",
+        )
+    else:
+        sent_successfully = True
+        message_id = response.headers.get("X-Message-Id")
+    finally:
+        return sent_successfully, message_id
+
+
+@retry_on_returned_error(retry_if=should_retry_mailgun)
+def mailgun_send(
+    *,
+    email_address: EmailStr,
+    email_content_html: str,
+    email_content_text: str,
+    email_subject: str,
+    from_email: EmailStr,
+    from_display: str,
+    api_key: SecretStr,
+    base_url: HttpUrl,
+    mailgun_domain: str,
+) -> tuple[bool, str]:
+    sent_successfully = False
+    message_id = ""
+    try:
+        url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
+        auth = ("api", api_key.get_secret_value().strip())
+        data = {
+            "from": f"{from_display} <{from_email}>",
+            "to": email_address,
+            "subject": email_subject,
+            "text": email_content_text,
+            "html": email_content_html,
+        }
+        response = requests.post(url, auth=auth, data=data)
+        # Raise an error if the returned status is 4xx or 5xx
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        log.error(f"A mailgun error occurred: {e.__class__} - {e}")
+    else:
+        sent_successfully = True
+        message_id = response.json().get("id")
+    finally:
+        return sent_successfully, message_id
+
+
 class EmailOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_EMAIL
 
@@ -161,7 +263,7 @@ class EmailOutputChannel(OutputChannel):
             details=alert_details,
         )
         if self.switchboard_settings.MAILGUN_API_KEY:
-            sent_successfully, message_id = EmailOutputChannel.mailgun_send(
+            sent_successfully, message_id = mailgun_send(
                 email_address=canarydrop.alert_email_recipient,
                 email_subject=self.email_subject,
                 email_content_html=EmailOutputChannel.format_report_html(
@@ -178,7 +280,7 @@ class EmailOutputChannel(OutputChannel):
                 mailgun_domain=self.switchboard_settings.MAILGUN_DOMAIN_NAME,
             )
         elif self.switchboard_settings.SENDGRID_API_KEY:
-            sent_successfully, message_id = EmailOutputChannel.sendgrid_send(
+            sent_successfully, message_id = sendgrid_send(
                 api_key=self.switchboard_settings.SENDGRID_API_KEY,
                 email_address=canarydrop.alert_email_recipient,
                 email_content_html=EmailOutputChannel.format_report_html(
@@ -212,65 +314,6 @@ class EmailOutputChannel(OutputChannel):
         return alert_details
 
     @staticmethod
-    def should_retry_sendgrid(success: bool, message_id: str) -> bool:
-        if not success:
-            log.error("Failed to send mail via sendgrid.")
-        return not success
-
-    @staticmethod
-    @retry_on_returned_error(retry_if=should_retry_sendgrid)
-    def sendgrid_send(
-        *,
-        api_key: SecretStr,
-        email_address: EmailStr,
-        email_content_html: str,
-        from_email: EmailStr,
-        from_display: EmailStr,
-        email_subject: str,
-        sandbox_mode: bool = False,
-    ) -> tuple[bool, str]:
-        sendgrid_client = sendgrid.SendGridAPIClient(
-            api_key=api_key.get_secret_value().strip()
-        )
-
-        from_email = From(
-            email=from_email,
-            name=from_display,
-            subject=email_subject,
-        )
-        to_emails = [
-            To(
-                email=email_address,
-            )
-        ]
-        content = Content("text/html", email_content_html)
-        mail = Mail(
-            from_email=from_email,
-            to_emails=to_emails,
-            subject=email_subject,
-            html_content=content,
-        )
-        mail.mail_settings = MailSettings(sandbox_mode=SandBoxMode(enable=sandbox_mode))
-        sent_successfully = False
-        message_id = ""
-        try:
-            response = sendgrid_client.send(message=mail)
-            if response.status_code not in [202, 200]:
-                sent_successfully = False
-                log.error(
-                    f"status code: {response.status_code}. Body: {response.body}",
-                )
-        except HTTPError as e:
-            log.error(
-                f"A sendgrid error occurred. Status code: {e.status_code} {e.to_dict}",
-            )
-        else:
-            sent_successfully = True
-            message_id = response.headers.get("X-Message-Id")
-        finally:
-            return sent_successfully, message_id
-
-    @staticmethod
     def check_sendgrid_mail_status(api_key: str) -> bool:
         """
         WIP: account needs upgrade to hit this api.
@@ -291,49 +334,6 @@ class EmailOutputChannel(OutputChannel):
         #     # delivery was not made.
         #     queries.put_mail_on_sent_queue(mail_key=mail_key, details=alert_details)
         # return mail_key is not None
-
-    @staticmethod
-    def should_retry_mailgun(success: bool, message_id: str) -> bool:
-        if not success:
-            log.error("Failed to send mail via mailgun.")
-        return not success
-
-    @staticmethod
-    @retry_on_returned_error(retry_if=should_retry_mailgun)
-    def mailgun_send(
-        *,
-        email_address: EmailStr,
-        email_content_html: str,
-        email_content_text: str,
-        email_subject: str,
-        from_email: EmailStr,
-        from_display: str,
-        api_key: SecretStr,
-        base_url: HttpUrl,
-        mailgun_domain: str,
-    ) -> tuple[bool, str]:
-        sent_successfully = False
-        message_id = ""
-        try:
-            url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
-            auth = ("api", api_key.get_secret_value().strip())
-            data = {
-                "from": f"{from_display} <{from_email}>",
-                "to": email_address,
-                "subject": email_subject,
-                "text": email_content_text,
-                "html": email_content_html,
-            }
-            response = requests.post(url, auth=auth, data=data)
-            # Raise an error if the returned status is 4xx or 5xx
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            log.error(f"A mailgun error occurred: {e.__class__} - {e}")
-        else:
-            sent_successfully = True
-            message_id = response.json().get("id")
-        finally:
-            return sent_successfully, message_id
 
     # def get_basic_details(self,):
 

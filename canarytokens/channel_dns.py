@@ -182,7 +182,7 @@ class ChannelDNS(InputChannel):
         """
         IS_NX_DOMAIN = any(
             [
-                query.name.name.lower().decode().endswith(d)
+                query.name.name.lower().decode().endswith(f".{d}")
                 for d in self.frontend_settings.NXDOMAINS
             ],
         )

@@ -7,7 +7,11 @@ from twisted.logger import capturedLogs
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
-from canarytokens.channel_output_email import EmailOutputChannel
+from canarytokens.channel_output_email import (
+    EmailOutputChannel,
+    mailgun_send,
+    sendgrid_send,
+)
 from canarytokens.models import (
     DNSTokenHistory,
     DNSTokenHit,
@@ -98,13 +102,13 @@ def test_sendgrid_send(
         additional_data={},
     )
 
-    email_output_channel = EmailOutputChannel(
+    _ = EmailOutputChannel(
         frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=sb,
     )
 
-    success, message_id = email_output_channel.sendgrid_send(
+    success, message_id = sendgrid_send(
         api_key=settings.SENDGRID_API_KEY,
         email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
@@ -134,12 +138,12 @@ def test_mailgun_send(
         additional_data={},
     )
 
-    email_output_channel = EmailOutputChannel(
+    _ = EmailOutputChannel(
         frontend_settings=frontend_settings,
         switchboard_settings=settings,
         switchboard=sb,
     )
-    success, message_id = email_output_channel.mailgun_send(
+    success, message_id = mailgun_send(
         email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
