@@ -3,6 +3,7 @@ name: "Build Docker Image"
 on:
   push:
     branches:
+      - "py2_master"
       - "master"
       - "dev"
 
@@ -54,6 +55,7 @@ jobs:
             thinkst/canarytokens
           tags: |
             type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+            type=raw,value=v2_latest
             type=schedule
             type=ref,event=branch
             type=ref,event=pr
@@ -89,9 +91,9 @@ jobs:
           sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml.tpl > docker-compose-letsencrypt.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker-compose -f docker-compose-letsencrypt.yml pull
-          sudo docker-compose -f docker-compose-letsencrypt.yml down
-          sudo docker-compose -f docker-compose-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-letsencrypt.yml pull
+          sudo docker compose -f docker-compose-letsencrypt.yml down
+          sudo docker compose -f docker-compose-letsencrypt.yml up -d
           sudo docker system prune -f -a
 
   staging-deploy:
@@ -108,7 +110,7 @@ jobs:
           sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml.tpl > docker-compose-letsencrypt.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker-compose -f docker-compose-letsencrypt.yml pull
-          sudo docker-compose -f docker-compose-letsencrypt.yml down
-          sudo docker-compose -f docker-compose-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-letsencrypt.yml pull
+          sudo docker compose -f docker-compose-letsencrypt.yml down
+          sudo docker compose -f docker-compose-letsencrypt.yml up -d
           sudo docker system prune -f -a
