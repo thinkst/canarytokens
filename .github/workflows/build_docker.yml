@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       canarytokens-docker-branch:
-        description: "Branch of the canarytokens-docker repo to pull for build. Defaults to master"
+        description: "Branch of the canarytokens-docker repo to pull for build. Defaults to py2_master"
         required: false
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       # Checkout canarytokens-docker repo. This lands in ./canarytokens-docker
       - name: Set canarytokens-docker-branch
         run: |
-          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "master"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
+          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "py2_master"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
           echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> $GITHUB_ENV
 
       - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
