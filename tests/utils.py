@@ -166,7 +166,7 @@ def windows_directory_fire_token(
     if token_info.token in domain:
         target = domain
     else:
-        target = f"{domain}.ini.{token_info.token}.{version.canarytokens_domain}"
+        target = f"{domain}.ini.{token_info.token}.{token_info.hostname}"
     resolver = grab_resolver(version=version)
     resolver.resolve(target, "A")
     return target
