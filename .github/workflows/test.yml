@@ -7,6 +7,7 @@ on:
       - "master"
       - "dev_v3"
       - "dev"
+      - "T4627_disable_v2_tests"
 
 jobs:
   tests:
