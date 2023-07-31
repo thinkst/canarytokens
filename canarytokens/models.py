@@ -90,16 +90,6 @@ class Canarytoken(ConstrainedStr):
     regex = CANARYTOKEN_RE
 
 
-class PseudoUrl(ConstrainedStr):
-    """
-    Clonedweb token can get used where the `referer`
-    sent in the token is a pseudo url. Currently, only
-    "about:blank" is supported / known case.
-    """
-
-    regex = re.compile(r"^about:blank$")
-
-
 @dataclass()
 class V2:
     """Indicates models should exhibit V2 behavior"""
@@ -1387,22 +1377,22 @@ class CustomImageTokenHit(TokenHit):
 class ClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     # TODO fix API spelling to 'referrer' (comes from JS document.referrer)
-    referer: Optional[Union[PseudoUrl, HttpUrl, Literal[""], Literal[b""]]]
-    location: Optional[Union[PseudoUrl, HttpUrl, Literal[""], Literal[b""]]]
+    referer: Optional[Union[str, bytes]]
+    location: Optional[Union[str, bytes]]
 
 
 class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
-    referer: Optional[Union[PseudoUrl, HttpUrl, Literal[""], Literal[b""]]]
-    location: Optional[Union[PseudoUrl, HttpUrl, Literal[""], Literal[b""]]]
+    referer: Optional[Union[str, bytes]]
+    location: Optional[Union[str, bytes]]
     useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
 class FastRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
-    referer: Optional[Union[PseudoUrl, HttpUrl, Literal[""], Literal[b""]]]
-    location: Optional[Union[PseudoUrl, HttpUrl, Literal[""], Literal[b""]]]
+    referer: Optional[Union[str, bytes]]
+    location: Optional[Union[str, bytes]]
     useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 
