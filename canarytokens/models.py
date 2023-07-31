@@ -461,7 +461,7 @@ class DNSTokenRequest(TokenRequest):
                 "token_type": TokenTypes.DNS,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -595,7 +595,7 @@ class Log4ShellTokenRequest(TokenRequest):
                 "token_type": TokenTypes.LOG4SHELL,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -749,7 +749,7 @@ class DNSTokenResponse(TokenResponse):
                 "token_type": TokenTypes.DNS,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -835,7 +835,7 @@ class FastRedirectTokenResponse(TokenResponse):
                 "token_type": TokenTypes.DNS,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -874,7 +874,7 @@ class Log4ShellTokenResponse(TokenResponse):
                 "token_type": TokenTypes.LOG4SHELL,
                 "memo": "Added to user login portal.",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
