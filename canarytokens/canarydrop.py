@@ -310,7 +310,7 @@ class Canarydrop(BaseModel):
 
     def get_cloned_site_javascript(self):
         clonedsite_js = """
-if (document.domain = "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_SITE_DOMAIN}") {{
+if (document.domain != "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_SITE_DOMAIN}") {{
     var l = location.href;
     var r = document.referrer;
     var m = new Image();
