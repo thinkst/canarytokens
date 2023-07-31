@@ -134,19 +134,6 @@ jobs:
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
           LIVE=False poetry run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration --runv3 -v
 
-      - name: Run integration tests (against V2)
-        # Here we gather coverage info on integration tests.
-        run: |
-          cd tests
-          LIVE=True poetry run coverage run  --source=integration --omit=integration/test_custom_binary.py -m pytest integration --runv2 -v
-
-      - name: Check coverage is over threshold percentage for integration tests
-        # Here we check coverage info that all integration tests where indeed run.
-        run: |
-          cd tests
-          poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" -m
-          poetry run coverage report --omit="tests/integration/test_custom_binary.py,tests/integration/test_sql_server_token.py" --fail-under 90
-
 
   windows-tests:
     runs-on: windows-latest
@@ -168,4 +155,4 @@ jobs:
         run: |
           $env:LIVE = 'True'
           cd tests
-          poetry run coverage run --source=.\integration -m pytest .\integration\test_custom_binary.py  --runv2
+          poetry run coverage run --source=.\integration -m pytest .\integration\test_custom_binary.py  --runv3
