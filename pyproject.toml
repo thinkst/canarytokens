@@ -10,7 +10,7 @@ python = "^3.9"
 pydantic = {extras = ["dotenv", "email"], version = "^1.9.0"}
 PyQRCode = "^1.2.1"
 redis = "^4.2.0"
-httpx = "^0.22.0"
+httpx = "^0.23.0"
 Jinja2 = "^3.1.2"
 requests = "^2.27.1"
 python-multipart = "^0.0.5"
