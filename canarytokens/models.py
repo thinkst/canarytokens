@@ -1351,7 +1351,7 @@ class MsWordDocumentTokenHit(TokenHit):
 
 class WindowsDirectoryTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
-    src_data: Optional[dict[str, str]]
+    src_data: Optional[dict]
 
 
 class MsExcelDocumentTokenHit(TokenHit):
@@ -1370,8 +1370,8 @@ class SQLServerTokenHit(TokenHit):
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
     useragent: str
-    request_headers: Optional[dict[str, str]]
-    request_args: Optional[dict[str, str]]
+    request_headers: Optional[dict]
+    request_args: Optional[dict]
     additional_info: AdditionalInfo = AdditionalInfo()
 
     class Config:
