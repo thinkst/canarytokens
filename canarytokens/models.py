@@ -1409,7 +1409,7 @@ class FastRedirectTokenHit(TokenHit):
 
 class Log4ShellTokenHit(TokenHit):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
-    src_data: dict[str, str]
+    src_data: dict
 
 
 class QRCodeTokenHit(TokenHit):
