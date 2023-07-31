@@ -215,19 +215,21 @@ class ChannelDNS(InputChannel):
         # if canarydrop._drop['type'] == 'my_sql':
         #     d = deferLater(...)
         if (
-            canarydrop.type not in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR]
-            or src_data != {}
+            canarydrop.type in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR]
+            and src_data == {}
         ):
-            token_hit = Canarytoken.create_token_hit(
-                token_type=canarydrop.type,
-                input_channel=self.CHANNEL,
-                src_ip=src_ip,
-                hit_info=src_data,
-            )
-            # DESIGN: add all details to redis here.
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            return defer.succeed(self._do_dynamic_response(name=query.name.name))
 
-            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+        token_hit = Canarytoken.create_token_hit(
+            token_type=canarydrop.type,
+            input_channel=self.CHANNEL,
+            src_ip=src_ip,
+            hit_info=src_data,
+        )
+        # DESIGN: add all details to redis here.
+        canarydrop.add_canarydrop_hit(token_hit=token_hit)
+
+        self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
 
         if IS_NX_DOMAIN:
             if canarydrop.type not in [TokenTypes.ADOBE_PDF, TokenTypes.SIGNED_EXE]:
