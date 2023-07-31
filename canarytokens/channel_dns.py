@@ -175,7 +175,7 @@ class ChannelDNS(InputChannel):
         additional: list[str] = []
         return answers, authority, additional
 
-    def query(self, query: Query, src_ip: str):
+    def query(self, query: Query, src_ip: str):  # noqa C901
         """
         Check if the query should be answered dynamically, otherwise dispatch to
         the fallback resolver.
@@ -214,16 +214,21 @@ class ChannelDNS(InputChannel):
         # Ignoring for now but needs a look see.
         # if canarydrop._drop['type'] == 'my_sql':
         #     d = deferLater(...)
-        token_hit = Canarytoken.create_token_hit(
-            token_type=canarydrop.type,
-            input_channel=self.CHANNEL,
-            src_ip=src_ip,
-            hit_info=src_data,
-        )
-        # DESIGN: add all details to redis here.
-        canarydrop.add_canarydrop_hit(token_hit=token_hit)
+        if (
+            canarydrop.type not in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR]
+            or src_data != {}
+        ):
+            token_hit = Canarytoken.create_token_hit(
+                token_type=canarydrop.type,
+                input_channel=self.CHANNEL,
+                src_ip=src_ip,
+                hit_info=src_data,
+            )
+            # DESIGN: add all details to redis here.
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
 
-        self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+
         if IS_NX_DOMAIN:
             if canarydrop.type not in [TokenTypes.ADOBE_PDF, TokenTypes.SIGNED_EXE]:
                 log.info(
