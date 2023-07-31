@@ -84,7 +84,7 @@ def test_generate_dns_token(test_client: TestClient) -> None:
     dns_request_token = models.DNSTokenRequest(
         token_type=TokenTypes.DNS,
         email="test@test.com",
-        webhook_url="https://hooks.slack.com/test",
+        webhook_url="https://slack.com/api/api.test",
         memo="test stuff break stuff fix stuff test stuff",
     )
     resp = test_client.post("/generate", json=json.loads(dns_request_token.json()))
@@ -94,7 +94,7 @@ def test_generate_dns_token(test_client: TestClient) -> None:
 def test_generate_log4shell_token(test_client: TestClient) -> None:
     log4shell_request_token = models.Log4ShellTokenRequest(
         email="test@test.com",
-        webhook_url="https://hooks.slack.com/test",
+        webhook_url="https://slack.com/api/api.test",
         memo="test stuff break stuff fix stuff test stuff",
     )
     resp = test_client.post(
@@ -550,7 +550,7 @@ def test_authorised_page_access(
         "/generate",
         data=DNSTokenRequest(
             email="test@test.com",
-            webhook_url="https://hooks.slack.com/test",
+            webhook_url="https://slack.com/api/api.test",
             memo="test stuff break stuff fix stuff test stuff",
             redirect_url="https://youtube.com",
             clonedsite="https://test.com",
@@ -716,7 +716,7 @@ def test_block_user(
     # try to make with test_target, make sure it fails
     token_request = WebBugTokenRequest(
         email=test_target,
-        webhook_url="https://hooks.slack.com/test",
+        webhook_url="https://slack.com/api/api.test",
         memo="test stuff break stuff fix stuff test stuff",
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",

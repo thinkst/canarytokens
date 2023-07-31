@@ -462,7 +462,7 @@ def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
     run_or_skip(version, runv2=runv2, runv3=runv3)
     # Create a fast redirect token request
     token_request = FastRedirectTokenRequest(
-        webhook_url=HttpUrl(url="https://hooks.slack.com/test", scheme="https"),
+        webhook_url=HttpUrl(url="https://slack.com/api/api.test", scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
         redirect_url=target,
     )

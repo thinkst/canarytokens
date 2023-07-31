@@ -461,7 +461,7 @@ class DNSTokenRequest(TokenRequest):
                 "token_type": TokenTypes.DNS,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -595,7 +595,7 @@ class Log4ShellTokenRequest(TokenRequest):
                 "token_type": TokenTypes.LOG4SHELL,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -749,7 +749,7 @@ class DNSTokenResponse(TokenResponse):
                 "token_type": TokenTypes.DNS,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -835,7 +835,7 @@ class FastRedirectTokenResponse(TokenResponse):
                 "token_type": TokenTypes.DNS,
                 "memo": "Reminder note when this token is triggered",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -874,7 +874,7 @@ class Log4ShellTokenResponse(TokenResponse):
                 "token_type": TokenTypes.LOG4SHELL,
                 "memo": "Added to user login portal.",
                 "email": "username@domain.com",
-                "webhook_url": "https://hooks.slack.com/test",
+                "webhook_url": "https://slack.com/api/api.test",
             },
         }
 
@@ -1351,7 +1351,7 @@ class MsWordDocumentTokenHit(TokenHit):
 
 class WindowsDirectoryTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
-    src_data: Optional[dict[str, str]]
+    src_data: Optional[dict]
 
 
 class MsExcelDocumentTokenHit(TokenHit):
@@ -1370,8 +1370,8 @@ class SQLServerTokenHit(TokenHit):
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
     useragent: str
-    request_headers: Optional[dict[str, str]]
-    request_args: Optional[dict[str, str]]
+    request_headers: Optional[dict]
+    request_args: Optional[dict]
     additional_info: AdditionalInfo = AdditionalInfo()
 
     class Config:
@@ -1409,7 +1409,7 @@ class FastRedirectTokenHit(TokenHit):
 
 class Log4ShellTokenHit(TokenHit):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
-    src_data: dict[str, str]
+    src_data: dict
 
 
 class QRCodeTokenHit(TokenHit):

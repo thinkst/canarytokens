@@ -508,7 +508,7 @@ def make_token_alert_detail(
 def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
     return token_request_type(
         email="test@test.com",
-        webhook_url="https://hooks.slack.com/test",
+        webhook_url="https://slack.com/api/api.test",
         memo="test stuff break stuff fix stuff test stuff",
         redirect_url="https://youtube.com",
         clonedsite="https://test.com",

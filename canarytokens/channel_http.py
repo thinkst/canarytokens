@@ -110,10 +110,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             )
         except ValidationError as e:
             log.critical(
-                "Failed to parse HTTP token hit. Token: {token} Hit Info: {hit_info} Error: {e}",
-                token=canarydrop.canarytoken.value(),
-                hit_info=hit_info,
-                e=e,
+                f"Failed to parse HTTP token hit. Token: {canarydrop.canarytoken.value()} Hit Info: {hit_info} Error: {e}",
                 log_failure=Failure(e),
             )
             return

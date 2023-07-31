@@ -28,7 +28,7 @@ from tests.utils import make_token_alert_detail
 
 def test_add_delete_webhook(setup_db):
     token_value = Canarytoken.generate()
-    webhook_url = "https://hooks.slack.com/test"
+    webhook_url = "https://slack.com/api/api.test"
     ret = add_webhook_token_idx(webhook_url, canarytoken=token_value)
     assert ret == 1
     delete_webhook_tokens(webhook=webhook_url)
@@ -43,7 +43,7 @@ def test_add_hit_get_canarytoken(setup_db):
         alert_email_enabled=True,
         alert_email_recipient="test@test.com",
         alert_webhook_enabled=True,
-        alert_webhook_url="https://hooks.slack.com/test",
+        alert_webhook_url="https://slack.com/api/api.test",
         canarytoken=canarytoken,
         memo="stuff happened",
         browser_scanner_enabled=False,
@@ -72,7 +72,7 @@ def test_add_hit_get_canarytoken_wrong_type(setup_db):
         alert_email_enabled=True,
         alert_email_recipient="test@test.com",
         alert_webhook_enabled=True,
-        alert_webhook_url="https://hooks.slack.com/test",
+        alert_webhook_url="https://slack.com/api/api.test",
         canarytoken=canarytoken,
         memo="stuff happened",
         browser_scanner_enabled=False,
@@ -111,7 +111,7 @@ def test_remove_tokens_with_email_x(setup_db):
         alert_email_enabled=True,
         alert_email_recipient=email,
         alert_webhook_enabled=True,
-        alert_webhook_url="https://hooks.slack.com/test",
+        alert_webhook_url="https://slack.com/api/api.test",
         canarytoken=canarytoken,
         memo="stuff happened",
         browser_scanner_enabled=False,
@@ -144,7 +144,7 @@ def test_remove_tokens_with_webhook_x():
     a particular webhook. This tests the creation and purging of a token
     by webhook idx.
     """
-    webhook = "https://hooks.slack.com/test"
+    webhook = "https://slack.com/api/api.test"
 
     canarytoken = Canarytoken()
     canarydrop = Canarydrop(
@@ -179,7 +179,7 @@ def test_remove_tokens_with_webhook_x():
 
 
 def test_get_canarydrop_from_auth(setup_db):
-    webhook = "https://hooks.slack.com/test"
+    webhook = "https://slack.com/api/api.test"
 
     canarytoken = Canarytoken()
     canarydrop = Canarydrop(

@@ -63,7 +63,7 @@ def test_token_request(token_type, _type):
     data = {
         "token_type": token_type,
         "email": None,
-        "webhook_url": "https://hooks.slack.com/test",
+        "webhook_url": "https://slack.com/api/api.test",
         "memo": "We are v3",
     }
     _ = _type(**data)
@@ -251,7 +251,7 @@ def test_additional_info():
 def test_fast_redirect_request():
     data = {
         "token_type": "fast_redirect",
-        "webhook_url": "https://hooks.slack.com/test",
+        "webhook_url": "https://slack.com/api/api.test",
         "memo": "Test stuff break stuff test stuff sometimes build stuff",
         "redirect_url": "https://www.youtube.com",
     }
@@ -264,7 +264,7 @@ def test_fast_redirect_request():
 def test_dns_request():
     data = {
         "token_type": "dns",
-        "webhook_url": "https://hooks.slack.com/test",
+        "webhook_url": "https://slack.com/api/api.test",
         "memo": "Test stuff break stuff test stuff sometimes build stuff",
     }
     from pydantic import parse_obj_as
