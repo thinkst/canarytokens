@@ -1285,7 +1285,7 @@ START REPLICA;
         }
 
         var _handleGLPatResponse = function(data){
-          $('#result_glpat').val(data['token']);
+          $('#result_glpat').val(data['pat']);
           $('#glpat_expires').text(data['expires'])
         }
 
