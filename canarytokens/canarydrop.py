@@ -138,6 +138,10 @@ class Canarydrop(BaseModel):
     cc_rendered_html: Optional[str]
     cc_rendered_csv: Optional[str]
 
+    # GitLab.com PAT specific fields
+    glpat_token: Optional[str]
+    glpat_expires: Optional[str]
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """

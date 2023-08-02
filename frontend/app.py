@@ -38,6 +38,7 @@ from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens.awskeys import get_aws_key
 from canarytokens.azurekeys import get_azure_id
+from canarytokens.glpat import get_glpat
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
@@ -93,6 +94,8 @@ from canarytokens.models import (
     DownloadZipResponse,
     FastRedirectTokenRequest,
     FastRedirectTokenResponse,
+    GLPatTokenRequest,
+    GLPatTokenResponse,
     KubeconfigTokenRequest,
     KubeconfigTokenResponse,
     Log4ShellTokenRequest,
@@ -991,6 +994,53 @@ def _create_aws_key_token_response(
         aws_secret_access_key=canarydrop.aws_secret_access_key,
         region=canarydrop.aws_region,
         output=canarydrop.aws_output,
+    )
+
+@create_response.register
+def _create_glpat_token_response(
+    token_request_details: GLPatTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
+) -> GLPatTokenResponse:
+
+    if settings is None:
+        settings = frontend_settings
+
+    try:
+        key = get_glpat(
+            token=canarydrop.canarytoken,
+            server=get_all_canary_domains()[0],
+            gitlab_broker_url=settings.GLPAT_URL,
+            broker_api_key=settings.GLPAT_API_KEY,
+            gl_token=None,
+            expires=None
+        )
+    except Exception as e:
+        capture_exception(error=e, context=("get_glpat", None))
+        # We can fail by getting 404 from GLPAT_URL or failing validation
+        return JSONResponse(
+            {"message": "Failed to generate GitLab.com PAT. We looking into it."},
+            status_code=400,
+        )
+
+    canarydrop.glpat_token = key["token"]
+    canarydrop.glpat_expires = key["expires"]
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    save_canarydrop(canarydrop)
+
+    return GLPatTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        # additional information for ~GitLab.com PAT token response
+        token=canarydrop.glpat_token,
+        expires=canarydrop.glpat_expires
     )
 
 

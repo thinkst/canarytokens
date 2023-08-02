@@ -165,6 +165,9 @@ class AzureID(TypedDict):
     cert_name: str
     cert_file_name: str
 
+class GLPat(TypedDict):
+    token: str
+    expires: str
 
 class KubeCerts(TypedDict):
     """Kube digest (f), cert (c) and key (k) are stored directly and not
@@ -295,6 +298,7 @@ class TokenTypes(str, enum.Enum):
     LOG4SHELL = "log4shell"
     CMD = "cmd"
     CC = "cc"
+    GLPAT = "glpat"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -418,6 +422,8 @@ class TokenRequest(BaseModel):
 class AWSKeyTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
 
+class GLPatTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
 
 class AzureIDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
@@ -694,6 +700,10 @@ class AWSKeyTokenResponse(TokenResponse):
     aws_secret_access_key: str
     output: str
 
+class GLPatTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+    token: str
+    expires: str
 
 class AzureIDTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID

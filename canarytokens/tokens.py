@@ -568,6 +568,16 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_glpat(request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        return http_general_info, {}
+
+    @staticmethod
+    def _get_response_for_glpat(canarydrop: canarydrop.Canarydrop, request: Request):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_ms_word(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         return http_general_info, {}

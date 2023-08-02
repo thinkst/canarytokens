@@ -122,6 +122,7 @@
                     <li data-type="azure_id"       class="token-item" data-memo-placeholder="Azure Service Principal Login details on Code Sign Server 3"><a href="#" class="icon icon-azure-id"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
+                    <li data-type="gl_pat"         class="token-item" data-memo-placeholder="GitLab.com personal access token placed in cicd-secrets repository .git/config"><a href="#" class="icon icon-glpat"><span class="title">GitLab.com Personal Access Token</span><div class="explanation">Get alerted when an API call or git request is made to GitLab.com</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
                     <li data-type="cc"             class="token-item" data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token (beta)</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li>
                     <li data-type="kubeconfig"     class="token-item" data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
@@ -320,6 +321,24 @@
                   <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>In a database with a USERS table, drop a fake record in there with this email address. If it gets triggered you know someone has accessed your data.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result glpat">
+                <h3>Your GitLab personal access token is active!</h3>
+                <div class="artifacts">
+                  <p>Here is a unique gitlab.com token (expires on <span id="glpat_expires"></span>):</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_glpat') }}
+                  </div>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone uses it to access the Gitlab.com API or as a password in an HTTPS git clone/fetch/pull.</p>
+                  <p><h5>Ideas for use:</h5>
+                    <ul>
+                      <li>Put it in a script commented out, or saved as a variable in your CI/CD repository.</li>
+                      <li>Save it in the .git/config file of a respository as a saved credential for a remote, e.g., url = https://admin:&lt;TOKEN&gt;@gitlab.com/org/repo.git</li>
                     </ul>
                   </p>
                 </div>
@@ -1256,6 +1275,11 @@ START REPLICA;
           });
         }
 
+        var _handleGLPatResponse = function(data){
+          $('#result_glpat').val(data['token']);
+          $('#glpat_expires').text(data['expires'])
+        }
+
         var _handleAzureIDResponse = function(data){
           const token_config_obj = {
             appId: data['app_id'],
@@ -1381,6 +1405,7 @@ START REPLICA;
                                   'ms_excel' : _handleFileDownloadResponse,
                                   'cmd': _handleFileDownloadResponse,
                                   'cc': _handleCCResponse,
+                                  'glpat': _handleGLPatResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,
