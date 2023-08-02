@@ -629,6 +629,7 @@ AnyTokenRequest = Annotated[
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
         AzureIDTokenRequest,
+        GLPatTokenRequest,
         PDFTokenRequest,
         DNSTokenRequest,
         Log4ShellTokenRequest,
