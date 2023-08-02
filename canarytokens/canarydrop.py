@@ -126,6 +126,8 @@ class Canarydrop(BaseModel):
     wg_key: Optional[str]
     # cmd specific stuff
     cmd_process: Optional[str]
+    # slack_api specific stuff
+    slack_api_key: Optional[str]
     # CC specific stuff
     cc_id: Optional[str]
     cc_kind: Optional[str]
