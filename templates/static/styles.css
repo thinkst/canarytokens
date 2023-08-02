@@ -877,6 +877,9 @@ a.icon-word:before {
 a.icon-cc:before {
   background-image: url("/resources/credit-card.png");
 }
+a.icon-glpat:before {
+  background-image: url("/resources/gitlab.png");
+}
 a.icon-excel:before {
   background-image: url("/resources/excel.png");
 }
