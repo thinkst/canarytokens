@@ -930,6 +930,7 @@ AnyTokenResponse = Annotated[
         MsExcelDocumentTokenResponse,
         QRCodeTokenResponse,
         PDFTokenResponse,
+        GLPatTokenResponse,
         DNSTokenResponse,
         MySQLTokenResponse,
         WireguardTokenResponse,
@@ -1321,6 +1322,8 @@ class DNSTokenHit(TokenHit):
 class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
+class GLPatTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
 
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
@@ -1451,6 +1454,7 @@ AnyTokenHit = Annotated[
         SlowRedirectTokenHit,
         FastRedirectTokenHit,
         SMTPTokenHit,
+        GLPatTokenHit,
         WebBugTokenHit,
         MySQLTokenHit,
         WireguardTokenHit,
@@ -1553,6 +1557,9 @@ class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
 
+class GLPatTokenHistory(TokenHistory):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+    hits: List[GLPatTokenHit]
 
 class DNSTokenHistory(TokenHistory[DNSTokenHit]):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
@@ -1723,6 +1730,7 @@ AnyTokenHistory = Annotated[
         WireguardTokenHistory,
         QRCodeTokenHistory,
         MySQLTokenHistory,
+        GLPatTokenHistory,
         CustomImageTokenHistory,
         SvnTokenHistory,
         KubeconfigTokenHistory,
