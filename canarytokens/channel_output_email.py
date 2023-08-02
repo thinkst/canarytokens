@@ -163,13 +163,14 @@ class EmailOutputChannel(OutputChannel):
 
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
+        _, readable_type = token_type_as_readable(details.token_type)
         BasicDetails = {
             "Description": details.memo,
             "Channel": details.channel,
             "Time": details.time,
             "Canarytoken": details.token,
             "SourceIP": details.src_ip,
-            "TokenType": details.token_type,
+            "TokenType": readable_type,
         }
         for field_name, field_value in details.additional_data.items():
             if field_name in [
@@ -223,12 +224,8 @@ class EmailOutputChannel(OutputChannel):
     def format_report_intro(details: TokenAlertDetails):
         details.channel
         details.token_type
-        an_or_a = (
-            "An"
-            if details.token_type in [TokenTypes.ADOBE_PDF, TokenTypes.AWS_KEYS]
-            else "A"
-        )
-        intro = f"{an_or_a} {token_type_as_readable(details.token_type)} Canarytoken has been triggered by the Source IP {details.src_ip}"
+        article, readable_type = token_type_as_readable(details.token_type)
+        intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
