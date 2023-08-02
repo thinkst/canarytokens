@@ -89,18 +89,18 @@ class FrontendSettings(BaseSettings):
     DEV_BUILD_ID: Optional[str]
 
     # 3rd party settings
-    AWSID_URL: HttpUrl
+    AWSID_URL: Optional[HttpUrl]
     TESTING_AWS_ACCESS_KEY_ID: Optional[str] = ""
     TESTING_AWS_SECRET_ACCESS_KEY: Optional[str] = ""
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
     TESTING_AWS_OUTPUT: Optional[str] = "json"
-    AZURE_ID_TOKEN_URL: HttpUrl
-    AZURE_ID_TOKEN_AUTH: str
-    GOOGLE_API_KEY: str
+    AZURE_ID_TOKEN_URL: Optional[HttpUrl]
+    AZURE_ID_TOKEN_AUTH: Optional[str]
+    GOOGLE_API_KEY: Optional[str]
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
-    GLPAT_URL: HttpUrl
+    GLPAT_URL: Optional[HttpUrl]
     GLPAT_API_KEY: Optional[SecretStr] = SecretStr("NoGitLabAPIKeyFound")
 
     class Config:
