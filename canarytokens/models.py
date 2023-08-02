@@ -295,6 +295,7 @@ class TokenTypes(str, enum.Enum):
     LOG4SHELL = "log4shell"
     CMD = "cmd"
     CC = "cc"
+    SLACK_API = "slack_api"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -1304,6 +1305,22 @@ class AWSKeyTokenHit(TokenHit):
         return values
 
 
+class SlackAPITokenHit(TokenHit):
+    token_type: Literal[TokenTypes.SLACK_API] = Literal[TokenTypes.SLACK_API]
+    additional_info: Optional[dict]
+
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `AWSKeyTokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: AWSKeyTokenHit in v2 dict representation.
+        """
+        data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+        if "user_agent" in data:
+            data["useragent"] = data.pop("user_agent")
+        return data
+
+
 class DNSTokenHit(TokenHit):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
 
@@ -1435,6 +1452,7 @@ AnyTokenHit = Annotated[
         DNSTokenHit,
         AWSKeyTokenHit,
         AzureIDTokenHit,
+        SlackAPITokenHit,
         PDFTokenHit,
         ClonedWebTokenHit,
         Log4ShellTokenHit,
@@ -1490,7 +1508,7 @@ class TokenHistory(GenericModel, Generic[TH]):
         """
         data = {}
         for hit in self.hits:
-            if isinstance(hit, AWSKeyTokenHit):
+            if isinstance(hit, AWSKeyTokenHit) or isinstance(hit, SlackAPITokenHit):
                 hit_data = hit.serialize_for_v2()
             else:
                 hit_data = json_safe_dict(hit, exclude=("token_type", "time_of_hit"))
@@ -1542,6 +1560,11 @@ class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
 class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
+
+
+class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
+    token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
+    hits: List[SlackAPITokenHit] = []
 
 
 class DNSTokenHistory(TokenHistory[DNSTokenHit]):
@@ -1702,6 +1725,7 @@ AnyTokenHistory = Annotated[
         DNSTokenHistory,
         AWSKeyTokenHistory,
         AzureIDTokenHistory,
+        SlackAPITokenHistory,
         PDFTokenHistory,
         SMTPTokenHistory,
         ClonedWebTokenHistory,
@@ -1918,7 +1942,7 @@ class DownloadFmtTypes(str, enum.Enum):
     AZUREIDCONFIG = "azure_id_config"
     AZUREIDCERT = "azure_id"
     KUBECONFIG = "kubeconfig"
-    SLACKAPI = "slackapi"
+    SLACK_API = "slackapi"
     INCIDENTLISTJSON = "incidentlist_json"
     INCIDENTLISTCSV = "incidentlist_csv"
     MYSQL = "my_sql"
@@ -2011,8 +2035,8 @@ class DownloadKubeconfigRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.KUBECONFIG] = DownloadFmtTypes.KUBECONFIG
 
 
-class DownloadSplackApiRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.SLACKAPI] = DownloadFmtTypes.SLACKAPI
+class DownloadSlackAPIRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.SLACK_API] = DownloadFmtTypes.SLACK_API
 
 
 AnyDownloadRequest = Annotated[
@@ -2029,7 +2053,7 @@ AnyDownloadRequest = Annotated[
         DownloadMSWordRequest,
         DownloadMySQLRequest,
         DownloadPDFRequest,
-        DownloadSplackApiRequest,
+        DownloadSlackAPIRequest,
         DownloadZipRequest,
         DownloadQRCodeRequest,
     ],
@@ -2178,7 +2202,7 @@ class DownloadKubeconfigResponse(TokenDownloadResponse):
     auth: str
 
 
-class DownloadSplackApiResponse(TokenDownloadResponse):
+class DownloadSlackAPIResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN
