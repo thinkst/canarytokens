@@ -1039,7 +1039,7 @@ def _create_glpat_token_response(
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
         # additional information for GitLab.com PAT token response
-        token=canarydrop.glpat_token,
+        pat=canarydrop.glpat_token,
         expires=canarydrop.glpat_expires
     )
 

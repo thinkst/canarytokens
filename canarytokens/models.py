@@ -702,7 +702,7 @@ class AWSKeyTokenResponse(TokenResponse):
 
 class GLPatTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
-    token: str
+    pat: str
     expires: str
 
 class AzureIDTokenResponse(TokenResponse):
