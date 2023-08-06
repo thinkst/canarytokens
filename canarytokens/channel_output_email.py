@@ -19,10 +19,16 @@ from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL
-from canarytokens.models import AnyTokenHit, TokenAlertDetails, TokenTypes
+from canarytokens.models import (
+    AnyTokenHit,
+    readable_token_type_names,
+    TokenAlertDetails,
+    token_types_with_article_an,
+    TokenTypes,
+)
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
-from canarytokens.utils import retry_on_returned_error, token_type_as_readable
+from canarytokens.utils import retry_on_returned_error
 
 log = Logger()
 
@@ -163,7 +169,7 @@ class EmailOutputChannel(OutputChannel):
 
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
-        _, readable_type = token_type_as_readable(details.token_type)
+        readable_type = readable_token_type_names[details.token_type]
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
 
@@ -228,7 +234,8 @@ class EmailOutputChannel(OutputChannel):
     def format_report_intro(details: TokenAlertDetails):
         details.channel
         details.token_type
-        article, readable_type = token_type_as_readable(details.token_type)
+        article = "An" if details.token_type in token_types_with_article_an else "A"
+        readable_type = readable_token_type_names[details.token_type]
         intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
 
         if details.channel == "DNS":  # TODO: make channel an enum.

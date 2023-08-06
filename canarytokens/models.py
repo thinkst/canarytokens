@@ -301,6 +301,43 @@ class TokenTypes(str, enum.Enum):
         return str(self.value)
 
 
+token_types_with_article_an = [
+    TokenTypes.ADOBE_PDF,
+    TokenTypes.AWS_KEYS,
+    TokenTypes.AZURE_ID,
+    TokenTypes.MS_EXCEL,
+    TokenTypes.MS_WORD,
+    TokenTypes.SQL_SERVER,
+    TokenTypes.SVN,
+]
+
+readable_token_type_names = {
+    TokenTypes.WEB: "web bug",
+    TokenTypes.DNS: "DNS",
+    TokenTypes.WEB_IMAGE: "custom image",
+    TokenTypes.MS_WORD: "MS Word",
+    TokenTypes.MS_EXCEL: "MS Excel",
+    TokenTypes.ADOBE_PDF: "Adobe PDF",
+    TokenTypes.WIREGUARD: "WireGuard",
+    TokenTypes.WINDOWS_DIR: "Windows folder",
+    TokenTypes.CLONEDSITE: "cloned website",
+    TokenTypes.QR_CODE: "QR code",
+    TokenTypes.SVN: "SVN",
+    TokenTypes.SMTP: "email address",
+    TokenTypes.SQL_SERVER: "MS SQL Server",
+    TokenTypes.MY_SQL: "MySQL",
+    TokenTypes.AWS_KEYS: "AWS key",
+    TokenTypes.AZURE_ID: "Azure key",
+    TokenTypes.SIGNED_EXE: "custom exe/binary",
+    TokenTypes.FAST_REDIRECT: "fast redirect",
+    TokenTypes.SLOW_REDIRECT: "slow redirect",
+    TokenTypes.KUBECONFIG: "Kubeconfig",
+    TokenTypes.LOG4SHELL: "Log4Shell",
+    TokenTypes.CMD: "sensitive command",
+    TokenTypes.CC: "credit card",
+    TokenTypes.SLACK_API: "Slack API",
+}
+
 GeneralHistoryTokenType = Literal[
     "blank"
     # TokenTypes.DNS,

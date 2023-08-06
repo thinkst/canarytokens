@@ -4,8 +4,6 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Literal, Tuple, Union
 
-from canarytokens.models import TokenTypes
-
 
 def coerce_to_float(value: Any) -> Union[Literal[False], float]:
     """
@@ -64,32 +62,3 @@ def retry_on_returned_error(
         return wrapper
 
     return inner
-
-
-def token_type_as_readable(token_type: TokenTypes) -> tuple[str, str]:
-    return {
-        TokenTypes.WEB: ("A", "web bug"),
-        TokenTypes.DNS: ("A", "DNS"),
-        TokenTypes.WEB_IMAGE: ("A", "custom image"),
-        TokenTypes.MS_WORD: ("An", "MS Word"),
-        TokenTypes.MS_EXCEL: ("An", "MS Excel"),
-        TokenTypes.ADOBE_PDF: ("An", "Adobe PDF"),
-        TokenTypes.WIREGUARD: ("A", "WireGuard"),
-        TokenTypes.WINDOWS_DIR: ("A", "Windows folder"),
-        TokenTypes.CLONEDSITE: ("A", "cloned website"),
-        TokenTypes.QR_CODE: ("A", "QR code"),
-        TokenTypes.SVN: ("An", "SVN"),
-        TokenTypes.SMTP: ("A", "email address"),
-        TokenTypes.SQL_SERVER: ("An", "MS SQL Server"),
-        TokenTypes.MY_SQL: ("A", "MySQL"),
-        TokenTypes.AWS_KEYS: ("An", "AWS key"),
-        TokenTypes.AZURE_ID: ("An", "Azure key"),
-        TokenTypes.SIGNED_EXE: ("A", "custom exe/binary"),
-        TokenTypes.FAST_REDIRECT: ("A", "fast redirect"),
-        TokenTypes.SLOW_REDIRECT: ("A", "slow redirect"),
-        TokenTypes.KUBECONFIG: ("A", "Kubeconfig"),
-        TokenTypes.LOG4SHELL: ("A", "Log4Shell"),
-        TokenTypes.CMD: ("A", "sensitive command"),
-        TokenTypes.CC: ("A", "credit card"),
-        TokenTypes.SLACK_API: ("A", "Slack API"),
-    }[token_type]
