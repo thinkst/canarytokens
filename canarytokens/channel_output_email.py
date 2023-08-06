@@ -164,25 +164,29 @@ class EmailOutputChannel(OutputChannel):
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
         _, readable_type = token_type_as_readable(details.token_type)
-        BasicDetails = {
-            "Description": details.memo,
-            "Channel": details.channel,
-            "Time": details.time,
-            "Canarytoken": details.token,
-            "SourceIP": details.src_ip,
-            "TokenType": readable_type,
-        }
-        for field_name, field_value in details.additional_data.items():
-            if field_name in [
-                "referer",
-                "useragent",
-                "location",
-                "log4_shell_computer_name",
-            ]:
-                BasicDetails[field_name.capitalize()] = field_value
+        BasicDetails = details.dict()
+        BasicDetails["readable_type"] = readable_type
 
-        if details.src_data and "generic_data" in details.src_data:
-            BasicDetails["GenericData"] = details.src_data["generic_data"].decode()
+        additional_data_keys = (
+            list(BasicDetails["additional_data"].keys())
+            if BasicDetails["additional_data"]
+            else []
+        )
+        src_data_keys = (
+            list(BasicDetails["src_data"].keys()) if BasicDetails["src_data"] else []
+        )
+
+        for field_name in additional_data_keys:
+            if BasicDetails["additional_data"][field_name]:
+                BasicDetails[field_name] = BasicDetails["additional_data"].pop(
+                    field_name
+                )
+        BasicDetails.pop("additional_data")
+
+        for field_name in src_data_keys:
+            if BasicDetails["src_data"][field_name]:
+                BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
+        BasicDetails.pop("src_data")
 
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
@@ -249,7 +253,7 @@ class EmailOutputChannel(OutputChannel):
         canarydrop: Canarydrop,
         token_hit: AnyTokenHit,
     ):
-        alert_details = input_channel.format_email_canaryalert(
+        alert_details = input_channel.gather_alert_details(
             canarydrop=canarydrop,
             host=self.switchboard_settings.PUBLIC_DOMAIN,
             protocol=self.switchboard_scheme,
