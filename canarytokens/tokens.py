@@ -20,7 +20,13 @@ from canarytokens.constants import (
     INPUT_CHANNEL_HTTP,
 )
 from canarytokens.exceptions import NoCanarytokenFound
-from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, AzureIDTokenHit, TokenTypes
+from canarytokens.models import (
+    AnyTokenHit,
+    AWSKeyTokenHit,
+    AzureIDTokenHit,
+    SlackAPITokenHit,
+    TokenTypes,
+)
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -466,6 +472,30 @@ class Canarytoken(object):
             "additional_info": additional_info,
         }
         return AzureIDTokenHit(**hit_info)
+
+    @staticmethod
+    def _parse_slack_api_trigger(request):
+        data = {k.decode(): [o.decode() for o in v] for k, v in request.args.items()}
+        hit_time = datetime.utcnow().strftime("%s.%f")
+        src_ip = data["ip"][0]
+        geo_info = queries.get_geoinfo_from_ip(ip=src_ip)
+        is_tor_relay = queries.is_tor_relay(src_ip)
+        user_agent = data["user_agent"][0]
+        hit_info = {
+            "token_type": TokenTypes.SLACK_API,
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "src_ip": src_ip,
+            "geo_info": geo_info,
+            "is_tor_relay": is_tor_relay,
+            "user_agent": user_agent,
+            "additional_info": {
+                "Slack Log Data": {
+                    k: v for k, v in data.items() if k not in ["ip", "user_agent"]
+                }
+            },
+        }
+        return SlackAPITokenHit(**hit_info)
 
     @staticmethod
     def _get_info_for_clonedsite(request):

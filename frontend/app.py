@@ -87,8 +87,8 @@ from canarytokens.models import (
     DownloadPDFResponse,
     DownloadQRCodeRequest,
     DownloadQRCodeResponse,
-    DownloadSplackApiRequest,
-    DownloadSplackApiResponse,
+    DownloadSlackAPIRequest,
+    DownloadSlackAPIResponse,
     DownloadZipRequest,
     DownloadZipResponse,
     FastRedirectTokenRequest,
@@ -746,9 +746,9 @@ def _(
 
 @create_download_response.register
 def _(
-    download_request_details: DownloadSplackApiRequest, canarydrop: Canarydrop
+    download_request_details: DownloadSlackAPIRequest, canarydrop: Canarydrop
 ) -> Response:
-    return DownloadSplackApiResponse(
+    return DownloadSlackAPIResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
         filename="slack_creds",
