@@ -1,25 +1,42 @@
 <img src="http://canarytokens.org/resources/logo.png" width="200" />
 
-Canarytokens
-=============
+# Canarytokens
+
 by Thinkst Applied Research
 
-Overview
---------
+## Overview
+
 Canarytokens helps track activity and actions on your network.
 
 If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try to get back to you as soon as possible.
 
-Deprecations
-------------
+## Table of Contents
+- [Code of Conduct](#code-of-conduct)
+- [Deprecations](#deprecations)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Configuration of Outgoing SMTP](#configuration-of-outgoing-smtp)
+- [Alert throttling](#alert-throttling)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+
+## Code of Conduct
+
+This project and everyone participating in it is governed by the
+[Code of Conduct](CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code. Please report unacceptable behavior
+to github@thinkst.com.
+
+## Deprecations
+
 * The Slack API Token is deprecated and it's no longer possible to create new ones. Old tokens will still work.
 
-Installation
-------------
+## Installation
+
 We recommend [the Docker image installation process](https://github.com/thinkst/canarytokens-docker).
 
-Configuration
--------------
+## Configuration
+
 
 The Canarytokens server can use many different settings configurations. You can find them in `settings.py`. There are two
 main settings files: `frontend.env` and `switchboard.env`.
@@ -62,6 +79,7 @@ Lastly, we have added the ability to specify your own AWSID lambda so that you m
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
 
 ### Configuration of Outgoing SMTP
+
 When configuring outgoing SMTP please consider the following:
 
 Restrictions:
@@ -85,9 +103,19 @@ CANARY_ALERT_EMAIL_FROM_ADDRESS=canary@yourdomain.com
 CANARY_ALERT_EMAIL_SUBJECT="Canary Alert via SMTP"
 ```
 
-### Alert throttling
+## Alert throttling
 By default, unless running in DEBUG mode, no more than 1 alert per unique calling IP per
 minute is permitted.  Activity will still be recorded in the database, and visible in
 the token management console, but alerts will not be generated (email and/or webhook).
 
 This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.
+
+## FAQ
+
+We have a FAQ over [here](https://github.com/thinkst/canarytokens/wiki)
+
+## Contributing
+
+Please check out our [Code of Conduct](CODE_OF_CONDUCT.md) and [Contributing](CONTRIBUTING.md) documents before submitting a pull request.
+
+We look forward to your valuable contributions.
