@@ -65,79 +65,91 @@
                                 <tr>
                                   <td>
                                     <table class="data" style="border: 1px solid #cccccc; font-size: 14px; border-collapse: collapse;" width="100%">
-                      {% if BasicDetails['Channel'] %}
+                      {% if BasicDetails['channel'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Channel</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Channel'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['channel'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Time'] %}
+                      {% if BasicDetails['time'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Time</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Time'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['time'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Canarytoken'] %}
+                      {% if BasicDetails['token'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canarytoken</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Canarytoken'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['token'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Description'] %}
+                      {% if BasicDetails['memo'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Reminder</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Description'] | e}}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token reminder</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['memo'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['TokenType'] %}
+                      {% if BasicDetails['readable_type'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token Type</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['TokenType'] }}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token type</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['readable_type'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['SourceIP'] %}
+                      {% if BasicDetails['src_ip'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Source IP</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['SourceIP'] }}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['src_ip'] }}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['User-Agent'] %}
+                      {% if BasicDetails['useragent'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">User Agent</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['User-Agent'] | e}}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">User-agent</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['useragent'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Referer'] %}
+                      {% if BasicDetails['referer'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Referer'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['referer'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Location'] %}
+                      {% if BasicDetails['location'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Location</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Location'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['location'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Log4_shell_computer_name'] %}
+                      {% if BasicDetails['request_args'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Log4Shell Hostname</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Log4_shell_computer_name'] | e}}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Request arguments</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['request_args'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['CMDInformation'] %}
+                      {% if BasicDetails['log4_shell_computer_name'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive Command Information</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['CMDInformation'] | e}}</code></td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Log4Shell hostname</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['log4_shell_computer_name'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Merchant'] %}
+                      {% if BasicDetails['cmd_computer_name'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command hostname</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_computer_name'] | e}}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['cmd_user_name'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command username</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_user_name'] | e}}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['merchant'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Authorizing merchant</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Merchant'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['Amount'] %}
+                      {% if BasicDetails['amount'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Transaction amount</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Amount'] | e}}</code></td>
@@ -155,13 +167,12 @@
                                           </code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['GenericData'] %}
+                      {% if BasicDetails['generic_data'] %}
                                       <tr>
-                                          <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Generic Data</td>
-                                          <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['GenericData'] | e}}</code></td>
+                                          <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Generic data</td>
+                                          <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['generic_data'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-
                       {% if BasicDetails.get('CanaryLocation', '') %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canary Location</td>
@@ -169,18 +180,6 @@
                                           <code>
                                             {{ BasicDetails['CanaryLocation'] | e}}
                                           </code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails[''] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;"></td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails[''] }}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails[''] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;"></td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails[''] }}</code></td>
                                       </tr>
                       {% endif %}
                                     </table>

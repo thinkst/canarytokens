@@ -301,6 +301,43 @@ class TokenTypes(str, enum.Enum):
         return str(self.value)
 
 
+token_types_with_article_an = [
+    TokenTypes.ADOBE_PDF,
+    TokenTypes.AWS_KEYS,
+    TokenTypes.AZURE_ID,
+    TokenTypes.MS_EXCEL,
+    TokenTypes.MS_WORD,
+    TokenTypes.SQL_SERVER,
+    TokenTypes.SVN,
+]
+
+readable_token_type_names = {
+    TokenTypes.WEB: "web bug",
+    TokenTypes.DNS: "DNS",
+    TokenTypes.WEB_IMAGE: "custom image",
+    TokenTypes.MS_WORD: "MS Word",
+    TokenTypes.MS_EXCEL: "MS Excel",
+    TokenTypes.ADOBE_PDF: "Adobe PDF",
+    TokenTypes.WIREGUARD: "WireGuard",
+    TokenTypes.WINDOWS_DIR: "Windows folder",
+    TokenTypes.CLONEDSITE: "cloned website",
+    TokenTypes.QR_CODE: "QR code",
+    TokenTypes.SVN: "SVN",
+    TokenTypes.SMTP: "email address",
+    TokenTypes.SQL_SERVER: "MS SQL Server",
+    TokenTypes.MY_SQL: "MySQL",
+    TokenTypes.AWS_KEYS: "AWS key",
+    TokenTypes.AZURE_ID: "Azure key",
+    TokenTypes.SIGNED_EXE: "custom exe/binary",
+    TokenTypes.FAST_REDIRECT: "fast redirect",
+    TokenTypes.SLOW_REDIRECT: "slow redirect",
+    TokenTypes.KUBECONFIG: "Kubeconfig",
+    TokenTypes.LOG4SHELL: "Log4Shell",
+    TokenTypes.CMD: "sensitive command",
+    TokenTypes.CC: "credit card",
+    TokenTypes.SLACK_API: "Slack API",
+}
+
 GeneralHistoryTokenType = Literal[
     "blank"
     # TokenTypes.DNS,
@@ -1217,6 +1254,36 @@ class TokenHit(BaseModel):
             return None
         return value
 
+    def get_additional_data_for_notification(self) -> Dict[str, Any]:
+        """
+        Some tokens have additional info that should be included
+        in webhook notifications. The dict returned from this function
+        is included in webhook outputs.
+
+        Returns:
+            Dict[str, str]: Key value pairs to include in webhook info.
+        """
+
+        additional_info = json_safe_dict(
+            self,
+            exclude=(
+                "time_of_hit",
+                "src_ip",
+                "is_tor_relay",
+                "input_channel",
+                # 'src_data',
+                "token_type",
+            ),
+        )
+        if "additional_info" in additional_info:
+            additional_info.update(**additional_info.pop("additional_info"))
+        for key, replacement in [("l", "location"), ("r", "referer")]:
+            if key in additional_info:
+                additional_info[replacement] = additional_info.pop(key)
+            if self.src_data and key in self.src_data:
+                self.src_data[replacement] = self.src_data[key]
+        return additional_info
+
 
 class AzureIDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
@@ -1535,17 +1602,6 @@ class TokenHistory(GenericModel, Generic[TH]):
                 data[f"{hit.time_of_hit:.6f}"] = hit_data
         return data
 
-    def get_additional_data_for_notification(self) -> Dict[str, Any]:
-        """
-        Some tokens have additional info that should be included
-        in webhook notifications. The dict returned from this function
-        is included in webhook outputs.
-
-        Returns:
-            Dict[str, str]: Key value pairs to include in webhook info.
-        """
-        return {}
-
     def latest_hit(self) -> Optional[TH]:
         if len(self.hits) == 0:
             return None
@@ -1621,29 +1677,6 @@ class WebBugTokenHistory(TokenHistory[WebBugTokenHit]):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
     hits: List[WebBugTokenHit] = []
 
-    def get_additional_data_for_notification(self) -> Dict[str, str]:
-        """WebBug token extra info to inject into webhook and email
-        notifications.
-
-        Returns:
-            Dict[str, str]: Key value pairs to include in webhook / email info.
-        """
-        latest_hit = self.latest_hit()
-        additional_data = {}
-        if latest_hit is not None:
-            additional_data["useragent"] = latest_hit.useragent
-            additional_data["location"] = (
-                latest_hit.additional_info.l if latest_hit.additional_info.l else None
-            )
-            additional_data["referer"] = (
-                latest_hit.additional_info.r if latest_hit.additional_info.r else None
-            )
-            additional_data["request_headers"] = latest_hit.request_headers
-            additional_data["request_args"] = (
-                latest_hit.request_args if latest_hit.request_args else {}
-            )
-        return additional_data
-
 
 class ClonedWebTokenHistory(TokenHistory[ClonedWebTokenHit]):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
@@ -1654,20 +1687,6 @@ class Log4ShellTokenHistory(TokenHistory[Log4ShellTokenHit]):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
     hits: List[Log4ShellTokenHit] = []
 
-    def get_additional_data_for_notification(self) -> Dict[str, str]:
-        """
-        Adds the most recent hit's `src_data` to the
-        webhook / email notification.
-
-        Returns:
-            Dict[str, str]: Key value pairs to include in webhook / email info.
-        """
-        latest_hit = self.latest_hit()
-        if latest_hit is None:
-            return {}
-        # V2 has a src_data key added for compatibility.
-        return {"src_data": latest_hit.src_data}
-
 
 class QRCodeTokenHistory(TokenHistory[QRCodeTokenHit]):
     token_type: Literal[TokenTypes.QR_CODE] = TokenTypes.QR_CODE
@@ -1676,12 +1695,6 @@ class QRCodeTokenHistory(TokenHistory[QRCodeTokenHit]):
 class SMTPTokenHistory(TokenHistory[SMTPTokenHit]):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
     hits: List[SMTPTokenHit] = []
-
-    def get_additional_data_for_notification(self) -> Dict[str, Dict[str, str]]:
-        latest_hit = self.latest_hit()
-        if latest_hit is None:
-            return {}
-        return {"mail": json_safe_dict(latest_hit.mail)}
 
 
 class WireguardTokenHistory(TokenHistory[WireguardTokenHit]):

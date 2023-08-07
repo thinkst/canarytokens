@@ -4,8 +4,6 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Literal, Tuple, Union
 
-from canarytokens.models import TokenTypes
-
 
 def coerce_to_float(value: Any) -> Union[Literal[False], float]:
     """
@@ -64,7 +62,3 @@ def retry_on_returned_error(
         return wrapper
 
     return inner
-
-
-def token_type_as_readable(token_type: TokenTypes) -> str:
-    return token_type.replace("_", " ").lower().title()

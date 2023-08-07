@@ -19,10 +19,16 @@ from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL
-from canarytokens.models import AnyTokenHit, TokenAlertDetails, TokenTypes
+from canarytokens.models import (
+    AnyTokenHit,
+    readable_token_type_names,
+    TokenAlertDetails,
+    token_types_with_article_an,
+    TokenTypes,
+)
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
-from canarytokens.utils import retry_on_returned_error, token_type_as_readable
+from canarytokens.utils import retry_on_returned_error
 
 log = Logger()
 
@@ -163,25 +169,30 @@ class EmailOutputChannel(OutputChannel):
 
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
-        BasicDetails = {
-            "Description": details.memo,
-            "Channel": details.channel,
-            "Time": details.time,
-            "Canarytoken": details.token,
-            "SourceIP": details.src_ip,
-            "TokenType": details.token_type,
-        }
-        for field_name, field_value in details.additional_data.items():
-            if field_name in [
-                "referer",
-                "useragent",
-                "location",
-                "log4_shell_computer_name",
-            ]:
-                BasicDetails[field_name.capitalize()] = field_value
+        readable_type = readable_token_type_names[details.token_type]
+        BasicDetails = details.dict()
+        BasicDetails["readable_type"] = readable_type
 
-        if details.src_data and "generic_data" in details.src_data:
-            BasicDetails["GenericData"] = details.src_data["generic_data"].decode()
+        additional_data_keys = (
+            list(BasicDetails["additional_data"].keys())
+            if BasicDetails["additional_data"]
+            else []
+        )
+        src_data_keys = (
+            list(BasicDetails["src_data"].keys()) if BasicDetails["src_data"] else []
+        )
+
+        for field_name in additional_data_keys:
+            if BasicDetails["additional_data"][field_name]:
+                BasicDetails[field_name] = BasicDetails["additional_data"].pop(
+                    field_name
+                )
+        BasicDetails.pop("additional_data")
+
+        for field_name in src_data_keys:
+            if BasicDetails["src_data"][field_name]:
+                BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
+        BasicDetails.pop("src_data")
 
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
@@ -223,12 +234,9 @@ class EmailOutputChannel(OutputChannel):
     def format_report_intro(details: TokenAlertDetails):
         details.channel
         details.token_type
-        an_or_a = (
-            "An"
-            if details.token_type in [TokenTypes.ADOBE_PDF, TokenTypes.AWS_KEYS]
-            else "A"
-        )
-        intro = f"{an_or_a} {token_type_as_readable(details.token_type)} Canarytoken has been triggered by the Source IP {details.src_ip}"
+        article = "An" if details.token_type in token_types_with_article_an else "A"
+        readable_type = readable_token_type_names[details.token_type]
+        intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
@@ -252,7 +260,7 @@ class EmailOutputChannel(OutputChannel):
         canarydrop: Canarydrop,
         token_hit: AnyTokenHit,
     ):
-        alert_details = input_channel.format_email_canaryalert(
+        alert_details = input_channel.gather_alert_details(
             canarydrop=canarydrop,
             host=self.switchboard_settings.PUBLIC_DOMAIN,
             protocol=self.switchboard_scheme,

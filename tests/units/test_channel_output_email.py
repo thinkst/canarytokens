@@ -66,6 +66,30 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
     assert "https://fake.your/domain/stuff" in email_template
 
 
+def test_cloned_site_rendered_html(settings: SwitchboardSettings):
+    details = TokenAlertDetails(
+        channel="HTTP",
+        token_type=TokenTypes.CLONEDSITE,
+        token=Canarytoken().value(),
+        src_ip="127.0.0.1",
+        time=datetime.datetime.now(),
+        memo="This is a test Memo",
+        manage_url="https://some.link/manage/here",
+        additional_data={
+            "useragent": "python 3.6",
+            "referer": "https://someone.not.nice/stuff/ref",
+            "location": "https://fake.your/domain/stuff/loc",
+        },
+    )
+    email_template = EmailOutputChannel.format_report_html(
+        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    )
+    assert "https://some.link/manage/here" in email_template
+    assert "https://some.link/history/here" in email_template
+    assert "https://someone.not.nice/stuff/ref" in email_template
+    assert "https://fake.your/domain/stuff/loc" in email_template
+
+
 def test_log4shell_rendered_html(settings: SwitchboardSettings):
     details = TokenAlertDetails(
         channel="DNS",

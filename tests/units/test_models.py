@@ -299,27 +299,14 @@ def test_slow_redirect_token_hit():
             }
         },
     }
+    ad_in = AdditionalInfo(**data["additional_info"])
+    assert ad_in.browser.enabled
     sr_hit = SlowRedirectTokenHit(**data)
     assert sr_hit.additional_info.browser is not None
-    ad_in = AdditionalInfo(
-        **{
-            "Browser": {
-                "l": [b"http://test.com/testloc"],
-                "r": [b"http://test.com/testref"],
-                "enabled": ["1"],
-                "installed": ["1"],
-                "browser": [b"Chrome"],
-                "version": [b"99.0.4844.84"],
-                "mimetypes": [b""],
-                "language": [b"en-US"],
-                "platform": [b"MacIntel"],
-                "vendor": [b"Google Inc."],
-                "os": [b"Macintosh"],
-            }
-        }
-    )
 
-    assert ad_in.browser.enabled
+    additional_data = sr_hit.get_additional_data_for_notification()
+    assert "location" in additional_data
+    assert "referer" in additional_data
 
 
 def test_update_additional_info():
@@ -489,11 +476,8 @@ def test_all_requests_have_a_response():
                 "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
             },
             {
-                "location": None,
-                "referer": None,
-                "request_args": {},
-                "request_headers": None,
                 "useragent": "python 3.10",
+                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
             },
         ),
         (
@@ -550,7 +534,7 @@ def test_get_additional_data_for_webhook(
             )
         ]
     )
-    assert expected_data == hist.get_additional_data_for_notification()
+    assert expected_data == hist.latest_hit().get_additional_data_for_notification()
 
 
 def test_download_content_types():

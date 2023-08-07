@@ -28,7 +28,6 @@ from canarytokens.models import (
     TokenAlertDetails,
     TokenAlertDetailsGoogleChat,
     TokenAlertDetailsSlack,
-    TokenTypes,
 )
 
 log = Logger()
@@ -145,14 +144,13 @@ class InputChannel(Channel):
         protocol: str,
         host: str,  # DESIGN: Shift this to settings. Do we need to have this logic here?
     ) -> TokenAlertDetails:
-        additional_data = (
-            canarydrop.triggered_details.get_additional_data_for_notification()
-        )
+        hit = canarydrop.triggered_details.latest_hit()
+        additional_data = hit.get_additional_data_for_notification()
+
         return TokenAlertDetails(
             channel=cls.CHANNEL,
             token_type=canarydrop.type,
-            src_ip=canarydrop.triggered_details.latest_hit().src_ip,
-            src_data=canarydrop.triggered_details.latest_hit().src_data,
+            src_ip=hit.src_ip,
             time=datetime.datetime.utcnow(),
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
@@ -165,91 +163,6 @@ class InputChannel(Channel):
             ),
             additional_data=additional_data,  # TODO: additional details need to be re-worked.
         )
-
-    @classmethod
-    def format_email_canaryalert(
-        cls,
-        canarydrop: Canarydrop,
-        protocol: str,
-        host: str,  # DESIGN: Shift this to settings. Do we need to have this logic here?
-    ) -> TokenAlertDetails:
-        details = cls.gather_alert_details(
-            canarydrop,
-            protocol=protocol,
-            host=host,
-        )
-        if canarydrop.type == TokenTypes.AWS_KEYS:
-            # Override channel for alert readability.
-            details.channel = "AWS API Key Token"
-        return details
-
-    #         msg = {}
-
-    #         msg["time"] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")
-    #         msg["channel"] = self.name
-
-    #         if "src_data" in kwargs and "aws_keys_event_source_ip" in kwargs["src_data"]:
-    #             msg["src_ip"] = kwargs["src_data"]["aws_keys_event_source_ip"]
-    #             msg["channel"] = "AWS API Key Token"
-
-    #         if "src_data" in kwargs and "aws_keys_event_user_agent" in kwargs["src_data"]:
-    #             msg["useragent"] = kwargs["src_data"]["aws_keys_event_user_agent"]
-
-    #         if "src_data" in kwargs and "log4_shell_computer_name" in kwargs["src_data"]:
-    #             msg["log4_shell_computer_name"] = kwargs["src_data"][
-    #                 "log4_shell_computer_name"
-    #             ]
-
-    #         if params.get("body_length", 999999999) <= 140:
-    #             msg["body"] = """Canarydrop@{time} via {channel_name}: """.format(
-    #                 channel_name=self.name, time=msg["time"]
-    #             )
-    #             capacity = 140 - len(msg["body"])
-    #             msg["body"] += canarydrop.memo[:capacity]
-    #         else:
-    #             msg[
-    #                 "body"
-    #             ] = """
-    # One of your canarydrops was triggered.
-    # Channel: {channel_name}
-    # Time   : {time}
-    # Memo   : {memo}
-    # {additional_data}
-    # Manage your settings for this Canarydrop:
-    # {protocol}://{host}/manage?token={token}&auth={auth}""".format(
-    #                 channel_name=self.name,
-    #                 time=msg["time"],
-    #                 memo=canarydrop.memo,
-    #                 additional_data=self.format_additional_data(**kwargs),
-    #                 protocol=protocol,
-    #                 host=host,
-    #                 token=canarydrop["canarytoken"],
-    #                 auth=canarydrop["auth"],
-    #             )
-    #             msg[
-    #                 "manage"
-    #             ] = "{protocol}://{host}/manage?token={token}&auth={auth}".format(
-    #                 protocol=protocol,
-    #                 host=host,
-    #                 token=canarydrop["canarytoken"],
-    #                 auth=canarydrop["auth"],
-    #             )
-    #             msg[
-    #                 "history"
-    #             ] = "{protocol}://{host}/history?token={token}&auth={auth}".format(
-    #                 protocol=protocol,
-    #                 host=host,
-    #                 token=canarydrop["canarytoken"],
-    #                 auth=canarydrop["auth"],
-    #             )
-
-    #         if params.get("subject_required", False):
-    #             msg["subject"] = settings.ALERT_EMAIL_SUBJECT
-    #         if params.get("from_display_required", False):
-    #             msg["from_display"] = settings.ALERT_EMAIL_FROM_DISPLAY
-    #         if params.get("from_address_required", False):
-    #             msg["from_address"] = settings.ALERT_EMAIL_FROM_ADDRESS
-    #         return msg
 
     @classmethod
     def format_webhook_canaryalert(
