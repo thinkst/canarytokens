@@ -13,12 +13,12 @@ from twisted.web.server import GzipEncoderFactory, Request
 from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
-from canarytokens.exceptions import NoCanarytokenFound
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
 from canarytokens.models import AnyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
-from canarytokens.tokens import Canarytoken
+from canarytokens.tokens import Canarytoken, GIF
 from canarytokens.utils import coerce_to_float
 
 log = Logger()
@@ -87,8 +87,15 @@ class CanarytokenPage(InputChannel, resource.Resource):
             log.info(
                 f"HTTP GET on path {request.path} did not correspond to a token. Error: {e}"
             )
-            return
-        canarydrop = get_canarydrop(canarytoken)
+            request.setHeader("Content-Type", "image/gif")
+            return GIF
+
+        try:
+            canarydrop = get_canarydrop(canarytoken)
+        except NoCanarytokenPresent as e:
+            log.info(f"Error: {e}")
+            request.setHeader("Content-Type", "image/gif")
+            return GIF
 
         handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
         http_general_info, src_data = handler(request)
@@ -129,7 +136,12 @@ class CanarytokenPage(InputChannel, resource.Resource):
         except NoCanarytokenFound as e:
             log.error(f"Failed to get token from {request.path=}. Error: {e}")
             return b"failed"
-        canarydrop = get_canarydrop(canarytoken=token)
+
+        try:
+            canarydrop = get_canarydrop(token)
+        except NoCanarytokenPresent as e:
+            log.info(f"Canarydrop not found for token {token.value()}. Error: {e}")
+            return b"failed"
         # if key and token args are present, we are either:
         #    -posting browser info
         #    -getting an aws trigger (key == aws_s3)

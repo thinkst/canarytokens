@@ -20,6 +20,8 @@ from canarytokens.models import (
     DownloadContentTypes,
     DownloadMSWordResponse,
     GeoIPBogonInfo,
+    LegacyTokenHistory,
+    LegacyTokenHit,
     Log4ShellTokenHistory,
     Log4ShellTokenHit,
     Log4ShellTokenResponse,
@@ -535,6 +537,66 @@ def test_get_additional_data_for_webhook(
         ]
     )
     assert expected_data == hist.latest_hit().get_additional_data_for_notification()
+
+
+@pytest.mark.parametrize(
+    "seed_data, expected_data",
+    [
+        (
+            {
+                "useragent": "python 3.10",
+                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+            },
+            {
+                "useragent": "python 3.10",
+                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+            },
+        ),
+        (
+            {
+                "mail": SMTPMailField(
+                    sender="ender@test.com",
+                    links=["https://link.found/in/mail"],
+                    attachments=[],
+                    recipients=[],
+                    headers=[],
+                    helo=SMTPHeloField(
+                        client_name="test",
+                        client_ip="123.4.5.6",
+                    ),
+                )
+            },
+            {
+                "mail": json_safe_dict(
+                    SMTPMailField(
+                        sender="ender@test.com",
+                        links=["https://link.found/in/mail"],
+                        attachments=[],
+                        recipients=[],
+                        headers=[],
+                        helo=SMTPHeloField(
+                            client_name="test",
+                            client_ip="123.4.5.6",
+                        ),
+                    )
+                )
+            },
+        ),
+    ],
+)
+def test_legacy_hits(seed_data, expected_data):
+    legacy_hit = LegacyTokenHit(
+        time_of_hit=20,
+        src_ip="127.0.0.1",
+        is_tor_relay=True,
+        input_channel="HTTP",
+        **seed_data,
+    )
+    legacy_history = LegacyTokenHistory(hits=[legacy_hit])
+    assert (
+        expected_data
+        == legacy_history.latest_hit().get_additional_data_for_notification()
+    )
 
 
 def test_download_content_types():

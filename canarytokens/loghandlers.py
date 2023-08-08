@@ -1,3 +1,4 @@
+# pragma: no cover
 from twisted.logger import eventAsJSON, ILogObserver, Logger, LogLevel
 from twisted.web.iweb import IBodyProducer
 from twisted.web.client import Agent
@@ -8,7 +9,6 @@ from zope.interface import implementer
 
 import os
 import json
-
 
 log = Logger()
 
@@ -21,18 +21,18 @@ text_for_failed_email_address_entered = "A mailgun error occurred: <class 'reque
 
 @implementer(IBodyProducer)
 class BytesProducer:
-    def __init__(self, body):
+    def __init__(self, body):  # pragma: no cover
         self.body = body
         self.length = len(body)
 
-    def startProducing(self, consumer):
+    def startProducing(self, consumer):  # pragma: no cover
         consumer.write(self.body)
         return succeed(None)
 
-    def pauseProducing(self):
+    def pauseProducing(self):  # pragma: no cover
         pass
 
-    def stopProducing(self):
+    def stopProducing(self):  # pragma: no cover
         pass
 
 
@@ -42,7 +42,7 @@ class errorsToWebhookLogObserver(object):
     Log observer that sends errors out to a Slack endpoint.
     """
 
-    def __init__(self, formatEvent):
+    def __init__(self, formatEvent):  # pragma: no cover
         """
         @param formatEvent: A callable that formats an event.
         @type formatEvent: L{callable} that takes an C{event} argument and
@@ -50,7 +50,7 @@ class errorsToWebhookLogObserver(object):
         """
         self.formatEvent = formatEvent
 
-    def __call__(self, event):
+    def __call__(self, event):  # pragma: no cover
         """
         Check if log_level Error or higher, if so post to webhook
 
@@ -75,7 +75,7 @@ class errorsToWebhookLogObserver(object):
             _ = httpRequest(postdata)
 
 
-def httpRequest(postdata):
+def httpRequest(postdata):  # pragma: no cover
     agent = Agent(reactor)
     headers = {b"Content-Type": [b"application/x-www-form-urlencoded"]}
     data_str = json.dumps(postdata)
@@ -95,7 +95,7 @@ def httpRequest(postdata):
     return d
 
 
-def webhookLogObserver(recordSeparator="\x1e"):
+def webhookLogObserver(recordSeparator="\x1e"):  # pragma: no cover
     """
     Create a L{errorsToWebhookLogObserver} that emits error and critical
     loglines' text to a specified webhook URL by doing a HTTP POST.

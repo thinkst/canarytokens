@@ -510,6 +510,13 @@ class Canarytoken(object):
         return http_general_info, src_data
 
     @staticmethod
+    def _get_response_for_clonedsite(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_cc(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
 
@@ -524,13 +531,6 @@ class Canarytoken(object):
 
     @staticmethod
     def _get_response_for_cc(canarydrop: canarydrop.Canarydrop, request: Request):
-        request.setHeader("Content-Type", "image/gif")
-        return GIF
-
-    @staticmethod
-    def _get_response_for_clonedsite(
-        canarydrop: canarydrop.Canarydrop, request: Request
-    ):
         request.setHeader("Content-Type", "image/gif")
         return GIF
 
@@ -576,12 +576,37 @@ class Canarytoken(object):
     def _get_response_for_web(
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
-        if canarydrop.browser_scanner_enabled:
-            template = get_template_env().get_template("browser_scanner.html")
-            return template.render(
-                key=canarydrop.triggered_details.hits[-1].time_of_hit,
-                canarytoken=canarydrop.canarytoken.value(),
-            ).encode()
+        if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            if canarydrop.browser_scanner_enabled:
+                # set response mimetype
+                request.setHeader("Content-Type", "text/html")
+                # latest hit
+                latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
+                # set-up response template
+                browser_scanner_template_params = {
+                    "key": latest_hit_time,
+                    "canarytoken": canarydrop.canarytoken.value,
+                    "redirect_url": "",
+                }
+                template = get_template_env().get_template("browser_scanner.html")
+                # render template
+                return template.render(**browser_scanner_template_params).encode()
+
+            elif queries.get_return_for_token() == "fortune":  # gif
+                # set response mimetype
+                request.setHeader("Content-Type", "text/html")
+
+                # get fortune
+                # fortune = subprocess.check_output('/usr/games/fortune')
+                fortune = "fortune favours the brave"
+
+                # set-up response template
+                fortune_template_params = {"request": request, "fortune": fortune}
+                template = get_template_env().get_template("fortune.html")
+
+                # render template
+                return template.render(**fortune_template_params).encode()
+
         request.setHeader("Content-Type", "image/gif")
         return GIF
 
@@ -626,6 +651,77 @@ class Canarytoken(object):
     def _get_response_for_web_image(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
+        if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            if canarydrop.browser_scanner_enabled:
+                # set response mimetype
+                request.setHeader("Content-Type", "text/html")
+                # latest hit
+                latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
+                # set-up response template
+                browser_scanner_template_params = {
+                    "key": latest_hit_time,
+                    "canarytoken": canarydrop.canarytoken.value,
+                    "redirect_url": "",
+                }
+                template = get_template_env().get_template("browser_scanner.html")
+                # render template
+                return template.render(**browser_scanner_template_params).encode()
+
+            elif queries.get_return_for_token() == "fortune":  # gif
+                # set response mimetype
+                request.setHeader("Content-Type", "text/html")
+
+                # get fortune
+                # fortune = subprocess.check_output('/usr/games/fortune')
+                fortune = "fortune favours the brave"
+
+                # set-up response template
+                fortune_template_params = {"request": request, "fortune": fortune}
+                template = get_template_env().get_template("fortune.html")
+
+                # render template
+                return template.render(**fortune_template_params).encode()
+
+        if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
+            # set response mimetype
+            mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
+            request.setHeader("Content-Type", mimetype)
+            # read custom image
+            with canarydrop.web_image_path.open(mode="rb") as fp:
+                contents = fp.read()
+            return contents
+
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
+    def _get_info_for_legacy(request):
+        """
+        Since we don't know what type legacy tokens are, we attempt to collect all the data that could be there. The token types that alert here are:
+            web, MS Word, custom image, QR code, and cloned site
+        """
+        # web, word, image
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        src_data = {}
+        # QR
+        if "useragent" in http_general_info:
+            src_data["useragent"] = http_general_info["useragent"]
+        # cloned
+        if location := request.args.get(b"l", [None])[0]:
+            src_data["location"] = location
+        if referer := request.args.get(b"r", [None])[0]:
+            src_data["referer"] = referer
+        return http_general_info, src_data
+
+    @staticmethod
+    def _get_response_for_legacy(canarydrop: canarydrop.Canarydrop, request: Request):
+        """
+        Since we don't know what type legacy tokens are, we need to derive the correct response here.
+        The token types that we could be responding for are:
+            web, MS Word, custom image, QR code, and cloned site
+        They all respond with a GIF except in the same conditions as the custom image token, so that functionality is replicated here
+        """
+
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
             if canarydrop.browser_scanner_enabled:
                 # set response mimetype

@@ -16,6 +16,8 @@ def coerce_to_float(value: Any) -> Union[Literal[False], float]:
         return float(value)
     except ValueError:
         return False
+    except TypeError:
+        return False
 
 
 def get_deployed_commit_sha(commit_sha_file: Path = Path("/COMMIT_SHA")):
