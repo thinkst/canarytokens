@@ -195,14 +195,15 @@ output "base_url" {
 }
 
 
-# 
+#
 # Log storage
 #
-
 resource "aws_s3_bucket" "canarytoken_logs" {
   bucket        = "awskeytokentrailbucketall-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
-
+}
+resource "aws_s3_bucket_policy" "canarytokens_logs_policy" {
+  bucket = aws_s3_bucket.canarytoken_logs.id
   policy = <<POLICY
 {
     "Version": "2012-10-17",
