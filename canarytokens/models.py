@@ -1031,7 +1031,7 @@ class GeoIPInfo(BaseModel):
     #  TODO: validate this domain
     hostname: Optional[str]  # 'dnsinfo1-cte-pt.3g.vodacom.co.za
     ip: str  # '41.1.47.253
-    timezone: str  # 'Africa/Johannesburg
+    timezone: Optional[str]  # 'Africa/Johannesburg
     postal: Optional[str]  # '7100 or EC1A
     asn: Optional[
         ASN
@@ -1421,7 +1421,7 @@ class KubeconfigTokenHit(TokenHit):
 
 class MsWordDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
-    useragent: str
+    useragent: Optional[str]
 
 
 class WindowsDirectoryTokenHit(TokenHit):
@@ -1444,7 +1444,7 @@ class SQLServerTokenHit(TokenHit):
 
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
-    useragent: str
+    useragent: Optional[str]
     request_headers: Optional[dict]
     request_args: Optional[dict]
     additional_info: AdditionalInfo = AdditionalInfo()
@@ -1470,7 +1470,7 @@ class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
     referer: Optional[Union[str, bytes]]
     location: Optional[Union[str, bytes]]
-    useragent: str
+    useragent: Optional[str]
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
@@ -1478,7 +1478,7 @@ class FastRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
     referer: Optional[Union[str, bytes]]
     location: Optional[Union[str, bytes]]
-    useragent: str
+    useragent: Optional[str]
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
