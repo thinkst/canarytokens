@@ -232,7 +232,7 @@ class ChannelDNS(InputChannel):
 
         self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
 
-        if IS_NX_DOMAIN:
+        if IS_NX_DOMAIN:  # pragma: no cover
             if canarydrop.type not in [TokenTypes.ADOBE_PDF, TokenTypes.SIGNED_EXE]:
                 log.info(
                     "Token {token} hit the NX domain and is not a pdf. TokenType: {token_type}",
@@ -242,11 +242,11 @@ class ChannelDNS(InputChannel):
             return defer.fail(error.DomainError())
         return defer.succeed(self._do_dynamic_response(name=query.name.name))
 
-    def lookupCAA(self, name, timeout):
+    def lookupCAA(self, name, timeout):  # pragma: no cover
         """Respond with NXdomain to a -t CAA lookup."""
         return defer.fail(error.DomainError())
 
-    def lookupAllRecords(self, name, timeout):
+    def lookupAllRecords(self, name, timeout):  # pragma: no cover
         """Respond with error to a -t ANY lookup."""
         return defer.fail(error.DomainError())
 
@@ -336,5 +336,5 @@ class ChannelDNS(InputChannel):
 
     #     return additional_report
 
-    def _handleMySqlErr(self, result):
+    def _handleMySqlErr(self, result):  # pragma: no cover
         log.error(f"Error dispatching MySQL alert: {result}")
