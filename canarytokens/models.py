@@ -296,6 +296,7 @@ class TokenTypes(str, enum.Enum):
     CMD = "cmd"
     CC = "cc"
     SLACK_API = "slack_api"
+    LEGACY = "legacy"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -336,6 +337,7 @@ readable_token_type_names = {
     TokenTypes.CMD: "sensitive command",
     TokenTypes.CC: "credit card",
     TokenTypes.SLACK_API: "Slack API",
+    TokenTypes.LEGACY: "legacy",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -1271,7 +1273,6 @@ class TokenHit(BaseModel):
                 "src_ip",
                 "is_tor_relay",
                 "input_channel",
-                # 'src_data',
                 "token_type",
             ),
         )
@@ -1512,6 +1513,24 @@ class WireguardTokenHit(TokenHit):
     src_data: WireguardSrcData
 
 
+class LegacyTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
+    # zip;
+    src_data: Optional[dict]
+    # excel; word; image; QR;
+    useragent: Optional[str]
+    # web
+    request_headers: Optional[dict]
+    request_args: Optional[dict]
+    # web; image
+    additional_info: Optional[AdditionalInfo] = AdditionalInfo()
+    # cloned_web
+    referer: Optional[Union[str, bytes]]
+    location: Optional[Union[str, bytes]]
+    # smtp
+    mail: Optional[SMTPMailField]
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
@@ -1539,6 +1558,7 @@ AnyTokenHit = Annotated[
         WindowsDirectoryTokenHit,
         SQLServerTokenHit,
         KubeconfigTokenHit,
+        LegacyTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1727,6 +1747,11 @@ class SvnTokenHistory(TokenHistory[SvnTokenHit]):
     hits: List[SvnTokenHit] = []
 
 
+class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
+    token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
+    hits: List[LegacyTokenHit] = []
+
+
 # AnyTokenHistory is used to type annotate functions that
 # handle any token history. It makes use of an annotated type
 # that discriminates on `token_type` so pydantic can parse
@@ -1758,6 +1783,7 @@ AnyTokenHistory = Annotated[
         WindowsDirectoryTokenHistory,
         SQLServerTokenHistory,
         KubeconfigTokenHistory,
+        LegacyTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]

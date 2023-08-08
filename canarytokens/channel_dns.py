@@ -204,6 +204,7 @@ class ChannelDNS(InputChannel):
         log.info(f"handling query:  {query.name}")
         try:
             canarydrop, src_data = handle_query_name(query_name=query.name)
+            # import rpdb; rpdb.Rpdb().set_trace()
         except NoCanarytokenFound:
             log.info(f"Query: {query.name} does not match a token.")
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
