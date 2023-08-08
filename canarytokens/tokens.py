@@ -576,12 +576,38 @@ class Canarytoken(object):
     def _get_response_for_web(
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
-        if canarydrop.browser_scanner_enabled:
-            template = get_template_env().get_template("browser_scanner.html")
-            return template.render(
-                key=canarydrop.triggered_details.hits[-1].time_of_hit,
-                canarytoken=canarydrop.canarytoken.value(),
-            ).encode()
+
+        if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            if canarydrop.browser_scanner_enabled:
+                # set response mimetype
+                request.setHeader("Content-Type", "text/html")
+                # latest hit
+                latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
+                # set-up response template
+                browser_scanner_template_params = {
+                    "key": latest_hit_time,
+                    "canarytoken": canarydrop.canarytoken.value,
+                    "redirect_url": "",
+                }
+                template = get_template_env().get_template("browser_scanner.html")
+                # render template
+                return template.render(**browser_scanner_template_params).encode()
+
+            elif queries.get_return_for_token() == "fortune":  # gif
+                # set response mimetype
+                request.setHeader("Content-Type", "text/html")
+
+                # get fortune
+                # fortune = subprocess.check_output('/usr/games/fortune')
+                fortune = "fortune favours the brave"
+
+                # set-up response template
+                fortune_template_params = {"request": request, "fortune": fortune}
+                template = get_template_env().get_template("fortune.html")
+
+                # render template
+                return template.render(**fortune_template_params).encode()
+
         request.setHeader("Content-Type", "image/gif")
         return GIF
 
