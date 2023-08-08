@@ -16,8 +16,14 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_SMTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
-from canarytokens.models import SMTPHeloField, SMTPMailField, SMTPTokenHit
-from canarytokens.queries import get_canarydrop
+from canarytokens.models import (
+    SMTPHeloField,
+    SMTPMailField,
+    SMTPTokenHistory,
+    SMTPTokenHit,
+    TokenTypes,
+)
+from canarytokens.queries import get_canarydrop, save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
@@ -162,6 +168,12 @@ class CanaryESMTP(smtp.ESMTP):
         try:
             canarytoken = Canarytoken(value=user.dest.local)
             self.canarydrop = get_canarydrop(canarytoken=canarytoken)
+            if self.canarydrop.type == TokenTypes.LEGACY:
+                self.canarydrop.type = TokenTypes.SMTP
+                self.canarydrop.triggered_details = SMTPTokenHistory(
+                    hits=self.canarydrop.triggered_details.hits
+                )
+                save_canarydrop(self.canarydrop)
             return lambda: CanaryMessage(esmtp=self)
         except (NoCanarytokenPresent, NoCanarytokenFound):
             log.warn(
