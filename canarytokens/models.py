@@ -1092,14 +1092,14 @@ class ServiceInfo(BaseModel):
 
 class BrowserInfo(BaseModel):
     mimetypes: list[str]
-    vendor: list[str]
-    language: list[str]
+    vendor: Optional[list[str]]
+    language: Optional[list[str]]
     enabled: list[str]
     installed: list[str]
     platform: list[str]
     version: list[str]
     os: list[str]
-    browser: list[str]
+    browser: Optional[list[str]]
     r: Optional[list[str]]
     l: Optional[list[str]]
 
@@ -1416,12 +1416,10 @@ class SMTPTokenHit(TokenHit):
 class KubeconfigTokenHit(TokenHit):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
     location: str
-    useragent: str
 
 
 class MsWordDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
-    useragent: Optional[str]
 
 
 class WindowsDirectoryTokenHit(TokenHit):
@@ -1431,7 +1429,6 @@ class WindowsDirectoryTokenHit(TokenHit):
 
 class MsExcelDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
-    useragent: Optional[str]
 
 
 class SvnTokenHit(TokenHit):
@@ -1444,7 +1441,6 @@ class SQLServerTokenHit(TokenHit):
 
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
-    useragent: Optional[str]
     request_headers: Optional[dict]
     request_args: Optional[dict]
     additional_info: AdditionalInfo = AdditionalInfo()
@@ -1456,7 +1452,6 @@ class WebBugTokenHit(TokenHit):
 class CustomImageTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB_IMAGE] = TokenTypes.WEB_IMAGE
     additional_info: AdditionalInfo = AdditionalInfo()
-    useragent: Optional[str]
 
 
 class ClonedWebTokenHit(TokenHit):
@@ -1470,7 +1465,6 @@ class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
     referer: Optional[Union[str, bytes]]
     location: Optional[Union[str, bytes]]
-    useragent: Optional[str]
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
@@ -1478,7 +1472,6 @@ class FastRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
     referer: Optional[Union[str, bytes]]
     location: Optional[Union[str, bytes]]
-    useragent: Optional[str]
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
@@ -1489,7 +1482,6 @@ class Log4ShellTokenHit(TokenHit):
 
 class QRCodeTokenHit(TokenHit):
     token_type: Literal[TokenTypes.QR_CODE] = TokenTypes.QR_CODE
-    useragent: Optional[str]
 
 
 class CustomBinaryTokenHit(TokenHit):
@@ -1514,11 +1506,10 @@ class WireguardTokenHit(TokenHit):
 
 
 class LegacyTokenHit(TokenHit):
+    # excel; word; image; QR;
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
     # zip;
     src_data: Optional[dict]
-    # excel; word; image; QR;
-    useragent: Optional[str]
     # web
     request_headers: Optional[dict]
     request_args: Optional[dict]
