@@ -67,7 +67,7 @@ class Canarydrop(BaseModel):
     generate: Optional[bool]  # V2 stores this attribute in redis.
     canarytoken: tokens.Canarytoken
     triggered_details: AnyTokenHistory
-    memo: str
+    memo: str = ""
     # Make created_at v2 compatible - add timestamp as alias.
     created_at: datetime = Field(default_factory=datetime.utcnow, alias="timestamp")
 

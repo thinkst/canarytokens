@@ -1022,12 +1022,12 @@ class GeoIPBogonInfo(BaseModel):
 
 class GeoIPInfo(BaseModel):
     # DESIGN/TODO: This is based on 3rd party response. Make all fields optional / match the api we expecting
-    loc: Tuple[float, float]  # '-33.9778,18.6167'
+    loc: Optional[Tuple[float, float]]  # '-33.9778,18.6167'
     org: Optional[str]  # 'AS29975 Vodacom'
-    city: str  # 'Cape Town'
+    city: Optional[str]  # 'Cape Town'
     # TODO: Validate country code pycountry?? add a dependency for this??
-    country: str  # 'ZA',
-    region: str  # 'Western Cape'
+    country: Optional[str]  # 'ZA',
+    region: Optional[str]  # 'Western Cape'
     #  TODO: validate this domain
     hostname: Optional[str]  # 'dnsinfo1-cte-pt.3g.vodacom.co.za
     ip: str  # '41.1.47.253
@@ -1096,7 +1096,7 @@ class BrowserInfo(BaseModel):
     language: Optional[list[str]]
     enabled: list[str]
     installed: list[str]
-    platform: list[str]
+    platform: Optional[list[str]]
     version: list[str]
     os: list[str]
     browser: Optional[list[str]]
@@ -1399,9 +1399,9 @@ class PDFTokenHit(TokenHit):
 
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
-    last4: str
-    amount: str
-    merchant: str
+    last4: Optional[str]
+    amount: Optional[str]
+    merchant: Optional[str]
 
 
 class CMDTokenHit(TokenHit):
@@ -1410,7 +1410,7 @@ class CMDTokenHit(TokenHit):
 
 class SMTPTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-    mail: SMTPMailField
+    mail: Optional[SMTPMailField]
 
 
 class KubeconfigTokenHit(TokenHit):
