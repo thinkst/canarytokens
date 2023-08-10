@@ -50,24 +50,28 @@ The `frontend.env` contains the frontend process settings such as:
 - LOG_FILE=frontend.log
 
 The `switchboard.env` contains the switchboard process settings such as:
-- CANARY_MAILGUN_DOMAIN_NAME=<mailgun domain>
-- CANARY_MAILGUN_API_KEY=
-- CANARY_MANDRILL_API_KEY=
-- CANARY_SENDGRID_API_KEY=
-- CANARY_PUBLIC_IP=<instead of using a domain>
-- CANARY_PUBLIC_DOMAIN=<instead of using an IP>
-- CANARY_ALERT_EMAIL_FROM_ADDRESS=noreply@yourdomain.com
-- CANARY_ALERT_EMAIL_FROM_DISPLAY="Canarytoken Mailer"
-- CANARY_ALERT_EMAIL_SUBJECT="Alert"
-- CANARY_MAX_ALERTS_PER_MINUTE=1000
-- CANARY_SMTP_USERNAME=<smtp username>
-- CANARY_SMTP_PASSWORD=<smtp password>
-- CANARY_SMTP_SERVER=smtp.gmail.com
-- CANARY_IPINFO_API_KEY=<ipinfo.io api key>
-- CANARY_SMTP_PORT=587
-- CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
-- LOG_FILE=switchboard.log
-- ERROR_LOG_WEBHOOK=<URI of a webhook you want Error Logs posted to>
+
+| Variable Name                   | Value                                           |
+|---------------------------------|--------------------------------------------------|
+| CANARY_MAILGUN_DOMAIN_NAME      | <mailgun domain>                                 |
+| CANARY_MAILGUN_API_KEY          |                                                  |
+| CANARY_MANDRILL_API_KEY         |                                                  |
+| CANARY_SENDGRID_API_KEY         |                                                  |
+| CANARY_PUBLIC_IP                | <instead of using a domain>                      |
+| CANARY_PUBLIC_DOMAIN            | <instead of using an IP>                         |
+| CANARY_ALERT_EMAIL_FROM_ADDRESS | noreply@yourdomain.com                           |
+| CANARY_ALERT_EMAIL_FROM_DISPLAY | "Canarytoken Mailer"                             |
+| CANARY_ALERT_EMAIL_SUBJECT      | "Alert"                                          |
+| CANARY_MAX_ALERTS_PER_MINUTE    | 1000                                             |
+| CANARY_SMTP_USERNAME            | <smtp username>                                  |
+| CANARY_SMTP_PASSWORD            | <smtp password>                                  |
+| CANARY_SMTP_SERVER              | smtp.gmail.com                                   |
+| CANARY_IPINFO_API_KEY           | <ipinfo.io api key>                              |
+| CANARY_SMTP_PORT                | 587                                              |
+| CANARY_WEB_IMAGE_UPLOAD_PATH    | /uploads                                         |
+| LOG_FILE                        | switchboard.log                                  |
+| ERROR_LOG_WEBHOOK               | <URI of a webhook you want Error Logs posted to> |
+
 
 Please note that when choosing which email provider you would like to use, you **MUST** only provide
 information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` then you must remove the others such as
