@@ -63,6 +63,7 @@ The `switchboard.env` contains the switchboard process settings such as:
 - CANARY_SMTP_USERNAME=<smtp username>
 - CANARY_SMTP_PASSWORD=<smtp password>
 - CANARY_SMTP_SERVER=smtp.gmail.com
+- CANARY_IPINFO_API_KEY=<ipinfo.io api key>
 - CANARY_SMTP_PORT=587
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
 - LOG_FILE=switchboard.log
