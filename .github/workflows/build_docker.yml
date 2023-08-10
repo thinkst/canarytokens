@@ -78,7 +78,7 @@ jobs:
             CACHE_BUSTER_COMMIT=${{ github.sha }}
 
   dev-deploy:
-    if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev_v3'
+    if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev'
     runs-on: [self-hosted, dev]
     needs: build
     steps:
@@ -88,7 +88,7 @@ jobs:
           ./canarytokensdb_s3backup.sh
 
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev_v3/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3-letsencrypt.yml.tpl > docker-compose-v3-letsencrypt.yml
+          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3-letsencrypt.yml.tpl > docker-compose-v3-letsencrypt.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
           sudo docker compose -f docker-compose-v3-letsencrypt.yml pull
