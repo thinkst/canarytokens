@@ -18,7 +18,7 @@ from hashlib import md5
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, parse_obj_as, root_validator
+from pydantic import BaseModel, Field, parse_obj_as, root_validator
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (
@@ -81,18 +81,18 @@ class Canarydrop(BaseModel):
 
     # Alerting details
     alert_email_enabled: bool = False
-    alert_email_recipient: Union[EmailStr, None, Literal[""]]
+    alert_email_recipient: Optional[str]
     alert_sms_enabled: bool = False
     # TODO: validate sms number
     alert_sms_recipient: Optional[str] = None
     alert_webhook_enabled: bool = False
-    alert_webhook_url: Union[HttpUrl, None, Literal[""]]
+    alert_webhook_url: Optional[str]
 
     # web image specific stuff
     web_image_enabled: bool = False
     web_image_path: Optional[Path]
     # Slow/Fast redirect specific stuff
-    redirect_url: Optional[HttpUrl]
+    redirect_url: Optional[str]
     # Clonedsite specific stuff
     clonedsite: Optional[str]
     # Kubeconfig specific stuff
@@ -162,19 +162,6 @@ class Canarydrop(BaseModel):
             {getattr(values["triggered_details"], "token_type")} != {values["type"]}
             """
             )
-        return values
-
-    @root_validator(pre=True)
-    def _validate_redirect_url(cls, values):
-        """
-        Ensure redirect url is present if it's a fast or
-        slow redirect drop.
-        """
-        if values["type"] in [TokenTypes.FAST_REDIRECT, TokenTypes.SLOW_REDIRECT]:
-            if not values.get("redirect_url", None):
-                raise ValueError(f"redirect_url is required for {values['type']} drop")
-        else:
-            values.pop("redirect_url", None)
         return values
 
     class Config:

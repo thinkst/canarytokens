@@ -37,6 +37,7 @@ from pydantic import (
     EmailStr,
     Field,
     HttpUrl,
+    ValidationError,
     root_validator,
     validator,
 )
@@ -1022,7 +1023,7 @@ class GeoIPBogonInfo(BaseModel):
 
 class GeoIPInfo(BaseModel):
     # DESIGN/TODO: This is based on 3rd party response. Make all fields optional / match the api we expecting
-    loc: Optional[Tuple[float, float]]  # '-33.9778,18.6167'
+    loc: Tuple[float, float]  # '-33.9778,18.6167'
     org: Optional[str]  # 'AS29975 Vodacom'
     city: Optional[str]  # 'Cape Town'
     # TODO: Validate country code pycountry?? add a dependency for this??
@@ -1038,6 +1039,12 @@ class GeoIPInfo(BaseModel):
     ]  # {'route': '41.1.0.0/18', 'type': 'isp', 'asn': 'AS29975', 'domain': 'vodacom.com', 'name': 'Vodacom'}
     readme: Optional[str]
     # bogon
+
+    @root_validator(pre=True)
+    def validator_bogon(cls, values):
+        if values and "bogon" in values:
+            raise ValidationError("Bogon implies GeoIPBogonInfo not GeoIPInfo")
+        return values
 
     @validator("loc", pre=True)
     def validator_loc(loc: Union[str, list]) -> Tuple[float, float]:  # type: ignore

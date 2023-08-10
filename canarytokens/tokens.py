@@ -543,7 +543,10 @@ class Canarytoken(object):
     def _get_response_for_fast_redirect(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
-        return redirectTo(str(canarydrop.redirect_url).encode(), request)
+        redirect_url = canarydrop.redirect_url
+        if redirect_url and ":" not in redirect_url:
+            redirect_url = "http://" + redirect_url
+        return redirectTo(redirect_url.encode(), request)
 
     @staticmethod
     def _get_info_for_slow_redirect(request):
@@ -560,11 +563,14 @@ class Canarytoken(object):
     def _get_response_for_slow_redirect(
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
+        redirect_url = canarydrop.redirect_url
+        if redirect_url and ":" not in redirect_url:
+            redirect_url = "http://" + redirect_url
         template = get_template_env().get_template("browser_scanner.html")
         return template.render(
             key=canarydrop.triggered_details.hits[-1].time_of_hit,
             canarytoken=canarydrop.canarytoken.value(),
-            redirect_url=str(canarydrop.redirect_url),
+            redirect_url=redirect_url,
         ).encode()
 
     @staticmethod
