@@ -312,7 +312,7 @@ class Canarytoken(object):
             computer_name = computer_name.decode()
 
         # TODO: refactor (make nice) and make 'x' a variable eg: _l4j_hostname_marker.
-        if len(computer_name) <= 1 or not computer_name.startswith("x"):
+        if len(computer_name) <= 1:
             computer_name = "Not Obtained"
         else:
             computer_name = computer_name[1:]
