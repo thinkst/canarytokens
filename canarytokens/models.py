@@ -1073,7 +1073,8 @@ class GeoIPInfo(BaseModel):
             exclude_none=exclude_none,
         )
         # V2 Compatible serialization
-        data["loc"] = ",".join([f"{o:.4f}" for o in self.loc])
+        if self.loc:
+            data["loc"] = ",".join([f"{o:.4f}" for o in self.loc])
         return data
 
     class Config:
