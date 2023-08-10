@@ -50,7 +50,7 @@ desktop_ini_browsing_pattern = re.compile(
     r"([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.",
     re.IGNORECASE,
 )
-log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
+log4_shell_pattern = re.compile(r"x([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
 cmd_process_pattern = re.compile(r"(.+)\.UN\.(.+)\.CMD\.", re.IGNORECASE)
 
 GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"  # 1x1 GIF
