@@ -37,6 +37,7 @@ from pydantic import (
     EmailStr,
     Field,
     HttpUrl,
+    ValidationError,
     root_validator,
     validator,
 )
@@ -1024,20 +1025,26 @@ class GeoIPInfo(BaseModel):
     # DESIGN/TODO: This is based on 3rd party response. Make all fields optional / match the api we expecting
     loc: Tuple[float, float]  # '-33.9778,18.6167'
     org: Optional[str]  # 'AS29975 Vodacom'
-    city: str  # 'Cape Town'
+    city: Optional[str]  # 'Cape Town'
     # TODO: Validate country code pycountry?? add a dependency for this??
-    country: str  # 'ZA',
-    region: str  # 'Western Cape'
+    country: Optional[str]  # 'ZA',
+    region: Optional[str]  # 'Western Cape'
     #  TODO: validate this domain
     hostname: Optional[str]  # 'dnsinfo1-cte-pt.3g.vodacom.co.za
     ip: str  # '41.1.47.253
-    timezone: str  # 'Africa/Johannesburg
+    timezone: Optional[str]  # 'Africa/Johannesburg
     postal: Optional[str]  # '7100 or EC1A
     asn: Optional[
         ASN
     ]  # {'route': '41.1.0.0/18', 'type': 'isp', 'asn': 'AS29975', 'domain': 'vodacom.com', 'name': 'Vodacom'}
     readme: Optional[str]
     # bogon
+
+    @root_validator(pre=True)
+    def validator_bogon(cls, values):
+        if values and "bogon" in values:
+            raise ValidationError("Bogon implies GeoIPBogonInfo not GeoIPInfo")
+        return values
 
     @validator("loc", pre=True)
     def validator_loc(loc: Union[str, list]) -> Tuple[float, float]:  # type: ignore
@@ -1073,7 +1080,8 @@ class GeoIPInfo(BaseModel):
             exclude_none=exclude_none,
         )
         # V2 Compatible serialization
-        data["loc"] = ",".join([f"{o:.4f}" for o in self.loc])
+        if self.loc:
+            data["loc"] = ",".join([f"{o:.4f}" for o in self.loc])
         return data
 
     class Config:
@@ -1092,14 +1100,14 @@ class ServiceInfo(BaseModel):
 
 class BrowserInfo(BaseModel):
     mimetypes: list[str]
-    vendor: list[str]
-    language: list[str]
+    vendor: Optional[list[str]]
+    language: Optional[list[str]]
     enabled: list[str]
     installed: list[str]
-    platform: list[str]
+    platform: Optional[list[str]]
     version: list[str]
     os: list[str]
-    browser: list[str]
+    browser: Optional[list[str]]
     r: Optional[list[str]]
     l: Optional[list[str]]
 
@@ -1399,9 +1407,9 @@ class PDFTokenHit(TokenHit):
 
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
-    last4: str
-    amount: str
-    merchant: str
+    last4: Optional[str]
+    amount: Optional[str]
+    merchant: Optional[str]
 
 
 class CMDTokenHit(TokenHit):
@@ -1410,18 +1418,16 @@ class CMDTokenHit(TokenHit):
 
 class SMTPTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-    mail: SMTPMailField
+    mail: Optional[SMTPMailField]
 
 
 class KubeconfigTokenHit(TokenHit):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
     location: str
-    useragent: str
 
 
 class MsWordDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
-    useragent: str
 
 
 class WindowsDirectoryTokenHit(TokenHit):
@@ -1431,7 +1437,6 @@ class WindowsDirectoryTokenHit(TokenHit):
 
 class MsExcelDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
-    useragent: Optional[str]
 
 
 class SvnTokenHit(TokenHit):
@@ -1444,7 +1449,6 @@ class SQLServerTokenHit(TokenHit):
 
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
-    useragent: str
     request_headers: Optional[dict]
     request_args: Optional[dict]
     additional_info: AdditionalInfo = AdditionalInfo()
@@ -1456,7 +1460,6 @@ class WebBugTokenHit(TokenHit):
 class CustomImageTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB_IMAGE] = TokenTypes.WEB_IMAGE
     additional_info: AdditionalInfo = AdditionalInfo()
-    useragent: Optional[str]
 
 
 class ClonedWebTokenHit(TokenHit):
@@ -1470,7 +1473,6 @@ class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
     referer: Optional[Union[str, bytes]]
     location: Optional[Union[str, bytes]]
-    useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
@@ -1478,7 +1480,6 @@ class FastRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
     referer: Optional[Union[str, bytes]]
     location: Optional[Union[str, bytes]]
-    useragent: str
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
@@ -1489,7 +1490,6 @@ class Log4ShellTokenHit(TokenHit):
 
 class QRCodeTokenHit(TokenHit):
     token_type: Literal[TokenTypes.QR_CODE] = TokenTypes.QR_CODE
-    useragent: Optional[str]
 
 
 class CustomBinaryTokenHit(TokenHit):
@@ -1514,11 +1514,10 @@ class WireguardTokenHit(TokenHit):
 
 
 class LegacyTokenHit(TokenHit):
+    # excel; word; image; QR;
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
     # zip;
     src_data: Optional[dict]
-    # excel; word; image; QR;
-    useragent: Optional[str]
     # web
     request_headers: Optional[dict]
     request_args: Optional[dict]

@@ -270,7 +270,7 @@ def add_canarydrop_hit(token_hit: models.AnyTokenHit, canarytoken):
     if token_history.token_type != token_hit.token_type:
         # Design: This might not hold in the future but for now this is true.
         raise ValueError(
-            f"All hits must be of a single type. Given {token_hit.token_type}; existsing {token_history.token_type}"
+            f"All hits must be of a single type. Given {token_hit.token_type}; existing {token_history.token_type}"
         )
 
     token_history.hits.append(token_hit)

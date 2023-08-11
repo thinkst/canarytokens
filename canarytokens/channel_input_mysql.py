@@ -75,17 +75,17 @@ class CanaryMySQLProtocol(Protocol):
         end_of_locale = start_of_locale + 4
         if len(buf) <= end_of_locale + 1:
             return AdditionalInfo()
-        locale = buf[start_of_locale : end_of_locale + 1].decode()  # noqa: E203
-        host_buf = buf[end_of_locale + 1 :]  # noqa: E203
-        if b"\x00" in host_buf:
-            host_buf = host_buf[: host_buf.index(b"\x00")]
         try:
+            locale = buf[start_of_locale : end_of_locale + 1].decode()  # noqa: E203
+            host_buf = buf[end_of_locale + 1 :]  # noqa: E203
+            if b"\x00" in host_buf:
+                host_buf = host_buf[: host_buf.index(b"\x00")]
             hostname = host_buf.decode()
             return AdditionalInfo(
                 mysql_client={"hostname": [hostname], "locale": [locale]}
             )
         except Exception as e:
-            log.error(f"Error getting additional info: {e} from buf: {buf!r}")
+            log.info(f"Error getting additional info: {e} from buf: {buf!r}")
         return AdditionalInfo()
 
 
