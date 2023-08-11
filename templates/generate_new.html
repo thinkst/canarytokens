@@ -352,6 +352,11 @@
                 </div>
                 <div class="advice">
                   <p>Once installed (with admin permissions) you'll get an alert whenever someone (or someone's code) runs your sensitive process. It will automatically provide the command used, computer the command ran on, and the user invoking the command.</p>
+                  <p>In order to ensure that the token fires for both 32-bit and 64-bit executables, we suggest installing by running the following commands:</p>
+                  <p>
+                    <pre>reg import FILENAME /reg:64</pre>
+                    <pre>reg import FILENAME /reg:32</pre>
+                  </p>
                   <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Ideal candidates are executables often used by attackers but seldom used by regular users (e.g., whoami.exe, net.exe, wmic.exe, etc.).</li>
