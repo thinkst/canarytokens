@@ -133,8 +133,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
     def render_POST(self, request: Request):
         try:
             token = Canarytoken(value=request.path)
-        except NoCanarytokenFound as e:
-            log.error(f"Failed to get token from {request.path=}. Error: {e}")
+        except NoCanarytokenFound:
+            log.info(f"No token found in {request.path=}.")
             return b"failed"
 
         try:
