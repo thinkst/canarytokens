@@ -28,7 +28,8 @@ from canarytokens.models import (
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
-from canarytokens.utils import retry_on_returned_error
+
+# from canarytokens.utils import retry_on_returned_error
 
 log = Logger()
 
@@ -45,7 +46,7 @@ def should_retry_mailgun(success: bool, message_id: str) -> bool:
     return not success
 
 
-@retry_on_returned_error(retry_if=should_retry_sendgrid)
+# @retry_on_returned_error(retry_if=should_retry_sendgrid)
 def sendgrid_send(
     *,
     api_key: SecretStr,
@@ -98,7 +99,7 @@ def sendgrid_send(
         return sent_successfully, message_id
 
 
-@retry_on_returned_error(retry_if=should_retry_mailgun)
+# @retry_on_returned_error(retry_if=should_retry_mailgun)
 def mailgun_send(
     *,
     email_address: EmailStr,
