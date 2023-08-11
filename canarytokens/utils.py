@@ -1,8 +1,6 @@
 import subprocess
-import time
-from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Literal, Tuple, Union
+from typing import Any, Literal, Union
 
 
 def coerce_to_float(value: Any) -> Union[Literal[False], float]:
@@ -34,33 +32,33 @@ def get_deployed_commit_sha(commit_sha_file: Path = Path("/COMMIT_SHA")):
     return commit_sha
 
 
-def retry_on_returned_error(
-    retry_if: Callable,
-    retry_intervals: Tuple[float] = (3.0, 3.0, 5.0, 5.0),
-) -> Callable:
-    """Decorator to add retries to functions that depend on external systems.
+# def retry_on_returned_error(
+#     retry_if: Callable,
+#     retry_intervals: Tuple[float] = (3.0, 3.0, 5.0, 5.0),
+# ) -> Callable:
+#     """Decorator to add retries to functions that depend on external systems.
 
 
-    Args:
-        retry_if (Callable):
-        retry_intervals (Tuple[int]): Tuple of seconds to wait before retrying. Defaults (3.0, 3.0, 5.0, 5.0)
-    Returns:
-        Callable: Returns the wrapped function.
-    """
+#     Args:
+#         retry_if (Callable):
+#         retry_intervals (Tuple[int]): Tuple of seconds to wait before retrying. Defaults (3.0, 3.0, 5.0, 5.0)
+#     Returns:
+#         Callable: Returns the wrapped function.
+#     """
 
-    def inner(f: Callable) -> Callable:
-        @wraps(f)
-        def wrapper(*args, **kwargs):  # type: ignore
-            for interval in retry_intervals:
-                res = f(*args, **kwargs)
-                if retry_if(*res):
-                    # Blocking sleep!
-                    time.sleep(interval)
-                    continue
-                else:
-                    return res
-            return res
+#     def inner(f: Callable) -> Callable:
+#         @wraps(f)
+#         def wrapper(*args, **kwargs):  # type: ignore
+#             for interval in retry_intervals:
+#                 res = f(*args, **kwargs)
+#                 if retry_if(*res):
+#                     # Blocking sleep!
+#                     time.sleep(interval)
+#                     continue
+#                 else:
+#                     return res
+#             return res
 
-        return wrapper
+#         return wrapper
 
-    return inner
+#     return inner

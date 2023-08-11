@@ -34,16 +34,16 @@ from canarytokens.switchboard import Switchboard
 log = Logger()
 
 
-def should_retry_sendgrid(success: bool, message_id: str) -> bool:
-    if not success:
-        log.error("Failed to send mail via sendgrid.")
-    return not success
+# def should_retry_sendgrid(success: bool, message_id: str) -> bool:
+#     if not success:
+#         log.error("Failed to send mail via sendgrid.")
+#     return not success
 
 
-def should_retry_mailgun(success: bool, message_id: str) -> bool:
-    if not success:
-        log.error("Failed to send mail via mailgun.")
-    return not success
+# def should_retry_mailgun(success: bool, message_id: str) -> bool:
+#     if not success:
+#         log.error("Failed to send mail via mailgun.")
+#     return not success
 
 
 # @retry_on_returned_error(retry_if=should_retry_sendgrid)
