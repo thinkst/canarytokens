@@ -158,8 +158,10 @@ class Canarytoken(object):
         else:
             return {}
 
-    # @staticmethod
-    # def _sql_server_data(matches: Match[AnyStr])->Dict[str, str]:
+    @staticmethod
+    def _sql_server_username(matches: Match[AnyStr]) -> dict[str, str]:
+        return {}
+
     #     match = matches.group(1)
     #     if isinstance(match, str):
     #         username:str = match
@@ -173,7 +175,7 @@ class Canarytoken(object):
     #     data["sql_username"] = base64.b64decode(
     #         username.replace(".", "").replace("-", "="),
     #     ).decode()
-    #     return data
+    # return {"src_data": data}
 
     # @staticmethod
     # def _mysql_data(matches: Match[AnyStr])->Dict[str,str]:

@@ -131,6 +131,12 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['log4_shell_computer_name'] | e}}</code></td>
                                       </tr>
                       {% endif %}
+                      {% if BasicDetails['sql_username'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">SQL Server username</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['sql_username'] | e}}</code></td>
+                                      </tr>
+                      {% endif %}
                       {% if BasicDetails['cmd_computer_name'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command hostname</td>

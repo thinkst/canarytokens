@@ -174,6 +174,12 @@ class EmailOutputChannel(OutputChannel):
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
 
+        if (
+            BasicDetails["additional_data"]
+            and "src_data" in BasicDetails["additional_data"]
+        ):
+            BasicDetails["src_data"] = BasicDetails["additional_data"].pop("src_data")
+
         additional_data_keys = (
             list(BasicDetails["additional_data"].keys())
             if BasicDetails["additional_data"]
