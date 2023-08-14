@@ -58,7 +58,6 @@ GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff
 # TODO: we can do better than this.
 # ??
 source_data_extractors = {
-    "sql_server_username": sql_server_username,
     "mysql_username": mysql_username,
     "linux_inotify": linux_inotify,
     "generic": generic,
@@ -67,6 +66,7 @@ source_data_extractors = {
     "desktop_ini_browsing": desktop_ini_browsing_pattern,
     "log4_shell": log4_shell_pattern,
     "cmd_process": cmd_process_pattern,
+    "sql_server_username": sql_server_username,
 }
 
 # DESIGN: keeping the lib and apps separate called for some
