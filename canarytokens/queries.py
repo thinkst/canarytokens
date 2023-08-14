@@ -10,7 +10,7 @@ from ipaddress import IPv4Address
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
 import requests
-from pydantic import EmailStr, HttpUrl, parse_obj_as
+from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
 
 from canarytokens import canarydrop as cand
@@ -64,7 +64,11 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
         canarydrop["user"] = models.User(name=canarydrop["user"])
 
     canarydrop["canarytoken"] = canarytoken
-    return cand.Canarydrop(**canarydrop)
+    try:
+        return cand.Canarydrop(**canarydrop)
+    except ValidationError as e:
+        log.error(f"Failed to validate drop {canarytoken.value()}: Error: {e}")
+        raise e
 
 
 def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop:

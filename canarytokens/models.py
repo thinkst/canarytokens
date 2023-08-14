@@ -1215,7 +1215,7 @@ class SMTPHeloField(BaseModel):
 
 
 class SMTPMailField(BaseModel):
-    sender: EmailStr
+    sender: Optional[EmailStr]
     recipients: List[EmailStr]
     links: List[str]
     headers: List[str]
