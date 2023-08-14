@@ -376,7 +376,7 @@ def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
         resp = requests.get(
             "http://ipinfo.io/" + ip + "/json",
             auth=(_ip_info_api_key, "") if _ip_info_api_key else None,
-            timeout=(3, 3),
+            timeout=(2, 2),
         )
         resp.raise_for_status()
         info = resp.json()
