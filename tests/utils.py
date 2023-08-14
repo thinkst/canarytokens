@@ -74,8 +74,8 @@ else:
 
 if strtobool(os.getenv("LIVE", "False")):
     v3 = V3(
-        canarytokens_sld="honeypdfs.com",
-        canarytokens_domain="honeypdfs.net",
+        canarytokens_sld="canarytokens.org",
+        canarytokens_domain="canarytokens.org",
         canarytokens_dns_port=53,
         scheme="https",
         canarytokens_http_port=-1,
