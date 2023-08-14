@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import json
 import random
 import re
@@ -207,8 +208,8 @@ class Canarytoken(object):
     @staticmethod
     def _generic(matches: Match[AnyStr]) -> dict[str, str]:
         data = {}
-        generic_data = matches.group(1)
-        generic_data = generic_data.replace(".", "").upper()
+        incoming_data = matches.group(1)
+        generic_data = incoming_data.replace(".", "").upper()
         # this channel doesn't have padding, add if needed
         # TODO: put this padding logic into utils somewhere.
         generic_data_padded = generic_data.ljust(
@@ -218,8 +219,8 @@ class Canarytoken(object):
             # TODO: this can smuggle in all sorts of data we need to sanitise
             #
             data["generic_data"] = base64.b32decode(generic_data_padded)
-        except TypeError:
-            data["generic_data"] = f"Unrecoverable data: {generic_data_padded}"
+        except (TypeError, binascii.Error):
+            data["generic_data"] = f"Unrecoverable data: {incoming_data}"
         return {"src_data": data}
 
     @staticmethod
