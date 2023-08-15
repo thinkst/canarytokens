@@ -230,7 +230,13 @@ class ChannelDNS(InputChannel):
             hit_info=src_data,
         )
         # DESIGN: add all details to redis here.
-        canarydrop.add_canarydrop_hit(token_hit=token_hit)
+        try:
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+        except Exception as e:
+            log.error(
+                f"Failed to add hit to token {canarydrop.canarytoken.value()}: {token_hit}"
+            )
+            raise e
 
         self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
 

@@ -8,7 +8,7 @@ from twisted.logger import Logger
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_MYSQL
-from canarytokens.exceptions import NoCanarytokenFound
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
 from canarytokens.models import AdditionalInfo, MySQLTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.switchboard import Switchboard
@@ -29,7 +29,7 @@ class CanaryMySQLProtocol(Protocol):
         self.transport.write(MYSQL_RSP)
 
     def dataReceived(self, data: bytes) -> None:
-        log.info("mysql data: {}", data=data)
+        log.debug("mysql data: {}", data=data)
         self.buf += data
         if len(self.buf) < MIN_LENGTH:
             return
@@ -38,25 +38,30 @@ class CanaryMySQLProtocol(Protocol):
         try:
             canarydrop, hit = self.handleQuery(src_host, self.buf)
             self.factory.dispatch(canarydrop=canarydrop, token_hit=hit)
-            print(f"alert dispatched for token {canarydrop.canarytoken.value()}: {hit}")
-        except (NoCanarytokenFound, Exception) as e:
+        except (ValueError, NoCanarytokenFound, NoCanarytokenPresent) as e:
+            log.info(f"{e}")
+        except Exception as e:
             log.error(f"Error in MySQL channel: {e} | Data received: {data}")
         self.transport.loseConnection()
 
     @staticmethod
     def handleQuery(src_host: str, buf: bytes) -> Tuple[Canarydrop, MySQLTokenHit]:
-        capability_flags, max_packet_sz, char_set, username = struct.Struct(
-            "!4s4sc27x25s"
-        ).unpack_from(buf)
+        try:
+            capability_flags, max_packet_sz, char_set, username = struct.Struct(
+                "!4s4sc27x25s"
+            ).unpack_from(buf)
+        except struct.error:
+            raise ValueError("Failed to decode MySQL query.")
 
         log.info(f"MySQL Query from {src_host}: {username}")
-
-        additional_info = CanaryMySQLProtocol.additionalInfo(buf)
-        print(f"mysql token additional_info: {additional_info}")
         token = Canarytoken(value=username)
         canarydrop = get_canarydrop(canarytoken=token)
-        if not canarydrop:
-            raise ValueError("Canarydrop not found")
+
+        try:
+            additional_info = CanaryMySQLProtocol.additionalInfo(buf)
+        except Exception as e:
+            log.info(f"Error getting additional info: {e} from buf: {buf}")
+            additional_info = AdditionalInfo()
 
         hit: MySQLTokenHit = token.create_token_hit(
             token_type=TokenTypes.MY_SQL,
@@ -65,7 +70,6 @@ class CanaryMySQLProtocol(Protocol):
             hit_info={"additional_info": additional_info.dict()},
         )
         canarydrop.add_canarydrop_hit(token_hit=hit)
-        print(f"mysql token hit: {hit}")
 
         return canarydrop, hit
 
@@ -75,18 +79,12 @@ class CanaryMySQLProtocol(Protocol):
         end_of_locale = start_of_locale + 4
         if len(buf) <= end_of_locale + 1:
             return AdditionalInfo()
-        try:
-            locale = buf[start_of_locale : end_of_locale + 1].decode()  # noqa: E203
-            host_buf = buf[end_of_locale + 1 :]  # noqa: E203
-            if b"\x00" in host_buf:
-                host_buf = host_buf[: host_buf.index(b"\x00")]
-            hostname = host_buf.decode()
-            return AdditionalInfo(
-                mysql_client={"hostname": [hostname], "locale": [locale]}
-            )
-        except Exception as e:
-            log.info(f"Error getting additional info: {e} from buf: {buf!r}")
-        return AdditionalInfo()
+        locale = buf[start_of_locale : end_of_locale + 1].decode()  # noqa: E203
+        host_buf = buf[end_of_locale + 1 :]  # noqa: E203
+        if b"\x00" in host_buf:
+            host_buf = host_buf[: host_buf.index(b"\x00")]
+        hostname = host_buf.decode()
+        return AdditionalInfo(mysql_client={"hostname": [hostname], "locale": [locale]})
 
 
 class CanaryMySQLFactory(InputChannel, Factory):
