@@ -547,9 +547,11 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
         redirect_url = canarydrop.redirect_url
-        if redirect_url and ":" not in redirect_url:
-            redirect_url = "http://" + redirect_url
-        return redirectTo(redirect_url.encode(), request)
+        if redirect_url:
+            if ":" not in redirect_url:
+                redirect_url = "http://" + redirect_url
+            return redirectTo(redirect_url.encode(), request)
+        return GIF
 
     @staticmethod
     def _get_info_for_slow_redirect(request):
