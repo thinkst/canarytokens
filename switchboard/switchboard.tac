@@ -62,7 +62,10 @@ def sentry_observer(event):
     # DESIGN: If sentry remains choice for Application Monitoring we can rework this.
     #         Note: Twisted logging and sentry appear to be slightly at odds.
     #         Secondly: Twisted observers should be non-blocking but that assumption has not been tested / measured.
-    if event.get("log_level") == LogLevel.critical and "log_failure" in event:
+    if (
+        event.get("log_level") in [LogLevel.critical, LogLevel.error]
+        and "log_failure" in event
+    ):
         failure = event["log_failure"]
     elif event.get("isError") and "failure" in event:
         failure = event["failure"]
