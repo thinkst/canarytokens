@@ -54,6 +54,8 @@ desktop_ini_browsing_pattern = re.compile(
 log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
 cmd_process_pattern = re.compile(r"(.+)\.UN\.(.+)\.CMD\.", re.IGNORECASE)
 
+# to validate decoded sql username, not a data extractor:
+sql_decoded_username = re.compile(r"[A-Za-z0-9\!\#\'\-\.\\\^\_\~]+")
 GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"  # 1x1 GIF
 
 # TODO: we can do better than this.
@@ -161,22 +163,28 @@ class Canarytoken(object):
 
     @staticmethod
     def _sql_server_username(matches: Match[AnyStr]) -> dict[str, str]:
-        return {}
+        # import rpdb; rpdb.Rpdb().set_trace()
+        match = matches.group(1)
+        if isinstance(match, str):
+            raw_username: str = match
+        elif isinstance(match, bytes):
+            raw_username: str = match.decode()
+        else:
+            raw_username: str = ""
+        data = {}
+        try:
+            decoded_username = base64.b64decode(
+                raw_username.replace(".", "").replace("-", "="),
+            ).decode()
+            username_matches = sql_decoded_username.match(decoded_username)
+            if username_matches:
+                data["sql_username"] = username_matches.group()
+            else:
+                data["sql_username"] = f"Decoded base-64: {decoded_username}"
+        except Exception:
+            data["sql_username"] = f"Failed to decode. Received: {raw_username}"
 
-    #     match = matches.group(1)
-    #     if isinstance(match, str):
-    #         username:str = match
-    #     elif isinstance(match,bytes):
-    #         username:str = match.decode()
-    #     else:
-    #         username:str = ""
-    #     data = {}
-    #     # TODO: decoded base64 can contain all sorts of character
-    #     # we need to sanitise this as it's user input!!!
-    #     data["sql_username"] = base64.b64decode(
-    #         username.replace(".", "").replace("-", "="),
-    #     ).decode()
-    # return {"src_data": data}
+        return {"src_data": data} if data else {}
 
     # @staticmethod
     # def _mysql_data(matches: Match[AnyStr])->Dict[str,str]:
