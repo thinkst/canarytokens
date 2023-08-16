@@ -375,6 +375,10 @@ def get_geoinfo(ip: str):
 
 
 def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
+    """
+    Performs IP info lookup if cache check failed.
+    Don't use directly, use get_geoinfo() instead.
+    """
     try:
         # This should be async
         resp = requests.get(
