@@ -60,7 +60,7 @@ class CanaryMySQLProtocol(Protocol):
         try:
             additional_info = CanaryMySQLProtocol.additionalInfo(buf)
         except Exception as e:
-            log.info(f"Error getting additional info: {e} from buf: {buf}")
+            log.failure(f"Error getting additional info: {e} from buf: {buf}")
             additional_info = AdditionalInfo()
 
         hit: MySQLTokenHit = token.create_token_hit(

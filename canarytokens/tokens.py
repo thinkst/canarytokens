@@ -163,7 +163,6 @@ class Canarytoken(object):
 
     @staticmethod
     def _sql_server_username(matches: Match[AnyStr]) -> dict[str, str]:
-        # import rpdb; rpdb.Rpdb().set_trace()
         match = matches.group(1)
         if isinstance(match, str):
             raw_username: str = match
