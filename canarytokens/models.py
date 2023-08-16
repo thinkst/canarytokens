@@ -1215,12 +1215,12 @@ class SMTPHeloField(BaseModel):
 
 
 class SMTPMailField(BaseModel):
-    sender: Optional[EmailStr]
-    recipients: List[EmailStr]
-    links: List[str]
-    headers: List[str]
+    sender: Optional[str]
+    recipients: list[str]
+    links: list[str]
+    headers: list[str]
     helo: SMTPHeloField
-    attachments: List[str]
+    attachments: list[str]
 
     def dict(
         self,

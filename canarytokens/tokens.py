@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import json
 import random
 import re
@@ -53,20 +54,19 @@ desktop_ini_browsing_pattern = re.compile(
 log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
 cmd_process_pattern = re.compile(r"(.+)\.UN\.(.+)\.CMD\.", re.IGNORECASE)
 
+# to validate decoded sql username, not a data extractor:
+sql_decoded_username = re.compile(r"[A-Za-z0-9\!\#\'\-\.\\\^\_\~]+")
 GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"  # 1x1 GIF
 
 # TODO: we can do better than this.
 # ??
 source_data_extractors = {
-    "sql_server_username": sql_server_username,
-    "mysql_username": mysql_username,
     "linux_inotify": linux_inotify,
     "generic": generic,
-    "dtrace_process": dtrace_process,
-    "dtrace_file_open": dtrace_file_open,
     "desktop_ini_browsing": desktop_ini_browsing_pattern,
     "log4_shell": log4_shell_pattern,
     "cmd_process": cmd_process_pattern,
+    "sql_server_username": sql_server_username,
 }
 
 # DESIGN: keeping the lib and apps separate called for some
@@ -158,55 +158,51 @@ class Canarytoken(object):
         else:
             return {}
 
-    # @staticmethod
-    # def _sql_server_data(matches: Match[AnyStr])->Dict[str, str]:
-    #     match = matches.group(1)
-    #     if isinstance(match, str):
-    #         username:str = match
-    #     elif isinstance(match,bytes):
-    #         username:str = match.decode()
-    #     else:
-    #         username:str = ""
-    #     data = {}
-    #     # TODO: decoded base64 can contain all sorts of character
-    #     # we need to sanitise this as it's user input!!!
-    #     data["sql_username"] = base64.b64decode(
-    #         username.replace(".", "").replace("-", "="),
-    #     ).decode()
-    #     return data
+    @staticmethod
+    def _sql_server_username(matches: Match[AnyStr]) -> dict[str, str]:
+        match = matches.group(1)
+        if isinstance(match, str):
+            raw_username: str = match
+        elif isinstance(match, bytes):
+            raw_username: str = match.decode()
+        else:
+            raw_username: str = ""
+        data = {}
+        try:
+            decoded_username = base64.b64decode(
+                raw_username.replace(".", "").replace("-", "="),
+            ).decode()
+            username_matches = sql_decoded_username.match(decoded_username)
+            if username_matches:
+                data["sql_username"] = username_matches.group()
+            else:
+                data["sql_username"] = f"Decoded base-64: {decoded_username}"
+        except Exception:
+            data["sql_username"] = f"Failed to decode. Received: {raw_username}"
 
-    # @staticmethod
-    # def _mysql_data(matches: Match[AnyStr])->Dict[str,str]:
-    #     match = matches.group(1)
-    #     if isinstance(match, str):
-    #         username:str = match
-    #     elif isinstance(match,bytes):
-    #         username:str = match.decode()
-    #     else:
-    #         username:str = ""
-    #     data = {}
-    #     # TODO: decoded base64 can contain all sorts of character
-    #     # we need to sanitise this as it's user input!!!
-    #     data["mysql_username"] = base64.b32decode(
-    #         username.replace(".", "").replace("-", "=").upper(),
-    #     ).decode()
-    #     return data
+        return {"src_data": data} if data else {}
 
-    # @staticmethod
-    # def _linux_inotify_data(matches: Match[AnyStr]) -> Dict[str, str]:
-    #     data = {}
-    #     filename = matches.group(1)
-    #     filename = filename.replace(b".", b"").upper()
-    #     # this channel doesn't have padding, add if needed
-    #     filename += "=" * int((math.ceil(float(len(filename)) / 8) * 8 - len(filename)))
-    #     data["linux_inotify_filename_access"] = base64.b32decode(filename)
-    #     return data
+    @staticmethod
+    def _linux_inotify(matches: Match[AnyStr]) -> dict[str, str]:
+        match = matches.group(1)
+        if isinstance(match, str):
+            filename: str = match.encode()
+        elif isinstance(match, bytes):
+            filename: str = match
+        else:
+            filename: str = b""
+        data = {}
+        filename = filename.replace(b".", b"").upper()
+        # this channel doesn't have padding, add if needed
+        filename += b"=" * ((8 - len(filename)) % 8)
+        data["linux_inotify_filename_access"] = base64.b32decode(filename)
+        return {"src_data": data} if data else {}
 
     @staticmethod
     def _generic(matches: Match[AnyStr]) -> dict[str, str]:
         data = {}
-        generic_data = matches.group(1)
-        generic_data = generic_data.replace(".", "").upper()
+        incoming_data = matches.group(1)
+        generic_data = incoming_data.replace(".", "").upper()
         # this channel doesn't have padding, add if needed
         # TODO: put this padding logic into utils somewhere.
         generic_data_padded = generic_data.ljust(
@@ -216,66 +212,9 @@ class Canarytoken(object):
             # TODO: this can smuggle in all sorts of data we need to sanitise
             #
             data["generic_data"] = base64.b32decode(generic_data_padded)
-        except TypeError:
-            data["generic_data"] = f"Unrecoverable data: {generic_data_padded}"
+        except (TypeError, binascii.Error):
+            data["generic_data"] = f"Unrecoverable data: {incoming_data}"
         return {"src_data": data}
-
-    @staticmethod
-    def _dtrace_process_data(matches: Match[AnyStr]) -> dict[str, str]:
-        raise NotImplementedError("Please implement me! ")
-        # data = {}
-        # try:
-        #     data['dtrace_uid'] = base64.b64decode(uid)
-        # except:
-        #     log.error(
-        #         'Could not retrieve uid from dtrace '
-        #         + 'process alert: {uid}'.format(uid=uid),
-        #     )
-        # try:
-        #     data['dtrace_hostname'] = base64.b64decode(hostname.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve hostname from dtrace '
-        #         + 'process alert: {hostname}'.format(hostname=hostname),
-        #     )
-        # try:
-        #     data['dtrace_command'] = base64.b64decode(command.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve command from dtrace '
-        #         + 'process alert: {command}'.format(command=command),
-        #     )
-
-        # return data
-
-    @staticmethod
-    def _dtrace_file_open(matches: Match[AnyStr]) -> dict[str, str]:
-        raise NotImplementedError("Please implement me")
-        # data = {}
-        # try:
-        #     data['dtrace_uid'] = base64.b64decode(uid)
-        # except:
-        #     log.error(
-        #         'Could not retrieve uid from dtrace '
-        #         + 'file open alert: {uid}'.format(uid=uid),
-        #     )
-
-        # try:
-        #     data['dtrace_hostname'] = base64.b64decode(hostname.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve hostname from dtrace '
-        #         + 'process alert: {hostname}'.format(hostname=hostname),
-        #     )
-        # try:
-        #     data['dtrace_filename'] = base64.b64decode(filename.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve filename from dtrace '
-        #         + 'file open alert: {filename}'.format(filename=filename),
-        #     )
-
-        # return data
 
     @staticmethod
     def _cmd_process(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
@@ -544,9 +483,11 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
         redirect_url = canarydrop.redirect_url
-        if redirect_url and ":" not in redirect_url:
-            redirect_url = "http://" + redirect_url
-        return redirectTo(redirect_url.encode(), request)
+        if redirect_url:
+            if ":" not in redirect_url:
+                redirect_url = "http://" + redirect_url
+            return redirectTo(redirect_url.encode(), request)
+        return GIF
 
     @staticmethod
     def _get_info_for_slow_redirect(request):

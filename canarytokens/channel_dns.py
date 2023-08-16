@@ -180,6 +180,12 @@ class ChannelDNS(InputChannel):
         Check if the query should be answered dynamically, otherwise dispatch to
         the fallback resolver.
         """
+        try:
+            query.name.name.decode("ascii")
+        except UnicodeDecodeError:
+            log.info(f"non-ascii query received: {query.name.name}")
+            return defer.fail(error.DomainError())
+
         IS_NX_DOMAIN = any(
             [
                 query.name.name.lower().decode().endswith(f".{d}")
@@ -204,7 +210,6 @@ class ChannelDNS(InputChannel):
         log.info(f"handling query:  {query.name}")
         try:
             canarydrop, src_data = handle_query_name(query_name=query.name)
-            # import rpdb; rpdb.Rpdb().set_trace()
         except NoCanarytokenFound:
             log.info(f"Query: {query.name} does not match a token.")
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
@@ -231,7 +236,13 @@ class ChannelDNS(InputChannel):
             hit_info=src_data,
         )
         # DESIGN: add all details to redis here.
-        canarydrop.add_canarydrop_hit(token_hit=token_hit)
+        try:
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+        except Exception as e:
+            log.error(
+                f"Failed to add hit to token {canarydrop.canarytoken.value()}: {token_hit}"
+            )
+            raise e
 
         self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
 

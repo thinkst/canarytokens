@@ -193,9 +193,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 # TODO: These returns are not really needed
                 return b"failed"
         else:
-            raise NotImplementedError(
-                f"channel_http::CanarytokenPage::render_POST: not implemented for token type: {canarydrop.type}"
-            )
+            return self.render_GET(request)
 
 
 class ChannelHTTP:
