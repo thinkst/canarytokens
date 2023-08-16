@@ -61,11 +61,11 @@ GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff
 # TODO: we can do better than this.
 # ??
 source_data_extractors = {
-    "mysql_username": mysql_username,
+    # "mysql_username": mysql_username,
     "linux_inotify": linux_inotify,
     "generic": generic,
-    "dtrace_process": dtrace_process,
-    "dtrace_file_open": dtrace_file_open,
+    # "dtrace_process": dtrace_process,
+    # "dtrace_file_open": dtrace_file_open,
     "desktop_ini_browsing": desktop_ini_browsing_pattern,
     "log4_shell": log4_shell_pattern,
     "cmd_process": cmd_process_pattern,
@@ -185,8 +185,10 @@ class Canarytoken(object):
 
         return {"src_data": data} if data else {}
 
-    # @staticmethod
-    # def _mysql_data(matches: Match[AnyStr])->Dict[str,str]:
+    @staticmethod
+    def _mysql_data(matches: Match[AnyStr]) -> dict[str, str]:
+        raise NotImplementedError("Please implement me! ")
+
     #     match = matches.group(1)
     #     if isinstance(match, str):
     #         username:str = match
