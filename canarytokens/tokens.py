@@ -329,7 +329,7 @@ class Canarytoken(object):
             src_ip = data["ip"][0]
             # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
             #              and have default.
-            geo_info = queries.get_geoinfo_from_ip(ip=src_ip)
+            geo_info = queries.get_geoinfo(ip=src_ip)
             is_tor_relay = queries.is_tor_relay(src_ip)
             user_agent = data["user_agent"][0]
             hit_info = {
@@ -417,7 +417,7 @@ class Canarytoken(object):
         data = {k.decode(): [o.decode() for o in v] for k, v in request.args.items()}
         hit_time = datetime.utcnow().strftime("%s.%f")
         src_ip = data["ip"][0]
-        geo_info = queries.get_geoinfo_from_ip(ip=src_ip)
+        geo_info = queries.get_geoinfo(ip=src_ip)
         is_tor_relay = queries.is_tor_relay(src_ip)
         user_agent = data["user_agent"][0]
         hit_info = {
@@ -732,7 +732,7 @@ class Canarytoken(object):
         is_tor_relay = None
         if src_ip and ("safety_net" not in hit_info or not hit_info["safety_net"]):
             hit_info["src_ip"] = src_ip
-            geo_info = queries.get_geoinfo_from_ip(ip=src_ip)
+            geo_info = queries.get_geoinfo(ip=src_ip)
             is_tor_relay = queries.is_tor_relay(src_ip)
         hit_info["geo_info"] = geo_info
         hit_info["is_tor_relay"] = is_tor_relay

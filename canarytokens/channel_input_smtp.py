@@ -92,7 +92,7 @@ class CanaryMessage:
             time_of_hit=datetime.utcnow().strftime("%s.%f"),
             input_channel="SMTP",
             src_ip=self.esmtp.src_ip,
-            geo_info=queries.get_geoinfo_from_ip(ip=self.esmtp.src_ip),
+            geo_info=queries.get_geoinfo(ip=self.esmtp.src_ip),
             is_tor_relay=queries.is_tor_relay(ip=self.esmtp.src_ip),
             mail=SMTPMailField(
                 recipients=[o.decode() for o in self.esmtp.mail["recipients"]],
