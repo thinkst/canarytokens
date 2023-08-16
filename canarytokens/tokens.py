@@ -202,15 +202,21 @@ class Canarytoken(object):
     #     ).decode()
     #     return data
 
-    # @staticmethod
-    # def _linux_inotify_data(matches: Match[AnyStr]) -> Dict[str, str]:
-    #     data = {}
-    #     filename = matches.group(1)
-    #     filename = filename.replace(b".", b"").upper()
-    #     # this channel doesn't have padding, add if needed
-    #     filename += "=" * int((math.ceil(float(len(filename)) / 8) * 8 - len(filename)))
-    #     data["linux_inotify_filename_access"] = base64.b32decode(filename)
-    #     return data
+    @staticmethod
+    def _linux_inotify(matches: Match[AnyStr]) -> dict[str, str]:
+        match = matches.group(1)
+        if isinstance(match, str):
+            filename: str = match.encode()
+        elif isinstance(match, bytes):
+            filename: str = match
+        else:
+            filename: str = b""
+        data = {}
+        filename = filename.replace(b".", b"").upper()
+        # this channel doesn't have padding, add if needed
+        filename += b"=" * ((8 - len(filename)) % 8)
+        data["linux_inotify_filename_access"] = base64.b32decode(filename)
+        return {"src_data": data} if data else {}
 
     @staticmethod
     def _generic(matches: Match[AnyStr]) -> dict[str, str]:
