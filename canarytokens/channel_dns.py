@@ -180,6 +180,11 @@ class ChannelDNS(InputChannel):
         Check if the query should be answered dynamically, otherwise dispatch to
         the fallback resolver.
         """
+        try:
+            query.name.name.decode("ascii")
+        except UnicodeDecodeError:
+            return defer.fail(error.DomainError())
+
         IS_NX_DOMAIN = any(
             [
                 query.name.name.lower().decode().endswith(f".{d}")
