@@ -61,11 +61,8 @@ GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff
 # TODO: we can do better than this.
 # ??
 source_data_extractors = {
-    # "mysql_username": mysql_username,
     "linux_inotify": linux_inotify,
     "generic": generic,
-    # "dtrace_process": dtrace_process,
-    # "dtrace_file_open": dtrace_file_open,
     "desktop_ini_browsing": desktop_ini_browsing_pattern,
     "log4_shell": log4_shell_pattern,
     "cmd_process": cmd_process_pattern,
@@ -186,25 +183,6 @@ class Canarytoken(object):
         return {"src_data": data} if data else {}
 
     @staticmethod
-    def _mysql_data(matches: Match[AnyStr]) -> dict[str, str]:
-        raise NotImplementedError("Please implement me! ")
-
-    #     match = matches.group(1)
-    #     if isinstance(match, str):
-    #         username:str = match
-    #     elif isinstance(match,bytes):
-    #         username:str = match.decode()
-    #     else:
-    #         username:str = ""
-    #     data = {}
-    #     # TODO: decoded base64 can contain all sorts of character
-    #     # we need to sanitise this as it's user input!!!
-    #     data["mysql_username"] = base64.b32decode(
-    #         username.replace(".", "").replace("-", "=").upper(),
-    #     ).decode()
-    #     return data
-
-    @staticmethod
     def _linux_inotify(matches: Match[AnyStr]) -> dict[str, str]:
         match = matches.group(1)
         if isinstance(match, str):
@@ -237,63 +215,6 @@ class Canarytoken(object):
         except (TypeError, binascii.Error):
             data["generic_data"] = f"Unrecoverable data: {incoming_data}"
         return {"src_data": data}
-
-    @staticmethod
-    def _dtrace_process_data(matches: Match[AnyStr]) -> dict[str, str]:
-        raise NotImplementedError("Please implement me! ")
-        # data = {}
-        # try:
-        #     data['dtrace_uid'] = base64.b64decode(uid)
-        # except:
-        #     log.error(
-        #         'Could not retrieve uid from dtrace '
-        #         + 'process alert: {uid}'.format(uid=uid),
-        #     )
-        # try:
-        #     data['dtrace_hostname'] = base64.b64decode(hostname.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve hostname from dtrace '
-        #         + 'process alert: {hostname}'.format(hostname=hostname),
-        #     )
-        # try:
-        #     data['dtrace_command'] = base64.b64decode(command.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve command from dtrace '
-        #         + 'process alert: {command}'.format(command=command),
-        #     )
-
-        # return data
-
-    @staticmethod
-    def _dtrace_file_open(matches: Match[AnyStr]) -> dict[str, str]:
-        raise NotImplementedError("Please implement me")
-        # data = {}
-        # try:
-        #     data['dtrace_uid'] = base64.b64decode(uid)
-        # except:
-        #     log.error(
-        #         'Could not retrieve uid from dtrace '
-        #         + 'file open alert: {uid}'.format(uid=uid),
-        #     )
-
-        # try:
-        #     data['dtrace_hostname'] = base64.b64decode(hostname.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve hostname from dtrace '
-        #         + 'process alert: {hostname}'.format(hostname=hostname),
-        #     )
-        # try:
-        #     data['dtrace_filename'] = base64.b64decode(filename.replace('.', ''))
-        # except:
-        #     log.error(
-        #         'Could not retrieve filename from dtrace '
-        #         + 'file open alert: {filename}'.format(filename=filename),
-        #     )
-
-        # return data
 
     @staticmethod
     def _cmd_process(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
