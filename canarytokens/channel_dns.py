@@ -183,6 +183,7 @@ class ChannelDNS(InputChannel):
         try:
             query.name.name.decode("ascii")
         except UnicodeDecodeError:
+            log.info(f"non-ascii query received: {query.name.name}")
             return defer.fail(error.DomainError())
 
         IS_NX_DOMAIN = any(
