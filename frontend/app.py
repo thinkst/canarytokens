@@ -278,7 +278,8 @@ def startup_event():
     remove_canary_domain()
 
     add_canary_domain(domain=frontend_settings.DOMAINS[0])
-    add_canary_google_api_key(frontend_settings.GOOGLE_API_KEY)
+    if frontend_settings.GOOGLE_API_KEY:
+        add_canary_google_api_key(frontend_settings.GOOGLE_API_KEY)
     add_canary_nxdomain(domain=frontend_settings.NXDOMAINS[0])
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
@@ -302,6 +303,8 @@ def generate_page(request: Request) -> HTMLResponse:
         "build_id": get_deployed_commit_sha(),
         "sites_len": sites_len,
         "now": now,
+        "awsid_enabled": frontend_settings.AWSID_URL is not None,
+        "azureid_enabled": frontend_settings.AZURE_ID_TOKEN_URL is not None,
     }
     return templates.TemplateResponse("generate_new.html", generate_template_params)
 
@@ -953,6 +956,14 @@ def _create_aws_key_token_response(
     if settings is None:
         settings = frontend_settings
 
+    if settings.AWSID_URL is None:
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have AWS ID tokens enabled."
+            },
+            status_code=500,
+        )
+
     try:
         key = get_aws_key(
             token=canarydrop.canarytoken,
@@ -1003,13 +1014,15 @@ def _create_azure_id_token_response(
     if settings is None:
         settings = frontend_settings
 
+    if settings.AZURE_ID_TOKEN_URL is None:
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have Azure ID tokens enabled."
+            },
+            status_code=500,
+        )
+
     try:
-        if not settings.AZURE_ID_TOKEN_URL:
-            raise ValueError("No URL provided for AZURE ID creation")
-
-        if not settings.AZURE_ID_TOKEN_AUTH:
-            raise ValueError("No AUTH token provided for AZURE ID creation")
-
         key = get_azure_id(
             token=canarydrop.canarytoken,
             server=get_all_canary_domains()[0],
