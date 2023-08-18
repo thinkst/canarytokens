@@ -785,6 +785,12 @@ a.refresh:hover{
   color: #eceeef;
   background: firebrick;
 }
+
+#item-map {
+  padding-left: 15px;
+  padding-top: 10px;
+}
+
 .map{
   position: relative;
   margin-bottom: 10px;
@@ -793,6 +799,22 @@ a.refresh:hover{
   border-radius: 5px;
   border: 7px solid #dadada;
 }
+
+#map-no-key {
+  margin-bottom: 0px;
+}
+
+.fake-map{
+  position: relative;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+  /* border-radius: 5px;
+  border: 7px solid #dadada; */
+}
+
 
 .setting .key {
   text-align: right;

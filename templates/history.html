@@ -76,8 +76,11 @@
               <div class="col-md-12"><div class="map" id="map"></div></div>
           </div>
 {% else %}
-           <div class="row">
-              <div class="col-md-12"><p id="map-no-key">The Incident Map could not be displayed because a valid Google Maps API key could not be found. This can be added to the <code>frontend.env</code> file.</p></div>
+           <div class="row" id="item-map">
+              <div class="details-header incident-item">
+                <p id="map-no-key">The Incident Map could not be displayed because a valid Google Maps API key could not be found. This can be added to the <code>frontend.env</code> file.</p>
+              </div>
+              <img class="fake-map" id="fake-map" src="resources/fake_map.jpg" />
           </div>
 {%endif%}
         </div>
