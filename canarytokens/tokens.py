@@ -112,7 +112,10 @@ class Canarytoken(object):
         """
         if value:
             if isinstance(value, bytes):
-                value = value.decode()
+                try:
+                    value = value.decode()
+                except UnicodeDecodeError:
+                    raise NoCanarytokenFound(f"Non-decodable bytes found: {value}")
             self._value = self.find_canarytoken(value).lower()
         else:
             self._value = Canarytoken.generate()
