@@ -205,7 +205,7 @@ class Canarytoken(object):
     def _generic(matches: Match[AnyStr]) -> dict[str, str]:
         data = {}
         incoming_data = matches.group(1)
-        generic_data = incoming_data.replace(".", "").upper()
+        generic_data = incoming_data.replace(".", "").replace("-", "=").upper()
         # this channel doesn't have padding, add if needed
         # TODO: put this padding logic into utils somewhere.
         generic_data_padded = generic_data.ljust(
@@ -214,7 +214,11 @@ class Canarytoken(object):
         try:
             # TODO: this can smuggle in all sorts of data we need to sanitise
             #
-            data["generic_data"] = base64.b32decode(generic_data_padded)
+            raw_bytes = base64.b32decode(generic_data_padded)
+            try:
+                data["generic_data"] = raw_bytes.decode()
+            except UnicodeDecodeError:
+                data["generic_data"] = binascii.hexlify(raw_bytes).decode()
         except (TypeError, binascii.Error):
             data["generic_data"] = f"Unrecoverable data: {incoming_data}"
         return {"src_data": data}

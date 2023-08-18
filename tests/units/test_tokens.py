@@ -198,9 +198,16 @@ def test_create_token_hit(setup_db, token_type, hit_info):
 @pytest.mark.parametrize(
     "in_url, expected_out",
     [
-        ("JBSWY3DPGIQQ.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", b"Hello2!"),
-        ("JbSwy3DPgiQq.g01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", b"Hello2!"),
-        ("JBSWY.3DPGI.QQ.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", b"Hello2!"),
+        ("JBSWY3DPGIQQ.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", "Hello2!"),
+        ("JbSwy3DPgiQq.g01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", "Hello2!"),
+        (
+            "GE2QGIWC2NZYFRBEYVKFIJHU4Q.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1",
+            "31350322c2d37382c424c5545424f4e4",
+        ),
+        (
+            "A---------.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1",
+            "Unrecoverable data: A---------",
+        ),
     ],
 )
 def test_generic_data(in_url: str, expected_out: dict[str, str]):
