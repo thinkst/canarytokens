@@ -1019,7 +1019,7 @@ def _create_azure_id_token_response(
             {
                 "message": "This Canarytokens instance does not have Azure ID tokens enabled."
             },
-            status_code=500,
+            status_code=400,
         )
 
     try:
