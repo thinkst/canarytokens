@@ -51,7 +51,7 @@ class WebhookOutputChannel(OutputChannel):
         # Design: wrap in a retry?
         try:
             response = requests.post(
-                url=str(alert_webhook_url), json=payload, timeout=(3, 10)
+                url=str(alert_webhook_url), json=payload, timeout=(2, 2)
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError:

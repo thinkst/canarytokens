@@ -39,14 +39,6 @@ sql_server_username = re.compile(
 mysql_username = re.compile(r"([A-Za-z0-9.-]*)\.M[0-9]{3}\.", re.IGNORECASE)
 linux_inotify = re.compile(r"([A-Za-z0-9.-]*)\.L[0-9]{2}\.", re.IGNORECASE)
 generic = re.compile(r"([A-Z2-7.-]*)\.G[0-9]{2}\.", re.IGNORECASE)
-dtrace_process = re.compile(
-    r"([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.",
-    re.IGNORECASE,
-)
-dtrace_file_open = re.compile(
-    r"([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.",
-    re.IGNORECASE,
-)
 desktop_ini_browsing_pattern = re.compile(
     r"([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.",
     re.IGNORECASE,
@@ -205,7 +197,7 @@ class Canarytoken(object):
     def _generic(matches: Match[AnyStr]) -> dict[str, str]:
         data = {}
         incoming_data = matches.group(1)
-        generic_data = incoming_data.replace(".", "").upper()
+        generic_data = incoming_data.replace(".", "").replace("-", "=").upper()
         # this channel doesn't have padding, add if needed
         # TODO: put this padding logic into utils somewhere.
         generic_data_padded = generic_data.ljust(
@@ -214,7 +206,11 @@ class Canarytoken(object):
         try:
             # TODO: this can smuggle in all sorts of data we need to sanitise
             #
-            data["generic_data"] = base64.b32decode(generic_data_padded)
+            raw_bytes = base64.b32decode(generic_data_padded)
+            try:
+                data["generic_data"] = raw_bytes.decode()
+            except UnicodeDecodeError:
+                data["generic_data"] = binascii.hexlify(raw_bytes).decode()
         except (TypeError, binascii.Error):
             data["generic_data"] = f"Unrecoverable data: {incoming_data}"
         return {"src_data": data}
