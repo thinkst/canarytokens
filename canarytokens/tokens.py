@@ -39,14 +39,6 @@ sql_server_username = re.compile(
 mysql_username = re.compile(r"([A-Za-z0-9.-]*)\.M[0-9]{3}\.", re.IGNORECASE)
 linux_inotify = re.compile(r"([A-Za-z0-9.-]*)\.L[0-9]{2}\.", re.IGNORECASE)
 generic = re.compile(r"([A-Z2-7.-]*)\.G[0-9]{2}\.", re.IGNORECASE)
-dtrace_process = re.compile(
-    r"([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.c\.([A-Za-z0-9.-=]+)\.D1\.",
-    re.IGNORECASE,
-)
-dtrace_file_open = re.compile(
-    r"([0-9]+)\.([A-Za-z0-9-=]+)\.h\.([A-Za-z0-9.-=]+)\.f\.([A-Za-z0-9.-=]+)\.D2\.",
-    re.IGNORECASE,
-)
 desktop_ini_browsing_pattern = re.compile(
     r"([^\.]+)\.([^\.]+)\.?([^\.]*)\.ini\.",
     re.IGNORECASE,
