@@ -198,12 +198,16 @@ def test_create_token_hit(setup_db, token_type, hit_info):
 @pytest.mark.parametrize(
     "in_url, expected_out",
     [
+        # regular payload of Hello2!
         ("JBSWY3DPGIQQ.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", "Hello2!"),
+        # mixed case
         ("JbSwy3DPgiQq.g01.yh6wfyh752qi06e35f9b0260f.127.0.0.1", "Hello2!"),
+        # fails to decode utf-8; gets hexlified
         (
             "GE2QGIWC2NZYFRBEYVKFIJHU4Q.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1",
             "31350322c2d37382c424c5545424f4e4",
         ),
+        # fails to decode base32; return raw (guaranteed decodable by channel_dns)
         (
             "A---------.G01.yh6wfyh752qi06e35f9b0260f.127.0.0.1",
             "Unrecoverable data: A---------",
