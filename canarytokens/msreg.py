@@ -13,7 +13,7 @@ REG_TEMPLATE = r"""Windows Registry Editor Version 5.00
 ; magic unique canarytoken that will be fired when this command is executed
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\{PROCESS}]
 "ReportingMode"=dword:00000001
-"MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \"$($u=$(\\\"u$env:username\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join '';$c=$(\\\"c$env:computername\\\" -replace('[^\\x00-\\x7f]|\\s', ''));Resolve-DnsName -Name \\\"$c.UN.$u.CMD.{TOKEN_DNS}\\\")\""
+"MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \"$($u=$(\\\"u$env:username\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join '';$c=$(\\\"c$env:computername\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join '';Resolve-DnsName -Name \\\"$c.UN.$u.CMD.{TOKEN_DNS}\\\")\""
 """
 
 
