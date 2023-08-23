@@ -52,11 +52,6 @@ class DNSServerFactory(server.DNSServerFactory):
         else:
             src_ip = protocol.transport.socket.getpeername()[0]
 
-        # try:
-        log.info("Query: {} sent {}".format(src_ip, query))
-        # except UnicodeDecodeError:
-        #     # Invalid query
-        #     return None
         return (
             self.resolver.query(query, src_ip)
             .addCallback(self.gotResolverResponse, protocol, message, address)
@@ -181,9 +176,9 @@ class ChannelDNS(InputChannel):
         the fallback resolver.
         """
         try:
-            query.name.name.decode("ascii")
+            log.info("Query: {} sent {}".format(src_ip, query))
         except UnicodeDecodeError:
-            log.info(f"non-ascii query received: {query.name.name}")
+            log.info(f"Non-ascii query received: {query.name.name}")
             return defer.fail(error.DomainError())
 
         IS_NX_DOMAIN = any(
