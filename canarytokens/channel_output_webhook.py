@@ -47,6 +47,9 @@ class WebhookOutputChannel(OutputChannel):
         else:
             canarydrop.record_alert_failure()
             if canarydrop.has_too_many_alert_failures():
+                log.info(
+                    f"Webhook for token {canarydrop.canarytoken.value()} has returned too many errors, disabling it."
+                )
                 canarydrop.disable_alert_webhook()
                 canarydrop.clear_alert_failures()
 
