@@ -143,7 +143,13 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['linux_inotify_filename_access'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['cmd_computer_name'] %}
+                      {% if BasicDetails['cmd_process'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command process</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_process'] | e}}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['cmd_process'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command hostname</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_computer_name'] | e}}</code></td>
