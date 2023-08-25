@@ -17,6 +17,7 @@ def test_broken_webhook(
     settings: SwitchboardSettings,
 ):
     switchboard = Switchboard()
+    switchboard.switchboard_settings = settings
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,

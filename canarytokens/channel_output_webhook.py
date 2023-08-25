@@ -38,29 +38,43 @@ class WebhookOutputChannel(OutputChannel):
             protocol=self.switchboard_scheme,
         )
 
-        self.generic_webhook_send(
+        success = self.generic_webhook_send(
             payload=payload.json_safe_dict(),
             alert_webhook_url=canarydrop.alert_webhook_url,
         )
+        if success:
+            canarydrop.clear_alert_failures()
+        else:
+            canarydrop.record_alert_failure()
+            if (
+                canarydrop.alert_failure_count
+                > self.switchboard.switchboard_settings.MAX_ALERT_FAILURES
+            ):
+                log.info(
+                    f"Webhook for token {canarydrop.canarytoken.value()} has returned too many errors, disabling it."
+                )
+                canarydrop.disable_alert_webhook()
+                canarydrop.clear_alert_failures()
 
     def generic_webhook_send(
         self,
         payload: Dict[str, str],
         alert_webhook_url: HttpUrl,
-    ) -> None:
+    ) -> bool:
         # Design: wrap in a retry?
         try:
             response = requests.post(
                 url=str(alert_webhook_url), json=payload, timeout=(2, 2)
             )
             response.raise_for_status()
+            log.info(f"Successfully sent to {alert_webhook_url}")
+            return True
         except requests.exceptions.HTTPError:
             log.error(
                 f"Failed sending request to webhook {alert_webhook_url}.",
             )
-        except requests.exceptions.ConnectionError:
+        except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             log.error(
                 f"Failed connecting to webhook {alert_webhook_url}.",
             )
-        else:
-            log.info(f"Successfully sent to {alert_webhook_url}")
+        return False

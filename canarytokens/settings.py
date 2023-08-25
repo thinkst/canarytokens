@@ -32,6 +32,8 @@ class SwitchboardSettings(BaseSettings):
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
     MAX_ALERTS_PER_MINUTE: int = 1
+    # Maximum number of alert failures before a mechanism is disabled
+    MAX_ALERT_FAILURES: int = 5
 
     IPINFO_API_KEY: Optional[SecretStr] = None
 
