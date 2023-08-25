@@ -51,7 +51,7 @@ async def test_switchboard_no_channels():
 @pytest.mark.asyncio(asyncio_mode="strict")
 async def test_switchboard_register_input_channel(settings, alert_webhook_url):
     switchboard = Switchboard()
-
+    switchboard.switchboard_settings = settings
     webhook_output_channel = WebhookOutputChannel(
         switchboard=switchboard,
         frontend_domain="test.com",
