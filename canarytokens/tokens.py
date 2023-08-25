@@ -224,9 +224,9 @@ class Canarytoken(object):
         data["cmd_computer_name"] = "Not Obtained"
         data["cmd_user_name"] = "Not Obtained"
         if user_name and user_name != "u":
-            data["cmd_user_name"] = user_name[1:]
+            data["cmd_user_name"] = user_name[1:].lower()
         if computer_name and computer_name != "c":
-            data["cmd_computer_name"] = computer_name[1:]
+            data["cmd_computer_name"] = computer_name[1:].lower()
         return {"src_data": data}
 
     @staticmethod
