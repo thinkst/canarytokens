@@ -25,7 +25,6 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_EMAIL,
     OUTPUT_CHANNEL_TWILIO_SMS,
     OUTPUT_CHANNEL_WEBHOOK,
-    MAX_ALERT_FAILURES,
 )
 from canarytokens.models import (
     Anonymous,
@@ -475,21 +474,13 @@ if (document.domain != "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED
             self.alert_failure_count = 0
             queries.save_canarydrop(self)
 
-    def record_alert_failure(self) -> None:
+    def record_alert_failure(self) -> int:
         if self.alert_failure_count is None:
             self.alert_failure_count = 0
         self.alert_failure_count += 1
         queries.save_canarydrop(self)
         return self.alert_failure_count
 
-    def has_too_many_alert_failures(self) -> bool:
-        if (
-            self.alert_failure_count is None
-            or self.alert_failure_count < MAX_ALERT_FAILURES
-        ):
-            return False
-        return True
-
-    def disable_alert_webhook(self) -> bool:
+    def disable_alert_webhook(self) -> None:
         self.alert_webhook_enabled = False
         queries.save_canarydrop(self)

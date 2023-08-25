@@ -46,7 +46,10 @@ class WebhookOutputChannel(OutputChannel):
             canarydrop.clear_alert_failures()
         else:
             canarydrop.record_alert_failure()
-            if canarydrop.has_too_many_alert_failures():
+            if (
+                canarydrop.alert_failure_count
+                > self.switchboard.switchboard_settings.MAX_ALERT_FAILURES
+            ):
                 log.info(
                     f"Webhook for token {canarydrop.canarytoken.value()} has returned too many errors, disabling it."
                 )

@@ -103,7 +103,6 @@ def test_canarydrop_webhook_failure():
     cd_retrieved = get_canarydrop(canarytoken)
 
     assert cd_retrieved.alert_failure_count is None
-    assert cd_retrieved.has_too_many_alert_failures() is False
     cd_retrieved.clear_alert_failures()
     assert (
         cd_retrieved.alert_failure_count is None
@@ -112,19 +111,15 @@ def test_canarydrop_webhook_failure():
     # Next, test failures less than the max allowed failures
     for i in range(0, 4):
         assert cd_retrieved.record_alert_failure() == i + 1
-        assert cd_retrieved.has_too_many_alert_failures() is False
         cd_retrieved = get_canarydrop(canarytoken)  # load from DB
     cd_retrieved.clear_alert_failures()
     assert cd_retrieved.alert_failure_count == 0
-    assert cd_retrieved.has_too_many_alert_failures() is False
 
     # Test when we exceed the max number of failures
     for i in range(0, 4):
         assert cd_retrieved.record_alert_failure() == i + 1
-        assert cd_retrieved.has_too_many_alert_failures() is False
         cd_retrieved = get_canarydrop(canarytoken)
     assert cd_retrieved.record_alert_failure() == 5
-    assert cd_retrieved.has_too_many_alert_failures() is True
 
     # Test disabling the webook
     cd_retrieved.disable_alert_webhook()
