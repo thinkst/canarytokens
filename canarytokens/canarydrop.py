@@ -304,7 +304,7 @@ if (document.domain != "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED
     var l = location.href;
     var r = document.referrer;
     var m = new Image();
-    m.src = "https://{CANARYTOKEN_SITE}/"+
+    m.src = "http://{CANARYTOKEN_SITE}/"+
             "{CANARYTOKEN}.jpg?l="+
             encodeURI(l) + "&amp;r=" + encodeURI(r);
 }}
