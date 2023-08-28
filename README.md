@@ -71,7 +71,7 @@ The `switchboard.env` contains the switchboard process settings such as:
 | CANARY_WEB_IMAGE_UPLOAD_PATH    | /uploads                                         |
 | LOG_FILE                        | switchboard.log                                  |
 | ERROR_LOG_WEBHOOK               | <URI of a webhook you want Error Logs posted to> |
-
+| CANARY_FORCE_HTTPS              | force `https` protocol scheme for Canarytokens   |
 
 Please note that when choosing which email provider you would like to use, you **MUST** only provide
 information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` then you must remove the others such as

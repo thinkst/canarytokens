@@ -151,10 +151,11 @@ from canarytokens.ziplib import make_canary_zip
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
+protocol = "https" if switchboard_settings.FORCE_HTTPS else "http"
 if switchboard_settings.USING_NGINX:
-    canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}"
+    canary_http_channel = f"{protocol}://{frontend_settings.DOMAINS[0]}"
 else:
-    canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
+    canary_http_channel = f"{protocol}://{frontend_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
 
 if frontend_settings.SENTRY_DSN and frontend_settings.SENTRY_ENABLE:
     sentry_sdk.init(
