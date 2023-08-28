@@ -241,7 +241,7 @@ class Canarydrop(BaseModel):
             queries.get_all_canary_pages(),
         )
 
-    def generate_random_url(self, canary_domains: list[str], skip_cache=False):
+    def generate_random_url(self, canary_domains: list[str], skip_cache: bool = False):
         """
         Return a URL generated at random with the saved Canarytoken.
         The random URL is also saved into the Canarydrop.
@@ -299,18 +299,21 @@ class Canarydrop(BaseModel):
         )
         return ("http://" if as_url else "") + random_hostname
 
-    def get_cloned_site_javascript(self):
+    def get_cloned_site_javascript(self, force_https: bool = False):
         clonedsite_js = """
 if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostname.endsWith(".{CLONED_SITE_DOMAIN}")) {{
     var l = location.href;
     var r = document.referrer;
     var m = new Image();
-    m.src = document.location.protocol + "//{CANARYTOKEN_URL}?l="+
+    m.src = {PROTOCOL} + "//{CANARYTOKEN_URL}?l="+
             encodeURI(l) + "&amp;r=" + encodeURI(r);
 }}
             """.format(
             CLONED_SITE_DOMAIN=self.clonedsite,
-            CANARYTOKEN_URL=self.generate_random_url(queries.get_all_canary_domains(), skip_cache=True),
+            CANARYTOKEN_URL=self.generate_random_url(
+                queries.get_all_canary_domains(), skip_cache=True
+            ),
+            PROTOCOL="https" if force_https else "document.location.protocol",
         )
         return clonedsite_js
 

@@ -16,6 +16,7 @@ class SwitchboardSettings(BaseSettings):
     CHANNEL_MTLS_KUBECONFIG_PORT: Port = Port(6443)
     CHANNEL_WIREGUARD_PORT: Port = Port(51820)
     SWITCHBOARD_SCHEME: str = "https"
+    FORCE_HTTPS: bool = False
     # TODO: Remove this default here and added it where it's used. This is too opinionated.
     REDIS_HOST: str = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     REDIS_PORT: Port = Port(6379)

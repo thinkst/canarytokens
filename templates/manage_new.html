@@ -242,7 +242,7 @@
               <div class="artifacts">
                 <div class="form-control">
                   {% if canarydrop.type == 'clonedsite'%}
-                  {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript()) }}
+                  {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
                   {%endif%}
                 </div>
               </div>
