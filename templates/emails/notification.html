@@ -145,19 +145,19 @@
                       {% endif %}
                       {% if BasicDetails['cmd_process'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command process</td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_process'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['cmd_process'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Hostname</td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Executed on</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_computer_name'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['cmd_user_name'] %}
                                       <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Username</td>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Run by</td>
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_user_name'] | e}}</code></td>
                                       </tr>
                       {% endif %}
