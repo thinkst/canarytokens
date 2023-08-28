@@ -310,7 +310,6 @@ if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostn
             """.format(
             CLONED_SITE_DOMAIN=self.clonedsite,
             CANARYTOKEN_URL=self.get_url(queries.get_all_canary_domains()),
-            PROTOCOL=self.con
         )
         return clonedsite_js
 
