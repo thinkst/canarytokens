@@ -300,18 +300,16 @@ class Canarydrop(BaseModel):
 
     def get_cloned_site_javascript(self):
         clonedsite_js = """
-if (document.domain != "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_SITE_DOMAIN}") {{
+if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostname.endsWith(".{CLONED_SITE_DOMAIN}") {{
     var l = location.href;
     var r = document.referrer;
     var m = new Image();
-    m.src = "http://{CANARYTOKEN_SITE}/"+
-            "{CANARYTOKEN}.jpg?l="+
+    m.src = document.location.protocol + "//{CANARYTOKEN_URL}?l="+
             encodeURI(l) + "&amp;r=" + encodeURI(r);
 }}
             """.format(
             CLONED_SITE_DOMAIN=self.clonedsite,
-            CANARYTOKEN_SITE=self.generated_hostname,
-            CANARYTOKEN=self.canarytoken.value(),
+            CANARYTOKEN_URL=self.get_url(),
         )
         return clonedsite_js
 
