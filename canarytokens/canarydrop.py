@@ -241,14 +241,14 @@ class Canarydrop(BaseModel):
             queries.get_all_canary_pages(),
         )
 
-    def generate_random_url(self, canary_domains: list[str]):
+    def generate_random_url(self, canary_domains: list[str], skip_cache=False):
         """
         Return a URL generated at random with the saved Canarytoken.
         The random URL is also saved into the Canarydrop.
         """
         # TODO: check how we want this caching to work. Use a property if needed.
         #       Or @lru.cache() or as it was but it's non-obvious
-        if self.generated_url:
+        if self.generated_url and not skip_cache:
             return self.generated_url
         (path_elements, pages) = self.get_url_components()
 
@@ -266,7 +266,8 @@ class Canarydrop(BaseModel):
         path.append(pages[random.randint(0, len(pages) - 1)])
         generated_url += "/".join(path)
         # cache
-        self.generated_url = generated_url
+        if not skip_cache:
+            self.generated_url = generated_url
         return generated_url
 
     def get_url(self, canary_domains: list[str]):
@@ -300,7 +301,7 @@ class Canarydrop(BaseModel):
 
     def get_cloned_site_javascript(self):
         clonedsite_js = """
-if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostname.endsWith(".{CLONED_SITE_DOMAIN}") {{
+if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostname.endsWith(".{CLONED_SITE_DOMAIN}")) {{
     var l = location.href;
     var r = document.referrer;
     var m = new Image();
@@ -309,7 +310,7 @@ if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostn
 }}
             """.format(
             CLONED_SITE_DOMAIN=self.clonedsite,
-            CANARYTOKEN_URL=self.get_url(queries.get_all_canary_domains()),
+            CANARYTOKEN_URL=self.generate_random_url(queries.get_all_canary_domains()[0], skip_cache=True),
         )
         return clonedsite_js
 
