@@ -313,7 +313,7 @@ if (window.location.hostname != "{CLONED_SITE_DOMAIN}" && !window.location.hostn
             CANARYTOKEN_URL=self.generate_random_url(
                 queries.get_all_canary_domains(), skip_cache=True
             ),
-            PROTOCOL="\"https:\"" if force_https else "document.location.protocol",
+            PROTOCOL='"https:"' if force_https else "document.location.protocol",
         )
         return clonedsite_js
 
