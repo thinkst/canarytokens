@@ -146,6 +146,8 @@ class InputChannel(Channel):
     ) -> TokenAlertDetails:
         hit = canarydrop.triggered_details.latest_hit()
         additional_data = hit.get_additional_data_for_notification()
+        if canarydrop.cmd_process:
+            additional_data["cmd_process"] = canarydrop.cmd_process
 
         return TokenAlertDetails(
             channel=cls.CHANNEL,
