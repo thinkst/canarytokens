@@ -128,7 +128,7 @@ def mailgun_send(
         # Raise an error if the returned status is 4xx or 5xx
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        log.error(f"A mailgun error occurred: {e.__class__} - {e}")
+        log.error(f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}")
     else:
         sent_successfully = True
         message_id = response.json().get("id")
