@@ -111,7 +111,7 @@ webhook_output_channel = WebhookOutputChannel(
 
 dns_service = service.MultiService()
 
-factory = DNSServerFactory(
+udp_factory = dns.DNSDatagramProtocol(DNSServerFactory(
     clients=[
         ChannelDNS(
             switchboard=switchboard,
@@ -120,11 +120,8 @@ factory = DNSServerFactory(
             switchboard_hostname=frontend_settings.DOMAINS[0],
         ),
     ],
-)
-udp_factory = dns.DNSDatagramProtocol(factory)
-internet.TCPServer(switchboard_settings.CHANNEL_DNS_PORT, factory).setServiceParent(
-    dns_service
-)
+))
+
 internet.UDPServer(switchboard_settings.CHANNEL_DNS_PORT, udp_factory).setServiceParent(
     dns_service
 )

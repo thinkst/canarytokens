@@ -20,6 +20,7 @@ from canarytokens.models import TokenTypes, WireguardTokenHit
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
 from canarytokens.wireguard import (
     AEAD,
     KDF2,
@@ -131,7 +132,7 @@ class WireGuardProtocol(DatagramProtocol):
         public_key = base64.b64encode(peerPK)
         token_value = queries.wireguard_keymap_get(public_key)
         if not token_value:
-            raise ValueError("Token not found in redis")
+            raise NoCanarytokenPresent
         canarytoken = Canarytoken(value=token_value)
         if not canarytoken:
             log.debug(
@@ -142,7 +143,7 @@ class WireGuardProtocol(DatagramProtocol):
         # TODO: If canarydrop no longer exists, delete key -> canarytoken mapping in WireGuard keymap
         canarydrop: Optional[Canarydrop] = queries.get_canarydrop(canarytoken)
         if not canarydrop:
-            raise ValueError("Canarydrop not found")
+            raise NoCanarytokenFound
 
         src_host = src[0]
         src_data = {
