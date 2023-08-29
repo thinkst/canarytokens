@@ -241,14 +241,14 @@ class Canarydrop(BaseModel):
             queries.get_all_canary_pages(),
         )
 
-    def generate_random_url(self, canary_domains: list[str]):
+    def generate_random_url(self, canary_domains: list[str], skip_cache: bool = False):
         """
         Return a URL generated at random with the saved Canarytoken.
         The random URL is also saved into the Canarydrop.
         """
         # TODO: check how we want this caching to work. Use a property if needed.
         #       Or @lru.cache() or as it was but it's non-obvious
-        if self.generated_url:
+        if self.generated_url and not skip_cache:
             return self.generated_url
         (path_elements, pages) = self.get_url_components()
 
@@ -266,7 +266,8 @@ class Canarydrop(BaseModel):
         path.append(pages[random.randint(0, len(pages) - 1)])
         generated_url += "/".join(path)
         # cache
-        self.generated_url = generated_url
+        if not skip_cache:
+            self.generated_url = generated_url
         return generated_url
 
     def get_url(self, canary_domains: list[str]):
@@ -298,20 +299,27 @@ class Canarydrop(BaseModel):
         )
         return ("http://" if as_url else "") + random_hostname
 
-    def get_cloned_site_javascript(self):
-        clonedsite_js = """
-if (document.domain != "{CLONED_SITE_DOMAIN}" && document.domain != "www.{CLONED_SITE_DOMAIN}") {{
-    var l = location.href;
-    var r = document.referrer;
-    var m = new Image();
-    m.src = "http://{CANARYTOKEN_SITE}/"+
-            "{CANARYTOKEN}.jpg?l="+
-            encodeURI(l) + "&amp;r=" + encodeURI(r);
-}}
-            """.format(
-            CLONED_SITE_DOMAIN=self.clonedsite,
-            CANARYTOKEN_SITE=self.generated_hostname,
-            CANARYTOKEN=self.canarytoken.value(),
+    def get_cloned_site_javascript(self, force_https: bool = False):
+        protocol = (
+            '"https:"'
+            if force_https
+            else '!document.location.protocol.startsWith("http")?"http:":document.location.protocol'
+        )
+        url = self.generate_random_url(
+            queries.get_all_canary_domains(), skip_cache=True
+        )
+        clonedsite_js = textwrap.dedent(
+            f"""
+            if (window.location.hostname != "{self.clonedsite}"
+                && !window.location.hostname.endsWith(".{self.clonedsite}"))
+            {{
+                var p = {protocol};
+                var l = location.href;
+                var r = document.referrer;
+                var m = new Image();
+                m.src = p + "//{url}?l=" + encodeURI(l) + "&r=" + encodeURI(r);
+            }}
+            """
         )
         return clonedsite_js
 

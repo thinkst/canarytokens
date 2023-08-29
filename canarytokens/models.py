@@ -486,7 +486,6 @@ class DNSTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
 
     class Config:
-
         schema_extra = {
             "example": {
                 "token_type": TokenTypes.DNS,
@@ -1897,7 +1896,7 @@ class GoogleChatSection(BaseModel):
     widgets: List[GoogleChatWidget] = []
 
     def add_widgets(self, widgets_info: Optional[Dict[str, str]] = {}) -> None:
-        for (label, text) in widgets_info.items():
+        for label, text in widgets_info.items():
             if not label or not text:
                 continue
             message_text = (

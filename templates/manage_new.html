@@ -6,7 +6,7 @@
 {%- endmacro %}
 
 {% macro textareacopy(name, value="")%}
-<textarea id="{{name}}" class="result-data" readonly="">{{value}}
+<textarea id="{{name}}" class="result-data" readonly="" style="text-align: left;">{{value}}
 </textarea>
 <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
   <img src="/resources/clippy.svg" alt="Copy to clipboard">
@@ -242,7 +242,7 @@
               <div class="artifacts">
                 <div class="form-control">
                   {% if canarydrop.type == 'clonedsite'%}
-                  {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript()) }}
+                  {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
                   {%endif%}
                 </div>
               </div>

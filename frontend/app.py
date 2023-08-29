@@ -151,10 +151,11 @@ from canarytokens.ziplib import make_canary_zip
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
+protocol = "https" if switchboard_settings.FORCE_HTTPS else "http"
 if switchboard_settings.USING_NGINX:
-    canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}"
+    canary_http_channel = f"{protocol}://{frontend_settings.DOMAINS[0]}"
 else:
-    canary_http_channel = f"http://{frontend_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
+    canary_http_channel = f"{protocol}://{frontend_settings.DOMAINS[0]}:{switchboard_settings.CHANNEL_HTTP_PORT}"
 
 if frontend_settings.SENTRY_DSN and frontend_settings.SENTRY_ENABLE:
     sentry_sdk.init(
@@ -454,6 +455,8 @@ async def manage_page_get(
     elif canarydrop.type == TokenTypes.QR_CODE:
         qr_code = segno.make(canarydrop.generated_url).png_data_uri(scale=5)
         manage_template_params["qr_code"] = qr_code
+    elif canarydrop.type == TokenTypes.CLONEDSITE:
+        manage_template_params["force_https"] = switchboard_settings.FORCE_HTTPS
 
     return templates.TemplateResponse("manage_new.html", manage_template_params)
 
@@ -845,7 +848,9 @@ def _(
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
         url_components=list(canarydrop.get_url_components()),
-        clonedsite_js=canarydrop.get_cloned_site_javascript(),
+        clonedsite_js=canarydrop.get_cloned_site_javascript(
+            switchboard_settings.FORCE_HTTPS
+        ),
     )
 
 
