@@ -115,6 +115,10 @@ the token management console, but alerts will not be generated (email and/or web
 
 This is tunable with the switchboard ENV variable `CANARY_MAX_ALERTS_PER_MINUTE`.
 
+## Webhook failure limiting
+After a webhook returns an error 5 times in a row, it is disabled. This behaviour can be
+tuned with `MAX_ALERT_FAILURES`.
+
 ## FAQ
 
 We have a FAQ over [here](https://github.com/thinkst/canarytokens/wiki)
