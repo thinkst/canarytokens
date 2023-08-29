@@ -300,7 +300,11 @@ class Canarydrop(BaseModel):
         return ("http://" if as_url else "") + random_hostname
 
     def get_cloned_site_javascript(self, force_https: bool = False):
-        protocol = '"https:"' if force_https else "document.location.protocol"
+        protocol = (
+            '"https:"'
+            if force_https
+            else '!document.location.protocol.startsWith("http")?"http:":document.location.protocol'
+        )
         url = self.generate_random_url(
             queries.get_all_canary_domains(), skip_cache=True
         )
@@ -309,10 +313,11 @@ class Canarydrop(BaseModel):
             if (window.location.hostname != "{self.clonedsite}"
                 && !window.location.hostname.endsWith(".{self.clonedsite}"))
             {{
+                var p = {protocol};
                 var l = location.href;
                 var r = document.referrer;
                 var m = new Image();
-                m.src = {protocol} + "//{url}?l=" + encodeURI(l) + "&r=" + encodeURI(r);
+                m.src = p + "//{url}?l=" + encodeURI(l) + "&r=" + encodeURI(r);
             }}
             """
         )
