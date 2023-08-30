@@ -128,9 +128,9 @@ def mailgun_send(
         # Raise an error if the returned status is 4xx or 5xx
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        if response.json().get('message') in MAILGUN_IGNORE_ERRORS:
+        if response.json().get("message") in MAILGUN_IGNORE_ERRORS:
             log.debug(f"Ignored mailgun error: '{response.json()['message']}'")
-            message_id = 'ignored'
+            message_id = "ignored"
         else:
             log.error(
                 f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}"
@@ -342,7 +342,7 @@ class EmailOutputChannel(OutputChannel):
                 )
                 canarydrop.disable_alert_email()
                 canarydrop.clear_alert_failures()
-            elif message_id == 'ignored':
+            elif message_id == "ignored":
                 # Disable canarytokens whose email addresses were not accepted by mailgun.
                 canarydrop.disable_alert_email()
             else:
