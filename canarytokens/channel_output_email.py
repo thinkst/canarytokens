@@ -18,7 +18,7 @@ from twisted.logger import Logger
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
-from canarytokens.constants import OUTPUT_CHANNEL_EMAIL
+from canarytokens.constants import OUTPUT_CHANNEL_EMAIL, MAILGUN_IGNORE_ERRORS, MAILGUN_SENT_STATUS
 from canarytokens.models import (
     AnyTokenHit,
     readable_token_type_names,
@@ -128,9 +128,13 @@ def mailgun_send(
         # Raise an error if the returned status is 4xx or 5xx
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        log.error(
-            f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}"
-        )
+        if 'message' in response.json() and  response.json()['message'] in MAILGUN_IGNORE_ERRORS:
+            log.debug(f"Ignored mailgun error: '{response.json()['message']}'")
+            return sent_successfully, 'ignored'
+        else:
+            log.error(
+                f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}"
+            )
     else:
         sent_successfully = True
         message_id = response.json().get("id")
@@ -326,6 +330,7 @@ class EmailOutputChannel(OutputChannel):
                 mail_key=message_id,
                 details=alert_details,
             )
+            
         else:
             log.error(f"Failed to send email for token {alert_details.token}.")
         return alert_details
