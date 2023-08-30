@@ -492,3 +492,7 @@ class Canarydrop(BaseModel):
     def disable_alert_webhook(self) -> None:
         self.alert_webhook_enabled = False
         queries.save_canarydrop(self)
+
+    def disable_alert_email(self) -> None:
+        self.alert_email_enabled = False
+        queries.save_canarydrop(self)

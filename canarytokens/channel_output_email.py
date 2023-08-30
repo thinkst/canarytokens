@@ -18,7 +18,7 @@ from twisted.logger import Logger
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
-from canarytokens.constants import OUTPUT_CHANNEL_EMAIL, MAILGUN_IGNORE_ERRORS, MAILGUN_SENT_STATUS
+from canarytokens.constants import OUTPUT_CHANNEL_EMAIL, MAILGUN_IGNORE_ERRORS
 from canarytokens.models import (
     AnyTokenHit,
     readable_token_type_names,
@@ -128,9 +128,9 @@ def mailgun_send(
         # Raise an error if the returned status is 4xx or 5xx
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        if 'message' in response.json() and  response.json()['message'] in MAILGUN_IGNORE_ERRORS:
+        if response.json().get('message') in MAILGUN_IGNORE_ERRORS:
             log.debug(f"Ignored mailgun error: '{response.json()['message']}'")
-            return sent_successfully, 'ignored'
+            message_id = 'ignored'
         else:
             log.error(
                 f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}"
@@ -330,9 +330,23 @@ class EmailOutputChannel(OutputChannel):
                 mail_key=message_id,
                 details=alert_details,
             )
-            
+            canarydrop.clear_alert_failures()
         else:
-            log.error(f"Failed to send email for token {alert_details.token}.")
+            canarydrop.record_alert_failure()
+            if (
+                canarydrop.alert_failure_count
+                > self.switchboard.switchboard_settings.MAX_ALERT_FAILURES
+            ):
+                log.info(
+                    f"Email for token {canarydrop.canarytoken.value()} has returned too many errors, disabling it."
+                )
+                canarydrop.disable_alert_email()
+                canarydrop.clear_alert_failures()
+            elif message_id == 'ignored':
+                # Disable canarytokens whose email addresses were not accepted by mailgun.
+                canarydrop.disable_alert_email()
+            else:
+                log.error(f"Failed to send email for token {alert_details.token}.")
         return alert_details
 
     @staticmethod
