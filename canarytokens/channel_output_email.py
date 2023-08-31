@@ -5,6 +5,7 @@ from pathlib import Path
 from textwrap import dedent
 import textwrap
 from typing import Optional
+import enum
 
 import minify_html
 import requests
@@ -45,6 +46,74 @@ log = Logger()
 #         log.error("Failed to send mail via mailgun.")
 #     return not success
 
+# success                             -> sent
+# badly formed such as http://bob.com -> ignored (error returned right away)
+# bad domain                          -> sent
+# unhandled error                     -> error (sent to slack to notify)
+class EmailResponseStatuses(str, enum.Enum):
+    """Enumerates all email responses"""
+
+    NOT_SENT = "not_sent"
+    SENT = "sent"
+    ERROR = "error"
+    # DELIVERED = "delivered"
+    IGNORED = "ignored"
+
+
+class EmailResponse(object):
+    def _init__(
+        self,
+        status: EmailResponseStatuses,
+        canarydrop: Canarydrop,
+        message_id: str,
+        alert_details: TokenAlertDetails,
+    ):
+        self.status = status
+        self.canarydrop = canarydrop
+        self.message_id = message_id
+        self.alert_details = alert_details
+
+    def handle(self):
+        m = getattr(self, "handle_" + self.status.value)
+        return m(self)
+
+    def handle_ignored(self):
+        log.debug(
+            f"Ignored email provider error received. Disabling {self.canarydrop.canarytoken.value()}."
+        )
+        self.canarydrop.disable_alert_email()
+
+    def handle_sent(self):
+        queries.remove_mail_from_to_send_status(
+            token=self.alert_details.token,
+            time=self.alert_details.time,
+        )
+        queries.put_mail_on_sent_queue(
+            mail_key=self.message_id,
+            details=self.alert_details,
+        )
+        self.canarydrop.clear_alert_failures()
+
+    def handle_error(self):
+        self.canarydrop.record_alert_failure()
+        if (
+            self.canarydrop.alert_failure_count
+            > self.switchboard.switchboard_settings.MAX_ALERT_FAILURES
+        ):
+            log.info(
+                f"Email for token {self.canarydrop.canarytoken.value()} has returned too many errors, disabling it."
+            )
+            self.canarydrop.disable_alert_email()
+            self.canarydrop.clear_alert_failures()
+        else:
+            log.error(f"Failed to send email for token {self.alert_details.token}.")
+
+    def handle_not_sent(self):
+        raise NotImplementedError()
+
+    def handle_delivered(self):
+        raise NotImplementedError()
+
 
 # @retry_on_returned_error(retry_if=should_retry_sendgrid)
 def sendgrid_send(
@@ -56,7 +125,7 @@ def sendgrid_send(
     from_display: EmailStr,
     email_subject: str,
     sandbox_mode: bool = False,
-) -> tuple[bool, str]:
+) -> tuple[EmailResponseStatuses, str]:
     sendgrid_client = sendgrid.SendGridAPIClient(
         api_key=api_key.get_secret_value().strip()
     )
@@ -79,12 +148,12 @@ def sendgrid_send(
         html_content=content,
     )
     mail.mail_settings = MailSettings(sandbox_mode=SandBoxMode(enable=sandbox_mode))
-    sent_successfully = False
+    email_response = EmailResponseStatuses.NOT_SENT
     message_id = ""
     try:
         response = sendgrid_client.send(message=mail)
         if response.status_code not in [202, 200]:
-            sent_successfully = False
+            email_response = EmailResponseStatuses.ERROR
             log.error(
                 f"status code: {response.status_code}. Body: {response.body}",
             )
@@ -93,10 +162,10 @@ def sendgrid_send(
             f"A sendgrid error occurred. Status code: {e.status_code} {e.to_dict}",
         )
     else:
-        sent_successfully = True
+        email_response = EmailResponseStatuses.SENT
         message_id = response.headers.get("X-Message-Id")
     finally:
-        return sent_successfully, message_id
+        return email_response, message_id
 
 
 # @retry_on_returned_error(retry_if=should_retry_mailgun)
@@ -111,8 +180,8 @@ def mailgun_send(
     api_key: SecretStr,
     base_url: HttpUrl,
     mailgun_domain: str,
-) -> tuple[bool, str]:
-    sent_successfully = False
+) -> tuple[EmailResponseStatuses, str]:
+    email_response = EmailResponseStatuses.NOT_SENT
     message_id = ""
     try:
         url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
@@ -129,17 +198,20 @@ def mailgun_send(
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         if response.json().get("message") in MAILGUN_IGNORE_ERRORS:
-            log.debug(f"Ignored mailgun error: '{response.json()['message']}'")
-            message_id = "ignored"
+            log.debug(
+                f"Ignored mailgun error message for {email_address}: '{response.json()['message']}'"
+            )
+            email_response = EmailResponseStatuses.IGNORED
         else:
             log.error(
                 f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}"
             )
+            email_response = EmailResponseStatuses.ERROR
     else:
-        sent_successfully = True
+        email_response = EmailResponseStatuses.SENT
         message_id = response.json().get("id")
     finally:
-        return sent_successfully, message_id
+        return email_response, message_id
 
 
 class EmailOutputChannel(OutputChannel):
@@ -284,7 +356,7 @@ class EmailOutputChannel(OutputChannel):
             details=alert_details,
         )
         if self.switchboard_settings.MAILGUN_API_KEY:
-            sent_successfully, message_id = mailgun_send(
+            email_response_status, message_id = mailgun_send(
                 email_address=canarydrop.alert_email_recipient,
                 email_subject=self.email_subject,
                 email_content_html=EmailOutputChannel.format_report_html(
@@ -301,7 +373,7 @@ class EmailOutputChannel(OutputChannel):
                 mailgun_domain=self.switchboard_settings.MAILGUN_DOMAIN_NAME,
             )
         elif self.switchboard_settings.SENDGRID_API_KEY:
-            sent_successfully, message_id = sendgrid_send(
+            email_response_status, message_id = sendgrid_send(
                 api_key=self.switchboard_settings.SENDGRID_API_KEY,
                 email_address=canarydrop.alert_email_recipient,
                 email_content_html=EmailOutputChannel.format_report_html(
@@ -321,33 +393,13 @@ class EmailOutputChannel(OutputChannel):
         else:
             log.error("No email settings found")
 
-        if sent_successfully:
-            queries.remove_mail_from_to_send_status(
-                token=alert_details.token,
-                time=alert_details.time,
-            )
-            queries.put_mail_on_sent_queue(
-                mail_key=message_id,
-                details=alert_details,
-            )
-            canarydrop.clear_alert_failures()
-        else:
-            canarydrop.record_alert_failure()
-            if (
-                canarydrop.alert_failure_count
-                > self.switchboard.switchboard_settings.MAX_ALERT_FAILURES
-            ):
-                log.info(
-                    f"Email for token {canarydrop.canarytoken.value()} has returned too many errors, disabling it."
-                )
-                canarydrop.disable_alert_email()
-                canarydrop.clear_alert_failures()
-            elif message_id == "ignored":
-                # Disable canarytokens whose email addresses were not accepted by mailgun.
-                canarydrop.disable_alert_email()
-            else:
-                log.error(f"Failed to send email for token {alert_details.token}.")
+        self.handle_email_response(
+            EmailResponse(email_response_status, canarydrop, message_id, alert_details)
+        )
         return alert_details
+
+    def handle_email_response(self, email_response: EmailResponse):
+        return email_response.handle()
 
     @staticmethod
     def check_sendgrid_mail_status(api_key: str) -> bool:

@@ -227,6 +227,13 @@ def test_do_send_alert(
     assert mail_key is not False
 
 
+# def test_bad_format_email():
+
+# def test_non_existent_email():
+
+# def test_bad_input_email():
+
+
 @pytest.mark.skip(reason="disabled until retry is implemented async")
 def test_do_send_alert_retries(
     frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
