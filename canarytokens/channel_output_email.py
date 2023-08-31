@@ -61,7 +61,7 @@ class EmailResponseStatuses(str, enum.Enum):
 
 
 class EmailResponse(object):
-    def _init__(
+    def __init__(
         self,
         status: EmailResponseStatuses,
         canarydrop: Canarydrop,
