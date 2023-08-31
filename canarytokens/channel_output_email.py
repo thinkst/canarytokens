@@ -53,7 +53,7 @@ log = Logger()
 class EmailResponseStatuses(str, enum.Enum):
     """Enumerates all email responses"""
 
-    NOT_SENT = "not_sent"
+    # NOT_SENT = "not_sent"
     SENT = "sent"
     ERROR = "error"
     # DELIVERED = "delivered"
@@ -74,7 +74,8 @@ class EmailResponse(object):
         self.alert_details = alert_details
 
     def handle(self):
-        m = getattr(self, "handle_" + self.status.value)
+        method_name = f"handle_{self.status.value}"
+        m = getattr(self, method_name)
         return m()
 
     def handle_ignored(self):
@@ -148,7 +149,7 @@ def sendgrid_send(
         html_content=content,
     )
     mail.mail_settings = MailSettings(sandbox_mode=SandBoxMode(enable=sandbox_mode))
-    email_response = EmailResponseStatuses.NOT_SENT
+    email_response = EmailResponseStatuses.ERROR
     message_id = ""
     try:
         response = sendgrid_client.send(message=mail)
@@ -158,6 +159,7 @@ def sendgrid_send(
                 f"status code: {response.status_code}. Body: {response.body}",
             )
     except HTTPError as e:
+        email_response = EmailResponseStatuses.ERROR
         log.error(
             f"A sendgrid error occurred. Status code: {e.status_code} {e.to_dict}",
         )
@@ -181,7 +183,7 @@ def mailgun_send(
     base_url: HttpUrl,
     mailgun_domain: str,
 ) -> tuple[EmailResponseStatuses, str]:
-    email_response = EmailResponseStatuses.NOT_SENT
+    email_response = EmailResponseStatuses.ERROR
     message_id = ""
     try:
         url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
