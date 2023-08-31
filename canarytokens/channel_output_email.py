@@ -75,7 +75,7 @@ class EmailResponse(object):
 
     def handle(self):
         m = getattr(self, "handle_" + self.status.value)
-        return m(self)
+        return m()
 
     def handle_ignored(self):
         log.debug(
