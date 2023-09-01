@@ -390,6 +390,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         kubeconfig=kube_config,
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
+        expected_referrer=getattr(token_request_details, "expected_referrer", None),
         sql_server_sql_action=getattr(
             token_request_details, "sql_server_sql_action", None
         ),
