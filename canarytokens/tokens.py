@@ -464,6 +464,23 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_cssclonedsite(request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+
+        referer = request.args.get(b"r", [None])[0]
+        src_data = {
+            "referer": referer,
+        }
+        return http_general_info, src_data
+
+    @staticmethod
+    def _get_response_for_cssclonedsite(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_cc(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
 

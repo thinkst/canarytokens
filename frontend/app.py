@@ -52,6 +52,8 @@ from canarytokens.models import (
     CCTokenResponse,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
+    CSSClonedWebTokenRequest,
+    CSSClonedWebTokenResponse,
     CMDTokenRequest,
     CMDTokenResponse,
     CustomBinaryTokenRequest,
@@ -849,6 +851,25 @@ def _(
         token_usage=canarydrop.canarytoken.value(),
         url_components=list(canarydrop.get_url_components()),
         clonedsite_js=canarydrop.get_cloned_site_javascript(
+            switchboard_settings.FORCE_HTTPS
+        ),
+    )
+
+@create_response.register
+def _(
+    token_request_details: CSSClonedWebTokenRequest, canarydrop: Canarydrop
+) -> CSSClonedWebTokenResponse:
+
+    return CSSClonedWebTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        token_usage=canarydrop.canarytoken.value(),
+        url_components=list(canarydrop.get_url_components()),
+        css=canarydrop.get_cloned_site_css(
             switchboard_settings.FORCE_HTTPS
         ),
     )
