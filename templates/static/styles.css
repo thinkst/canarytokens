@@ -944,6 +944,9 @@ a.icon-exe:before {
 a.icon-clonedsite:before {
   background-image: url("/resources/clonedsite.png");
 }
+a.icon-cssclonedsite:before {
+  background-image: url("/resources/css.png");
+}
 a.icon-sqlserver:before {
   background-image: url("/resources/sqlserver.png");
 }
