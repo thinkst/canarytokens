@@ -470,7 +470,7 @@ class Canarytoken(object):
         referer = request.getHeader('Referer')
         src_data = {
             "referer": referer,
-            "location": referer,
+            "referrer": referer,
         }
         return http_general_info, src_data
 
