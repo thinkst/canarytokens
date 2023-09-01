@@ -6,7 +6,7 @@ class RecreatingDBException(Exception):
     pass
 
 
-class NoCanarytokenFound(Exception):
+class NoCanarytokenFoundInQuery(Exception):
     # TODO: there should be only one exception for a
     # canarytoken not found.
     pass

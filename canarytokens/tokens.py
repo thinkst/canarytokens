@@ -20,7 +20,7 @@ from canarytokens.constants import (
     CANARYTOKEN_LENGTH,
     INPUT_CHANNEL_HTTP,
 )
-from canarytokens.exceptions import NoCanarytokenFound
+from canarytokens.exceptions import NoCanarytokenFoundInQuery
 from canarytokens.models import (
     AnyTokenHit,
     AWSKeyTokenHit,
@@ -99,7 +99,7 @@ class Canarytoken(object):
         value -- A user-provided canarytoken. It's format will be validated.
 
         Exceptions:
-        NoCanarytokenFound - Thrown if the supplied canarytoken is not in the
+        NoCanarytokenFoundInQuery - Thrown if the supplied canarytoken is not in the
                            correct format.
         """
         if value:
@@ -107,7 +107,9 @@ class Canarytoken(object):
                 try:
                     value = value.decode()
                 except UnicodeDecodeError:
-                    raise NoCanarytokenFound(f"Non-decodable bytes found: {value}")
+                    raise NoCanarytokenFoundInQuery(
+                        f"Non-decodable bytes found: {value}"
+                    )
             self._value = self.find_canarytoken(value).lower()
         else:
             self._value = Canarytoken.generate()
@@ -127,11 +129,11 @@ class Canarytoken(object):
         haystack -- A string that might include a canarytoken.
 
         Exceptions:
-        NoCanarytokenFound
+        NoCanarytokenFoundInQuery
         """
         m = Canarytoken.CANARY_RE.match(haystack)
         if not m:
-            raise NoCanarytokenFound(haystack)
+            raise NoCanarytokenFoundInQuery(haystack)
 
         return m.group(1)
 

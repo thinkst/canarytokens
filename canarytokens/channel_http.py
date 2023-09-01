@@ -13,7 +13,7 @@ from twisted.web.server import GzipEncoderFactory, Request
 from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
-from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
+from canarytokens.exceptions import NoCanarytokenFoundInQuery, NoCanarytokenPresent
 from canarytokens.models import AnyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -83,7 +83,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 canarytoken = Canarytoken(value=request.path)
             else:
                 canarytoken = Canarytoken(value=request.uri)
-        except NoCanarytokenFound as e:
+        except NoCanarytokenFoundInQuery as e:
             log.info(
                 f"HTTP GET on path {request.path} did not correspond to a token. Error: {e}"
             )
@@ -133,7 +133,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
     def render_POST(self, request: Request):
         try:
             token = Canarytoken(value=request.path)
-        except NoCanarytokenFound:
+        except NoCanarytokenFoundInQuery:
             log.info(f"No token found in {request.path=}.")
             return b"failed"
 

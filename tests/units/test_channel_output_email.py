@@ -130,7 +130,7 @@ def _get_send_token_details() -> TokenAlertDetails:
     "email,expected_result_type",
     [
         (
-            "http://notawebsiadasdasdasdteIhopeorknowof.net.com",
+            "http://notawebsiteIhopeorknowof.net.com",
             EmailResponseStatuses.ERROR,
         ),
         ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
@@ -165,7 +165,7 @@ def test_sendgrid_send(
     "email,expected_result_type",
     [
         (
-            "http://notawebsiadasdasdasdteIhopeorknowof.net.com",
+            "http://notawebsiteIhopeorknowof.net.com",
             EmailResponseStatuses.IGNORED,
         ),
         ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),

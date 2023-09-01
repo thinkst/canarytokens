@@ -183,11 +183,11 @@ def settings() -> SwitchboardSettings:
         if strtobool(os.getenv("LIVE", "FALSE"))
         else Port(2500),
         MAILGUN_DOMAIN_NAME="eu-mg.honeypdfs.com"
-        if not os.getenv("MAILGUN_DOMAIN_NAME")
+        if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
         else os.getenv("MAILGUN_DOMAIN_NAME"),
         MAILGUN_BASE_URL="https://api.eu.mailgun.net"
         if not os.getenv("MAILGUN_BASE_URL")
-        else os.getenv("MAILGUN_BASE_URL"),
+        else os.getenv("CANARY_MAILGUN_BASE_URL"),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )
