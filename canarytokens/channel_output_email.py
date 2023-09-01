@@ -387,7 +387,6 @@ class EmailOutputChannel(OutputChannel):
                 email_subject=self.email_subject,
                 from_display=self.from_display,
                 sandbox_mode=False,
-                # self.switchboard_settings.SENDGRID_SANDBOX_MODE,
             )
         elif self.switchboard_settings.SMTP_SERVER:
             raise NotImplementedError("SMTP_SERVER - not supported")
