@@ -1029,7 +1029,7 @@ START REPLICA;
         return cloned_website.removeClass('error-outline').addClass('success-outline');
       }
 
-      var obfuscateClonedWebJs = function(clonedsite_js) {          
+      var obfuscateClonedWebJs = function(clonedsite_js) {
         // Get inner cloned-site java script code
         let innerClonedsite_js = clonedsite_js.replace(/^<script>/, '');
         innerClonedsite_js = innerClonedsite_js.replace(/<\/script>$/, '');
@@ -1049,7 +1049,18 @@ START REPLICA;
         }).getObfuscatedCode();
         return obfuscatedCode;
       }
-      
+
+      var checkCSSClonedWebsite = function() {
+        cloned_website = $('input[name=cssclonedsite]');
+        if (! cloned_website.parents('.field-css_cloned_website').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (cloned_website.val().length == 0) {
+            return cloned_website.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return cloned_website.removeClass('error-outline').addClass('success-outline');
+      }
+
       var checkCmd= function() {
         cmd = $('input[name=cmd_process]');
         if (! cmd.parents('.field-cmd').hasClass('hidden')) {
@@ -1145,6 +1156,7 @@ START REPLICA;
         checkWebImage();
         checkSignedExe();
         checkClonedWebsite();
+        checkCSSClonedWebsite();
         checkCmd();
         checkAzureIdCertName();
         checkSQLServer();
@@ -1207,7 +1219,7 @@ START REPLICA;
             $('#unobfuscated-js-statement').removeClass("hidden");
             $('#obfuscated-js-statement').addClass("hidden");
             this.value = "off";
-          }          
+          }
         });
         /* init dropdown menu */
 		    var dd = new DropDown( $('#type'),
@@ -1345,7 +1357,7 @@ START REPLICA;
           hljs.highlightAll();
           // Trim white spaces from inner HTML
           let aws_keys_token = document.getElementById("result_aws_keys");
-          aws_keys_token.innerHTML = aws_keys_token.innerHTML.trim()         
+          aws_keys_token.innerHTML = aws_keys_token.innerHTML.trim()
         }
 
         var _handleAzureIDResponse = function(data){
@@ -1473,6 +1485,7 @@ START REPLICA;
 
         var _requestCallbacks  = {'web_image': _handleWebImageRequest,
                                   'cloned_website': _handleClonedWebsiteRequest,
+                                  'css_cloned_website': _handleCSSClonedWebsiteRequest,
                                   'sql_server': _handleSqlServerRequest,
                                   'default':   _handleDefaultRequest};
 
@@ -1488,6 +1501,7 @@ START REPLICA;
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,
+                                  'css_cloned_website' : _handleCSSClonedWebsiteResponse,
                                   'qr_code': _handleQrCodeResponse,
                                   'svn': _handleSVNResponse,
                                   'smtp': _handleSMTPResponse,
