@@ -326,7 +326,7 @@ class Canarydrop(BaseModel):
         )
         return clonedsite_js
     
-    def get_cloned_site_css(self, force_https: bool = False):
+    def get_cloned_site_css(self, force_https: bool = True):
         protocol = (
             'https://'
             if force_https
