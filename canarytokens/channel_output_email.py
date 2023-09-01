@@ -67,11 +67,13 @@ class EmailResponse(object):
         canarydrop: Canarydrop,
         message_id: str,
         alert_details: TokenAlertDetails,
+        max_alert_failures: int,
     ):
         self.status = status
         self.canarydrop = canarydrop
         self.message_id = message_id
         self.alert_details = alert_details
+        self.max_alert_failures = max_alert_failures
 
     def handle(self):
         method_name = f"handle_{self.status.value}"
@@ -97,10 +99,7 @@ class EmailResponse(object):
 
     def handle_error(self):
         self.canarydrop.record_alert_failure()
-        if (
-            self.canarydrop.alert_failure_count
-            > self.switchboard.switchboard_settings.MAX_ALERT_FAILURES
-        ):
+        if self.canarydrop.alert_failure_count > self.max_alert_failures:
             log.info(
                 f"Email for token {self.canarydrop.canarytoken.value()} has returned too many errors, disabling it."
             )
@@ -396,7 +395,13 @@ class EmailOutputChannel(OutputChannel):
             log.error("No email settings found")
 
         self.handle_email_response(
-            EmailResponse(email_response_status, canarydrop, message_id, alert_details)
+            EmailResponse(
+                status=email_response_status,
+                canarydrop=canarydrop,
+                message_id=message_id,
+                alert_details=alert_details,
+                max_alert_failures=self.switchboard_settings.MAX_ALERT_FAILURES,
+            )
         )
         return alert_details
 
