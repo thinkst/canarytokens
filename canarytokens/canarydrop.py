@@ -337,9 +337,8 @@ class Canarydrop(BaseModel):
         )
         clonedsite_css = textwrap.dedent(
             f"""
-            span#token {{
+            body {{
                 background: url('{protocol}{url}');
-                visiblity: hidden;
             }}
             """
         )
