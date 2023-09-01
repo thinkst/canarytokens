@@ -588,7 +588,7 @@ class ClonedWebTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     clonedsite: str
 
-class CSSClonedSiteTokenRequest(TokenRequest):
+class CSSClonedWebTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     expected_referrer: str
 
@@ -676,7 +676,7 @@ AnyTokenRequest = Annotated[
         Log4ShellTokenRequest,
         SMTPTokenRequest,
         ClonedWebTokenRequest,
-        CSSClonedSiteTokenRequest,
+        CSSClonedWebTokenRequest,
         WindowsDirectoryTokenRequest,
         WebBugTokenRequest,
         SlowRedirectTokenRequest,
