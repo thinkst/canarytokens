@@ -104,9 +104,11 @@ class Canarydrop(BaseModel):
     sql_server_view_name: Optional[str]
     sql_server_function_name: Optional[str]
     sql_server_trigger_name: Optional[str]
-    # Custom upload stuff.
+    # Custom upload stuff
     file_contents: Optional[str]
     file_name: Optional[str]
+    # CSS cloned site stuff
+    expected_referrer: Optional[str]
 
     # AWS key specific stuff
     aws_access_key_id: Optional[str]
@@ -323,6 +325,25 @@ class Canarydrop(BaseModel):
             """
         )
         return clonedsite_js
+    
+    def get_cloned_site_css(self, force_https: bool = False):
+        protocol = (
+            'https://'
+            if force_https
+            else 'http://'
+        )
+        url = self.generate_random_url(
+            queries.get_all_canary_domains(), skip_cache=True
+        )
+        clonedsite_css = textwrap.dedent(
+            f"""
+            span#token {{
+                background: url('{protocol}{url}');
+                visiblity: hidden;
+            }}
+            """
+        )
+        return clonedsite_css
 
     @staticmethod
     def generate_mysql_usage(
