@@ -464,10 +464,10 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
-    def _get_info_for_cssclonedsite(request):
+    def _get_info_for_cssclonedsite(request: Request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
 
-        referer = request.args.get(b"r", [None])[0]
+        referer = request.getHeader('Referer')
         src_data = {
             "referer": referer,
         }

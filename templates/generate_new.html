@@ -1051,7 +1051,7 @@ START REPLICA;
       }
 
       var checkCSSClonedWebsite = function() {
-        cloned_website = $('input[name=cssclonedsite]');
+        cloned_website = $('input[name=expected_referrer]');
         if (! cloned_website.parents('.field-css_cloned_website').hasClass('hidden')) {
           //only perform checks if field is visible. could be multiple checks
           if (cloned_website.val().length == 0) {
@@ -1420,7 +1420,7 @@ START REPLICA;
           unobfuscated_cloned_website_js.innerHTML = unobfuscated_cloned_website_js.innerHTML.trim()
         }
         var _handleCSSClonedWebsiteResponse = function(data) {
-          $('#result_css_cloned_website').val(data['clonedsite_css']);
+          $('#result_css_cloned_website').val(data['css']);
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);

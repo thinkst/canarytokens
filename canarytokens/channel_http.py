@@ -100,10 +100,12 @@ class CanarytokenPage(InputChannel, resource.Resource):
         handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
         http_general_info, src_data = handler(request)
 
-        if canarydrop.type == TokenTypes.CSSCLONEDSITE and canarydrop.expected_referrer in src_data.get('referrer', ''):
-            # The image was loaded with the expected referrer, so this is not something to trigger on
-            request.setHeader("Content-Type", "image/gif")
-            return GIF
+        if canarydrop.type == TokenTypes.CSSCLONEDSITE:
+            log.info(f"Got a cloned CSS with referrer: {src_data.get('referer', '')} expected: {canarydrop.expected_referrer}")
+            if canarydrop.expected_referrer in src_data.get('referer', ''):
+                # The image was loaded with the expected referrer, so this is not something to trigger on
+                request.setHeader("Content-Type", "image/gif")
+                return GIF
 
         # TODO we should fail gracefully when third party dependency fails
         geo_info = queries.get_geoinfo(ip=http_general_info["src_ip"])
