@@ -328,7 +328,7 @@ class Canarydrop(BaseModel):
         return clonedsite_js
     
     def get_cloned_site_css(self, cf_url : str):
-        token_val = self.canarytoken.value
+        token_val = self.canarytoken.value()
         expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
         clonedsite_css = textwrap.dedent(
             f"""
