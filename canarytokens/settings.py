@@ -112,6 +112,7 @@ class FrontendSettings(BaseSettings):
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
+    CLOUDFRONT_URL: Optional[HttpUrl]
 
     class Config:
         allow_mutation = False

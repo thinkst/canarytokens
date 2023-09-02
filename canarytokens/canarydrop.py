@@ -16,6 +16,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta
 from hashlib import md5
 from pathlib import Path
+from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, parse_obj_as, root_validator
@@ -326,19 +327,13 @@ class Canarydrop(BaseModel):
         )
         return clonedsite_js
     
-    def get_cloned_site_css(self, force_https: bool = True):
-        protocol = (
-            'https://'
-            if force_https
-            else 'http://'
-        )
-        url = self.generate_random_url(
-            queries.get_all_canary_domains(), skip_cache=True
-        )
+    def get_cloned_site_css(self, cf_url : str):
+        token_val = self.canarytoken.value
+        expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
         clonedsite_css = textwrap.dedent(
             f"""
             body {{
-                background: url('{protocol}{url}') !important;
+                background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
             }}
             """
         )
