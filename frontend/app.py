@@ -870,7 +870,7 @@ def _(
         hostname=canarydrop.generated_hostname,
         token_usage=canarydrop.canarytoken.value(),
         url_components=list(canarydrop.get_url_components()),
-        css=canarydrop.get_cloned_site_css(),
+        css=canarydrop.get_cloned_site_css(frontend_settings.CLOUDFRONT_URL),
     )
 
 

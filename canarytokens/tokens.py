@@ -470,7 +470,7 @@ class Canarytoken(object):
         referer = request.getHeader('Referer')
         src_data = {
             "referer": referer,
-            "referrer": referer,
+            "Suspected Phishing Site": request.args.get(b"r", [None])[0],
         }
         return http_general_info, src_data
 
