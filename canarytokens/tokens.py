@@ -468,9 +468,12 @@ class Canarytoken(object):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
 
         referer = request.getHeader('Referer')
+        r_arg = request.args.get(b"r", [None])[0]
+        if r_arg != None:
+            r_arg = r_arg.decode()
         src_data = {
             "referer": referer,
-            "Suspected Phishing Site": request.args.get(b"r", [None])[0],
+            "referrer": r_arg,
         }
         return http_general_info, src_data
 
