@@ -585,7 +585,7 @@ def trigger_http_token(
     version: Union[V2, V3],
     headers: Optional[dict] = None,
     params: Optional[dict] = None,
-    method: Optional[str] = "get",
+    method: Optional[str] = "GET",
     **kwargs: dict,
 ) -> requests.Response:
     """Triggers a token by making a http GET. Uses version to
