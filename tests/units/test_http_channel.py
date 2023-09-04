@@ -374,7 +374,7 @@ def test_GET_cc_token_back(
 
 def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
     """
-    Test canarytokens http (OPTIONS) channel.
+    Alert triggers on HTTP OPTIONS request to Canarytokens HTTP channel
     """
     http_channel = ChannelHTTP(
         switchboard=switchboard,
