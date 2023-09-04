@@ -15,7 +15,7 @@ from twisted.logger import Logger
 
 from canarytokens import canarydrop as cand
 from canarytokens import models, tokens
-from canarytokens.exceptions import CanarydropAuthFailure, NoCanarytokenPresent
+from canarytokens.exceptions import CanarydropAuthFailure, NoCanarydropFound
 from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACCOUNTS,; KEY_CANARY_NXDOMAINS,; KEY_CANARYTOKEN_ALERT_COUNT,; KEY_CLONEDSITE_TOKEN,; KEY_CLONEDSITE_TOKENS,; KEY_IMGUR_TOKEN,; KEY_IMGUR_TOKENS,; KEY_KUBECONFIG_CERTS,; KEY_KUBECONFIG_HITS,; KEY_KUBECONFIG_SERVEREP,; KEY_LINKEDIN_ACCOUNT,; KEY_LINKEDIN_ACCOUNTS,; KEY_USER_ACCOUNT,
     DB,
     KEY_AUTH_IDX,
@@ -48,7 +48,7 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
     canarydrop: dict = DB.get_db().hgetall(KEY_CANARYDROP + canarytoken.value())
 
     if len(canarydrop) == 0:
-        raise NoCanarytokenPresent(f"Failed to find drop for: {canarytoken.value()}")
+        raise NoCanarydropFound(f"Failed to find drop for: {canarytoken.value()}")
 
     if "triggered_details" in canarydrop:
         canarydrop["triggered_details"] = json.loads(
@@ -75,7 +75,7 @@ def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop
     """Fetches a drop given a `token` and it's associated `auth`."""
     try:
         canarydrop = get_canarydrop(tokens.Canarytoken(token))
-    except NoCanarytokenPresent:
+    except NoCanarydropFound:
         raise CanarydropAuthFailure("Canarydrop associated with token is missing.")
     if not secrets.compare_digest(token, canarydrop.canarytoken.value()):
         raise CanarydropAuthFailure(

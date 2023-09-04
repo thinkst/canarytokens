@@ -13,7 +13,7 @@ from twisted.web.server import GzipEncoderFactory, Request
 from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
-from canarytokens.exceptions import NoCanarytokenFoundInQuery, NoCanarytokenPresent
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import AnyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -83,7 +83,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 canarytoken = Canarytoken(value=request.path)
             else:
                 canarytoken = Canarytoken(value=request.uri)
-        except NoCanarytokenFoundInQuery as e:
+        except NoCanarytokenFound as e:
             log.info(
                 f"HTTP GET on path {request.path} did not correspond to a token. Error: {e}"
             )
@@ -92,7 +92,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
 
         try:
             canarydrop = get_canarydrop(canarytoken)
-        except NoCanarytokenPresent as e:
+        except NoCanarydropFound as e:
             log.info(f"Error: {e}")
             request.setHeader("Content-Type", "image/gif")
             return GIF
@@ -133,13 +133,13 @@ class CanarytokenPage(InputChannel, resource.Resource):
     def render_POST(self, request: Request):
         try:
             token = Canarytoken(value=request.path)
-        except NoCanarytokenFoundInQuery:
+        except NoCanarytokenFound:
             log.info(f"No token found in {request.path=}.")
             return b"failed"
 
         try:
             canarydrop = get_canarydrop(token)
-        except NoCanarytokenPresent as e:
+        except NoCanarydropFound as e:
             log.info(f"Canarydrop not found for token {token.value()}. Error: {e}")
             return b"failed"
         # if key and token args are present, we are either:

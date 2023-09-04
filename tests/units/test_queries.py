@@ -5,7 +5,7 @@ from pydantic import EmailStr
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.exceptions import CanarydropAuthFailure, NoCanarytokenPresent
+from canarytokens.exceptions import CanarydropAuthFailure, NoCanarydropFound
 from canarytokens.models import (
     AdditionalInfo,
     DNSTokenHit,
@@ -130,7 +130,7 @@ def test_remove_tokens_with_email_x(setup_db):
     queries.delete_email_tokens(email_address=email)
 
     # Check that token has been removed.
-    with pytest.raises(NoCanarytokenPresent):
+    with pytest.raises(NoCanarydropFound):
         cd = get_canarydrop(canarytoken=canarytoken)
 
     tokens_linked_to_email = queries.list_email_tokens(email_address=email)
@@ -172,7 +172,7 @@ def test_remove_tokens_with_webhook_x():
     queries.delete_webhook_tokens(webhook=webhook)
 
     # Check that token has been removed.
-    with pytest.raises(NoCanarytokenPresent):
+    with pytest.raises(NoCanarydropFound):
         cd = get_canarydrop(canarytoken=canarytoken)
     tokens_linked_to_webhook = queries.list_webhook_tokens(webhook=webhook)
     assert len(tokens_linked_to_webhook) == 0

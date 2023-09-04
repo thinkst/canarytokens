@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from canarytokens import canarydrop
-from canarytokens.exceptions import NoCanarytokenFoundInQuery
+from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import TokenTypes
 from canarytokens.queries import get_canarydrop, save_canarydrop
 from canarytokens.redismanager import DB
@@ -46,7 +46,7 @@ def test_canarydrop(token_type):
 
 
 def test_not_found_token():
-    with pytest.raises(NoCanarytokenFoundInQuery):
+    with pytest.raises(NoCanarytokenFound):
         Canarytoken.find_canarytoken("not_in_db")
 
 

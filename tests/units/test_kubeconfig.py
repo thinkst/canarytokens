@@ -17,7 +17,7 @@ from canarytokens.channel_input_mtls import (
     mTLSFactory,
 )
 from canarytokens.constants import CANARYTOKEN_ALPHABET
-from canarytokens.exceptions import NoCanarytokenFoundInQuery
+from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.kubeconfig import KubeConfig, get_kubeconfig
 from canarytokens.models import TokenTypes
 from canarytokens.queries import save_certificate
@@ -129,7 +129,7 @@ def test_mtls_factory_receive_lines(
     assert len(updated_drop.triggered_details.hits) == 1
     assert updated_drop.triggered_details.hits[0].geo_info.ip == chirp_data["ip"]
 
-    with pytest.raises(NoCanarytokenFoundInQuery):
+    with pytest.raises(NoCanarytokenFound):
         chirp_data["tf"] = b"thisisnotavalidtoken"
         mtls.chirp(trigger=chirp_data)
 

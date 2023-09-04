@@ -8,7 +8,7 @@ from twisted.logger import Logger
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_MYSQL
-from canarytokens.exceptions import NoCanarytokenFoundInQuery, NoCanarytokenPresent
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import AdditionalInfo, MySQLTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.switchboard import Switchboard
@@ -38,7 +38,7 @@ class CanaryMySQLProtocol(Protocol):
         try:
             canarydrop, hit = self.handleQuery(src_host, self.buf)
             self.factory.dispatch(canarydrop=canarydrop, token_hit=hit)
-        except (ValueError, NoCanarytokenFoundInQuery, NoCanarytokenPresent) as e:
+        except (ValueError, NoCanarytokenFound, NoCanarydropFound) as e:
             log.info(f"{e}")
         except Exception as e:
             log.error(f"Error in MySQL channel: {e} | Data received: {data}")
