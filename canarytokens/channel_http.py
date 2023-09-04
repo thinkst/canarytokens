@@ -138,7 +138,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         request.setHeader("Allow", "OPTIONS, GET, POST")
         request.setResponseCode(200)
         request.responseHeaders.removeHeader("Content-Type")
-        return ""
+        return b""
 
     def render_POST(self, request: Request):
         try:

@@ -401,6 +401,7 @@ def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
     request.client = client
     request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
     request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
-    http_channel.canarytoken_page.render_OPTIONS(request)
+    resp = http_channel.canarytoken_page.render_OPTIONS(request)
+    assert isinstance(resp, bytes), "HTTP Channel did not return bytes"
     cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
     assert len(cd_updated.triggered_details.hits) == 1
