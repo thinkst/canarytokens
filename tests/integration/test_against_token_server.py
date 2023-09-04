@@ -336,8 +336,8 @@ def test_unique_email_token(
 
 
 @pytest.mark.parametrize(
-    "version",
-    [v2, v3],
+    "version, method",
+    [(v2, "get"), (v3, "get"), (v3, "options")],
 )
 def test_web_bug_token(version: Union[V2, V3], webhook_receiver, runv2, runv3) -> None:
     """

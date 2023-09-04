@@ -585,6 +585,7 @@ def trigger_http_token(
     version: Union[V2, V3],
     headers: Optional[dict] = None,
     params: Optional[dict] = None,
+    method: Optional[str] = "get",
     **kwargs: dict,
 ) -> requests.Response:
     """Triggers a token by making a http GET. Uses version to
@@ -603,7 +604,9 @@ def trigger_http_token(
     else:
         turl: HttpUrl = token_info.token_url
         token_url = f"{turl.scheme}://{version.canarytokens_domain}:8083{turl.path}"
-    return requests.get(
+
+    _method_func = getattr(requests, method.lower())
+    return _method_func(
         token_url, headers=headers, params=params, timeout=(3, 3), **kwargs
     )
 
