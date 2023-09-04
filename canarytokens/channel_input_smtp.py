@@ -15,7 +15,7 @@ from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_SMTP
-from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import (
     SMTPHeloField,
     SMTPMailField,
@@ -175,7 +175,7 @@ class CanaryESMTP(smtp.ESMTP):
                 )
                 save_canarydrop(self.canarydrop)
             return lambda: CanaryMessage(esmtp=self)
-        except (NoCanarytokenPresent, NoCanarytokenFound):
+        except (NoCanarydropFound, NoCanarytokenFound):
             log.warn(
                 "No token in recipient address: {address}".format(
                     address=user.dest.local

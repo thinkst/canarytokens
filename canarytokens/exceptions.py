@@ -12,7 +12,7 @@ class NoCanarytokenFound(Exception):
     pass
 
 
-class NoCanarytokenPresent(Exception):
+class NoCanarydropFound(Exception):
     # TODO: there should be only one exception for a
     # canarytoken not found.
     pass

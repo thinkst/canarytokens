@@ -25,3 +25,8 @@ CANARYTOKEN_ALPHABET = ['0', '1', '2', '3', '4', '5',
 CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
 
 CANARY_PDF_TEMPLATE_OFFSET: int = 793
+
+
+MAILGUN_IGNORE_ERRORS = [
+    "to parameter is not a valid address. please check documentation"
+]

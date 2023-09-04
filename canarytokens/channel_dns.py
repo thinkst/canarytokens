@@ -11,7 +11,7 @@ from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_DNS
-from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import TokenTypes
 from canarytokens.settings import FrontendSettings
 from canarytokens.switchboard import Switchboard
@@ -208,7 +208,7 @@ class ChannelDNS(InputChannel):
         except NoCanarytokenFound:
             log.info(f"Query: {query.name} does not match a token.")
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
-        except NoCanarytokenPresent as e:
+        except NoCanarydropFound as e:
             log.info(f"Query: {query.name} Error: {e}")
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
         except Exception as e:

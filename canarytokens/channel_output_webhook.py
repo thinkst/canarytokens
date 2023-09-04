@@ -70,11 +70,11 @@ class WebhookOutputChannel(OutputChannel):
             log.info(f"Successfully sent to {alert_webhook_url}")
             return True
         except requests.exceptions.HTTPError:
-            log.error(
+            log.debug(
                 f"Failed sending request to webhook {alert_webhook_url}.",
             )
         except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
-            log.error(
+            log.debug(
                 f"Failed connecting to webhook {alert_webhook_url}.",
             )
         return False

@@ -342,16 +342,16 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
                 token_request_details.webhook_url, token_request_details.token_type
             )
         except requests.exceptions.HTTPError:
-            # raise HTTPException(status_code=400, detail="Failed to validate webhook")
             return response_error(
                 3, "Invalid webhook supplied. Confirm you can POST to this URL."
             )
-        except requests.exceptions.ConnectTimeout:
-            # raise HTTPException(
-            #     status_code=400, detail="Failed to validate webhook - timed out."
-            # )
+        except requests.exceptions.Timeout:
             return response_error(
                 3, "Webhook timed out. Confirm you can POST to this URL."
+            )
+        except requests.exceptions.ConnectionError:
+            return response_error(
+                3, "Failed to connect to webhook. Confirm you can POST to this URL."
             )
 
     if token_request_details.email:

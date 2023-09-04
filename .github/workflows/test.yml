@@ -8,6 +8,11 @@ on:
       - "dev_v3"
       - "dev"
 
+  workflow_dispatch:
+    inputs:
+      canarytokens-branch:
+        description: "Branch of the canarytokens repo to pull for build. Defaults to master"
+        required: false
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -52,7 +57,9 @@ jobs:
           role-to-assume: arn:aws:iam::164951611079:role/Canarytokens-staging-github-action
           role-session-name: GitHubActions-${{ github.actor }}-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: '${{ github.event.inputs.canarytokens-branch }}'
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2

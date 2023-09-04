@@ -1407,6 +1407,57 @@ START REPLICA;
                                   'default':   _handleDefaultResponse
                                  };
 
+        function handleGenerateResponse( data, type ) {
+          if (data['error'] !== null){
+            if (data['error'] == '1'){
+                $('#endpoints_errors').html('Malformed request, invalid data supplied.');
+                $('#endpoints').addClass('error-outline').removeClass('success-outline');
+                $('#endpoints_errors').show();
+            } else if (data['error'] == '2'){
+                $('#memo_errors').html('Provide a memo to remind you what this token is used for.');
+                $('#memo_errors').show();
+                $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
+            } else if (data['error'] == '3'){
+                $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"text":"test"}\' URL</pre></p>');
+                $('#endpoints_errors').show();
+                $('#endpoints').addClass('error-outline').removeClass('success-outline');
+            } else if (data['error'] == '4'){
+                $('#file_upload_errors').html(data['error_message']);
+                $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
+                $('#file_upload_errors').show();
+            } else if (data['error'] == '5'){
+                $('#endpoints_errors').html('<p>Invalid email supplied.</p>');
+                $('#endpoints_errors').show();
+                $('#endpoints').addClass('error-outline').removeClass('success-outline');
+            } else if (data['error'] == '6'){
+                $('#endpoints_errors').html('<p>Blocked email supplied. <br>Please see our <a href="/legal">Acceptable Use Policy</a>.</p>');
+                $('#endpoints_errors').show();
+                $('#endpoints').addClass('error-outline').removeClass('success-outline');
+            } else {
+                $('#memo_errors').html('An unexpected error occurred');
+                $('#memo_errors').show();
+                $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
+            }
+            showSave();
+          }else{
+            $('.error-field').hide();
+            $('.result').hide();
+            $('.result.'+type).show();
+            //swap out the layers to make the results visible
+            $('.success').addClass('success-visible');
+            $('.create').addClass('create-hidden');
+
+            cb = _responseCallbacks[type];
+            if (!cb) {
+              cb =_responseCallbacks['default'];
+            }
+            cb(data)
+
+            $('a.manage-link').prop('href', '/manage?token='+data['token']+'&auth='+data['auth_token']);
+            $('nav').removeClass('hidden');
+          }
+        }
+
         function processForm( e ){
             var type = $('input[name=type]').val();
             var data;
@@ -1445,59 +1496,12 @@ START REPLICA;
                 data: data,
                 success: function(data){
                     $('#save').prop('disabled',false);
-
-                    //$('.loader').addClass('hide');
-                    if (data['error'] !== null){
-                      if (data['error'] == '1'){
-                          $('#endpoints_errors').html('Malformed request, invalid data supplied.');
-                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                          $('#endpoints_errors').show();
-                      } else if (data['error'] == '2'){
-                          $('#memo_errors').html('Provide a memo to remind you what this token is used for.');
-                          $('#memo_errors').show();
-                          $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['error'] == '3'){
-                          $('#endpoints_errors').html('<p>Invalid webhook supplied, confirm you can POST to this URL with:</p><p><pre>curl -H "Content-Type: application/json" -d \'{"":""}\' URL</pre></p>');
-                          $('#endpoints_errors').show();
-                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['error'] == '4'){
-                          $('#file_upload_errors').html(data['error_message']);
-                          $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
-                          $('#file_upload_errors').show();
-                      } else if (data['error'] == '5'){
-                          $('#endpoints_errors').html('<p>Invalid email supplied.</p>');
-                          $('#endpoints_errors').show();
-                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                      } else if (data['error'] == '6'){
-                          $('#endpoints_errors').html('<p>Blocked email supplied. <br>Please see our <a href="/legal">Acceptable Use Policy</a>.</p>');
-                          $('#endpoints_errors').show();
-                          $('#endpoints').addClass('error-outline').removeClass('success-outline');
-                      } else {
-                          $('#memo_errors').html('An unexpected error occurred');
-                          $('#memo_errors').show();
-                          $('textarea[name=memo]').addClass('error-outline').removeClass('success-outline');
-                      }
-                      showSave();
-                    }else{
-                      $('.error-field').hide();
-                      $('.result').hide();
-                      $('.result.'+type).show();
-                      //swap out the layers to make the results visible
-                      $('.success').addClass('success-visible');
-                      $('.create').addClass('create-hidden');
-
-                      cb = _responseCallbacks[type];
-                      if (!cb) {
-                        cb =_responseCallbacks['default'];
-                      }
-                      cb(data)
-
-                      $('a.manage-link').prop('href', '/manage?token='+data['token']+'&auth='+data['auth_token']);
-                      $('nav').removeClass('hidden');
-                    }
+                    handleGenerateResponse(data, type);
                 },
                 error: function( jqXhr, textStatus, errorThrown){
-                  if ( errorThrown == "Request Entity Too Large" ){
+                  if ('responseJSON' in jqXhr) {
+                    handleGenerateResponse(jqXhr.responseJSON, type)
+                  } else if ( errorThrown == "Request Entity Too Large" ){
                     $('#file_upload_errors').html("File too large.");
                     $('.fileupload-wrapper').addClass('error-outline').removeClass('success-outline');
                     $('#file_upload_errors').show();

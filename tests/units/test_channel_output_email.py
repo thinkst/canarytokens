@@ -12,6 +12,7 @@ from canarytokens.channel_output_email import (
     EmailOutputChannel,
     mailgun_send,
     sendgrid_send,
+    EmailResponseStatuses,
 )
 from canarytokens.models import (
     DNSTokenHistory,
@@ -112,11 +113,8 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
     assert "SRV01" in email_template
 
 
-def test_sendgrid_send(
-    settings: SwitchboardSettings, frontend_settings: FrontendSettings
-):
-    sb = Switchboard()
-    details = TokenAlertDetails(
+def _get_send_token_details() -> TokenAlertDetails:
+    return TokenAlertDetails(
         channel="DNS",
         token=Canarytoken().value(),
         token_type=TokenTypes.DNS,
@@ -127,53 +125,66 @@ def test_sendgrid_send(
         additional_data={},
     )
 
-    _ = EmailOutputChannel(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=sb,
-    )
 
-    success, message_id = sendgrid_send(
+@pytest.mark.parametrize(
+    "email,expected_result_type",
+    [
+        (
+            "http://notawebsiteIhopeorknowof.invalid",
+            EmailResponseStatuses.ERROR,
+        ),
+        ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
+        ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
+    ],
+)
+def test_sendgrid_send(
+    settings: SwitchboardSettings,
+    email: str,
+    expected_result_type: EmailResponseStatuses,
+):
+    details = _get_send_token_details()
+
+    result, message_id = sendgrid_send(
         api_key=settings.SENDGRID_API_KEY,
         email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
-        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
         sandbox_mode=True,
     )
-    assert success
-    assert len(message_id) > 0
+    assert result
+    assert result is expected_result_type
+    if result == EmailResponseStatuses.SENT:
+        assert len(message_id) > 0
 
 
+@pytest.mark.parametrize(
+    "email,expected_result_type",
+    [
+        (
+            "http://notawebsiteIhopeorknowof.invalid",
+            EmailResponseStatuses.IGNORED,
+        ),
+        ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
+        ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
+    ],
+)
 def test_mailgun_send(
-    settings: SwitchboardSettings, frontend_settings: FrontendSettings
+    settings: SwitchboardSettings,
+    email: str,
+    expected_result_type: EmailResponseStatuses,
 ):
-    sb = Switchboard()
-    details = TokenAlertDetails(
-        channel="DNS",
-        token=Canarytoken().value(),
-        token_type=TokenTypes.DNS,
-        src_ip="127.0.0.1",
-        time=datetime.datetime.now(),
-        memo="This is a test Memo",
-        manage_url="https://some.link/manage/here",
-        additional_data={},
-    )
 
-    _ = EmailOutputChannel(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=sb,
-    )
-    success, message_id = mailgun_send(
+    details = _get_send_token_details()
+    result, message_id = mailgun_send(
         email_content_html=EmailOutputChannel.format_report_html(
             details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
         ),
         email_content_text=EmailOutputChannel.format_report_text(details),
-        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -181,24 +192,27 @@ def test_mailgun_send(
         base_url=settings.MAILGUN_BASE_URL,
         mailgun_domain=settings.MAILGUN_DOMAIN_NAME,
     )
-    assert success
-    assert len(message_id) > 0
+    assert result
+    assert result is expected_result_type
+    if result == EmailResponseStatuses.SENT:
+        assert len(message_id) > 0
 
 
-def test_do_send_alert(
-    frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
-):
-
+def _do_send_alert(
+    frontend_settings: FrontendSettings,
+    switchboard_settings: SwitchboardSettings,
+    email: str,
+) -> Canarydrop:
     email_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
-        switchboard_settings=settings,
+        switchboard_settings=switchboard_settings,
         switchboard=Switchboard(),
     )
     canarydrop = Canarydrop(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,
         alert_email_enabled=True,
-        alert_email_recipient=EmailStr("tokens-testing@thinkst.com"),
+        alert_email_recipient=EmailStr(email),
         memo=Memo("Test email thanks for checking!"),
         triggered_details=DNSTokenHistory(
             hits=[
@@ -220,6 +234,49 @@ def test_do_send_alert(
             switchboard_scheme="http",
             name="DNS",
         ),
+    )
+    return canarydrop
+
+
+def test_do_send_alert(
+    frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
+):
+    canarydrop = _do_send_alert(
+        frontend_settings, settings, "tokens-testing@thinkst.com"
+    )
+    # Check that the mail is successfully added to the sent queue.
+    mail_key, details = queries.pop_mail_off_sent_queue()
+    assert details.memo == canarydrop.memo
+    assert mail_key is not False
+
+
+def test_bad_format_email(
+    frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
+):
+    canarydrop = _do_send_alert(
+        frontend_settings, settings, "http://testinganemailaddressurl.haha"
+    )
+    # Check canarydrop has been disabled
+    assert (
+        len(canarydrop.get_requested_output_channels()) == 0
+    ), "A requested output channel is enabled still."
+    # Check that the mail is successfully added to the sent queue.
+    queries_canarydrop = queries.get_canarydrop(canarydrop.canarytoken)
+    assert queries_canarydrop.memo == canarydrop.memo
+    assert queries_canarydrop.alert_email_enabled is False
+
+
+def test_non_existent_email(
+    frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
+):
+    """
+    Tests whether an email that is syntactically valid, but doesn't exit should behave.
+
+    Currently, we don't handled this case nicely because mailgun returns a 200 for valid emails
+    that do not exist.
+    """
+    canarydrop = _do_send_alert(
+        frontend_settings, settings, "testing@notanexistingdomainithinksurely.invalid"
     )
     # Check that the mail is successfully added to the sent queue.
     mail_key, details = queries.pop_mail_off_sent_queue()

@@ -26,7 +26,7 @@ from twisted.protocols import basic
 from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_MTLS
-from canarytokens.exceptions import NoCanarytokenFound, NoCanarytokenPresent
+from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import KubeCerts, KubeconfigTokenHit
 from canarytokens.queries import (  # get_kc_hits,; save_kc_hit_for_aggregation,
     get_canarydrop,
@@ -122,7 +122,7 @@ class mTLS(basic.LineReceiver):
         token = Canarytoken(value=trigger["tf"].decode())
         try:
             canarydrop = get_canarydrop(canarytoken=token)
-        except (NoCanarytokenPresent, NoCanarytokenFound):
+        except (NoCanarydropFound, NoCanarytokenFound):
             log.warn(
                 "No token for {tf} | Cert: {f}".format(tf=trigger["tf"], f=trigger["f"])
             )
