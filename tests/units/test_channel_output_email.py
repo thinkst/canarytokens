@@ -130,11 +130,11 @@ def _get_send_token_details() -> TokenAlertDetails:
     "email,expected_result_type",
     [
         (
-            "http://notawebsiteIhopeorknowof.net.com",
+            "http://notawebsiteIhopeorknowof.invalid",
             EmailResponseStatuses.ERROR,
         ),
         ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
-        ("testing@notawebsiteIhopeorknowof.net.com", EmailResponseStatuses.SENT),
+        ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
     ],
 )
 def test_sendgrid_send(
@@ -165,11 +165,11 @@ def test_sendgrid_send(
     "email,expected_result_type",
     [
         (
-            "http://notawebsiteIhopeorknowof.net.com",
+            "http://notawebsiteIhopeorknowof.invalid",
             EmailResponseStatuses.IGNORED,
         ),
         ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
-        ("testing@notawebsiteIhopeorknowof.net.com", EmailResponseStatuses.SENT),
+        ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
     ],
 )
 def test_mailgun_send(
@@ -276,7 +276,7 @@ def test_non_existent_email(
     that do not exist.
     """
     canarydrop = _do_send_alert(
-        frontend_settings, settings, "testing@notanexistingdomainithinksurely.com"
+        frontend_settings, settings, "testing@notanexistingdomainithinksurely.invalid"
     )
     # Check that the mail is successfully added to the sent queue.
     mail_key, details = queries.pop_mail_off_sent_queue()
