@@ -370,3 +370,38 @@ def test_GET_cc_token_back(
     assert cd_updated is not None
     assert len(cd_updated.triggered_details.hits) == 1
     assert cd.type == cd_updated.type
+
+
+def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
+    """
+    Alert triggers on HTTP OPTIONS request to Canarytokens HTTP channel
+    """
+    http_channel = ChannelHTTP(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.WEB,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        browser_scanner_enabled=False,
+    )
+    queries.save_canarydrop(cd)
+
+    client = IPv4Address(type="TCP", host="127.0.0.1", port=8686)
+    request = DummyRequest("/")
+    request.client = client
+    request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
+    request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
+    resp = http_channel.canarytoken_page.render_OPTIONS(request)
+    assert isinstance(resp, bytes), "HTTP Channel did not return bytes"
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert len(cd_updated.triggered_details.hits) == 1

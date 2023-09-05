@@ -85,7 +85,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 canarytoken = Canarytoken(value=request.uri)
         except NoCanarytokenFound as e:
             log.info(
-                f"HTTP GET on path {request.path} did not correspond to a token. Error: {e}"
+                f"HTTP {request.method} on path {request.path} did not correspond to a token. Error: {e}"
             )
             request.setHeader("Content-Type", "image/gif")
             return GIF
@@ -129,6 +129,16 @@ class CanarytokenPage(InputChannel, resource.Resource):
         )
         request.setHeader("Server", "Apache")
         return resp
+
+    def render_OPTIONS(self, request):
+        """
+        Alert as if it is a normal GET request, but return the expected content and headers.
+        """
+        _ = self.render_GET(request)
+        request.setHeader("Allow", "OPTIONS, GET, POST")
+        request.setResponseCode(200)
+        request.responseHeaders.removeHeader("Content-Type")
+        return b""
 
     def render_POST(self, request: Request):
         try:

@@ -336,10 +336,12 @@ def test_unique_email_token(
 
 
 @pytest.mark.parametrize(
-    "version",
-    [v2, v3],
+    "version, method",
+    [(v2, "GET"), (v3, "GET"), (v3, "OPTIONS")],
 )
-def test_web_bug_token(version: Union[V2, V3], webhook_receiver, runv2, runv3) -> None:
+def test_web_bug_token(
+    version: Union[V2, V3], method: str, webhook_receiver, runv2, runv3
+) -> None:
     """
     Tests: web_bug_token
     """
@@ -358,7 +360,10 @@ def test_web_bug_token(version: Union[V2, V3], webhook_receiver, runv2, runv3) -
 
     # Trigger the token
     trigger_http_token(
-        token_info=token_info, version=version, headers={"User-Agent": useragent}
+        token_info=token_info,
+        version=version,
+        headers={"User-Agent": useragent},
+        method=method,
     )
 
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
