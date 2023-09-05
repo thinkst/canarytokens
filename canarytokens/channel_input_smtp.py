@@ -77,7 +77,7 @@ class CanaryMessage:
 
     def eomReceived(self):
         """
-        End of Message(eom) recieved. Create token hit and persist it to redis.
+        End of Message(eom) received. Create token hit and persist it to redis.
         """
         self.esmtp.mail["headers"] = self.headers
         self.esmtp.mail["links"] = self.links_re.findall(b"\r\n".join(self.lines))

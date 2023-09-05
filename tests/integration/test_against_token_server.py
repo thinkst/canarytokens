@@ -79,7 +79,7 @@ def test_basic_v3(version, runv3, runv2):  # pragma: no cover
     token_history = DNSTokenHistory(**resp)
 
     # TODO: what other fields do we want to assert on.
-    #       note: makeing them TokenHistory have stronger validators is
+    #       note: making them TokenHistory have stronger validators is
     #             the better option.
     assert len(token_history.hits) == 1
 
@@ -169,7 +169,7 @@ def test_dns_triggered_tokens(
 
     token_history = token_history_type(**resp)
     # TODO: what other fields do we want to assert on.
-    #       note: makeing them TokenHistory have stronger validators is
+    #       note: making them TokenHistory have stronger validators is
     #             the better option.
     assert len(token_history.hits) == 1
 
@@ -198,7 +198,7 @@ def test_log_4_shell_token(
     Args:
         version (Union[V2, V3]): indicates the server version we testing against.
         hostname_to_retrieve (str): computer_name that we want to recover based on how it's added to the token.
-        webhook_receiver (str): A webhook reciever yto
+        webhook_receiver (str): A webhook receiver yto
     """
     run_or_skip(version, runv2=runv2, runv3=runv3)
     # Create a DNS token request
