@@ -930,7 +930,7 @@ def is_email_blocked(email):
 
 def is_tor_relay(ip):
     if not DB.get_db().exists(KEY_TOR_EXIT_NODES):
-        update_tor_exit_nodes_loop()  # FIXME: DESIGN: we call defered and expect a result in redis, Now!
+        update_tor_exit_nodes_loop()  # FIXME: DESIGN: we call deferred and expect a result in redis, Now!
     return DB.get_db().sismember(KEY_TOR_EXIT_NODES, json.dumps(ip))
 
 

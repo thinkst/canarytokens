@@ -56,7 +56,7 @@ def test_token_request_without_webhook_or_email(email, webhook_url, expected_exc
             token_type=TokenTypes.DNS,
             email=email,
             webhook_url=webhook_url,
-            memo="somehting",
+            memo="something",
         )
 
 

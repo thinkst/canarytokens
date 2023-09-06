@@ -82,7 +82,6 @@ def check_credential_report(event, context):
                 print('No record for key')
                 continue
 
-            # print("Token info retreived from DynamoDB: server={}, token={}, lastalerted={}".format(server, token, last_alerted_timestamp))
             if last_used_timestamp > last_alerted_timestamp:
                 print('Safety net triggered for {}'.format(token))
                 try:
