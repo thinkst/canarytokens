@@ -166,9 +166,11 @@ class AzureID(TypedDict):
     cert_name: str
     cert_file_name: str
 
+
 class GLPat(TypedDict):
     token: str
     expires: str
+
 
 class KubeCerts(TypedDict):
     """Kube digest (f), cert (c) and key (k) are stored directly and not
@@ -343,7 +345,7 @@ readable_token_type_names = {
     TokenTypes.CC: "credit card",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "legacy",
-    TokenTypes.GLPAT: 'GitLab'
+    TokenTypes.GLPAT: "GitLab PAT",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -464,8 +466,10 @@ class TokenRequest(BaseModel):
 class AWSKeyTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
 
+
 class GLPatTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+
 
 class AzureIDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
@@ -742,10 +746,12 @@ class AWSKeyTokenResponse(TokenResponse):
     aws_secret_access_key: str
     output: str
 
+
 class GLPatTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
     pat: str
     expires: str
+
 
 class AzureIDTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
@@ -1416,8 +1422,10 @@ class DNSTokenHit(TokenHit):
 class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
+
 class GLPatTokenHit(TokenHit):
     token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+
 
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
@@ -1651,9 +1659,11 @@ class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
 
+
 class GLPatTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
     hits: List[GLPatTokenHit]
+
 
 class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
     token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API

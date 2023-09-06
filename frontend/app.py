@@ -309,6 +309,8 @@ def generate_page(request: Request) -> HTMLResponse:
         "now": now,
         "awsid_enabled": frontend_settings.AWSID_URL is not None,
         "azureid_enabled": frontend_settings.AZURE_ID_TOKEN_URL is not None,
+        "cc_enabled": frontend_settings.EXTEND_EMAIL is not None,
+        "glpat_enabled": frontend_settings.GLPAT_URL is not None,
     }
     return templates.TemplateResponse("generate_new.html", generate_template_params)
 
@@ -1012,6 +1014,7 @@ def _create_aws_key_token_response(
         output=canarydrop.aws_output,
     )
 
+
 @create_response.register
 def _create_glpat_token_response(
     token_request_details: GLPatTokenRequest,
@@ -1029,7 +1032,7 @@ def _create_glpat_token_response(
             gitlab_broker_url=settings.GLPAT_URL,
             broker_api_key=settings.GLPAT_API_KEY,
             gl_token=None,
-            expires=None
+            expires=None,
         )
     except Exception as e:
         capture_exception(error=e, context=("get_glpat", None))
@@ -1056,7 +1059,7 @@ def _create_glpat_token_response(
         url_components=list(canarydrop.get_url_components()),
         # additional information for GitLab.com PAT token response
         pat=canarydrop.glpat_token,
-        expires=canarydrop.glpat_expires
+        expires=canarydrop.glpat_expires,
     )
 
 
