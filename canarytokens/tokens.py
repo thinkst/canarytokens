@@ -221,8 +221,8 @@ class Canarytoken(object):
         computer_name = matches.group(1).lower()
         user_name = matches.group(2).lower()
         data = {}
-        data["cmd_computer_name"] = "Not Obtained"
-        data["cmd_user_name"] = "Not Obtained"
+        data["cmd_computer_name"] = "(not obtained)"
+        data["cmd_user_name"] = "(not obtained)"
         if user_name and user_name != "u":
             data["cmd_user_name"] = user_name[1:]
         if computer_name and computer_name != "c":
@@ -251,7 +251,7 @@ class Canarytoken(object):
 
         # TODO: refactor (make nice) and make 'x' a variable eg: _l4j_hostname_marker.
         if len(computer_name) <= 1 or not computer_name.startswith("x"):
-            computer_name = "Not Obtained"
+            computer_name = "(not obtained)"
         else:
             computer_name = computer_name[1:]
         data["src_data"] = {"log4_shell_computer_name": computer_name}
