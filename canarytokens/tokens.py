@@ -569,9 +569,9 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
-    def _get_info_for_glpat(request):
-        http_general_info = Canarytoken._grab_http_general_info(request=request)
-        return http_general_info, {}
+    def _get_info_for_glpat(request: Request):
+        hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
+        return {"time_of_hit": hit_time}, {}
 
     @staticmethod
     def _get_response_for_glpat(canarydrop: canarydrop.Canarydrop, request: Request):

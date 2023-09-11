@@ -101,7 +101,10 @@ class CanarytokenPage(InputChannel, resource.Resource):
         http_general_info, src_data = handler(request)
 
         # TODO we should fail gracefully when third party dependency fails
-        geo_info = queries.get_geoinfo(ip=http_general_info["src_ip"])
+        # TODO also sometimes the src_ip is "AWS Internal", we may need to handle this.
+        geo_info = None
+        if "src_ip" in http_general_info:
+            geo_info = queries.get_geoinfo(ip=http_general_info["src_ip"])
 
         hit_info = {
             "token_type": canarydrop.type,
