@@ -219,7 +219,8 @@ class ChannelDNS(InputChannel):
         # if canarydrop._drop['type'] == 'my_sql':
         #     d = deferLater(...)
         if (
-            canarydrop.type in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR]
+            canarydrop.type
+            in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR, TokenTypes.CMD]
             and src_data == {}
         ):
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
