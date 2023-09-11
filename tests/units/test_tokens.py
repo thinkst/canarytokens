@@ -51,7 +51,7 @@ def test_windows_dir_pattern(
     "query, computer_name, should_match,",
     [
         ("xbrokenpc.L4J.sometoken.com", "brokenpc", True),
-        ("ns1.L4J.sometoken.com", "Not Obtained", True),
+        ("ns1.L4J.sometoken.com", "(not obtained)", True),
         ("xbrokenpc.L4.sometoken.com", "brokenpc", False),
     ],
 )
@@ -68,7 +68,7 @@ def test_log4_shell_pattern(query, computer_name, should_match):
     "query, cmd_computer_name,cmd_user_name,should_match,",
     [
         ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", True),
-        ("c.UN.ubrokenuser.CMD.sometoken.com", "Not Obtained", "brokenuser", True),
+        ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", True),
         # ("xbrokenpc.L4.sometoken.com", "brokenpc", False),
     ],
 )
