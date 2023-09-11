@@ -31,7 +31,9 @@ def handle_query_name(query_name: Name) -> Tuple[Canarydrop, Dict[str, str]]:
     # DESIGN: If lookups are unique per type we should use that for this lookup.
     #         V2
     src_data = Canarytoken.look_for_source_data(query_name=query_name_decoded)
-    log.info(f"Recovered: {[o for o in src_data.items()]} for {query_name_decoded}")
+    log.info(
+        f"Recovered: {repr([o for o in src_data.items()])} for {query_name_decoded}"
+    )
     return canarydrop, src_data
 
 
