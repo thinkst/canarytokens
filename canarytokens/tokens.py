@@ -260,7 +260,7 @@ class Canarytoken(object):
     @staticmethod
     def _grab_http_general_info(request: Request):
         """"""
-        useragent = request.getHeader("User-Agent") or "No useragent specified"
+        useragent = request.getHeader("User-Agent") or "(no user-agent specified)"
         src_ip = request.getHeader("x-real-ip") or request.client.host
         # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
         #              and have default.
@@ -379,24 +379,24 @@ class Canarytoken(object):
 
         additional_info = {
             "Azure ID Log Data": {
-                "Date": [json_data.get("time", "Not Available")],
+                "Date": [json_data.get("time", "(not available)")],
                 "Authentication": [auth_details],
             },
             "Microsoft Azure": {
-                "Resource": [json_data.get("resource", "Not Available")],
-                "App ID": [json_data.get("app_id", "Not Available")],
-                "Cert ID": [json_data.get("cert_id", "Not Available")],
+                "Resource": [json_data.get("resource", "(not available)")],
+                "App ID": [json_data.get("app_id", "(not available)")],
+                "Cert ID": [json_data.get("cert_id", "(not available)")],
             },
             "Location": {
-                "city": [location_details.get("city", "Not Available")],
-                "state": [location_details.get("state", "Not Available")],
+                "city": [location_details.get("city", "(not available)")],
+                "state": [location_details.get("state", "(not available)")],
                 "countryOrRegion": [
-                    location_details.get("countryOrRegion", "Not Available")
+                    location_details.get("countryOrRegion", "(not available)")
                 ],
             },
             "Coordinates": {
-                "latitude": [geo_details.get("latitude", "Not Available")],
-                "longitude": [geo_details.get("longitude", "Not Available")],
+                "latitude": [geo_details.get("latitude", "(not available)")],
+                "longitude": [geo_details.get("longitude", "(not available)")],
             },
         }
         hit_info = {
