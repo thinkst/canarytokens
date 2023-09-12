@@ -54,6 +54,8 @@ from canarytokens.models import (
     ClonedWebTokenResponse,
     CSSClonedWebTokenRequest,
     CSSClonedWebTokenResponse,
+    DownloadCSSClonedWebTokenRequest,
+    DownloadCSSClonedWebTokenResponse,
     CMDTokenRequest,
     CMDTokenResponse,
     CustomBinaryTokenRequest,
@@ -568,6 +570,18 @@ def _(
         auth=download_request_details.auth,
         content=canarydrop.cc_rendered_csv,
         filename=f"{canarydrop.canarytoken.value()}.csv",
+    )
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadCSSClonedWebTokenRequest, canarydrop: Canarydrop
+) -> DownloadCSSClonedWebTokenResponse:
+    """"""
+    return DownloadCSSClonedWebTokenResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.get_cloned_site_css(frontend_settings.CLOUDFRONT_URL),
+        filename=f"{canarydrop.canarytoken.value()}.css",
     )
 
 

@@ -543,12 +543,15 @@
                   <div class="form-control">
                     {{ textareacopy('result_css_cloned_website') }}
                   </div>
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
+                  </div>
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
                   <p><h5>Ideas for use:</h5>
                     <ul>
-                      <li>Save this to a CSS file (replace the selector with body) and upload it as a custom branding stylesheet for your Azure login portal.</li>
+                      <li>Save this CSS file and upload it as a custom branding stylesheet for your Azure login portal (Under Azure AD -> Company Branding).</li>
                       <li>Put this CSS style inline on an HTML element.</li>
                     </ul>
                   </p>
@@ -1421,6 +1424,10 @@ START REPLICA;
         }
         var _handleCSSClonedWebsiteResponse = function(data) {
           $('#result_css_cloned_website').val(data['css']);
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
+          });
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);

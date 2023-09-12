@@ -2094,6 +2094,7 @@ class DownloadFmtTypes(str, enum.Enum):
     QRCODE = "qr_code"
     CMD = "cmd"
     CC = "cc"
+    CSSCLONEDSITE = "cssclonedsite"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2171,6 +2172,8 @@ class DownloadAzureIDCertRequest(TokenDownloadRequest):
 class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
+class DownloadCSSClonedWebTokenRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
 
 class DownloadCCRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CC] = DownloadFmtTypes.CC
@@ -2191,6 +2194,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
+        DownloadCSSClonedWebTokenRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
         DownloadKubeconfigRequest,
@@ -2304,6 +2308,13 @@ class DownloadCMDResponse(TokenDownloadResponse):
     token: str
     auth: str
 
+class DownloadCSSClonedWebTokenResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
 
 class DownloadAWSKeysResponse(TokenDownloadResponse):
     contenttype: Literal[
