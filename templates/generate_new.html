@@ -503,6 +503,10 @@
                   <div class="form-control">
                     {{ textareacopy('result_cloned_website') }}
                   </div>
+                  <p>Use this obfuscated Javascript to detect when someone has cloned a webpage. Place this Javascript on the page you wish to protect:</p>
+                  <div class="form-control">
+                    {{ textareacopy('result_cloned_website_obfuscated') }}
+                  </div>
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll include the Javascript. When the Javascript is run it checks whether the domain is expected. If not, it fires the token and you get an alert.</p>
@@ -869,6 +873,7 @@ START REPLICA;
     <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
     <script src="/resources/site.js"></script>
     <script src="/resources/perfect-scrollbar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
     <script>
       // Search through the tokens dropdown by token name
       var input = document.getElementById('search-token');
@@ -985,6 +990,29 @@ START REPLICA;
         return cloned_website.removeClass('error-outline').addClass('success-outline');
       }
 
+      var obfuscateClonedWebJs = function(clonedsite_js) {          
+        // Set java script Obfuscator
+        var JSObfuscator = require('javascript-obfuscator');        
+        // Get inner cloned-site java script code
+        let innerClonedsite_js = clonedsite_js.replace(/^<script>/, '');
+        innerClonedsite_js = innerClonedsite_js.replace(/<\/script>$/, '');
+        // Generate obfuscated cloned-site java script code
+        var obfuscatedCode = JSObfuscator.obfuscate(innerClonedsite_js, {
+          compact: true,
+          simplify: true,
+          stringArray: true,
+          stringArrayRotate: true,
+          stringArrayShuffle: true,
+          stringArrayCallsTransform: true,
+          stringArrayThreshold: 1,
+          stringArrayIndexShift: true,
+          stringArrayEncoding: ['base64'],
+          splitStrings: true,
+          splitStringsChunkLength: 4,
+        }).getObfuscatedCode();
+        return obfuscatedCode;
+      }
+      
       var checkCmd= function() {
         cmd = $('input[name=cmd_process]');
         if (! cmd.parents('.field-cmd').hasClass('hidden')) {
@@ -1316,6 +1344,7 @@ START REPLICA;
 
         var _handleClonedWebsiteResponse = function(data) {
           $('#result_cloned_website').val(data['clonedsite_js']);
+          $('#result_cloned_website_obfuscated').val(obfuscateClonedWebJs(data['clonedsite_js']));
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
