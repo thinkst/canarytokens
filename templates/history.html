@@ -111,11 +111,15 @@
           <div class="incident-item expand" id="item-{{item}}">
                 <p class="details-header">
                 <b>Date:</b> {{ item }}
+    {% if 'src_ip' in canarydrop['triggered_list'][item] %}
                 <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
+    {% endif %}
   {% if canarydrop['type'] == 'aws_keys' %}
                                   <b>Channel:</b> AWS API Key Token
   {% elif canarydrop['type'] == 'cc' %}
                                   <b>Channel:</b> Credit Card Token
+  {% elif canarydrop['type'] == 'glpat' %}
+                                  <b>Channel:</b> GitLab PAT Token
   {% elif canarydrop['type'] == 'azure_id' %}
                                   <b>Channel:</b> Azure Login Certificate Token
   {% else %}
@@ -126,14 +130,15 @@
                 <!-- <script type="text/javascript">
                   appendGeoInfoTest("{{item}}");
                 </script> -->
-  {% if canarydrop['triggered_list'][item]['geo_info'] and not canarydrop['triggered_list'][item]['geo_info']['bogon'] == true%}
+
+  {% if canarydrop['triggered_list'][item]['geo_info'] and not canarydrop['triggered_list'][item]['geo_info']['bogon'] == true %}
               <table class="table table-striped">
                 <col width="25%">
                 <col width="75%">
                 <tr class="header_row">
-                   <td colspan="2">
-                     Geo Info
-                   </td>
+                  <td colspan="2">
+                    Geo Info
+                  </td>
                 </tr>
     {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
                 <tr class="info_row">
@@ -180,8 +185,9 @@
                   appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']|tojson}});
                 </script>
               </table>
-  {%endif%}
-  {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None and canarydrop['type'] != 'cc' %}
+  {% endif %}
+
+  {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None and canarydrop['type'] != 'cc' and canarydrop['type'] != 'glpat' %}
               <table class="table table-bordered table-hover">
                 <col width="25%">
                 <col width="75%">

@@ -225,6 +225,8 @@ def settings_env_vars() -> Generator[None, None, None]:
             "CANARY_TESTING_AWS_SECRET_ACCESS_KEY": "placeholder_secret_key",
             "CANARY_TESTING_AWS_REGION": "us-east-2",
             "CANARY_TESTING_AWS_OUTPUT": "json",
+            "CANARY_TESTING_GLPAT_TOKEN": "glpat_1234567890",
+            "CANARY_TESTING_GLPAT_EXPIRY": "2023-12-31T23:59:59Z",
         },
         clear=False,
     ):

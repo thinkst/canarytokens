@@ -103,6 +103,10 @@ class FrontendSettings(BaseSettings):
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
+    GLPAT_URL: Optional[HttpUrl]
+    GLPAT_API_KEY: Optional[SecretStr] = SecretStr("NoGitLabAPIKeyFound")
+    TESTING_GLPAT_TOKEN: Optional[str]
+    TESTING_GLPAT_EXPIRY: Optional[str]
 
     class Config:
         allow_mutation = False

@@ -46,6 +46,7 @@ log = Logger()
 #         log.error("Failed to send mail via mailgun.")
 #     return not success
 
+
 # success                             -> sent
 # badly formed such as http://bob.com -> ignored (error returned right away)
 # bad domain                          -> sent

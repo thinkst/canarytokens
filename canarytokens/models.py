@@ -167,6 +167,11 @@ class AzureID(TypedDict):
     cert_file_name: str
 
 
+class GLPat(TypedDict):
+    token: str
+    expires: str
+
+
 class KubeCerts(TypedDict):
     """Kube digest (f), cert (c) and key (k) are stored directly and not
     base64 encoded.
@@ -298,6 +303,7 @@ class TokenTypes(str, enum.Enum):
     CC = "cc"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
+    GLPAT = "glpat"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -339,6 +345,7 @@ readable_token_type_names = {
     TokenTypes.CC: "credit card",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "legacy",
+    TokenTypes.GLPAT: "GitLab PAT",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -458,6 +465,10 @@ class TokenRequest(BaseModel):
 
 class AWSKeyTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
+
+
+class GLPatTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
 
 
 class AzureIDTokenRequest(TokenRequest):
@@ -663,6 +674,7 @@ AnyTokenRequest = Annotated[
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
         AzureIDTokenRequest,
+        GLPatTokenRequest,
         PDFTokenRequest,
         DNSTokenRequest,
         Log4ShellTokenRequest,
@@ -733,6 +745,12 @@ class AWSKeyTokenResponse(TokenResponse):
     aws_access_key_id: str
     aws_secret_access_key: str
     output: str
+
+
+class GLPatTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+    pat: str
+    expires: str
 
 
 class AzureIDTokenResponse(TokenResponse):
@@ -960,6 +978,7 @@ AnyTokenResponse = Annotated[
         MsExcelDocumentTokenResponse,
         QRCodeTokenResponse,
         PDFTokenResponse,
+        GLPatTokenResponse,
         DNSTokenResponse,
         MySQLTokenResponse,
         WireguardTokenResponse,
@@ -1404,6 +1423,10 @@ class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
 
+class GLPatTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+
+
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
     last4: Optional[str]
@@ -1543,6 +1566,7 @@ AnyTokenHit = Annotated[
         SlowRedirectTokenHit,
         FastRedirectTokenHit,
         SMTPTokenHit,
+        GLPatTokenHit,
         WebBugTokenHit,
         MySQLTokenHit,
         WireguardTokenHit,
@@ -1634,6 +1658,11 @@ class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
 class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
+
+
+class GLPatTokenHistory(TokenHistory):
+    token_type: Literal[TokenTypes.GLPAT] = TokenTypes.GLPAT
+    hits: List[GLPatTokenHit]
 
 
 class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
@@ -1773,6 +1802,7 @@ AnyTokenHistory = Annotated[
         WireguardTokenHistory,
         QRCodeTokenHistory,
         MySQLTokenHistory,
+        GLPatTokenHistory,
         CustomImageTokenHistory,
         SvnTokenHistory,
         KubeconfigTokenHistory,

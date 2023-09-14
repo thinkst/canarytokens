@@ -15,6 +15,8 @@ from canarytokens.models import (
     AWSKeyTokenHistory,
     CCTokenHistory,
     CreditCard,
+    GLPat,
+    GLPatTokenHistory,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -362,6 +364,50 @@ def test_GET_cc_token_back(
         "Merchant": [merchant],
     }
     request.requestHeaders = Headers(headers)
+    request.method = b"GET"
+    http_channel.site.resource.render(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+
+    assert cd_updated is not None
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd.type == cd_updated.type
+
+
+def test_GET_glpat_token_back(
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    setup_db: None,
+):
+    http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+        switchboard=switchboard,
+    )
+
+    canarytoken = Canarytoken()
+    glpat = GLPat(token="glpat_1234567890", expires="2043-12-31T23:59:59Z")
+
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.GLPAT,
+        triggered_details=GLPatTokenHistory(),
+        alert_email_enabled=False,
+        alert_email_recipient=EmailStr("email@test.com"),
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        glpat_token=glpat["token"],
+        glpat_expires=glpat["expires"],
+    )
+    queries.save_canarydrop(cd)
+
+    request = Request(channel=DummyChannel())
+    request.args = {}
+    request.uri = (
+        f"http://{frontend_settings.DOMAINS[0]}/{canarytoken.value()}".encode()
+    )
+    request.path = f"/{canarytoken.value()}".encode()
     request.method = b"GET"
     http_channel.site.resource.render(request)
 
