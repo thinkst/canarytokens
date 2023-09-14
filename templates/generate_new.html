@@ -73,6 +73,7 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/css/bootstrap3/bootstrap-switch.min.css" integrity="sha256-TmXiemEItWzNM8RAaAW2WZNEadRBPMsiW6RHIQC2D2A=" crossorigin="anonymous" />
     <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=9">
     <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
     <style>
@@ -503,9 +504,18 @@
                   <div class="form-control">
                     {{ textareacopy('result_cloned_website') }}
                   </div>
-                  <p>Use this obfuscated Javascript to detect when someone has cloned a webpage. Place this Javascript on the page you wish to protect:</p>
-                  <div class="form-control">
+                  <div class="row setting">
+                    <div class="col-xs-12 col-md-6 key">
+                      JavaScript Obfuscator<br/><small>Show Obfuscated Java Script</small>
+                    </div>
+                    <div class="col-xs-12 col-md-6 value">
+                      <input class="settings_checkbox" type="checkbox" id="obfuscate-js" name="obfuscate-js">
+                    </div>
+                  </div>
+                  <div id="obfuscate-js-statement" class="artifacts hidden">
+                    <div class="form-control">
                     {{ textareacopy('result_cloned_website_obfuscated') }}
+                    </div>
                   </div>
                 </div>
                 <div class="advice">
@@ -871,6 +881,7 @@ START REPLICA;
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/js/bootstrap-switch.min.js" integrity="sha256-lDGxF93YiQJCM4WXZYZmXNww6vWiPqnVxJgFJvstLGE=" crossorigin="anonymous"></script>
     <script src="/resources/site.js"></script>
     <script src="/resources/perfect-scrollbar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
@@ -991,13 +1002,11 @@ START REPLICA;
       }
 
       var obfuscateClonedWebJs = function(clonedsite_js) {          
-        // Set java script Obfuscator
-        var JSObfuscator = require('javascript-obfuscator');        
         // Get inner cloned-site java script code
         let innerClonedsite_js = clonedsite_js.replace(/^<script>/, '');
         innerClonedsite_js = innerClonedsite_js.replace(/<\/script>$/, '');
         // Generate obfuscated cloned-site java script code
-        var obfuscatedCode = JSObfuscator.obfuscate(innerClonedsite_js, {
+        var obfuscatedCode = JavaScriptObfuscator.obfuscate(innerClonedsite_js, {
           compact: true,
           simplify: true,
           stringArray: true,
@@ -1160,6 +1169,16 @@ START REPLICA;
           }
       }
       $(function() {
+        $(".settings_checkbox").bootstrapSwitch();
+        $('input[type="checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+          if (state) {
+            $('#obfuscate-js-statement').removeClass("hidden");
+            this.value = "on";
+          } else {
+            $('#obfuscate-js-statement').addClass("hidden");
+            this.value = "off";
+          }          
+        });
         /* init dropdown menu */
 		    var dd = new DropDown( $('#type'),
                                 function(event) {

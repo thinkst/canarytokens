@@ -245,6 +245,21 @@
                   {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
                   {%endif%}
                 </div>
+                {% if canarydrop.type == 'clonedsite'%}
+                <div class="row setting">
+                  <div class="col-xs-12 col-md-6 key">
+                    JavaScript Obfuscator<br/><small>Show Obfuscated Java Script</small>
+                  </div>
+                  <div class="col-xs-12 col-md-6 value">
+                    <input class="settings_checkbox" type="checkbox" id="obfuscate-js" name="obfuscate-js">
+                  </div>
+                </div>
+                <div id="obfuscate-js-statement" class="artifacts hidden">
+                  <div class="form-control">
+                  {{ textareacopy('result_cloned_website_obfuscated') }}
+                  </div>
+                </div>
+                {%endif%}                
               </div>
             </div>
             <div class="result log4shell">
@@ -493,6 +508,7 @@ START REPLICA;
   <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
   <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/js/bootstrap-switch.min.js" integrity="sha256-lDGxF93YiQJCM4WXZYZmXNww6vWiPqnVxJgFJvstLGE=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
   <script src="/resources/site.js"></script>
   <script>
     Array.prototype.random = function () {
@@ -525,7 +541,15 @@ START REPLICA;
         } else {
           this.value = "off";
         }
-        save_settings(this);
+        if (this.name === "obfuscate-js") {
+          if (state) {
+            $('#obfuscate-js-statement').removeClass("hidden");
+          } else {
+            $('#obfuscate-js-statement').addClass("hidden");
+          }          
+        } else {
+          save_settings(this);
+        }        
       });
 
       $('.tooltip').tooltipster({
@@ -676,6 +700,35 @@ START REPLICA;
                                 'slow_redirect': _handleSlowRedirectResponse,
                                 'default':   _handleDefaultResponse
                                };
+      var obfuscateClonedWebJs = function(clonedsite_js) {          
+        // Get inner cloned-site java script code
+        let innerClonedsite_js = clonedsite_js.replace(/^<script>/, '');
+        innerClonedsite_js = innerClonedsite_js.replace(/<\/script>$/, '');
+        // Generate obfuscated cloned-site java script code
+        var obfuscatedCode = JavaScriptObfuscator.obfuscate(innerClonedsite_js, {
+          compact: true,
+          simplify: true,
+          stringArray: true,
+          stringArrayRotate: true,
+          stringArrayShuffle: true,
+          stringArrayCallsTransform: true,
+          stringArrayThreshold: 1,
+          stringArrayIndexShift: true,
+          stringArrayEncoding: ['base64'],
+          splitStrings: true,
+          splitStringsChunkLength: 4,
+        }).getObfuscatedCode();
+        return obfuscatedCode;
+      }      
+      // Decode HTML Entities from cloned site js
+      var decodeClonedSiteJs = function(ClonedSiteJs) {
+        let temptextArea = document.createElement("textarea");
+        temptextArea.innerHTML = ClonedSiteJs;
+        return temptextArea.value;
+      }
+      // Add cloned-site obfuscated js to textArea
+      $('#result_cloned_website_obfuscated').val(obfuscateClonedWebJs(decodeClonedSiteJs(`{{canarydrop.get_cloned_site_javascript(force_https)}}`)));
+
       var displayToken = function(data) {
         var type = data['type'];
         $('.result').hide();
