@@ -111,7 +111,9 @@
           <div class="incident-item expand" id="item-{{item}}">
                 <p class="details-header">
                 <b>Date:</b> {{ item }}
+    {% if 'src_ip' in canarydrop['triggered_list'][item] %}
                 <b>IP:</b> {{ canarydrop['triggered_list'][item]['src_ip'] }}
+    {% endif %}
   {% if canarydrop['type'] == 'aws_keys' %}
                                   <b>Channel:</b> AWS API Key Token
   {% elif canarydrop['type'] == 'cc' %}
@@ -128,63 +130,63 @@
                 <!-- <script type="text/javascript">
                   appendGeoInfoTest("{{item}}");
                 </script> -->
-  {% if canarydrop['type'] != 'glpat' %}
-    {% if canarydrop['triggered_list'][item]['geo_info'] and not canarydrop['triggered_list'][item]['geo_info']['bogon'] == true %}
-                <table class="table table-striped">
-                  <col width="25%">
-                  <col width="75%">
-                  <tr class="header_row">
-                    <td colspan="2">
-                      Geo Info
-                    </td>
-                  </tr>
-      {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
-                  <tr class="info_row">
-                    <td>Country</td>
-                    <td>
-                        {{ canarydrop['triggered_list'][item]['geo_info']['country'] }}
-                        <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i>
-                    </td>
-                  </tr>
-      {% endif %}
-      {% if canarydrop['triggered_list'][item]['geo_info']['city'] %}
-                  <tr class="info_row">
-                    <td>City</td>
-                    <td>
-                        {{ canarydrop['triggered_list'][item]['geo_info']['city'] }}
-                    </td>
-                  </tr>
-      {% endif %}
-      {% if canarydrop['triggered_list'][item]['geo_info']['region'] %}
-                  <tr class="info_row">
-                    <td>Region</td>
-                    <td>
-                        {{ canarydrop['triggered_list'][item]['geo_info']['region'] }}
-                    </td>
-                  </tr>
-      {% endif %}
-      {% if canarydrop['triggered_list'][item]['geo_info']['org'] %}
-                  <tr class="info_row">
-                    <td>Organisation</td>
-                    <td>
-                        {{ canarydrop['triggered_list'][item]['geo_info']['org'] }}
-                    </td>
-                  </tr>
-      {% endif %}
-      {% if canarydrop['triggered_list'][item]['geo_info']['hostname'] %}
-                  <tr class="info_row">
-                    <td>Hostname</td>
-                    <td>
-                        {{ canarydrop['triggered_list'][item]['geo_info']['hostname'] }}
-                    </td>
-                  </tr>
-      {% endif %}
-                  <script type="text/javascript">
-                    appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']|tojson}});
-                  </script>
-                </table>
+
+  {% if canarydrop['triggered_list'][item]['geo_info'] and not canarydrop['triggered_list'][item]['geo_info']['bogon'] == true %}
+              <table class="table table-striped">
+                <col width="25%">
+                <col width="75%">
+                <tr class="header_row">
+                  <td colspan="2">
+                    Geo Info
+                  </td>
+                </tr>
+    {% if canarydrop['triggered_list'][item]['geo_info']['country'] %}
+                <tr class="info_row">
+                  <td>Country</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['country'] }}
+                      <i class="famfamfam-flag-{{(canarydrop['triggered_list'][item]['geo_info']['country'])|lower}}"></i>
+                  </td>
+                </tr>
     {% endif %}
+    {% if canarydrop['triggered_list'][item]['geo_info']['city'] %}
+                <tr class="info_row">
+                  <td>City</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['city'] }}
+                  </td>
+                </tr>
+    {% endif %}
+    {% if canarydrop['triggered_list'][item]['geo_info']['region'] %}
+                <tr class="info_row">
+                  <td>Region</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['region'] }}
+                  </td>
+                </tr>
+    {% endif %}
+    {% if canarydrop['triggered_list'][item]['geo_info']['org'] %}
+                <tr class="info_row">
+                  <td>Organisation</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['org'] }}
+                  </td>
+                </tr>
+    {% endif %}
+    {% if canarydrop['triggered_list'][item]['geo_info']['hostname'] %}
+                <tr class="info_row">
+                  <td>Hostname</td>
+                  <td>
+                      {{ canarydrop['triggered_list'][item]['geo_info']['hostname'] }}
+                  </td>
+                </tr>
+    {% endif %}
+                <script type="text/javascript">
+                  appendGeoInfo("{{item}}",{{canarydrop['triggered_list'][item]['geo_info']|tojson}});
+                </script>
+              </table>
   {% endif %}
+
   {% if canarydrop['triggered_list'][item]['is_tor_relay'] != None and canarydrop['type'] != 'cc' and canarydrop['type'] != 'glpat' %}
               <table class="table table-bordered table-hover">
                 <col width="25%">
