@@ -37,6 +37,7 @@ from canarytokens.models import (
     WebBugTokenHistory,
     WebBugTokenHit,
     json_safe_dict,
+    readable_token_type_names,
 )
 from canarytokens.tokens import Canarytoken
 from tests.utils import v2, v3
@@ -465,6 +466,14 @@ def test_all_requests_have_a_response():
         )
     )
     assert not set_of_request_classes.isdisjoint(set_of_response_classes)
+
+
+def test_all_token_types_have_a_readable_name():
+    for t in TokenTypes:
+        if t not in readable_token_type_names:
+            raise KeyError(
+                f"No readable name found for tokentype: {t.value} (in readable_token_type_names in models.py)"
+            )
 
 
 @pytest.mark.parametrize(

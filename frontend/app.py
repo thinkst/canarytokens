@@ -1031,8 +1031,8 @@ def _create_glpat_token_response(
             server=get_all_canary_domains()[0],
             gitlab_broker_url=settings.GLPAT_URL,
             broker_api_key=settings.GLPAT_API_KEY,
-            gl_token=None,
-            expires=None,
+            gl_token=settings.TESTING_GLPAT_TOKEN,
+            expires=settings.TESTING_GLPAT_EXPIRY,
         )
     except Exception as e:
         capture_exception(error=e, context=("get_glpat", None))

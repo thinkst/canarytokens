@@ -105,6 +105,8 @@ class FrontendSettings(BaseSettings):
     EXTEND_CARD_NAME: Optional[str]
     GLPAT_URL: Optional[HttpUrl]
     GLPAT_API_KEY: Optional[SecretStr] = SecretStr("NoGitLabAPIKeyFound")
+    TESTING_GLPAT_TOKEN: Optional[str]
+    TESTING_GLPAT_EXPIRY: Optional[str]
 
     class Config:
         allow_mutation = False
