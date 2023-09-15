@@ -553,7 +553,7 @@ async def azure_css_landing(admin_consent: str = "", tenant: str = None, state: 
             css = b64decode(unquote(state)).decode()
         if css != None and tenant_id != None:
             install_azure_css(tenant_id, css)
-    return templates.TemplateResponse("close.html")
+    return templates.TemplateResponse("close.html", {})
 
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
