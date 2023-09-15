@@ -541,7 +541,7 @@ async def download(
     "/azure_css_landing",
     tags=["Azure Portal Phishing Protection App"]
 )
-async def azure_css_landing(admin_consent: str = "", tenant: str = None, state: str = None) -> HTMLResponse:
+async def azure_css_landing(request: Request, admin_consent: str = "", tenant: str = None, state: str = None) -> HTMLResponse:
     """
     This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
     Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in 
@@ -553,7 +553,7 @@ async def azure_css_landing(admin_consent: str = "", tenant: str = None, state: 
             css = b64decode(unquote(state)).decode()
         if css != None and tenant_id != None:
             install_azure_css(tenant_id, css)
-    return templates.TemplateResponse("close.html", {})
+    return templates.TemplateResponse("close.html", {"request": request})
 
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
