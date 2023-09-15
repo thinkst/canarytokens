@@ -10,7 +10,7 @@ def _auth_to_tenant(tenant_id: str) -> GraphClient:
     Tenant that the client app has permissions to, returns a Graph API client for that tenant
     """
     cred = ClientSecretCredential(tenant_id, frontend_settings.AZUREAPP_ID, frontend_settings.AZUREAPP_SECRET)
-    return GraphClient(credentials=cred)
+    return GraphClient(credential=cred)
 
 def _check_if_custom_branding(client: GraphClient, tenant_id: str) -> bool:
     """
