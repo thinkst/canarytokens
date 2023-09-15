@@ -16,6 +16,7 @@ from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
 from typing import Any, Optional
+from urllib.parse import unquote
 
 import requests
 import segno
@@ -131,6 +132,7 @@ from canarytokens.models import (
 from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
+from canarytokens.azure_css import install_azure_css
 from canarytokens.pdfgen import make_canary_pdf
 from canarytokens.queries import (
     add_canary_domain,
@@ -535,6 +537,25 @@ async def download(
     )
     return create_download_response(download_request, canarydrop=canarydrop)
 
+@app.get(
+    "/azure_css_landing",
+    tags=["Azure Portal Phishing Protection App"]
+)
+async def azure_css_landing(request: Request) -> HTMLResponse:
+    """
+    This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
+    Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in 
+    a pop-up context.
+    """
+    consent = request.args.get(b'admin_consent', [None])[0]
+    if consent == b'True':
+        if tenant_id := request.args.get(b'tenant', [None])[0]:
+            tenant_id = tenant_id.decode()
+        if css := request.args.get(b'state', [None])[0]:
+            css = b64decode(unquote(css)).decode()
+        if css != None and tenant_id != None:
+            install_azure_css(tenant_id, css)
+    return templates.TemplateRsponse("close.html")
 
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
@@ -885,6 +906,7 @@ def _(
         token_usage=canarydrop.canarytoken.value(),
         url_components=list(canarydrop.get_url_components()),
         css=canarydrop.get_cloned_site_css(frontend_settings.CLOUDFRONT_URL),
+        client_id=frontend_settings.AZUREAPP_ID,
     )
 
 

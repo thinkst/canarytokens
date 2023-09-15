@@ -867,6 +867,7 @@ class ClonedWebTokenResponse(TokenResponse):
 class CSSClonedWebTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     css: Optional[str]
+    client_id: Optional[str]
 
 class FastRedirectTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
