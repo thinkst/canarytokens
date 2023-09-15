@@ -541,18 +541,16 @@ async def download(
     "/azure_css_landing",
     tags=["Azure Portal Phishing Protection App"]
 )
-async def azure_css_landing(request: Request) -> HTMLResponse:
+async def azure_css_landing(admin_consent: str = "", tenant: str = None, state: str = None) -> HTMLResponse:
     """
     This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
     Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in 
     a pop-up context.
     """
-    consent = request.args.get(b'admin_consent', [None])[0]
-    if consent == b'True':
-        if tenant_id := request.args.get(b'tenant', [None])[0]:
-            tenant_id = tenant_id.decode()
-        if css := request.args.get(b'state', [None])[0]:
-            css = b64decode(unquote(css)).decode()
+    if admin_consent == 'True':
+        tenant_id = tenant
+        if css := state:
+            css = b64decode(unquote(state)).decode()
         if css != None and tenant_id != None:
             install_azure_css(tenant_id, css)
     return templates.TemplateRsponse("close.html")
