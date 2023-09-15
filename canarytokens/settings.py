@@ -113,6 +113,8 @@ class FrontendSettings(BaseSettings):
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
     CLOUDFRONT_URL: Optional[HttpUrl]
+    AZUREAPP_ID: Optional[str]
+    AZUREAPP_SECRET: Optional[SecretStr]
 
     class Config:
         allow_mutation = False

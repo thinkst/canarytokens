@@ -546,6 +546,9 @@
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite">Download your CSS file</a>
                   </div>
+                  <div class="form-control">
+                    <a class="btn btn-large btn-success" id="azure_popup">Automatically install your CSS file</a>
+                  </div>
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
@@ -1424,6 +1427,10 @@ START REPLICA;
         }
         var _handleCSSClonedWebsiteResponse = function(data) {
           $('#result_css_cloned_website').val(data['css']);
+          state = escape(btoa(data['css']));
+          redirect = window.location.origin + '/azure_css_landing';
+          loc = "https://login.microsoftonline.com/common/adminconsent?client_id=" + data['client_id'] + "&state=" + state + "&redirect_uri=" + redirect;
+          $('#azure_popup').attr('onclient', 'window.open("' + loc + '")')
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
