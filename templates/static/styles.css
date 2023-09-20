@@ -425,10 +425,6 @@ a.btn-success.btn:hover, a.btn-success.btn:focus {
   display: none;
 }
 
-#result_cloned_website {
-  height: 10rem;
-}
-
 .jumbotron .btn.btn-clipboard {
   background-color: #9d8;
   padding: 5px .5rem;
@@ -442,14 +438,22 @@ a.btn-success.btn:hover, a.btn-success.btn:focus {
   max-width: 15px;
   height: 15px;
 }
-
-
+pre.output-area {
+  display: flex !important;
+  align-items: center;
+  margin-bottom: 0 !important;
+}
+#obfuscated-js-statement .output-area code {
+  overflow-y: auto;
+  height: 231px;
+  white-space: break-spaces;
+}
 .result-data {
-  width: 80%;
+  min-width: 95%;
   min-height: 100px;
   border: none;
   font-family: monospace;
-  padding: 5px 12px;
+  padding: 5px 12px !important;
   font-size: 17px;
   line-height: 20px;
   color: #24292e;
