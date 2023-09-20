@@ -6,7 +6,7 @@
 {%- endmacro %}
 
 {% macro textareacopy(name, value="")%}
-<code id="{{name}}" class="result-data" readonly="" style="text-align: left;">{{value}}
+<code id="{{name}}" readonly="" style="text-align: left;">{{value}}
 </code>
 <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
   <img src="/resources/clippy.svg" alt="Copy to clipboard">
@@ -162,9 +162,9 @@
             <div class="result aws_keys">
               <h5>Here's your AWS key token:</h5>
               <div class="artifacts">
-                <div class="form-control">
+                <pre class="output-area">
                   {{ textareacopy('result_aws_keys') }}
-                </div>
+                </pre>
                 <div class="form-control">
                   <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
                 </div>
@@ -243,14 +243,14 @@
             <div class="result clonedsite">
               <h5>Here's your tokened Javascript:</h5>
               <div class="artifacts">
-                <div class="form-control" id="unobfuscated-js-statement">
+                <div id="unobfuscated-js-statement">
                   <pre class="output-area">
                     {% if canarydrop.type == 'clonedsite'%}
                     {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
                     {%endif%}
                   </pre>
                 </div>
-                <div id="obfuscated-js-statement" class="form-control hidden">
+                <div id="obfuscated-js-statement" class="hidden">
                   <pre class="output-area">
                     {{ textareacopy('result_cloned_website_obfuscated') }}
                   </pre>
@@ -641,7 +641,7 @@ START REPLICA;
         '\naws_secret_access_key = '+ data['aws_secret_access_key']+
         '\noutput = '+ data['output']+
         '\nregion = '+ data['region']);
-        $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
+        $('#result_aws_keys').css('text-align','left');
         $('a.file-download').each(function (i, e){
           e = $(e);
           e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth']);

@@ -442,15 +442,33 @@ pre.output-area {
   display: flex !important;
   align-items: center;
   margin-bottom: 0 !important;
+  position: relative;
+  border-radius: .25rem;
+  white-space: initial;
+}
+pre.output-area code {
+  background-color: #FFF;
+  font-size: 14px;
+}
+pre.output-area code .hljs-variable {
+  color: #1f7b56;
+}
+pre.output-area code .hljs-string {
+  color: #38d47f;
+}
+pre.output-area button.btn.btn-clipboard {
+  position: absolute !important;
+  bottom: 0px;
+  right: 0px;
+  border-radius: .25rem;
 }
 #obfuscated-js-statement .output-area code {
   overflow-y: auto;
-  height: 231px;
-  white-space: break-spaces;
+  height: 200px;
+  white-space: initial;
 }
 .result-data {
-  min-width: 95%;
-  min-height: 100px;
+  min-width: 80%;
   border: none;
   font-family: monospace;
   padding: 5px 12px !important;

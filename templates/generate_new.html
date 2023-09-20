@@ -25,7 +25,7 @@
 {%- endmacro %}
 
 {% macro textareacopy(name, language=None)%}
-  <code id="{{name}}" class="result-data {{ language }}" readonly="" style="text-align: left;">
+  <code id="{{name}}" class="{{ language }}" readonly="" style="text-align: left;">
   </code>
   <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
     <img src="/resources/clippy.svg" alt="Copy to clipboard">
@@ -504,12 +504,12 @@
                 <h3>Your Cloned Website token is active!</h3>
                 <div class="artifacts">
                   <p>Use this Javascript to detect when someone has cloned a webpage. Place this Javascript on the page you wish to protect:</p>
-                  <div id="unobfuscated-js-statement" class="form-control">
+                  <div id="unobfuscated-js-statement">
                     <pre class="output-area">
                       {{ textareacopy('result_cloned_website', 'language-javascript') }}
                     </pre>
                   </div>
-                  <div id="obfuscated-js-statement" class="form-control hidden">
+                  <div id="obfuscated-js-statement" class="hidden">
                     <pre class="output-area">
                     {{ textareacopy('result_cloned_website_obfuscated', 'language-javascript') }}
                     </pre>
@@ -784,9 +784,9 @@ START REPLICA;
                 <h3>Your AWS key token is active!</h3>
                 <div class="artifacts">
                   <p>Copy this credential pair to your clipboard to use as desired:</p>
-                  <div class="form-control">
+                  <pre class="output-area">
                     {{ textareacopy('result_aws_keys', 'language-javascript') }}
-                  </div>
+                  </pre>
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
                   </div>
@@ -1315,7 +1315,7 @@ START REPLICA;
           '\naws_secret_access_key = '+ data['aws_secret_access_key']+
           '\noutput = '+ data['output']+
           '\nregion = '+ data['region']);
-          $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
+          $('#result_aws_keys').css('text-align','left');
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
