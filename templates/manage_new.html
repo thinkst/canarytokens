@@ -241,7 +241,7 @@
             <div class="result clonedsite">
               <h5>Here's your tokened Javascript:</h5>
               <div class="artifacts">
-                <div id="unobfuscated-js-statement">
+                <div id="unobfuscated-js-statement" class="unobfuscated-js-manage">
                   <pre class="output-area">
                     {% if canarydrop.type == 'clonedsite'%}
                     {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
