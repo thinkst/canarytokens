@@ -444,7 +444,6 @@ pre.output-area {
   margin-bottom: 0 !important;
   position: relative;
   border-radius: .25rem;
-  white-space: initial;
 }
 pre.output-area code {
   background-color: #FFF;
