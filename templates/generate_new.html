@@ -162,8 +162,6 @@
                 <input type="hidden" name="fmt">
                 <input type="hidden" name="sql_server_sql_action">
                 <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
-                <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
-                <div class="error-field" id="memo_errors"></div>
                 <div class="field-optional field-web_image hidden">
                   {{ fileupload('web_image', text="Replace the default 1x1 GIF with your own image (PNG, GIF, JPG)") }}
                 </div>
@@ -171,13 +169,13 @@
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
                 </div>
                 <div class="field-optional field-azure_id hidden">
-                  <input class="form-control" type="text" tabindex=3 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate, like: Code_Sign_Server_3.pem">
+                  <input class="form-control" type="text" tabindex=2 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate, like: Code_Sign_Server_3.pem">
                 </div>
                 <div class="field-optional field-cmd hidden">
-                  <input class="form-control" type="text" tabindex=3 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
+                  <input class="form-control" type="text" tabindex=2 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
                 </div>
                 <div class="field-optional field-cloned_website hidden">
-                  <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
+                  <input class="form-control" type="text" tabindex=2 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
                 </div>
                 <div class="error-field" id="file_upload_errors"></div>
                 <div class="field-optional field-sql_server hidden">
@@ -191,15 +189,17 @@
                   	</ul>
                   </div>
                   on
-                  <input class="form-control" type="text" tabindex=4 name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
-                  <input class="form-control" type="text" tabindex=5 name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
+                  <input class="form-control" type="text" tabindex=3 name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
+                  <input class="form-control" type="text" tabindex=4 name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
                   fires
-                  <input class="form-control" type="text" tabindex=6 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
-                  <input class="form-control" type="text" tabindex=7 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
+                  <input class="form-control" type="text" tabindex=5 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
+                  <input class="form-control" type="text" tabindex=6 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
                 </div>
                 <div class="field-optional field-fast_redirect field-slow_redirect hidden">
                   <input class="form-control" type="text" tabindex=3 name="redirect_url" placeholder="https://www.redirect.com">
                 </div>
+                <textarea class="form-control" name="memo" tabindex=6 placeholder="Reminder note when this token is triggered."></textarea>
+                <div class="error-field" id="memo_errors"></div>
               </div>
               <div class="col-md-1">
               </div>
@@ -501,7 +501,8 @@
               <div class="result cloned_website">
                 <h3>Your Cloned Website token is active!</h3>
                 <div class="artifacts">
-                  <p>Use this Javascript to detect when someone has cloned a webpage. Place this Javascript on the page you wish to protect:</p>
+                  <span>Use this Javascript to detect when someone has cloned a webpage.</span><br>
+                  <p>Place this Javascript on the page you wish to protect:</p>
                   <div id="unobfuscated-js-statement" class="unobfuscated-js-generate">
                     <pre class="output-area">
                       {{ textareacopy('result_cloned_website', 'language-javascript') }}
@@ -515,7 +516,7 @@
                   <br>
                   <div class="row setting">
                     <div class="col-xs-12 col-md-6 key">
-                      JavaScript Obfuscator<br/><small>Show Obfuscated JavaScript</small>
+                      Obfuscate Script<br/><small>Show Obfuscated JavaScript</small>
                     </div>
                     <div class="col-xs-12 col-md-6 value">
                       <input class="settings_checkbox" type="checkbox" id="obfuscate-js" name="obfuscate-js">
@@ -526,7 +527,6 @@
                   <p>When someone clones your site, they'll include the Javascript. When the Javascript is run it checks whether the domain is expected. If not, it fires the token and you get an alert.</p>
                   <p><h5>Ideas for use:</h5>
                     <ul>
-                      <li>Run the script through an <a href="https://www.google.com/search?q=JavaScript+Obfuscator">obfuscator</a> to make it harder to pick up.</li>
                       <li>Deploy on the login pages of your sensitive sites, such as OWA or tender systems.</li>
                     </ul>
                   </p>
