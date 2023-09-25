@@ -463,9 +463,11 @@ pre.output-area button.btn.btn-clipboard {
 }
 #unobfuscated-js-statement.unobfuscated-js-generate .output-area code {
   margin-top: -32px;
+  height: 232px;
 }
 #unobfuscated-js-statement.unobfuscated-js-manage .output-area code {
   margin-top: -16px;
+  height: 216px;
 }
 #obfuscated-js-statement .output-area code {
   overflow-y: auto;
