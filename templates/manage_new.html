@@ -6,8 +6,8 @@
 {%- endmacro %}
 
 {% macro textareacopy(name, value="")%}
-<textarea id="{{name}}" class="result-data" readonly="" style="text-align: left;">{{value}}
-</textarea>
+<code id="{{name}}" readonly="" style="text-align: left;">{{value}}
+</code>
 <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
   <img src="/resources/clippy.svg" alt="Copy to clipboard">
 </button>
@@ -45,7 +45,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/css/bootstrap3/bootstrap-switch.min.css" integrity="sha256-TmXiemEItWzNM8RAaAW2WZNEadRBPMsiW6RHIQC2D2A=" crossorigin="anonymous" />
-  <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=1">
+  <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=2">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
 </head>
 
 <body>
@@ -159,9 +160,9 @@
             <div class="result aws_keys">
               <h5>Here's your AWS key token:</h5>
               <div class="artifacts">
-                <div class="form-control">
+                <pre class="output-area" style="white-space: initial;">
                   {{ textareacopy('result_aws_keys') }}
-                </div>
+                </pre>
                 <div class="form-control">
                   <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
                 </div>
@@ -240,11 +241,29 @@
             <div class="result clonedsite">
               <h5>Here's your tokened Javascript:</h5>
               <div class="artifacts">
-                <div class="form-control">
-                  {% if canarydrop.type == 'clonedsite'%}
-                  {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
-                  {%endif%}
+                <div id="unobfuscated-js-statement" class="unobfuscated-js-manage">
+                  <pre class="output-area">
+                    {% if canarydrop.type == 'clonedsite'%}
+                    {{ textareacopy('result_clonedsite', value=canarydrop.get_cloned_site_javascript(force_https)) }}
+                    {%endif%}
+                  </pre>
                 </div>
+                <div id="obfuscated-js-statement" class="hidden">
+                  <pre class="output-area">
+                    {{ textareacopy('result_cloned_website_obfuscated') }}
+                  </pre>
+                </div>
+                <br>
+                {% if canarydrop.type == 'clonedsite'%}
+                <div class="row setting">
+                  <div class="col-xs-12 col-md-6 key">
+                    Obfuscate this script<br/><small>Show Obfuscated JavaScript</small>
+                  </div>
+                  <div class="col-xs-12 col-md-6 value">
+                    <input class="settings_checkbox" type="checkbox" id="obfuscate-js" name="obfuscate-js">
+                  </div>
+                </div>
+                {%endif%}                
               </div>
             </div>
             <div class="result log4shell">
@@ -493,6 +512,9 @@ START REPLICA;
   <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
   <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/js/bootstrap-switch.min.js" integrity="sha256-lDGxF93YiQJCM4WXZYZmXNww6vWiPqnVxJgFJvstLGE=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
   <script src="/resources/site.js"></script>
   <script>
     Array.prototype.random = function () {
@@ -525,7 +547,17 @@ START REPLICA;
         } else {
           this.value = "off";
         }
-        save_settings(this);
+        if (this.name === "obfuscate-js") {
+          if (state) {
+            $('#unobfuscated-js-statement').addClass("hidden");
+            $('#obfuscated-js-statement').removeClass("hidden");
+          } else {
+            $('#unobfuscated-js-statement').removeClass("hidden");
+            $('#obfuscated-js-statement').addClass("hidden");
+          }          
+        } else {
+          save_settings(this);
+        }        
       });
 
       $('.tooltip').tooltipster({
@@ -604,12 +636,12 @@ START REPLICA;
       }
 
       var _handleAWSKeysResponse = function(data){
-        $('#result_aws_keys').val('[default]'+
+        $('#result_aws_keys').append('[default]'+
         '\naws_access_key_id = '+ data['aws_access_key_id']+
         '\naws_secret_access_key = '+ data['aws_secret_access_key']+
         '\noutput = '+ data['output']+
         '\nregion = '+ data['region']);
-        $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
+        $('#result_aws_keys').css('text-align','left');
         $('a.file-download').each(function (i, e){
           e = $(e);
           e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth']);
@@ -676,6 +708,35 @@ START REPLICA;
                                 'slow_redirect': _handleSlowRedirectResponse,
                                 'default':   _handleDefaultResponse
                                };
+      var obfuscateClonedWebJs = function(clonedsite_js) {          
+        // Get inner cloned-site java script code
+        let innerClonedsite_js = clonedsite_js.replace(/^<script>/, '');
+        innerClonedsite_js = innerClonedsite_js.replace(/<\/script>$/, '');
+        // Generate obfuscated cloned-site java script code
+        var obfuscatedCode = JavaScriptObfuscator.obfuscate(innerClonedsite_js, {
+          compact: true,
+          simplify: true,
+          stringArray: true,
+          stringArrayRotate: true,
+          stringArrayShuffle: true,
+          stringArrayCallsTransform: true,
+          stringArrayThreshold: 1,
+          stringArrayIndexShift: true,
+          stringArrayEncoding: ['base64'],
+          splitStrings: true,
+          splitStringsChunkLength: 4,
+        }).getObfuscatedCode();
+        return obfuscatedCode;
+      }      
+      // Decode HTML Entities from cloned site js
+      var decodeClonedSiteJs = function(ClonedSiteJs) {
+        let temptextArea = document.createElement("textarea");
+        temptextArea.innerHTML = ClonedSiteJs;
+        return temptextArea.value;
+      }
+      // Add cloned-site obfuscated js to textArea
+      $('#result_cloned_website_obfuscated').append(obfuscateClonedWebJs(decodeClonedSiteJs(`{{canarydrop.get_cloned_site_javascript(force_https)}}`)));
+
       var displayToken = function(data) {
         var type = data['type'];
         $('.result').hide();
@@ -697,6 +758,7 @@ START REPLICA;
       displayToken(canarydrop);
 
     });
+    hljs.highlightAll();
   </script>
 </body>
 </html>

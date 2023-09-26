@@ -425,10 +425,6 @@ a.btn-success.btn:hover, a.btn-success.btn:focus {
   display: none;
 }
 
-#result_cloned_website {
-  height: 10rem;
-}
-
 .jumbotron .btn.btn-clipboard {
   background-color: #9d8;
   padding: 5px .5rem;
@@ -442,14 +438,47 @@ a.btn-success.btn:hover, a.btn-success.btn:focus {
   max-width: 15px;
   height: 15px;
 }
-
-
+pre.output-area {
+  display: flex !important;
+  align-items: center;
+  margin-bottom: 0 !important;
+  position: relative;
+  border-radius: .25rem;
+}
+pre.output-area code {
+  background-color: #FFF;
+  font-size: 14px;
+}
+pre.output-area code .hljs-variable {
+  color: #1f7b56;
+}
+pre.output-area code .hljs-string {
+  color: #38d47f;
+}
+pre.output-area button.btn.btn-clipboard {
+  position: absolute !important;
+  bottom: 0px;
+  right: 0px;
+  border-radius: .25rem;
+}
+#unobfuscated-js-statement.unobfuscated-js-generate .output-area code {
+  margin-top: -32px;
+  height: 262px;
+}
+#unobfuscated-js-statement.unobfuscated-js-manage .output-area code {
+  margin-top: -16px;
+  height: 246px;
+}
+#obfuscated-js-statement .output-area code {
+  overflow-y: auto;
+  height: 230px;
+  white-space: initial;
+}
 .result-data {
-  width: 80%;
-  min-height: 100px;
+  min-width: 80%;
   border: none;
   font-family: monospace;
-  padding: 5px 12px;
+  padding: 5px 12px !important;
   font-size: 17px;
   line-height: 20px;
   color: #24292e;

@@ -24,9 +24,9 @@
   </button>
 {%- endmacro %}
 
-{% macro textareacopy(name)%}
-  <textarea id="{{name}}" class="result-data" readonly="" style="text-align: left;">
-  </textarea>
+{% macro textareacopy(name, language=None)%}
+  <code id="{{name}}" class="{{ language }}" readonly="" style="text-align: left;">
+  </code>
   <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
     <img src="/resources/clippy.svg" alt="Copy to clipboard">
   </button>
@@ -73,8 +73,10 @@
     <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=9">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/css/bootstrap3/bootstrap-switch.min.css" integrity="sha256-TmXiemEItWzNM8RAaAW2WZNEadRBPMsiW6RHIQC2D2A=" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="/resources/styles.min.css?ver=10">
     <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
     <style>
     .ps__rail-x,
     .ps__rail-y {
@@ -160,8 +162,6 @@
                 <input type="hidden" name="fmt">
                 <input type="hidden" name="sql_server_sql_action">
                 <!--<input class="form-control" type="text" name="memo" tabindex=2 placeholder="Save a reminder of where you're placing the token">-->
-                <textarea class="form-control" name="memo" tabindex=2 placeholder="Reminder note when this token is triggered."></textarea>
-                <div class="error-field" id="memo_errors"></div>
                 <div class="field-optional field-web_image hidden">
                   {{ fileupload('web_image', text="Replace the default 1x1 GIF with your own image (PNG, GIF, JPG)") }}
                 </div>
@@ -169,13 +169,13 @@
                   {{ fileupload('signed_exe', text="Click to select an EXE or DLL for tokening") }}
                 </div>
                 <div class="field-optional field-azure_id hidden">
-                  <input class="form-control" type="text" tabindex=3 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate, like: Code_Sign_Server_3.pem">
+                  <input class="form-control" type="text" tabindex=2 name="azure_id_cert_file_name" placeholder="File Name of Azure ID Certificate, like: Code_Sign_Server_3.pem">
                 </div>
                 <div class="field-optional field-cmd hidden">
-                  <input class="form-control" type="text" tabindex=3 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
+                  <input class="form-control" type="text" tabindex=2 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
                 </div>
                 <div class="field-optional field-cloned_website hidden">
-                  <input class="form-control" type="text" tabindex=3 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
+                  <input class="form-control" type="text" tabindex=2 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
                 </div>
                 <div class="error-field" id="file_upload_errors"></div>
                 <div class="field-optional field-sql_server hidden">
@@ -189,15 +189,17 @@
                   	</ul>
                   </div>
                   on
-                  <input class="form-control" type="text" tabindex=4 name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
-                  <input class="form-control" type="text" tabindex=5 name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
+                  <input class="form-control" type="text" tabindex=3 name="sql_server_table_name" placeholder="Name of SQL Server table" value="TABLE1">
+                  <input class="form-control" type="text" tabindex=4 name="sql_server_view_name" placeholder="Name of SQL Server view" value="VIEW1">
                   fires
-                  <input class="form-control" type="text" tabindex=6 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
-                  <input class="form-control" type="text" tabindex=7 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
+                  <input class="form-control" type="text" tabindex=5 name="sql_server_function_name" placeholder="Name of SQL Server function" value="FUNCTION1">
+                  <input class="form-control" type="text" tabindex=6 name="sql_server_trigger_name" placeholder="Name of SQL Server trigger" value="TRIGGER1">
                 </div>
                 <div class="field-optional field-fast_redirect field-slow_redirect hidden">
                   <input class="form-control" type="text" tabindex=3 name="redirect_url" placeholder="https://www.redirect.com">
                 </div>
+                <textarea class="form-control" name="memo" tabindex=6 placeholder="Reminder note when this token is triggered."></textarea>
+                <div class="error-field" id="memo_errors"></div>
               </div>
               <div class="col-md-1">
               </div>
@@ -499,16 +501,32 @@
               <div class="result cloned_website">
                 <h3>Your Cloned Website token is active!</h3>
                 <div class="artifacts">
-                  <p>Use this Javascript to detect when someone has cloned a webpage. Place this Javascript on the page you wish to protect:</p>
-                  <div class="form-control">
-                    {{ textareacopy('result_cloned_website') }}
+                  <span>Use this Javascript to detect when someone has cloned a webpage.</span><br>
+                  <p>Place this Javascript on the page you wish to protect:</p>
+                  <div id="unobfuscated-js-statement" class="unobfuscated-js-generate">
+                    <pre class="output-area">
+                      {{ textareacopy('result_cloned_website', 'language-javascript') }}
+                    </pre>
+                  </div>
+                  <div id="obfuscated-js-statement" class="hidden">
+                    <pre class="output-area">
+                    {{ textareacopy('result_cloned_website_obfuscated', 'language-javascript') }}
+                    </pre>
+                  </div>
+                  <br>
+                  <div class="row setting">
+                    <div class="col-xs-12 col-md-6 key">
+                      Obfuscate this script<br/><small>Show Obfuscated JavaScript</small>
+                    </div>
+                    <div class="col-xs-12 col-md-6 value">
+                      <input class="settings_checkbox" type="checkbox" id="obfuscate-js" name="obfuscate-js">
+                    </div>
                   </div>
                 </div>
                 <div class="advice">
-                  <p>When someone clones your site, they'll include the Javascript. When the Javascript is run it checks whether the domain is expected. If not, it fires the token and you get an alert.</p>
+                  <p>When someone clones your site, they’ll grab this JavaScript too. When the script runs on their cloned site, it triggers an alert to let you know what’s going on.</p>
                   <p><h5>Ideas for use:</h5>
                     <ul>
-                      <li>Run the script through an <a href="https://www.google.com/search?q=JavaScript+Obfuscator">obfuscator</a> to make it harder to pick up.</li>
                       <li>Deploy on the login pages of your sensitive sites, such as OWA or tender systems.</li>
                     </ul>
                   </p>
@@ -764,9 +782,9 @@ START REPLICA;
                 <h3>Your AWS key token is active!</h3>
                 <div class="artifacts">
                   <p>Copy this credential pair to your clipboard to use as desired:</p>
-                  <div class="form-control">
-                    {{ textareacopy('result_aws_keys') }}
-                  </div>
+                  <pre class="output-area" style="white-space: initial;">
+                    {{ textareacopy('result_aws_keys', 'language-javascript') }}
+                  </pre>
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="awskeys">Download your AWS Creds</a>
                   </div>
@@ -867,8 +885,12 @@ START REPLICA;
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/js/bootstrap-switch.min.js" integrity="sha256-lDGxF93YiQJCM4WXZYZmXNww6vWiPqnVxJgFJvstLGE=" crossorigin="anonymous"></script>
     <script src="/resources/site.js"></script>
     <script src="/resources/perfect-scrollbar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
     <script>
       // Search through the tokens dropdown by token name
       var input = document.getElementById('search-token');
@@ -985,6 +1007,27 @@ START REPLICA;
         return cloned_website.removeClass('error-outline').addClass('success-outline');
       }
 
+      var obfuscateClonedWebJs = function(clonedsite_js) {          
+        // Get inner cloned-site java script code
+        let innerClonedsite_js = clonedsite_js.replace(/^<script>/, '');
+        innerClonedsite_js = innerClonedsite_js.replace(/<\/script>$/, '');
+        // Generate obfuscated cloned-site java script code
+        var obfuscatedCode = JavaScriptObfuscator.obfuscate(innerClonedsite_js, {
+          compact: true,
+          simplify: true,
+          stringArray: true,
+          stringArrayRotate: true,
+          stringArrayShuffle: true,
+          stringArrayCallsTransform: true,
+          stringArrayThreshold: 1,
+          stringArrayIndexShift: true,
+          stringArrayEncoding: ['base64'],
+          splitStrings: true,
+          splitStringsChunkLength: 4,
+        }).getObfuscatedCode();
+        return obfuscatedCode;
+      }
+      
       var checkCmd= function() {
         cmd = $('input[name=cmd_process]');
         if (! cmd.parents('.field-cmd').hasClass('hidden')) {
@@ -1132,6 +1175,18 @@ START REPLICA;
           }
       }
       $(function() {
+        $(".settings_checkbox").bootstrapSwitch();
+        $('input[type="checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+          if (state) {
+            $('#unobfuscated-js-statement').addClass("hidden");
+            $('#obfuscated-js-statement').removeClass("hidden");
+            this.value = "on";
+          } else {
+            $('#unobfuscated-js-statement').removeClass("hidden");
+            $('#obfuscated-js-statement').addClass("hidden");
+            this.value = "off";
+          }          
+        });
         /* init dropdown menu */
 		    var dd = new DropDown( $('#type'),
                                 function(event) {
@@ -1255,16 +1310,17 @@ START REPLICA;
         };
 
         var _handleAWSKeysResponse = function(data){
-          $('#result_aws_keys').val('[default]'+
+          $('#result_aws_keys').append('[default]'+
           '\naws_access_key_id = '+ data['aws_access_key_id']+
           '\naws_secret_access_key = '+ data['aws_secret_access_key']+
           '\noutput = '+ data['output']+
           '\nregion = '+ data['region']);
-          $('#result_aws_keys').css('height','100px').css('text-align','left').css('width','90%');
+          $('#result_aws_keys').css('text-align','left');
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
+          hljs.highlightAll();
         }
 
         var _handleAzureIDResponse = function(data){
@@ -1315,7 +1371,9 @@ START REPLICA;
         }
 
         var _handleClonedWebsiteResponse = function(data) {
-          $('#result_cloned_website').val(data['clonedsite_js']);
+          $('#result_cloned_website').append(data['clonedsite_js']);
+          $('#result_cloned_website_obfuscated').append(obfuscateClonedWebJs(data['clonedsite_js']));
+          hljs.highlightAll();
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
