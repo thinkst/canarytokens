@@ -657,7 +657,6 @@ class Canarytoken(object):
     def _get_response_for_web_image(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
-
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
             if canarydrop.browser_scanner_enabled:
                 # set response mimetype
