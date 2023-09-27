@@ -11,6 +11,9 @@ from canarytokens.queries import (
     unblock_email,
 )
 from canarytokens.redismanager import DB
+from canarytokens.settings import SwitchboardSettings
+
+switchboard_settings = SwitchboardSettings()
 
 parser = argparse.ArgumentParser(
     description="Block emails or domains from creating canarytokens"
@@ -33,8 +36,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
-DB.set_db_details(hostname=redis_hostname, port=6379)
+DB.set_db_details(hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT)
 
 funcs = {
     "block": {"domain": block_domain, "email": block_email},

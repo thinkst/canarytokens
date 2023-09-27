@@ -273,8 +273,7 @@ def get_canarydrop_and_authenticate(token: str, auth: str = Security(auth_key)):
 
 @app.on_event("startup")
 def startup_event():
-    redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
-    DB.set_db_details(hostname=redis_hostname, port=6379)
+    DB.set_db_details(hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT)
     remove_canary_domain()
     remove_canary_domain()
 
