@@ -57,12 +57,14 @@ def get_aws_key(
     resp.raise_for_status()
     resp_json = resp.json()
 
-    key = AWSKey(
-        {
-            "access_key_id": resp_json["access_key_id"],
-            "secret_access_key": resp_json["secret_access_key"],
-            "region": "us-east-2",
-            "output": "json",
-        }
-    )
-    return key
+    data = {
+        "access_key_id": resp_json["access_key_id"],
+        "secret_access_key": resp_json["secret_access_key"],
+        "region": "us-east-2",
+        "output": "json",
+    }
+
+    if aws_account_id := resp_json.get("aws_account_id", False):
+        data["aws_account_id"] = aws_account_id
+
+    return AWSKey(data)

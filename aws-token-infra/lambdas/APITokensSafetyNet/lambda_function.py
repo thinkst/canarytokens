@@ -10,7 +10,6 @@ from datetime import datetime, timezone, timedelta
 from io import StringIO
 from urllib import request, parse
 
-ALERT_THRESHOLD = timedelta(hours=4, minutes=30)
 DB_TABLE_NAME = "awsidtoken_table"
 TICKET_URL = os.environ.get('TICKET_URL')
 TICKET_TEAM = os.environ.get('TICKET_TEAM')
@@ -41,16 +40,13 @@ def lambda_handler(event, context):
     aws_account_id = context.invoked_function_arn.split(":")[4]
     try:
         try:
-            check_credential_report(event, context)
+            check_credential_report()
         except ReportNotGeneratedInTime as e:
             ticket_exception(e)
     except Exception as e:
         ticket_exception(e)
 
-def check_credential_report(event, context):
-    # TODO Take account ID as input in event. Assume role inside account and perform the credential
-    # report lookup
-
+def check_credential_report():
     response = iam.generate_credential_report()
 
     # it takes a little bit of time for the report to be generated.
@@ -86,7 +82,11 @@ def check_credential_report(event, context):
                 print('Safety net triggered for {}'.format(token))
                 try:
                     url = "http://{}/{}".format(server, token)
-                    data = {"safety_net": True, "last_used": row['access_key_1_last_used_date']}
+                    data = {
+                        "safety_net": True,
+                        "last_used": row['access_key_1_last_used_date'],
+                        "last_used_service": row['access_key_1_last_used_service']
+                    }
                     data = urllib.parse.urlencode(data).encode("utf8")
                     print('Looking up {u} to trigger alert!'.format(u=url))
                     req = urllib.request.Request(url, data)
@@ -96,7 +96,7 @@ def check_credential_report(event, context):
                 except urllib.error.URLError as e:
                     print('Failed to trigger token: {e}'.format(e=e))
                     ticket_exception(e)
-                    
+
                 #print('Response Code: {r}'.format(r=response.getcode()))
                 #print('Response Info: {r}'.format(r=response.info()))
 

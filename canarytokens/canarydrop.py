@@ -111,6 +111,7 @@ class Canarydrop(BaseModel):
     # AWS key specific stuff
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]
+    aws_account_id: Optional[str]
     aws_output: Optional[str] = Field(alias="output")
     aws_region: Optional[str] = Field(alias="region")
 

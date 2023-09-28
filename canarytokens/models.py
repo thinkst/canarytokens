@@ -154,6 +154,7 @@ class V3:
 class AWSKey(TypedDict):
     access_key_id: str
     secret_access_key: str
+    aws_account_id: Optional[str]
     # TODO: make enum
     region: str
     output: Literal["json", "yaml", "yaml-stream", "text", "table"]
@@ -1331,6 +1332,19 @@ class AWSKeyTokenHit(TokenHit):
                 return strtobool(safety_net[0])
         return False
 
+    @property
+    def service_used(self):
+        if self.additional_info is None:
+            return False
+        if service_used := self.additional_info.aws_key_log_data.get(
+            "service_used", False
+        ):
+            if isinstance(service_used, list):
+                return service_used[0]
+            else:
+                return service_used
+        return False
+
     def serialize_for_v2(self) -> dict:
         """Serialize an `AWSKeyTokenHit` into a dict
         that holds the equivalent info in the v2 shape.
@@ -1355,7 +1369,12 @@ class AWSKeyTokenHit(TokenHit):
         if data.get("safety_net", False):
             additional_info = data.get("additional_info", {})
             log_data = additional_info.get("AWS Key Log Data", {})
-            log_data.update({"safety_net": [str(data["safety_net"])]})
+            log_data.update(
+                {
+                    "safety_net": [str(data["safety_net"])],
+                    "service_used": [str(data["service_used"])],
+                }
+            )
             data["additional_info"] = {"AWS Key Log Data": log_data}
         super().__init__(**data)
 
