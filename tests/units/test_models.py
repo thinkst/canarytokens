@@ -661,6 +661,7 @@ def test_log_4_shell_token_response():
                 "token_type": TokenTypes.AWS_KEYS,
                 "time_of_hit": 1652815479.13329,
                 "safety_net": True,
+                "service_used": "sts",
                 "input_channel": "HTTP",
             },
             True,
@@ -670,6 +671,7 @@ def test_log_4_shell_token_response():
                 "token_type": TokenTypes.AWS_KEYS,
                 "time_of_hit": 1652815479.13329,
                 "safety_net": True,
+                "service_used": "sts",
                 "input_channel": "HTTP",
                 "is_tor_relay": False,
             },
@@ -705,6 +707,9 @@ def test_aws_key_token_hits(data: dict, expect_success: bool):
         if data.get("safety_net", False):
             assert hit.additional_info.aws_key_log_data["safety_net"] == [
                 str(data["safety_net"])
+            ]
+            assert hit.additional_info.aws_key_log_data["service_used"] == [
+                str(data["service_used"])
             ]
             assert hit.safety_net
         else:
