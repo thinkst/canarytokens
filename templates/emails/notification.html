@@ -173,10 +173,10 @@
                                         <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['amount'] | e}}</code></td>
                                       </tr>
                       {% endif %}
-                      {% if BasicDetails['service_used'] %}
+                      {% if BasicDetails['AWS Key Log Data'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Service Used</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['service_used'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['AWS Key Log Data']['service_used'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}

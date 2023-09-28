@@ -40,11 +40,15 @@ def lambda_handler(event, context):
     aws_account_id = context.invoked_function_arn.split(":")[4]
     try:
         try:
-            check_credential_report()
+            return check_credential_report()
         except ReportNotGeneratedInTime as e:
             ticket_exception(e)
     except Exception as e:
         ticket_exception(e)
+
+    return {
+        'statusCode': 500
+    }
 
 def check_credential_report():
     response = iam.generate_credential_report()
@@ -75,7 +79,7 @@ def check_credential_report():
                 server, access_key, token, last_alerted_timestamp = get_token_info(user)
             except NoItem:
                 # No record of this key. Every key must have an entry created in the DynamoDB when the key is generated
-                print('No record for key')
+                print(f'No record for key: {user}')
                 continue
 
             if last_used_timestamp > last_alerted_timestamp:

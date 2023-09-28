@@ -322,7 +322,10 @@ class EmailOutputChannel(OutputChannel):
         details.token_type
         article = "An" if details.token_type in token_types_with_article_an else "A"
         readable_type = readable_token_type_names[details.token_type]
-        intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
+        if details.src_ip:
+            intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
+        else:
+            intro = f"{article} {readable_type} Canarytoken has been triggered"
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
@@ -335,6 +338,18 @@ class EmailOutputChannel(OutputChannel):
             intro = dedent(
                 f"""{intro}
                     Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
+                    """
+            )
+
+        if (
+            (details.token_type == TokenTypes.AWS_KEYS)
+            and ("AWS Key Log Data" in details.additional_data)
+            and ("safety_net" in details.additional_data["AWS Key Log Data"])
+            and (details.additional_data["AWS Key Log Data"]["safety_net"])
+        ):
+            intro = dedent(
+                f"""{intro}
+                    This AWS activity was caught using our safetynet feature so it may contain limited information.
                     """
             )
 
