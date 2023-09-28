@@ -224,7 +224,7 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
         {
             b"last_used": [b"2022-07-29T05:48:00+00:00"],
             b"safety_net": [b"True"],
-            b"service_used": [b"sts"],
+            b"last_used_service": [b"sts"],
         },
     ],
 )
