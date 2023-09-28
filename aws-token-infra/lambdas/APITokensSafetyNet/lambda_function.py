@@ -97,10 +97,6 @@ def check_credential_report():
                     print('Failed to trigger token: {e}'.format(e=e))
                     ticket_exception(e)
 
-                #print('Response Code: {r}'.format(r=response.getcode()))
-                #print('Response Info: {r}'.format(r=response.info()))
-
-
                 db_response = db.put_item(
                     TableName=DB_TABLE_NAME,
                     Item={
