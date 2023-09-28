@@ -628,6 +628,10 @@ class Canarytoken(object):
                 # render template
                 return template.render(**fortune_template_params).encode()
 
+        # If a browser makes cross-origin requests for this img that aren't "simple" it will reject
+        # the image response without this Canarytokens server permitting all cross-origin requests
+        request.setHeader("Access-Control-Allow-Origin", "*")
+
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
             # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
