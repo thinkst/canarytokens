@@ -13,7 +13,6 @@ import hashlib
 import os
 import textwrap
 from base64 import b64decode
-from distutils.util import strtobool
 from functools import singledispatch
 from pathlib import Path
 from typing import Any, Optional
