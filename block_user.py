@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 import argparse
-import os
-from distutils.util import strtobool
 
 from canarytokens.queries import (
     block_domain,
