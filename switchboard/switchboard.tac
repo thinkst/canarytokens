@@ -124,9 +124,11 @@ udp_factory = dns.DNSDatagramProtocol(
     )
 )
 
-internet.UDPServer(switchboard_settings.CHANNEL_DNS_PORT, udp_factory, interface=switchboard_settings.CHANNEL_DNS_IP).setServiceParent(
-    dns_service
-)
+internet.UDPServer(
+    switchboard_settings.CHANNEL_DNS_PORT,
+    udp_factory,
+    interface=switchboard_settings.CHANNEL_DNS_IP,
+).setServiceParent(dns_service)
 dns_service.setServiceParent(application)
 
 canarytokens_httpd = ChannelHTTP(
