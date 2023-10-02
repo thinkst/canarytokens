@@ -32,7 +32,7 @@ def file_ticket(subject=None, team=TICKET_TEAM, priority=3, text=None):
     resp = request.urlopen(req)
 
 def ticket_exception(exception):
-    file_ticket(subject="AWSIDCredentialReportChecker Exception", text=f"An exception occurred whilst running the AWSIDCredentialReportChecker lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
+    file_ticket(subject="Canarytoken.org Safetynet Exception", text=f"An exception occurred whilst running the APITokensSafetyNet lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
 
 aws_account_id = None
 def lambda_handler(event, context):
