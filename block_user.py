@@ -36,7 +36,9 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-DB.set_db_details(hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT)
+DB.set_db_details(
+    hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT
+)
 
 funcs = {
     "block": {"domain": block_domain, "email": block_email},

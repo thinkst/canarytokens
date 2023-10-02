@@ -273,7 +273,9 @@ def get_canarydrop_and_authenticate(token: str, auth: str = Security(auth_key)):
 
 @app.on_event("startup")
 def startup_event():
-    DB.set_db_details(hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT)
+    DB.set_db_details(
+        hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT
+    )
     remove_canary_domain()
     remove_canary_domain()
 
