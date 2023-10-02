@@ -370,7 +370,7 @@
                   Service Used
                 </td>
                 <td>
-                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data']['service_used'][0]|e }}
+                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data']['service_used'][0].upper()|e }}
                 </td>
               </tr>
               {% endif %}
