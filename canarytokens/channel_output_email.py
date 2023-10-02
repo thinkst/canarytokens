@@ -343,9 +343,9 @@ class EmailOutputChannel(OutputChannel):
 
         if (
             (details.token_type == TokenTypes.AWS_KEYS)
-            and ("AWS Key Log Data" in details.additional_data)
-            and ("safety_net" in details.additional_data["AWS Key Log Data"])
-            and (details.additional_data["AWS Key Log Data"]["safety_net"])
+            and ("aws_key_log_data" in details.additional_data)
+            and ("safety_net" in details.additional_data["aws_key_log_data"])
+            and (details.additional_data["aws_key_log_data"]["safety_net"])
         ):
             intro = dedent(
                 f"""{intro}
