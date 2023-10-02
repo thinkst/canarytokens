@@ -19,6 +19,10 @@ variable "ticket_url" {
   type = string
 }
 
+variable "playbook_url" {
+  type = string
+}
+
 provider "aws" {
    region = "us-east-2"
 }
@@ -491,6 +495,7 @@ resource "aws_lambda_function" "api_tokens_safety_net" {
     variables = {
       TICKET_TEAM = var.ticket_team
       TICKET_URL = var.ticket_url
+      PLAYBOOK_URL = var.playbook_url
     }
   }
   depends_on = [

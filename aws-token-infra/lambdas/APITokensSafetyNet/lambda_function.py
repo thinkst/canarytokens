@@ -13,6 +13,7 @@ from urllib import request, parse
 DB_TABLE_NAME = "awsidtoken_table"
 TICKET_URL = os.environ.get('TICKET_URL')
 TICKET_TEAM = os.environ.get('TICKET_TEAM')
+PLAYBOOK_URL = os.environ.get('PLAYBOOK_URL')
 
 iam = boto3.client('iam')
 db = boto3.client('dynamodb')
@@ -95,7 +96,7 @@ def check_credential_report():
                     print('Looking up {u} to trigger alert!'.format(u=url))
                     req = urllib.request.Request(url, data)
                     response = urllib.request.urlopen(req)
-                    msg = f"The token is {token}. Please investigate what API was called that it was only detected by the safety net."
+                    msg = f"The token is {token}. Please investigate what API was called that it was only detected by the safety net. Playbook: {PLAYBOOK_URL}"
                     file_ticket(subject="Canarytokens.org AWS Safety Net Caught Something", text=msg)
                 except urllib.error.URLError as e:
                     print('Failed to trigger token: {e}'.format(e=e))
