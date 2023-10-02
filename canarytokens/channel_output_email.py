@@ -325,7 +325,7 @@ class EmailOutputChannel(OutputChannel):
         if details.src_ip:
             intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
         else:
-            intro = f"{article} {readable_type} Canarytoken has been triggered"
+            intro = f"{article} {readable_type} Canarytoken has been triggered."
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
