@@ -160,7 +160,7 @@
             <div class="result aws_keys">
               <h5>Here's your AWS key token:</h5>
               <div class="artifacts">
-                <pre class="output-area" style="white-space: initial;">
+                <pre class="output-area">
                   {{ textareacopy('result_aws_keys') }}
                 </pre>
                 <div class="form-control">
@@ -642,10 +642,14 @@ START REPLICA;
         '\noutput = '+ data['output']+
         '\nregion = '+ data['region']);
         $('#result_aws_keys').css('text-align','left');
+        $('#result_aws_keys').css('width','100%');
         $('a.file-download').each(function (i, e){
           e = $(e);
           e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth']);
         });
+        // Trim white spaces from inner HTML
+        let aws_keys_token = document.getElementById("result_aws_keys");
+        aws_keys_token.innerHTML = aws_keys_token.innerHTML.trim()
       }
       var _handleMySQLResponse = function(data) {
           var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['generated_hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`

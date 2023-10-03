@@ -782,7 +782,7 @@ START REPLICA;
                 <h3>Your AWS key token is active!</h3>
                 <div class="artifacts">
                   <p>Copy this credential pair to your clipboard to use as desired:</p>
-                  <pre class="output-area" style="white-space: initial;">
+                  <pre class="output-area">
                     {{ textareacopy('result_aws_keys', 'language-javascript') }}
                   </pre>
                   <div class="form-control">
@@ -1316,11 +1316,15 @@ START REPLICA;
           '\noutput = '+ data['output']+
           '\nregion = '+ data['region']);
           $('#result_aws_keys').css('text-align','left');
+          $('#result_aws_keys').css('width','100%');
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
           hljs.highlightAll();
+          // Trim white spaces from inner HTML
+          let aws_keys_token = document.getElementById("result_aws_keys");
+          aws_keys_token.innerHTML = aws_keys_token.innerHTML.trim()         
         }
 
         var _handleAzureIDResponse = function(data){
