@@ -364,6 +364,16 @@
                 </td>
               </tr>
               {% endif %}
+              {% if canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data'].get('service_used', False) %}
+              <tr class="info_row">
+                <td>
+                  Service Used
+                </td>
+                <td>
+                  {{ canarydrop['triggered_list'][item]['additional_info']['AWS Key Log Data']['service_used'][0].upper()|e }}
+                </td>
+              </tr>
+              {% endif %}
         {% endif %}
       {% endif %}
       {% if canarydrop['triggered_list'][item]['additional_info'][info].__class__.__name__ != 'str' %}

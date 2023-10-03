@@ -113,6 +113,28 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
     assert "SRV01" in email_template
 
 
+def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
+    details = TokenAlertDetails(
+        channel="HTTP",
+        token_type=TokenTypes.AWS_KEYS,
+        token=Canarytoken().value(),
+        src_ip="127.0.0.1",
+        time=datetime.datetime.now(),
+        memo="This is a test Memo",
+        manage_url="https://some.link/manage/here",
+        additional_data={
+            "aws_key_log_data": {"safety_net": ["True"], "service_used": ["ses"]}
+        },
+    )
+    email_template = EmailOutputChannel.format_report_html(
+        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    )
+    assert "https://some.link/manage/here" in email_template
+    assert "https://some.link/history/here" in email_template
+    assert "SES" in email_template
+    assert "Service Used" in email_template
+
+
 def _get_send_token_details() -> TokenAlertDetails:
     return TokenAlertDetails(
         channel="DNS",

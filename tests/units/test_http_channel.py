@@ -221,7 +221,11 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
             ],
             b"eventName": [b"GetCallerIdentity"],
         },
-        {b"last_used": [b"2022-07-29T05:48:00+00:00"], b"safety_net": [b"True"]},
+        {
+            b"last_used": [b"2022-07-29T05:48:00+00:00"],
+            b"safety_net": [b"True"],
+            b"last_used_service": [b"sts"],
+        },
     ],
 )
 def test_POST_aws_token_back(

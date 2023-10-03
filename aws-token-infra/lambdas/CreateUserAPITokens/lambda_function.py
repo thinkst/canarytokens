@@ -21,7 +21,7 @@ def respond(err, res=None):
             'Content-Type': 'application/json',
         },
     }
-    
+
 def send_slack(resp=None):
     if not resp:
         print('No resp found for slack alert')
@@ -44,7 +44,7 @@ def lambda_handler(event, context):
     '''Demonstrates a simple HTTP endpoint using API Gateway. You have full
     access to the request and response payload, including headers and
     status code.'''
-
+    aws_account_id = context.invoked_function_arn.split(":")[4]
     print('.....starting function....')
     if 'queryStringParameters' in event and event['queryStringParameters']:
         if 'data' in event['queryStringParameters']:
@@ -65,6 +65,7 @@ def lambda_handler(event, context):
                 'AccessKeyId' in key_resp['AccessKey']:
                 final_resp['secret_access_key'] = key_resp['AccessKey']['SecretAccessKey']
                 final_resp['access_key_id'] = key_resp['AccessKey']['AccessKeyId']
+                final_resp['aws_account_id'] = aws_account_id
                 db_response = db.put_item(
                     TableName=DB_TABLE_NAME,
                     Item={
@@ -72,7 +73,8 @@ def lambda_handler(event, context):
                             'Domain': {'S': data.split('@@')[0]},
                             'AccessKey': {'S': final_resp['access_key_id']},
                             'Canarytoken': {'S': data.split('@@')[1]},
-                            'LastUsed': {'N': str(datetime.datetime.utcnow().strftime("%s"))}
+                            'LastUsed': {'N': str(datetime.datetime.utcnow().strftime("%s"))},
+                            'AwsAccountId': {'S': str(aws_account_id)}
                     }
                 )
                 print('DynamoDB response: {r}'.format(r=db_response))
@@ -82,7 +84,7 @@ def lambda_handler(event, context):
             return respond(None, final_resp)
         else:
             print('No data parameter was given in query string')
-            return respond(ValueError('No data parameter was given in query string'))  
+            return respond(ValueError('No data parameter was given in query string'))
     else:
         print('No query string found. Please use ?data=<encoded_data>.')
         return respond(ValueError('No query string found. Please use ?data=<encoded_data>.'))

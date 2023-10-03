@@ -164,13 +164,19 @@
                       {% if BasicDetails['merchant'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Authorizing merchant</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Merchant'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['merchant'] | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['amount'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Transaction amount</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['Amount'] | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['amount'] | e}}</code></td>
+                                      </tr>
+                      {% endif %}
+                      {% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] %}
+                                      <tr>
+                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Service Used</td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['aws_key_log_data']['service_used'][0].upper() | e}}</code></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}

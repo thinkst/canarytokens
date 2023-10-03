@@ -10,10 +10,10 @@ from datetime import datetime, timezone, timedelta
 from io import StringIO
 from urllib import request, parse
 
-ALERT_THRESHOLD = timedelta(hours=4, minutes=30)
 DB_TABLE_NAME = "awsidtoken_table"
 TICKET_URL = os.environ.get('TICKET_URL')
 TICKET_TEAM = os.environ.get('TICKET_TEAM')
+PLAYBOOK_URL = os.environ.get('PLAYBOOK_URL')
 
 iam = boto3.client('iam')
 db = boto3.client('dynamodb')
@@ -33,7 +33,7 @@ def file_ticket(subject=None, team=TICKET_TEAM, priority=3, text=None):
     resp = request.urlopen(req)
 
 def ticket_exception(exception):
-    file_ticket(subject="AWSIDCredentialReportChecker Exception", text=f"An exception occurred whilst running the AWSIDCredentialReportChecker lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
+    file_ticket(subject="Canarytoken.org Safetynet Exception", text=f"An exception occurred whilst running the APITokensSafetyNet lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
 
 aws_account_id = None
 def lambda_handler(event, context):
@@ -41,16 +41,17 @@ def lambda_handler(event, context):
     aws_account_id = context.invoked_function_arn.split(":")[4]
     try:
         try:
-            check_credential_report(event, context)
+            return check_credential_report()
         except ReportNotGeneratedInTime as e:
             ticket_exception(e)
     except Exception as e:
         ticket_exception(e)
 
-def check_credential_report(event, context):
-    # TODO Take account ID as input in event. Assume role inside account and perform the credential
-    # report lookup
+    return {
+        'statusCode': 500
+    }
 
+def check_credential_report():
     response = iam.generate_credential_report()
 
     # it takes a little bit of time for the report to be generated.
@@ -79,27 +80,27 @@ def check_credential_report(event, context):
                 server, access_key, token, last_alerted_timestamp = get_token_info(user)
             except NoItem:
                 # No record of this key. Every key must have an entry created in the DynamoDB when the key is generated
-                print('No record for key')
+                print(f'No record for key: {user}')
                 continue
 
             if last_used_timestamp > last_alerted_timestamp:
                 print('Safety net triggered for {}'.format(token))
                 try:
                     url = "http://{}/{}".format(server, token)
-                    data = {"safety_net": True, "last_used": row['access_key_1_last_used_date']}
+                    data = {
+                        "safety_net": True,
+                        "last_used": row['access_key_1_last_used_date'],
+                        "last_used_service": row['access_key_1_last_used_service']
+                    }
                     data = urllib.parse.urlencode(data).encode("utf8")
                     print('Looking up {u} to trigger alert!'.format(u=url))
                     req = urllib.request.Request(url, data)
                     response = urllib.request.urlopen(req)
-                    msg = f"The token is {token}. Please investigate what API was called that it was only detected by the safety net."
+                    msg = f"The token is {token}. Please investigate what API was called that it was only detected by the safety net. Playbook: {PLAYBOOK_URL}"
                     file_ticket(subject="Canarytokens.org AWS Safety Net Caught Something", text=msg)
                 except urllib.error.URLError as e:
                     print('Failed to trigger token: {e}'.format(e=e))
                     ticket_exception(e)
-                    
-                #print('Response Code: {r}'.format(r=response.getcode()))
-                #print('Response Info: {r}'.format(r=response.info()))
-
 
                 db_response = db.put_item(
                     TableName=DB_TABLE_NAME,

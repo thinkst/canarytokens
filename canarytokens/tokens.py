@@ -316,10 +316,13 @@ class Canarytoken(object):
             hit_time = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z").strftime(
                 "%s"
             )
+            service_used = data["last_used_service"][0]
+
             hit_info = {
                 "token_type": TokenTypes.AWS_KEYS,
                 "safety_net": True,
                 "time_of_hit": hit_time,
+                "service_used": service_used,
                 "input_channel": INPUT_CHANNEL_HTTP,
             }
         else:

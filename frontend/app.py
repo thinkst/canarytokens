@@ -989,6 +989,8 @@ def _create_aws_key_token_response(
     canarydrop.aws_secret_access_key = key["secret_access_key"]
     canarydrop.aws_region = key["region"]
     canarydrop.aws_output = key["output"]
+    if aws_account_id := key.get("aws_account_id", False):
+        canarydrop.aws_account_id = aws_account_id
     canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
     save_canarydrop(canarydrop)
 
