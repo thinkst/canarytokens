@@ -86,17 +86,18 @@ def check_credential_report():
             if last_used_timestamp > last_alerted_timestamp:
                 print('Safety net triggered for {}'.format(token))
                 try:
+                    last_service_used = row['access_key_1_last_used_service']
                     url = "http://{}/{}".format(server, token)
                     data = {
                         "safety_net": True,
                         "last_used": row['access_key_1_last_used_date'],
-                        "last_used_service": row['access_key_1_last_used_service']
+                        "last_used_service": last_service_used
                     }
                     data = urllib.parse.urlencode(data).encode("utf8")
                     print('Looking up {u} to trigger alert!'.format(u=url))
                     req = urllib.request.Request(url, data)
                     response = urllib.request.urlopen(req)
-                    msg = f"The token is {token}. Please investigate what API was called that it was only detected by the safety net. Playbook: {PLAYBOOK_URL}"
+                    msg = f"The token is {token}. The service last used is {last_service_used}. Please follow the playbook: {PLAYBOOK_URL}"
                     file_ticket(subject="Canarytokens.org AWS Safety Net Caught Something", text=msg)
                 except urllib.error.URLError as e:
                     print('Failed to trigger token: {e}'.format(e=e))
