@@ -641,11 +641,10 @@ START REPLICA;
         '\naws_secret_access_key = '+ data['aws_secret_access_key']+
         '\noutput = '+ data['output']+
         '\nregion = '+ data['region']);
-        $('#result_aws_keys').css('text-align','left');
-        $('#result_aws_keys').css('width','100%');
+        $('#result_aws_keys').css('text-align','left').css('width','100%');
         $('a.file-download').each(function (i, e){
           e = $(e);
-          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth']);
+          e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['canarytoken']+'&auth='+data['auth']);
         });
         // Trim white spaces from inner HTML
         let aws_keys_token = document.getElementById("result_aws_keys");
