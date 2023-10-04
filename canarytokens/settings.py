@@ -39,12 +39,12 @@ class SwitchboardSettings(BaseSettings):
 
     IPINFO_API_KEY: Optional[SecretStr] = None
 
-    MAILGUN_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
+    MAILGUN_API_KEY: Optional[SecretStr] = None
     MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
         "https://api.mailgun.net", scheme="https"
     )
     MAILGUN_DOMAIN_NAME: Optional[str]
-    SENDGRID_API_KEY: Optional[SecretStr] = SecretStr("NoSendgridAPIKeyFound")
+    SENDGRID_API_KEY: Optional[SecretStr] = None
     SENDGRID_SANDBOX_MODE: bool = True
 
     SENTRY_DSN: Optional[HttpUrl] = None
