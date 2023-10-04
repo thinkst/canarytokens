@@ -164,6 +164,8 @@ def test_sendgrid_send(
     email: str,
     expected_result_type: EmailResponseStatuses,
 ):
+    if not settings.SENDGRID_API_KEY:
+        pytest.skip("No SendGrid API key found; skipping...")
     details = _get_send_token_details()
 
     result, message_id = sendgrid_send(
@@ -199,7 +201,8 @@ def test_mailgun_send(
     email: str,
     expected_result_type: EmailResponseStatuses,
 ):
-
+    if not settings.MAILGUN_API_KEY:
+        pytest.skip("No Mailgun API key found; skipping...")
     details = _get_send_token_details()
     result, message_id = mailgun_send(
         email_content_html=EmailOutputChannel.format_report_html(
@@ -225,6 +228,11 @@ def _do_send_alert(
     switchboard_settings: SwitchboardSettings,
     email: str,
 ) -> Canarydrop:
+    if (
+        not switchboard_settings.SENDGRID_API_KEY
+        and not switchboard_settings.MAILGUN_API_KEY
+    ):
+        pytest.skip("No email provider API key found; skipping...")
     email_channel = EmailOutputChannel(
         frontend_settings=frontend_settings,
         switchboard_settings=switchboard_settings,
