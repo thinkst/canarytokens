@@ -2,17 +2,14 @@ name: TestSuite
 
 on:
   push:
-    branches:
-      - "py3_master"
-      - "master"
-      - "dev_v3"
-      - "dev"
+  pull_request:
 
   workflow_dispatch:
     inputs:
       canarytokens-branch:
         description: "Branch of the canarytokens repo to pull for build. Defaults to master"
         required: false
+
 jobs:
   tests:
     runs-on: ubuntu-latest
