@@ -1377,6 +1377,15 @@ START REPLICA;
           $('#result_cloned_website').append(data['clonedsite_js']);
           $('#result_cloned_website_obfuscated').append(obfuscateClonedWebJs(data['clonedsite_js']));
           hljs.highlightAll();
+          // Trim white spaces from inner HTML
+          let unobfuscated_cloned_website_js = document.getElementById("result_cloned_website");
+          console.log(':')
+          console.log('|'+unobfuscated_cloned_website_js.innerHTML+'|')
+          console.log(':')
+          unobfuscated_cloned_website_js.innerHTML = unobfuscated_cloned_website_js.innerHTML.trim()
+          console.log(':')         
+          console.log('|'+unobfuscated_cloned_website_js.innerHTML+'|')
+          console.log(':')
         }
         var _handleQrCodeResponse = function(data) {
           $('#qrcode_png').siblings('a').prop('href', data['qrcode_png']);
