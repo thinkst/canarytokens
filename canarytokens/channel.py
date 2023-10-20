@@ -24,10 +24,14 @@ from canarytokens.models import (
     Memo,
     SlackAttachment,
     SlackField,
+    DiscordDetails,
+    DiscordEmbeds,
+    DiscordAuthorField,
     TokenAlertDetailGeneric,
     TokenAlertDetails,
     TokenAlertDetailsGoogleChat,
     TokenAlertDetailsSlack,
+    TokenAlertDetailsDiscord,
 )
 
 log = Logger()
@@ -90,6 +94,28 @@ def format_as_googlechat_canaryalert(
         cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
     )
 
+def format_as_discord_canaryalert(
+        details: TokenAlertDetails
+) -> TokenAlertDetailsDiscord:
+    embeds = DiscordEmbeds(
+        author = DiscordAuthorField(
+            icon_url = "https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
+        ),
+        url = details.manage_url,
+        timestamp = details.time.strftime("%Y-%m-%dT%H:%M:%S"),
+    )
+    embeds.add_fields(
+        fields_info=DiscordDetails(
+            canarytoken=details.canarytoken,
+            token_reminder=details.memo,
+            src_data=details.src_data,
+            additional_data=details.additional_data,
+        ).get_discord_data(),
+    )
+    
+    return TokenAlertDetailsDiscord(
+        embeds = [embeds]
+    )
 
 class Channel(object):
     CHANNEL = "Base"
@@ -178,6 +204,7 @@ class InputChannel(Channel):
         # TODO: Need to add `host` and `protocol` that can be used to manage the token.
         slack_hook_base_url = "https://hooks.slack.com"
         googlechat_hook_base_url = "https://chat.googleapis.com"
+        discord_hook_base_url = "https://discord.com/api/webhooks"
         details = cls.gather_alert_details(
             canarydrop,
             protocol=protocol,
@@ -191,6 +218,10 @@ class InputChannel(Channel):
             str(canarydrop.alert_webhook_url).startswith(googlechat_hook_base_url)
         ):
             return format_as_googlechat_canaryalert(details=details)
+        elif canarydrop.alert_webhook_url and (
+            str(canarydrop.alert_webhook_url).startswith(discord_hook_base_url)
+        ):
+            return format_as_discord_canaryalert(details=details)
         else:
             return TokenAlertDetailGeneric(**details.dict())
 
