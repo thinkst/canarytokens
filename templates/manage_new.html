@@ -737,11 +737,13 @@ START REPLICA;
         temptextArea.innerHTML = ClonedSiteJs;
         return temptextArea.value;
       }
+      {% if canarydrop.type == 'clonedsite'%}
       // Add cloned-site obfuscated js to textArea
       $('#result_cloned_website_obfuscated').append(obfuscateClonedWebJs(decodeClonedSiteJs(`{{canarydrop.get_cloned_site_javascript(force_https)}}`)));
       // Trim white spaces from inner HTML
       let unobfuscated_cloned_website_js = document.getElementById("result_clonedsite");
       unobfuscated_cloned_website_js.innerHTML = unobfuscated_cloned_website_js.innerHTML.trim()         
+      {%endif%}
 
       var displayToken = function(data) {
         var type = data['type'];
