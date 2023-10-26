@@ -14,6 +14,8 @@ from pydantic import parse_obj_as
 from twisted.web.http import Request
 from twisted.web.util import redirectTo
 
+from canarytokens.settings import SwitchboardSettings
+
 from canarytokens import canarydrop, queries
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,
@@ -67,6 +69,7 @@ source_data_extractors = {
 
 g_template_dir: Optional[str]
 
+switchboard_settings = SwitchboardSettings()
 
 def set_template_env(template_dir):
     global g_template_dir
@@ -261,7 +264,7 @@ class Canarytoken(object):
     def _grab_http_general_info(request: Request):
         """"""
         useragent = request.getHeader("User-Agent") or "(no user-agent specified)"
-        src_ip = request.getHeader("x-real-ip") or request.client.host
+        src_ip = request.getHeader(switchboard_settings.REAL_IP_HEADER) or request.client.host
         # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
         #              and have default.
         is_tor_relay = queries.is_tor_relay(src_ip)
