@@ -841,17 +841,16 @@ def validate_webhook(url, token_type: models.TokenTypes):
             cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
         )
     elif url.startswith(discord):
-        #construct discord alert card
+        # construct discord alert card
         embeds = models.DiscordEmbeds(
             author=models.DiscordAuthorField(
-                icon_url="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
+                icon_url="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png"
             ),
-            title="Validating new canarytokens webhook"
+            title="Validating new canarytokens webhook",
             fields=[],
+            timestamp=datetime.datetime.now(),
         )
-        payload = models.TokenAlertDetailsDiscord(
-            embeds=[embeds]
-        )
+        payload = models.TokenAlertDetailsDiscord(embeds=[embeds])
 
     else:
         payload = models.TokenAlertDetails(

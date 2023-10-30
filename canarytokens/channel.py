@@ -94,28 +94,33 @@ def format_as_googlechat_canaryalert(
         cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
     )
 
+
 def format_as_discord_canaryalert(
-        details: TokenAlertDetails
+    details: TokenAlertDetails,
 ) -> TokenAlertDetailsDiscord:
     embeds = DiscordEmbeds(
-        author = DiscordAuthorField(
-            icon_url = "https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
+        author=DiscordAuthorField(
+            icon_url="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
         ),
-        url = details.manage_url,
-        timestamp = details.time.strftime("%Y-%m-%dT%H:%M:%S"),
+        url=details.manage_url,
+        timestamp=details.time.strftime("%Y-%m-%dT%H:%M:%S"),
     )
+
     embeds.add_fields(
         fields_info=DiscordDetails(
-            canarytoken=details.canarytoken,
+            canarytoken=details.token,
             token_reminder=details.memo,
-            src_data=details.src_data,
-            additional_data=details.additional_data,
+            src_data=details.src_data if details.src_data else None,
         ).get_discord_data(),
     )
-    
-    return TokenAlertDetailsDiscord(
-        embeds = [embeds]
-    )
+
+    if details.additional_data:
+        embeds.add_fields(
+            fields_info=details.additional_data,
+        )
+
+    return TokenAlertDetailsDiscord(embeds=[embeds])
+
 
 class Channel(object):
     CHANNEL = "Base"

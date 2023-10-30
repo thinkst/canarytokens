@@ -1945,31 +1945,34 @@ class DiscordFieldEntry(BaseModel):
     value: str = ""
     inline: bool = False
 
+
 class DiscordDetails(BaseModel):
     canarytoken: Canarytoken
     token_reminder: Memo
-    src_data: Optional[dict]
-    additional_data: Optional[dict[str, any]]
+    src_data: Optional[dict[str, Any]]
+    additional_data: Optional[dict[str, Any]]
 
     def get_discord_data(self) -> Dict[str, str]:
         data = json_safe_dict(self)
         data["Canarytoken"] = data.pop("canarytoken", "")
         data["Token Reminder"] = data.pop("token_reminder", "")
-        if data['src_data']:
-            data['Source Data'] = data.pop('src_data', "")
-        if data['additional_data']:
-            data['Additional Data'] = data.pop('additional_data')
+        if "src_data" in data:
+            data["Source Data"] = data.pop("src_data", "")
+        if "additional_data" in data:
+            data["Additional Data"] = data.pop("additional_data")
         return data
+
 
 class DiscordAuthorField(BaseModel):
     name: str = "Canary Alerts"
     icon_url: str
 
+
 class DiscordEmbeds(BaseModel):
     author: DiscordAuthorField
-    color: int = 3724415 # Magic colour number. Trust the process
+    color: int = 3724415  # Magic colour number. Trust the process
     title: str = "Canarytoken Triggered"
-    url: HttpUrl
+    url: Optional[HttpUrl]
     timestamp: datetime
     fields: List[DiscordFieldEntry] = []
 
@@ -1982,22 +1985,23 @@ class DiscordEmbeds(BaseModel):
             )
             self.fields.append(
                 DiscordFieldEntry(
-                    name = label,
-                    value = text,
-                    inline = len(max(text.split('\n')>40))
+                    name=label,
+                    value=message_text,
+                    inline=len(max(message_text.split("\n"))) < 40,
                 )
             )
 
-    @validator("time", pre=True)
-    def validate_time(cls, value):
+    @validator("timestamp", pre=True)
+    def validate_timestamp(cls, value):
         if isinstance(value, str):
-            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S (UTC)")
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
         return value
-    
+
     class Config:
         json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
+            datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
         }
+
 
 class TokenAlertDetailsGoogleChat(BaseModel):
     cardsV2: List[GoogleChatCardV2]
@@ -2014,6 +2018,7 @@ class TokenAlertDetailsSlack(BaseModel):
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
 
+
 class TokenAlertDetailsDiscord(BaseModel):
     """Details that are sent to Discord webhooks"""
 
@@ -2021,6 +2026,7 @@ class TokenAlertDetailsDiscord(BaseModel):
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
+
 
 class TokenAlertDetailGeneric(TokenAlertDetails):
     ...
