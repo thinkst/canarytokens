@@ -1950,7 +1950,6 @@ class DiscordDetails(BaseModel):
     canarytoken: Canarytoken
     token_reminder: Memo
     src_data: Optional[dict[str, Any]]
-    additional_data: Optional[dict[str, Any]]
 
     def get_discord_data(self) -> Dict[str, str]:
         data = json_safe_dict(self)
@@ -1958,8 +1957,6 @@ class DiscordDetails(BaseModel):
         data["Token Reminder"] = data.pop("token_reminder", "")
         if "src_data" in data:
             data["Source Data"] = data.pop("src_data", "")
-        if "additional_data" in data:
-            data["Additional Data"] = data.pop("additional_data")
         return data
 
 
