@@ -161,5 +161,7 @@ jobs:
       - name: Integration Tests
         run: |
           $env:LIVE = 'True'
+          copy .\frontend\frontend.env.dist .\frontend\frontend.env
+          copy .\switchboard\switchboard.env.dist .\switchboard\switchboard.env
           cd tests
           poetry run coverage run --source=.\integration -m pytest .\integration\test_custom_binary.py  --runv3
