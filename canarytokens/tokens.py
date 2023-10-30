@@ -71,6 +71,7 @@ g_template_dir: Optional[str]
 
 switchboard_settings = SwitchboardSettings()
 
+
 def set_template_env(template_dir):
     global g_template_dir
     g_template_dir = template_dir
@@ -264,7 +265,10 @@ class Canarytoken(object):
     def _grab_http_general_info(request: Request):
         """"""
         useragent = request.getHeader("User-Agent") or "(no user-agent specified)"
-        src_ip = request.getHeader(switchboard_settings.REAL_IP_HEADER) or request.client.host
+        src_ip = (
+            request.getHeader(switchboard_settings.REAL_IP_HEADER)
+            or request.client.host
+        )
         # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
         #              and have default.
         is_tor_relay = queries.is_tor_relay(src_ip)
