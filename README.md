@@ -24,7 +24,7 @@ If you have any issues please check out our FAQ over [here](https://github.com/t
 
 This project and everyone participating in it is governed by the
 [Code of Conduct](https://github.com/thinkst/.github/blob/master/CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code. Please report unacceptable behaviour
+By participating, you are expected to uphold this code. Please report unacceptable behavior
 to github@thinkst.com.
 
 ## Deprecations
