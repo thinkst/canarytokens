@@ -6,7 +6,7 @@ by Thinkst Applied Research
 
 ## Overview
 
-Canarytokens helps track activity and actions on your network.
+Canarytokens help track activity and actions on your network.
 
 If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try to get back to you as soon as possible.
 
@@ -24,7 +24,7 @@ If you have any issues please check out our FAQ over [here](https://github.com/t
 
 This project and everyone participating in it is governed by the
 [Code of Conduct](https://github.com/thinkst/.github/blob/master/CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code. Please report unacceptable behavior
+By participating, you are expected to uphold this code. Please report unacceptable behaviour
 to github@thinkst.com.
 
 ## Deprecations
@@ -78,7 +78,7 @@ information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` 
 `CANARY_SENDGRID_API_KEY` and `CANARY_MANDRILL_API_KEY`.
 
 If you are using Mailgun's European infrastructure for your Canarytokens Server, you will need to add `CANARY_MAILGUN_BASE_URL=https://api.eu.mailgun.net` to your `switchboard.env`. If you do not specify that,
-we will use the regular url as 'https://api.mailgun.net' as the default.
+we will use the regular URL as 'https://api.mailgun.net' as the default.
 
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
