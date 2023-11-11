@@ -77,7 +77,7 @@ class errorsToWebhookLogObserver(object):
 
 def httpRequest(postdata):  # pragma: no cover
     agent = Agent(reactor)
-    headers = {b"Content-Type": [b"application/x-www-form-urlencoded"]}
+    headers = {b"Content-Type": [b"application/json"]}
     data_str = json.dumps(postdata)
     body = BytesProducer(data_str.encode())
     url = os.getenv("ERROR_LOG_WEBHOOK").encode()
