@@ -5,7 +5,6 @@ on:
     branches:
       - "master"
       - "dev"
-      - "dev_v3"
 
   workflow_dispatch:
     inputs:
@@ -88,12 +87,12 @@ jobs:
           ./canarytokensdb_s3backup.sh
 
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3-letsencrypt.yml.tpl > docker-compose-v3-letsencrypt.yml
+          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml.tpl > docker-compose-letsencrypt.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml pull
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml down
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-letsencrypt.yml pull
+          sudo docker compose -f docker-compose-letsencrypt.yml down
+          sudo docker compose -f docker-compose-letsencrypt.yml up -d
           sudo docker system prune -f -a
 
   staging-deploy:
@@ -107,10 +106,10 @@ jobs:
           ./canarytokensdb_s3backup.sh
 
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3-letsencrypt.yml.tpl > docker-compose-v3-letsencrypt.yml
+          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml.tpl > docker-compose-letsencrypt.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml pull
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml down
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-letsencrypt.yml pull
+          sudo docker compose -f docker-compose-letsencrypt.yml down
+          sudo docker compose -f docker-compose-letsencrypt.yml up -d
           sudo docker system prune -f -a
