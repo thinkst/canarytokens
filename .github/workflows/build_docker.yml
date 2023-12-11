@@ -87,7 +87,8 @@ jobs:
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
           git stash && git pull
-          sed "s/thinkst\/canarytokens/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
+          sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
+          sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
           sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml pull
@@ -106,10 +107,11 @@ jobs:
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
           git stash && git pull
-          sed "s/thinkst\/canarytokens/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
+          sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
+          sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-aws-logging-letsencrypt.yml > docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml pull
-          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml down
-          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml up -d
+          sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml pull
+          sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml down
+          sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml up -d
           sudo docker system prune -f -a
