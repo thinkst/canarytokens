@@ -85,7 +85,6 @@ jobs:
         run: |
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
-
           cd /home/ubuntu/canarytokens-docker
           git stash && git pull
           sed "s/thinkst\/canarytokens/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
@@ -105,12 +104,12 @@ jobs:
         run: |
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
-
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml.tpl > docker-compose-letsencrypt.yml
+          git stash && git pull
+          sed "s/thinkst\/canarytokens/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker compose -f docker-compose-letsencrypt.yml pull
-          sudo docker compose -f docker-compose-letsencrypt.yml down
-          sudo docker compose -f docker-compose-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml pull
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml down
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml up -d
           sudo docker system prune -f -a
