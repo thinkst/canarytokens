@@ -22,7 +22,11 @@ jobs:
       # Checkout canarytokens-docker repo. This lands in ./canarytokens-docker
       - name: Set canarytokens-docker-branch
         run: |
-          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "master"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
+          if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then
+            BRANCH="master"
+          else echo
+            BRANCH="${{ github.event.inputs.canarytokens-docker-branch }}"
+          fi
           echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> $GITHUB_ENV
 
       - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
