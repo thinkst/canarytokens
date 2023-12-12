@@ -11,6 +11,7 @@ on:
       canarytokens-docker-branch:
         description: "Branch of the canarytokens-docker repo to pull for build. Defaults to master"
         required: false
+        default: "master"
 
 jobs:
   build:
@@ -19,21 +20,11 @@ jobs:
       COPYFILE_DISABLE: 1
 
     steps:
-      # Checkout canarytokens-docker repo. This lands in ./canarytokens-docker
-      - name: Set canarytokens-docker-branch
-        run: |
-          if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then
-            BRANCH="master"
-          else echo
-            BRANCH="${{ github.event.inputs.canarytokens-docker-branch }}"
-          fi
-          echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> $GITHUB_ENV
-
       - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
         with:
           repository: thinkst/canarytokens-docker
           path: canarytokens-docker
-          ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
+          ref: ${{ github.event.inputs.canarytokens-docker-branch }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -90,7 +81,7 @@ jobs:
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
-          git stash && git checkout ${{ env.CANARYTOKENS_DOCKER_BRANCH }} && git pull
+          git stash && git checkout ${{ github.event.inputs.canarytokens-docker-branch }} && git pull
           sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
           sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
@@ -110,7 +101,7 @@ jobs:
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
-          git stash && git checkout master && git pull
+          git stash && git checkout ${{ github.event.inputs.canarytokens-docker-branch }} && git pull
           sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
           sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-aws-logging-letsencrypt.yml > docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
