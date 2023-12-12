@@ -1,8 +1,9 @@
 import datetime
 from pathlib import Path
-
+import uuid
 from pydantic import EmailStr
 import pytest
+from unittest.mock import patch
 from twisted.logger import capturedLogs
 
 from canarytokens import queries
@@ -12,6 +13,7 @@ from canarytokens.channel_output_email import (
     EmailOutputChannel,
     mailgun_send,
     sendgrid_send,
+    smtp_send,
     EmailResponseStatuses,
 )
 from canarytokens.models import (
@@ -221,6 +223,48 @@ def test_mailgun_send(
     assert result is expected_result_type
     if result == EmailResponseStatuses.SENT:
         assert len(message_id) > 0
+
+
+# @pytest.mark.parametrize(
+#     "email,expected_result_type",
+#     [
+#         (
+#             "http://notawebsiteIhopeorknowof.invalid",
+#             EmailResponseStatuses.IGNORED,
+#         ),
+#         ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
+#         ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
+#     ],
+# )
+@patch("canarytokens.channel_output_email.smtplib.SMTP", autospec=True)
+def test_smtp_send(
+    mock_SMTP,
+    settings: SwitchboardSettings,
+    # email: str,
+    # expected_result_type: EmailResponseStatuses,
+):
+    details = _get_send_token_details()
+    result, message_id = smtp_send(
+        email_content_html=EmailOutputChannel.format_report_html(
+            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        ),
+        email_content_text=EmailOutputChannel.format_report_text(details),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
+        from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
+        email_subject=settings.ALERT_EMAIL_SUBJECT,
+        from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
+        smtp_password="testpassword",
+        smtp_port=1025,
+        smtp_server="localhost",
+        smtp_username="testuser",
+    )
+    # import pdb; pdb.set_trace()
+    assert mock_SMTP.return_value.__enter__.return_value.sendmail.call_count == 1
+    assert len(message_id) == len(uuid.uuid4().hex)
+    # assert result
+    # assert result is expected_result_type
+    # if result == EmailResponseStatuses.SENT:
+    #     assert len(message_id) > 0
 
 
 def _do_send_alert(

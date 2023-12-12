@@ -8,7 +8,7 @@ from canarytokens.models import Port
 
 
 class SwitchboardSettings(BaseSettings):
-    PUBLIC_DOMAIN: str
+    PUBLIC_DOMAIN: str = ""
     CHANNEL_DNS_IP: str = ""
     CHANNEL_DNS_PORT: Port = Port(5354)
     CHANNEL_HTTP_PORT: Port = Port(8083)
@@ -25,7 +25,7 @@ class SwitchboardSettings(BaseSettings):
 
     REAL_IP_HEADER: str = "x-real-ip"
 
-    WG_PRIVATE_KEY_SEED: str
+    WG_PRIVATE_KEY_SEED: str = ""
     WG_PRIVATE_KEY_N: str = "1000"
 
     FRONTEND_SETTINGS_PATH: str = "../frontend/frontend.env"
@@ -40,14 +40,20 @@ class SwitchboardSettings(BaseSettings):
     MAX_ALERT_FAILURES: int = 5
 
     IPINFO_API_KEY: Optional[SecretStr] = None
-
+    # Mailgun Required Settings
     MAILGUN_API_KEY: Optional[SecretStr] = None
     MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
         "https://api.mailgun.net", scheme="https"
     )
     MAILGUN_DOMAIN_NAME: Optional[str]
+    # Sendgrid Required Settings
     SENDGRID_API_KEY: Optional[SecretStr] = None
     SENDGRID_SANDBOX_MODE: bool = True
+    # SMTP Required Settings
+    SMTP_USERNAME: Optional[str]
+    SMTP_PASSWORD: Optional[str]
+    SMTP_SERVER: Optional[str]
+    SMTP_PORT: Optional[Port] = Port(587)
 
     SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
