@@ -81,6 +81,9 @@ jobs:
           build-args: |
             CACHE_BUSTER_COMMIT=${{ github.sha }}
 
+    outputs:
+      canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
+
   dev-deploy:
     if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev'
     runs-on: [self-hosted, dev]
@@ -91,7 +94,7 @@ jobs:
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
-          git stash && git checkout ${{ env.CANARYTOKENS_DOCKER_BRANCH }} && git pull
+          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }} && git pull
           sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
           sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
@@ -111,7 +114,7 @@ jobs:
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
-          git stash && git checkout ${{ env.CANARYTOKENS_DOCKER_BRANCH }} && git pull
+          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }}  && git pull
           sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
           sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-aws-logging-letsencrypt.yml > docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
