@@ -34,7 +34,7 @@ jobs:
         with:
           repository: thinkst/canarytokens-docker
           path: canarytokens-docker
-          ref: "$CANARYTOKENS_DOCKER_BRANCH"
+          ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
