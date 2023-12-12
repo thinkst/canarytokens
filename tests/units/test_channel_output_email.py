@@ -225,23 +225,12 @@ def test_mailgun_send(
         assert len(message_id) > 0
 
 
-# @pytest.mark.parametrize(
-#     "email,expected_result_type",
-#     [
-#         (
-#             "http://notawebsiteIhopeorknowof.invalid",
-#             EmailResponseStatuses.IGNORED,
-#         ),
-#         ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
-#         ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
-#     ],
-# )
+# TODO: Write more comprehensive tests for SMTP. The difficulty here is that we don't have a consistent API to use
+# because different SMTP servers may handle things differently. I figure as we break and enhance, we'll add tests too
 @patch("canarytokens.channel_output_email.smtplib.SMTP", autospec=True)
 def test_smtp_send(
     mock_SMTP,
     settings: SwitchboardSettings,
-    # email: str,
-    # expected_result_type: EmailResponseStatuses,
 ):
     details = _get_send_token_details()
     result, message_id = smtp_send(
@@ -258,13 +247,10 @@ def test_smtp_send(
         smtp_server="localhost",
         smtp_username="testuser",
     )
-    # import pdb; pdb.set_trace()
     assert mock_SMTP.return_value.__enter__.return_value.sendmail.call_count == 1
     assert len(message_id) == len(uuid.uuid4().hex)
-    # assert result
-    # assert result is expected_result_type
-    # if result == EmailResponseStatuses.SENT:
-    #     assert len(message_id) > 0
+    assert result == EmailResponseStatuses.SENT
+    assert len(message_id) > 0
 
 
 def _do_send_alert(
