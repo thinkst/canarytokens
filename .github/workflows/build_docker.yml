@@ -5,13 +5,13 @@ on:
     branches:
       - "master"
       - "dev"
-      - "dev_v3"
 
   workflow_dispatch:
     inputs:
       canarytokens-docker-branch:
         description: "Branch of the canarytokens-docker repo to pull for build. Defaults to master"
         required: false
+        default: "master"
 
 jobs:
   build:
@@ -20,13 +20,17 @@ jobs:
       COPYFILE_DISABLE: 1
 
     steps:
-      # Checkout canarytokens-docker repo. This lands in ./canarytokens-docker
-      - name: Set canarytokens-docker-branch
+      - name: set Canarytokens Docker repo branch
         run: |
-          BRANCH=$(if [ -z "${{ github.event.inputs.canarytokens-docker-branch}}" ]; then echo "master"; else echo "${{ github.event.inputs.canarytokens-docker-branch }}"; fi)
-          echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> $GITHUB_ENV
+          if [ -z "${{ github.event.inputs.canarytokens-docker-branch }}" ]; then
+            BRANCH="master"
+          else
+            BRANCH="${{ github.event.inputs.canarytokens-docker-branch }}"
+          fi
+          echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+
+      - uses: actions/checkout@v4
         with:
           repository: thinkst/canarytokens-docker
           path: canarytokens-docker
@@ -77,6 +81,9 @@ jobs:
           build-args: |
             CACHE_BUSTER_COMMIT=${{ github.sha }}
 
+    outputs:
+      canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
+
   dev-deploy:
     if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev'
     runs-on: [self-hosted, dev]
@@ -86,14 +93,15 @@ jobs:
         run: |
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
-
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3-letsencrypt.yml.tpl > docker-compose-v3-letsencrypt.yml
+          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }} && git pull
+          sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
+          sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml pull
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml down
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml pull
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml down
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml up -d
           sudo docker system prune -f -a
 
   staging-deploy:
@@ -105,12 +113,13 @@ jobs:
         run: |
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
-
           cd /home/ubuntu/canarytokens-docker
-          sed "s/thinkst\/canarytokens:dev/thinkst\/canarytokens:${GITHUB_REF##*/}/g" docker-compose-v3-letsencrypt.yml.tpl > docker-compose-v3-letsencrypt.yml
+          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }}  && git pull
+          sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
+          sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-aws-logging-letsencrypt.yml > docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
           sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml pull
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml down
-          sudo docker compose -f docker-compose-v3-letsencrypt.yml up -d
+          sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml pull
+          sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml down
+          sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml up -d
           sudo docker system prune -f -a

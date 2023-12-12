@@ -3,9 +3,7 @@ name: TestSuite
 on:
   push:
     branches:
-      - "py3_master"
       - "master"
-      - "dev_v3"
       - "dev"
 
   workflow_dispatch:
