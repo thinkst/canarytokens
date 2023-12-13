@@ -8,7 +8,7 @@ from canarytokens.models import Port
 
 
 class SwitchboardSettings(BaseSettings):
-    PUBLIC_DOMAIN: str = ""
+    PUBLIC_DOMAIN: str
     CHANNEL_DNS_IP: str = ""
     CHANNEL_DNS_PORT: Port = Port(5354)
     CHANNEL_HTTP_PORT: Port = Port(8083)
@@ -25,7 +25,7 @@ class SwitchboardSettings(BaseSettings):
 
     REAL_IP_HEADER: str = "x-real-ip"
 
-    WG_PRIVATE_KEY_SEED: str = ""
+    WG_PRIVATE_KEY_SEED: str
     WG_PRIVATE_KEY_N: str = "1000"
 
     FRONTEND_SETTINGS_PATH: str = "../frontend/frontend.env"
