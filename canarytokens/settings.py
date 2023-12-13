@@ -40,14 +40,20 @@ class SwitchboardSettings(BaseSettings):
     MAX_ALERT_FAILURES: int = 5
 
     IPINFO_API_KEY: Optional[SecretStr] = None
-
+    # Mailgun Required Settings
     MAILGUN_API_KEY: Optional[SecretStr] = None
     MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
         "https://api.mailgun.net", scheme="https"
     )
     MAILGUN_DOMAIN_NAME: Optional[str]
+    # Sendgrid Required Settings
     SENDGRID_API_KEY: Optional[SecretStr] = None
     SENDGRID_SANDBOX_MODE: bool = True
+    # SMTP Required Settings
+    SMTP_USERNAME: Optional[str]
+    SMTP_PASSWORD: Optional[str]
+    SMTP_SERVER: Optional[str]
+    SMTP_PORT: Optional[Port] = Port(587)
 
     SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"

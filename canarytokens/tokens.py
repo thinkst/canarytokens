@@ -69,8 +69,6 @@ source_data_extractors = {
 
 g_template_dir: Optional[str]
 
-switchboard_settings = SwitchboardSettings()
-
 
 def set_template_env(template_dir):
     global g_template_dir
@@ -265,6 +263,7 @@ class Canarytoken(object):
     def _grab_http_general_info(request: Request):
         """"""
         useragent = request.getHeader("User-Agent") or "(no user-agent specified)"
+        switchboard_settings = SwitchboardSettings()
         src_ip = (
             request.getHeader(switchboard_settings.REAL_IP_HEADER)
             or request.client.host
@@ -277,7 +276,7 @@ class Canarytoken(object):
         src_ip_chain = [o.strip() for o in src_ips.split(",")]
         # TODO: 'ts_key' -> which tokens fire this?
         hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
-        flatten_singletons = lambda l: l[0] if len(l) == 1 else l  # noqa: E731
+        flatten_singletons = lambda d: d[0] if len(d) == 1 else d  # noqa: E731
         request_headers = {
             k.decode(): flatten_singletons([s.decode() for s in v])
             for k, v in request.requestHeaders.getAllRawHeaders()
@@ -378,7 +377,7 @@ class Canarytoken(object):
         src_ip = json_data.get("ip", "127.0.0.1")
 
         auth_details = json_data.get("auth_details", "")
-        if type(auth_details) == list:
+        if type(auth_details) is list:
             out = ""
             for d in auth_details:
                 out += "\n{}: {}".format(d["key"], d["value"])

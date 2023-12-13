@@ -6,10 +6,14 @@ from textwrap import dedent
 import textwrap
 from typing import Optional
 import enum
+import uuid
 
 import minify_html
 import requests
 import sendgrid
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from jinja2 import Template
 from pydantic import EmailStr, HttpUrl, SecretStr
 from python_http_client.exceptions import HTTPError
@@ -215,6 +219,45 @@ def mailgun_send(
         return email_response, message_id
 
 
+def smtp_send(
+    *,
+    email_address: EmailStr,
+    email_content_html: str,
+    email_content_text: str,
+    email_subject: str,
+    from_email: EmailStr,
+    from_display: str,
+    smtp_password: str,
+    smtp_username: str,
+    smtp_server: str,
+    smtp_port: str,
+) -> tuple[EmailResponseStatuses, str]:
+    email_response = EmailResponseStatuses.ERROR
+    message_id = uuid.uuid4().hex
+    try:
+        fromaddr = from_email
+        toaddr = email_address
+        smtpmsg = MIMEMultipart("alternative")
+        smtpmsg["From"] = from_display
+        smtpmsg["To"] = email_address
+        smtpmsg["Subject"] = email_subject
+        part1 = MIMEText(email_content_text, "plain")
+        part2 = MIMEText(email_content_html, "html")
+        smtpmsg.attach(part1)
+        smtpmsg.attach(part2)
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.sendmail(fromaddr, toaddr, smtpmsg.as_string())
+    except smtplib.SMTPException as e:
+        log.error("A smtp error occurred: %s - %s" % (e.__class__, e))
+        email_response = EmailResponseStatuses.ERROR
+    else:
+        email_response = EmailResponseStatuses.SENT
+    return email_response, message_id
+
+
 class EmailOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_EMAIL
 
@@ -371,16 +414,17 @@ class EmailOutputChannel(OutputChannel):
             recipient=canarydrop.alert_email_recipient,
             details=alert_details,
         )
+        email_content_html = EmailOutputChannel.format_report_html(
+            alert_details,
+            Path(
+                f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
+            ),
+        )
         if self.switchboard_settings.MAILGUN_API_KEY:
             email_response_status, message_id = mailgun_send(
                 email_address=canarydrop.alert_email_recipient,
                 email_subject=self.email_subject,
-                email_content_html=EmailOutputChannel.format_report_html(
-                    alert_details,
-                    Path(
-                        f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
-                    ),
-                ),
+                email_content_html=email_content_html,
                 email_content_text=EmailOutputChannel.format_report_text(alert_details),
                 from_email=EmailStr(self.from_email),
                 from_display=self.from_display,
@@ -392,19 +436,25 @@ class EmailOutputChannel(OutputChannel):
             email_response_status, message_id = sendgrid_send(
                 api_key=self.switchboard_settings.SENDGRID_API_KEY,
                 email_address=canarydrop.alert_email_recipient,
-                email_content_html=EmailOutputChannel.format_report_html(
-                    alert_details,
-                    Path(
-                        f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
-                    ),
-                ),
+                email_content_html=email_content_html,
                 from_email=EmailStr(self.from_email),
                 email_subject=self.email_subject,
                 from_display=self.from_display,
                 sandbox_mode=False,
             )
         elif self.switchboard_settings.SMTP_SERVER:
-            raise NotImplementedError("SMTP_SERVER - not supported")
+            email_response_status, message_id = smtp_send(
+                email_address=canarydrop.alert_email_recipient,
+                email_content_html=email_content_html,
+                email_content_text=EmailOutputChannel.format_report_text(alert_details),
+                email_subject=self.email_subject,
+                from_email=EmailStr(self.from_email),
+                from_display=self.from_display,
+                smtp_password=self.switchboard_settings.SMTP_PASSWORD,
+                smtp_username=self.switchboard_settings.SMTP_USERNAME,
+                smtp_server=self.switchboard_settings.SMTP_SERVER,
+                smtp_port=self.switchboard_settings.SMTP_PORT,
+            )
         else:
             log.error("No email settings found")
 
@@ -505,30 +555,3 @@ class EmailOutputChannel(OutputChannel):
     #         # Mandrill errors are thrown as exceptions
     #         log.error('A mandrill error occurred: %s - %s' % (e.__class__, e))
     #         # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....
-
-    # def smtp_send(self, msg=None, canarydrop=None):
-    #     try:
-    #         fromaddr = msg['from_address']
-    #         toaddr = canarydrop['alert_email_recipient']
-
-    #         smtpmsg = MIMEText(msg['body'])
-    #         smtpmsg['From'] = fromaddr
-    #         smtpmsg['To'] = toaddr
-    #         smtpmsg['Subject'] = msg['subject']
-
-    #         if settings.DEBUG:
-    #             pprint.pprint(message)
-    #         else:
-    #             server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
-    #             server.ehlo()
-    #             server.starttls()
-    #             server.ehlo()
-    #             server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
-    #             text = smtpmsg.as_string()
-    #             server.sendmail(fromaddr, toaddr, text)
-
-    #         log.info('Sent alert to {recipient} for token {token}'\
-    #             .format(recipient=canarydrop['alert_email_recipient'],
-    #                 token=canarydrop.canarytoken.value()))
-    #     except smtplib.SMTPException as e:
-    #         log.error('A smtp error occurred: %s - %s' % (e.__class__, e))
