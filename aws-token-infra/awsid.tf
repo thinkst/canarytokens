@@ -248,6 +248,20 @@ resource "aws_cloudtrail" "canarytoken_logs" {
   s3_key_prefix                 = ""
   cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.process_user_api_tokens_logs.arn}:*"
   cloud_watch_logs_role_arn     = aws_iam_role.process_user_api_tokens_logs_cloudtrail.arn
+  event_selector {
+    read_write_type           = "All"
+    include_management_events = true
+
+    data_resource {
+      type   = "AWS::S3::Object"
+      values = ["arn:aws:s3:::"]
+    }
+
+    data_resource {
+      type   = "AWS::Lambda::Function"
+      values = ["arn:aws:lambda"]
+    }
+  }
 }
 
 # ProcessUserAPITokensLogs
