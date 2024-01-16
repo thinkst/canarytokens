@@ -130,7 +130,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         request.setHeader("Server", "Apache")
         return resp
 
-    def render_OPTIONS(self, request):
+    def render_OPTIONS(self, request: Request):
         """
         Alert as if it is a normal GET request, but return the expected content and headers.
         """
