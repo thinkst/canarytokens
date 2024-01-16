@@ -551,7 +551,7 @@ async def azure_css_landing(request: Request, admin_consent: str = "", tenant: s
         tenant_id = tenant
         if css := state:
             css = b64decode(unquote(state)).decode()
-        if css != None and tenant_id != None:
+        if css is not None and tenant_id is not None:
             install_azure_css(tenant_id, css)
     return templates.TemplateResponse("close.html", {"request": request})
 
