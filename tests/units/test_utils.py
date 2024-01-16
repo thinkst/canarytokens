@@ -1,4 +1,7 @@
-from canarytokens.utils import coerce_to_float, get_deployed_commit_sha
+from canarytokens.utils import (
+    coerce_to_float,
+    get_deployed_commit_sha,
+)
 
 
 def test_get_deployed_commit_sha(tmpdir):

@@ -301,35 +301,72 @@ def test_custom_image_web_image(
 
 @pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
-    "file_name", ["canary_image.png"]  # , "Moon.jpg", "testing.gif"],
-)
-@pytest.mark.parametrize(
-    "request_details",
+    "request_details, resp_details",
     [
-        {
-            "method": "GET",
-            "req_headers": {},
-            "resp_headers": {"Access-Control-Allow-Origin": "*"},
-        },
-        {
-            "method": "OPTIONS",
-            "req_headers": {
-                "Access-Control-Request-Method": "GET",
-                "Origin": "test.com",
+        pytest.param(
+            {"method": "GET", "headers": {}},
+            {"headers": {"Access-Control-Allow-Origin": "*"}, "not_headers": []},
+            id="Get-Request-Cors-Support",
+        ),
+        pytest.param(
+            {
+                "method": "OPTIONS",
+                "headers": {
+                    "Access-Control-Request-Method": "GET",
+                    "Origin": "test.com",
+                },
             },
-            "resp_headers": {
-                "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
-                "Access-Control-Allow-Origin": "test.com",
+            {
+                "headers": {
+                    "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
+                    "Access-Control-Allow-Origin": "test.com",
+                },
+                "not_headers": ["Access-Control-Request-Method"],
             },
-        },
+            id="Preflight-Cors-Support",
+        ),
+        pytest.param(
+            {
+                "method": "OPTIONS",
+                "headers": {
+                    "Origin": "test.com",
+                },
+            },
+            {
+                "headers": {},
+                "not_headers": [
+                    "Access-Control-Allow-Methods",
+                    "Access-Control-Allow-Origin",
+                ],
+            },
+            id="Bad-Preflight-Cors-Request",
+        ),
+        pytest.param(
+            {
+                "method": "GET",
+                "headers": {
+                    "Access-Control-Request-Method": "GET",
+                    "Origin": "test.com",
+                },
+            },
+            {
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                "not_headers": [
+                    "Access-Control-Request-Method",
+                    "Access-Control-Allow-Methods",
+                ],
+            },
+            id="Get-with-Preflight-Cors-Headers",
+        ),
     ],
-    ids=["Get-Request-Cors-Support", "Preflight-Cors-Support"],
 )
 def test_custom_image_web_image_cors_support(
-    version, file_name, webhook_receiver, runv2, runv3, request_details
+    version, webhook_receiver, runv2, runv3, request_details, resp_details
 ):
     run_or_skip(version, runv2=runv2, runv3=runv3)
-
+    file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(
         mimetype=file_name[-3:].replace("jpg", "jpeg")
     )
@@ -379,7 +416,7 @@ def test_custom_image_web_image_cors_support(
             mimetype=file_mimetype,
         ),
     }
-    trigger_headers.update(request_details["req_headers"])
+    trigger_headers.update(request_details["headers"])
 
     _resp = trigger_http_token(
         token_info=token_info,
@@ -388,6 +425,9 @@ def test_custom_image_web_image_cors_support(
         stream=True,
         method=request_details["method"],
     )
-    for header, value in request_details["resp_headers"].items():
+    for header, value in resp_details["headers"].items():
         assert header in _resp.headers
         assert value in _resp.headers[header]
+
+    for header in resp_details["not_headers"]:
+        assert header not in _resp.headers
