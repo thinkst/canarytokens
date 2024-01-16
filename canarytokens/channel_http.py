@@ -130,11 +130,12 @@ class CanarytokenPage(InputChannel, resource.Resource):
         request.setHeader("Server", "Apache")
         return resp
 
-    def render_OPTIONS(self, request):
+    def render_OPTIONS(self, request: Request):
         """
         Alert as if it is a normal GET request, but return the expected content and headers.
         """
         _ = self.render_GET(request)
+        _check_and_add_cors_preflight_headers(request)
         request.setHeader("Allow", "OPTIONS, GET, POST")
         request.setResponseCode(200)
         request.responseHeaders.removeHeader("Content-Type")
@@ -204,6 +205,37 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 return b"failed"
         else:
             return self.render_GET(request)
+
+
+def _check_and_add_cors_preflight_headers(request):
+    """
+    According to https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request, we
+    should check for `Access-Control-Request-Method` and `Origin` and optionally,
+    `Access-Control-Request-Headers` headers to determine its a preflight request; and
+    respond with `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`.
+    """
+    if (
+        request.getHeader("Access-Control-Request-Method") is None
+        or request.getHeader("Origin") is None
+    ):
+        return
+
+    acr_headers = request.getHeader("Access-Control-Request-Headers")
+    if acr_headers is not None:
+        request.setHeader("Access-Control-Allow-Headers", acr_headers)
+
+    request.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"))
+    request.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST")
+
+
+# Request
+# Access-Control-Request-Method: DELETE
+# Access-Control-Request-Headers: origin, x-requested-with
+# Origin: https://foo.bar.org
+
+# Response
+# Access-Control-Allow-Origin: https://foo.bar.org
+# Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
 
 
 class ChannelHTTP:
