@@ -639,7 +639,7 @@ class Canarytoken(object):
 
         # If a browser makes cross-origin requests for this img that aren't "simple" it will reject
         # the image response without this Canarytokens server permitting all cross-origin requests
-        request.setHeader("Access-Control-Allow-Origin", "*")
+        _check_and_add_cors_headers(request)
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
             # set response mimetype
@@ -753,3 +753,28 @@ class Canarytoken(object):
             AnyTokenHit,
             hit_info,
         )
+
+
+def _check_and_add_cors_headers(request):
+    """
+    According to https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request, we
+    should check for `Access-Control-Request-Method` and `Origin` and optionally,
+    `Access-Control-Request-Headers` headers to determine its a preflight request; and
+    respond with `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`. Else, we
+    will add
+    """
+    if request.method == "GET":
+        request.setHeader("Access-Control-Allow-Origin", "*")
+    elif request.method == "OPTIONS":
+        if (
+            request.getHeader("Access-Control-Request-Method") is None
+            or request.getHeader("Origin") is None
+        ):
+            return
+
+        acr_headers = request.getHeader("Access-Control-Request-Headers")
+        if acr_headers is not None:
+            request.setHeader("Access-Control-Allow-Headers", acr_headers)
+
+        request.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"))
+        request.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST")
