@@ -469,7 +469,7 @@ class Canarytoken(object):
 
         referer = request.getHeader('Referer')
         r_arg = request.args.get(b"r", [None])[0]
-        if r_arg != None:
+        if r_arg is not None:
             r_arg = r_arg.decode()
         src_data = {
             "referer": referer,
