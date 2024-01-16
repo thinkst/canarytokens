@@ -52,7 +52,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::164951611079:role/Canarytokens-staging-github-action
+          role-to-assume: arn:aws:iam::211125554061:role/Canarytokens-staging-github-action
           role-session-name: GitHubActions-${{ github.actor }}-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: actions/checkout@v3
