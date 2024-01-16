@@ -547,13 +547,14 @@ async def azure_css_landing(request: Request, admin_consent: str = "", tenant: s
     Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in 
     a pop-up context.
     """
+    info = ''
     if admin_consent == 'True':
         tenant_id = tenant
         if css := state:
             css = b64decode(unquote(state)).decode()
         if css is not None and tenant_id is not None:
-            install_azure_css(tenant_id, css)
-    return templates.TemplateResponse("close.html", {"request": request})
+            (success, info) = install_azure_css(tenant_id, css)
+    return templates.TemplateResponse("azure_install.html", {"request": request, "status": info})
 
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
