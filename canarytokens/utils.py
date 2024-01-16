@@ -1,6 +1,32 @@
 import subprocess
 from pathlib import Path
 from typing import Any, Literal, Union
+from twisted.web.http import Request
+
+
+def check_and_add_cors_headers(request: Request):
+    """
+    According to https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request, we
+    should check for `Access-Control-Request-Method` and `Origin` and optionally,
+    `Access-Control-Request-Headers` headers in an OPTIONS request to determine its a preflight request; and
+    respond with `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`. Else, we
+    will add `Access-Control-Allow-Origin: *` to the GET request.
+    """
+    if request.method.upper() == b"GET":
+        request.setHeader("Access-Control-Allow-Origin", "*")
+    elif request.method.upper() == b"OPTIONS":
+        if (
+            request.getHeader("Access-Control-Request-Method") is None
+            or request.getHeader("Origin") is None
+        ):
+            return
+
+        acr_headers = request.getHeader("Access-Control-Request-Headers")
+        if acr_headers is not None:
+            request.setHeader("Access-Control-Allow-Headers", acr_headers)
+
+        request.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"))
+        request.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST")
 
 
 def coerce_to_float(value: Any) -> Union[Literal[False], float]:

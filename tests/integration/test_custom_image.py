@@ -216,7 +216,6 @@ def test_custom_image_web_image(
     webhook_receiver,
     runv2,
     runv3,
-    # clean_uploads_dir
 ):
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
@@ -298,3 +297,121 @@ def test_custom_image_web_image(
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
         assert token_hit.geo_info.ip == "127.0.0.1"
+
+
+@pytest.mark.parametrize("version", [v3])
+@pytest.mark.parametrize(
+    "file_name", ["canary_image.png"]  # , "Moon.jpg", "testing.gif"],
+)
+@pytest.mark.parametrize(
+    "request_details",
+    [
+        {
+            "method": "GET",
+            "req_headers": {},
+            "resp_headers": {"Access-Control-Allow-Origin": "*"},
+        },
+        {
+            "method": "OPTIONS",
+            "req_headers": {
+                "Access-Control-Request-Method": "GET",
+                "Origin": "test.com",
+            },
+            "resp_headers": {
+                "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
+                "Access-Control-Allow-Origin": "test.com",
+            },
+        },
+    ],
+    ids=["Get-Request-Cors-Support", "Preflight-Cors-Support"],
+)
+def test_custom_image_web_image_cors_support(
+    version, file_name, webhook_receiver, runv2, runv3, request_details
+):
+    run_or_skip(version, runv2=runv2, runv3=runv3)
+
+    file_mimetype = "image/{mimetype}".format(
+        mimetype=file_name[-3:].replace("jpg", "jpeg")
+    )
+    with open("data/{file}".format(file=file_name), "rb") as fp:
+        # record contents
+        input_file = fp.read()
+
+    # create SpooledTemporaryFile
+    temp_file = SpooledTemporaryFile()
+    temp_file.write(input_file)
+    temp_file.seek(0)
+    # initialize request
+    web_image = UploadedImage(
+        filename=file_name, content_type=file_mimetype, file=temp_file
+    )
+    memo = "custom web token memo!"
+    token_request = CustomImageTokenRequest(
+        token_type=TokenTypes.WEB_IMAGE,
+        web_image=web_image,
+        webhook_url=webhook_receiver,
+        memo=Memo(memo),
+    )
+
+    # Create custom image token
+    resp = create_token(token_request=token_request, version=version)
+    token_info = CustomImageTokenResponse(**resp)
+
+    # ensure web_image is enabled
+    _res = set_token_settings(
+        setting=WebImageSettingsRequest(
+            value="on",
+            token=token_info.token,
+            auth=token_info.auth_token,
+        ),
+        version=version,
+    )
+    # check success of the web_image settings update
+    if isinstance(version, V2):
+        assert _res["result"] == "success"
+    elif isinstance(version, V3):
+        assert _res["message"] == "success"
+
+    # Trigger the token
+    trigger_headers = {
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Accept": "{mimetype}".format(
+            mimetype=file_mimetype,
+        ),
+    }
+    trigger_headers.update(request_details["req_headers"])
+
+    _resp = trigger_http_token(
+        token_info=token_info,
+        version=version,
+        headers=trigger_headers,
+        stream=True,
+        method=request_details["method"],
+    )
+    for header, value in request_details["resp_headers"].items():
+        assert header in _resp.headers
+        assert value in _resp.headers[header]
+    # import pdb; pdb.set_trace()
+    # extract incoming file's bytes
+    # incoming_file = _resp.content
+
+    # # compare bytes between files
+    # assert input_file == incoming_file
+
+    # # check the memo
+    # stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
+    # if stats:
+    #     assert len(stats) == 1
+    #     assert stats[0]["memo"] == memo
+    #     _ = TokenAlertDetailGeneric(**stats[0])
+
+    # # Check that the returned history has a single hit, and is on the HTTP channel
+    # resp = get_token_history(token_info=token_info, version=version)
+    # token_history = CustomImageTokenHistory(**resp)
+    # assert len(token_history.hits) == 1
+    # token_hit = token_history.hits[0]
+    # assert token_hit.input_channel == "HTTP"
+    # if version.live:
+    #     assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
+    # else:
+    #     assert token_hit.geo_info.ip == "127.0.0.1"
