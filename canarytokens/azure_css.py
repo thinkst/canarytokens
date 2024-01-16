@@ -37,7 +37,7 @@ def _delete_self(client: GraphClient) -> bool:
     res: Response = client.delete(f"/servicePrincipals(appId='{frontend_settings.AZUREAPP_ID}')")
     return res.status_code == 204
 
-def install_azure_css(tenant_id: str, css: str) -> bool:
+def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     """
     Main business logic function to install the Azure CSS token into the tenant
     NB: Must be called after the Azure permission consent workflow has occurred
@@ -45,14 +45,12 @@ def install_azure_css(tenant_id: str, css: str) -> bool:
     """
     client = _auth_to_tenant(tenant_id)
     if _check_if_custom_branding(client, tenant_id):
-        # TODO: More gracefully handle partial branding (e.g., if they have a logo but no CSS)
-        #return False
-        pass # Skip this check for now
+        return (False, f"Installation failed: your tenant already has custom CSS, please manually add the following CSS to your branding:<br /><textarea>{css}</textarea>")
     if not _install_custom_css(client, tenant_id, css):
         # TODO: Better error handling
         # Might as well remove ourselves anyways
         _delete_self(client)
-        return False
+        return (False, f"Installation failed: Unable to automaticall install the CSS, please manually add the following CSS to your branding:<br /><textarea>{css}</textarea>")
     _delete_self(client)
-    return True
+    return (True, "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propogate; no further action is needed.")
 
