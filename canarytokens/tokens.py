@@ -763,9 +763,9 @@ def _check_and_add_cors_headers(request):
     respond with `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`. Else, we
     will add
     """
-    if request.method == "GET":
+    if request.method.upper() == "GET":
         request.setHeader("Access-Control-Allow-Origin", "*")
-    elif request.method == "OPTIONS":
+    elif request.method.upper() == "OPTIONS":
         if (
             request.getHeader("Access-Control-Request-Method") is None
             or request.getHeader("Origin") is None
