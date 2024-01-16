@@ -391,27 +391,3 @@ def test_custom_image_web_image_cors_support(
     for header, value in request_details["resp_headers"].items():
         assert header in _resp.headers
         assert value in _resp.headers[header]
-    # import pdb; pdb.set_trace()
-    # extract incoming file's bytes
-    # incoming_file = _resp.content
-
-    # # compare bytes between files
-    # assert input_file == incoming_file
-
-    # # check the memo
-    # stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
-    # if stats:
-    #     assert len(stats) == 1
-    #     assert stats[0]["memo"] == memo
-    #     _ = TokenAlertDetailGeneric(**stats[0])
-
-    # # Check that the returned history has a single hit, and is on the HTTP channel
-    # resp = get_token_history(token_info=token_info, version=version)
-    # token_history = CustomImageTokenHistory(**resp)
-    # assert len(token_history.hits) == 1
-    # token_hit = token_history.hits[0]
-    # assert token_hit.input_channel == "HTTP"
-    # if version.live:
-    #     assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
-    # else:
-    #     assert token_hit.geo_info.ip == "127.0.0.1"
