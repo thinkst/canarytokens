@@ -1,6 +1,7 @@
 from azure.identity import ClientSecretCredential
 from canarytokens.settings import FrontendSettings
 from requests import Response, get, put, delete
+import logging
 
 frontend_settings = FrontendSettings()
 
@@ -20,7 +21,7 @@ def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
     """
     headers = {
         'Accept-Language': '0',
-        'Authoriation': 'Bearer ' + token
+        'Authorization': 'Bearer ' + token
     }
     res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
     # This API returns 404 if there is no corporate branding configured
@@ -29,17 +30,19 @@ def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
 def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> bool:
     """
     Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
-    Returns: True if there is branding present, false otherwise
+    Returns: True if there is branding present, but no existing CSS, False otherwise
     """
     headers = {
         'Accept-Language': '0',
         'Authorization': 'Bearer ' + token
     }
     res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
+    logging.error(f"Got {res.status_code} - {res.text}")
     if res.status_code != 200:
         return False
     if res.json().get('customCSSRelativeUrl') is None:
         return True
+    return False
 
 def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     """
