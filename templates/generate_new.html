@@ -133,7 +133,7 @@
                     <li data-type="kubeconfig"     class="token-item" data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="wireguard"      class="token-item" data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="cloned_website" class="token-item" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
-                    <li data-type="css_cloned_website" class="token-item" data-memo-placeholder="CSS Cloned website token for https://thinkst.com"><a href="#" class="icon icon-cssclonedsite"><span class="title">CSS Cloned website</span><div class="explanation">Trigger an alert when your website is cloned (using CSS)</div></a></li>
+                    <li data-type="css_cloned_website" class="token-item" data-memo-placeholder="CSS Cloned website token for https://thinkst.com"><a href="#" class="icon icon-cssclonedsite"><span class="title">CSS cloned website/Azure Entra ID login</span><div class="explanation">Trigger an alert when your website is cloned (using CSS)</div></a></li>
                     <li data-type="qr_code"        class="token-item" data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="my_sql"         class="token-item" data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
                     <li data-type="windows_dir"    class="token-item" data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
@@ -540,14 +540,14 @@
                 <h3>Your CSS Cloned Website token is active!</h3>
                 <div class="artifacts">
                   <p>Use this CSS to detect when someone has cloned a webpage. Place this CSS on the page you wish to protect, or import it as custom branding:</p>
-                  <div class="form-control">
+                  <div class="form-control" style="overflow-x: auto;">
                     {{ textareacopy('result_css_cloned_website') }}
                   </div>
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite">Download your CSS file</a>
                   </div>
                   <div class="form-control">
-                    <a class="btn btn-large btn-success" id="azure_popup" href="#">Automatically install your CSS file</a>
+                    <a class="btn btn-large btn-success" id="azure_popup" href="#">Automatically install your CSS file to an Azure Entra ID Portal</a>
                   </div>
                 </div>
                 <div class="advice">
