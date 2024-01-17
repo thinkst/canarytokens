@@ -50,7 +50,7 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
         # TODO: Better error handling
         # Might as well remove ourselves anyways
         _delete_self(client)
-        return (False, f"Installation failed: Unable to automaticall install the CSS, please manually add the following CSS to your branding:<br /><textarea>{css}</textarea>")
+        return (False, f"Installation failed: Unable to automatically install the CSS, please manually add the following CSS to your branding:<br /><textarea>{css}</textarea>")
     _delete_self(client)
     return (True, "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propogate; no further action is needed.")
 

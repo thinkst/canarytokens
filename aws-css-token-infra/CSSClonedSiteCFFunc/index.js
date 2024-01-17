@@ -5,7 +5,6 @@
 var token_server = 'https://canarytokens.com';
 
 function handler(event) {
-    //console.log(event.request.uri);
     var uri = event.request.uri.split('/');
     var expected_referrer = String.bytesFrom(uri[2], 'base64url');
     if ('referer' in event.request.headers)
