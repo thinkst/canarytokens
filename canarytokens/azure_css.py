@@ -33,7 +33,7 @@ def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> bool
     """
     headers = {
         'Accept-Language': '0',
-        'Authoriation': 'Bearer ' + token
+        'Authorization': 'Bearer ' + token
     }
     res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
     if res.status_code != 200:
@@ -70,7 +70,7 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     """
     token = _auth_to_tenant(tenant_id)
     if not _check_if_can_install_custom_css(token, tenant_id):
-        return (False, f"Installation failed: your tenant already has custom CSS, no no default branding created, please manually add the CSS to your portal branding.")
+        return (False, f"Installation failed: your tenant already has custom CSS, or no default branding created, please manually add the CSS to your portal branding.")
     if not _install_custom_css(token, tenant_id, css):
         # Might as well remove ourselves anyways
         _delete_self(token)
