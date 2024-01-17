@@ -1,40 +1,65 @@
 from azure.identity import ClientSecretCredential
-from msgraph.core import GraphClient
 from canarytokens.settings import FrontendSettings
-from requests import Response
+from requests import Response, get, put, delete
 
 frontend_settings = FrontendSettings()
 
-def _auth_to_tenant(tenant_id: str) -> GraphClient:
+BearerToken = str
+
+def _auth_to_tenant(tenant_id: str) -> BearerToken:
     """
-    Tenant that the client app has permissions to, returns a Graph API client for that tenant
+    Tenant that the client app has permissions to, returns a Graph API Bearer token
     """
     cred = ClientSecretCredential(tenant_id, frontend_settings.AZUREAPP_ID, frontend_settings.AZUREAPP_SECRET)
-    return GraphClient(credential=cred)
+    return cred.get_token('.default').token
 
-def _check_if_custom_branding(client: GraphClient, tenant_id: str) -> bool:
+def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
     """
     Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
     Returns: True if there is branding present, false otherwise
     """
-    res: Response = client.get(f"/organization/{tenant_id}/branding")
+    headers = {
+        'Accept-Language': '0',
+        'Authoriation': 'Bearer ' + token
+    }
+    res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
     # This API returns 404 if there is no corporate branding configured
     return res.status_code != 404
 
-def _install_custom_css(client: GraphClient, tenant_id: str, css: str) -> bool:
+def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> bool:
+    """
+    Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
+    Returns: True if there is branding present, false otherwise
+    """
+    headers = {
+        'Accept-Language': '0',
+        'Authoriation': 'Bearer ' + token
+    }
+    res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
+    if res.status_code != 200:
+        return False
+    if res.json().get('customCSSRelativeUrl') is None:
+        return True
+
+def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     """
     Attempts to configure the tenant with the custom css
     Returns: True if successful, False otherwise
     """
-    res: Response = client.put(f"/organization/{tenant_id}/branding/localizations/0/customCSS", data=css.encode(), headers={'Content-Type': 'text/css'})
+    headers = {
+        'Content-Type': 'text/css', 
+        'Authorization': 'Bearer ' + token,
+        'Accept-Language': '0'
+    }
+    res: Response = put(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/0/customCSS", data=css.encode(), headers=headers)
     return res.status_code == 204
 
-def _delete_self(client: GraphClient) -> bool:
+def _delete_self(token: BearerToken) -> bool:
     """
     Tries to delete itself from the tenant to reduce risk
     Returns: True is successful, False otherwise
     """
-    res: Response = client.delete(f"/servicePrincipals(appId='{frontend_settings.AZUREAPP_ID}')")
+    res: Response = delete(f"https://graph.microsoft.com/v1.0/servicePrincipals(appId='{frontend_settings.AZUREAPP_ID}')", headers={'Authorization': 'Bearer ' + token})
     return res.status_code == 204
 
 def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
@@ -43,13 +68,13 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     NB: Must be called after the Azure permission consent workflow has occurred
     Returns: True on success, False otherwise
     """
-    client = _auth_to_tenant(tenant_id)
-    if _check_if_custom_branding(client, tenant_id):
-        return (False, f"Installation failed: your tenant already has custom CSS, please manually add the CSS to your portal branding.")
-    if not _install_custom_css(client, tenant_id, css):
+    token = _auth_to_tenant(tenant_id)
+    if not _check_if_can_install_custom_css(token, tenant_id):
+        return (False, f"Installation failed: your tenant already has custom CSS, no no default branding created, please manually add the CSS to your portal branding.")
+    if not _install_custom_css(token, tenant_id, css):
         # Might as well remove ourselves anyways
-        _delete_self(client)
+        _delete_self(token)
         return (False, f"Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding.")
-    _delete_self(client)
+    _delete_self(token)
     return (True, "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propogate; no further action is needed.")
 
