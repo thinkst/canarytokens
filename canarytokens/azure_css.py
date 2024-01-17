@@ -45,12 +45,11 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     """
     client = _auth_to_tenant(tenant_id)
     if _check_if_custom_branding(client, tenant_id):
-        return (False, f"Installation failed: your tenant already has custom CSS, please manually add the following CSS to your branding:<br /><textarea>{css}</textarea>")
+        return (False, f"Installation failed: your tenant already has custom CSS, please manually add the CSS to your portal branding.")
     if not _install_custom_css(client, tenant_id, css):
-        # TODO: Better error handling
         # Might as well remove ourselves anyways
         _delete_self(client)
-        return (False, f"Installation failed: Unable to automatically install the CSS, please manually add the following CSS to your branding:<br /><textarea>{css}</textarea>")
+        return (False, f"Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding.")
     _delete_self(client)
     return (True, "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propogate; no further action is needed.")
 
