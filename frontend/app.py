@@ -132,7 +132,6 @@ from canarytokens.models import (
 from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
-from canarytokens.azure_css import install_azure_css
 from canarytokens.pdfgen import make_canary_pdf
 from canarytokens.queries import (
     add_canary_domain,
@@ -553,8 +552,8 @@ async def azure_css_landing(
         if css := state:
             css = b64decode(unquote(state)).decode()
         if css is not None and tenant_id is not None:
-            (success, info) = install_azure_css(tenant_id, css)
-            # info = "Installation failed: your tenant already has custom CSS, or no default branding created, please manually add the CSS to your portal branding."
+            # (success, info) = install_azure_css(tenant_id, css)
+            info = "Installation failed: your tenant already has custom CSS, or no default branding created, please manually add the CSS to your portal branding."
     return templates.TemplateResponse(
         "azure_install.html",
         {"request": request, "status": info, "token_url": "test_token_url"},
