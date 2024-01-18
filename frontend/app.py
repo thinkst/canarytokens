@@ -537,24 +537,29 @@ async def download(
     )
     return create_download_response(download_request, canarydrop=canarydrop)
 
-@app.get(
-    "/azure_css_landing",
-    tags=["Azure Portal Phishing Protection App"]
-)
-async def azure_css_landing(request: Request, admin_consent: str = "", tenant: str = None, state: str = None) -> HTMLResponse:
+
+@app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
+async def azure_css_landing(
+    request: Request, admin_consent: str = "", tenant: str = None, state: str = None
+) -> HTMLResponse:
     """
     This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
-    Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in 
+    Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in
     a pop-up context.
     """
-    info = ''
-    if admin_consent == 'True':
+    info = ""
+    if admin_consent == "True":
         tenant_id = tenant
         if css := state:
             css = b64decode(unquote(state)).decode()
         if css is not None and tenant_id is not None:
             (success, info) = install_azure_css(tenant_id, css)
-    return templates.TemplateResponse("azure_install.html", {"request": request, "status": info})
+            # info = "Installation failed: your tenant already has custom CSS, or no default branding created, please manually add the CSS to your portal branding."
+    return templates.TemplateResponse(
+        "azure_install.html",
+        {"request": request, "status": info, "token_url": "test_token_url"},
+    )
+
 
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
@@ -591,6 +596,7 @@ def _(
         content=canarydrop.cc_rendered_csv,
         filename=f"{canarydrop.canarytoken.value()}.csv",
     )
+
 
 @create_download_response.register
 def _(
@@ -889,6 +895,7 @@ def _(
             switchboard_settings.FORCE_HTTPS
         ),
     )
+
 
 @create_response.register
 def _(

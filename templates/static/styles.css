@@ -14,6 +14,12 @@
   border-bottom: 2px solid #fff;
   padding: 1rem 0rem;
 }
+
+.step-last {
+  border-bottom: 2px solid #fff;
+  padding: 1rem;
+}
+
 .goodtick {
   height: 100px;
   margin: auto;
@@ -403,6 +409,13 @@ a.btn-success.btn {
   border-color: #38d47f;
   color: white;
 }
+
+button.btn.btn-success {
+  background-color: #38d47f;
+  border-color: #38d47f;
+  color: white;
+}
+
 button.btn.btn-success:disabled {
   opacity: .85;
 }

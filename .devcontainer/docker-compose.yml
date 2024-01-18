@@ -33,7 +33,8 @@ services:
     # Used to test wireguard token locally.
       - NET_ADMIN
       - SYS_MODULE
-
+    links:
+      - redis
   redis:
     image: redis
     container_name: "redis-store"
