@@ -57,7 +57,7 @@ def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> tupl
     if res.json().get('customCSSRelativeUrl') is None: # Is there another CSS? If not then we can install!
         return (True, '')
     # There is an existing CSS, let's check for compatiblity
-    res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localization/0/customCSS", headers=headers)
+    res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/0/customCSS", headers=headers)
     if res.status_code == 200:
         return (not _check_existing_body_background(res.text), res.text)
     return (False, '')
@@ -79,9 +79,9 @@ def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
         if res.status_code != 201:
             logging.error(f"Unable to create OrganizationalBranding object: {res.status_code} - {res.text}")
             return False
+        sleep(5) # Give the Graph API a second to recognize it's built
         
     headers['Content-Type'] = 'text/css'
-    sleep(5) # Give the Graph API a second to recognize it's built
     res: Response = put(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/0/customCSS", data=css.encode(), headers=headers)
     if res.status_code != 204:
         logging.error(f"Unable to add customCSS: {res.status_code} - {res.text}")
