@@ -57,6 +57,7 @@ def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     }
     if not _check_if_custom_branding(token, tenant_id): 
         # If we need to create a default OrganizationalBranding object, we set a blank string to a single space to create it
+        headers['Content-Type'] = 'application/json'
         res: Response = post(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/", data={"usernameHintText": " "}, headers=headers)
         if res.status_code != 201:
             logging.error(f"Unable to create OrganizationalBranding object: {res.status_code} - {res.text}")
