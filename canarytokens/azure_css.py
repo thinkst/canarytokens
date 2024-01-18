@@ -2,7 +2,8 @@ from azure.identity import ClientSecretCredential
 from canarytokens.settings import FrontendSettings
 from requests import Response, get, put, delete, post
 from time import sleep
-import logging
+from cssutils.css import CSSStyleRule
+import logging, cssutils
 
 frontend_settings = FrontendSettings()
 
@@ -28,10 +29,21 @@ def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
     # This API returns 404 if there is no corporate branding configured
     return res.status_code != 404
 
-def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> bool:
+def _check_existing_body_background(css : str) -> bool:
+    '''
+    Parses an existing CSS file to see if there is a conflicting rule
+    Returns True if there is a conflicting rule, False otherwise
+    '''
+    css_rules: list[CSSStyleRule] = cssutils.parseString(css)
+    for rule in css_rules:
+        if rule.selectorText == 'body' and 'background' in rule.style.cssText:
+            return True
+    return False
+
+def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> tuple[bool, str]:
     """
     Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
-    Returns: True if there is branding present, but no existing CSS, False otherwise
+    Returns: A tuple of (True, css) if we can safely install a custom CSS, False otherwise
     """
     headers = {
         'Accept-Language': '0',
@@ -39,12 +51,16 @@ def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> bool
     }
     res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
     if res.status_code == 404: # There is no branding at all
-        return True
+        return (True, '')
     if res.status_code != 200: # Other error
-        return False
+        return (False, '')
     if res.json().get('customCSSRelativeUrl') is None: # Is there another CSS? If not then we can install!
-        return True
-    return False
+        return (True, '')
+    # There is an existing CSS, let's check for compatiblity
+    res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localization/0/customCSS", headers=headers)
+    if res.status_code == 200:
+        return (not _check_existing_body_background(res.text), res.text)
+    return (False, '')
 
 def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     """
@@ -58,13 +74,14 @@ def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     if not _check_if_custom_branding(token, tenant_id): 
         # If we need to create a default OrganizationalBranding object, we set a blank string to a single space to create it
         headers['Content-Type'] = 'application/json'
+        logging.error("Creating a new default organizationalBranding object...")
         res: Response = post(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/", data={"usernameHintText": " "}, headers=headers)
         if res.status_code != 201:
             logging.error(f"Unable to create OrganizationalBranding object: {res.status_code} - {res.text}")
             return False
         
     headers['Content-Type'] = 'text/css'
-    sleep(1.5) # Give the Graph API a second to recognize it's built
+    sleep(5) # Give the Graph API a second to recognize it's built
     res: Response = put(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/0/customCSS", data=css.encode(), headers=headers)
     if res.status_code != 204:
         logging.error(f"Unable to add customCSS: {res.status_code} - {res.text}")
@@ -85,9 +102,10 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     Returns: True on success, False otherwise
     """
     token = _auth_to_tenant(tenant_id)
-    if not _check_if_can_install_custom_css(token, tenant_id):
-        return (False, f"Installation failed: your tenant already has custom CSS, or no default branding created, please manually add the CSS to your portal branding.")
-    if not _install_custom_css(token, tenant_id, css):
+    (check, existing_css) = _check_if_can_install_custom_css(token, tenant_id)
+    if not check:
+        return (False, f"Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding.")
+    if not _install_custom_css(token, tenant_id, existing_css + css):
         # Might as well remove ourselves anyways
         _delete_self(token)
         return (False, f"Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding.")
