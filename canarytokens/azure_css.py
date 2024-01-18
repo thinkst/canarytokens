@@ -1,6 +1,7 @@
 from azure.identity import ClientSecretCredential
 from canarytokens.settings import FrontendSettings
-from requests import Response, get, put, delete
+from requests import Response, get, put, delete, post
+from time import sleep
 import logging
 
 frontend_settings = FrontendSettings()
@@ -37,10 +38,11 @@ def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> bool
         'Authorization': 'Bearer ' + token
     }
     res: Response = get(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding", headers=headers)
-    logging.error(f"Got {res.status_code} - {res.text}")
-    if res.status_code != 200:
+    if res.status_code == 404: # There is no branding at all
+        return True
+    if res.status_code != 200: # Other error
         return False
-    if res.json().get('customCSSRelativeUrl') is None:
+    if res.json().get('customCSSRelativeUrl') is None: # Is there another CSS? If not then we can install!
         return True
     return False
 
@@ -50,11 +52,21 @@ def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     Returns: True if successful, False otherwise
     """
     headers = {
-        'Content-Type': 'text/css', 
         'Authorization': 'Bearer ' + token,
         'Accept-Language': '0'
     }
+    if not _check_if_custom_branding(token, tenant_id): 
+        # If we need to create a default OrganizationalBranding object, we set a blank string to a single space to create it
+        res: Response = post(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/", data={"usernameHintText": " "}, headers=headers)
+        if res.status_code != 201:
+            logging.error(f"Unable to create OrganizationalBranding object: {res.status_code} - {res.text}")
+            return False
+        
+    headers['Content-Type'] = 'text/css'
+    sleep(1.5) # Give the Graph API a second to recognize it's built
     res: Response = put(f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/0/customCSS", data=css.encode(), headers=headers)
+    if res.status_code != 204:
+        logging.error(f"Unable to add customCSS: {res.status_code} - {res.text}")
     return res.status_code == 204
 
 def _delete_self(token: BearerToken) -> bool:
