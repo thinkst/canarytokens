@@ -19,6 +19,7 @@ def _auth_to_tenant(tenant_id: str) -> BearerToken:
 def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
     """
     Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
+    Reference: https://learn.microsoft.com/en-us/graph/api/organizationalbranding-get
     Returns: True if there is branding present, false otherwise
     """
     headers = {
@@ -43,6 +44,9 @@ def _check_existing_body_background(css : str) -> bool:
 def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> tuple[bool, str]:
     """
     Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
+    References:
+        - https://learn.microsoft.com/en-us/graph/api/organizationalbranding-get
+        - https://learn.microsoft.com/en-us/graph/api/resources/organizationalbrandingproperties
     Returns: A tuple of (True, css) if we can safely install a custom CSS, False otherwise
     """
     headers = {
@@ -65,6 +69,9 @@ def _check_if_can_install_custom_css(token: BearerToken, tenant_id: str) -> tupl
 def _install_custom_css(token: BearerToken, tenant_id: str, css: str) -> bool:
     """
     Attempts to configure the tenant with the custom css
+    References:
+        - https://learn.microsoft.com/en-us/graph/api/organizationalbranding-update
+        - https://learn.microsoft.com/en-us/graph/api/organizationalbranding-post-localizations
     Returns: True if successful, False otherwise
     """
     headers = {
@@ -111,3 +118,4 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     _delete_self(token)
     return (True, "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propogate; no further action is needed.")
 
+# Other reference that's of note but not linked to from the other Graph API docs: https://learn.microsoft.com/en-us/graph/api/organizationalbrandinglocalization-delete
