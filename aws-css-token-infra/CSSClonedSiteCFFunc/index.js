@@ -7,10 +7,9 @@ var token_server = 'https://canarytokens.com';
 function handler(event) {
     var uri = event.request.uri.split('/');
     var expected_referrer = String.bytesFrom(uri[2], 'base64url');
+    var referer = '';
     if ('referer' in event.request.headers)
-        var referer = event.request.headers.referer.value;
-    else
-        var referer = '';
+        referer = event.request.headers.referer.value;
     
     if (referer == '' || referer.indexOf(expected_referrer) >= 0) { // Happy case where the referer matches
         var response = {
