@@ -546,21 +546,26 @@
                       <img src="/resources/clippy.svg" alt="Copy to clipboard">
                     </button>
                   </div>
+                  <br>
+                  <h4>Automatic Step</h4>
+                  <p>The following button will automatically install tokened CSS into your Azure Entra ID portal</p>
                   <div class="form-control">
-                    <a class="btn btn-large btn-success" id="azure_popup" href="#">Automatically install your CSS file<br /> to an Azure Entra ID Portal</a>
+                    <a class="btn btn-large btn-success" id="azure_popup" href="#">Start automatic installation</a>
                   </div>
                   <br>
-                  <h5>Let's get you setup with these quick manual steps (3 min at most)</h5>
-                  <h6 style="margin-top: 1rem;">Step 1</h6>
+                  <h4>Manual Steps</h4>
+                  <h5 style="margin-top: 1rem;">Step 1</h5>
                   <p>Download the necessary CSS by clicking the button below</p>
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite" href="download?fmt=cssclonedsite&amp;token=p4xi3qz8f4ycgy1ef04mg3dno&amp;auth=41108c369799a75c85995a946efc7479">Download your CSS file</a>
                   </div>
-                  <h6 style="margin-top: 1rem;">Step 2</h6>
+                  <h5 style="margin-top: 1rem;">Step 2</h5>
                   <p>Click the following link to navigate to your Entra ID login customisation page</p>
                   <div class="form-control">
                     <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite" target="_blank" href="https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/CompanyBrandingWizard.ReactView/isDefault~/true/companyBrandingToEdit~/%7B%22id%22%3A%220%22%2C%22backgroundColor%22%3A%22%2340c223%22%2C%22backgroundImageRelativeUrl%22%3Anull%2C%22bannerLogoRelativeUrl%22%3Anull%2C%22cdnList%22%3A%5B%22aadcdn.msftauthimages.net%22%2C%22aadcdn.msauthimages.net%22%5D%2C%22customAccountResetCredentialsUrl%22%3Anull%2C%22customCannotAccessYourAccountText%22%3Anull%2C%22customCannotAccessYourAccountUrl%22%3Anull%2C%22customForgotMyPasswordText%22%3Anull%2C%22customPrivacyAndCookiesText%22%3Anull%2C%22customPrivacyAndCookiesUrl%22%3Anull%2C%22customResetItNowText%22%3Anull%2C%22customTermsOfUseText%22%3Anull%2C%22customTermsOfUseUrl%22%3Anull%2C%22faviconRelativeUrl%22%3Anull%2C%22customCSSRelativeUrl%22%3Anull%2C%22headerBackgroundColor%22%3Anull%2C%22signInPageText%22%3A%22%22%2C%22squareLogoRelativeUrl%22%3Anull%2C%22squareLogoDarkRelativeUrl%22%3Anull%2C%22usernameHintText%22%3A%22%22%2C%22headerLogoRelativeUrl%22%3Anull%2C%22loginPageTextVisibilitySettings%22%3A%7B%22hideCannotAccessYourAccount%22%3Anull%2C%22hideAccountResetCredentials%22%3Afalse%2C%22hideTermsOfUse%22%3Afalse%2C%22hidePrivacyAndCookies%22%3Afalse%2C%22hideForgotMyPassword%22%3Anull%2C%22hideResetItNow%22%3Anull%7D%2C%22contentCustomization%22%3A%7B%22adminConsentRelativeUrl%22%3Anull%2C%22attributeCollectionRelativeUrl%22%3Anull%2C%22registrationCampaignRelativeUrl%22%3Anull%2C%22conditionalAccessRelativeUrl%22%3Anull%2C%22adminConsent%22%3A%5B%5D%2C%22attributeCollection%22%3A%5B%5D%2C%22registrationCampaign%22%3A%5B%5D%2C%22conditionalAccess%22%3A%5B%5D%7D%2C%22loginPageLayoutConfiguration%22%3A%7B%22layoutTemplateType%22%3A%22default%22%2C%22isHeaderShown%22%3Afalse%2C%22isFooterShown%22%3Atrue%7D%7D/configuredLocales~/%5B%22en-US%22%5D">Entra ID login customisation page</a>
-                  </div><h6 style="margin-top: 1rem;">Step 3</h6><p>Choose 'Layout', scroll down to 'Custom CSS', click 'Browse' and choose the downloaded CSS.</p>
+                  </div>
+                  <h5 style="margin-top: 1rem;">Step 3</h5>
+                  <p>Choose 'Layout', scroll down to 'Custom CSS', click 'Browse' and choose the downloaded CSS.</p>
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
