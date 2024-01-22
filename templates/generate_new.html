@@ -1454,17 +1454,14 @@ START REPLICA;
           $('input[name=type]').val('clonedsite');
           return new FormData(form[0]);
         }
-        var _handleEntraCSSRequest = function(form) {
-          if ($('input[name=type]').val() == 'css_cloned_website')
-            return _handleCSSClonedWebsiteRequest(form);
-          return _handleEntraCSSRequest(form);
-        }
         var _handleCSSClonedWebsiteRequest = function(form) {
+          css_type = 'css_cloned_website';
           $('#css_expected_referer').attr('name', 'expected_referer')
           $('input[name=type]').val('cssclonedsite');
           return new FormData(form[0]);
         }
         var _handleEntraClonedWebsiteRequest = function(form) {
+          css_type = 'entra_cloned_website';
           $('#entra_expected_referer').attr('name', 'expected_referer')
           $('input[name=type]').val('cssclonedsite');
           return new FormData(form[0]);
@@ -1483,7 +1480,7 @@ START REPLICA;
           unobfuscated_cloned_website_js.innerHTML = unobfuscated_cloned_website_js.innerHTML.trim()
         }
         var _handleEntraCSSResponse = function(data) {
-          if ($('input[name=type]').val() == 'css_cloned_website')
+          if (css_type == 'css_cloned_website')
             return _handleCSSClonedWebsiteRespone(data);
           return _handleEntraCSSResponse(data);
         }
@@ -1571,7 +1568,8 @@ START REPLICA;
 
         var _requestCallbacks  = {'web_image': _handleWebImageRequest,
                                   'cloned_website': _handleClonedWebsiteRequest,
-                                  'css_cloned_website': _handleEntraCSSRequest,
+                                  'entra_cloned_website': _handleEntraClonedWebsiteRequest,
+                                  'css_cloned_website': _handleCSSClonedWebsiteRequest,
                                   'sql_server': _handleSqlServerRequest,
                                   'default':   _handleDefaultRequest};
 
