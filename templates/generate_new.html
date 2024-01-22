@@ -126,6 +126,7 @@
                   {% if azureid_enabled %}
                     <li data-type="azure_id"       class="token-item" data-memo-placeholder="Azure Service Principal Login details on Code Sign Server 3"><a href="#" class="icon icon-azureid"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
                   {%endif%}
+                    <li data-type="entra_cloned_website" class="token-item" data-memo-placeholder="Entra ID token for the Thinkst Azure tenant ending in ID..."><a href="#" class="icon icon-entraclonedsite"><span class="title">Azure Entra ID login</span><div class="explanation">Trigger an alert when your Azure Entra ID login is being phished</div></a></li>
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
@@ -133,7 +134,7 @@
                     <li data-type="kubeconfig"     class="token-item" data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="wireguard"      class="token-item" data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="cloned_website" class="token-item" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
-                    <li data-type="css_cloned_website" class="token-item" data-memo-placeholder="CSS Cloned website token for https://thinkst.com"><a href="#" class="icon icon-cssclonedsite"><span class="title">Azure Entra ID login</span><div class="explanation">Trigger an alert when your website is cloned (using CSS)</div></a></li>
+                    <li data-type="css_cloned_website" class="token-item" data-memo-placeholder="CSS Cloned website token for https://thinkst.com"><a href="#" class="icon icon-cssclonedsite"><span class="title">CSS cloned website</span><div class="explanation">Trigger an alert when your website is cloned (using CSS)</div></a></li>
                     <li data-type="qr_code"        class="token-item" data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="my_sql"         class="token-item" data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
                     <li data-type="windows_dir"    class="token-item" data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
@@ -179,7 +180,10 @@
                   <input class="form-control" type="text" tabindex=2 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
                 </div>
                 <div class="field-optional field-css_cloned_website hidden">
-                  <input class="form-control" type="text" tabindex=3 name="expected_referrer" value="microsoftonline.com" placeholder="Domain of protected website (e.g. thinkst.com)">
+                  <input class="form-control" type="text" tabindex=3 id="css_expected_referrer" name="css_expected_referrer" placeholder="Domain of protected website (e.g. thinkst.com)">
+                </div>
+                <div class="field-optional field-entra_cloned_website hidden">
+                  <input class="form-control" type="hidden" tabindex=3 id="entra_expected_referrer" name="entra_expected_referrer" value="microsoftonline.com" placeholder="Domain of Azure Entra ID login.">
                 </div>
                 <div class="error-field" id="file_upload_errors"></div>
                 <div class="field-optional field-sql_server hidden">
@@ -546,9 +550,30 @@
                       <img src="/resources/clippy.svg" alt="Copy to clipboard">
                     </button>
                   </div>
+                </div>
+                <div class="advice">
+                  <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
+                  <p><h5>Ideas for use:</h5>
+                    <ul>
+                      <li>Only the <code>url()</code> portion is required, you can change the selector, set the <code>display: hidden</code> if you want to token an element inline.</li>
+                      <li>Put this CSS style inline on an HTML element on a site you aren't allowed to add Javascript to (e.g., Wordpress).</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+              <div class="result entra_cloned_website">
+                <h3>Your Entra ID login token is active!</h3>
+                <div class="artifacts">
+                  <p>Use this CSS to detect when someone has cloned your Azure tenant's Entra ID login page. Use the options below to import it as custom branding:</p>
+                  <div class="form-control" style="overflow-x: auto;">
+                    <code id="result_css_cloned_website" class="None" readonly="" style="text-align: left;"></code>
+                    <button class="btn btn-success btn-clipboard tooltipstered" type="button" data-clipboard-target="#result_css_cloned_website">
+                      <img src="/resources/clippy.svg" alt="Copy to clipboard">
+                    </button>
+                  </div>
                   <br>
                   <h4>Automatic Step</h4>
-                  <p>The following button will automatically install tokened CSS into your Azure Entra ID portal</p>
+                  <p>The following button will request permissions needed to automatically install tokened CSS into your Azure Entra ID portal (they will be revoked after installation):</p>
                   <div class="form-control">
                     <a class="btn btn-large btn-success" id="azure_popup" href="#">Start automatic installation</a>
                   </div>
@@ -575,7 +600,6 @@
                   <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Save this CSS file and <a href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-customize-branding">upload it as a custom branding stylesheet for your Azure Entra ID login portal (requires a P1 or P2 subscription)</a>.</li>
-                      <li>Put this CSS style inline on an HTML element.</li>
                     </ul>
                   </p>
                 </div>
@@ -940,6 +964,8 @@ START REPLICA;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
     <script>
+      // Global var to differentiate the CSS token type
+      var css_type = "css_cloned_website";
       // Search through the tokens dropdown by token name
       var input = document.getElementById('search-token');
       input.onkeyup = function () {
@@ -1077,7 +1103,7 @@ START REPLICA;
       }
 
       var checkCSSClonedWebsite = function() {
-        cloned_website = $('input[name=expected_referrer]');
+        cloned_website = $('input[name=css_expected_referrer]');
         if (! cloned_website.parents('.field-css_cloned_website').hasClass('hidden')) {
           //only perform checks if field is visible. could be multiple checks
           if (cloned_website.val().length == 0) {
@@ -1428,7 +1454,18 @@ START REPLICA;
           $('input[name=type]').val('clonedsite');
           return new FormData(form[0]);
         }
+        var _handleEntraCSSRequest = function(form) {
+          if ($('input[name=type]').val() == 'css_cloned_website')
+            return _handleCSSClonedWebsiteRequest(form);
+          return _handleEntraCSSRequest(form);
+        }
         var _handleCSSClonedWebsiteRequest = function(form) {
+          $('#css_expected_referer').attr('name', 'expected_referer')
+          $('input[name=type]').val('cssclonedsite');
+          return new FormData(form[0]);
+        }
+        var _handleEntraClonedWebsiteRequest = function(form) {
+          $('#entra_expected_referer').attr('name', 'expected_referer')
           $('input[name=type]').val('cssclonedsite');
           return new FormData(form[0]);
         }
@@ -1445,8 +1482,20 @@ START REPLICA;
           let unobfuscated_cloned_website_js = document.getElementById("result_cloned_website");
           unobfuscated_cloned_website_js.innerHTML = unobfuscated_cloned_website_js.innerHTML.trim()
         }
+        var _handleEntraCSSResponse = function(data) {
+          if ($('input[name=type]').val() == 'css_cloned_website')
+            return _handleCSSClonedWebsiteRespone(data);
+          return _handleEntraCSSResponse(data);
+        }
         var _handleCSSClonedWebsiteResponse = function(data) {
           $('#result_css_cloned_website').append(data['css']);
+          $('a.file-download').each(function (i, e){
+            e = $(e);
+            e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
+          });
+        }
+        var _handleEntraClonedWebsiteResponse = function(data) {
+          $('#result_entra_cloned_website').append(data['css']);
           state = escape(btoa(data['css']));
           redirect = window.location.origin + '/azure_css_landing';
           loc = "https://login.microsoftonline.com/common/adminconsent?client_id=" + data['client_id'] + "&state=" + state + "&redirect_uri=" + redirect;
@@ -1522,7 +1571,7 @@ START REPLICA;
 
         var _requestCallbacks  = {'web_image': _handleWebImageRequest,
                                   'cloned_website': _handleClonedWebsiteRequest,
-                                  'css_cloned_website': _handleCSSClonedWebsiteRequest,
+                                  'css_cloned_website': _handleEntraCSSRequest,
                                   'sql_server': _handleSqlServerRequest,
                                   'default':   _handleDefaultRequest};
 
@@ -1538,7 +1587,7 @@ START REPLICA;
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,
-                                  'css_cloned_website' : _handleCSSClonedWebsiteResponse,
+                                  'css_cloned_website' : _handleEntraCSSResponse,
                                   'qr_code': _handleQrCodeResponse,
                                   'svn': _handleSVNResponse,
                                   'smtp': _handleSMTPResponse,

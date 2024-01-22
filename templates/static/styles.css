@@ -960,6 +960,9 @@ a.icon-clonedsite:before {
 a.icon-cssclonedsite:before {
   background-image: url("/resources/css.png");
 }
+a.icon-entraclonedsite:before {
+  background-image: url("/resources/entra.png");
+}
 a.icon-sqlserver:before {
   background-image: url("/resources/sqlserver.png");
 }
