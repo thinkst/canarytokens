@@ -554,7 +554,10 @@ async def azure_css_landing(
             css = b64decode(unquote(state)).decode()
         if css is not None and tenant_id is not None:
             (success, info) = install_azure_css(tenant_id, css)
+            info += " We have uninstalled our application from you tenant, revoking all of our permissions."
             # info = "Installation failed: your tenant already has custom CSS, or no default branding created, please manually add the CSS to your portal branding."
+    else:
+        info = "Installation failed due to lack of sufficient granted permissions."
     return templates.TemplateResponse(
         "azure_install.html",
         {"request": request, "status": info},

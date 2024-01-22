@@ -126,7 +126,7 @@
                   {% if azureid_enabled %}
                     <li data-type="azure_id"       class="token-item" data-memo-placeholder="Azure Service Principal Login details on Code Sign Server 3"><a href="#" class="icon icon-azureid"><span class="title">Azure Login Certificate</span><div class="explanation">Azure Service Principal certificate that alerts when used to login with.</div></a></li>
                   {%endif%}
-                    <li data-type="entra_cloned_website" class="token-item" data-memo-placeholder="Entra ID token for the Thinkst Azure tenant ending in ID..."><a href="#" class="icon icon-entraclonedsite"><span class="title">Azure Entra ID login</span><div class="explanation">Trigger an alert when your Azure Entra ID login is being phished</div></a></li>
+                    <li data-type="entra_cloned_website" class="token-item" data-memo-placeholder="Entra ID token for the Thinkst Azure tenant with ID: ..."><a href="#" class="icon icon-entraclonedsite"><span class="title">Azure Entra ID login</span><div class="explanation">Trigger an alert when your Azure Entra ID login is being phished</div></a></li>
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
@@ -555,7 +555,7 @@
                   <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
                   <p><h5>Ideas for use:</h5>
                     <ul>
-                      <li>Only the <code>url()</code> portion is required, you can change the selector, set the <code>display: hidden</code> if you want to token an element inline.</li>
+                      <li>Only the <code>url()</code> portion is required, you can change the selector and add <code>display: hidden</code> if you want to style an invisible element.</li>
                       <li>Put this CSS style inline on an HTML element on a site you aren't allowed to add Javascript to (e.g., Wordpress).</li>
                     </ul>
                   </p>
@@ -566,8 +566,8 @@
                 <div class="artifacts">
                   <p>Use this CSS to detect when someone has cloned your Azure tenant's Entra ID login page. Use the options below to import it as custom branding:</p>
                   <div class="form-control" style="overflow-x: auto;">
-                    <code id="result_css_cloned_website" class="None" readonly="" style="text-align: left;"></code>
-                    <button class="btn btn-success btn-clipboard tooltipstered" type="button" data-clipboard-target="#result_css_cloned_website">
+                    <code id="result_entra_cloned_website" class="None" readonly="" style="text-align: left;"></code>
+                    <button class="btn btn-success btn-clipboard tooltipstered" type="button" data-clipboard-target="#result_entra_cloned_website">
                       <img src="/resources/clippy.svg" alt="Copy to clipboard">
                     </button>
                   </div>
@@ -964,8 +964,6 @@ START REPLICA;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
     <script>
-      // Global var to differentiate the CSS token type
-      var css_type = "css_cloned_website";
       // Search through the tokens dropdown by token name
       var input = document.getElementById('search-token');
       input.onkeyup = function () {
@@ -1455,14 +1453,12 @@ START REPLICA;
           return new FormData(form[0]);
         }
         var _handleCSSClonedWebsiteRequest = function(form) {
-          css_type = 'css_cloned_website';
-          $('#css_expected_referer').attr('name', 'expected_referer')
+          $('#css_expected_referrer').attr('name', 'expected_referrer')
           $('input[name=type]').val('cssclonedsite');
           return new FormData(form[0]);
         }
         var _handleEntraClonedWebsiteRequest = function(form) {
-          css_type = 'entra_cloned_website';
-          $('#entra_expected_referer').attr('name', 'expected_referer')
+          $('#entra_expected_referrer').attr('name', 'expected_referrer')
           $('input[name=type]').val('cssclonedsite');
           return new FormData(form[0]);
         }
@@ -1478,11 +1474,6 @@ START REPLICA;
           // Trim white spaces from inner HTML
           let unobfuscated_cloned_website_js = document.getElementById("result_cloned_website");
           unobfuscated_cloned_website_js.innerHTML = unobfuscated_cloned_website_js.innerHTML.trim()
-        }
-        var _handleEntraCSSResponse = function(data) {
-          if (css_type == 'css_cloned_website')
-            return _handleCSSClonedWebsiteRespone(data);
-          return _handleEntraCSSResponse(data);
         }
         var _handleCSSClonedWebsiteResponse = function(data) {
           $('#result_css_cloned_website').append(data['css']);
@@ -1585,7 +1576,8 @@ START REPLICA;
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,
-                                  'css_cloned_website' : _handleEntraCSSResponse,
+                                  'css_cloned_website' : _handleCSSClonedWebsiteResponse,
+                                  'entra_cloned_website': _handleEntraClonedWebsiteResponse,
                                   'qr_code': _handleQrCodeResponse,
                                   'svn': _handleSVNResponse,
                                   'smtp': _handleSMTPResponse,
