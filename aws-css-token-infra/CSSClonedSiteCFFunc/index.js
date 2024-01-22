@@ -10,7 +10,7 @@ function handler(event) {
     var referer = '';
     if ('referer' in event.request.headers)
         referer = event.request.headers.referer.value;
-    
+
     if (referer == '' || referer.indexOf(expected_referrer) >= 0) { // Happy case where the referer matches
         var response = {
             statusCode: 200,
