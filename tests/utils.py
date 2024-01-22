@@ -472,7 +472,7 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
     )
     if resp.status_code >= 400:
         log.error(
-            f"Token creation error: \n\t{token_request = }\n\t{resp.status_code = }; {resp.json() = }"
+            f"Token creation error: \n\t{token_request=}\n\t{resp.status_code=}; {resp.json()=}"
         )
     resp.raise_for_status()
     data = resp.json()
