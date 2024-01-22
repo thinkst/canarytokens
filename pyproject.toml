@@ -53,7 +53,7 @@ mypy-zope = "^0.3.6"
 pytest-twisted = "^1.13.4"
 pytest-asyncio = "^0.18.3"
 types-requests = "^2.27.15"
-Pillow = "^10.0.1"
+Pillow = "^10.2.0"
 pyzbar = "^0.1.9"
 debugpy = "^1.6.0"
 pytest-memray = {version = "^1.0.0", platform = "linux"}
