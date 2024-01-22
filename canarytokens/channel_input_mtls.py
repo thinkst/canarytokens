@@ -382,7 +382,6 @@ class ChannelKubeConfig:
                     )
 
             save_certificate(redis_key, cert)
-            log.debug(f"{cert.get('f') = }")
 
             cert_pem = "{}\n{}".format(
                 cert.get("c").decode(),

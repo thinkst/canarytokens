@@ -154,13 +154,12 @@ def clientConfig(
 
         [Peer]
           PublicKey = {getDevices(wg_private_key_seed, wg_private_key_n)[
-                device_key_idx
-            ]
+            device_key_idx]
             .privateKey.public_key.encode(encoder=nacl.encoding.Base64Encoder)
             .decode()}
           AllowedIPs = 192.168.1.0/24
           Endpoint = {public_ip}:{DEFAULT_PORT}
-          PersistentKeepalive = {30* (random.randrange(10) + 1)}
+          PersistentKeepalive = {30 * (random.randrange(10) + 1)}
     """
     ).strip()  # Keep Alive *must* be non-zero to trigger token
     return config
