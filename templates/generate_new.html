@@ -133,7 +133,7 @@
                     <li data-type="kubeconfig"     class="token-item" data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="wireguard"      class="token-item" data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="cloned_website" class="token-item" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
-                    <li data-type="css_cloned_website" class="token-item" data-memo-placeholder="CSS Cloned website token for https://thinkst.com"><a href="#" class="icon icon-cssclonedsite"><span class="title">CSS cloned website/Azure Entra ID login</span><div class="explanation">Trigger an alert when your website is cloned (using CSS)</div></a></li>
+                    <li data-type="css_cloned_website" class="token-item" data-memo-placeholder="CSS Cloned website token for https://thinkst.com"><a href="#" class="icon icon-cssclonedsite"><span class="title">Azure Entra ID login</span><div class="explanation">Trigger an alert when your website is cloned (using CSS)</div></a></li>
                     <li data-type="qr_code"        class="token-item" data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="my_sql"         class="token-item" data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
                     <li data-type="windows_dir"    class="token-item" data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
@@ -553,19 +553,22 @@
                     <a class="btn btn-large btn-success" id="azure_popup" href="#">Start automatic installation</a>
                   </div>
                   <br>
-                  <h4>Manual Steps</h4>
-                  <h5 style="margin-top: 1rem;">Step 1</h5>
-                  <p>Download the necessary CSS by clicking the button below</p>
-                  <div class="form-control">
-                    <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite" href="download?fmt=cssclonedsite&amp;token=p4xi3qz8f4ycgy1ef04mg3dno&amp;auth=41108c369799a75c85995a946efc7479">Download your CSS file</a>
+                  <h5><b>OR</b></h5>
+                  <a id="collapseAzureManualSteps" style="cursor: pointer; color: #38d47f;"><h5>Click for Manual Steps</h5></a>
+                  <div class="collapse" id="azureManualSteps">
+                    <h5 style="margin-top: 1rem;">Step 1</h5>
+                    <p>Download the necessary CSS by clicking the button below</p>
+                    <div class="form-control">
+                      <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite" href="download?fmt=cssclonedsite&amp;token=p4xi3qz8f4ycgy1ef04mg3dno&amp;auth=41108c369799a75c85995a946efc7479">Download your CSS file</a>
+                    </div>
+                    <h5 style="margin-top: 1rem;">Step 2</h5>
+                    <p>Click the following link to navigate to your Entra ID login customisation page</p>
+                    <div class="form-control">
+                      <a class="btn btn-large btn-success" target="_blank" href="https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/CompanyBrandingWizard.ReactView/isDefault~/true/companyBrandingToEdit~/%7B%22id%22%3A%220%22%2C%22backgroundColor%22%3A%22%2340c223%22%2C%22backgroundImageRelativeUrl%22%3Anull%2C%22bannerLogoRelativeUrl%22%3Anull%2C%22cdnList%22%3A%5B%22aadcdn.msftauthimages.net%22%2C%22aadcdn.msauthimages.net%22%5D%2C%22customAccountResetCredentialsUrl%22%3Anull%2C%22customCannotAccessYourAccountText%22%3Anull%2C%22customCannotAccessYourAccountUrl%22%3Anull%2C%22customForgotMyPasswordText%22%3Anull%2C%22customPrivacyAndCookiesText%22%3Anull%2C%22customPrivacyAndCookiesUrl%22%3Anull%2C%22customResetItNowText%22%3Anull%2C%22customTermsOfUseText%22%3Anull%2C%22customTermsOfUseUrl%22%3Anull%2C%22faviconRelativeUrl%22%3Anull%2C%22customCSSRelativeUrl%22%3Anull%2C%22headerBackgroundColor%22%3Anull%2C%22signInPageText%22%3A%22%22%2C%22squareLogoRelativeUrl%22%3Anull%2C%22squareLogoDarkRelativeUrl%22%3Anull%2C%22usernameHintText%22%3A%22%22%2C%22headerLogoRelativeUrl%22%3Anull%2C%22loginPageTextVisibilitySettings%22%3A%7B%22hideCannotAccessYourAccount%22%3Anull%2C%22hideAccountResetCredentials%22%3Afalse%2C%22hideTermsOfUse%22%3Afalse%2C%22hidePrivacyAndCookies%22%3Afalse%2C%22hideForgotMyPassword%22%3Anull%2C%22hideResetItNow%22%3Anull%7D%2C%22contentCustomization%22%3A%7B%22adminConsentRelativeUrl%22%3Anull%2C%22attributeCollectionRelativeUrl%22%3Anull%2C%22registrationCampaignRelativeUrl%22%3Anull%2C%22conditionalAccessRelativeUrl%22%3Anull%2C%22adminConsent%22%3A%5B%5D%2C%22attributeCollection%22%3A%5B%5D%2C%22registrationCampaign%22%3A%5B%5D%2C%22conditionalAccess%22%3A%5B%5D%7D%2C%22loginPageLayoutConfiguration%22%3A%7B%22layoutTemplateType%22%3A%22default%22%2C%22isHeaderShown%22%3Afalse%2C%22isFooterShown%22%3Atrue%7D%7D/configuredLocales~/%5B%22en-US%22%5D">Entra ID login customisation page</a>
+                    </div>
+                    <h5 style="margin-top: 1rem;">Step 3</h5>
+                    <p>Choose 'Layout', scroll down to 'Custom CSS', click 'Browse' and choose the downloaded CSS.</p>
                   </div>
-                  <h5 style="margin-top: 1rem;">Step 2</h5>
-                  <p>Click the following link to navigate to your Entra ID login customisation page</p>
-                  <div class="form-control">
-                    <a class="btn btn-large btn-success" target="_blank" href="https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/CompanyBrandingWizard.ReactView/isDefault~/true/companyBrandingToEdit~/%7B%22id%22%3A%220%22%2C%22backgroundColor%22%3A%22%2340c223%22%2C%22backgroundImageRelativeUrl%22%3Anull%2C%22bannerLogoRelativeUrl%22%3Anull%2C%22cdnList%22%3A%5B%22aadcdn.msftauthimages.net%22%2C%22aadcdn.msauthimages.net%22%5D%2C%22customAccountResetCredentialsUrl%22%3Anull%2C%22customCannotAccessYourAccountText%22%3Anull%2C%22customCannotAccessYourAccountUrl%22%3Anull%2C%22customForgotMyPasswordText%22%3Anull%2C%22customPrivacyAndCookiesText%22%3Anull%2C%22customPrivacyAndCookiesUrl%22%3Anull%2C%22customResetItNowText%22%3Anull%2C%22customTermsOfUseText%22%3Anull%2C%22customTermsOfUseUrl%22%3Anull%2C%22faviconRelativeUrl%22%3Anull%2C%22customCSSRelativeUrl%22%3Anull%2C%22headerBackgroundColor%22%3Anull%2C%22signInPageText%22%3A%22%22%2C%22squareLogoRelativeUrl%22%3Anull%2C%22squareLogoDarkRelativeUrl%22%3Anull%2C%22usernameHintText%22%3A%22%22%2C%22headerLogoRelativeUrl%22%3Anull%2C%22loginPageTextVisibilitySettings%22%3A%7B%22hideCannotAccessYourAccount%22%3Anull%2C%22hideAccountResetCredentials%22%3Afalse%2C%22hideTermsOfUse%22%3Afalse%2C%22hidePrivacyAndCookies%22%3Afalse%2C%22hideForgotMyPassword%22%3Anull%2C%22hideResetItNow%22%3Anull%7D%2C%22contentCustomization%22%3A%7B%22adminConsentRelativeUrl%22%3Anull%2C%22attributeCollectionRelativeUrl%22%3Anull%2C%22registrationCampaignRelativeUrl%22%3Anull%2C%22conditionalAccessRelativeUrl%22%3Anull%2C%22adminConsent%22%3A%5B%5D%2C%22attributeCollection%22%3A%5B%5D%2C%22registrationCampaign%22%3A%5B%5D%2C%22conditionalAccess%22%3A%5B%5D%7D%2C%22loginPageLayoutConfiguration%22%3A%7B%22layoutTemplateType%22%3A%22default%22%2C%22isHeaderShown%22%3Afalse%2C%22isFooterShown%22%3Atrue%7D%7D/configuredLocales~/%5B%22en-US%22%5D">Entra ID login customisation page</a>
-                  </div>
-                  <h5 style="margin-top: 1rem;">Step 3</h5>
-                  <p>Choose 'Layout', scroll down to 'Custom CSS', click 'Browse' and choose the downloaded CSS.</p>
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
@@ -1448,6 +1451,9 @@ START REPLICA;
           redirect = window.location.origin + '/azure_css_landing';
           loc = "https://login.microsoftonline.com/common/adminconsent?client_id=" + data['client_id'] + "&state=" + state + "&redirect_uri=" + redirect;
           $('#azure_popup').attr('onclick', 'window.open("' + loc + '"); return false;')
+          $('#collapseAzureManualSteps').on('click', function() {
+            $('#azureManualSteps').toggle();
+          })
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
