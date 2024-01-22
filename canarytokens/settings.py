@@ -114,7 +114,7 @@ class FrontendSettings(BaseSettings):
     EXTEND_CARD_NAME: Optional[str]
     CLOUDFRONT_URL: Optional[HttpUrl]
     AZUREAPP_ID: Optional[str]
-    AZUREAPP_SECRET: Optional[str] # TODO: Figure out SecretStr with Azure secrets
+    AZUREAPP_SECRET: Optional[str]  # TODO: Figure out SecretStr with Azure secrets
 
     class Config:
         allow_mutation = False

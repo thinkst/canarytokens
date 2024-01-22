@@ -467,7 +467,7 @@ class Canarytoken(object):
     def _get_info_for_cssclonedsite(request: Request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
 
-        referer = request.getHeader('Referer')
+        referer = request.getHeader("Referer")
         r_arg = request.args.get(b"r", [None])[0]
         if r_arg is not None:
             r_arg = r_arg.decode()

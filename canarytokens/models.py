@@ -159,8 +159,10 @@ class AWSKey(TypedDict):
     region: str
     output: Literal["json", "yaml", "yaml-stream", "text", "table"]
 
+
 class CSSClonedSite(TypedDict):
     expected_referrer: str
+
 
 class AzureID(TypedDict):
     app_id: str
@@ -588,9 +590,11 @@ class ClonedWebTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     clonedsite: str
 
+
 class CSSClonedWebTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     expected_referrer: str
+
 
 class FastRedirectTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
@@ -864,10 +868,12 @@ class ClonedWebTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     clonedsite_js: Optional[str]
 
+
 class CSSClonedWebTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     css: Optional[str]
     client_id: Optional[str]
+
 
 class FastRedirectTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
@@ -1431,9 +1437,11 @@ class SlackAPITokenHit(TokenHit):
 class DNSTokenHit(TokenHit):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
 
+
 class CSSClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     referrer: Optional[str]
+
 
 class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
@@ -1736,9 +1744,11 @@ class ClonedWebTokenHistory(TokenHistory[ClonedWebTokenHit]):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     hits: List[ClonedWebTokenHit] = []
 
+
 class CSSClonedWebTokenHistory(TokenHistory[CSSClonedWebTokenHit]):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     hits: List[CSSClonedWebTokenHit] = []
+
 
 class Log4ShellTokenHistory(TokenHistory[Log4ShellTokenHit]):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
@@ -2173,8 +2183,10 @@ class DownloadAzureIDCertRequest(TokenDownloadRequest):
 class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
+
 class DownloadCSSClonedWebTokenRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
+
 
 class DownloadCCRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CC] = DownloadFmtTypes.CC
@@ -2309,6 +2321,7 @@ class DownloadCMDResponse(TokenDownloadResponse):
     token: str
     auth: str
 
+
 class DownloadCSSClonedWebTokenResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
@@ -2316,6 +2329,7 @@ class DownloadCSSClonedWebTokenResponse(TokenDownloadResponse):
     filename: str
     token: str
     auth: str
+
 
 class DownloadAWSKeysResponse(TokenDownloadResponse):
     contenttype: Literal[
