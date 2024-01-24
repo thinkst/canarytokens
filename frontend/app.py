@@ -55,8 +55,8 @@ from canarytokens.models import (
     ClonedWebTokenResponse,
     CSSClonedWebTokenRequest,
     CSSClonedWebTokenResponse,
-    DownloadCSSClonedWebTokenRequest,
-    DownloadCSSClonedWebTokenResponse,
+    DownloadCSSClonedWebRequest,
+    DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
     CustomBinaryTokenRequest,
@@ -603,10 +603,10 @@ def _(
 
 @create_download_response.register
 def _(
-    download_request_details: DownloadCSSClonedWebTokenRequest, canarydrop: Canarydrop
-) -> DownloadCSSClonedWebTokenResponse:
+    download_request_details: DownloadCSSClonedWebRequest, canarydrop: Canarydrop
+) -> DownloadCSSClonedWebResponse:
     """"""
-    return DownloadCSSClonedWebTokenResponse(
+    return DownloadCSSClonedWebResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
         content=canarydrop.get_cloned_site_css(frontend_settings.CLOUDFRONT_URL),

@@ -2184,7 +2184,7 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
-class DownloadCSSClonedWebTokenRequest(TokenDownloadRequest):
+class DownloadCSSClonedWebRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
 
 
@@ -2207,7 +2207,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
-        DownloadCSSClonedWebTokenRequest,
+        DownloadCSSClonedWebRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
         DownloadKubeconfigRequest,
@@ -2322,7 +2322,7 @@ class DownloadCMDResponse(TokenDownloadResponse):
     auth: str
 
 
-class DownloadCSSClonedWebTokenResponse(TokenDownloadResponse):
+class DownloadCSSClonedWebResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN
