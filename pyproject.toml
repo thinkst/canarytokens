@@ -24,7 +24,7 @@ minify-html = "^0.9.2"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
-fastapi = { version = "^0.79.0", optional = true }
+fastapi = { version = "^0", optional = true }
 sentry-sdk = {extras = ["fastapi"], version = "^1.9.5", optional = true}
 uvicorn = { version = "^0.17.6", optional = true }
 Twisted = {version = "^22.4.0", optional = true}
