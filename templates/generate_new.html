@@ -544,11 +544,10 @@
                 <h3>Your CSS Cloned Website token is active!</h3>
                 <div class="artifacts">
                   <p>Use this CSS to detect when someone has cloned a webpage. Place this CSS on the page you wish to protect, or import it as custom branding:</p>
-                  <div class="form-control" style="overflow-x: auto;">
-                    <code id="result_css_cloned_website" class="None" readonly="" style="text-align: left;"></code>
-                    <button class="btn btn-success btn-clipboard tooltipstered" type="button" data-clipboard-target="#result_css_cloned_website">
-                      <img src="/resources/clippy.svg" alt="Copy to clipboard">
-                    </button>
+                  <div class="cloned-css-token unobfuscated-js-generate">
+                    <pre class="output-area">
+                      {{ textareacopy('result_css_cloned_website', 'language-css') }}
+                    </pre>
                   </div>
                 </div>
                 <div class="advice">
@@ -564,42 +563,66 @@
               <div class="result entra_cloned_website">
                 <h3>Your Entra ID login token is active!</h3>
                 <div class="artifacts">
-                  <p>Use this CSS to detect when someone has cloned your Azure tenant's Entra ID login page. Use the options below to import it as custom branding:</p>
-                  <div class="form-control" style="overflow-x: auto;">
-                    <code id="result_entra_cloned_website" class="None" readonly="" style="text-align: left;"></code>
-                    <button class="btn btn-success btn-clipboard tooltipstered" type="button" data-clipboard-target="#result_entra_cloned_website">
-                      <img src="/resources/clippy.svg" alt="Copy to clipboard">
-                    </button>
+                  <p>This token can be deployed automatically or manually. It inserts CSS into your Azure tenant's Entra ID login page to detect when the page has been cloned.</p>
+                  <div class="entra-flow-container flex justify-around">
+                    <div id="azure_popup" class="entra-flow-option">
+                      <h5>Automatic Flow</h5>
+                      <p class="entra-flow-text">You give us access to manage your Entra setup.</p>
+                    </div>
+                    <div class="flex items-center entra-flow-or-line">
+                      <div class="entra-flow-or">
+                        <span class="entra-flow-or-text">OR</span>
+                      </div>
+                    </div>
+                    <div id="collapseAzureManualSteps" class="entra-flow-option">
+                      <h5>Manual Flow</h5>
+                      <p class="entra-flow-text">You insert the token manually yourself.</p>
+                    </div>
                   </div>
-                  <br>
-                  <h4>Automatic Step</h4>
-                  <p>The following button will request permissions needed to automatically install tokened CSS into your Azure Entra ID portal (they will be revoked after installation):</p>
-                  <div class="form-control">
-                    <a class="btn btn-large btn-success" id="azure_popup" href="#">Start automatic installation</a>
-                  </div>
-                  <br>
-                  <h5><b>OR</b></h5>
-                  <a id="collapseAzureManualSteps" style="cursor: pointer; color: #38d47f;"><h5>Click for Manual Steps</h5></a>
+
                   <div class="collapse" id="azureManualSteps">
-                    <h5 style="margin-top: 1rem;">Step 1</h5>
-                    <p>Download the necessary CSS by clicking the button below</p>
-                    <div class="form-control">
-                      <a class="btn btn-large btn-success file-download" data-fmt="cssclonedsite" href="download?fmt=cssclonedsite&amp;token=p4xi3qz8f4ycgy1ef04mg3dno&amp;auth=41108c369799a75c85995a946efc7479">Download your CSS file</a>
+                    <div class="text-left relative">
+                      <span class="entra-arrow"></span>
+                      <span class="entra-back-link">Back</span>
                     </div>
-                    <h5 style="margin-top: 1rem;">Step 2</h5>
-                    <p>Click the following link to navigate to your Entra ID login customisation page</p>
-                    <div class="form-control">
-                      <a class="btn btn-large btn-success" target="_blank" href="https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/CompanyBrandingWizard.ReactView/isDefault~/true/companyBrandingToEdit~/%7B%22id%22%3A%220%22%2C%22backgroundColor%22%3A%22%2340c223%22%2C%22backgroundImageRelativeUrl%22%3Anull%2C%22bannerLogoRelativeUrl%22%3Anull%2C%22cdnList%22%3A%5B%22aadcdn.msftauthimages.net%22%2C%22aadcdn.msauthimages.net%22%5D%2C%22customAccountResetCredentialsUrl%22%3Anull%2C%22customCannotAccessYourAccountText%22%3Anull%2C%22customCannotAccessYourAccountUrl%22%3Anull%2C%22customForgotMyPasswordText%22%3Anull%2C%22customPrivacyAndCookiesText%22%3Anull%2C%22customPrivacyAndCookiesUrl%22%3Anull%2C%22customResetItNowText%22%3Anull%2C%22customTermsOfUseText%22%3Anull%2C%22customTermsOfUseUrl%22%3Anull%2C%22faviconRelativeUrl%22%3Anull%2C%22customCSSRelativeUrl%22%3Anull%2C%22headerBackgroundColor%22%3Anull%2C%22signInPageText%22%3A%22%22%2C%22squareLogoRelativeUrl%22%3Anull%2C%22squareLogoDarkRelativeUrl%22%3Anull%2C%22usernameHintText%22%3A%22%22%2C%22headerLogoRelativeUrl%22%3Anull%2C%22loginPageTextVisibilitySettings%22%3A%7B%22hideCannotAccessYourAccount%22%3Anull%2C%22hideAccountResetCredentials%22%3Afalse%2C%22hideTermsOfUse%22%3Afalse%2C%22hidePrivacyAndCookies%22%3Afalse%2C%22hideForgotMyPassword%22%3Anull%2C%22hideResetItNow%22%3Anull%7D%2C%22contentCustomization%22%3A%7B%22adminConsentRelativeUrl%22%3Anull%2C%22attributeCollectionRelativeUrl%22%3Anull%2C%22registrationCampaignRelativeUrl%22%3Anull%2C%22conditionalAccessRelativeUrl%22%3Anull%2C%22adminConsent%22%3A%5B%5D%2C%22attributeCollection%22%3A%5B%5D%2C%22registrationCampaign%22%3A%5B%5D%2C%22conditionalAccess%22%3A%5B%5D%7D%2C%22loginPageLayoutConfiguration%22%3A%7B%22layoutTemplateType%22%3A%22default%22%2C%22isHeaderShown%22%3Afalse%2C%22isFooterShown%22%3Atrue%7D%7D/configuredLocales~/%5B%22en-US%22%5D">Entra ID login customisation page</a>
+                    <div class="entra-manual-header">
+                      Manual Steps
                     </div>
-                    <h5 style="margin-top: 1rem;">Step 3</h5>
-                    <p>Choose 'Layout', scroll down to 'Custom CSS', click 'Browse' and choose the downloaded CSS.</p>
+                    <div class="entra-manual-container">
+                      <div class="manual-flow-step flex justify-around">
+                        <div class="flex items-center relative">
+                          <div class="manual-flow-step-number number-circle bottom-line">1</div>
+                        </div>
+                        <div class="manual-flow-step-text">
+                          <p><a class="entra-link file-download" data-fmt="cssclonedsite">Download</a> the necessary CSS.</p>
+                        </div>
+                      </div>
+
+                      <div class="manual-flow-step flex justify-around">
+                        <div class="flex items-center relative">
+                          <div class="manual-flow-step-number number-circle top-line bottom-line">2</div>
+                        </div>
+                        <div class="manual-flow-step-text">
+                          <p>Navigate to your <a target="_blank" class="entra-link" href="https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/CompanyBrandingWizard.ReactView/isDefault~/true/companyBrandingToEdit~/%7B%22id%22%3A%220%22%2C%22backgroundColor%22%3A%22%2340c223%22%2C%22backgroundImageRelativeUrl%22%3Anull%2C%22bannerLogoRelativeUrl%22%3Anull%2C%22cdnList%22%3A%5B%22aadcdn.msftauthimages.net%22%2C%22aadcdn.msauthimages.net%22%5D%2C%22customAccountResetCredentialsUrl%22%3Anull%2C%22customCannotAccessYourAccountText%22%3Anull%2C%22customCannotAccessYourAccountUrl%22%3Anull%2C%22customForgotMyPasswordText%22%3Anull%2C%22customPrivacyAndCookiesText%22%3Anull%2C%22customPrivacyAndCookiesUrl%22%3Anull%2C%22customResetItNowText%22%3Anull%2C%22customTermsOfUseText%22%3Anull%2C%22customTermsOfUseUrl%22%3Anull%2C%22faviconRelativeUrl%22%3Anull%2C%22customCSSRelativeUrl%22%3Anull%2C%22headerBackgroundColor%22%3Anull%2C%22signInPageText%22%3A%22%22%2C%22squareLogoRelativeUrl%22%3Anull%2C%22squareLogoDarkRelativeUrl%22%3Anull%2C%22usernameHintText%22%3A%22%22%2C%22headerLogoRelativeUrl%22%3Anull%2C%22loginPageTextVisibilitySettings%22%3A%7B%22hideCannotAccessYourAccount%22%3Anull%2C%22hideAccountResetCredentials%22%3Afalse%2C%22hideTermsOfUse%22%3Afalse%2C%22hidePrivacyAndCookies%22%3Afalse%2C%22hideForgotMyPassword%22%3Anull%2C%22hideResetItNow%22%3Anull%7D%2C%22contentCustomization%22%3A%7B%22adminConsentRelativeUrl%22%3Anull%2C%22attributeCollectionRelativeUrl%22%3Anull%2C%22registrationCampaignRelativeUrl%22%3Anull%2C%22conditionalAccessRelativeUrl%22%3Anull%2C%22adminConsent%22%3A%5B%5D%2C%22attributeCollection%22%3A%5B%5D%2C%22registrationCampaign%22%3A%5B%5D%2C%22conditionalAccess%22%3A%5B%5D%7D%2C%22loginPageLayoutConfiguration%22%3A%7B%22layoutTemplateType%22%3A%22default%22%2C%22isHeaderShown%22%3Afalse%2C%22isFooterShown%22%3Atrue%7D%7D/configuredLocales~/%5B%22en-US%22%5D">Entra ID login customisation page.</a></p>
+                        </div>
+                      </div>
+
+                      <div class="manual-flow-step flex justify-around">
+                        <div class="flex items-center relative">
+                          <div class="manual-flow-step-number number-circle top-line">3</div>
+                        </div>
+                        <div class="manual-flow-step-text">
+                          <p>Choose <em><b>Layout</b></em>, scroll down to <em><b>Custom CSS</b></em>, click <em><b>Browse</b></em> and choose the downloaded CSS from the first step.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="advice">
                   <p>When someone clones your site, they'll load the token, which will checks whether the referrer domain is expected. If not, it fires the token and you get an alert.</p>
                   <p><h5>Ideas for use:</h5>
                     <ul>
-                      <li>Save this CSS file and <a href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-customize-branding">upload it as a custom branding stylesheet for your Azure Entra ID login portal (requires a P1 or P2 subscription)</a>.</li>
+                      <li>Save this CSS file and <a target="_blank" class="entra-link" href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-customize-branding">upload it as a custom branding stylesheet for your Azure Entra ID login portal (requires a P1 or P2 subscription)</a>.</li>
                     </ul>
                   </p>
                 </div>
@@ -1481,6 +1504,7 @@ START REPLICA;
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
           });
+          hljs.highlightAll();
         }
         var _handleEntraClonedWebsiteResponse = function(data) {
           $('#result_entra_cloned_website').append(data['css']);
@@ -1490,7 +1514,12 @@ START REPLICA;
           $('#azure_popup').attr('onclick', 'window.open("' + loc + '"); return false;')
           $('#collapseAzureManualSteps').on('click', function() {
             $('#azureManualSteps').toggle();
+            $('.entra-flow-container').toggle();
           })
+          $('.entra-back-link').on('click', () => {
+            $('#azureManualSteps').toggle(); 
+            $('.entra-flow-container').toggle();
+          });
           $('a.file-download').each(function (i, e){
             e = $(e);
             e.prop('href', 'download?fmt='+e.data('fmt')+'&token='+data['token']+'&auth='+data['auth_token']);
