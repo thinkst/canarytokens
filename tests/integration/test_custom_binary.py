@@ -1,9 +1,8 @@
 import base64
-import os
 import re
 import subprocess
 import tempfile
-
+import os
 import dns
 import dns.resolver
 import pytest
