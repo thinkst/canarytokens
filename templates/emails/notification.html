@@ -110,19 +110,19 @@
                       {% if BasicDetails['referer'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['referer'] | replace('http', 'hxxp', 1) | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><a href="" style="text-decoration: none !important;"><code>{{ BasicDetails['referer'] | replace('http', 'hxxp', 1) | e}}</code></a></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['referrer'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['referrer'] | replace('http', 'hxxp', 1) | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><a href="" style="text-decoration: none !important;"><code>{{ BasicDetails['referrer'] | replace('http', 'hxxp', 1) | e}}</code></a></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['location'] %}
                                       <tr>
                                         <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Location</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['location'] | replace('http', 'hxxp', 1) | e}}</code></td>
+                                        <td style="border: 1px solid #cccccc; padding: 5px;"><a href="" style="text-decoration: none !important;"><code>{{ BasicDetails['location'] | replace('http', 'hxxp', 1) | e}}</code></a></td>
                                       </tr>
                       {% endif %}
                       {% if BasicDetails['request_args'] %}
