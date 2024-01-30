@@ -11,12 +11,12 @@ function handler(event) {
     var referer = '';
     if ('referer' in event.request.headers)
         referer = event.request.headers.referer.value;
-    
+
     if (expected_referrer == '')
         console.log("Empty expected_referrer!");
     if (referer == '')
         console.log("Empty/missing Referer header for: " + expected_referrer);
-    
+
     if (expected_referrer == '' || referer == '' || referer.indexOf(expected_referrer) >= 0) { // Happy case where the referer matches
         var response = {
             statusCode: 200,
