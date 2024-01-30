@@ -77,7 +77,7 @@ def test_get_generate_page(test_client: TestClient) -> None:
 def test_redirect_base_to_generate(test_client: TestClient) -> None:
     response = test_client.get("/")
     assert response.status_code == 200
-    assert response.url.split("/")[-1] == "generate"
+    assert response.url.path == "/generate"
 
 
 def test_generate_dns_token(test_client: TestClient) -> None:

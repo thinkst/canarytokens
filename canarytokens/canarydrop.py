@@ -16,6 +16,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta
 from hashlib import md5
 from pathlib import Path
+from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, parse_obj_as, root_validator
@@ -104,9 +105,11 @@ class Canarydrop(BaseModel):
     sql_server_view_name: Optional[str]
     sql_server_function_name: Optional[str]
     sql_server_trigger_name: Optional[str]
-    # Custom upload stuff.
+    # Custom upload stuff
     file_contents: Optional[str]
     file_name: Optional[str]
+    # CSS cloned site stuff
+    expected_referrer: Optional[str]
 
     # AWS key specific stuff
     aws_access_key_id: Optional[str]
@@ -323,6 +326,18 @@ class Canarydrop(BaseModel):
             """
         )
         return clonedsite_js
+
+    def get_cloned_site_css(self, cf_url: str):
+        token_val = self.canarytoken.value()
+        expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
+        clonedsite_css = textwrap.dedent(
+            f"""
+            body {{
+                background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
+            }}
+            """
+        )
+        return clonedsite_css
 
     @staticmethod
     def generate_mysql_usage(

@@ -14,6 +14,12 @@
   border-bottom: 2px solid #fff;
   padding: 1rem 0rem;
 }
+
+.step-last {
+  border-bottom: 2px solid #fff;
+  padding: 1rem;
+}
+
 .goodtick {
   height: 100px;
   margin: auto;
@@ -403,6 +409,13 @@ a.btn-success.btn {
   border-color: #38d47f;
   color: white;
 }
+
+button.btn.btn-success {
+  background-color: #38d47f;
+  border-color: #38d47f;
+  color: white;
+}
+
 button.btn.btn-success:disabled {
   opacity: .85;
 }
@@ -472,6 +485,164 @@ pre.output-area button.btn.btn-clipboard {
   height: 215px;
   white-space: initial;
 }
+
+.cloned-css-token .output-area code {
+  height: 130px;
+  padding-top: 0;
+}
+
+.entra-flow-container {
+  margin-top: 48px;
+  margin-bottom: 48px;
+}
+
+.entra-flow-option {
+  background: #fafafa;
+  border-radius: 8px;
+  max-width: 250px;
+  padding: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,.15);
+}
+
+.entra-flow-option:hover {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, .1);
+  background: #f5f5f5;
+}
+
+.entra-flow-text {
+  margin-bottom: 0 !important;
+  opacity: 0.6;
+}
+
+.entra-flow-or {
+  z-index: 2;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  font-weight: 700;
+  background: #eceeef;
+}
+
+.entra-flow-or-text {
+  opacity: 0.7;
+}
+
+.entra-flow-or-line {
+  position: relative;
+}
+
+.entra-flow-or-line::after {
+  background: #ddd;
+  position: absolute;
+  display: block;
+  width: 1px;
+  content: "";
+  left: 24px;
+  height: 150%;
+  z-index: 1;
+}
+
+.entra-link, .entra-link:hover, .entra-link:focus {
+  color: #38d47f;
+}
+
+.entra-back-link {
+  color: #38d47f;
+  cursor: pointer;
+  margin-left: 14px;
+}
+
+.entra-arrow {
+  content: "";
+  width: 0;
+  height: 0;
+  position: absolute;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(90deg);
+  top: 50%;
+  margin-top: -3px;
+  border-width: 6px 6px 0px 6px;
+  border-style: solid;
+  border-color: #38d47f transparent;
+}
+
+.entra-manual-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.entra-manual-header {
+  font-size: 20px;
+  font-weight: 300;
+  opacity: 0.5;
+  margin-bottom: 24px;
+  border-bottom: 0.05rem solid #bebebe;
+  padding-bottom: 6px;
+  text-align: left;
+}
+
+.manual-flow-step-text {
+  background: #f8f8f8;
+  width: 80%;
+  padding: 24px;
+  border-radius: 8px;
+  border: .05rem solid #e5e5e5
+}
+
+.manual-flow-step-text p {
+  margin: 0;
+  text-align: left;
+}
+
+.manual-flow-step-number {
+  width: 20%;
+}
+
+#azureManualSteps {
+  margin-top: 48px;
+  margin-bottom: 48px;
+}
+
+.number-circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 4px solid #81e3b7;
+  background-color: #FFFFFF;
+  font-weight: bold;
+  color: #04bd6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+}
+
+.bottom-line::after {
+  background: #81e3b7 !important;
+  position: absolute;
+  top: calc(50% + 16px);
+  bottom: 0;
+  left: 16px;
+  display: block;
+  width: 4px;
+  content: "";
+  height: 50%;
+}
+
+.top-line::before {
+  background: #81e3b7 !important;
+  position: absolute;
+  bottom: calc(50% + 16px);
+  left: 16px;
+  display: block;
+  width: 4px;
+  content: "";
+  height: 50%;
+}
+
 .result-data {
   min-width: 80%;
   border: none;
@@ -944,6 +1115,12 @@ a.icon-exe:before {
 a.icon-clonedsite:before {
   background-image: url("/resources/clonedsite.png");
 }
+a.icon-cssclonedsite:before {
+  background-image: url("/resources/css.png");
+}
+a.icon-entraclonedsite:before {
+  background-image: url("/resources/entra.svg");
+}
 a.icon-sqlserver:before {
   background-image: url("/resources/sqlserver.png");
 }
@@ -1098,4 +1275,33 @@ a:focus.what-is-this, a:hover.what-is-this {
 
 a.what-is-this svg {
   width: 19px;
+}
+
+/** Helpers **/
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.relative {
+  position: relative;
+}
+
+.text-left {
+  text-align: left;
 }

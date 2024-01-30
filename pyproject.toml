@@ -14,7 +14,7 @@ httpx = "^0.23.0"
 Jinja2 = "^3.1.2"
 requests = "^2.27.1"
 python-multipart = "^0.0.5"
-pyOpenSSL = "^22.0.0"
+pyOpenSSL = "^23.0.0"
 service-identity = "^21.1.0"
 PyYAML = "^6.0"
 PyNaCl = "^1.5.0"
@@ -24,11 +24,14 @@ minify-html = "^0.9.2"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
-fastapi = { version = "^0.79.0", optional = true }
+fastapi = { version = "^0", optional = true }
 sentry-sdk = {extras = ["fastapi"], version = "^1.9.5", optional = true}
 uvicorn = { version = "^0.17.6", optional = true }
 Twisted = {version = "^22.4.0", optional = true}
 faker = "^17.6.0"
+azure-core = "^1.23.1"
+azure-identity = "^1.10.0"
+cssutils = "^1.0.2"
 
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
@@ -39,7 +42,7 @@ pytest = "^7.1.0"
 black = "^22.1.0"
 pre-commit = "^2.17.0"
 mypy = "^0.941"
-coverage = "^6.3.2"
+coverage = "^7.0.0"
 requests = "^2.27.1"
 hypothesis = "^6.39.3"
 pyngrok = "^6.0.0"

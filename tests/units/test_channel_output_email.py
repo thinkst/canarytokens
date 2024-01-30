@@ -66,8 +66,8 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "https://someone.not.nice/stuff" in email_template
-    assert "https://fake.your/domain/stuff" in email_template
+    assert "hxxps://someone.not.nice/stuff" in email_template
+    assert "hxxps://fake.your/domain/stuff" in email_template
 
 
 def test_cloned_site_rendered_html(settings: SwitchboardSettings):
@@ -90,8 +90,8 @@ def test_cloned_site_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "https://someone.not.nice/stuff/ref" in email_template
-    assert "https://fake.your/domain/stuff/loc" in email_template
+    assert "hxxps://someone.not.nice/stuff/ref" in email_template
+    assert "hxxps://fake.your/domain/stuff/loc" in email_template
 
 
 def test_log4shell_rendered_html(settings: SwitchboardSettings):

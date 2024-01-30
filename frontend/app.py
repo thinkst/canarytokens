@@ -16,6 +16,7 @@ from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
 from typing import Any, Optional
+from urllib.parse import unquote
 
 import requests
 import segno
@@ -52,6 +53,10 @@ from canarytokens.models import (
     CCTokenResponse,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
+    CSSClonedWebTokenRequest,
+    CSSClonedWebTokenResponse,
+    DownloadCSSClonedWebRequest,
+    DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
     CustomBinaryTokenRequest,
@@ -127,6 +132,7 @@ from canarytokens.models import (
 from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
+from canarytokens.azure_css import install_azure_css
 from canarytokens.pdfgen import make_canary_pdf
 from canarytokens.queries import (
     add_canary_domain,
@@ -388,6 +394,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         kubeconfig=kube_config,
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
+        expected_referrer=getattr(token_request_details, "expected_referrer", None),
         sql_server_sql_action=getattr(
             token_request_details, "sql_server_sql_action", None
         ),
@@ -531,6 +538,31 @@ async def download(
     return create_download_response(download_request, canarydrop=canarydrop)
 
 
+@app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
+async def azure_css_landing(
+    request: Request, admin_consent: str = "", tenant: str = None, state: str = None
+) -> HTMLResponse:
+    """
+    This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
+    Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in
+    a pop-up context.
+    """
+    info = ""
+    if admin_consent == "True":
+        tenant_id = tenant
+        if css := state:
+            css = b64decode(unquote(state)).decode()
+        if css is not None and tenant_id is not None:
+            (success, info) = install_azure_css(tenant_id, css)
+            info += " We have uninstalled our application from you tenant, revoking all of our permissions."
+    else:
+        info = "Installation failed due to lack of sufficient granted permissions."
+    return templates.TemplateResponse(
+        "azure_install.html",
+        {"request": request, "status": info},
+    )
+
+
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
     """"""
@@ -565,6 +597,19 @@ def _(
         auth=download_request_details.auth,
         content=canarydrop.cc_rendered_csv,
         filename=f"{canarydrop.canarytoken.value()}.csv",
+    )
+
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadCSSClonedWebRequest, canarydrop: Canarydrop
+) -> DownloadCSSClonedWebResponse:
+    """"""
+    return DownloadCSSClonedWebResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.get_cloned_site_css(frontend_settings.CLOUDFRONT_URL),
+        filename=f"{canarydrop.canarytoken.value()}.css",
     )
 
 
@@ -851,6 +896,25 @@ def _(
         clonedsite_js=canarydrop.get_cloned_site_javascript(
             switchboard_settings.FORCE_HTTPS
         ),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: CSSClonedWebTokenRequest, canarydrop: Canarydrop
+) -> CSSClonedWebTokenResponse:
+
+    return CSSClonedWebTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        token_usage=canarydrop.canarytoken.value(),
+        url_components=list(canarydrop.get_url_components()),
+        css=canarydrop.get_cloned_site_css(frontend_settings.CLOUDFRONT_URL),
+        client_id=frontend_settings.AZUREAPP_ID,
     )
 
 

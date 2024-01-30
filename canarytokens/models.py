@@ -160,6 +160,10 @@ class AWSKey(TypedDict):
     output: Literal["json", "yaml", "yaml-stream", "text", "table"]
 
 
+class CSSClonedSite(TypedDict):
+    expected_referrer: str
+
+
 class AzureID(TypedDict):
     app_id: str
     tenant_id: str
@@ -283,6 +287,7 @@ class TokenTypes(str, enum.Enum):
     WIREGUARD = "wireguard"
     WINDOWS_DIR = "windows_dir"
     CLONEDSITE = "clonedsite"
+    CSSCLONEDSITE = "cssclonedsite"
     QR_CODE = "qr_code"
     SVN = "svn"
     SMTP = "smtp"
@@ -324,6 +329,7 @@ readable_token_type_names = {
     TokenTypes.WIREGUARD: "WireGuard",
     TokenTypes.WINDOWS_DIR: "Windows folder",
     TokenTypes.CLONEDSITE: "cloned website",
+    TokenTypes.CSSCLONEDSITE: "CSS cloned website",
     TokenTypes.QR_CODE: "QR code",
     TokenTypes.SVN: "SVN",
     TokenTypes.SMTP: "email address",
@@ -585,6 +591,11 @@ class ClonedWebTokenRequest(TokenRequest):
     clonedsite: str
 
 
+class CSSClonedWebTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
+    expected_referrer: str
+
+
 class FastRedirectTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
     redirect_url: str
@@ -669,6 +680,7 @@ AnyTokenRequest = Annotated[
         Log4ShellTokenRequest,
         SMTPTokenRequest,
         ClonedWebTokenRequest,
+        CSSClonedWebTokenRequest,
         WindowsDirectoryTokenRequest,
         WebBugTokenRequest,
         SlowRedirectTokenRequest,
@@ -857,6 +869,12 @@ class ClonedWebTokenResponse(TokenResponse):
     clonedsite_js: Optional[str]
 
 
+class CSSClonedWebTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
+    css: Optional[str]
+    client_id: Optional[str]
+
+
 class FastRedirectTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
 
@@ -967,6 +985,7 @@ AnyTokenResponse = Annotated[
         WindowsDirectoryTokenResponse,
         FastRedirectTokenResponse,
         ClonedWebTokenResponse,
+        CSSClonedWebTokenResponse,
         WebBugTokenResponse,
         SQLServerTokenResponse,
         DNSTokenResponse,
@@ -1419,6 +1438,11 @@ class DNSTokenHit(TokenHit):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
 
 
+class CSSClonedWebTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
+    referrer: Optional[str]
+
+
 class PDFTokenHit(TokenHit):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
 
@@ -1558,6 +1582,7 @@ AnyTokenHit = Annotated[
         SlackAPITokenHit,
         PDFTokenHit,
         ClonedWebTokenHit,
+        CSSClonedWebTokenHit,
         Log4ShellTokenHit,
         SlowRedirectTokenHit,
         FastRedirectTokenHit,
@@ -1720,6 +1745,11 @@ class ClonedWebTokenHistory(TokenHistory[ClonedWebTokenHit]):
     hits: List[ClonedWebTokenHit] = []
 
 
+class CSSClonedWebTokenHistory(TokenHistory[CSSClonedWebTokenHit]):
+    token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
+    hits: List[CSSClonedWebTokenHit] = []
+
+
 class Log4ShellTokenHistory(TokenHistory[Log4ShellTokenHit]):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
     hits: List[Log4ShellTokenHit] = []
@@ -1784,6 +1814,7 @@ AnyTokenHistory = Annotated[
         PDFTokenHistory,
         SMTPTokenHistory,
         ClonedWebTokenHistory,
+        CSSClonedWebTokenHistory,
         Log4ShellTokenHistory,
         SlowRedirectTokenHistory,
         FastRedirectTokenHistory,
@@ -2074,6 +2105,7 @@ class DownloadFmtTypes(str, enum.Enum):
     QRCODE = "qr_code"
     CMD = "cmd"
     CC = "cc"
+    CSSCLONEDSITE = "cssclonedsite"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2152,6 +2184,10 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
+class DownloadCSSClonedWebRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
+
+
 class DownloadCCRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CC] = DownloadFmtTypes.CC
 
@@ -2171,6 +2207,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
+        DownloadCSSClonedWebRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
         DownloadKubeconfigRequest,
@@ -2277,6 +2314,15 @@ class DownloadCCResponse(TokenDownloadResponse):
 
 
 class DownloadCMDResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadCSSClonedWebResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN

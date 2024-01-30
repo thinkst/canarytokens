@@ -1,0 +1,171 @@
+{% macro fileupload(name, text='Drag and drop a file here or click') %}
+<div class="fileupload-wrapper form-control">
+  <div class="fileupload-message">
+    <span class="file-icon"></span>
+    <p>{{text}}</p>
+  </div>
+  <div class="fileupload-filename hidden">
+    <p>
+      <span></span>
+      <a href="#" class="fileupload-clear" aria-label="remove" title="remove">×</a>
+    </p>
+  </div>
+  <input type="file" id="fileupload-{{name}}" name="{{name}}" class="fileupload">
+</div>
+{%- endmacro %}
+
+{% macro inputcopy(name, refresh=None)%}
+  <input id="{{name}}" class="result-data" value="testempty" readonly="">
+  {% if refresh %}
+  <a class="refresh">&#x21bb;</a>
+  {%endif%}
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+
+{% macro textareacopy(name, language=None)%}
+  <code id="{{name}}" class="{{ language }}" readonly="" style="text-align: left;">
+  </code>
+  <button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}">
+    <img src="/resources/clippy.svg" alt="Copy to clipboard">
+  </button>
+{%- endmacro %}
+
+{% macro textareacopydownload(name, download_fmt, value="")%}
+<textarea id="{{name}}" class="result-data" readonly="">{{value}}
+</textarea>
+<div style="flex-direction: column;margin-left: 0.2rem;" class="btn-group">
+<button class="btn btn-success btn-clipboard tooltip" type="button" data-clipboard-target="#{{name}}" style="margin-bottom: 0.2rem;">
+  <img src="/resources/clippy.svg" alt="Copy to clipboard">
+</button>
+<a class="btn btn-clipboard tooltip file-download" data-fmt="{{download_fmt}}" style="border-radius: 0;">
+  <img src="/resources/download.svg" alt="Download text area">
+</a>
+</div>
+{%- endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Canarytokens is a free tool that helps you discover you’ve been breached by having attackers announce themselves.  The tokens allow you to implant traps around your network and notifies you as soon as they are triggered.">
+    <meta property="og:description"content="Canarytokens is a free tool that helps you discover you’ve been breached by having attackers announce themselves.  The tokens allow you to implant traps around your network and notifies you as soon as they are triggered.">
+    <meta name="author" content="Thinkst Applied Research">
+    <meta property="og:title" content="Know.  Before it matters">
+    <meta property="og:url" content="https://canarytokens.org">
+    <meta property="og:site_name" content="Canarytokens"/>
+    <meta property="og:image" content="https://canary.tools/static/images/ico_canary.png">
+    <meta property="og:image:width" content="52">
+    <meta property="og:image:height" content="52">
+    <meta name="keywords" content="Canary token,Canarytokens,Canary token,Canary tokens,Honeytoken,Honeytokens,Web bug,DNS token,URL token,Thinkst,Thinkst Applied Research">
+    <link rel="shortcut icon" href="/resources/favicon.ico">
+    <link href="/resources/perfect-scrollbar.css" rel="stylesheet">
+
+    <title>Azure EntraID CSS Canarytoken Installation</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/tooltipster.bundle.min.css" integrity="sha256-Qc4lCfqZWYaHF5hgEOFrYzSIX9Rrxk0NPHRac+08QeQ=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-borderless.min.css" integrity="sha256-ZiBTbkzExWV/DU4+02ZMqXaNu7o0XfNmxTa0+gRbdO0=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/css/bootstrap3/bootstrap-switch.min.css" integrity="sha256-TmXiemEItWzNM8RAaAW2WZNEadRBPMsiW6RHIQC2D2A=" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="/resources/styles.css?ver=10">
+    <link href="https://fonts.cdnfonts.com/css/ocr-a-extended" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <style>
+    .ps__rail-x,
+    .ps__rail-y {
+      opacity: 0.6;
+    }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav class="hidden">
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link" href="/generate">New token</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link manage-link" href="">Manage this token</a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">
+          <a style="color: inherit; text-decoration: inherit;" href="/">
+            <img alt="logo" src="/resources/logo.png" class="logo">
+          </a>
+        </h3>
+      </div>
+
+      <div class="jumbotron">
+        <div class="success success-visible">
+          <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+              <img class="goodtick" src="/resources/canarytokens-done.png">
+            </div>
+            <div class="col-md-1">
+            </div>
+          </div>
+          <div class="row results">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+              <div class="result" style="display: block;">
+                <div class="artifacts">
+                  <p>{{ status }}</p>
+                  <div style="margin-top: 32px">
+                    <button onclick="window.close();" tabindex=10 class="btn btn-lg btn-success btn-fullwidth">Close Window</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-1"></div>
+          </div>
+        </div>
+        <div class="col-md-1">
+        </div>
+      </div>
+
+
+      <footer class="footer">
+        <a href="http://canary.tools/why" target="_blank" class="banner"></a>
+        <p>Read Our <a href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</a></p>
+        <p>By Using This Service, You Agree to Our <a href="/legal">Terms of Use.</a></p>
+        <div id="mainsite" class="hidden">
+          <p>This <a href="https://canarytokens.org/">Canarytokens</a> installation is unaffiliated with Thinkst Canary.</p>
+          {% if build_id %}
+          <p>Build ID: {{ build_id }}</p>
+          {%endif%}
+        </div>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="//v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.tooltipster/4.1.8/js/tooltipster.bundle.min.js" integrity="sha256-q732ZLDh1y9/RwzPjKt/GODE3lqj+078N0wwMDYQiPg=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.3/js/bootstrap-switch.min.js" integrity="sha256-lDGxF93YiQJCM4WXZYZmXNww6vWiPqnVxJgFJvstLGE=" crossorigin="anonymous"></script>
+    <script src="/resources/site.js"></script>
+    <script src="/resources/perfect-scrollbar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
+    <script>
+    </script>
+  </body>
+</html>

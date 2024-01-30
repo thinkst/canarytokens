@@ -514,6 +514,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         clonedsite="https://test.com",
         cmd_process="klist.exe",
         azure_id_cert_file_name="test.pem",
+        expected_referrer="testreferrer.com",
     )
 
 
