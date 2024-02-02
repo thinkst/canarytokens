@@ -24,6 +24,10 @@ CANARYTOKEN_ALPHABET = ['0', '1', '2', '3', '4', '5',
 # fmt: on
 CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
 
+CANARY_IMAGE_URL = (
+    "https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png"
+)
+
 CANARY_PDF_TEMPLATE_OFFSET: int = 793
 
 
@@ -32,3 +36,7 @@ MAILGUN_IGNORE_ERRORS = [
 ]
 
 MAX_WEBHOOK_URL_LENGTH = 1024
+WEBHOOK_BASE_URL_SLACK = "https://hooks.slack.com"
+WEBHOOK_BASE_URL_GOOGLE_CHAT = "https://chat.googleapis.com"
+WEBHOOK_BASE_URL_DISCORD = "https://discord.com/api/webhooks"
+WEBHOOK_BASE_URL_REGEX_MS_TEAMS = r"^https://[\w.]+\.webhook\.office\.com/webhookb2/.*"

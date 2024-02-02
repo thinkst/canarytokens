@@ -809,16 +809,14 @@ def validate_webhook(url, token_type: models.TokenTypes):
     if len(url) > constants.MAX_WEBHOOK_URL_LENGTH:
         raise WebhookTooLongError()
 
-    slack = "https://hooks.slack.com"
-    googlechat_hook_base_url = "https://chat.googleapis.com"
-    discord = "https://discord.com/api/webhooks"
     payload: Union[
         models.TokenAlertDetails,
         models.TokenAlertDetailsSlack,
         models.TokenAlertDetailsGoogleChat,
         models.TokenAlertDetailsDiscord,
+        models.TokenAlertDetailsMsTeams,
     ]
-    if url.startswith(slack):
+    if url.startswith(constants.WEBHOOK_BASE_URL_SLACK):
         payload = models.TokenAlertDetailsSlack(
             attachments=[
                 models.SlackAttachment(
@@ -832,7 +830,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
                 )
             ]
         )
-    elif url.startswith(googlechat_hook_base_url):
+    elif url.startswith(constants.WEBHOOK_BASE_URL_GOOGLE_CHAT):
         # construct google chat alert card
         card = models.GoogleChatCard(
             header=models.GoogleChatHeader(
@@ -847,7 +845,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         payload = models.TokenAlertDetailsGoogleChat(
             cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
         )
-    elif url.startswith(discord):
+    elif url.startswith(constants.WEBHOOK_BASE_URL_DISCORD):
         # construct discord alert card
         embeds = models.DiscordEmbeds(
             author=models.DiscordAuthorField(
@@ -858,7 +856,13 @@ def validate_webhook(url, token_type: models.TokenTypes):
             timestamp=datetime.datetime.now(),
         )
         payload = models.TokenAlertDetailsDiscord(embeds=[embeds])
-
+    elif re.match(constants.WEBHOOK_BASE_URL_REGEX_MS_TEAMS, url):
+        section = models.MsTeamsTitleSection(
+            activityTitle="<b>Validating new Canarytokens webhook</b>"
+        )
+        payload = models.TokenAlertDetailsMsTeams(
+            summary="Validating new Canarytokens webhook", sections=[section]
+        )
     else:
         payload = models.TokenAlertDetails(
             manage_url=HttpUrl(

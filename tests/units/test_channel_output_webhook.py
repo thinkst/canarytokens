@@ -2,13 +2,21 @@
 from twisted.logger import capturedLogs
 
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.channel import format_as_googlechat_canaryalert
+from canarytokens.channel import (
+    format_as_googlechat_canaryalert,
+    format_as_ms_teams_canaryalert,
+)
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
-from canarytokens.models import TokenAlertDetailsGoogleChat, TokenTypes
+from canarytokens.models import (
+    TokenAlertDetailsGoogleChat,
+    TokenAlertDetailsMsTeams,
+    TokenTypes,
+)
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
+from canarytokens.constants import CANARY_IMAGE_URL
 
 
 def test_broken_webhook(
@@ -226,3 +234,107 @@ def test_canaryalert_googlechat_webhook(
         host=input_channel.hostname,
     )
     assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsGoogleChat)
+
+
+def test_ms_teams_webhook_format(
+    setup_db,
+    webhook_receiver,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
+    switchboard = Switchboard()
+    input_channel = ChannelDNS(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_hostname="test.com",
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+    )
+
+    cd = Canarydrop(
+        type=TokenTypes.DNS,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=webhook_receiver,
+        canarytoken=Canarytoken(),
+        memo="memo",
+        browser_scanner_enabled=False,
+    )
+    token_hit = Canarytoken.create_token_hit(
+        token_type=TokenTypes.DNS,
+        input_channel="not_valid",
+        src_ip="127.0.0.1",
+        hit_info={"some": "data"},
+    )
+    cd.add_canarydrop_hit(token_hit=token_hit)
+    details = input_channel.gather_alert_details(
+        cd,
+        protocol=input_channel.switchboard_scheme,
+        host=settings.PUBLIC_DOMAIN,
+    )
+    webhook_payload = format_as_ms_teams_canaryalert(details=details)
+    payload = webhook_payload.json_safe_dict()
+
+    assert payload["summary"] == "Canarytoken triggered"
+    assert payload["themeColor"] == "ff0000"
+    assert payload["potentialAction"] == [
+        {
+            "@context": "http://schema.org",
+            "@type": "ViewAction",
+            "name": "Manage",
+            "target": [details.manage_url],
+        }
+    ]
+    assert len(payload["sections"]) == 2
+
+    assert payload["sections"][0] == {
+        "activityTitle": "<b>Canarytoken triggered</b>",
+        "activityImage": CANARY_IMAGE_URL,
+    }
+
+
+def test_canaryalert_ms_teams_webhook(
+    setup_db,
+    webhook_receiver,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+):
+    """
+    Tests if a MS Teams webhook payload is produced given a MS Teams webhook receiver.
+    """
+    ms_teams_webhook_receiver = "https://azurerandomtest.webhook.office.com/webhookb2/ramdomhashhere/IncomingWebhook/randomhashhere/randomhashhere"
+
+    switchboard = Switchboard()
+    input_channel = ChannelDNS(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_hostname=frontend_settings.DOMAINS[0],
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+    )
+
+    cd = Canarydrop(
+        type=TokenTypes.DNS,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=ms_teams_webhook_receiver,
+        canarytoken=Canarytoken(),
+        memo="memo",
+        browser_scanner_enabled=False,
+    )
+    token_hit = Canarytoken.create_token_hit(
+        token_type=TokenTypes.DNS,
+        input_channel="not_valid",
+        src_ip="127.0.0.1",
+        hit_info={"some": "data"},
+    )
+    cd.add_canarydrop_hit(token_hit=token_hit)
+
+    canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
+        canarydrop=cd,
+        protocol=input_channel.switchboard_scheme,
+        host=input_channel.hostname,
+    )
+    assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsMsTeams)
