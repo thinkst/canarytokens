@@ -1041,7 +1041,7 @@ START REPLICA;
         if (endpoints.val().length == 0) {
           return endpoints.addClass('error-outline').removeClass('success-outline');
         }
-        if (endpoints.val().length > 255) {
+        if (endpoints.val().length > 1024) {
           return endpoints.addClass('error-outline').removeClass('success-outline');
         }
         endpoints_components = endpoints.val().split(' ');
