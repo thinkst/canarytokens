@@ -30,3 +30,5 @@ CANARY_PDF_TEMPLATE_OFFSET: int = 793
 MAILGUN_IGNORE_ERRORS = [
     "to parameter is not a valid address. please check documentation"
 ]
+
+MAX_WEBHOOK_URL_LENGTH = 1024

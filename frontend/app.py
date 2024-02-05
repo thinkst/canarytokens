@@ -147,6 +147,7 @@ from canarytokens.queries import (
     remove_canary_domain,
     save_canarydrop,
     validate_webhook,
+    WebhookTooLongError,
 )
 from canarytokens.redismanager import DB
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -347,6 +348,8 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
             validate_webhook(
                 token_request_details.webhook_url, token_request_details.token_type
             )
+        except WebhookTooLongError:
+            return response_error(3, "Webhook URL too long. Use a shorter webhook URL.")
         except requests.exceptions.HTTPError:
             return response_error(
                 3, "Invalid webhook supplied. Confirm you can POST to this URL."

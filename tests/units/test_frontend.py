@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import HttpUrl
 
-from canarytokens import canarydrop, models, queries
+from canarytokens import canarydrop, models, queries, constants
 from canarytokens.models import (
     AnyDownloadRequest,
     AnyTokenRequest,
@@ -89,6 +89,18 @@ def test_generate_dns_token(test_client: TestClient) -> None:
     )
     resp = test_client.post("/generate", json=json.loads(dns_request_token.json()))
     assert resp.status_code == 200
+
+
+def test_reject_webhook_too_long(test_client: TestClient) -> None:
+    url_suffix = "a" * constants.MAX_WEBHOOK_URL_LENGTH
+    dns_request_token = models.DNSTokenRequest(
+        token_type=TokenTypes.DNS,
+        email="test@test.com",
+        webhook_url=f"https://slack.com/api/{url_suffix}",
+        memo="test stuff break stuff fix stuff test stuff",
+    )
+    resp = test_client.post("/generate", json=json.loads(dns_request_token.json()))
+    assert resp.status_code == 400
 
 
 def test_generate_log4shell_token(test_client: TestClient) -> None:

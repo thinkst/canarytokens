@@ -14,7 +14,7 @@ from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
 
 from canarytokens import canarydrop as cand
-from canarytokens import models, tokens
+from canarytokens import models, tokens, constants
 from canarytokens.exceptions import CanarydropAuthFailure, NoCanarydropFound
 from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACCOUNTS,; KEY_CANARY_NXDOMAINS,; KEY_CANARYTOKEN_ALERT_COUNT,; KEY_CLONEDSITE_TOKEN,; KEY_CLONEDSITE_TOKENS,; KEY_IMGUR_TOKEN,; KEY_IMGUR_TOKENS,; KEY_KUBECONFIG_CERTS,; KEY_KUBECONFIG_HITS,; KEY_KUBECONFIG_SERVEREP,; KEY_LINKEDIN_ACCOUNT,; KEY_LINKEDIN_ACCOUNTS,; KEY_USER_ACCOUNT,
     DB,
@@ -797,11 +797,18 @@ def add_canary_google_api_key(key: str) -> int:
 #     return key
 
 
+class WebhookTooLongError(Exception):
+    pass
+
+
 def validate_webhook(url, token_type: models.TokenTypes):
     """Tests if a webhook is valid by sending a test payload
     Arguments:
     url -- Webhook url
     """
+    if len(url) > constants.MAX_WEBHOOK_URL_LENGTH:
+        raise WebhookTooLongError()
+
     slack = "https://hooks.slack.com"
     googlechat_hook_base_url = "https://chat.googleapis.com"
     discord = "https://discord.com/api/webhooks"
