@@ -30,7 +30,7 @@ function handler(event) {
     if ('referer' in event.request.headers) {
         referer = event.request.headers.referer.value;
         if (referer.indexOf('//') >= 0) {
-            const pathArray = referer.split( '/' );
+            var pathArray = referer.split( '/' );
             referer_origin = pathArray[2];
         } else {
             referer_origin = referer;
