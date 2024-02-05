@@ -162,4 +162,4 @@ jobs:
           copy .\frontend\frontend.env.dist .\frontend\frontend.env
           copy .\switchboard\switchboard.env.dist .\switchboard\switchboard.env
           cd tests
-          poetry run pytest .\integration\test_custom_binary.py --runv3 -v
+          $env:PSModulePath = ''; poetry run pytest .\integration\test_custom_binary.py --runv3 -v
