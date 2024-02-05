@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime
 from typing import Any, Coroutine, List, Optional, Union
+import re
 
 import twisted.internet.reactor
 from twisted.internet import threads
@@ -12,6 +13,7 @@ from twisted.logger import Logger
 
 from canarytokens import switchboard as sb
 from canarytokens.canarydrop import Canarydrop
+from canarytokens import constants
 
 # from canarytokens.exceptions import DuplicateChannel
 from canarytokens.models import (
@@ -27,11 +29,15 @@ from canarytokens.models import (
     DiscordDetails,
     DiscordEmbeds,
     DiscordAuthorField,
+    MsTeamsTitleSection,
+    MsTeamsDetailsSection,
+    MsTeamsPotentialAction,
     TokenAlertDetailGeneric,
     TokenAlertDetails,
     TokenAlertDetailsGoogleChat,
     TokenAlertDetailsSlack,
     TokenAlertDetailsDiscord,
+    TokenAlertDetailsMsTeams,
 )
 
 log = Logger()
@@ -122,6 +128,28 @@ def format_as_discord_canaryalert(
     return TokenAlertDetailsDiscord(embeds=[embeds])
 
 
+def format_as_ms_teams_canaryalert(
+    details: TokenAlertDetails,
+) -> TokenAlertDetailsMsTeams:
+    sections = [
+        MsTeamsTitleSection(activityTitle="<b>Canarytoken triggered</b>"),
+        MsTeamsDetailsSection(
+            canarytoken=details.token,
+            token_reminder=details.memo,
+            src_data=details.src_data if details.src_data else None,
+            additional_data=details.additional_data,
+        ),
+    ]
+
+    return TokenAlertDetailsMsTeams(
+        summary="Canarytoken triggered",
+        sections=sections,
+        potentialAction=[
+            MsTeamsPotentialAction(name="Manage", target=[details.manage_url])
+        ],
+    )
+
+
 class Channel(object):
     CHANNEL = "Base"
 
@@ -207,26 +235,33 @@ class InputChannel(Channel):
         TokenAlertDetailsSlack, TokenAlertDetailGeneric, TokenAlertDetailsGoogleChat
     ]:
         # TODO: Need to add `host` and `protocol` that can be used to manage the token.
-        slack_hook_base_url = "https://hooks.slack.com"
-        googlechat_hook_base_url = "https://chat.googleapis.com"
-        discord_hook_base_url = "https://discord.com/api/webhooks"
         details = cls.gather_alert_details(
             canarydrop,
             protocol=protocol,
             host=host,
         )
         if canarydrop.alert_webhook_url and (
-            str(canarydrop.alert_webhook_url).startswith(slack_hook_base_url)
+            str(canarydrop.alert_webhook_url).startswith(
+                constants.WEBHOOK_BASE_URL_SLACK
+            )
         ):
             return format_as_slack_canaryalert(details=details)
         elif canarydrop.alert_webhook_url and (
-            str(canarydrop.alert_webhook_url).startswith(googlechat_hook_base_url)
+            str(canarydrop.alert_webhook_url).startswith(
+                constants.WEBHOOK_BASE_URL_GOOGLE_CHAT
+            )
         ):
             return format_as_googlechat_canaryalert(details=details)
         elif canarydrop.alert_webhook_url and (
-            str(canarydrop.alert_webhook_url).startswith(discord_hook_base_url)
+            str(canarydrop.alert_webhook_url).startswith(
+                constants.WEBHOOK_BASE_URL_DISCORD
+            )
         ):
             return format_as_discord_canaryalert(details=details)
+        elif re.match(
+            constants.WEBHOOK_BASE_URL_REGEX_MS_TEAMS, str(canarydrop.alert_webhook_url)
+        ):
+            return format_as_ms_teams_canaryalert(details=details)
         else:
             return TokenAlertDetailGeneric(**details.dict())
 

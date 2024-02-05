@@ -46,8 +46,10 @@ from typing_extensions import Annotated
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,
     CANARYTOKEN_LENGTH,
+    CANARY_IMAGE_URL,
     MEMO_MAX_CHARACTERS,
 )
+from canarytokens.utils import prettify_snake_case, dict_to_csv
 
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
@@ -2042,6 +2044,70 @@ class TokenAlertDetailsSlack(BaseModel):
     """Details that are sent to slack webhooks."""
 
     attachments: List[SlackAttachment]
+
+    def json_safe_dict(self) -> Dict[str, str]:
+        return json_safe_dict(self)
+
+
+class MsTeamsDetailsSection(BaseModel):
+    canarytoken: Canarytoken
+    token_reminder: Memo
+    src_data: Optional[dict[str, Any]] = None
+    additional_data: Optional[dict[str, Any]] = None
+
+    def dict(self, *args, **kwargs):
+        data = json_safe_dict(self)
+        data["Canarytoken"] = data.pop("canarytoken", "")
+        data["Token Reminder"] = data.pop("token_reminder", "")
+        if "src_data" in data:
+            data["Source Data"] = data.pop("src_data", "")
+
+        if data["additional_data"]:
+            add_data = data.pop("additional_data", {})
+            data.update(add_data)
+
+        facts = []
+        for k, v in data.items():
+            if not v:
+                continue
+
+            if isinstance(v, dict):
+                v = dict_to_csv(v)
+            else:
+                v = str(v)
+
+            facts.append({"name": prettify_snake_case(k), "value": v})
+
+        return {"facts": facts}
+
+
+class MsTeamsTitleSection(BaseModel):
+    activityTitle: str
+    activityImage = CANARY_IMAGE_URL
+
+
+class MsTeamsPotentialAction(BaseModel):
+    name: str
+    target: List[AnyHttpUrl]
+    type: str = "ViewAction"
+    context: str = "http://schema.org"
+
+    def dict(self, *args, **kwargs):
+        d = super().dict(*args, **kwargs)
+
+        d["@type"] = d.pop("type")
+        d["@context"] = d.pop("context")
+
+        return d
+
+
+class TokenAlertDetailsMsTeams(BaseModel):
+    """Details that are sent to MS Teams webhooks."""
+
+    summary: str
+    themeColor = "ff0000"
+    sections: Optional[List[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
+    potentialAction: Optional[List[MsTeamsPotentialAction]] = None
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)

@@ -3,6 +3,18 @@ from pathlib import Path
 from typing import Any, Literal, Union
 
 
+def dict_to_csv(d: dict) -> str:
+    """Convert dict to CSV"""
+    return ", ".join(f"{k}: {v}" for k, v in d.items())
+
+
+def prettify_snake_case(s: str):
+    """Capitalize first letter and convert underscores to spaces"""
+    s = s.replace("_", " ")
+    s = s[0].upper() + s[1:]
+    return s
+
+
 def coerce_to_float(value: Any) -> Union[Literal[False], float]:
     """
     Tries to convert `value` to a float and returns
