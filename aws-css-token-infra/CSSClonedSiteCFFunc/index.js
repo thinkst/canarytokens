@@ -2,6 +2,8 @@
 // Expected uri looks like: /TOKEN_ID/escape(btoa(expected_referrer))/imagename.gif
 // Either returns a 1x1 pixel GIF, or forwards it to the token server with the referrer as a GET parameter for reporting
 
+var querystring = require('querystring');
+
 var token_server = 'https://canarytokens.com';
 
 var matching_ref_response = {
@@ -45,7 +47,7 @@ function handler(event) {
     if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer)) { // Happy case where the referer matches   
         return matching_ref_response;
     }
-    if (expected_referrer == 'microsoftonline.com' && referer_origin.endsWith('login.microsoft.com')) {
+    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
         // Special case of an MS login token came from login.microsoft.com instead of microsoftonline.com
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
@@ -55,7 +57,7 @@ function handler(event) {
         statusCode: 302,
         statusDescription: 'Found',
         headers: {
-            'location': { value: token_server + '/' + uri[1] + '/' + uri[3] + '?r=' + referer }
+            'location': { value: token_server + '/' + uri[1] + '/' + uri[3] + '?' + querystring.stringify({"r": referer}) }
         }
     };
     return response;
