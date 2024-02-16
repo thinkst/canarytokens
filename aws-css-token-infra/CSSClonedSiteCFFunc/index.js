@@ -44,7 +44,7 @@ function handler(event) {
     if (referer == '')
         console.log("Empty/missing Referer header for: " + expected_referrer);
 
-    if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer)) { // Happy case where the referer matches   
+    if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer)) { // Happy case where the referer matches
         return matching_ref_response;
     }
     if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
