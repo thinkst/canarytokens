@@ -107,7 +107,7 @@ class ChannelDNS(InputChannel):
         answer = dns.RRHeader(
             name=name,
             payload=dns.Record_NS(
-                ttl=10,
+                ttl=300,
                 name=".".join(["ns1", name.decode()]),
             ),
             type=dns.NS,
