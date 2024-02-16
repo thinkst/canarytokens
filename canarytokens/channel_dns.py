@@ -118,7 +118,7 @@ class ChannelDNS(InputChannel):
             payload=dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP),
             type=dns.A,
             auth=True,
-            ttl=10
+            ttl=300
         )
         answers = [answer]
         authority: list[str] = []
