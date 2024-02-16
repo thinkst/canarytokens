@@ -112,6 +112,7 @@ class ChannelDNS(InputChannel):
             ),
             type=dns.NS,
             auth=True,
+            ttl=300
         )
         additional = dns.RRHeader(
             name=".".join(["ns1", name.decode()]),
