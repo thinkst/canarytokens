@@ -118,6 +118,7 @@ class ChannelDNS(InputChannel):
             payload=dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP),
             type=dns.A,
             auth=True,
+            ttl=10
         )
         answers = [answer]
         authority: list[str] = []
@@ -142,6 +143,7 @@ class ChannelDNS(InputChannel):
             ),
             type=dns.SOA,
             auth=True,
+            ttl=300
         )
         answers = [answer]
         authority = []
@@ -154,8 +156,14 @@ class ChannelDNS(InputChannel):
         Calculate the response to a query.
         """
         log.info(f"Building A record: ip = {self.frontend_settings.PUBLIC_IP}")
-        payload = dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP)
-        answer = dns.RRHeader(name=name, payload=payload, type=dns.A, auth=True)
+        ttl = 10
+        
+        if any([name.lower().decode() == d for d in self.canary_domains]):
+            # This is a resolution of the apex domain, not a token, so we can bump up the TTL
+            ttl = 600 # 10 min seems plenty short enough to allow for IP changes without getting overloaded
+
+        payload = dns.Record_A(ttl=ttl, address=self.frontend_settings.PUBLIC_IP)
+        answer = dns.RRHeader(name=name, payload=payload, type=dns.A, auth=True, ttl=ttl)
         answers = [answer]
         authority: list[str] = []
         additional: list[str] = []
