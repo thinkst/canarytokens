@@ -158,7 +158,7 @@ class ChannelDNS(InputChannel):
         log.info(f"Building A record: ip = {self.frontend_settings.PUBLIC_IP}")
         ttl = 10
         
-        if any([name.lower().decode() == d for d in self.canary_domains]):
+        if name.lower().decode() in self.canary_domains:
             # This is a resolution of the apex domain, not a token, so we can bump up the TTL
             ttl = 600 # 10 min seems plenty short enough to allow for IP changes without getting overloaded
 
