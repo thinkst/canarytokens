@@ -37,6 +37,12 @@ function handler(event) {
         } else {
             referer_origin = referer;
         }
+        if (referer_origin.indexOf(':') >= 0) {
+            // There is a port in the Referer (e.g., blah.com:443)
+            // Remove the port to get the raw origin domain
+            var domain_port = referer_origin.split(':');
+            referer_origin = domain_port[0];
+        }
     }
 
     if (expected_referrer == '')
@@ -44,11 +50,17 @@ function handler(event) {
     if (referer == '')
         console.log("Empty/missing Referer header for: " + expected_referrer);
 
-    if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer)) { // Happy case where the referer matches
+    if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer) || referer_origin.endsWith(event.context.distributionDomainName)) { 
+        // Happy case where the referer matches   
         return matching_ref_response;
     }
     if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
         // Special case of an MS login token came from login.microsoft.com instead of microsoftonline.com
+        // We still want to treat this as a good login since the referer is a valid MS domain
+        return matching_ref_response;
+    }
+    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('autologon.microsoftazuread-sso.com')) {
+        // Special case of an MS login token came from the Azure seamless SSO login instead of microsoftonline.com
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
