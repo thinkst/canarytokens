@@ -3,6 +3,6 @@
 
 <template>
   <main>
-    <h1>This is not a Home Page</h1>
+    <h1>Home Page Content</h1>
   </main>
 </template>
