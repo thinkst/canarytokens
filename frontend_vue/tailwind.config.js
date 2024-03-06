@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 export default {
   content: [
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -29,7 +30,7 @@ export default {
         '400': 'hsl(0, 0%, 58%)',
         '500': 'hsl(0, 0%, 43%)',
         DEFAULT: 'hsl(0, 0%, 85%)',
-        '600': 'hsl(0, 0%, 53%)',
+        '700': 'hsl(0, 0%, 53%)',
         '800': 'hsl(0, 0%, 27%)',
         '900': 'hsl(0, 0%, 24%)',
         '950': 'hsl(0, 0%, 15%)',
@@ -39,6 +40,7 @@ export default {
         '300': 'hsl(351, 100%, 81%)',
         DEFAULT: 'hsl(351, 85%, 44%)',
       },
+      'white': 'hsl(0, 0%, 100%)',
     },
     fontFamily: {
       'sans': ['Open Sans', 'Arial', 'sans-serif'],
@@ -46,5 +48,8 @@ export default {
     extend: {
     },
   },
-  plugins: [],
+  plugins: [
+    // eslint-disable-next-line no-undef
+    require('@tailwindcss/container-queries'),
+  ],
 }
