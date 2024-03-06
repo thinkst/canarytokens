@@ -16,6 +16,7 @@ chmod +x terraform-docs
 mv terraform-docs /usr/local/terraform-docs
 
 # Install mysql (default repos are broken for buster)
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.22-1_all.deb
 DEBIAN_FRONTEND=noninteractive dpkg -i mysql-apt-config_0.8.22-1_all.deb
 apt update
@@ -23,15 +24,9 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-client
 
 apt install -y wireguard-tools
 
-# curl -sSL https://install.python-poetry.org | POETRY_HOME=/home/vscode/.local python -
-# /home/vscode/.local/bin/poetry config virtualenvs.in-project true
-
-# wget https://golang.org/dl/go1.18.2.linux-amd64.tar.gz
-# tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz
-# /usr/local/go/bin/go install github.com/aquasecurity/tfsec/cmd/tfsec@latest
-
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg  https://dl.k8s.io/apt/doc/apt-key.gpg
-sudo install -o root -g root -m 644 /usr/share/keyrings/kubernetes-archive-keyring.gpg /etc/apt/trusted.gpg.d/
-sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-sudo apt-get update -y
-sudo apt-get install -y kubectl
+mkdir -p /etc/apt/keyrings
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 234654DA9A296436
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+apt-get update -y
+apt-get install -y kubectl=1.28.1-1.1

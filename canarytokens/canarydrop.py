@@ -457,8 +457,12 @@ class Canarydrop(BaseModel):
         self.user.do_accounting(canarydrop=self)
 
     def get_csv_incident_list(self) -> str:
+        def escape_csv_field(data) -> str:
+            data = f"'{data}"
+            return data
+
         csvOutput = io.StringIO()
-        writer = csv.writer(csvOutput)
+        writer = csv.writer(csvOutput, quoting=csv.QUOTE_ALL)
 
         if len(self.triggered_details.hits) > 0:  # pragma: no cover
             hit_class_dict = dict(self.triggered_details.hits[0])
@@ -476,7 +480,12 @@ class Canarydrop(BaseModel):
                 hit_dict = dict(hit)
                 data = [hit_id]
                 for key in headers:
-                    data.append(hit_dict.get(key, "N/A"))
+                    csv_field = hit_dict.get(key, "N/A")
+
+                    # The row includeds non-str objects, but they are all passed through __str__() by CSV writer,
+                    # so we sanitise those and add strings only to the row.
+                    csv_field = escape_csv_field(csv_field.__str__())
+                    data.append(csv_field)
                 writer.writerow(data)
         else:
             writer.writerow("the token has not been triggered")
