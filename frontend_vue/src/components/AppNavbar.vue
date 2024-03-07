@@ -8,6 +8,12 @@
                         {{ item.name }}
                     </RouterLink>
                 </li>
+                <li  class="cursor-pointer text-grey-400 hover:text-green">
+                    <a>
+                        <font-awesome-icon icon="link" class="w-[0.8rem]" />
+                        Documentation
+                    </a>
+                </li>
             </ul>
         </nav>
         <AppNavbarMenuMobile :menuItems="menuItems" />
@@ -22,7 +28,6 @@ import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue';
 const menuItems = [
     {name: 'Home', path: '/'},
     {name: 'About', path: '/about'},
-    {name: 'Documentation', path: '/documentation'}
 ]
 
 </script>
