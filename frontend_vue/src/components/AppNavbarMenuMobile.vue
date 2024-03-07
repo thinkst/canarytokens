@@ -1,17 +1,21 @@
 <template>
-    <button class="bg-green md:hidden w-[36px] h-[36px] rounded-full self-center mr-16" @click="handleShowMobileMenu">
-        <span v-if="showMobileMenu">X</span>
-        <span v-else>M</span>
+    <button :aria-expanded="showMobileMenu" aria-controls="mobile_menu" class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden hover:bg-grey-200 active:bg-green focus:bg-grey-200" @click="handleShowMobileMenu">
+    <Transition name="icon">
+        <span v-if="showMobileMenu" class="duration-300 ease-in-out transition-margin"><font-awesome-icon icon="xmark" /></span>
+        <span v-else class="duration-300 ease-in-out transition-margin"><font-awesome-icon icon="bars"/></span>
+    </Transition>
     </button>
-    <nav class="absolute w-full text-center md:hidden bg-green top-[80px] py-32 min-h-svh z-50" v-if="showMobileMenu">
-        <ul class="uppercase">
-            <li v-for="item in menuItems" :key="item.name" class="py-8">
-                <RouterLink :to="item.path" class="text-green-200 hover:text-white" @click="handleShowMobileMenu">
-                    {{ item.name }}
-                </RouterLink>
-            </li>
-        </ul>
-    </nav>
+    <Transition>
+        <nav role="navigation" id="mobile_menu" class="absolute transition-left ease-in-out duration-300 w-full text-center md:hidden bg-green top-[80px] py-32 min-h-svh z-50 motion-reduce:transition-none motion-reduce:hover:transform-none" v-if="showMobileMenu">
+            <ul class="uppercase">
+                <li v-for="item in menuItems" :key="item.name" class="py-8">
+                    <RouterLink :to="item.path" class="text-green-200 hover:text-white" @click="handleShowMobileMenu">
+                        {{ item.name }}
+                    </RouterLink>
+                </li>
+            </ul>
+        </nav>
+    </Transition>
 </template>
 
 <script setup lang="ts">
@@ -36,4 +40,38 @@ const showMobileMenu = ref(false)
 function handleShowMobileMenu() {
     showMobileMenu.value = !showMobileMenu.value;
 }
+
+
 </script>
+
+<style scoped lang="scss">
+
+.v-enter-to, .v-leave-from {
+  right: 0;
+}
+
+.v-enter-from, .v-leave-to {
+  right: -765px;
+}
+
+
+.icon-enter-to, .icon-leave-from {
+  margin-right: 0;
+}
+
+.icon-enter-from {
+  margin-right: -15px;
+}
+
+.icon-leave-to {
+  margin-left: -15px;
+}
+
+.icon-enter-active, .icon-leave-active {
+  opacity: 0;
+}
+
+
+
+
+</style>
