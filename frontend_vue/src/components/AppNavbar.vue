@@ -1,7 +1,7 @@
 <template>
     <div class="flex justify-between @container gap-24">
         <AppLogo class="px-16 py-24"/>
-        <nav class="items-center justify-end hidden w-full pr-32 md:flex">
+        <nav role="navigation" class="items-center justify-end hidden w-full pr-32 md:flex">
             <ul class="flex items-end pt-8 text-sm uppercase gap-x-24 lg:gap-x-32 font-regular">
                 <li v-for="item in menuItems" :key="item.name">
                     <RouterLink :to="item.path" class="text-grey-400 hover:text-green desktop-link">
