@@ -2,9 +2,9 @@
   <header>
       <AppNavbar />
   </header>
-  <main class="bg-grey-50 main-height">
+    <LayoutMain>
       <RouterView/>
-  </main>
+    </LayoutMain>
   <footer>
       <AppFooter />
   </footer>
@@ -14,14 +14,13 @@
 import { RouterLink, RouterView } from 'vue-router';
 import AppNavbar from '@/components/AppNavbar.vue';
 import AppFooter from '@/components/AppFooter.vue';
+import LayoutMain from '@/layout/LayoutMain.vue';
+
 
 </script>
 
 
 <style scoped>
 
-.main-height {
-  min-height: calc(100svh - (100px + 100px));
-}
 
 </style>
