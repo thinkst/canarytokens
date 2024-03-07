@@ -1,17 +1,23 @@
 <template>
     <button :aria-expanded="showMobileMenu" aria-controls="mobile_menu" class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden hover:bg-grey-200 active:bg-green focus:bg-grey-200" @click="handleShowMobileMenu">
     <Transition name="icon">
-        <span v-if="showMobileMenu" class="duration-300 ease-in-out transition-margin"><font-awesome-icon icon="xmark" /></span>
-        <span v-else class="duration-300 ease-in-out transition-margin"><font-awesome-icon icon="bars"/></span>
+        <span v-if="showMobileMenu" class="duration-300 ease-in-out transition-margin"><font-awesome-icon class="text-grey-500" icon="xmark" /></span>
+        <span v-else class="duration-300 ease-in-out transition-margin"><font-awesome-icon class="text-grey-500" icon="bars"/></span>
     </Transition>
     </button>
     <Transition>
         <nav role="navigation" id="mobile_menu" class="absolute transition-left ease-in-out duration-300 w-full text-center md:hidden bg-green top-[80px] py-32 min-h-svh z-50 motion-reduce:transition-none motion-reduce:hover:transform-none" v-if="showMobileMenu">
             <ul class="uppercase">
                 <li v-for="item in menuItems" :key="item.name" class="py-8">
-                    <RouterLink :to="item.path" class="text-green-200 hover:text-white" @click="handleShowMobileMenu">
+                    <RouterLink :to="item.path" class="text-green-200 hover:text-white mobile-link" @click="handleShowMobileMenu">
                         {{ item.name }}
                     </RouterLink>
+                </li>
+                <li class="py-8 text-green-200 cursor-pointer hover:text-white mobile-link" >
+                    <a>
+                        <font-awesome-icon icon="link" class="w-[0.8rem]" />
+                        Documentation
+                    </a>
                 </li>
             </ul>
         </nav>
@@ -45,6 +51,14 @@ function handleShowMobileMenu() {
 </script>
 
 <style scoped lang="scss">
+
+.mobile-link{
+    &.router-link-active {
+        color: hsl(0, 0%, 100%);
+        position: relative;
+    }
+
+}
 
 .v-enter-to, .v-leave-from {
   right: 0;
