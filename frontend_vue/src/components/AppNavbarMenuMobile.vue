@@ -1,8 +1,8 @@
 <template>
     <button :aria-expanded="showMobileMenu" aria-controls="mobile_menu" class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden hover:bg-grey-200 active:bg-green focus:bg-grey-200" @click="handleShowMobileMenu">
     <Transition name="icon">
-        <span v-if="showMobileMenu" class="duration-300 ease-in-out transition-margin"><font-awesome-icon class="text-grey-500" icon="xmark" /></span>
-        <span v-else class="duration-300 ease-in-out transition-margin"><font-awesome-icon class="text-grey-500" icon="bars"/></span>
+        <span v-if="showMobileMenu" class="duration-150 ease-in-out transition-margin"><font-awesome-icon class="text-grey-500" icon="xmark" /></span>
+        <span v-else class="duration-150 ease-in-out transition-margin"><font-awesome-icon class="text-grey-500" icon="bars"/></span>
     </Transition>
     </button>
     <Transition>
@@ -14,9 +14,8 @@
                     </RouterLink>
                 </li>
                 <li class="py-8 text-green-200 cursor-pointer hover:text-white mobile-link" >
-                    <a>
-                        <font-awesome-icon icon="link" class="w-[0.8rem]" />
-                        Documentation
+                    <a href="#">
+                        <font-awesome-icon icon="link" class="w-[0.8rem] pr-8" />Documentation
                     </a>
                 </li>
             </ul>
