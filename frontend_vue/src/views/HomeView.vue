@@ -1,6 +1,6 @@
 <template>
   <AppLayoutGrid>
-    <h1>Home Page Content</h1>
+    <div>Home</div>
   </AppLayoutGrid>
 </template>
 
