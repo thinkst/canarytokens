@@ -14,7 +14,8 @@ from fastapi.responses import JSONResponse
 from functools import cached_property
 from io import BytesIO, StringIO
 from ipaddress import IPv4Address
-from tempfile import SpooledTemporaryFile
+
+# from tempfile import SpooledTemporaryFile
 from typing import (
     Any,
     Dict,
@@ -28,7 +29,7 @@ from typing import (
     Union,
 )
 
-from fastapi import Response
+from fastapi import Response, UploadFile
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
@@ -543,7 +544,7 @@ class SvnTokenRequest(TokenRequest):
 class UploadedExe(BaseModel):
     content_type: Literal["application/x-msdownload", "application/octet-stream"]
     filename: str
-    file: SpooledTemporaryFile
+    file: UploadFile
 
     class Config:
         arbitrary_types_allowed = True
@@ -557,7 +558,7 @@ class CustomBinaryTokenRequest(TokenRequest):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {
-            SpooledTemporaryFile: lambda v: v.__dict__,
+            UploadFile: lambda v: v.__dict__,
             BytesIO: lambda v: v.__dict__,
         }
 
@@ -565,11 +566,15 @@ class CustomBinaryTokenRequest(TokenRequest):
 class UploadedImage(BaseModel):
     content_type: Literal["image/png", "image/gif", "image/jpeg"]
     filename: str
-    file: SpooledTemporaryFile
+    file: UploadFile
 
     class Config:
         arbitrary_types_allowed = True
         orm_mode = True
+        json_encoders = {
+            UploadFile: lambda v: v.__dict__,
+            BytesIO: lambda v: v.__dict__,
+        }
 
 
 class CustomImageTokenRequest(TokenRequest):
@@ -579,7 +584,7 @@ class CustomImageTokenRequest(TokenRequest):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {
-            SpooledTemporaryFile: lambda v: v.__dict__,
+            UploadFile: lambda v: v.__dict__,
             BytesIO: lambda v: v.__dict__,
         }
 
@@ -1421,7 +1426,7 @@ class AWSKeyTokenHit(TokenHit):
 
 
 class SlackAPITokenHit(TokenHit):
-    token_type: Literal[TokenTypes.SLACK_API] = Literal[TokenTypes.SLACK_API]
+    token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
     additional_info: Optional[dict]
 
     def serialize_for_v2(self) -> dict:
@@ -1684,7 +1689,7 @@ class AzureIDTokenHistory(TokenHistory):
 
 class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
     token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
-    hits: List[SlackAPITokenHit] = []
+    hits: List[SlackAPITokenHit]
 
 
 class DNSTokenHistory(TokenHistory[DNSTokenHit]):
@@ -2511,8 +2516,8 @@ AnySettingsRequest = Annotated[
 ]
 
 
-class SettingsResponse(Response):
-    result: Literal["success", "failure"]
+class SettingsResponse(BaseModel):
+    message: Literal["success", "failure"]
 
 
 class ManageTokenSettingsRequest(BaseModel):
@@ -2524,3 +2529,14 @@ class ManageTokenSettingsRequest(BaseModel):
     web_image_enable: Optional[Literal["on", "off"]]
     browser_scanner_enable: Optional[Literal["on", "off"]]
     # Add validation for the token and auth fields
+
+
+class ManageResponse(BaseModel):
+    canarydrop: Dict
+    public_ip: str
+    wg_private_key_seed: str
+    wg_private_key_n: str
+    wg_conf: Optional[str]
+    wg_qr_code: Optional[str]
+    qr_code: Optional[str]
+    force_https: Optional[bool]
