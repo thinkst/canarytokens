@@ -2,19 +2,19 @@
   <header>
       <AppNavbar />
   </header>
-    <LayoutMain>
+    <AppLayout>
       <RouterView/>
-    </LayoutMain>
+    </AppLayout>
   <footer>
       <AppFooter />
   </footer>
 </template>
 
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterView } from 'vue-router';
 import AppNavbar from '@/components/AppNavbar.vue';
 import AppFooter from '@/components/AppFooter.vue';
-import LayoutMain from '@/layout/LayoutMain.vue';
+import AppLayout from '@/layout/AppLayout.vue';
 
 
 </script>
