@@ -1,4 +1,3 @@
-
 <template>
   <AppLayoutOneColumn>
     <h1>Manage Page Content</h1>
@@ -10,5 +9,4 @@ import AppLayoutOneColumn from '@/layout/AppLayoutOneColumn.vue';
 
 </script>
 
-<style>
-</style>
+<style></style>
