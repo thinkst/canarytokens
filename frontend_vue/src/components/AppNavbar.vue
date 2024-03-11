@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-between @container gap-24">
-        <AppLogo class="px-16 py-24"/>
+        <AppLogo class="px-32 py-24"/>
         <nav role="navigation" class="items-center justify-end hidden w-full pr-32 md:flex">
             <ul class="flex items-end pt-8 text-sm uppercase gap-x-24 lg:gap-x-32 font-regular">
                 <li v-for="item in menuItems" :key="item.name">
@@ -9,9 +9,8 @@
                     </RouterLink>
                 </li>
                 <li  class="cursor-pointer text-grey-400 hover:text-green">
-                    <a>
-                        <font-awesome-icon icon="link" class="w-[0.8rem]" />
-                        Documentation
+                    <a href="#">
+                        <font-awesome-icon icon="link" class="w-[0.8rem] pr-8" />Documentation
                     </a>
                 </li>
             </ul>
@@ -27,7 +26,7 @@ import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue';
 
 const menuItems = [
     {name: 'Home', path: '/'},
-    {name: 'About', path: '/about'},
+    {name: 'Manage', path: '/manage'},
 ]
 
 </script>
