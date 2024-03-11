@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-between @container gap-24">
-        <AppLogo class="px-32 py-24"/>
+        <AppLogo class="px-32 py-24" />
         <nav role="navigation" class="items-center justify-end hidden w-full pr-32 md:flex">
             <ul class="flex items-end pt-8 text-sm uppercase gap-x-24 lg:gap-x-32 font-regular">
                 <li v-for="item in menuItems" :key="item.name">
@@ -8,7 +8,7 @@
                         {{ item.name }}
                     </RouterLink>
                 </li>
-                <li  class="cursor-pointer text-grey-400 hover:text-green">
+                <li class="cursor-pointer text-grey-400 hover:text-green">
                     <a href="#">
                         <font-awesome-icon icon="link" class="w-[0.8rem] pr-8" />Documentation
                     </a>
@@ -20,28 +20,26 @@
 </template>
 
 <script setup lang="ts">
-import AppLogo from './AppLogo.vue';
+import AppLogo from './AppLogo.vue'
 import { RouterLink } from 'vue-router'
-import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue';
+import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue'
 
 const menuItems = [
-    {name: 'Home', path: '/'},
-    {name: 'Manage', path: '/manage'},
+    { name: 'Home', path: '/' },
+    { name: 'Manage', path: '/manage' },
 ]
-
 </script>
 
 <style scoped lang="scss">
-
 // there's a way to expose RouterLink classes for tailwind
 // but it's quite cumbersome and I'd avoid it
 // https://router.vuejs.org/guide/advanced/extending-router-link
-.desktop-link{
+.desktop-link {
     &.router-link-active {
         color: hsl(152, 59%, 48%);
         position: relative;
 
-        &::after{
+        &::after {
             content: '';
             position: absolute;
             top: -3px;
@@ -52,7 +50,5 @@ const menuItems = [
             background-color: hsl(351, 85%, 44%);
         }
     }
-
 }
-
 </style>
