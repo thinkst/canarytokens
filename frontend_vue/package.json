@@ -21,6 +21,7 @@
     "@vue/test-utils": "^2.4.4",
     "axios": "^1.6.7",
     "vue": "^3.4.15",
+    "vue-final-modal": "^4.5.4",
     "vue-router": "^4.2.5",
     "vuelidate": "^0.7.7"
   },
