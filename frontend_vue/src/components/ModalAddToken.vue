@@ -1,5 +1,5 @@
 <template>
-    <BaseModal :title="title" :hasBackButton="hasBackButton">
+    <BaseModal :title="title" :hasBackButton="hasBackButton" @handleBackButton="handleBackButton">
         <template v-if="!isLoading">
             <ModalContentAddToken v-if="modalType === ModalType.AddToken" />
             <ModalContentNewToken v-if="modalType === ModalType.NewToken" />
@@ -70,6 +70,10 @@ function handleHowToUse() {
 
 function handleManageToken() {
     console.log('manage token')
+}
+
+function handleBackButton() {
+    modalType.value = ModalType.HowToUse
 }
 
 

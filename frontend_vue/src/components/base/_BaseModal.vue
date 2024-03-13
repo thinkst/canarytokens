@@ -3,7 +3,8 @@
         content-class="bg-grey-50 rounded-lg text-grey-800 min-w-96 lg:max-w-[70vw] mx-16 ">
         <!-- header -->
         <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
-            <button type="button" class="absolute top-[52px] left-[30px]" v-if="hasBackButton">
+            <button type="button" class="absolute top-[52px] left-[30px]" v-if="hasBackButton"
+                @click="emit('handleBackButton', false)">
                 <font-awesome-icon icon="angle-left" class="w-6 h-6 hover:text-grey-400" />
             </button>
             <h1 class="pt-16 text-2xl font-semibold text-center">
@@ -31,7 +32,7 @@ defineProps<{
 }>()
 
   const emit = defineEmits<{
-  (e: 'confirm'): void,
+  (e: 'confirm'): void, (e: 'handleBackButton'): void,
   }>()
 
 
