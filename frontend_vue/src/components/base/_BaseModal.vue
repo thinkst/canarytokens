@@ -4,13 +4,13 @@
         <!-- header -->
         <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
             <button type="button" class="absolute top-[52px] left-[30px]" v-if="hasBackButton"
-                @click="emit('handleBackButton')">
+                @click="emit('update:modelValue')">
                 <font-awesome-icon icon="angle-left" class="w-6 h-6 hover:text-grey-400" />
             </button>
             <h1 class="pt-16 text-2xl font-semibold text-center">
                 {{ title }}
             </h1>
-            <button type="button" class="absolute top-[20px] right-[30px]" @click="emit('update:modelValue', false)">
+            <button type="button" class="absolute top-[20px] right-[30px]" @click="emit('handleBackButton', false)">
                 <font-awesome-icon icon="xmark" class="w-6 h-6 hover:text-grey-400" />
             </button>
         </div>
@@ -32,7 +32,7 @@ defineProps<{
 }>()
 
   const emit = defineEmits<{
-  (e: 'confirm'): void, (e: 'handleBackButton'): void,
+  (e: 'update:modelValue'): void, (e: 'handleBackButton', value: false): void,
   }>()
 
 

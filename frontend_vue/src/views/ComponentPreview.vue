@@ -1,14 +1,14 @@
 <template>
-    <div class="flex flex-col w-[200px] gap-16">
-        <h1>Buttons</h1>
-        <base-button>Primary</base-button>
-        <base-button variant="secondary">Secondary</base-button>
-        <base-button variant="text">Text!!</base-button>
-    </div>
-    <div class="flex flex-col w-[200px] gap-16">
-        <h1>Modal</h1>
-        <button @click="() => open()">Check modal</button>
-    </div>
+  <div class="flex flex-col w-[200px] gap-16">
+    <h1>Buttons</h1>
+    <base-button>Primary</base-button>
+    <base-button variant="secondary">Secondary</base-button>
+    <base-button variant="text">Text!!</base-button>
+  </div>
+  <div class="flex flex-col w-[200px] gap-16">
+    <h1>Modal</h1>
+    <BaseButton @click="() => open()">Check modal</BaseButton>
+  </div>
 </template>
 
 <script setup lang="ts">
