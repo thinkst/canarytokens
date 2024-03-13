@@ -1,6 +1,6 @@
 <template>
   <AppLayoutOneColumn>
-    <h1>Manage Page Content</h1>
+    <div>Content</div>
   </AppLayoutOneColumn>
 </template>
 
