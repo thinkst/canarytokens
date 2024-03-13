@@ -5,8 +5,19 @@
         <base-button variant="secondary">Secondary</base-button>
         <base-button variant="text">Text!!</base-button>
     </div>
+    <div class="flex flex-col w-[200px] gap-16">
+        <h1>Modal</h1>
+        <button @click="() => open()">Check modal</button>
+    </div>
 </template>
 
 <script setup lang="ts">
 // TODO: remove this view - for internal use only
+import { useModal } from 'vue-final-modal'
+import ModalAddToken from '@/components/ModalAddToken.vue';
+
+  const { open } = useModal({
+    component: ModalAddToken,
+  })
+
 </script>

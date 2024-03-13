@@ -4,7 +4,7 @@
         <!-- header -->
         <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
             <button type="button" class="absolute top-[52px] left-[30px]" v-if="hasBackButton"
-                @click="emit('handleBackButton', false)">
+                @click="emit('handleBackButton')">
                 <font-awesome-icon icon="angle-left" class="w-6 h-6 hover:text-grey-400" />
             </button>
             <h1 class="pt-16 text-2xl font-semibold text-center">
@@ -56,7 +56,7 @@ defineProps<{
 
     & .modal-footer {
         display: flex;
-        padding: 16px;
+        padding: 32px;
         margin-top: 32px;
         background-color: white;
         border-bottom-left-radius: 0.5rem;
@@ -64,6 +64,7 @@ defineProps<{
         justify-content: center;
         text-align: center;
         align-items: center;
+        gap: 8px;
     }
 
 }

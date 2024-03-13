@@ -8,18 +8,20 @@
         <p v-else>Loading</p>
 
         <!-- footer -->
-        <div class="modal-footer" v-if="modalType === ModalType.AddToken">
-            <button @click="handleAddToken">Add</button>
-        </div>
+        <template v-if="!isLoading">
+            <div class="modal-footer" v-if="modalType === ModalType.AddToken">
+                <BaseButton variant="secondary" @click="handleAddToken">Create Token</BaseButton>
+            </div>
 
-        <div class="modal-footer" v-if="modalType === ModalType.NewToken">
-            <button @click="handleHowToUse">How to use</button>
-            <button @click="handleManageToken">Manage Token</button>
-        </div>
+            <div class="modal-footer" v-if="modalType === ModalType.NewToken">
+                <BaseButton variant="secondary" @click="handleHowToUse">How to use</BaseButton>
+                <BaseButton variant="secondary" @click="handleManageToken">Manage Token</BaseButton>
+            </div>
 
-        <div class="modal-footer" v-if="modalType === ModalType.HowToUse">
-            <button @click="handleManageToken">Manage Token</button>
-        </div>
+            <div class="modal-footer" v-if="modalType === ModalType.HowToUse">
+                <BaseButton variant="secondary" @click="handleManageToken">Manage Token</BaseButton>
+            </div>
+        </template>
     </BaseModal>
 
 </template>
@@ -73,7 +75,7 @@ function handleManageToken() {
 }
 
 function handleBackButton() {
-    modalType.value = ModalType.HowToUse
+    modalType.value = ModalType.NewToken
 }
 
 
