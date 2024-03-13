@@ -46,6 +46,11 @@ export default {
       'sans': ['Open Sans', 'Arial', 'sans-serif'],
     },
     extend: {
+      boxShadow: ({ theme }) => ({
+        'solid-shadow-green': `0px 0.25rem 0px 0px  ${theme('colors.green.700')}`,
+        'solid-shadow-grey': `0px 0.25rem 0px 0px  ${theme('colors.grey.300')}`,
+
+      })
     },
   },
   plugins: [
