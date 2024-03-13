@@ -8,19 +8,19 @@
         <p v-else>Loading</p>
 
         <!-- footer -->
-        <template v-if="!isLoading">
-            <div class="modal-footer" v-if="modalType === ModalType.AddToken">
+        <template v-slot:footer v-if="!isLoading">
+            <template v-if="modalType === ModalType.AddToken">
                 <BaseButton variant="secondary" @click="handleAddToken">Create Token</BaseButton>
-            </div>
+            </template>
 
-            <div class="modal-footer" v-if="modalType === ModalType.NewToken">
+            <template v-if="modalType === ModalType.NewToken">
                 <BaseButton variant="secondary" @click="handleHowToUse">How to use</BaseButton>
                 <BaseButton variant="secondary" @click="handleManageToken">Manage Token</BaseButton>
-            </div>
+            </template>
 
-            <div class="modal-footer" v-if="modalType === ModalType.HowToUse">
+            <template v-if="modalType === ModalType.HowToUse">
                 <BaseButton variant="secondary" @click="handleManageToken">Manage Token</BaseButton>
-            </div>
+            </template>
         </template>
     </BaseModal>
 

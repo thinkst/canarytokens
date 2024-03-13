@@ -16,10 +16,16 @@
         </div>
 
         <!-- content -->
-        <div class="pt-16 rounded-b-lg max-w-2lg bg-grey-50 modal-classes text-grey-800">
-
+        <div
+            class="flex flex-col items-center justify-center px-32 py-16 rounded-b-lg max-w-2lg bg-grey-50 text-grey-800">
             <slot></slot>
         </div>
+
+        <!-- footer -->
+        <div class="flex items-center justify-center gap-8 py-24 mt-16 text-center bg-white rounded-b-lg">
+            <slot name="footer"></slot>
+        </div>
+
     </VueFinalModal>
 </template>
 
@@ -42,30 +48,5 @@ defineProps<{
 .blur-bg {
     background: rgba(149, 149, 149, 0.25) !important;
     backdrop-filter: blur(3px);
-}
-
-.modal-classes {
-
-    & .modal-content {
-        padding: 0 32px;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    & .modal-footer {
-        display: flex;
-        padding: 32px;
-        margin-top: 32px;
-        background-color: white;
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        justify-content: center;
-        text-align: center;
-        align-items: center;
-        gap: 8px;
-    }
-
 }
 </style>
