@@ -26,7 +26,7 @@ describe('BaseButton', () => {
     })
 
     test('renders button with primary variant by default', async () => {
-        expect(wrapper.classes()).toContain('bg-green')
+        expect(wrapper.classes()).toContain('primary')
     })
 
     test('renders button with secondary variant', async () => {
@@ -35,7 +35,7 @@ describe('BaseButton', () => {
             variant: 'secondary'
             },
         })
-        expect(wrapper.classes()).toContain('bg-transparent')
+        expect(wrapper.classes()).toContain('secondary')
     })
 
     test('renders button with primary variant when prop has a wrong name', async () => {
@@ -45,17 +45,15 @@ describe('BaseButton', () => {
             variant: 'wrong-prop-name'
             },
         })
-        expect(wrapper.classes()).toContain('bg-green')
+        expect(wrapper.classes()).toContain('primary')
     })
 
     test('renders button with text variant', () => {
         const wrapper = mount(BaseButton, {
         props: { variant: 'text' }
         })
-        const expectedClasses = ['font-semibold', 'hover:text-green-500', 'focus:text-green-800', 'text-grey-500', 'rounded-full', 'px-16', 'py-8'];
-        expectedClasses.forEach(expectedClass => {
-            expect(wrapper.classes()).toContain(expectedClass);
-        });
+        expect(wrapper.classes()).toContain('text')
+
     })
 
 })
