@@ -13,6 +13,8 @@ export default {
     },
     colors: {
       'green': {
+        '50': 'hsl(142, 65%, 97%)',
+        '100': 'hsl(148, 68%, 93%)',
         '200': 'hsl(141, 75%, 76%)',
         '300': 'hsl(147, 71%, 63%)',
         DEFAULT: 'hsl(152, 59%, 48%)',
@@ -47,8 +49,9 @@ export default {
     },
     extend: {
       boxShadow: ({ theme }) => ({
-        'solid-shadow-green': `0px 0.25rem 0px 0px  ${theme('colors.green.700')}`,
-        'solid-shadow-grey': `0px 0.25rem 0px 0px  ${theme('colors.grey.300')}`,
+        'solid-shadow-green': `0px 0.15rem 0px 0px  ${theme('colors.green.700')}`,
+        'solid-shadow-green-300': `0px 0.15rem 0px 0px  ${theme('colors.green.300')}`,
+        'solid-shadow-grey': `0px 0.15rem 0px 0px  ${theme('colors.grey.300')}`,
 
       })
     },

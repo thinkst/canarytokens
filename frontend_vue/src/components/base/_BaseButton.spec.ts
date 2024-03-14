@@ -41,6 +41,7 @@ describe('BaseButton', () => {
     test('renders button with primary variant when prop has a wrong name', async () => {
         wrapper = mount(BaseButton, {
             props: {
+            //@ts-ignore
             variant: 'wrong-prop-name'
             },
         })
@@ -51,7 +52,7 @@ describe('BaseButton', () => {
         const wrapper = mount(BaseButton, {
         props: { variant: 'text' }
         })
-        const expectedClasses = ['font-semibold', 'hover:text-green-800', 'focus:text-green-800', 'text-grey-500', 'rounded-full', 'px-16', 'py-8'];
+        const expectedClasses = ['font-semibold', 'hover:text-green-500', 'focus:text-green-800', 'text-grey-500', 'rounded-full', 'px-16', 'py-8'];
         expectedClasses.forEach(expectedClass => {
             expect(wrapper.classes()).toContain(expectedClass);
         });
