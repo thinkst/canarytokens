@@ -31,24 +31,25 @@ const menuItems = [
 </script>
 
 <style scoped lang="scss">
-// there's a way to expose RouterLink classes for tailwind
-// but it's quite cumbersome and I'd avoid it
-// https://router.vuejs.org/guide/advanced/extending-router-link
-.desktop-link {
-    &.router-link-active {
-        color: hsl(152, 59%, 48%);
-        position: relative;
 
-        &::after {
-            content: '';
-            position: absolute;
-            top: -3px;
-            right: -10px;
-            width: 6px;
-            height: 6px;
-            border-radius: 3px;
-            background-color: hsl(351, 85%, 44%);
+    // there's a way to expose RouterLink classes for tailwind
+    // but it's quite cumbersome and I'd avoid it
+    // https://router.vuejs.org/guide/advanced/extending-router-link
+    .desktop-link {
+        &.router-link-active {
+            color: hsl(152, 59%, 48%);
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: -3px;
+                right: -10px;
+                width: 6px;
+                height: 6px;
+                border-radius: 3px;
+                background-color: hsl(351, 85%, 44%);
+            }
         }
     }
-}
 </style>
