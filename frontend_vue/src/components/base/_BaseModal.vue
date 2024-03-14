@@ -1,6 +1,6 @@
 <template>
-    <!-- @vue-expect-error content-transition type error -->
-    <VueFinalModal class="flex items-center justify-center" overlay-class="blur-bg"
+    <!-- @vue-expect-error content-transition ts error -->
+    <VueFinalModal class="flex items-center justify-center modal" overlay-class="blur-bg"
         content-class="bg-grey-50 rounded-lg text-grey-800 min-w-96 lg:max-w-[70vw] mx-16"
         @update:model-value="val => emit('update:modelValue', val)" overlay-transition="vfm-fade"
         :content-transition="modalCustomTransition" esc-to-close>
@@ -40,20 +40,20 @@ defineProps<{
     title: string
 }>()
 
-    const emit = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void, (e: 'handleBackButton', value: false): void,
-    }>()
+const emit = defineEmits<{
+(e: 'update:modelValue', value: boolean): void, (e: 'handleBackButton', value: false): void,
+}>()
 
-    const modalCustomTransition = {
-        'enter-active-class': 'ease-out duration-300',
-        'enter-from-class':
-            'opacity-0 translate-y-[-2vh] sm_translate-y-0 sm_scale-95',
-        'enter-to-class': 'opacity-100 translate-y-0 sm_scale-100',
-        'leave-active-class': 'ease-in duration-200',
-        'leave-from-class': 'opacity-100 translate-y-0 sm_scale-100',
-        'leave-to-class':
-            'opacity-0 translate-y-[-2vh] sm_translate-y-0 sm_scale-95',
-    }
+const modalCustomTransition = {
+    'enter-active-class': 'ease-out duration-300',
+    'enter-from-class':
+        'opacity-0 translate-y-[-2vh] sm_translate-y-0 sm_scale-95',
+    'enter-to-class': 'opacity-100 translate-y-0 sm_scale-100',
+    'leave-active-class': 'ease-in duration-200',
+    'leave-from-class': 'opacity-100 translate-y-0 sm_scale-100',
+    'leave-to-class':
+        'opacity-0 translate-y-[-2vh] sm_translate-y-0 sm_scale-95',
+}
 
 
 </script>
