@@ -4,12 +4,19 @@ require('@rushstack/eslint-patch/modern-module-resolution')
 module.exports = {
   root: true,
   'extends': [
-    'plugin:vue/vue3-essential',
+    'plugin:vue/vue3-recommended',
     'eslint:recommended',
     '@vue/eslint-config-typescript',
-    '@vue/eslint-config-prettier/skip-formatting'
+    "prettier"
   ],
+  parser: 'vue-eslint-parser',
   parserOptions: {
     ecmaVersion: 'latest'
+  },
+  rules: {
+    'vue/first-attribute-linebreak': ['error', {
+      "singleline": "beside",
+      "multiline": "below"
+    }]
   }
 }
