@@ -1,9 +1,11 @@
 <template>
   <a
-    class="inline-flex hover:text-green-700 text-grey-400 bg-transparent border border-solid rounded-full border-grey-200 w-[1.2rem] h-[1.2rem] justify-center items-center"
+    class="inline-flex hover:text-green-700 text-grey-400 bg-transparent border border-solid rounded-full border-grey-200 hover:border-green-500 w-[1.2rem] h-[1.2rem] justify-center items-center my-8 mx-8"
     :href="link"
     target="_blank"
     @click="handleClick"
+    @keyup.enter="handleClick"
+    :aria-label="`Check ${title} documentation`"
   >
     <font-awesome-icon
       icon="question"
@@ -21,6 +23,11 @@
 <script setup lang="ts">
 defineProps<{
   link: string;
+  title?: {
+    type: string;
+    required: true;
+    default: '';
+  };
 }>();
 
 function handleClick(e: Event) {
