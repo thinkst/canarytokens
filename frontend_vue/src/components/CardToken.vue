@@ -1,12 +1,12 @@
 <template>
-  <li class="relative flex token-card__wrapper">
+  <li class="relative flex">
 
     <button
       class="relative border flex-1 group flex flex-col px-24 py-32 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"
     >
       <img
-        src="@/assets/token_icons/s3_bucket.png"
+        :src="getImgUrl(logoImgUrl)"
         class="w-[4rem]"
         aria-hidden="true"
         :alt="`${title} logo`"
@@ -40,11 +40,14 @@
 </template>
 
 <script setup lang="ts">
+import useImage from '@/composables/useImage';
+
+const { getImgUrl } = useImage();
 
 const props = defineProps<{
   description: string;
-  title: string;
-  logo: string;
+  title?: string;
+  logoImgUrl: string;
   documentationLink: string;
 }>();
 
@@ -58,22 +61,11 @@ function handleClickToken(e: Event) {
 </script>
 
 <style scoped>
-.token-card__wrapper:hover, 
-.token-card__wrapper:focus, 
-.token-card__wrapper:focus-visible {
-  
-  > .token-card__documentation-link {
-    top: -0.2em;
-  }
-
-}
 
 .token-card:hover + .token-card__documentation-link,
 .token-card:focus + .token-card__documentation-link,
-.token-card:focus-visible + .token-card__documentation-link  {
-
-    top: -0.2em;
-
+.token-card:focus-visible + .token-card__documentation-link {
+  top: -0.2em;
 }
 
 .token-card:hover,

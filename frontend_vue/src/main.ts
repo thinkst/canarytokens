@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import './style.css'
 //@ts-ignore
-import registertBaseComponents from '@/components/base/_index.js';
+import registertBaseComponents from '@/components/base/_index.ts';
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faBars, faXmark, faLink, faQuestion, faCircleQuestion, faAngleLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
@@ -20,6 +20,7 @@ const vfm = createVfm()
 app.use(vfm)
 
 registertBaseComponents(app);
+
 app.use(router)
 
 app.mount('#app')
