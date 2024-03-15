@@ -5,18 +5,16 @@ module.exports = {
   root: true,
   'extends': [
     'plugin:vue/vue3-recommended',
-    'eslint:recommended',
-    '@vue/eslint-config-typescript',
-    "prettier"
+    '@vue/eslint-config-typescript/recommended',
+    'prettier',
+    'plugin:vuejs-accessibility/recommended',
   ],
   parser: 'vue-eslint-parser',
   parserOptions: {
     ecmaVersion: 'latest'
   },
   rules: {
-    'vue/first-attribute-linebreak': ['error', {
-      "singleline": "beside",
-      "multiline": "below"
-    }]
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-explicit-any": "off",
   }
 }

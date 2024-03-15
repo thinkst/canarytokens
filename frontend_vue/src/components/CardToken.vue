@@ -1,16 +1,15 @@
 <template>
   <li class="relative flex">
-
     <button
       class="relative border flex-1 group flex flex-col px-24 py-32 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"
     >
       <img
-        :src="getImgUrl(logoImgUrl)"
-        class="w-[4rem]"
+        :src="getImgUrl(tokenLogoUrl)"
+        class="h-[4rem]"
         aria-hidden="true"
         :alt="`${title} logo`"
-      ></img>
+      />
       <span class="py-16 font-semibold leading-5 text-center text-grey-800">
         {{ title }}
       </span>
@@ -28,14 +27,13 @@
         <span class="fa-sr-only">Add {{ title }}</span>
       </span>
     </button>
-    
+
     <BaseLinkDocumentation
       :link="documentationLink"
       class="absolute z-10 top-[9px] left-[8px] cursor-pointer transition-all duration-100 ease-in-out token-card__documentation-link"
       tabindex="0"
       :title="title"
     />
-
   </li>
 </template>
 
@@ -44,24 +42,29 @@ import useImage from '@/composables/useImage';
 
 const { getImgUrl } = useImage();
 
-const props = defineProps<{
-  description: string;
-  title?: string;
-  logoImgUrl: string;
-  documentationLink: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    description: string;
+    title: string;
+    logoImgUrl: string;
+    documentationLink: string;
+  }>(),
+  {
+    logoImgUrl: 'default.png',
+  }
+);
+
+const tokenLogoUrl = `token_icons/${props.logoImgUrl}`;
 
 const emit = defineEmits(['clickToken']);
 
-function handleClickToken(e: Event) {
+function handleClickToken() {
   emit('clickToken');
   console.log(`selected ${props.title} token`);
 }
-
 </script>
 
 <style scoped>
-
 .token-card:hover + .token-card__documentation-link,
 .token-card:focus + .token-card__documentation-link,
 .token-card:focus-visible + .token-card__documentation-link {
