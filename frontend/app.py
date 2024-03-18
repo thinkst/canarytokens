@@ -390,7 +390,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         canarytoken=canarytoken,
         memo=token_request_details.memo,
         browser_scanner_enabled=False,
-        # Drop details to fullfil the tokens promise.
+        # Drop details to fulfil the tokens promise.
         # TODO: move all token type specific canary drop
         #       attribute setting into `create_response`
         #       which is already doing the type dispatch for us.
