@@ -482,7 +482,7 @@ class Canarydrop(BaseModel):
                 for key in headers:
                     csv_field = hit_dict.get(key, "N/A")
 
-                    # The row includeds non-str objects, but they are all passed through __str__() by CSV writer,
+                    # The row includes non-str objects, but they are all passed through __str__() by CSV writer,
                     # so we sanitise those and add strings only to the row.
                     csv_field = escape_csv_field(csv_field.__str__())
                     data.append(csv_field)
