@@ -10,20 +10,15 @@
       class="toggle"
       :checked="model"
       :aria-checked="model"
-      :aria-labelledby="`${id}-label`"
     />
-    <label
-      v-if="label"
-      :for="id"
-      >{{ label }}</label
-    >
+    <label :for="id">{{ label }}</label>
   </div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
   id: string;
-  label?: string;
+  label: string;
 }>();
 
 const model = defineModel<boolean>();
