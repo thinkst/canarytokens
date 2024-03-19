@@ -1,14 +1,14 @@
 <template>
-    <div class="grid layout-grid">
-        <slot></slot>
-    </div>
+  <ul class="grid layout-grid">
+    <slot></slot>
+  </ul>
 </template>
 
 <script setup lang="ts"></script>
 
 <style scoped>
 .layout-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
 }
 </style>
