@@ -2,7 +2,7 @@
 // will be used very frequently. Components are registered using the
 // PascalCased version of their file name.
 
-function registertBaseComponents(app) {
+function registertBaseComponents(app: any) {
     const componentFiles = import.meta.glob(
         './_Base*.vue', { eager: true }
     );
@@ -10,7 +10,7 @@ function registertBaseComponents(app) {
 
     Object.entries(componentFiles).forEach(([path, m]) => {
         // Get the component config
-        const componentConfig = m;
+        const componentConfig: any = m;
         // Get the PascalCase version of the component name
         const componentName = path
             // Remove the "./_" from the beginning
