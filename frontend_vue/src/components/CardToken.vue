@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import useImage from '@/composables/useImage';
 
-const { getImgUrl } = useImage();
+const emit = defineEmits(['clickToken']);
 
 const props = withDefaults(
   defineProps<{
@@ -52,15 +52,14 @@ const props = withDefaults(
   {
     logoImgUrl: 'default.png',
   }
-);
+  );
+  
+const { getImgUrl } = useImage();
 
 const tokenLogoUrl = `token_icons/${props.logoImgUrl}`;
 
-const emit = defineEmits(['clickToken']);
-
 function handleClickToken() {
   emit('clickToken');
-  console.log(`selected ${props.title} token`);
 }
 </script>
 
