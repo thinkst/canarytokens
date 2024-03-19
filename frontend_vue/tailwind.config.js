@@ -50,6 +50,7 @@ export default {
     extend: {
       boxShadow: ({ theme }) => ({
         'solid-shadow-green': `0px 0.15rem 0px 0px  ${theme('colors.green.700')}`,
+        'solid-shadow-green-500-md': `0px 0.45rem 0px 0px  ${theme('colors.green.500')}`,
         'solid-shadow-green-300': `0px 0.15rem 0px 0px  ${theme('colors.green.300')}`,
         'solid-shadow-grey': `0px 0.15rem 0px 0px  ${theme('colors.grey.300')}`,
 
