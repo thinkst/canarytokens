@@ -1,4 +1,5 @@
 import { mount, VueWrapper } from '@vue/test-utils'
+import { vi } from 'vitest';
 import BaseButton from './_BaseButton.vue'
 
 let wrapper: VueWrapper;
