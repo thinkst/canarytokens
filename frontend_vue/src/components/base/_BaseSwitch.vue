@@ -83,11 +83,11 @@ input[type='checkbox'].toggle:checked + label::after {
   background-color: white;
 }
 
-input[type='checkbox'].toggle:focus + label::after {
+input[type='checkbox'].toggle:enabled:focus + label::after {
   outline: 0.8em solid hsla(0, 0%, 43%, 0.2);
 }
 
-input[type='checkbox'].toggle:active + label::after {
+input[type='checkbox'].toggle:enabled:active + label::after {
   outline: 0.8em solid hsla(0, 0%, 43%, 0.2);
   width: 2.1em;
   height: 2.1em;
