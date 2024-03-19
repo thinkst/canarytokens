@@ -12,12 +12,12 @@
 </template>
 
 <script setup lang="ts">
-// TODO: remove this view - for internal use only
-import { useModal } from 'vue-final-modal'
+// For internal use only
+// TODO: show this component only for DEV env or behind VPN
+import { useModal } from 'vue-final-modal';
 import ModalAddToken from '@/components/ModalAddToken.vue';
 
-  const { open } = useModal({
-    component: ModalAddToken,
-  })
-
+const { open } = useModal({
+  component: ModalAddToken,
+});
 </script>
