@@ -9,6 +9,10 @@
     <h1>Modal</h1>
     <BaseButton @click="() => open()">Check modal</BaseButton>
   </div>
+  <div class="flex flex-col w-[200px] gap-16">
+    <h1>Copy button</h1>
+    <BaseCopyButton content="Content to copy is here" />
+  </div>
 </template>
 
 <script setup lang="ts">
