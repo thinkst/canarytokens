@@ -40,8 +40,6 @@ describe('BaseCardToken.vue', () => {
       }
     })
 
-    console.log(wrapper.html())
-
     expect(wrapper.text()).toContain(title)
     expect(wrapper.text()).toContain(description)
     expect(wrapper.html()).toContain(logoImgUrl)
@@ -60,8 +58,6 @@ describe('BaseCardToken.vue', () => {
         stubs: { FontAwesomeIcon, BaseLinkDocumentation }
       }
     })
-
-    console.log(wrapper.html())
 
     expect(wrapper.text()).toContain(title)
     expect(wrapper.text()).toContain(description)
