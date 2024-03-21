@@ -19,7 +19,7 @@
     <BaseButton
       v-if="link"
       class="whitespace-nowrap"
-      variant="danger"
+      :variant="props.variant"
       >{{ textLink }}</BaseButton
     >
   </div>
