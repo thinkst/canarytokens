@@ -10,11 +10,13 @@
         v-if="variant !== 'info'"
         class="min-w-[40px]"
         :class="iconClass"
+        aria-hidden="true"
       />
       <InfoIcon
         v-else
         class="min-w-[40px]"
         :class="iconClass"
+        aria-hidden="true"
       />
       <p class="text-pretty">{{ message }}</p>
     </div>
