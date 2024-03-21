@@ -12,7 +12,13 @@
 import type { PropType } from 'vue';
 import { computed } from 'vue';
 
-type variantType = 'primary' | 'secondary' | 'text' | 'danger' | 'warning';
+type variantType =
+  | 'primary'
+  | 'secondary'
+  | 'text'
+  | 'danger'
+  | 'warning'
+  | 'info';
 type buttonType = 'button' | 'submit' | 'reset';
 
 const props = defineProps({

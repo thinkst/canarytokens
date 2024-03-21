@@ -33,10 +33,23 @@
   <hr class="my-24" />
   <div class="flex flex-col gap-16">
     <h1>Warning Box</h1>
-    <BaseWarning
+    <BaseNotificationBox
+      message="This is a danger message This is a danger message This is a danger message This is a danger message This is a danger message"
+      link="https://google.com"
+      text-link="Check link"
+      variant="danger"
+    />
+    <BaseNotificationBox
       message="This is a warning message This is a warning message This is a warning message This is a warning message This is a warning message"
       link="https://google.com"
       text-link="Check link"
+      variant="warning"
+    />
+    <BaseNotificationBox
+      message="This is a info message This is a info message This is a info message This is a info message This is a info message"
+      link="https://google.com"
+      text-link="Check link"
+      variant="info"
     />
   </div>
 </template>
