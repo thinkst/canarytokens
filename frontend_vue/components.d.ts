@@ -11,6 +11,7 @@ declare module 'vue' {
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
     BaseLink: typeof import('./src/components/base/BaseLink.vue')['default']
     BaseLinkDocumentation: typeof import('./src/components/base/BaseLinkDocumentation.vue')['default']
+    BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
     BaseNotificationBox: typeof import('./src/components/base/BaseNotificationBox.vue')['default']
     BaseSVG: typeof import('./src/components/base/BaseSVG.vue')['default']

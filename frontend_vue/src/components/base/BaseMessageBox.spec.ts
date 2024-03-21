@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
-import BaseNotificationBox from '@/components/base/BaseNotificationBox.vue';
+import BaseMessageBox from '@/components/base/BaseMessageBox.vue';
 import BaseButton from './BaseButton.vue';
 
-describe('BaseNotificationBox', () => {
+describe('BaseMessageBox', () => {
   it('renders message correctly', () => {
     const message = 'Test message';
-    const wrapper = mount(BaseNotificationBox, {
+    const wrapper = mount(BaseMessageBox, {
       props: { variant: 'info', message },
       global: {
         stubs: { BaseButton },
@@ -16,7 +16,7 @@ describe('BaseNotificationBox', () => {
   });
 
   it('emits click event when button is clicked', async () => {
-    const wrapper = mount(BaseNotificationBox, {
+    const wrapper = mount(BaseMessageBox, {
       props: { variant: 'info', message: 'Test message', textLink: 'Click me' },
       global: {
         stubs: { BaseButton },
@@ -29,7 +29,7 @@ describe('BaseNotificationBox', () => {
   });
 
   it('renders with the correct variant class', () => {
-    const wrapper = mount(BaseNotificationBox, {
+    const wrapper = mount(BaseMessageBox, {
       props: { variant: 'info', message: 'Info message' },
       global: {
         stubs: { BaseButton },
@@ -40,7 +40,7 @@ describe('BaseNotificationBox', () => {
   });
 
   it('displays text link when provided', () => {
-    const wrapper = mount(BaseNotificationBox, {
+    const wrapper = mount(BaseMessageBox, {
       props: { variant: 'info', message: 'Info message', textLink: 'Click me' },
       global: {
         stubs: { BaseButton },
@@ -51,7 +51,7 @@ describe('BaseNotificationBox', () => {
   });
 
   it('does not display text link when not provided', () => {
-    const wrapper = mount(BaseNotificationBox, {
+    const wrapper = mount(BaseMessageBox, {
       props: { variant: 'warning', message: 'Warning message' },
       global: {
         stubs: { BaseButton },

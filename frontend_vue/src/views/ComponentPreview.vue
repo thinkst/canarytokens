@@ -32,26 +32,26 @@
   </div>
   <hr class="my-24" />
   <div class="flex flex-col gap-16">
-    <h1>Warning Box</h1>
-    <BaseNotificationBox
+    <h1>Message Box</h1>
+    <BaseMessageBox
       message="This is a danger message This is a danger message This is a danger message This is a danger message This is a danger message"
       text-link="Click here"
       variant="danger"
       @click="console.log('danger!')"
     />
-    <BaseNotificationBox
+    <BaseMessageBox
       message="This is a warning message This is a warning message This is a warning message"
       text-link="Link here"
       variant="warning"
       @click="console.log('warning!')"
     />
-    <BaseNotificationBox
+    <BaseMessageBox
       message="This is a info message This is a info message."
       text-link="Check here"
       variant="info"
       @click="console.log('info!')"
     />
-    <BaseNotificationBox
+    <BaseMessageBox
       message="This is a message without link "
       variant="info"
     />
