@@ -12,6 +12,11 @@
   </div>
   <hr class="my-24" />
   <div class="flex flex-col w-[200px] gap-16">
+    <h1>Copy button</h1>
+    <BaseCopyButton content="Content to copy is here" />
+  </div>
+  <hr class="my-24" />
+  <div class="flex flex-col w-[200px] gap-16">
     <h1>Switch</h1>
     <BaseSwitch
       id="check"
