@@ -41,6 +41,16 @@ p, h1, h2, h3, h4, h5, h6 {
   --fa-style-family-classic: 'Font Awesome 6 Free';
   --fa-font-solid: normal 900 1em/1 'Font Awesome 6 Free'; }
 
-  .fas,
+.fas,
 .fa-solid {
-  font-weight: 900; }
+  font-weight: 900; 
+}
+
+.v-popper--theme-tooltip {
+  max-width: 200px;
+  .v-popper__inner {
+    border-radius: 9px;
+    font-size: 14px;
+  }
+
+}
