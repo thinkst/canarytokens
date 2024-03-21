@@ -13,6 +13,15 @@ import type { PropType } from 'vue';
 import { computed } from 'vue';
 import type { ButtonVariantType } from './types';
 
+enum ButtonVariantEnum {
+  PRIMARY = 'primary',
+  SECONDARY = 'secondary',
+  TEXT = 'text',
+  DANGER = 'danger',
+  WARNING = 'warning',
+  INFO = 'info',
+}
+
 type buttonType = 'button' | 'submit' | 'reset';
 
 const props = defineProps({
@@ -28,17 +37,17 @@ const props = defineProps({
 
 const buttonClass = computed(() => {
   switch (props.variant) {
-    case 'primary':
+    case ButtonVariantEnum.PRIMARY:
       return 'primary base-button';
-    case 'secondary':
+    case ButtonVariantEnum.SECONDARY:
       return 'secondary base-button';
-    case 'text':
+    case ButtonVariantEnum.TEXT:
       return 'text base-button';
-    case 'danger':
+    case ButtonVariantEnum.DANGER:
       return 'text danger base-button';
-    case 'warning':
+    case ButtonVariantEnum.WARNING:
       return 'text warning base-button';
-    case 'info':
+    case ButtonVariantEnum.INFO:
       return 'text info base-button';
     default:
       return 'primary base-button';

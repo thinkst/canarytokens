@@ -36,6 +36,12 @@ import AlertShieldIcon from '@/components/icons/AlertShieldIcon.vue';
 import InfoIcon from '@/components/icons/InfoIcon.vue';
 import type { NotificationBoxVariantType } from './types';
 
+enum VariantEnum {
+  DANGER = 'danger',
+  WARNING = 'warning',
+  INFO = 'info',
+}
+
 const props = defineProps<{
   variant: NotificationBoxVariantType;
   message: string;
@@ -46,11 +52,11 @@ defineEmits(['click']);
 
 const boxClasses = computed(() => {
   switch (props.variant) {
-    case 'danger':
+    case VariantEnum.DANGER:
       return 'bg-red-100 text-red-500 bg-red-100';
-    case 'warning':
+    case VariantEnum.WARNING:
       return 'text-yellow-700 bg-yellow-300';
-    case 'info':
+    case VariantEnum.INFO:
       return 'text-blue-700 bg-blue-300';
     default:
       return 'text-blue-700 bg-blue-300';
@@ -59,11 +65,11 @@ const boxClasses = computed(() => {
 
 const iconClass = computed(() => {
   switch (props.variant) {
-    case 'warning':
+    case VariantEnum.WARNING:
       return 'fill-yellow';
-    case 'danger':
+    case VariantEnum.DANGER:
       return 'fill-red';
-    case 'info':
+    case VariantEnum.INFO:
       return 'fill-blue';
     default:
       return 'fill-blue';
