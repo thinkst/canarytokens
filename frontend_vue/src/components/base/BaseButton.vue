@@ -11,19 +11,13 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { computed } from 'vue';
+import type { ButtonVariantType } from './types';
 
-type variantType =
-  | 'primary'
-  | 'secondary'
-  | 'text'
-  | 'danger'
-  | 'warning'
-  | 'info';
 type buttonType = 'button' | 'submit' | 'reset';
 
 const props = defineProps({
   variant: {
-    type: String as PropType<variantType>,
+    type: String as PropType<ButtonVariantType>,
     default: 'primary',
   },
   type: {
@@ -44,6 +38,8 @@ const buttonClass = computed(() => {
       return 'text danger base-button';
     case 'warning':
       return 'text warning base-button';
+    case 'info':
+      return 'text info base-button';
     default:
       return 'primary base-button';
   }

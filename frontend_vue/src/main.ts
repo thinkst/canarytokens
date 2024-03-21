@@ -1,8 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-//@ts-ignore
-// import registertBaseComponents from '@/components/base/_index.ts';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
@@ -39,8 +37,6 @@ library.add(
 
 const vfm = createVfm();
 app.use(vfm);
-
-// registertBaseComponents(app);
 
 app.directive('tooltip', vTooltip);
 

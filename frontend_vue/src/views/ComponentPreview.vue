@@ -35,20 +35,24 @@
     <h1>Warning Box</h1>
     <BaseNotificationBox
       message="This is a danger message This is a danger message This is a danger message This is a danger message This is a danger message"
-      link="https://google.com"
-      text-link="Check link"
+      text-link="Click here"
       variant="danger"
+      @click="console.log('danger!')"
     />
     <BaseNotificationBox
-      message="This is a warning message This is a warning message This is a warning message This is a warning message This is a warning message"
-      link="https://google.com"
-      text-link="Check link"
+      message="This is a warning message This is a warning message This is a warning message"
+      text-link="Link here"
       variant="warning"
+      @click="console.log('warning!')"
     />
     <BaseNotificationBox
-      message="This is a info message This is a info message This is a info message This is a info message This is a info message"
-      link="https://google.com"
-      text-link="Check link"
+      message="This is a info message This is a info message."
+      text-link="Check here"
+      variant="info"
+      @click="console.log('info!')"
+    />
+    <BaseNotificationBox
+      message="This is a message without link "
       variant="info"
     />
   </div>
