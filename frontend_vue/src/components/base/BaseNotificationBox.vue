@@ -1,25 +1,28 @@
 <template>
   <div
-    class="flex flex-row items-center justify-between flex-grow w-full px-24 py-16 rounded-xl"
+    class="flex flex-col items-center justify-start flex-grow w-full gap-8 px-24 py-16 rounded-xl md:flex-row"
     :class="boxClasses"
   >
-    <div class="flex flex-row items-center gap-24">
-      <AlertShield
+    <div
+      class="flex flex-row items-center self-start flex-grow gap-16 md:gap-24 md:self-center"
+    >
+      <AlertShieldIcon
         v-if="variant !== 'info'"
-        class="w-[4em]"
+        class="min-w-[40px]"
         :class="iconClass"
       />
-      <font-awesome-icon
+      <InfoIcon
         v-else
-        class="w-[4em]"
+        class="min-w-[40px]"
         :class="iconClass"
       />
-      <p>{{ message }}</p>
+      <p class="text-pretty">{{ message }}</p>
     </div>
     <BaseButton
-      v-if="link"
-      class="whitespace-nowrap"
+      v-if="textLink"
+      class="self-end whitespace-nowrap md:self-center"
       :variant="props.variant"
+      @click="$emit('click')"
       >{{ textLink }}</BaseButton
     >
   </div>
@@ -27,14 +30,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import AlertShield from '../icons/AlertShield.vue';
+import AlertShieldIcon from '@/components/icons/AlertShieldIcon.vue';
+import InfoIcon from '@/components/icons/InfoIcon.vue';
+import type { NotificationBoxVariantType } from './types';
 
 const props = defineProps<{
-  variant: 'info' | 'warning' | 'danger';
+  variant: NotificationBoxVariantType;
   message: string;
-  link?: string;
   textLink?: string;
 }>();
+
+defineEmits(['click']);
 
 const boxClasses = computed(() => {
   switch (props.variant) {
