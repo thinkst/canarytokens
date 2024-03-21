@@ -12,7 +12,7 @@
 import type { PropType } from 'vue';
 import { computed } from 'vue';
 
-type variantType = 'primary' | 'secondary' | 'text';
+type variantType = 'primary' | 'secondary' | 'text' | 'danger' | 'warning';
 type buttonType = 'button' | 'submit' | 'reset';
 
 const props = defineProps({
@@ -34,6 +34,10 @@ const buttonClass = computed(() => {
       return 'secondary base-button';
     case 'text':
       return 'text base-button';
+    case 'danger':
+      return 'text danger base-button';
+    case 'warning':
+      return 'text warning base-button';
     default:
       return 'primary base-button';
   }
@@ -55,5 +59,17 @@ const buttonClass = computed(() => {
 
 .text {
   @apply hover:text-green-500 focus:text-green-800 text-grey-500;
+}
+
+.danger {
+  @apply hover:text-red focus:text-red text-red-500;
+}
+
+.warning {
+  @apply hover:text-yellow focus:text-yellow text-yellow-700;
+}
+
+.info {
+  @apply hover:text-blue focus:text-blue text-blue-700;
 }
 </style>

@@ -30,6 +30,15 @@
       disabled
     />
   </div>
+  <hr class="my-24" />
+  <div class="flex flex-col gap-16">
+    <h1>Warning Box</h1>
+    <BaseWarning
+      message="This is a warning message This is a warning message This is a warning message This is a warning message This is a warning message"
+      link="https://google.com"
+      text-link="Check link"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
