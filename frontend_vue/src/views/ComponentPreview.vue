@@ -75,42 +75,49 @@
     <h2>Input field</h2>
     <div class="flex flex-wrap items-center gap-16">
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Standalone input"
         placeholder="This is a great input"
       ></BaseTextField>
       vmodel output: {{ inputValue }}
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Full width input"
         placeholder="This is a great input"
         full-width
       ></BaseTextField>
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Custom label very long"
         placeholder="This is a great input"
         helper-message="This is an helper for the user, so they know what to do"
       ></BaseTextField>
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Disabled input"
         disabled
         placeholder="This is a great input"
       ></BaseTextField>
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Custom label required"
         required
         placeholder="This is a great input"
       ></BaseTextField>
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Custom label required"
         required
         placeholder="This is a great input"
       ></BaseTextField>
       <BaseTextField
+        id="test input"
         v-model="inputValue"
         label="Error input"
         placeholder="This is a great input"
@@ -120,6 +127,7 @@
     </div>
     <h2>Textarea field</h2>
     <BaseTextField
+      id="test textarea"
       v-model="inputValue"
       label="Custom label"
       placeholder="This is a wonderful textarea"
@@ -127,6 +135,7 @@
       helper-message="This is an helper for the user, so they know what to do"
     ></BaseTextField>
     <BaseTextField
+      id="test textarea"
       v-model="inputValue"
       label="Custom height textarea"
       placeholder="This is a wonderful textarea"

@@ -4,7 +4,7 @@
     :class="{ 'w-full': fullWidth }"
   >
     <label
-      for="test"
+      :for="id"
       class="mb-4 ml-4 font-semibold"
       >{{ label }}
       <span
@@ -15,7 +15,7 @@
     >
     <component
       :is="inputType"
-      id="test"
+      :id="id"
       :value="props.modelValue"
       class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:outline-blue-300 outline-offset-4"
       :class="[
@@ -54,6 +54,7 @@
 import { computed } from 'vue';
 
 const props = defineProps<{
+  id: string;
   label: string;
   multiline?: boolean;
   hasError?: boolean;
