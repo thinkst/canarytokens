@@ -70,6 +70,71 @@
       />
     </ul>
   </div>
+  <h1>Text Fields</h1>
+  <div class="flex flex-col gap-16 pl-16 flex-nowrap">
+    <h2>Input field</h2>
+    <div class="flex flex-wrap items-center gap-16">
+      <BaseTextField
+        v-model="inputValue"
+        label="Standalone input"
+        placeholder="This is a great input"
+      ></BaseTextField>
+      vmodel output: {{ inputValue }}
+      <BaseTextField
+        v-model="inputValue"
+        label="Full width input"
+        placeholder="This is a great input"
+        full-width
+      ></BaseTextField>
+      <BaseTextField
+        v-model="inputValue"
+        label="Custom label very long"
+        placeholder="This is a great input"
+        helper-message="This is an helper for the user, so they know what to do"
+      ></BaseTextField>
+      <BaseTextField
+        v-model="inputValue"
+        label="Disabled input"
+        disabled
+        placeholder="This is a great input"
+      ></BaseTextField>
+      <BaseTextField
+        v-model="inputValue"
+        label="Custom label required"
+        required
+        placeholder="This is a great input"
+      ></BaseTextField>
+      <BaseTextField
+        v-model="inputValue"
+        label="Custom label required"
+        required
+        placeholder="This is a great input"
+      ></BaseTextField>
+      <BaseTextField
+        v-model="inputValue"
+        label="Error input"
+        placeholder="This is a great input"
+        :has-error="true"
+        error-message="Error message here"
+      ></BaseTextField>
+    </div>
+    <h2>Textarea field</h2>
+    <BaseTextField
+      v-model="inputValue"
+      label="Custom label"
+      placeholder="This is a wonderful textarea"
+      multiline
+      helper-message="This is an helper for the user, so they know what to do"
+    ></BaseTextField>
+    <BaseTextField
+      v-model="inputValue"
+      label="Custom height textarea"
+      placeholder="This is a wonderful textarea"
+      multiline
+      helper-message="This is an helper for the user, so they know what to do"
+      multiline-height="250px"
+    ></BaseTextField>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -86,6 +151,7 @@ const { open } = useModal({
 
 const checked = ref(false);
 const checkedDisabled = ref(false);
+const inputValue = ref('');
 
 watch(checked, (newVal) => {
   console.log('checked', newVal);
@@ -95,6 +161,13 @@ watch(checked, (newVal) => {
 <style scoped>
 h1 {
   font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 0.8rem;
   font-weight: 600;
   color: #333;
   text-transform: uppercase;
