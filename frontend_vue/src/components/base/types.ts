@@ -1,16 +1,16 @@
 export interface BaseStateVariantType {
-  danger: unknown;
-  warning: unknown;
-  info: unknown;
+  danger: string;
+  warning: string;
+  info: string;
 }
 
 export interface BaseColorVariantType extends BaseStateVariantType {
-  primary: unknown;
-  secondary: unknown;
+  primary: string;
+  secondary: string;
 }
 
 export interface BaseButtonVariantType extends BaseColorVariantType {
-  text: unknown;
+  text: string;
 }
 
 export type ButtonVariantType = keyof BaseButtonVariantType;
