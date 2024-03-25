@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import BaseCopyButton from './_BaseCopyButton.vue';
+import BaseCopyButton from './BaseCopyButton.vue';
 
 library.add(faCopy, faCheck);
 const tooltip = vi.fn();
