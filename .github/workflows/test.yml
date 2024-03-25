@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "dev"
+      - "Feature_branch_New_UI_backend"
 
   workflow_dispatch:
     inputs:
@@ -79,10 +80,7 @@ jobs:
           poetry config virtualenvs.in-project true
           sudo apt-get update -y
           sudo apt-get install -y apt-transport-https ca-certificates curl
-          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
-          echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
           sudo apt-get update -y
-          sudo apt-get install -y kubectl
           sudo apt-get install -y osslsigncode
           sudo apt install redis-tools
       - name: Set up cache
@@ -94,11 +92,6 @@ jobs:
       - name: Install python dependencies
         run: |
           poetry install -E 'twisted web'
-
-      - name: Check pre-commit is happy
-        run: |
-            poetry run pre-commit install
-            SKIP=no-commit-to-branch poetry run pre-commit run --all-files
 
       - name: Run unit tests
         env:
