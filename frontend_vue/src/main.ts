@@ -16,6 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
+import VueGoogleMaps from '@fawmi/vue-google-maps';
 import 'vue-final-modal/style.css';
 import 'floating-vue/dist/style.css';
 import './style.css';
@@ -37,6 +38,12 @@ library.add(
 
 const vfm = createVfm();
 app.use(vfm);
+
+app.use(VueGoogleMaps, {
+  load: {
+    key: 'ADD_KEY_HERE',
+  },
+});
 
 app.directive('tooltip', vTooltip);
 
