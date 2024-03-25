@@ -16,5 +16,7 @@ module.exports = {
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    // turn off required nested element for labels
+    "vuejs-accessibility/label-has-for": "off"
   }
 }
