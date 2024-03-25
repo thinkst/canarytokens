@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowRight, faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import BaseLinkDocumentation from '@/components/base/_BaseLinkDocumentation.vue';
+import BaseLinkDocumentation from '@/components/base/BaseLinkDocumentation.vue';
 import CardToken from './CardToken.vue';
 
 library.add(faArrowRight, faQuestion);
