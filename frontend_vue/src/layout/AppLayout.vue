@@ -1,7 +1,7 @@
 <template>
   <main class="flex items-center justify-center main-height bg-grey-50">
     <div
-      class="max-w-[70svw] m-24 md:mx-[10svw] bg-white rounded-lg shadow-lg shadow-grey-200/40 min-h-[50vh] p-24"
+      class="max-w-[70svw] m-24 md:mx-[10svw] bg-white rounded-lg shadow-lg shadow-grey-200/40 min-h-[50vh] p-24 flex-auto"
     >
       <h1 class="text-grey-800">{{ title }}</h1>
       <slot></slot>
