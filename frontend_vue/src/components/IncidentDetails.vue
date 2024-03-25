@@ -54,7 +54,7 @@
           <span class="block text-xs uppercase text-grey-500"
             >request headers</span
           >
-          <code>
+          <code class="text-grey-800">
             {'Host': 'canarytokens.com', 'X-Real-Ip': '84.138.198.174',
             'X-Forwarded-For': '84.138.198.174', 'X-Forwarded-Host':
             'canarytokens.org', 'Connection': 'close',
