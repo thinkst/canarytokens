@@ -6,6 +6,7 @@ export default {
   ],
   theme: {
     spacing: {
+      '4': '0.25rem',
       '8': '0.5rem',
       '16': '1rem',
       '24': '1.5rem',
@@ -65,6 +66,7 @@ export default {
         'solid-shadow-red': `0px 0.45rem 0px 0px  ${theme('colors.red.DEFAULT')}`,
         'solid-shadow-green-300': `0px 0.15rem 0px 0px  ${theme('colors.green.300')}`,
         'solid-shadow-grey': `0px 0.15rem 0px 0px  ${theme('colors.grey.300')}`,
+        'inner-shadow-grey': `inset 0px 0.25rem 0px 0px  ${theme('colors.grey.50')}`,
       })
     },
   },
