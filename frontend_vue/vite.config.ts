@@ -27,6 +27,11 @@ export default defineConfig({
       deep: false,
     }),
   ],
+  // fix import error
+  // https://github.com/fawmi/vue-google-maps/issues/148#issuecomment-1235143844
+  optimizeDeps: {
+    include: ['@fawmi/vue-google-maps', 'fast-deep-equal'],
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
