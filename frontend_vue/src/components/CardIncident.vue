@@ -39,8 +39,6 @@ const emits = defineEmits(['click']);
 
 function handleClickError() {
   emits('click');
-  console.log('click incident card!');
-  // ...something else
 }
 </script>
 
