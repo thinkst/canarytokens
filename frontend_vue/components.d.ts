@@ -13,10 +13,8 @@ declare module 'vue' {
     BaseLinkDocumentation: typeof import('./src/components/base/BaseLinkDocumentation.vue')['default']
     BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
-    BaseNotificationBox: typeof import('./src/components/base/BaseNotificationBox.vue')['default']
-    BaseSVG: typeof import('./src/components/base/BaseSVG.vue')['default']
     BaseSwitch: typeof import('./src/components/base/BaseSwitch.vue')['default']
-    BaseWarning: typeof import('src/components/base/BaseWarning.vue')['default']
+    BaseTextField: typeof import('./src/components/base/BaseTextField.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
