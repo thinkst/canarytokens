@@ -56,6 +56,20 @@
       variant="info"
     />
   </div>
+  <hr class="my-24" />
+  <div class="flex flex-col gap-16 w-[400px]">
+    <h1>Card Incident</h1>
+    <ul>
+      <CardIncident
+        :incident-preview-info="{
+          date: '2024-03-22 16:01:08.976860',
+          IP: '84.138.198.174',
+          Channel: 'HTTP',
+        }"
+        incident-id="12345"
+      />
+    </ul>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -63,6 +77,7 @@
 // TODO: show this component only for DEV env or behind VPN
 import { useModal } from 'vue-final-modal';
 import ModalAddToken from '@/components/ModalAddToken.vue';
+import CardIncident from '@/components/CardIncident.vue';
 import { ref, watch } from 'vue';
 
 const { open } = useModal({
