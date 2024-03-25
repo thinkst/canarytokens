@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`BaseButton > render correctly 1`] = `"<button data-v-48e5f580="" class="primary base-button" type="button"></button>"`;
