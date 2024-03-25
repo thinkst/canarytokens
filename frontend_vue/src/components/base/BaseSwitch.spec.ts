@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils';
-import BaseSwitch from './_BaseSwitch.vue';
+import BaseSwitch from './BaseSwitch.vue';
 
 describe('BaseSwitch.vue', () => {
-
   test('is called', () => {
     const wrapper = mount(BaseSwitch);
     expect(wrapper.exists()).toBeTruthy();

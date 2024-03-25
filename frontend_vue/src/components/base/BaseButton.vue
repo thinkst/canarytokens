@@ -11,13 +11,22 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { computed } from 'vue';
+import type { ButtonVariantType } from './types';
 
-type variantType = 'primary' | 'secondary' | 'text';
+enum ButtonVariantEnum {
+  PRIMARY = 'primary',
+  SECONDARY = 'secondary',
+  TEXT = 'text',
+  DANGER = 'danger',
+  WARNING = 'warning',
+  INFO = 'info',
+}
+
 type buttonType = 'button' | 'submit' | 'reset';
 
 const props = defineProps({
   variant: {
-    type: String as PropType<variantType>,
+    type: String as PropType<ButtonVariantType>,
     default: 'primary',
   },
   type: {
@@ -28,12 +37,18 @@ const props = defineProps({
 
 const buttonClass = computed(() => {
   switch (props.variant) {
-    case 'primary':
+    case ButtonVariantEnum.PRIMARY:
       return 'primary base-button';
-    case 'secondary':
+    case ButtonVariantEnum.SECONDARY:
       return 'secondary base-button';
-    case 'text':
+    case ButtonVariantEnum.TEXT:
       return 'text base-button';
+    case ButtonVariantEnum.DANGER:
+      return 'text danger base-button';
+    case ButtonVariantEnum.WARNING:
+      return 'text warning base-button';
+    case ButtonVariantEnum.INFO:
+      return 'text info base-button';
     default:
       return 'primary base-button';
   }
@@ -55,5 +70,17 @@ const buttonClass = computed(() => {
 
 .text {
   @apply hover:text-green-500 focus:text-green-800 text-grey-500;
+}
+
+.danger {
+  @apply hover:text-red focus:text-red text-red-500;
+}
+
+.warning {
+  @apply hover:text-yellow focus:text-yellow text-yellow-700;
+}
+
+.info {
+  @apply hover:text-blue focus:text-blue text-blue-700;
 }
 </style>
