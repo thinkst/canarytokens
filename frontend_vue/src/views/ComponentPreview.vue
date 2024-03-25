@@ -133,6 +133,10 @@
       <h1 class="pb-16">Custom Map</h1>
       <CustomMap />
     </div>
+    <hr class="my-24" />
+    <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
+      <IncidentDetails />
+    </div>
   </div>
 </template>
 
@@ -143,6 +147,7 @@ import { useModal } from 'vue-final-modal';
 import ModalAddToken from '@/components/ModalAddToken.vue';
 import CardIncident from '@/components/CardIncident.vue';
 import CustomMap from '@/components/CustomMap.vue';
+import IncidentDetails from '@/components/IncidentDetails.vue';
 import { ref, watch } from 'vue';
 
 const { open } = useModal({
