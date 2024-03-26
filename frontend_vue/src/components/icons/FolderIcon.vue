@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  hasFile: boolean;
+  hasFile?: string;
 }>();
 </script>
 

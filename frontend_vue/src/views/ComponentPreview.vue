@@ -142,7 +142,7 @@
       <BaseUploadFile
         allowed-files="image/png, image/svg+xml"
         info-allowed-file="SVG or PNG"
-        :max-size="20000"
+        :max-size="2000"
         @file-selected="handleFileSelected"
       />
       <BaseUploadFile
@@ -182,7 +182,6 @@ const inputValue = ref('');
 const fileSelected = ref();
 
 function handleFileSelected(event: DragEvent) {
-  console.log(event, 'event!!');
   fileSelected.value = event;
 }
 

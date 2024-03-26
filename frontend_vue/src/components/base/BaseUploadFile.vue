@@ -58,14 +58,14 @@
       </div>
       <p
         v-if="isNotValidFile"
-        id="error"
+        id="error-message"
         class="pt-16 text-sm font-semibold leading-4 text-red"
       >
         {{ isNotValidFileMessage }}
       </p>
       <p
         v-if="hasError"
-        id="error"
+        id="error-message"
         class="pt-16 text-sm font-semibold leading-4 text-red"
       >
         {{ errorMessage }}
@@ -87,7 +87,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
-import { kbToMb } from './utils.ts';
+import { convertBytes } from './utils.ts';
 import FolderIcon from '@/components/icons/FolderIcon.vue';
 
 const props = defineProps<{
@@ -139,11 +139,11 @@ function fileValidation(file: File) {
     return emit('file-upload-error', file);
   } else if (props.maxSize && file.size > props.maxSize) {
     isNotValidFile.value = true;
-    isNotValidFileMessage.value = `The file is too big. Maximum allowed size is ${kbToMb(props.maxSize)} bytes`;
+    isNotValidFileMessage.value = `The file is too big. The maximum allowed size is ${convertBytes(props.maxSize)}`;
     return emit('file-upload-error', file);
   } else {
     fileName.value = file.name;
-    emit('file-selected', file);
+    return emit('file-selected', file);
   }
 }
 
