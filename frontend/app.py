@@ -202,6 +202,11 @@ app.mount(
     StaticFiles(directory=frontend_settings.STATIC_FILES_PATH),
     name=frontend_settings.STATIC_FILES_APPLICATION_INTERNAL_NAME,
 )
+app.mount(
+    "/",
+    StaticFiles(directory="../frontend_vue/dist"),
+    name="Vue Frontend Dist",
+)
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
 if (
