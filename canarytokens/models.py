@@ -2533,9 +2533,9 @@ class ManageTokenSettingsRequest(BaseModel):
 
 class ManageResponse(BaseModel):
     canarydrop: Dict
-    public_ip: str
-    wg_private_key_seed: str
-    wg_private_key_n: str
+    public_ip: Optional[str]
+    wg_private_key_seed: Optional[str]
+    wg_private_key_n: Optional[str]
     wg_conf: Optional[str]
     wg_qr_code: Optional[str]
     qr_code: Optional[str]

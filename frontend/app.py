@@ -111,7 +111,6 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
-    PageRequest,
     PDFTokenRequest,
     PDFTokenResponse,
     QRCodeTokenRequest,
@@ -247,7 +246,7 @@ async def parse_for_download(request: Request) -> AnyDownloadRequest:
     return await _parse_for_x(request, AnyDownloadRequest)
 
 
-async def get_canarydrop_and_authenticate(request: PageRequest):
+def get_canarydrop_and_authenticate(token: str, auth: str):
     """
     Intercept a request and check that it contains a
     valid `token`, `auth` pair and returns a canarytoken if
@@ -259,22 +258,9 @@ async def get_canarydrop_and_authenticate(request: PageRequest):
     Raises:
         HTTPException: 403 errors raised when auth fails.
     """
-    # if request.headers.get("Content-Type", "application/json") == "application/json":
-    #     if all([o in request.query_params.keys() for o in ["token", "auth"]]):
-    #         data = dict(request.query_params.items())
-    #     else:
-    #         data = await request.json()
-    # elif "multipart/form-data" in request.headers["Content-Type"]:
-    #     data = dict(await request.form())
-    # elif "application/x-www-form-urlencoded" in request.headers["Content-Type"]:
-    #     data = dict(await request.form())
-    # else:
-    #     raise HTTPException(status_code=403, detail="Requires `auth` and `token`")
 
     try:
-        canarydrop = queries.get_canarydrop_and_authenticate(
-            token=request.token, auth=request.auth
-        )
+        canarydrop = queries.get_canarydrop_and_authenticate(token=token, auth=auth)
     except CanarydropAuthFailure:
         raise HTTPException(
             status_code=403, detail="Token not found. Invalid `auth` and `token` pair."
@@ -299,30 +285,6 @@ def startup_event():
     add_canary_page("payments.js")
 
 
-# @app.get("/", response_class=RedirectResponse, status_code=302)
-# async def redirect_to_generate_page():
-#     return "/generate"
-
-
-# @app.get(
-#     "/generate",
-#     tags=["Canarytokens generate page"],
-#     response_class=HTMLResponse,
-# )
-# def generate_page(request: Request) -> HTMLResponse:
-#     sites_len = len(get_all_canary_sites())
-#     now = datetime.datetime.now()
-#     generate_template_params = {
-#         "request": request,
-#         "build_id": get_deployed_commit_sha(),
-#         "sites_len": sites_len,
-#         "now": now,
-#         "awsid_enabled": frontend_settings.AWSID_URL is not None,
-#         "azureid_enabled": frontend_settings.AZURE_ID_TOKEN_URL is not None,
-#     }
-#     return templates.TemplateResponse("generate_new.html", generate_template_params)
-
-
 @app.post(
     "/generate",
     tags=["Create Canarytokens"],
@@ -334,16 +296,6 @@ async def generate(  # noqa: C901  # gen is large
     """
     Generate a token and return the appropriate TokenResponse
     """
-
-    # if request.headers.get("Content-Type", "application/json") == "application/json":
-    #     token_request_data = await request.json()
-    # else:
-    #     # Need a mutable copy of the form data
-    #     token_request_data = dict(await request.form())
-    #     token_request_data["token_type"] = token_request_data.pop(
-    #         "type", token_request_data.get("token_type", None)
-    #     )
-
     try:
         token_request_details = parse_obj_as(AnyTokenRequest, token)
     except ValidationError:  # DESIGN: can we specialise on what went wrong?
@@ -446,10 +398,10 @@ async def generate(  # noqa: C901  # gen is large
     tags=["Manage Canarytokens"],
     response_model=ManageResponse,
 )
-async def manage_canarytoken(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
-) -> ManageResponse:
-    response = {}
+async def manage_canarytoken(token: str, auth: str) -> ManageResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
+
+    response = {"canarydrop": canarydrop}
 
     if canarydrop.type == TokenTypes.WIREGUARD:
         wg_conf = wg.clientConfig(
@@ -475,10 +427,8 @@ async def manage_canarytoken(
     tags=["Canarytokens History"],
     response_model=AnyTokenHistory,
 )
-async def history(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
-) -> JSONResponse:
-
+async def history(token: str, auth: str) -> JSONResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
     return canarydrop.triggered_details
 
 
@@ -491,7 +441,7 @@ async def settings_post(
     response: Response,
     settings_request: AnySettingsRequest,
 ) -> SettingsResponse:
-    canarydrop = queries.get_canarydrop_and_authenticate(
+    canarydrop = get_canarydrop_and_authenticate(
         token=settings_request.token, auth=settings_request.auth
     )
     if canarydrop.apply_settings_change(setting_request=settings_request):
@@ -513,7 +463,6 @@ def legal_page(request: Request) -> HTMLResponse:
 @app.get(
     "/download",
     tags=["Canarytokens Downloads"],
-    dependencies=[Depends(get_canarydrop_and_authenticate)],
 )
 async def download(
     download_request: AnyDownloadRequest = Depends(parse_for_download),
@@ -522,7 +471,7 @@ async def download(
     Given `AnyDownloadRequest` a canarydrop is retrieved and the token
     artifact or hit information is returned.
     """
-    canarydrop = queries.get_canarydrop_and_authenticate(
+    canarydrop = get_canarydrop_and_authenticate(
         token=download_request.token, auth=download_request.auth
     )
     return create_download_response(download_request, canarydrop=canarydrop)

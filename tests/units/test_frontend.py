@@ -69,17 +69,6 @@ def test_read_docs(test_client: TestClient) -> None:
     assert response.status_code == 200
 
 
-def test_get_generate_page(test_client: TestClient) -> None:
-    response = test_client.get("/generate")
-    assert response.status_code == 200
-
-
-def test_redirect_base_to_generate(test_client: TestClient) -> None:
-    response = test_client.get("/")
-    assert response.status_code == 200
-    assert response.url.path == "/generate"
-
-
 def test_generate_dns_token(test_client: TestClient) -> None:
     dns_request_token = models.DNSTokenRequest(
         token_type=TokenTypes.DNS,
@@ -214,6 +203,7 @@ def test_download_canarydrop_json_details(
             auth=dns_resp.auth_token,
         ).dict(),
     )
+    print(resp_dl.text)
     assert resp_dl.status_code == 200
 
 
@@ -308,7 +298,7 @@ def test_email_enable_token_settings_requests(
 
     setting_resp = test_client.post(
         "/settings",
-        data=EmailSettingsRequest(
+        json=EmailSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -324,7 +314,7 @@ def test_email_enable_token_settings_requests(
     assert not canarydrop.alert_email_enabled
     setting_resp = test_client.post(
         "/settings",
-        data=EmailSettingsRequest(
+        json=EmailSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -357,7 +347,7 @@ def test_webhook_enable_token_settings_requests(
 
     setting_resp = test_client.post(
         "/settings",
-        data=WebhookSettingsRequest(
+        json=WebhookSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -372,7 +362,7 @@ def test_webhook_enable_token_settings_requests(
     assert not canarydrop.alert_webhook_enabled
     setting_resp = test_client.post(
         "/settings",
-        data=WebhookSettingsRequest(
+        json=WebhookSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -404,7 +394,7 @@ def test_browser_scanner_enable_token_settings_requests(
 
     setting_resp = test_client.post(
         "/settings",
-        data=BrowserScannerSettingsRequest(
+        json=BrowserScannerSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -420,7 +410,7 @@ def test_browser_scanner_enable_token_settings_requests(
     assert not canarydrop.browser_scanner_enabled
     setting_resp = test_client.post(
         "/settings",
-        data=BrowserScannerSettingsRequest(
+        json=BrowserScannerSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -452,7 +442,7 @@ def test_web_image_enable_token_settings_requests(
 
     setting_resp = test_client.post(
         "/settings",
-        data=WebImageSettingsRequest(
+        json=WebImageSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -466,7 +456,7 @@ def test_web_image_enable_token_settings_requests(
     assert not canarydrop.web_image_enabled
     setting_resp = test_client.post(
         "/settings",
-        data=WebImageSettingsRequest(
+        json=WebImageSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -535,7 +525,7 @@ def test_history_page(
     )
     assert resp.status_code == 200
     # TODO: Make this a stricter test
-    assert cd.canarytoken.value() in resp.content.decode()
+    assert len(resp.json()["hits"]) > 0
 
 
 @pytest.mark.parametrize(
@@ -570,22 +560,41 @@ def test_authorised_page_access(
     )
     token_info = DNSTokenResponse(**resp.json())
 
-    resp = getattr(test_client, verb)(
-        endpoint,
-        params=param_type(
-            token=token_info.token[::-1],
-            auth=token_info.auth_token,
-        ).dict(),
-    )
+    if verb == "post":
+        resp = getattr(test_client, verb)(
+            endpoint,
+            json=param_type(
+                token=token_info.token[::-1],
+                auth=token_info.auth_token,
+            ).dict(),
+        )
+    else:
+        resp = getattr(test_client, verb)(
+            endpoint,
+            params=param_type(
+                token=token_info.token[::-1],
+                auth=token_info.auth_token,
+            ).dict(),
+        )
     assert resp.status_code == 403
 
-    resp = getattr(test_client, verb)(
-        endpoint,
-        params=param_type(
-            token=token_info.token,
-            auth=token_info.auth_token[::-1],
-        ).dict(),
-    )
+    if verb == "post":
+        resp = getattr(test_client, verb)(
+            endpoint,
+            json=param_type(
+                token=token_info.token,
+                auth=token_info.auth_token[::-1],
+            ).dict(),
+        )
+
+    else:
+        resp = getattr(test_client, verb)(
+            endpoint,
+            params=param_type(
+                token=token_info.token,
+                auth=token_info.auth_token[::-1],
+            ).dict(),
+        )
     assert resp.status_code == 403
 
 
