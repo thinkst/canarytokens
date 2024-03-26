@@ -1,0 +1,1 @@
+import{_ as a,o as t,c as o,r as s,d as c,a as r,w as _,b as l}from"./index-CXdLtAbo.js";const u={};function d(e,n){return t(),o("div",null,[s(e.$slots,"default")])}const f=a(u,[["render",d]]),i=l("div",null,"Content",-1),h=c({__name:"ManageView",setup(e){return(n,p)=>(t(),r(f,null,{default:_(()=>[i]),_:1}))}});export{h as default};
