@@ -72,26 +72,4 @@ describe('BaseUploadFile', () => {
     await (wrapper.vm as any).fileValidation(file);
     expect(wrapper.html()).toContain('application/zip files are not allowed');
   });
-
-  // it('displays error message when file is too big', async () => {
-  //   const wrapper = mount(BaseUploadFile, {
-  //     props: {
-  //       allowedFiles: 'application/zip',
-  //       maxSize: 1024 * 1024,
-  //       infoAllowedFile: 'ZIP max size 1MB',
-  //     },
-  //     global: {
-  //       stubs: { BaseButton },
-  //     },
-  //   });
-
-  //   const file = new File(['file contents'], 'test.zip', {
-  //     type: 'application/zip',
-  //     size: 1024 * 1024 + 1,
-  //   } as File);
-
-  //   await (wrapper.vm as any).fileValidation(file);
-
-  //   expect(wrapper.html()).toContain('The file is too big.');
-  // });
 });
