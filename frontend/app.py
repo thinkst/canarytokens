@@ -25,7 +25,7 @@ import sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 
 # from fastapi.encoders import jsonable_encoder
-from fastapi.responses import HTMLResponse, JSONResponse  # , RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.security import APIKeyQuery
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -197,6 +197,17 @@ app = FastAPI(
     version=canarytokens.__version__,
     openapi_tags=tags_metadata,
 )
+
+vue_index = Jinja2Templates(directory="../frontend_vue/dist/")
+
+
+@app.get("/components")
+def index(request: Request):
+    return vue_index.TemplateResponse("index.html", {"request": request})
+
+
+api = FastAPI(openapi_prefix="/api")
+app.mount("/api", api)
 app.mount(
     frontend_settings.STATIC_FILES_APPLICATION_SUB_PATH,
     StaticFiles(directory=frontend_settings.STATIC_FILES_PATH),
@@ -204,7 +215,7 @@ app.mount(
 )
 app.mount(
     "/",
-    StaticFiles(directory="../frontend_vue/dist", html=True),
+    StaticFiles(directory="../frontend_vue/dist/", html=True),
     name="Vue Frontend Dist",
 )
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
@@ -290,7 +301,7 @@ def startup_event():
     add_canary_page("payments.js")
 
 
-@app.post(
+@api.post(
     "/generate",
     tags=["Create Canarytokens"],
     response_model=AnyTokenResponse,
@@ -398,7 +409,7 @@ async def generate(  # noqa: C901  # gen is large
     return create_response(token_request_details, canarydrop)
 
 
-@app.get(
+@api.get(
     "/manage",
     tags=["Manage Canarytokens"],
     response_model=ManageResponse,
@@ -427,7 +438,7 @@ async def manage_canarytoken(token: str, auth: str) -> ManageResponse:
     return ManageResponse(**response)
 
 
-@app.get(
+@api.get(
     "/history",
     tags=["Canarytokens History"],
     response_model=AnyTokenHistory,
@@ -437,7 +448,7 @@ async def history(token: str, auth: str) -> JSONResponse:
     return canarydrop.triggered_details
 
 
-@app.post(
+@api.post(
     "/settings",
     tags=["Canarytokens Settings"],
     response_model=SettingsResponse,
@@ -456,7 +467,7 @@ async def settings_post(
         return SettingsResponse(**{"message": "failure"})
 
 
-@app.get(
+@api.get(
     "/legal",
     tags=["Canarytokens legal page"],
     response_class=HTMLResponse,
@@ -465,7 +476,7 @@ def legal_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("legal.html", {"request": request})
 
 
-@app.get(
+@api.get(
     "/download",
     tags=["Canarytokens Downloads"],
 )
@@ -482,7 +493,7 @@ async def download(
     return create_download_response(download_request, canarydrop=canarydrop)
 
 
-@app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
+@api.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
 async def azure_css_landing(
     request: Request, admin_consent: str = "", tenant: str = None, state: str = None
 ) -> HTMLResponse:
@@ -1424,7 +1435,7 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
     )
 
 
-@app.get("/commitsha")
+@api.get("/commitsha")
 def get_commit_sha():
     commit_sha = get_deployed_commit_sha()
     return JSONResponse({"commit_sha": commit_sha}, status_code=200)
