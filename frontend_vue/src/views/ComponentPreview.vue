@@ -137,6 +137,28 @@
     <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
       <IncidentDetails />
     </div>
+    <div class="flex flex-col gap-16 mb-32">
+      <h1>Upload File</h1>
+      <BaseUploadFile
+        allowed-files="image/png, image/svg+xml"
+        info-allowed-file="SVG or PNG"
+        :max-size="20000"
+        @file-selected="handleFileSelected"
+      />
+      <BaseUploadFile
+        allowed-files="image/png, image/svg+xml"
+        info-allowed-file="SVG, PNG, JPG or GIF"
+        :has-error="true"
+        error-message="Custom error message!"
+      />
+      Disabled
+      <BaseUploadFile
+        allowed-files="image/png, image/svg+xml"
+        info-allowed-file="SVG, PNG, JPG or GIF"
+        disabled
+      />
+      File selected name: {{ fileSelected?.name }}
+    </div>
   </div>
 </template>
 
@@ -157,6 +179,12 @@ const { open } = useModal({
 const checked = ref(false);
 const checkedDisabled = ref(false);
 const inputValue = ref('');
+const fileSelected = ref();
+
+function handleFileSelected(event: DragEvent) {
+  console.log(event, 'event!!');
+  fileSelected.value = event;
+}
 
 watch(checked, (newVal) => {
   console.log('checked', newVal);
