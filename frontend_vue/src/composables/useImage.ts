@@ -1,4 +1,3 @@
-
 export default function useImage() {
   const getImgUrl = (name: string): string => {
     const path = `/src/assets/${name}`;
