@@ -37,4 +37,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  define: {
+    'import.meta.env': JSON.stringify(process.env),
+  },
 });
