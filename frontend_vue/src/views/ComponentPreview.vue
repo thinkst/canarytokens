@@ -159,6 +159,24 @@
         disabled
       />
       File selected name: {{ fileSelected?.name }}
+    <div>
+      <hr class="my-24" />
+      <h1 class="pb-16">Code Snippet</h1>
+
+      <BaseCodeSnippet
+        has-refresh
+        class="mb-16"
+        label="Single line"
+        lang="javascript"
+        code="http://canarytokens.com/traffic/ttg75cc1ah5ae4f24o6767csk/post.jsp"
+      />
+
+      <BaseCodeSnippet
+        multiline
+        label="Multiline - Javascript"
+        :code="codeSnippet"
+        lang="javascript"
+      />
     </div>
   </div>
 </template>
@@ -185,6 +203,24 @@ const fileSelected = ref();
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
 }
+
+const codeSnippet = ref(`<template>
+  <div class="relative border rounded-lg border-grey-100">
+    <div class="absolute top-[.8rem] right-[1rem] z-10 flex gap-8">
+      <BaseRefreshButton />
+      <BaseCopyButton :content="code" />
+    </div>
+    <VCodeBlock
+      :code="code"
+      highlightjs
+      lang="javascript"
+      theme="a11y-light"
+      :height="multiline ? customHeight : '3.5rem'"
+      :copy-button="false"
+      class="pr-[3rem]"
+    />
+  </div>
+</template>`);
 
 watch(checked, (newVal) => {
   console.log('checked', newVal);
