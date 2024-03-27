@@ -20,7 +20,7 @@
         :code="code"
         highlightjs
         :lang="lang"
-        theme="a11y-light"
+        theme="github"
         :height="multiline ? customHeight : '3.5rem'"
         :copy-button="false"
         :class="{ 'pr-[3rem]': !multiline }"

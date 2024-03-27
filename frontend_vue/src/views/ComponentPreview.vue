@@ -204,23 +204,34 @@ function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
 }
 
-const codeSnippet = ref(`<template>
-  <div class="relative border rounded-lg border-grey-100">
-    <div class="absolute top-[.8rem] right-[1rem] z-10 flex gap-8">
-      <BaseRefreshButton />
-      <BaseCopyButton :content="code" />
-    </div>
-    <VCodeBlock
-      :code="code"
-      highlightjs
-      lang="javascript"
-      theme="a11y-light"
-      :height="multiline ? customHeight : '3.5rem'"
-      :copy-button="false"
-      class="pr-[3rem]"
-    />
-  </div>
-</template>`);
+const codeSnippet = ref(`const tooltipText = ref('Copy to clipboard');
+const isTriggered = ref(false);
+const tooltipTriggers = ref(['hover', 'focus']);
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// 1. prevents UI from jumping when tooltip content changes
+// 2. shows tooltip when content is copied
+async function showTooltip() {
+  if (!isSupported) return (tooltipText.value = 'Copy not supported');
+  await delay(150);
+  tooltipTriggers.value = [];
+  isTriggered.value = true;
+  tooltipText.value = 'Copied!';
+  // vTooltip sets a default delay of 1.5s
+  await delay(1500);
+  isTriggered.value = false;
+  tooltipTriggers.value = ['hover', 'focus'];
+  await delay(150);
+  tooltipText.value = 'Copy to clipboard';
+}
+
+function copyContent() {
+  copy(props.content);
+  showTooltip();
+}`);
 
 watch(checked, (newVal) => {
   console.log('checked', newVal);
