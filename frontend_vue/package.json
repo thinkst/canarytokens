@@ -22,6 +22,7 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.4",
     "@vueuse/core": "^10.9.0",
+    "@wdns/vue-code-block": "^2.3.2",
     "axios": "^1.6.7",
     "eslint-config-typescript": "^3.0.0",
     "floating-vue": "^5.2.2",
