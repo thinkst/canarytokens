@@ -159,6 +159,7 @@
         disabled
       />
       File selected name: {{ fileSelected?.name }}
+    </div>
     <div>
       <hr class="my-24" />
       <h1 class="pb-16">Code Snippet</h1>
