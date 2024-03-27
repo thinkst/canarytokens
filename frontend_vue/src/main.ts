@@ -14,6 +14,7 @@ import {
   faCheck,
   faCopy,
   faCloudArrowUp,
+  faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -35,7 +36,8 @@ library.add(
   faArrowRight,
   faCheck,
   faCopy,
-  faCloudArrowUp
+  faCloudArrowUp,
+  faRotateRight
 );
 
 const vfm = createVfm();
