@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import AppLayoutOneColumn from '@/layout/AppLayoutOneColumn.vue';
-
 </script>
 
 <style></style>
