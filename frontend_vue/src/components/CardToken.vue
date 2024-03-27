@@ -52,8 +52,8 @@ const props = withDefaults(
   {
     logoImgUrl: 'default.png',
   }
-  );
-  
+);
+
 const { getImgUrl } = useImage();
 
 const tokenLogoUrl = `token_icons/${props.logoImgUrl}`;
