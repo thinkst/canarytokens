@@ -45,7 +45,7 @@ app.use(vfm);
 
 app.use(VueGoogleMaps, {
   load: {
-    key: 'ADD_KEY_HERE',
+    key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   },
 });
 
