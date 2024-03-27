@@ -30,7 +30,6 @@ describe('BaseCodeSnippet', () => {
         tooltip,
       },
     });
-    console.log(wrapper.html());
     await wrapper.find('.refresh-token').trigger('click');
     expect(wrapper.emitted('refresh-token')).toBeTruthy();
   });
