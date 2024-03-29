@@ -3,7 +3,7 @@
   <VueFinalModal
     class="flex items-center justify-center modal"
     overlay-class="blur-bg"
-    content-class="bg-grey-50 rounded-lg text-grey-800 min-w-96 lg:max-w-[70vw] mx-16"
+    content-class="bg-grey-50 rounded-lg text-grey-800 min-w-[96vw] lg:max-w-[70vw] md:min-w-[60vw] mx-16"
     overlay-transition="vfm-fade"
     :content-transition="modalCustomTransition"
     esc-to-close

@@ -13,7 +13,7 @@
       <span class="py-16 font-semibold leading-5 text-center text-grey-800">
         {{ title }}
       </span>
-      <span class="leading-5 text-left text-grey-400 text-balance">
+      <span class="text-sm leading-5 text-left text-grey-400 text-pretty">
         {{ description }}
       </span>
       <span

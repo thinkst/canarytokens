@@ -5,8 +5,14 @@
     @handle-back-button="handleBackButton"
   >
     <template v-if="!isLoading">
-      <ModalContentAddToken v-if="modalType === ModalType.AddToken" />
-      <ModalContentNewToken v-if="modalType === ModalType.NewToken" />
+      <ModalContentAddToken
+        v-if="modalType === ModalType.AddToken"
+        :selected-token="selectedToken"
+      />
+      <ModalContentNewToken
+        v-if="modalType === ModalType.NewToken"
+        :new-token-data="creationResponse"
+      />
       <ModalContentHowToUse v-else-if="modalType === ModalType.HowToUse" />
     </template>
     <p v-else>Loading</p>
@@ -53,6 +59,8 @@ import { ref, computed } from 'vue';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
 import ModalContentNewToken from './ModalContentNewToken.vue';
 import ModalContentAddToken from './ModalContentAddToken.vue';
+import { generateToken } from '@/api/main';
+import { store } from '@/store/store.ts';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -62,6 +70,11 @@ enum ModalType {
 
 const modalType = ref(ModalType.AddToken);
 const isLoading = ref(false);
+const creationResponse = ref({});
+
+defineProps<{
+  selectedToken: string;
+}>();
 
 const title = computed(() => {
   switch (modalType.value) {
@@ -82,10 +95,32 @@ const hasBackButton = computed(() => {
 
 function handleAddToken() {
   isLoading.value = true;
-  setTimeout(() => {
-    isLoading.value = false;
-    modalType.value = ModalType.NewToken;
-  }, 1000);
+  generateToken({
+    email: 'user@example.com',
+    webhook_url: 'http://example.com',
+    memo: 'string',
+    token_type: 'cc',
+  })
+    .then((res) => {
+      console.log(res, 'res');
+      creationResponse.value = res.data;
+    })
+    .catch((err) => {
+      console.log(err, err);
+    })
+    .finally(() => {
+      isLoading.value = false;
+      modalType.value = ModalType.NewToken;
+      store.newTokenData = {};
+    });
+  // setTimeout(() => {
+  //   isLoading.value = false;
+  //   modalType.value = ModalType.NewToken;
+  // }, 1000);
+  // console.log('submit:', store.newTokenData);
+
+  // reset form
+  store.newTokenData = {};
 }
 
 function handleHowToUse() {

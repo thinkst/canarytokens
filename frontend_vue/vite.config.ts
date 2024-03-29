@@ -40,4 +40,16 @@ export default defineConfig({
   define: {
     'import.meta.env': JSON.stringify(process.env),
   },
+  // this doesn't work :(
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    proxy: {
+      '/api/*': {
+        target: process.env.VITE_API_URL,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });

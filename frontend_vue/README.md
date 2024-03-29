@@ -22,7 +22,7 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
    - Define your local variables in the `.env` file. For example:
      ```
      VITE_GOOGLE_MAPS_API_KEY=your_local_api_key
-     VITE_REMOTE_SERVER=http://localhost:8000
+     VITE_SERVER_URL=http://localhost:8000
      ```
 
    - Add the `.env` file to your `.gitignore` to prevent it from being committed.
