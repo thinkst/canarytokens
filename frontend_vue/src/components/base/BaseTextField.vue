@@ -17,7 +17,7 @@
       :is="inputType"
       :id="id"
       :value="props.modelValue"
-      class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:outline-blue-300 outline-offset-4"
+      class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 outline-offset-4"
       :class="[
         { 'border-red shadow-none': hasError },
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },

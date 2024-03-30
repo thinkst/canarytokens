@@ -1,25 +1,47 @@
 <template>
   <img
-    src="../assets/token_icons/s3_bucket_active.png"
-    alt="Token logo"
+    :src="
+      getImgUrl(`token_icons/${tokensOperations[newTokenData.token_type].icon}`)
+    "
+    :alt="`${tokensOperations[newTokenData.token_type].label}`"
     class="w-[8rem]"
   />
-  <h2 class="text-xl font-semibold text-center">
-    Your S3 bucket Token is active!
+  <h2 class="text-xl font-semibold leading-4 text-center">
+    {{
+      `Your ${tokensOperations[newTokenData.token_type].label} Token is active!`
+    }}
   </h2>
-  <p class="text-sm text-center">
-    Copy this URL to your clipboard and use as you wish
+  <p class="text-center">
+    {{ tokensOperations[newTokenData.token_type].instruction }}
   </p>
-
-  <div class="copy-token">
-    <!-- add here token url, code and whatever else -->
-  </div>
+  <component
+    :is="dynamicComponent"
+    new-token-data="newTokenData"
+  />
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { defineAsyncComponent, ref } from 'vue';
+import { useTokens } from '@/composables/useTokens';
+import useImage from '@/composables/useImage';
 
-onMounted(() => {
-  console.log('Token is active');
-});
+const props = defineProps<{
+  newTokenData: { token_type: string } & Record<string, unknown>;
+}>();
+
+const { tokensOperations } = useTokens();
+const { getImgUrl } = useImage();
+
+const dynamicComponent = ref(null);
+
+const loadComponent = async () => {
+  dynamicComponent.value = defineAsyncComponent(
+    () =>
+      import(
+        `@/components/tokens/${props.newTokenData.token_type}/ActiveToken.vue`
+      )
+  );
+};
+
+loadComponent();
 </script>

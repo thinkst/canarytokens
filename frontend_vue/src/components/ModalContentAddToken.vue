@@ -3,10 +3,10 @@
     :src="
       getImgUrl(`token_icons/${tokensOperations[props.selectedToken].icon}`)
     "
-    alt="Token logo"
+    :alt="`${tokensOperations[props.selectedToken].label}`"
     class="w-[6rem] pb-16"
   />
-  <h2 class="text-xl font-semibold text-center">
+  <h2 class="text-xl font-semibold leading-4 text-center">
     {{ tokensOperations[props.selectedToken].label }}
   </h2>
   <p class="text-center">
@@ -15,10 +15,9 @@
       :link="tokensOperations[props.selectedToken].documentationLink"
     />
   </p>
-  <component
-    :is="dynamicComponent"
-    class="flex gap-16"
-  />
+  <div class="flex flex-col gap-16 px-32 mt-32">
+    <component :is="dynamicComponent" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -29,8 +28,6 @@ import useImage from '@/composables/useImage';
 const props = defineProps<{
   selectedToken: string;
 }>();
-
-// const emits = defineEmits(['create-token']);
 
 const { tokensOperations } = useTokens();
 const { getImgUrl } = useImage();

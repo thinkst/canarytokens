@@ -8,14 +8,14 @@ export function useTokens() {
       description: 'An alert when a URL is visited',
       documentationLink: '#',
       icon: `${TOKENS_TYPE.WEBBUG}.png`,
-      generate: () => {},
+      instruction: 'Copy this URL to your clipboard and use as you wish',
     },
     [TOKENS_TYPE.DNS]: {
       label: 'DNS Token',
       description: 'An alert when a hostname is requested',
       documentationLink: '#',
       icon: `${TOKENS_TYPE.DNS}.png`,
-      generate: () => {},
+      instruction: 'Copy this URL to your clipboard and use as you wish',
     },
     [TOKENS_TYPE.LOG4SHELL]: {
       label: 'Log 4 Shell',
@@ -23,14 +23,14 @@ export function useTokens() {
         'Alert when a log4j logline is vulnerable to CVW-2021-44-228',
       documentationLink: '#',
       icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
-      generate: () => {},
+      instruction: 'Copy this URL to your clipboard and use as you wish',
     },
     [TOKENS_TYPE.CLONEDWEBSITE]: {
       label: 'Cloned Website Token',
       description: 'Trigger an alert when your website is cloned',
       documentationLink: '#',
       icon: `${TOKENS_TYPE.CLONEDWEBSITE}.png`,
-      generate: () => {},
+      instruction: 'Copy this URL to your clipboard and use as you wish',
     },
   });
 

@@ -13,7 +13,10 @@
         v-if="modalType === ModalType.NewToken"
         :new-token-data="creationResponse"
       />
-      <ModalContentHowToUse v-else-if="modalType === ModalType.HowToUse" />
+      <ModalContentHowToUse
+        v-else-if="modalType === ModalType.HowToUse"
+        :selected-token="selectedToken"
+      />
     </template>
     <p v-else>Loading</p>
 
@@ -24,8 +27,8 @@
     >
       <template v-if="modalType === ModalType.AddToken">
         <BaseButton
-          variant="secondary"
-          @click="handleAddToken"
+          variant="primary"
+          @click.stop="handleAddToken"
           >Create Token</BaseButton
         >
       </template>
@@ -70,7 +73,9 @@ enum ModalType {
 
 const modalType = ref(ModalType.AddToken);
 const isLoading = ref(false);
-const creationResponse = ref({});
+const creationResponse = ref<{ token_type: string; [key: string]: unknown }>({
+  token_type: '',
+});
 
 defineProps<{
   selectedToken: string;
@@ -96,6 +101,7 @@ const hasBackButton = computed(() => {
 function handleAddToken() {
   isLoading.value = true;
   generateToken({
+    // example
     email: 'user@example.com',
     webhook_url: 'http://example.com',
     memo: 'string',
@@ -106,7 +112,7 @@ function handleAddToken() {
       creationResponse.value = res.data;
     })
     .catch((err) => {
-      console.log(err, err);
+      console.log(err, 'err');
     })
     .finally(() => {
       isLoading.value = false;
@@ -117,7 +123,6 @@ function handleAddToken() {
   //   isLoading.value = false;
   //   modalType.value = ModalType.NewToken;
   // }, 1000);
-  // console.log('submit:', store.newTokenData);
 
   // reset form
   store.newTokenData = {};

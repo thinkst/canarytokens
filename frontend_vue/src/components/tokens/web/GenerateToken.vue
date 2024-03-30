@@ -21,8 +21,8 @@
 import { useNewTokenForm } from '@/composables/useNewTokenForm';
 
 type webFormType = {
-  webhook_url: '';
-  memo: '';
+  webhook_url: string;
+  memo: string;
 };
 
 const { formData } = useNewTokenForm<webFormType>({
