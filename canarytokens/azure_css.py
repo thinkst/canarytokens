@@ -71,7 +71,7 @@ def _check_if_can_install_custom_css(
         res.json().get("customCSSRelativeUrl") is None
     ):  # Is there another CSS? If not then we can install!
         return (True, "")
-    # There is an existing CSS, let's check for compatiblity
+    # There is an existing CSS, let's check for compatibility
     res: Response = get(
         f"https://graph.microsoft.com/v1.0/organization/{tenant_id}/branding/localizations/0/customCSS",
         headers=headers,
@@ -151,7 +151,7 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     _delete_self(token)
     return (
         True,
-        "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propogate; no further action is needed.",
+        "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed.",
     )
 
 
