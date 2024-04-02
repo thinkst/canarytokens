@@ -17,10 +17,10 @@
 
 <script setup lang="ts">
 import AppLayoutGrid from '@/layout/AppLayoutGrid.vue';
-import CardToken from '@/components/CardToken.vue';
+import CardToken from '@/components/ui/CardToken.vue';
 import { useModal } from 'vue-final-modal';
 import { useTokens } from '@/composables/useTokens';
-import ModalAddToken from '@/components/ModalAddToken.vue';
+import ModalGenerateToken from '@/components/ModalGenerateToken.vue';
 
 // const { open } = useModal({
 //   component: ModalAddToken,
@@ -30,7 +30,7 @@ const { tokensOperations } = useTokens();
 
 function handleClickToken(selectedToken: string) {
   const { open } = useModal({
-    component: ModalAddToken,
+    component: ModalGenerateToken,
     attrs: {
       selectedToken: selectedToken,
     },

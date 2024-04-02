@@ -11,7 +11,7 @@
       />
       <ModalContentNewToken
         v-if="modalType === ModalType.NewToken"
-        :new-token-data="newTokenResponse"
+        :new-token-response="newTokenResponse"
       />
       <ModalContentHowToUse
         v-else-if="modalType === ModalType.HowToUse"

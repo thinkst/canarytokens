@@ -7,6 +7,8 @@ type TokenOperationType = {
   documentationLink: string;
   icon: string;
   instruction: string;
+  getNewTokenData?: (data: any) => void;
+  getManageTokenData?: (data: any) => void;
 };
 
 type TokenOperationsType = {
@@ -21,6 +23,12 @@ export function useTokens() {
       documentationLink: '#',
       icon: `${TOKENS_TYPE.WEBBUG}.png`,
       instruction: 'Copy this URL to your clipboard and use as you wish',
+      getNewTokenData: (data) => {
+        return data.token_url;
+      },
+      getManageTokenData: (data) => {
+        return data.canarydrop.generated_url;
+      },
     },
     [TOKENS_TYPE.DNS]: {
       label: 'DNS Token',

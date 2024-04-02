@@ -17,8 +17,9 @@ export function generateToken(form: any) {
 
 export function manageToken(params: manageTokenType) {
   const url = '/api/manage';
+  console.log(params);
   return axios
-    .get(url, { data: params })
+    .get(url, { params })
     .then((response) => response)
     .catch((error) => error.response);
 }

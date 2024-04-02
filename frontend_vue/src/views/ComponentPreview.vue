@@ -186,14 +186,14 @@
 // For internal use only
 // TODO: show this component only for DEV env or behind VPN
 import { useModal } from 'vue-final-modal';
-import ModalAddToken from '@/components/ModalAddToken.vue';
-import CardIncident from '@/components/CardIncident.vue';
-import CustomMap from '@/components/CustomMap.vue';
-import IncidentDetails from '@/components/IncidentDetails.vue';
+import ModalGenerateToken from '@/components/ModalGenerateToken.vue';
+import CardIncident from '@/components/ui/CardIncident.vue';
+import CustomMap from '@/components/ui/CustomMap.vue';
+import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import { ref, watch } from 'vue';
 
 const { open } = useModal({
-  component: ModalAddToken,
+  component: ModalGenerateToken,
 });
 
 const checked = ref(false);

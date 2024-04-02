@@ -1,7 +1,7 @@
 <template>
   <!-- @vue-expect-error content-transition ts error -->
   <VueFinalModal
-    class="flex items-center justify-center modal"
+    class="flex items-center justify-center modal h-[100svh] overflow-scroll"
     overlay-class="blur-bg"
     content-class="bg-grey-50 rounded-xl text-grey-800 md:w-[60vw] mx-16 "
     overlay-transition="vfm-fade"
