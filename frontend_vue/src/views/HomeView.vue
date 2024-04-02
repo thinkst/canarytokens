@@ -1,32 +1,5 @@
 <template>
   <AppLayoutGrid>
-    <!-- <CardToken
-      title="Very long long title"
-      description="Alert when a Kubeconfig Token is used"
-      documentation-link="#"
-      @click-token="() => open()"
-    />
-    <CardToken
-      title="Very short"
-      description="A description for a token, it’s very long and goes on three lines!"
-      logo-img-url="s3_bucket.png"
-      documentation-link="#"
-      @click-token="() => open()"
-    />
-    <CardToken
-      title="Very loooon title that might go 3 lines"
-      description="Another description for this token"
-      logo-img-url="s3_bucket.png"
-      documentation-link="#"
-      @click-token="() => open()"
-    />
-    <CardToken
-      title="Very short"
-      description="Another description for this token"
-      logo-img-url="s3_bucket.png"
-      documentation-link="#"
-      @click-token="() => open()"
-    /> -->
     <template
       v-for="(token, key) in tokensOperations"
       :key="key"
@@ -36,7 +9,7 @@
         :description="token.description"
         :logo-img-url="token.icon"
         :documentation-link="token.documentationLink"
-        @click-token="() => handleClickToken(key)"
+        @click-token="() => handleClickToken(key as string)"
       />
     </template>
   </AppLayoutGrid>
@@ -53,6 +26,7 @@ import ModalAddToken from '@/components/ModalAddToken.vue';
 //   component: ModalAddToken,
 //   attrs: {},
 // });
+const { tokensOperations } = useTokens();
 
 function handleClickToken(selectedToken: string) {
   const { open } = useModal({
@@ -63,7 +37,4 @@ function handleClickToken(selectedToken: string) {
   });
   open();
 }
-
-const { tokensOperations } = useTokens();
-// console.log(tokensOperations, 'tokensOperations');
 </script>

@@ -1,9 +1,17 @@
 <template>
   <base-code-snippet
     lang="javascript"
-    label="Somethin"
+    label="URL token"
     :code="newTokenData.token_url"
   ></base-code-snippet>
+  <p class="mt-24">
+    Remember, it gets triggered whenever someone requests the URL.
+  </p>
+  <p class="mt-24">
+    If the URL is requested as an image (e.g. &lt;img src="" /&gt;) then a 1x1
+    image is served. If the URL is surfed in a browser then a blank page is
+    served with fingerprinting Javascript.
+  </p>
 </template>
 
 <script setup lang="ts">

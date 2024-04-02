@@ -7,7 +7,7 @@
       >{{ label }}</label
     >
 
-    <div class="relative border rounded-lg border-grey-100">
+    <div class="relative bg-white border rounded-lg border-grey-100">
       <div class="absolute top-[.8rem] right-[1rem] z-10 flex gap-8">
         <BaseRefreshButton
           v-if="hasRefresh"

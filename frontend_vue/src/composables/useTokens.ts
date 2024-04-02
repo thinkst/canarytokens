@@ -1,8 +1,20 @@
 import { TOKENS_TYPE } from '@/components/constants.ts';
 import { ref } from 'vue';
 
+type TokenOperationType = {
+  label: string;
+  description: string;
+  documentationLink: string;
+  icon: string;
+  instruction: string;
+};
+
+type TokenOperationsType = {
+  [key: string]: TokenOperationType;
+};
+
 export function useTokens() {
-  const tokensOperations = ref({
+  const tokensOperations = ref<TokenOperationsType>({
     [TOKENS_TYPE.WEBBUG]: {
       label: 'Web Bug Token',
       description: 'An alert when a URL is visited',

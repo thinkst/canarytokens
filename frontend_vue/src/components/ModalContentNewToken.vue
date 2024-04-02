@@ -4,7 +4,7 @@
       getImgUrl(`token_icons/${tokensOperations[newTokenData.token_type].icon}`)
     "
     :alt="`${tokensOperations[newTokenData.token_type].label}`"
-    class="w-[8rem]"
+    class="w-[6rem] pb-16"
   />
   <h2 class="text-xl font-semibold leading-4 text-center">
     {{
@@ -14,10 +14,12 @@
   <p class="text-center">
     {{ tokensOperations[newTokenData.token_type].instruction }}
   </p>
-  <component
-    :is="dynamicComponent"
-    new-token-data="newTokenData"
-  />
+  <div class="w-full px-32 mt-32">
+    <component
+      :is="dynamicComponent"
+      :new-token-data="newTokenData"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

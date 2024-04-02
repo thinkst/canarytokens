@@ -11,7 +11,7 @@
       />
       <ModalContentNewToken
         v-if="modalType === ModalType.NewToken"
-        :new-token-data="creationResponse"
+        :new-token-data="newTokenResponse"
       />
       <ModalContentHowToUse
         v-else-if="modalType === ModalType.HowToUse"
@@ -59,6 +59,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
 import ModalContentNewToken from './ModalContentNewToken.vue';
 import ModalContentAddToken from './ModalContentAddToken.vue';
@@ -71,13 +72,17 @@ enum ModalType {
   HowToUse = 'howToUse',
 }
 
+const router = useRouter();
 const modalType = ref(ModalType.AddToken);
 const isLoading = ref(false);
-const creationResponse = ref<{ token_type: string; [key: string]: unknown }>({
+const newTokenResponse = ref<{
+  token_type: string;
+  [key: string]: string | number;
+}>({
   token_type: '',
 });
 
-defineProps<{
+const props = defineProps<{
   selectedToken: string;
 }>();
 
@@ -100,18 +105,13 @@ const hasBackButton = computed(() => {
 
 function handleAddToken() {
   isLoading.value = true;
-  generateToken({
-    // example
-    email: 'user@example.com',
-    webhook_url: 'http://example.com',
-    memo: 'string',
-    token_type: 'cc',
-  })
+  generateToken({ ...store.newTokenData, token_type: props.selectedToken })
     .then((res) => {
-      console.log(res, 'res');
-      creationResponse.value = res.data;
+      isLoading.value = false;
+      newTokenResponse.value = res.data;
     })
     .catch((err) => {
+      isLoading.value = false;
       console.log(err, 'err');
     })
     .finally(() => {
@@ -119,13 +119,6 @@ function handleAddToken() {
       modalType.value = ModalType.NewToken;
       store.newTokenData = {};
     });
-  // setTimeout(() => {
-  //   isLoading.value = false;
-  //   modalType.value = ModalType.NewToken;
-  // }, 1000);
-
-  // reset form
-  store.newTokenData = {};
 }
 
 function handleHowToUse() {
@@ -133,7 +126,9 @@ function handleHowToUse() {
 }
 
 function handleManageToken() {
-  console.log('manage token');
+  const auth = newTokenResponse.value?.auth_token;
+  const token = newTokenResponse.value?.token;
+  router.push({ name: 'manage', params: { auth, token } });
 }
 
 function handleBackButton() {

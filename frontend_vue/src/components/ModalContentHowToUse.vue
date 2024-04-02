@@ -1,5 +1,5 @@
 <template>
-  <ul class="flex flex-col gap-16 fa-ul items-left intro text-grey-800">
+  <ul class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800">
     <li
       v-for="item in howToUseToken"
       :key="item"
@@ -20,7 +20,7 @@ const howToUseToken = ref([]);
 
 const loadHowToUse = async () => {
   const { howToUse } = await import(
-    `@/components/tokens/${props.selectedToken}/howToUse`
+    `@/components/tokens/${props.selectedToken}/howToUse.ts`
   );
 
   howToUseToken.value = howToUse;
