@@ -4,7 +4,7 @@
     :alt="`${tokensOperations[tokenType].label}`"
     class="w-[6rem] pb-16"
   />
-  <h2 class="text-xl font-semibold leading-4 text-center">
+  <h2 class="text-xl font-semibold leading-6 text-cente">
     {{ `Your ${tokensOperations[tokenType].label} Token is active!` }}
   </h2>
   <p class="text-center">
@@ -44,6 +44,12 @@ onMounted(() => {
   ) {
     tokenSnippetData.value = tokensOperations.value[tokenType].getNewTokenData(
       props.newTokenResponse
+    );
+    console.log(
+      props.newTokenResponse,
+      tokenSnippetData.value,
+      tokenType,
+      'newTokenResponse'
     );
   }
 });

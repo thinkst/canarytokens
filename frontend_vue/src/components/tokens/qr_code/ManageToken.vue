@@ -1,6 +1,6 @@
 <template>
   Never mind the bollocks, here comes the Token
-  <TokenDisplay :token-url="props.tokenSnippetData" />
+  <TokenDisplay :token-png="props.tokenSnippetData" />
 </template>
 
 <script lang="ts" setup>

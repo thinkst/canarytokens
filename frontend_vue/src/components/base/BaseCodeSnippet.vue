@@ -23,7 +23,10 @@
         theme="github"
         :height="multiline ? customHeight : '3.5rem'"
         :copy-button="false"
-        :class="{ 'pr-[3rem]': !multiline }"
+        :class="[
+          { 'pr-[3rem]': !multiline && hasRefresh },
+          { 'pr-[2rem]': !multiline && !hasRefresh },
+        ]"
       />
     </div>
   </div>

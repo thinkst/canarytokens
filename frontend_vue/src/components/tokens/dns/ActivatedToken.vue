@@ -1,12 +1,13 @@
 <template>
   <TokenDisplay :token-url="tokenSnippetData" />
   <p class="mt-16 text-sm">
-    Remember, it gets triggered whenever someone requests the URL.
+    Remember, it gets triggered whenever someone performs a DNS lookup of the
+    hostname.
   </p>
   <base-message-box
     class="mt-24"
     variant="info"
-    :message="`If the URL is requested as an image (e.g. <img src=''''>) then a 1x1 image is served. If the URL is surfed in a browser then a blank page is served with fingerprinting Javascript.`"
+    :message="`The source IP address shown in the alert is the DNS server, not the end user.`"
   />
   <p class="mt-24 text-sm"></p>
 </template>

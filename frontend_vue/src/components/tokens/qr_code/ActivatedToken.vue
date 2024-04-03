@@ -1,5 +1,5 @@
 <template>
-  <TokenDisplay :token-url="tokenSnippetData" />
+  <TokenDisplay :token-png="tokenSnippetData" />
   <p class="mt-16 text-sm">
     Remember, it gets triggered whenever someone requests the URL.
   </p>

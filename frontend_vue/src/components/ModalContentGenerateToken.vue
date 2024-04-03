@@ -36,7 +36,8 @@ const dynamicComponent = ref(null);
 
 const loadComponent = async () => {
   dynamicComponent.value = defineAsyncComponent(
-    () => import(`@/components/tokens/${props.selectedToken}/GenerateToken.vue`)
+    () =>
+      import(`@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`)
   );
 };
 

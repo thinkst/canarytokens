@@ -5,11 +5,11 @@
     @handle-back-button="handleBackButton"
   >
     <template v-if="!isLoading">
-      <ModalContentAddToken
+      <ModalContentGenerateToken
         v-if="modalType === ModalType.AddToken"
         :selected-token="selectedToken"
       />
-      <ModalContentNewToken
+      <ModalContentActivatedToken
         v-if="modalType === ModalType.NewToken"
         :new-token-response="newTokenResponse"
       />
@@ -61,8 +61,8 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
-import ModalContentNewToken from './ModalContentNewToken.vue';
-import ModalContentAddToken from './ModalContentAddToken.vue';
+import ModalContentActivatedToken from './ModalContentActivatedToken.vue';
+import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
 import { generateToken } from '@/api/main';
 import { store } from '@/store/store.ts';
 

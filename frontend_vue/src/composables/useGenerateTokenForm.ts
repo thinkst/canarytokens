@@ -2,7 +2,7 @@ import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { store } from '@/store/store.ts';
 
-export function useNewTokenForm<T>(initialValue: any): {
+export function useGenerateTokenForm<T>(initialValue: any): {
   formData: Ref<T>;
 } {
   const formData = ref(initialValue);

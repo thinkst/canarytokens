@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { useNewTokenForm } from '@/composables/useNewTokenForm';
+import { useGenerateTokenForm } from '@/composables/useGenerateTokenForm';
 
 type webFormType = {
   email: string;
@@ -26,7 +26,7 @@ type webFormType = {
   memo: string;
 };
 
-const { formData } = useNewTokenForm<webFormType>({
+const { formData } = useGenerateTokenForm<webFormType>({
   webhook_url: '',
   memo: '',
   email: '',

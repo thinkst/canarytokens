@@ -11,4 +11,6 @@ const props = defineProps<{
   tockenBackendResponse: ManageTokenType;
   tokenSnippetData: string;
 }>();
+
+console.log(props.tockenBackendResponse, 'tockenBackendResponse');
 </script>
