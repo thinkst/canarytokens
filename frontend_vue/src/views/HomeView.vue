@@ -22,17 +22,14 @@ import { useModal } from 'vue-final-modal';
 import { useTokens } from '@/composables/useTokens';
 import ModalToken from '@/components/ModalToken.vue';
 
-// const { open } = useModal({
-//   component: ModalAddToken,
-//   attrs: {},
-// });
 const { tokensOperations } = useTokens();
 
 function handleClickToken(selectedToken: string) {
-  const { open } = useModal({
+  const { open, close } = useModal({
     component: ModalToken,
     attrs: {
       selectedToken: selectedToken,
+      closeModal: () => close(),
     },
   });
   open();

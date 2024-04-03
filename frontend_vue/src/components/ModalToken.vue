@@ -49,7 +49,7 @@
       <template v-if="modalType === ModalType.HowToUse">
         <BaseButton
           variant="secondary"
-          @click="handleManageToken"
+          @click="handleManageToken()"
           >Manage Token</BaseButton
         >
       </template>
@@ -84,6 +84,7 @@ const newTokenResponse = ref<{
 
 const props = defineProps<{
   selectedToken: string;
+  closeModal: () => void;
 }>();
 
 const title = computed(() => {
@@ -129,6 +130,7 @@ function handleManageToken() {
   const auth = newTokenResponse.value?.auth_token;
   const token = newTokenResponse.value?.token;
   router.push({ name: 'manage', params: { auth, token } });
+  props.closeModal();
 }
 
 function handleBackButton() {
