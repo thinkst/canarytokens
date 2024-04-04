@@ -1,3 +1,7 @@
+<!-- 
+// Component specific for VeeValidate
+// https://vee-validate.logaretm.com/v4/examples/custom-inputs/
+-->
 <template>
   <div
     class="flex flex-col text-grey-800 textfield-wrapper"

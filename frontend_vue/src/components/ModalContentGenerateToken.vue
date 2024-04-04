@@ -51,7 +51,7 @@ const { getImgUrl } = useImage();
 const dynamicComponent = ref(null);
 const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
-const schema = validationSchema.value[props.selectedToken];
+const schema = validationSchema.value[props.selectedToken].schema;
 
 function onSubmit(values: GenericObject) {
   emits('token-generated', values);
