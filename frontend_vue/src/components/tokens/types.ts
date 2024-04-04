@@ -3,3 +3,8 @@ export type MySQLtokenDataType = {
   token: string;
   auth: string;
 };
+
+export type BaseFormValuesType = {
+  email: string;
+  memo: string;
+};

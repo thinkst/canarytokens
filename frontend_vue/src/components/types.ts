@@ -72,8 +72,3 @@ export type ManageTokenType = {
   qr_code: any;
   force_https: any;
 };
-
-export type BaseFormValuesType = {
-  email: string;
-  memo: string;
-};

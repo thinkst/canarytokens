@@ -37,7 +37,7 @@ import type { GenericObject } from 'vee-validate';
 
 const props = defineProps<{
   selectedToken: string;
-  clickSubmit: boolean;
+  triggerSubmit: boolean;
 }>();
 
 const emits = defineEmits(['token-generated', 'invalid-submit']);
@@ -78,7 +78,7 @@ loadComponent();
 watch(
   props,
   () => {
-    if (props.clickSubmit === true) return programaticSubmit();
+    if (props.triggerSubmit === true) return programaticSubmit();
   },
   {
     immediate: true,
