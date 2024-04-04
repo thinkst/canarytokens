@@ -1,5 +1,5 @@
 <template>
-  Never mind the bollocks, here comes the Token
+  Your Token
   <TokenDisplay :token-data="props.tokenSnippetData" />
 </template>
 
