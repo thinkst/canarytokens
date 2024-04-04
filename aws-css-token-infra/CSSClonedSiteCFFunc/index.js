@@ -11,16 +11,16 @@ const kvsHandle = cf.kvs(kvsId);
 const token_server = 'https://canarytokens.com';
 
 const matching_ref_response = {
-            statusCode: 200,
-            statusDescription: 'OK',
-            headers: {
-                'content-type': { value: 'image/gif' },
-                'cache-control': { value: 'no-store' }
-            },
-            body: "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff"
-            + "\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00"
-            + "\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"
-        };
+    statusCode: 200,
+    statusDescription: 'OK',
+    headers: {
+        'content-type': { value: 'image/gif' },
+        'cache-control': { value: 'no-store' }
+    },
+    body: "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff"
+    + "\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00"
+    + "\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"
+};
 
 async function handler(event) {
     const decoder = new TextDecoder();
@@ -52,7 +52,7 @@ async function handler(event) {
             referer_origin = domain_port[0];
         }
     }
-    
+
     if (expected_referrer == '')
         console.log("Empty expected_referrer!");
     if (referer == '')
