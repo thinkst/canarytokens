@@ -13,6 +13,7 @@
     multiline
     full-width
   />
+  <!-- TODO: add encoding switch  -->
 </template>
 
 <script setup lang="ts"></script>
