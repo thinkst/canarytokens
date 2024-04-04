@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import BaseTextField from '@/components/base/BaseTextField.vue';
+import BaseFormTextField from '@/components/base/BaseFormTextField.vue';
 
 describe('BaseTextField.vue', () => {
   it('renders label when passed', () => {
@@ -7,7 +7,7 @@ describe('BaseTextField.vue', () => {
     const modelValue = 'initialText';
     const id = 'custom id';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { label, modelValue, id },
     });
     expect(wrapper.text()).toMatch(label);
@@ -17,7 +17,7 @@ describe('BaseTextField.vue', () => {
     const modelValue = 'initialText';
     const id = 'custom id';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { label: 'Required Field', required: true, modelValue, id },
     });
     expect(wrapper.html()).toContain('<span class="text-green-500">*</span>');
@@ -27,7 +27,7 @@ describe('BaseTextField.vue', () => {
     const modelValue = 'initialText';
     const id = 'custom id';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { multiline: false, modelValue, label: 'Label', id },
     });
     expect(wrapper.find('input').exists()).toBe(true);
@@ -42,7 +42,7 @@ describe('BaseTextField.vue', () => {
     const modelValue = 'initialText';
     const id = 'custom id';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { multiline: false, modelValue, label: 'Label', id },
     });
     const inputElement = wrapper.find('input');
@@ -56,7 +56,7 @@ describe('BaseTextField.vue', () => {
     const id = 'custom id';
     const errorMessage = 'Error message';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { hasError: true, errorMessage, modelValue, label: 'Label', id },
     });
     expect(wrapper.text()).toContain(errorMessage);
@@ -67,7 +67,7 @@ describe('BaseTextField.vue', () => {
     const id = 'custom id';
     const helperMessage = 'Helper message';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { helperMessage, modelValue, label: 'Label', id },
     });
     expect(wrapper.text()).toContain(helperMessage);
@@ -77,7 +77,7 @@ describe('BaseTextField.vue', () => {
     const modelValue = 'initialText';
     const id = 'custom id';
 
-    const wrapper = mount(BaseTextField, {
+    const wrapper = mount(BaseFormTextField, {
       props: { disabled: false, modelValue, label: 'Label', id },
     });
     expect(wrapper.find('input').attributes('disabled')).toBeUndefined();

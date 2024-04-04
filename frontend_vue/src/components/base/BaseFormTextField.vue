@@ -19,12 +19,12 @@
       :value="inputValue"
       class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 outline-offset-4"
       :class="[
-        { 'border-red shadow-none': hasError },
+        { 'border-red shadow-none': errorMessage },
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },
       ]"
       :style="`height: ${multilineHeight}`"
       :placeholder="placeholder"
-      :aria-invalid="hasError"
+      :aria-invalid="errorMessage"
       aria-describedby="helper error"
       :required="required"
       :disabled="disabled"
@@ -59,26 +59,16 @@ const props = defineProps<{
   id: string;
   label: string;
   multiline?: boolean;
-  hasError?: boolean;
-  // errorMessage?: string;
   helperMessage?: string;
   placeholder?: string;
   required?: boolean;
   multilineHeight?: string;
   fullWidth?: boolean;
   disabled?: boolean;
+  value?: string;
 }>();
 
-// defineModel macro
-// doesn't work on Dynamic components :(
-
-const emit = defineEmits(['update:modelValue', 'blur']);
-const updateValue = (value: string) => {
-  emit('update:modelValue', value);
-};
-
 const inputType = computed(() => (props.multiline ? 'textarea' : 'input'));
-
 const id = toRef(props, 'id');
 
 const {
@@ -86,7 +76,6 @@ const {
   errorMessage,
   handleBlur,
   handleChange,
-  meta,
 } = useField(id, undefined, {
   initialValue: props.value,
 });

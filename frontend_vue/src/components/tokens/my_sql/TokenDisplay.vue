@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { downloadToken } from '@/api/main';
-import { MySQLtokenDataType } from './types';
+import type { MySQLtokenDataType } from '../types';
 
 const props = defineProps<{
   tokenData: MySQLtokenDataType;

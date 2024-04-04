@@ -15,3 +15,4 @@ const props = defineProps<{
 
 console.log(props.tockenBackendResponse, 'tockenBackendResponse');
 </script>
+../types

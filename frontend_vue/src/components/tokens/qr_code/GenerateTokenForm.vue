@@ -1,5 +1,5 @@
 <template>
-  <base-text-field
+  <BaseFormTextField
     id="email"
     type="text"
     placeholder="Url"
@@ -7,12 +7,12 @@
     full-width
     helper-message="Provide an email address or webhook URL, or both space separated"
   />
-  <base-text-field
+  <BaseFormTextField
     id="memo"
     label="Add Note"
     multiline
     full-width
-  ></base-text-field>
+  ></BaseFormTextField>
 </template>
 
 <script setup lang="ts"></script>

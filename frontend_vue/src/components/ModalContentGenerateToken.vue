@@ -28,10 +28,11 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue';
+import * as Yup from 'yup';
 import { useTokens } from '@/composables/useTokens';
 import useImage from '@/composables/useImage';
-import * as Yup from 'yup';
 import { Form } from 'vee-validate';
+import type { GenericObject } from 'vee-validate';
 
 const props = defineProps<{
   selectedToken: string;
@@ -51,18 +52,17 @@ const schema = Yup.object().shape({
   memo: Yup.string().required(),
 });
 
-function onSubmit(values: any) {
+function onSubmit(values: GenericObject) {
   console.log(values, 'submit!');
   emits('token-generated', { values });
 }
 
-function onInvalidSubmit(values) {
-  console.log('onInvalidSubmit');
+function onInvalidSubmit(values: GenericObject) {
+  console.log('onInvalidSubmit', values);
   emits('invalid-submit', values);
 }
 
 function programaticSubmit() {
-  console.log('programaticSubmit');
   if (myForm.value) {
     myForm.value.$el.requestSubmit();
   }

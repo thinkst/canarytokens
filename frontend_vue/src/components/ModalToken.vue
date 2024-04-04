@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import type { BaseFormValuesType } from './types';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
 import ModalContentActivatedToken from './ModalContentActivatedToken.vue';
 import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
@@ -73,7 +74,6 @@ enum ModalType {
   NewToken = 'newToken',
   HowToUse = 'howToUse',
 }
-
 const router = useRouter();
 const modalType = ref(ModalType.AddToken);
 const isLoading = ref(false);
@@ -108,12 +108,11 @@ const hasBackButton = computed(() => {
 });
 
 function handleAddToken() {
-  console.log('handleAddToken');
+  // clickSubmit triggers submit inside ModalContentGenerateToken
   clickSubmit.value = true;
 }
 
-function handleGenerateToken(formValues) {
-  clickSubmit.value = false;
+function handleGenerateToken(formValues: BaseFormValuesType) {
   isLoading.value = true;
   generateToken({ ...formValues.values, token_type: props.selectedToken })
     .then((res) => {
@@ -122,16 +121,17 @@ function handleGenerateToken(formValues) {
     })
     .catch((err) => {
       isLoading.value = false;
+      clickSubmit.value = false;
       console.log(err, 'err');
     })
     .finally(() => {
       isLoading.value = false;
+      clickSubmit.value = false;
       modalType.value = ModalType.NewToken;
     });
 }
 
 function handleInvalidSubmit() {
-  console.log('handleInvalidSubmit');
   clickSubmit.value = false;
 }
 

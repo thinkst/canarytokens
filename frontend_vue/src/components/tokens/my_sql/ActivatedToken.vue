@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import TokenDisplay from './TokenDisplay.vue';
-import { MySQLtokenDataType } from './types';
+import type { MySQLtokenDataType } from '../types';
 
 defineProps<{
   tokenSnippetData: MySQLtokenDataType;

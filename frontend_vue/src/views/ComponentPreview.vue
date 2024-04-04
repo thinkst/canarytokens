@@ -72,60 +72,52 @@
   </div>
   <hr class="my-24" />
   <div class="flex flex-col gap-16">
-    <h1>Text Fields</h1>
+    <h1>Form Text Fields</h1>
     <div class="flex flex-col gap-16 pl-16 flex-nowrap">
       <h2>Input field</h2>
       <div class="flex flex-wrap items-center gap-16">
-        <BaseTextField
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Standalone input"
           placeholder="This is a great input"
-        ></BaseTextField>
-        vmodel output: {{ inputValue }}
-        <BaseTextField
+        ></BaseFormTextField>
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Full width input"
           placeholder="This is a great input"
           full-width
-        ></BaseTextField>
-        <BaseTextField
+        ></BaseFormTextField>
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Custom label very long"
           placeholder="This is a great input"
           helper-message="This is an helper for the user, so they know what to do"
-        ></BaseTextField>
-        <BaseTextField
+        ></BaseFormTextField>
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Disabled input"
           disabled
           placeholder="This is a great input"
-        ></BaseTextField>
-        <BaseTextField
+        ></BaseFormTextField>
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Custom label required"
           required
           placeholder="This is a great input"
-        ></BaseTextField>
-        <BaseTextField
+        ></BaseFormTextField>
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Custom label required"
           required
           placeholder="This is a great input"
-        ></BaseTextField>
-        <BaseTextField
+        ></BaseFormTextField>
+        <BaseFormTextField
           id="test input"
-          v-model="inputValue"
           label="Error input"
           placeholder="This is a great input"
           :has-error="true"
           error-message="Error message here"
-        ></BaseTextField>
+        ></BaseFormTextField>
       </div>
     </div>
     <div>
