@@ -16,7 +16,7 @@
     />
   </p>
   <Form
-    ref="myForm"
+    ref="generateTokenFormRef"
     :validation-schema="schema"
     class="flex flex-col gap-16 px-32 mt-32"
     @submit="onSubmit"
@@ -28,8 +28,10 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue';
+import type { Ref } from 'vue';
 import * as Yup from 'yup';
 import { useTokens } from '@/composables/useTokens';
+import { useValidation } from '@/composables/useValidation';
 import useImage from '@/composables/useImage';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
@@ -42,31 +44,37 @@ const props = defineProps<{
 const emits = defineEmits(['token-generated', 'invalid-submit']);
 
 const { tokensOperations } = useTokens();
+const { validationSchema } = useValidation();
+
 const { getImgUrl } = useImage();
 
 const dynamicComponent = ref(null);
-const myForm = ref(null);
+const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
-const schema = Yup.object().shape({
-  email: Yup.string().email().required(),
-  memo: Yup.string().required(),
-});
+const schema = validationSchema.value[props.selectedToken];
 
 function onSubmit(values: GenericObject) {
-  console.log(values, 'submit!');
-  emits('token-generated', { values });
+  emits('token-generated', values);
 }
 
 function onInvalidSubmit(values: GenericObject) {
-  console.log('onInvalidSubmit', values);
   emits('invalid-submit', values);
 }
 
 function programaticSubmit() {
-  if (myForm.value) {
-    myForm.value.$el.requestSubmit();
+  if (generateTokenFormRef.value) {
+    generateTokenFormRef.value.$el.requestSubmit();
   }
 }
+
+const loadComponent = async () => {
+  dynamicComponent.value = defineAsyncComponent(
+    () =>
+      import(`@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`)
+  );
+};
+
+loadComponent();
 
 watch(
   props,
@@ -78,13 +86,4 @@ watch(
     deep: true,
   }
 );
-
-const loadComponent = async () => {
-  dynamicComponent.value = defineAsyncComponent(
-    () =>
-      import(`@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`)
-  );
-};
-
-loadComponent();
 </script>
