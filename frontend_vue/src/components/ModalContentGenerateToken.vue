@@ -15,24 +15,69 @@
       :link="tokensOperations[props.selectedToken].documentationLink"
     />
   </p>
-  <div class="flex flex-col gap-16 px-32 mt-32">
+  <Form
+    ref="myForm"
+    :validation-schema="schema"
+    class="flex flex-col gap-16 px-32 mt-32"
+    @submit="onSubmit"
+    @invalid-submit="onInvalidSubmit"
+  >
     <component :is="dynamicComponent" />
-  </div>
+  </Form>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue';
+import { defineAsyncComponent, ref, watch } from 'vue';
 import { useTokens } from '@/composables/useTokens';
 import useImage from '@/composables/useImage';
+import * as Yup from 'yup';
+import { Form } from 'vee-validate';
 
 const props = defineProps<{
   selectedToken: string;
+  clickSubmit: boolean;
 }>();
+
+const emits = defineEmits(['token-generated', 'invalid-submit']);
 
 const { tokensOperations } = useTokens();
 const { getImgUrl } = useImage();
 
 const dynamicComponent = ref(null);
+const myForm = ref(null);
+
+const schema = Yup.object().shape({
+  email: Yup.string().email().required(),
+  memo: Yup.string().required(),
+});
+
+function onSubmit(values: any) {
+  console.log(values, 'submit!');
+  emits('token-generated', { values });
+}
+
+function onInvalidSubmit(values) {
+  console.log('onInvalidSubmit');
+  emits('invalid-submit', values);
+}
+
+function programaticSubmit() {
+  console.log('programaticSubmit');
+  if (myForm.value) {
+    myForm.value.$el.requestSubmit();
+  }
+}
+
+watch(
+  props,
+  () => {
+    if (props.clickSubmit === true) return programaticSubmit();
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 
 const loadComponent = async () => {
   dynamicComponent.value = defineAsyncComponent(

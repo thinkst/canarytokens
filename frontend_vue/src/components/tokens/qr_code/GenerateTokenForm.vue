@@ -1,7 +1,6 @@
 <template>
   <base-text-field
-    id="urltoken"
-    v-model="formData.webhook_url"
+    id="email"
     type="text"
     placeholder="Url"
     label="Email or webhook URL"
@@ -10,25 +9,10 @@
   />
   <base-text-field
     id="memo"
-    v-model="formData.memo"
     label="Add Note"
     multiline
     full-width
   ></base-text-field>
 </template>
 
-<script setup lang="ts">
-import { useGenerateTokenForm } from '@/composables/useGenerateTokenForm';
-
-type qrCodeFormType = {
-  email: string;
-  webhook_url: string;
-  memo: string;
-};
-
-const { formData } = useGenerateTokenForm<qrCodeFormType>({
-  webhook_url: '',
-  memo: '',
-  email: '',
-});
-</script>
+<script setup lang="ts"></script>

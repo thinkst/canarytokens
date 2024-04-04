@@ -8,6 +8,9 @@
       <ModalContentGenerateToken
         v-if="modalType === ModalType.AddToken"
         :selected-token="selectedToken"
+        :click-submit="clickSubmit"
+        @token-generated="(formValues) => handleGenerateToken(formValues)"
+        @invalid-submit="handleInvalidSubmit"
       />
       <ModalContentActivatedToken
         v-if="modalType === ModalType.NewToken"
@@ -64,7 +67,6 @@ import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
 import ModalContentActivatedToken from './ModalContentActivatedToken.vue';
 import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
 import { generateToken } from '@/api/main';
-import { store } from '@/store/store.ts';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -81,6 +83,7 @@ const newTokenResponse = ref<{
 }>({
   token_type: '',
 });
+const clickSubmit = ref(false);
 
 const props = defineProps<{
   selectedToken: string;
@@ -105,8 +108,14 @@ const hasBackButton = computed(() => {
 });
 
 function handleAddToken() {
+  console.log('handleAddToken');
+  clickSubmit.value = true;
+}
+
+function handleGenerateToken(formValues) {
+  clickSubmit.value = false;
   isLoading.value = true;
-  generateToken({ ...store.newTokenData, token_type: props.selectedToken })
+  generateToken({ ...formValues.values, token_type: props.selectedToken })
     .then((res) => {
       isLoading.value = false;
       newTokenResponse.value = res.data;
@@ -118,8 +127,12 @@ function handleAddToken() {
     .finally(() => {
       isLoading.value = false;
       modalType.value = ModalType.NewToken;
-      store.newTokenData = {};
     });
+}
+
+function handleInvalidSubmit() {
+  console.log('handleInvalidSubmit');
+  clickSubmit.value = false;
 }
 
 function handleHowToUse() {
@@ -134,6 +147,7 @@ function handleManageToken() {
 }
 
 function handleBackButton() {
+  modalType.value = ModalType.NewToken;
   modalType.value = ModalType.NewToken;
 }
 </script>
