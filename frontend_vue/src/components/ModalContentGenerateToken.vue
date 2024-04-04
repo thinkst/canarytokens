@@ -18,7 +18,7 @@
   <Form
     ref="generateTokenFormRef"
     :validation-schema="schema"
-    class="flex flex-col gap-16 px-32 mt-32"
+    class="flex flex-col w-full md:w-[80%] lg:w-[60%] gap-16 px-8 mt-32"
     @submit="onSubmit"
     @invalid-submit="onInvalidSubmit"
   >
@@ -29,7 +29,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import * as Yup from 'yup';
 import { useTokens } from '@/composables/useTokens';
 import { useValidation } from '@/composables/useValidation';
 import useImage from '@/composables/useImage';

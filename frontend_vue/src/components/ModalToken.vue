@@ -114,7 +114,7 @@ function handleAddToken() {
 
 function handleGenerateToken(formValues: BaseFormValuesType) {
   isLoading.value = true;
-  generateToken({ ...formValues.values, token_type: props.selectedToken })
+  generateToken({ ...formValues, token_type: props.selectedToken })
     .then((res) => {
       isLoading.value = false;
       newTokenResponse.value = res.data;
