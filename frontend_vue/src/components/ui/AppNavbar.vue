@@ -43,7 +43,7 @@ import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue';
 
 const menuItems = [
   { name: 'Home', path: '/' },
-  { name: 'Components Prview', path: '/components' },
+  { name: 'Components Preview', path: '/components' },
 ];
 </script>
 
