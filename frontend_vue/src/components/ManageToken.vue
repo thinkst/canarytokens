@@ -12,11 +12,10 @@
   >
     {{ error }}
   </div>
-  <div v-if="token">
+  <div v-if="manageTokenResponse">
     <component
       :is="dynamicComponent"
-      :tocken-backend-response="token"
-      :token-snippet-data="tokenSnippetData"
+      :tocken-backend-response="manageTokenResponse"
     />
   </div>
 </template>
@@ -25,20 +24,16 @@
 import { defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { manageToken } from '@/api/main.ts';
-import type { ManageTokenType } from '@/components/types.ts';
-import { useTokens } from '@/composables/useTokens';
 
 const route = useRoute();
-const { tokensOperations } = useTokens();
 
 const isLoading = ref(false);
 const error = ref(null);
-const token = ref<ManageTokenType>();
+const manageTokenResponse = ref();
 
 const dynamicComponent = ref({
   props: {},
 });
-const tokenSnippetData = ref();
 
 async function fetchTokenData() {
   isLoading.value = true;
@@ -51,17 +46,7 @@ async function fetchTokenData() {
   manageToken(params)
     .then((res) => {
       isLoading.value = false;
-      token.value = res.data;
-      const tokenType = token.value?.canarydrop.type;
-
-      if (
-        tokenType !== undefined &&
-        tokensOperations.value[tokenType]?.getManageTokenData
-      ) {
-        tokenSnippetData.value = tokensOperations.value[
-          tokenType
-        ].getManageTokenData(token.value);
-      }
+      manageTokenResponse.value = res.data;
 
       loadComponent();
     })
@@ -78,13 +63,13 @@ async function loadComponent() {
   dynamicComponent.value = await defineAsyncComponent(
     () =>
       import(
-        `@/components/tokens/${token.value?.canarydrop.type}/ManageToken.vue`
+        `@/components/tokens/${manageTokenResponse.value?.canarydrop.type}/ManageToken.vue`
       )
   );
-  dynamicComponent.value.props = {
-    tockenBackendResponse: token,
-    tokenSnippetData: tokenSnippetData.value,
-  };
+  // dynamicComponent.value.props = {
+  //   tockenBackendResponse: token,
+  //   tokenSnippetData: tokenSnippetData.value,
+  // };
 }
 
 loadComponent();

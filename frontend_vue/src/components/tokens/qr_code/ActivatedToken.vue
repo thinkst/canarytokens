@@ -13,8 +13,16 @@
 
 <script setup lang="ts">
 import TokenDisplay from './TokenDisplay.vue';
+import { ref } from 'vue';
+import type { NewTokenBackendType } from '@/components/tokens/types';
 
-defineProps<{
-  tokenSnippetData: string;
+interface QRCodeTokenBackendType extends NewTokenBackendType {
+  qrcode_png: string;
+}
+
+const props = defineProps<{
+  tokenData: QRCodeTokenBackendType;
 }>();
+
+const tokenSnippetData = ref(props.tokenData.qrcode_png);
 </script>

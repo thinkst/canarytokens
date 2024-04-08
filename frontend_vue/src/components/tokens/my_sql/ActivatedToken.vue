@@ -10,9 +10,22 @@
 
 <script setup lang="ts">
 import TokenDisplay from './TokenDisplay.vue';
-import type { MySQLtokenDataType } from '../types';
+import { ref } from 'vue';
+import type { NewTokenBackendType } from '@/components/tokens/types';
 
-defineProps<{
-  tokenSnippetData: MySQLtokenDataType;
+interface MySQLtokenBackendType extends NewTokenBackendType {
+  usage: string;
+  token: string;
+  auth: string;
+}
+
+const props = defineProps<{
+  tokenData: MySQLtokenBackendType;
 }>();
+
+const tokenSnippetData = ref({
+  code: props.tokenData.usage,
+  token: props.tokenData.token,
+  auth: props.tokenData.auth_token,
+});
 </script>

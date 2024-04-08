@@ -1,18 +1,16 @@
 <template>
   <img
-    :src="
-      getImgUrl(`token_icons/${tokensOperations[props.selectedToken].icon}`)
-    "
-    :alt="`${tokensOperations[props.selectedToken].label}`"
+    :src="getImageUrl(`token_icons/${tokenServices[props.selectedToken].icon}`)"
+    :alt="`${tokenServices[props.selectedToken].label}`"
     class="w-[6rem] pb-16"
   />
   <h2 class="text-xl font-semibold leading-4 text-center">
-    {{ tokensOperations[props.selectedToken].label }}
+    {{ tokenServices[props.selectedToken].label }}
   </h2>
   <p class="text-center">
-    {{ tokensOperations[props.selectedToken].description }}
+    {{ tokenServices[props.selectedToken].description }}
     <BaseLinkDocumentation
-      :link="tokensOperations[props.selectedToken].documentationLink"
+      :link="tokenServices[props.selectedToken].documentationLink"
     />
   </p>
   <Form
@@ -29,9 +27,9 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { useTokens } from '@/composables/useTokens';
-import { useValidation } from '@/composables/useValidation';
-import useImage from '@/composables/useImage';
+import { tokenServices } from '@/utils/tokenServices';
+import { formValidators } from '@/utils/formValidators';
+import getImageUrl from '@/utils/getImageUrl';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 
@@ -42,15 +40,10 @@ const props = defineProps<{
 
 const emits = defineEmits(['token-generated', 'invalid-submit']);
 
-const { tokensOperations } = useTokens();
-const { validationSchema } = useValidation();
-
-const { getImgUrl } = useImage();
-
 const dynamicComponent = ref(null);
 const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
-const schema = validationSchema.value[props.selectedToken].schema;
+const schema = formValidators[props.selectedToken].schema;
 
 function onSubmit(values: GenericObject) {
   emits('token-generated', values);

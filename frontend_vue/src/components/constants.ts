@@ -10,10 +10,10 @@ to check if a folder name matches a TOKENS_TYPE type
 */
 
 export const TOKENS_TYPE = {
-  WEBBUG: 'web',
+  WEB_BUG: 'web',
   DNS: 'dns',
   LOG4SHELL: 'log4shell',
-  CLONEDWEBSITE: 'clonedsite',
+  CLONED_WEBSITE: 'clonedsite',
   QRCODE: 'qr_code',
   MYSQL: 'my_sql',
 };

@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://maxoooo.com/';
-
 type manageTokenType = {
   auth: string | string[];
   token: string | string[];

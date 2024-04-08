@@ -40,7 +40,6 @@ export default defineConfig({
   define: {
     'import.meta.env': JSON.stringify(process.env),
   },
-  // this doesn't work :(
   server: {
     host: '0.0.0.0',
     port: 5173,

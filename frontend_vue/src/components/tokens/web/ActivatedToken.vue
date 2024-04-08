@@ -1,5 +1,5 @@
 <template>
-  <TokenDisplay :token-url="tokenSnippetData" />
+  <TokenDisplay :token-url="tokenUrl" />
   <p class="mt-16 text-sm">
     Remember, it gets triggered whenever someone requests the URL.
   </p>
@@ -12,9 +12,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
+import type { NewTokenBackendType } from '@/components/tokens/types';
 
-defineProps<{
-  tokenSnippetData: string;
+const props = defineProps<{
+  tokenData: NewTokenBackendType;
 }>();
+
+const tokenUrl = ref(props.tokenData.token_url);
 </script>

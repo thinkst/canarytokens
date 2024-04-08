@@ -1,7 +1,7 @@
 <template>
   <AppLayoutGrid>
     <template
-      v-for="(token, key) in tokensOperations"
+      v-for="(token, key) in tokenServices"
       :key="key"
     >
       <CardToken
@@ -19,10 +19,8 @@
 import AppLayoutGrid from '@/layout/AppLayoutGrid.vue';
 import CardToken from '@/components/ui/CardToken.vue';
 import { useModal } from 'vue-final-modal';
-import { useTokens } from '@/composables/useTokens';
 import ModalToken from '@/components/ModalToken.vue';
-
-const { tokensOperations } = useTokens();
+import { tokenServices } from '@/utils/tokenServices';
 
 function handleClickToken(selectedToken: string) {
   const { open, close } = useModal({

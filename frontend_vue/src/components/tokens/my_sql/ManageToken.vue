@@ -1,18 +1,25 @@
 <template>
   Your Token
-  <TokenDisplay :token-data="props.tokenSnippetData" />
+  <div v-if="!tockenData">Error loading</div>
+  <TokenDisplay
+    v-else
+    :token-data="tockenData"
+  />
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
-import type { ManageTokenType } from '@/components/types.ts';
-import { MySQLtokenDataType } from './types';
+import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
+import generateManagedToken from '@/components/tokens/my_sql/generateManagedToken';
 
 const props = defineProps<{
-  tockenBackendResponse: ManageTokenType;
-  tokenSnippetData: MySQLtokenDataType;
+  tockenBackendResponse: ManageTokenBackendType;
 }>();
 
-console.log(props.tockenBackendResponse, 'tockenBackendResponse');
+const tockenData = ref({
+  code: generateManagedToken(props.tockenBackendResponse),
+  token: props.tockenBackendResponse?.canarydrop?.canarytoken?._value,
+  auth: props.tockenBackendResponse.canarydrop?.auth,
+});
 </script>
-../types

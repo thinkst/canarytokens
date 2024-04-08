@@ -1,5 +1,5 @@
 <template>
-  <TokenDisplay :token-url="tokenSnippetData" />
+  <TokenDisplay :token-url="tokenUrl" />
   <p class="mt-16 text-sm">
     Remember, it gets triggered whenever someone performs a DNS lookup of the
     hostname.
@@ -13,9 +13,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
+import type { NullableNewTokenBackendType } from '@/components/tokens/types';
 
-defineProps<{
-  tokenSnippetData: string;
+const props = defineProps<{
+  tokenData: NullableNewTokenBackendType;
 }>();
+
+const tokenUrl = ref(props.tokenData.token_url);
 </script>

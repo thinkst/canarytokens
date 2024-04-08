@@ -1,6 +1,5 @@
 import { TOKENS_TYPE } from '@/components/constants.ts';
 import { ref } from 'vue';
-import generateManagedToken from '@/components/tokens/my_sql/generateManagedToken';
 
 type TokenOperationType = {
   label: string;
@@ -63,17 +62,17 @@ export function useTokens() {
       documentationLink: '#',
       icon: `${TOKENS_TYPE.MYSQL}.png`,
       instruction: '',
-      getNewTokenData: (data) => {
-        return { code: data.usage, token: data.token, auth: data.auth_token };
-      },
-      getManageTokenData: (data) => {
-        const tokenCode = generateManagedToken(data);
-        return {
-          code: tokenCode,
-          token: data.canarydrop.canarytoken._value,
-          auth: data.canarydrop.auth,
-        };
-      },
+      // getNewTokenData: (data) => {
+      //   return { code: data.usage, token: data.token, auth: data.auth_token };
+      // },
+      // getManageTokenData: (data) => {
+      //   const tokenCode = ;
+      //   return {
+      //     code: tokenCode,
+      //     token: data.canarydrop.canarytoken._value,
+      //     auth: data.canarydrop.auth,
+      //   };
+      // },
     },
     // [TOKENS_TYPE.LOG4SHELL]: {
     //   label: 'Log 4 Shell',

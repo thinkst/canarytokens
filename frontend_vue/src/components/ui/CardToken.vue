@@ -5,7 +5,7 @@
       @click.stop="handleClickToken"
     >
       <img
-        :src="getImgUrl(tokenLogoUrl)"
+        :src="getImageUrl(tokenLogoUrl)"
         class="h-[4rem]"
         aria-hidden="true"
         :alt="`${title} logo`"
@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import useImage from '@/composables/useImage';
+import getImageUrl from '@/utils/getImageUrl';
 
 const emit = defineEmits(['clickToken']);
 
@@ -53,8 +53,6 @@ const props = withDefaults(
     logoImgUrl: 'default.png',
   }
 );
-
-const { getImgUrl } = useImage();
 
 const tokenLogoUrl = `token_icons/${props.logoImgUrl}`;
 

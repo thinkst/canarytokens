@@ -1,14 +1,13 @@
 <template>
   Your Token
-  <TokenDisplay :token-png="props.tokenSnippetData" />
+  <TokenDisplay :token-png="props.tockenBackendResponse.qr_code" />
 </template>
 
 <script lang="ts" setup>
 import TokenDisplay from './TokenDisplay.vue';
-import type { ManageTokenType } from '@/components/types.ts';
+import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 
 const props = defineProps<{
-  tockenBackendResponse: ManageTokenType;
-  tokenSnippetData: string;
+  tockenBackendResponse: ManageTokenBackendType;
 }>();
 </script>

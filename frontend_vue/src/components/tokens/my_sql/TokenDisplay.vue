@@ -25,7 +25,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { downloadToken } from '@/api/main';
-import type { MySQLtokenDataType } from '../types';
+
+type MySQLtokenDataType = {
+  code: string;
+  auth: string;
+  token: string;
+};
 
 const props = defineProps<{
   tokenData: MySQLtokenDataType;
@@ -34,7 +39,6 @@ const props = defineProps<{
 const encoded = ref(false);
 
 function handleDownloadDumpFile() {
-  console.log('download!');
   const params = {
     fmt: 'my_sql',
     auth: props.tokenData.auth,
