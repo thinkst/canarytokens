@@ -5,7 +5,7 @@
       @click.stop="handleClickToken"
     >
       <img
-        :src="getImgUrl(tokenLogoUrl)"
+        :src="getImageUrl(tokenLogoUrl)"
         class="h-[4rem]"
         aria-hidden="true"
         :alt="`${title} logo`"
@@ -13,7 +13,7 @@
       <span class="py-16 font-semibold leading-5 text-center text-grey-800">
         {{ title }}
       </span>
-      <span class="leading-5 text-left text-grey-400 text-balance">
+      <span class="text-sm leading-5 text-left text-grey-400 text-pretty">
         {{ description }}
       </span>
       <span
@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import useImage from '@/composables/useImage';
+import getImageUrl from '@/utils/getImageUrl';
 
 const emit = defineEmits(['clickToken']);
 
@@ -53,8 +53,6 @@ const props = withDefaults(
     logoImgUrl: 'default.png',
   }
 );
-
-const { getImgUrl } = useImage();
 
 const tokenLogoUrl = `token_icons/${props.logoImgUrl}`;
 
