@@ -63,8 +63,18 @@ async function handler(event) {
         return matching_ref_response;
     }
 
-    if (expected_referrer == 'microsoftonline.com' && referer_origin.endsWith('login.microsoft.com')) {
-        // Special case of an MS login from microsoft.com instead of microsoftonline.com
+    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
+        // Special case of an MS login token came from login.microsoft.com instead of microsoftonline.com
+        // We still want to treat this as a good login since the referer is a valid MS domain
+        return matching_ref_response;
+    }
+    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('autologon.microsoftazuread-sso.com')) {
+        // Special case of an MS login token came from the Azure seamless SSO login instead of microsoftonline.com
+        // We still want to treat this as a good login since the referer is a valid MS domain
+        return matching_ref_response;
+    }
+    if (expected_referrer.endsWith('microsoftonline.com') && (referer_origin.endsWith('aadcdn.msauthimages.net') || referer_origin.endsWith('aadcdn.msftauthimages.net'))) {
+        // Special case of an MS login token came from the Azure CDN
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
