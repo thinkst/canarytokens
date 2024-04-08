@@ -56,8 +56,9 @@ export default {
       },
       'white': 'hsl(0, 0%, 100%)',
     },
+    // TBD: system-ui increase performances. Do we want to go for it?
     fontFamily: {
-      'sans': ['Open Sans', 'Arial', 'sans-serif'],
+      'sans': ['Open Sans','system-ui', 'sans-serif'],
     },
     extend: {
       boxShadow: ({ theme }) => ({
