@@ -16,6 +16,10 @@
   margin: 0;
 }
 
+*:focus-visible {
+  outline-color: hsl(191, 96%, 36%);
+}
+
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;

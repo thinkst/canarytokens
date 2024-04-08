@@ -13,7 +13,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/manage',
+      path: '/manage/:auth/:token',
       name: 'manage',
       component: () => import('../views/ManageView.vue'),
       meta: {

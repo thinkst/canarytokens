@@ -1,3 +1,7 @@
+<!-- 
+// Component specific for VeeValidate
+// https://vee-validate.logaretm.com/v4/examples/custom-inputs/
+-->
 <template>
   <div
     class="flex flex-col text-grey-800 textfield-wrapper"
@@ -16,31 +20,32 @@
     <component
       :is="inputType"
       :id="id"
-      :value="props.modelValue"
-      class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:outline-blue-300 outline-offset-4"
+      :value="inputValue"
+      class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 outline-offset-4"
       :class="[
-        { 'border-red shadow-none': hasError },
+        { 'border-red shadow-none': errorMessage },
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },
       ]"
       :style="`height: ${multilineHeight}`"
       :placeholder="placeholder"
-      :aria-invalid="hasError"
+      :aria-invalid="errorMessage"
       aria-describedby="helper error"
       :required="required"
       :disabled="disabled"
       v-bind="$attrs"
-      @input="updateValue($event.target.value)"
+      @input="handleChange"
+      @blur="handleBlur"
     />
     <div class="pr-8 mt-4 ml-16">
       <p
-        v-if="helperMessage"
+        v-show="helperMessage"
         id="helper"
         class="text-xs leading-4"
       >
         {{ helperMessage }}
       </p>
       <p
-        v-if="hasError"
+        v-show="errorMessage"
         id="error"
         class="text-xs leading-4 text-red"
       >
@@ -51,30 +56,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
+import { useField } from 'vee-validate';
 
 const props = defineProps<{
   id: string;
   label: string;
   multiline?: boolean;
-  hasError?: boolean;
-  errorMessage?: string;
   helperMessage?: string;
   placeholder?: string;
   required?: boolean;
   multilineHeight?: string;
   fullWidth?: boolean;
   disabled?: boolean;
-  modelValue: string;
+  value?: string;
 }>();
 
-// defineModel macro
-// doesn't work on Dynamic components :(
-
-const emit = defineEmits(['update:modelValue']);
-const updateValue = (value: string) => {
-  emit('update:modelValue', value);
-};
-
 const inputType = computed(() => (props.multiline ? 'textarea' : 'input'));
+const id = toRef(props, 'id');
+
+const {
+  value: inputValue,
+  errorMessage,
+  handleBlur,
+  handleChange,
+} = useField(id, undefined, {
+  initialValue: props.value,
+});
 </script>

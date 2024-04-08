@@ -1,9 +1,9 @@
 <template>
   <!-- @vue-expect-error content-transition ts error -->
   <VueFinalModal
-    class="flex items-center justify-center modal"
+    class="flex items-center justify-center modal h-[100svh] overflow-scroll"
     overlay-class="blur-bg"
-    content-class="bg-grey-50 rounded-lg text-grey-800 min-w-96 lg:max-w-[70vw] mx-16"
+    content-class="bg-grey-50 rounded-xl text-grey-800 md:w-[60vw] mx-16 "
     overlay-transition="vfm-fade"
     :content-transition="modalCustomTransition"
     esc-to-close
@@ -14,7 +14,7 @@
       <button
         v-if="hasBackButton"
         type="button"
-        class="absolute top-[52px] left-[30px]"
+        class="absolute top-[40px] left-[30px]"
         @click="emit('handleBackButton', false)"
       >
         <font-awesome-icon
@@ -22,7 +22,7 @@
           class="w-6 h-6 hover:text-grey-400"
         />
       </button>
-      <h1 class="pt-16 text-2xl font-semibold text-center">
+      <h1 class="text-2xl font-semibold text-center">
         {{ title }}
       </h1>
       <button
@@ -39,7 +39,7 @@
 
     <!-- content -->
     <div
-      class="flex flex-col items-center justify-center px-32 py-16 rounded-b-lg max-w-2lg bg-grey-50 text-grey-800"
+      class="flex flex-col items-center justify-center px-32 py-16 rounded-b-lg bg-grey-50 text-grey-800"
     >
       <slot></slot>
     </div>
