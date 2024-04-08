@@ -14,15 +14,15 @@ describe('BaseCardToken.vue', () => {
   });
 
   beforeEach(async () => {
-    vi.doMock('@/composables/useImage', () => {
+    vi.doMock('@/utils/getImageUrl', () => {
       return {
-        getImgUrl: vi.fn().mockReturnValue('/src/assets/'),
+        getImageUrl: vi.fn().mockReturnValue('/src/assets/'),
       };
     });
     //@ts-ignore
-    const { getImgUrl } = await import('@/composables/useImage');
+    const { getImageUrl } = await import('@/utils/getImageUrl');
 
-    expect(getImgUrl()).toBe('/src/assets/');
+    expect(getImageUrl()).toBe('/src/assets/');
   });
 
   it('renders props when passed', async () => {
