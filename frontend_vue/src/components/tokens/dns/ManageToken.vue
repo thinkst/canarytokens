@@ -1,5 +1,4 @@
 <template>
-  Your Token
   <div v-if="!tokenUrl">Error loading</div>
   <TokenDisplay
     v-else

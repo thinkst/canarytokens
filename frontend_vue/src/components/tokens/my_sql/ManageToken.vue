@@ -1,5 +1,4 @@
 <template>
-  Your Token
   <div v-if="!tockenData">Error loading</div>
   <TokenDisplay
     v-else
@@ -20,6 +19,6 @@ const props = defineProps<{
 const tockenData = ref({
   code: generateManagedToken(props.tockenBackendResponse),
   token: props.tockenBackendResponse?.canarydrop?.canarytoken?._value,
-  auth: props.tockenBackendResponse.canarydrop?.auth,
+  auth: props.tockenBackendResponse.canarydrop?.auth as string,
 });
 </script>

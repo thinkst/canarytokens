@@ -16,4 +16,12 @@ export const TOKENS_TYPE = {
   CLONED_WEBSITE: 'clonedsite',
   QRCODE: 'qr_code',
   MYSQL: 'my_sql',
+  WEB_IMAGE: 'web_image',
+};
+
+export const ENABLE_SETTINGS_TYPE = {
+  EMAIL: 'email_enable',
+  WEB_HOOK: 'webhook_enable',
+  BROWSER_SCANNER: 'browser_scanner_enable',
+  WEB_IMAGE: 'web_image_enable',
 };

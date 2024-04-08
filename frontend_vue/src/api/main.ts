@@ -1,8 +1,23 @@
 import axios from 'axios';
 
-type manageTokenType = {
+type ManageTokenType = {
   auth: string | string[];
   token: string | string[];
+};
+
+export type EnableSettingsOptionType =
+  | 'email_enable'
+  | 'web_image_enable'
+  | 'webhook_enable'
+  | 'browser_scanner_enable';
+
+type ValueSettingsOptionType = 'off' | 'on';
+
+export type SettingsTokenType = {
+  value: ValueSettingsOptionType;
+  token: string;
+  auth: string;
+  setting: EnableSettingsOptionType;
 };
 
 export function generateToken(form: any) {
@@ -13,7 +28,7 @@ export function generateToken(form: any) {
     .catch((error) => error.response);
 }
 
-export function manageToken(params: manageTokenType) {
+export function manageToken(params: ManageTokenType) {
   const url = '/api/manage';
   return axios
     .get(url, { params })
@@ -21,11 +36,19 @@ export function manageToken(params: manageTokenType) {
     .catch((error) => error.response);
 }
 
-export function downloadToken(params: manageTokenType) {
+export function downloadToken(params: ManageTokenType) {
   const url = '/api/download';
   console.log(params);
   return axios
     .get(url, { params })
+    .then((response) => response)
+    .catch((error) => error.response);
+}
+
+export function settingsToken(params: SettingsTokenType) {
+  const url = '/api/settings';
+  return axios
+    .post(url, params)
     .then((response) => response)
     .catch((error) => error.response);
 }

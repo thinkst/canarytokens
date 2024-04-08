@@ -1,5 +1,4 @@
 <template>
-  Your Token
   <TokenDisplay :token-png="props.tockenBackendResponse.qr_code" />
 </template>
 
