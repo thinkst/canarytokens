@@ -26,10 +26,11 @@
     "axios": "^1.6.7",
     "eslint-config-typescript": "^3.0.0",
     "floating-vue": "^5.2.2",
+    "vee-validate": "^4.12.6",
     "vue": "^3.4.15",
     "vue-final-modal": "^4.5.4",
     "vue-router": "^4.2.5",
-    "vuelidate": "^0.7.7"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.7.2",
