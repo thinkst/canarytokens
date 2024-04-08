@@ -7,7 +7,7 @@
       >{{ label }}</label
     >
 
-    <div class="relative border rounded-lg border-grey-100">
+    <div class="relative bg-white border rounded-lg border-grey-100">
       <div class="absolute top-[.8rem] right-[1rem] z-10 flex gap-8">
         <BaseRefreshButton
           v-if="hasRefresh"
@@ -23,7 +23,10 @@
         theme="github"
         :height="multiline ? customHeight : '3.5rem'"
         :copy-button="false"
-        :class="{ 'pr-[3rem]': !multiline }"
+        :class="[
+          { 'pr-[3rem]': !multiline && hasRefresh },
+          { 'pr-[2rem]': !multiline && !hasRefresh },
+        ]"
       />
     </div>
   </div>
