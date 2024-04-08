@@ -13,8 +13,8 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
-import AppNavbar from '@/components/AppNavbar.vue';
-import AppFooter from '@/components/AppFooter.vue';
+import AppNavbar from '@/components/ui/AppNavbar.vue';
+import AppFooter from '@/components/ui/AppFooter.vue';
 import AppLayout from '@/layout/AppLayout.vue';
 import { ModalsContainer } from 'vue-final-modal';
 </script>

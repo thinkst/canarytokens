@@ -1,21 +1,32 @@
 <template>
-  <ul class="flex flex-col gap-16 fa-ul items-left intro text-grey-800">
-    <li>In an email with a juicy subject line.</li>
-    <li>Embedded in documents.</li>
-    <li>In an email with a juicy subject line.</li>
-    <li>
-      This URL is just an example. Apart from the hostname and the actual token
-      (the random string), you can change all other parts of the URL.
+  <ul class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800">
+    <li
+      v-for="item in howToUseToken"
+      :key="item"
+    >
+      {{ item }}
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref } from 'vue';
 
-onMounted(() => {
-  console.log('How to use?');
-});
+const props = defineProps<{
+  selectedToken: string;
+}>();
+
+const howToUseToken = ref([]);
+
+const loadHowToUse = async () => {
+  const { howToUse } = await import(
+    `@/components/tokens/${props.selectedToken}/howToUse.ts`
+  );
+
+  howToUseToken.value = howToUse;
+};
+
+loadHowToUse();
 </script>
 
 <style>
