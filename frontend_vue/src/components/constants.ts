@@ -19,6 +19,10 @@ export const TOKENS_TYPE = {
   WEB_IMAGE: 'web_image',
 };
 
+/*
+ENABLE_SETTINGS_TYPE values are coming from the backend
+*/
+
 export const ENABLE_SETTINGS_TYPE = {
   EMAIL: 'email_enable',
   WEB_HOOK: 'webhook_enable',
