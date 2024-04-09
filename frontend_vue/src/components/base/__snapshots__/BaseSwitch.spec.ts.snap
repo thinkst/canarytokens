@@ -1,3 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`BaseSwitch.vue > renders correctly 1`] = `"<div data-v-2a6ccf4b="" class="flex flex-col-reverse justify-between"><input data-v-2a6ccf4b="" id="test-id" type="checkbox" role="switch" class="toggle" aria-checked="false"><label data-v-2a6ccf4b="" for="test-id">Test Label</label></div>"`;
+exports[`BaseSwitch.vue > renders correctly 1`] = `
+"<div data-v-2a6ccf4b="" class="flex flex-col justify-between"><input data-v-2a6ccf4b="" id="test-id" type="checkbox" role="switch" class="toggle" aria-checked="false"><label data-v-2a6ccf4b="" for="test-id" class="">Test Label</label>
+  <div data-v-2a6ccf4b="">
+    <p data-v-2a6ccf4b="" id="helper" class="text-xs leading-4 text-grey-500 pr-[3rem]" style="display: none;"></p>
+    <p data-v-2a6ccf4b="" id="error" class="text-xs leading-4 text-red" style="display: none;"></p>
+  </div>
+</div>"
+`;

@@ -74,7 +74,7 @@ export type NullableCanaryDropType = {
   [K in keyof CanaryDropType]: K extends 'canarytoken'
     ? CanaryTokenType
     : K extends 'auth'
-      ? string
+      ? string | boolean
       : CanaryDropType[K] | null;
 };
 

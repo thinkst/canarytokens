@@ -18,8 +18,8 @@
     v-model="encoded"
     class="mt-16"
     label="Encode Snippet"
+    helper-message="Encode snippet to make it harder to spot"
   ></base-switch>
-  <p class="text-sm">Encode snippet to make it harder to spot</p>
 </template>
 
 <script setup lang="ts">
@@ -41,8 +41,8 @@ const encoded = ref(false);
 function handleDownloadDumpFile() {
   const params = {
     fmt: 'my_sql',
-    auth: props.tokenData.auth,
-    token: props.tokenData.token,
+    auth: props.tokenData?.auth,
+    token: props.tokenData?.token,
     encoded: encoded.value,
   };
   downloadToken(params)
