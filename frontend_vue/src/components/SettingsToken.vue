@@ -6,7 +6,7 @@
       v-model="enabledEmailAlert"
       label="Email alerts"
       :helper-message="tockenBackendResponse.canarydrop.alert_email_recipient"
-      @change="
+      @change.stop="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.EMAIL as EnableSettingsOptionType,
           enabledEmailAlert
@@ -18,7 +18,7 @@
       id="webhook-alert"
       v-model="enabledWebhookAlert"
       label="Webhook reporting"
-      @change="
+      @change.stop="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.WEB_HOOK as EnableSettingsOptionType,
           enabledWebhookAlert
@@ -31,7 +31,7 @@
       v-model="enabledBrowserScan"
       label="Browser scanner"
       helper-message="Runs Javascript fingerprinting when the token is browsed"
-      @change="
+      @change.stop="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.BROWSER_SCANNER as EnableSettingsOptionType,
           enabledBrowserScan
@@ -41,10 +41,10 @@
     <BaseSwitch
       v-if="hasCustomImage"
       id="custom-image"
-      v-model="enabledBrowserScan"
+      v-model="enabledCustomImage"
       label="Custom web image"
       helper-message="Serve your alternative image"
-      @change="
+      @change.stop="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.WEB_IMAGE as EnableSettingsOptionType,
           enabledCustomImage
@@ -120,8 +120,8 @@ function handleChangeSetting(
 ) {
   const params = {
     value: convertBooleanToValue(isSettingTypeEnabled),
-    token: '5fqcg2ps930ddbs4hqq1dis1l',
-    auth: 'ec884fe3b540e9caa1991c9be4e70a81',
+    token: props.tockenBackendResponse.canarydrop.canarytoken._value,
+    auth: props.tockenBackendResponse.canarydrop.auth,
     setting: settingType,
   };
 
@@ -131,7 +131,7 @@ function handleChangeSetting(
       console.log(err, 'error!');
     })
     .finally(() => {
-      console.log(params.setting, 'setting updated!');
+      console.log('setting updated!');
     });
 }
 </script>
