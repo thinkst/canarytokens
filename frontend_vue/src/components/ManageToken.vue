@@ -1,5 +1,19 @@
 <template>
   <div
+    v-if="manageTokenResponse"
+    class="flex flex-col items-center gap-8 mb-24"
+  >
+    <img
+      :src="getImageUrl(tokenLogoUrl)"
+      class="h-[4rem]"
+      aria-hidden="true"
+      :alt="`${tokenServices[manageTokenResponse.canarydrop.type].label} logo`"
+    />
+    <h2 class="text-xl text-center text-grey-800">
+      {{ tokenServices[manageTokenResponse.canarydrop.type].label }}
+    </h2>
+  </div>
+  <div
     v-if="isLoading"
     class="loading"
   >
@@ -12,11 +26,18 @@
   >
     {{ error }}
   </div>
-  <div v-if="manageTokenResponse">
+  <div
+    v-if="manageTokenResponse"
+    class="flex flex-col justify-center p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 md:max-w-[50vw] w-full"
+  >
     <component
       :is="dynamicComponent"
-      :tocken-backend-response="manageTokenResponse"
+      :token-backend-response="manageTokenResponse"
     />
+    <SettingsToken
+      :token-backend-response="manageTokenResponse"
+      class="mt-32"
+    ></SettingsToken>
   </div>
 </template>
 
@@ -24,12 +45,17 @@
 import { defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { manageToken } from '@/api/main.ts';
+import SettingsToken from './SettingsToken.vue';
+import { tokenServices } from '@/utils/tokenServices';
+import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
+import getImageUrl from '@/utils/getImageUrl';
 
 const route = useRoute();
 
 const isLoading = ref(false);
 const error = ref(null);
 const manageTokenResponse = ref();
+const tokenLogoUrl = ref();
 
 const dynamicComponent = ref({
   props: {},
@@ -39,14 +65,15 @@ async function fetchTokenData() {
   isLoading.value = true;
 
   const params = {
-    auth: route.params.auth,
-    token: route.params.token,
+    auth: route.params.auth as string,
+    token: route.params.token as string,
   };
 
   manageToken(params)
     .then((res) => {
       isLoading.value = false;
-      manageTokenResponse.value = res.data;
+      manageTokenResponse.value = res.data as ManageTokenBackendType;
+      tokenLogoUrl.value = `token_icons/${tokenServices[manageTokenResponse.value.canarydrop.type].icon}`;
 
       loadComponent();
     })
@@ -66,10 +93,6 @@ async function loadComponent() {
         `@/components/tokens/${manageTokenResponse.value?.canarydrop.type}/ManageToken.vue`
       )
   );
-  // dynamicComponent.value.props = {
-  //   tockenBackendResponse: token,
-  //   tokenSnippetData: tokenSnippetData.value,
-  // };
 }
 
 loadComponent();
