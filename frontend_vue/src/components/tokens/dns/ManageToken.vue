@@ -1,5 +1,4 @@
 <template>
-  Your Token
   <div v-if="!tokenUrl">Error loading</div>
   <TokenDisplay
     v-else
@@ -13,8 +12,8 @@ import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 
 const props = defineProps<{
-  tockenBackendResponse: ManageTokenBackendType;
+  tokenBackendResponse: ManageTokenBackendType;
 }>();
 
-const tokenUrl = ref(props.tockenBackendResponse.canarydrop?.generated_url);
+const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_url);
 </script>

@@ -15,10 +15,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
-import type { NullableNewTokenBackendType } from '@/components/tokens/types';
+import type { NewTokenBackendType } from '@/components/tokens/types';
 
 const props = defineProps<{
-  tokenData: NullableNewTokenBackendType;
+  tokenData: NewTokenBackendType;
 }>();
 
 const tokenUrl = ref(props.tokenData.token_url);
