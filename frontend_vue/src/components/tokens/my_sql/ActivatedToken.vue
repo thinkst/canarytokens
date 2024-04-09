@@ -24,8 +24,8 @@ const props = defineProps<{
 }>();
 
 const tokenSnippetData = ref({
-  code: props.tokenData.usage,
-  token: props.tokenData.token,
-  auth: props.tokenData.auth_token,
+  code: props.tokenData.usage || '',
+  token: props.tokenData.token || '',
+  auth: props.tokenData.auth_token || '',
 });
 </script>

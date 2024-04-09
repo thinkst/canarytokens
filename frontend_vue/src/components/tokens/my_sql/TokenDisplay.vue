@@ -41,8 +41,8 @@ const encoded = ref(false);
 function handleDownloadDumpFile() {
   const params = {
     fmt: 'my_sql',
-    auth: props.tokenData.auth,
-    token: props.tokenData.token,
+    auth: props.tokenData?.auth,
+    token: props.tokenData?.token,
     encoded: encoded.value,
   };
   downloadToken(params)

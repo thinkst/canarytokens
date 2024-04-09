@@ -65,8 +65,8 @@ async function fetchTokenData() {
   isLoading.value = true;
 
   const params = {
-    auth: route.params.auth,
-    token: route.params.token,
+    auth: route.params.auth as string,
+    token: route.params.token as string,
   };
 
   manageToken(params)

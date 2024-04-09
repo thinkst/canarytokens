@@ -1,8 +1,15 @@
 import axios from 'axios';
 
-type ManageTokenType = {
-  auth: string | string[];
-  token: string | string[];
+type TokenAuthType = {
+  auth: string;
+  token: string;
+};
+
+type DownloadTokenType = {
+  fmt: string;
+  auth: string;
+  token: string;
+  encoded: boolean;
 };
 
 export type EnableSettingsOptionType =
@@ -28,7 +35,7 @@ export function generateToken(form: any) {
     .catch((error) => error.response);
 }
 
-export function manageToken(params: ManageTokenType) {
+export function manageToken(params: TokenAuthType) {
   const url = '/api/manage';
   return axios
     .get(url, { params })
@@ -36,7 +43,7 @@ export function manageToken(params: ManageTokenType) {
     .catch((error) => error.response);
 }
 
-export function downloadToken(params: ManageTokenType) {
+export function downloadToken(params: DownloadTokenType) {
   const url = '/api/download';
   console.log(params);
   return axios
