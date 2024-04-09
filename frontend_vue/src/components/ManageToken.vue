@@ -73,7 +73,6 @@ async function fetchTokenData() {
       isLoading.value = false;
       manageTokenResponse.value = res.data as ManageTokenBackendType;
       tokenLogoUrl.value = `token_icons/${tokenServices[manageTokenResponse.value.canarydrop.type].icon}`;
-      console.log(manageTokenResponse.value, 'manageTokenResponse.value');
 
       loadComponent();
     })
