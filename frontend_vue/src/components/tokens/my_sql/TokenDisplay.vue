@@ -18,8 +18,8 @@
     v-model="encoded"
     class="mt-16"
     label="Encode Snippet"
+    helper-message="Encode snippet to make it harder to spot"
   ></base-switch>
-  <p class="text-sm">Encode snippet to make it harder to spot</p>
 </template>
 
 <script setup lang="ts">

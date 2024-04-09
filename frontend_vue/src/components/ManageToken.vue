@@ -28,7 +28,7 @@
   </div>
   <div
     v-if="manageTokenResponse"
-    class="flex flex-col justify-center gap-32 p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 md:max-w-[50vw] w-full"
+    class="flex flex-col justify-center p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 md:max-w-[50vw] w-full"
   >
     <component
       :is="dynamicComponent"
@@ -36,6 +36,7 @@
     />
     <SettingsToken
       :tocken-backend-response="manageTokenResponse"
+      class="mt-32"
     ></SettingsToken>
   </div>
 </template>
