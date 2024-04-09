@@ -5,7 +5,7 @@
       id="email-alert"
       v-model="enabledEmailAlert"
       label="Email alerts"
-      :helper-message="tockenBackendResponse.canarydrop.alert_email_recipient"
+      :helper-message="tokenBackendResponse.canarydrop.alert_email_recipient"
       @change.stop="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.EMAIL as EnableSettingsOptionType,
@@ -62,25 +62,25 @@ import type { SettingsTokenType, EnableSettingsOptionType } from '@/api/main';
 import { ENABLE_SETTINGS_TYPE, TOKENS_TYPE } from '@/components/constants';
 
 const props = defineProps<{
-  tockenBackendResponse: ManageTokenBackendType;
+  tokenBackendResponse: ManageTokenBackendType;
 }>();
 
 function isSupportBrowserScan() {
   return (
-    props.tockenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
-    props.tockenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE
   );
 }
 
 function isSupportCustomImage() {
-  return props.tockenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
+  return props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
 }
 
 const hasEmailAlert = ref(
-  props.tockenBackendResponse.canarydrop.alert_email_recipient
+  props.tokenBackendResponse.canarydrop.alert_email_recipient
 );
 const hasWebhookAlert = ref(
-  props.tockenBackendResponse.canarydrop.alert_webhook_url
+  props.tokenBackendResponse.canarydrop.alert_webhook_url
 );
 const hasBrowserScan = ref(isSupportBrowserScan());
 const hasCustomImage = ref(isSupportCustomImage());
@@ -93,19 +93,19 @@ const enabledCustomImage = ref(false);
 onMounted(() => {
   enabledEmailAlert.value =
     (hasEmailAlert.value &&
-      props.tockenBackendResponse.canarydrop?.alert_email_enabled) ||
+      props.tokenBackendResponse.canarydrop?.alert_email_enabled) ||
     false;
   enabledWebhookAlert.value =
     (hasWebhookAlert.value &&
-      props.tockenBackendResponse.canarydrop?.alert_webhook_enabled) ||
+      props.tokenBackendResponse.canarydrop?.alert_webhook_enabled) ||
     false;
   enabledBrowserScan.value =
     (hasBrowserScan.value &&
-      props.tockenBackendResponse.canarydrop?.browser_scanner_enabled) ||
+      props.tokenBackendResponse.canarydrop?.browser_scanner_enabled) ||
     false;
   enabledCustomImage.value =
     (hasCustomImage.value &&
-      props.tockenBackendResponse.canarydrop?.web_image_enabled) ||
+      props.tokenBackendResponse.canarydrop?.web_image_enabled) ||
     false;
 });
 
@@ -120,8 +120,8 @@ function handleChangeSetting(
 ) {
   const params = {
     value: convertBooleanToValue(isSettingTypeEnabled),
-    token: props.tockenBackendResponse.canarydrop.canarytoken._value,
-    auth: props.tockenBackendResponse.canarydrop.auth,
+    token: props.tokenBackendResponse.canarydrop.canarytoken._value,
+    auth: props.tokenBackendResponse.canarydrop.auth,
     setting: settingType,
   };
 

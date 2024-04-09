@@ -32,10 +32,10 @@
   >
     <component
       :is="dynamicComponent"
-      :tocken-backend-response="manageTokenResponse"
+      :token-backend-response="manageTokenResponse"
     />
     <SettingsToken
-      :tocken-backend-response="manageTokenResponse"
+      :token-backend-response="manageTokenResponse"
       class="mt-32"
     ></SettingsToken>
   </div>

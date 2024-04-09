@@ -1,8 +1,8 @@
 <template>
-  <div v-if="!tockenData">Error loading</div>
+  <div v-if="!tokenData">Error loading</div>
   <TokenDisplay
     v-else
-    :token-data="tockenData"
+    :token-data="tokenData"
   />
 </template>
 
@@ -13,12 +13,12 @@ import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import generateManagedToken from '@/components/tokens/my_sql/generateManagedToken';
 
 const props = defineProps<{
-  tockenBackendResponse: ManageTokenBackendType;
+  tokenBackendResponse: ManageTokenBackendType;
 }>();
 
-const tockenData = ref({
-  code: generateManagedToken(props.tockenBackendResponse),
-  token: props.tockenBackendResponse?.canarydrop?.canarytoken?._value,
-  auth: props.tockenBackendResponse.canarydrop?.auth as string,
+const tokenData = ref({
+  code: generateManagedToken(props.tokenBackendResponse),
+  token: props.tokenBackendResponse?.canarydrop?.canarytoken?._value,
+  auth: props.tokenBackendResponse.canarydrop?.auth as string,
 });
 </script>
