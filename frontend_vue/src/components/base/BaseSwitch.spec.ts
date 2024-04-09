@@ -58,4 +58,34 @@ describe('BaseSwitch.vue', () => {
     const checkbox = wrapper.find('input[type="checkbox"]');
     expect(checkbox.attributes('disabled')).toBeDefined();
   });
+
+  it('displays error message when hasError is true', () => {
+    const label = 'Test Label';
+    const id = 'test-id';
+    const errorMessage = 'Error message';
+
+    const wrapper = mount(BaseSwitch, {
+      props: {
+        errorMessage,
+        label,
+        id,
+      },
+    });
+    expect(wrapper.text()).toContain(errorMessage);
+  });
+
+  it('displays helper message', () => {
+    const label = 'Test Label';
+    const id = 'test-id';
+    const helperMessage = 'Helper message';
+
+    const wrapper = mount(BaseSwitch, {
+      props: {
+        helperMessage,
+        label,
+        id,
+      },
+    });
+    expect(wrapper.text()).toContain(helperMessage);
+  });
 });

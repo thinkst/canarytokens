@@ -1,6 +1,6 @@
 <!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
-  <div class="flex flex-col-reverse justify-between">
+  <div class="flex flex-col justify-between">
     <input
       v-bind="$attrs"
       :id="id"
@@ -11,7 +11,27 @@
       :checked="model"
       :aria-checked="model"
     />
-    <label :for="id">{{ label }}</label>
+    <label
+      :for="id"
+      :class="helperMessage && 'multiline'"
+      >{{ label }}</label
+    >
+    <div>
+      <p
+        v-show="helperMessage"
+        id="helper"
+        class="text-xs leading-4 text-grey-500 pr-[3rem]"
+      >
+        {{ helperMessage }}
+      </p>
+      <p
+        v-show="errorMessage"
+        id="error"
+        class="text-xs leading-4 text-red"
+      >
+        {{ errorMessage }}
+      </p>
+    </div>
   </div>
 </template>
 
@@ -19,6 +39,8 @@
 defineProps<{
   id: string;
   label: string;
+  helperMessage?: string | null;
+  errorMessage?: string;
 }>();
 
 const model = defineModel<boolean>();
@@ -49,6 +71,14 @@ label::before {
   background-color: hsl(0, 0%, 91%);
   border-radius: 1em;
   transition: background-color 200ms ease-in-out;
+}
+
+label.multiline::before {
+  top: 0.5rem;
+}
+
+label.multiline::after {
+  top: 0.75rem;
 }
 
 /* toggle ball */
