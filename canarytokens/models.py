@@ -548,10 +548,6 @@ class UploadedExe(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         orm_mode = True
-        json_encoders = {
-            SpooledTemporaryFile: lambda v: v.__dict__,
-            BytesIO: lambda v: v.__dict__,
-        }
 
     @classmethod
     def __modify_schema__(cls, field_schema, field):
@@ -578,10 +574,6 @@ class UploadedImage(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         orm_mode = True
-        json_encoders = {
-            SpooledTemporaryFile: lambda v: v.__dict__,
-            BytesIO: lambda v: v.__dict__,
-        }
 
     @classmethod
     def __modify_schema__(cls, field_schema, field):
