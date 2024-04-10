@@ -4,7 +4,7 @@
     :class="boxClasses"
   >
     <div
-      class="flex flex-row items-center self-start flex-grow gap-16 md:gap-16s md:self-center"
+      class="flex flex-row items-center self-start flex-grow gap-16 md:gap-16 md:self-center"
     >
       <AlertShieldIcon
         v-if="variant !== 'info'"
