@@ -1,0 +1,1 @@
+import{_ as o}from"./TokenDisplay.vue_vue_type_script_setup_true_lang-BP-Ax68-.js";import{d as s,o as t,e as a}from"./index-BCyqSDU3.js";const k=s({__name:"ManageToken",props:{tokenBackendResponse:{}},setup(e){const n=e;return(p,c)=>(t(),a(o,{"token-png":n.tokenBackendResponse.qr_code},null,8,["token-png"]))}});export{k as default};

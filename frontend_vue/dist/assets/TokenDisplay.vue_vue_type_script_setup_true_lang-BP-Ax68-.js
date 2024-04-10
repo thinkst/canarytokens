@@ -1,0 +1,1 @@
+import{d as o,o as s,c as t,i as e,k as a,F as r}from"./index-BCyqSDU3.js";const p=e("div",null,"QR code img",-1),_=o({__name:"TokenDisplay",props:{tokenPng:{}},setup(c){return(n,l)=>(s(),t(r,null,[p,e("p",null,a(n.tokenPng),1)],64))}});export{_};
