@@ -70,18 +70,24 @@ const openedMarkerID = ref();
 const mapRef = ref();
 const center = ref({ lat: 0, lng: 0 });
 
+function parseGeoInfoLocation(info: string) {
+  const locationArray = info.split(',');
+  return {
+    lat: parseFloat(locationArray[0]),
+    lng: parseFloat(locationArray[1]),
+  };
+}
+
 onMounted(() => {
   if (props.hitsList.length > 1) {
     return fitMarkerBounds();
   } else if (props.hitsList.length === 1) {
-    const loc = props.hitsList[0].geo_info.loc.split(',');
-    center.value = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+    center.value = parseGeoInfoLocation(props.hitsList[0].geo_info.loc);
   }
 });
 
 const markers: ComputedRef<MarkerType[]> = computed(() => {
   return props.hitsList.map((marker) => {
-    const loc = marker.geo_info.loc.split(',');
     return {
       id: marker.time_of_hit,
       ip: marker.geo_info.ip,
@@ -89,10 +95,7 @@ const markers: ComputedRef<MarkerType[]> = computed(() => {
       city: marker.geo_info.city,
       country: marker.geo_info.country,
       date: convertUnixTimeStampToDate(marker.time_of_hit),
-      position: {
-        lat: parseFloat(loc[0]),
-        lng: parseFloat(loc[1]),
-      },
+      position: parseGeoInfoLocation(marker.geo_info.loc),
     };
   });
 });
