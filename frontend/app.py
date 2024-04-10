@@ -8,7 +8,6 @@
 
 import base64
 import datetime
-
 import errno
 import hashlib
 import os
@@ -23,13 +22,11 @@ import requests
 import segno
 import sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, Security, status
-
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import APIKeyQuery
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
 from pydantic import HttpUrl, ValidationError, parse_obj_as
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
@@ -299,25 +296,12 @@ async def authorise_token_access(request: Request):
 
 
 def get_canarydrop_and_authenticate(token: str, auth: str = Security(auth_key)):
-    """
-    Intercept a request and check that it contains a
-    valid `token`, `auth` pair and returns a canarytoken if
-    authenticated.
-
-    Args:
-        request (Request): Incoming a request.
-
-    Raises:
-        HTTPException: 403 errors raised when auth fails.
-    """
-
     try:
         canarydrop = queries.get_canarydrop_and_authenticate(token=token, auth=auth)
     except CanarydropAuthFailure:
         raise HTTPException(
             status_code=403, detail="Token not found. Invalid `auth` and `token` pair."
         )
-
     return canarydrop
 
 
