@@ -21,7 +21,7 @@ from urllib.parse import unquote
 import requests
 import segno
 import sentry_sdk
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, Security
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, Security, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import APIKeyQuery
@@ -43,6 +43,7 @@ from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
     AnyDownloadRequest,
     AnySettingsRequest,
+    AnyTokenHistory,
     AnyTokenRequest,
     AnyTokenResponse,
     AWSKeyTokenRequest,
@@ -101,6 +102,7 @@ from canarytokens.models import (
     KubeconfigTokenResponse,
     Log4ShellTokenRequest,
     Log4ShellTokenResponse,
+    ManageResponse,
     MsExcelDocumentTokenRequest,
     MsExcelDocumentTokenResponse,
     MsWordDocumentTokenRequest,
@@ -191,13 +193,39 @@ tags_metadata = [
 app = FastAPI(
     title=frontend_settings.API_APP_TITLE,
     version=canarytokens.__version__,
+)
+
+vue_index = Jinja2Templates(directory="../frontend_vue/dist/")
+
+
+@app.get("/components")
+def index(request: Request):
+    return vue_index.TemplateResponse("index.html", {"request": request})
+
+
+api = FastAPI(
+    title=frontend_settings.API_APP_TITLE,
+    version=canarytokens.__version__,
+    openapi_prefix="/api",
     openapi_tags=tags_metadata,
 )
+
+app.mount("/api", api)
 app.mount(
     frontend_settings.STATIC_FILES_APPLICATION_SUB_PATH,
     StaticFiles(directory=frontend_settings.STATIC_FILES_PATH),
     name=frontend_settings.STATIC_FILES_APPLICATION_INTERNAL_NAME,
 )
+
+try:
+    app.mount(
+        "/newuiwhodis",
+        StaticFiles(directory="../frontend_vue/dist/", html=True),
+        name="Vue Frontend Dist",
+    )
+except RuntimeError:
+    print("Error: No Vue dist found. Is this the test Action?")
+
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
 if (
@@ -564,6 +592,236 @@ async def azure_css_landing(
         "azure_install.html",
         {"request": request, "status": info},
     )
+
+
+@app.get("/commitsha")
+def get_commit_sha():
+    commit_sha = get_deployed_commit_sha()
+    return JSONResponse({"commit_sha": commit_sha}, status_code=200)
+
+
+def _manually_build_docs_schema(model) -> dict:
+    """
+    Some endpoints determine how to unpack their requests inside the function and so we don't know the request types to include in the docs.
+    This manually builds the model schemas so we can see this stuff in the /api/redoc page.
+    """
+
+    return {
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "anyOf": [
+                            schema.schema()
+                            for schema in list(model.__args__[0].__args__)
+                        ],
+                    },
+                }
+            },
+            "required": True,
+        },
+    }
+
+
+@api.post(
+    "/generate",
+    tags=["Create Canarytokens"],
+    response_model=AnyTokenResponse,
+    openapi_extra=_manually_build_docs_schema(AnyTokenRequest),
+)
+async def api_generate(  # noqa: C901  # gen is large
+    request: Request,
+) -> AnyTokenResponse:
+    """
+    Generate a token and return the appropriate TokenResponse
+    """
+
+    if request.headers.get("Content-Type", "application/json") == "application/json":
+        token_request_data = await request.json()
+    else:
+        # Need a mutable copy of the form data
+        token_request_data = dict(await request.form())
+        token_request_data["token_type"] = token_request_data.pop(
+            "type", token_request_data.get("token_type", None)
+        )
+
+    try:
+        token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
+    except ValidationError:  # DESIGN: can we specialise on what went wrong?
+        return response_error(1, "Malformed request, invalid data supplied.")
+
+    if not token_request_details.memo:
+        return response_error(2, "No memo supplied")
+
+    if token_request_details.webhook_url:
+        try:
+            validate_webhook(
+                token_request_details.webhook_url, token_request_details.token_type
+            )
+        except WebhookTooLongError:
+            return response_error(3, "Webhook URL too long. Use a shorter webhook URL.")
+        except requests.exceptions.HTTPError:
+            return response_error(
+                3, "Invalid webhook supplied. Confirm you can POST to this URL."
+            )
+        except requests.exceptions.Timeout:
+            return response_error(
+                3, "Webhook timed out. Confirm you can POST to this URL."
+            )
+        except requests.exceptions.ConnectionError:
+            return response_error(
+                3, "Failed to connect to webhook. Confirm you can POST to this URL."
+            )
+
+    if token_request_details.email:
+        if not is_valid_email(token_request_details.email):
+            return response_error(5, "Invalid email supplied")
+
+        if is_email_blocked(token_request_details.email):
+            # raise HTTPException(status_code=400, detail="Email is blocked.")
+            return response_error(
+                6,
+                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
+            )
+    # TODO: refactor this. KUBECONFIG token creates it's own token
+    # value and cannot follow same path as before.
+    if token_request_details.token_type == TokenTypes.KUBECONFIG:
+        token_value, kube_config = kubeconfig.get_kubeconfig()
+        canarytoken = Canarytoken(value=token_value)
+    else:
+        kube_config = None
+        canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        type=token_request_details.token_type,
+        alert_email_enabled=True if token_request_details.email else False,
+        alert_email_recipient=token_request_details.email,
+        alert_webhook_enabled=True if token_request_details.webhook_url else False,
+        alert_webhook_url=token_request_details.webhook_url or "",
+        canarytoken=canarytoken,
+        memo=token_request_details.memo,
+        browser_scanner_enabled=False,
+        # Drop details to fullfil the tokens promise.
+        # TODO: move all token type specific canary drop
+        #       attribute setting into `create_response`
+        #       which is already doing the type dispatch for us.
+        kubeconfig=kube_config,
+        redirect_url=getattr(token_request_details, "redirect_url", None),
+        clonedsite=getattr(token_request_details, "clonedsite", None),
+        expected_referrer=getattr(token_request_details, "expected_referrer", None),
+        sql_server_sql_action=getattr(
+            token_request_details, "sql_server_sql_action", None
+        ),
+        sql_server_table_name=getattr(
+            token_request_details, "sql_server_table_name", None
+        ),
+        sql_server_view_name=getattr(
+            token_request_details, "sql_server_view_name", None
+        ),
+        sql_server_function_name=getattr(
+            token_request_details, "sql_server_function_name", None
+        ),
+        sql_server_trigger_name=getattr(
+            token_request_details, "sql_server_trigger_name", None
+        ),
+        # TODO: Move this into the create_response - same for much of what is done above.
+        wg_key=wg.generateCanarytokenPrivateKey(
+            canarytoken.value(),
+            wg_private_key_seed=switchboard_settings.WG_PRIVATE_KEY_SEED,
+            wg_private_key_n=switchboard_settings.WG_PRIVATE_KEY_N,
+        )
+        if token_request_details.token_type == TokenTypes.WIREGUARD
+        else None,
+    )
+
+    # add generate random hostname an token
+    canarydrop.get_url(canary_domains=[canary_http_channel])
+    canarydrop.generated_hostname = canarydrop.get_hostname()
+
+    save_canarydrop(canarydrop)
+
+    return create_response(token_request_details, canarydrop)
+
+
+@api.get(
+    "/manage",
+    tags=["Manage Canarytokens"],
+    response_model=ManageResponse,
+)
+async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
+
+    response = {"canarydrop": canarydrop}
+
+    if canarydrop.type == TokenTypes.WIREGUARD:
+        wg_conf = wg.clientConfig(
+            canarydrop.wg_key,
+            frontend_settings.PUBLIC_IP,
+            switchboard_settings.WG_PRIVATE_KEY_SEED,
+            switchboard_settings.WG_PRIVATE_KEY_N,
+        )
+        qr_code = segno.make(wg_conf).png_data_uri(scale=2)
+        response["wg_conf"] = wg_conf
+        response["wg_qr_code"] = qr_code
+    elif canarydrop.type == TokenTypes.QR_CODE:
+        qr_code = segno.make(canarydrop.generated_url).png_data_uri(scale=5)
+        response["qr_code"] = qr_code
+    elif canarydrop.type == TokenTypes.CLONEDSITE:
+        response["force_https"] = switchboard_settings.FORCE_HTTPS
+
+    return ManageResponse(**response)
+
+
+@api.get(
+    "/history",
+    tags=["Canarytokens History"],
+    response_model=AnyTokenHistory,
+)
+async def api_history(token: str, auth: str) -> JSONResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
+    return canarydrop.triggered_details
+
+
+@api.post(
+    "/settings",
+    tags=["Canarytokens Settings"],
+    response_model=SettingsResponse,
+)
+async def api_settings_post(
+    response: Response,
+    settings_request: AnySettingsRequest,
+) -> SettingsResponse:
+    canarydrop = get_canarydrop_and_authenticate(
+        token=settings_request.token, auth=settings_request.auth
+    )
+    if canarydrop.apply_settings_change(setting_request=settings_request):
+        return SettingsResponse(**{"message": "success"})
+    else:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return SettingsResponse(**{"message": "failure"})
+
+
+@api.get(
+    "/download",
+    tags=["Canarytokens Downloads"],
+    openapi_extra=_manually_build_docs_schema(AnyDownloadRequest),
+)
+async def api_download(
+    download_request: AnyDownloadRequest = Depends(parse_for_download),
+) -> Response:
+    """
+    Given `AnyDownloadRequest` a canarydrop is retrieved and the token
+    artifact or hit information is returned.
+    """
+    canarydrop = get_canarydrop_and_authenticate(
+        token=download_request.token, auth=download_request.auth
+    )
+    return create_download_response(download_request, canarydrop=canarydrop)
+
+
+@api.get("/commitsha")
+def api_get_commit_sha():
+    commit_sha = get_deployed_commit_sha()
+    return JSONResponse({"commit_sha": commit_sha}, status_code=200)
 
 
 @singledispatch
@@ -1481,9 +1739,3 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
             port=switchboard_settings.CHANNEL_MYSQL_PORT,
         ),
     )
-
-
-@app.get("/commitsha")
-def get_commit_sha():
-    commit_sha = get_deployed_commit_sha()
-    return JSONResponse({"commit_sha": commit_sha}, status_code=200)
