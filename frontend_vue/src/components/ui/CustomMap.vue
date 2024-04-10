@@ -2,15 +2,15 @@
   <div v-if="isLoading">Loading map...</div>
   <GMapMap
     ref="mapRef"
+    :zoom="7"
     :center="center"
-    :zoom="6"
     map-type-id="terrain"
     class="w-full rounded-lg"
     style="height: 50svh"
     :options="options"
     ><GMapCluster
-      :zoom-on-click="true"
       :renderer="{ render }"
+      :zoom-on-click="true"
     >
       <GMapMarker
         v-for="(m, index) in markers"
@@ -71,7 +71,12 @@ const mapRef = ref();
 const center = ref({ lat: 0, lng: 0 });
 
 onMounted(() => {
-  fitMarkerBounds();
+  if (props.hitsList.length > 1) {
+    return fitMarkerBounds();
+  } else if (props.hitsList.length === 1) {
+    const loc = props.hitsList[0].geo_info.loc.split(',');
+    center.value = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+  }
 });
 
 const markers: ComputedRef<MarkerType[]> = computed(() => {
@@ -100,11 +105,9 @@ async function fitMarkerBounds() {
   const googleMapInstance = await mapRef.value.$mapPromise;
   // @ts-ignore
   const bounds = new window.google.maps.LatLngBounds();
-
   markers.value.forEach((marker) => {
     bounds.extend(marker.position);
   });
-
   googleMapInstance.fitBounds(bounds);
 }
 
@@ -129,6 +132,7 @@ const render = ({ count, position }: { count: string; position: string[] }) => {
 };
 
 const options = {
+  zoomControl: true,
   mapTypeControl: false,
   streetViewControl: false,
   rotateControl: true,

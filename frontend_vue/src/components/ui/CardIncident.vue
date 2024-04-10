@@ -6,7 +6,7 @@
       @click.stop="handleClickError"
     >
       <AlertShieldIcon
-        class="min-w-[40px] group-hover:fill-red group-focus:fill-red group-active:fill-red fill-grey-700"
+        class="min-w-[30px] group-hover:fill-red group-focus:fill-red group-active:fill-red fill-grey-700"
         aria-hidden="true"
       />
       <span class="text-left">
