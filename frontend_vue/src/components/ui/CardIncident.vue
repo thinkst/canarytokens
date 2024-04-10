@@ -1,8 +1,8 @@
 <template>
-  <li class="">
+  <li class="w-full">
     <button
       v-bind="$attrs"
-      class="text-grey-700 flex flex-row gap-16 relative border grouped flex-1 group px-16 py-16 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out error-card"
+      class="text-grey-700 flex flex-row gap-16 relative border grouped flex-1 group px-16 py-8 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out error-card w-full"
       @click.stop="handleClickError"
     >
       <AlertShieldIcon
@@ -27,12 +27,12 @@
 import AlertShieldIcon from '@/components/icons/AlertShieldIcon.vue';
 
 type incidentPreviewInfoType = {
-  [key: string]: string;
+  [key: string]: string | Date;
 };
 
 defineProps<{
   incidentPreviewInfo: incidentPreviewInfoType;
-  incidentId: string;
+  incidentId: number | string;
 }>();
 
 const emits = defineEmits(['click']);

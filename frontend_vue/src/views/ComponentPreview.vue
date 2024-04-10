@@ -123,7 +123,7 @@
     <div>
       <hr class="my-24" />
       <h1 class="pb-16">Custom Map</h1>
-      <CustomMap />
+      <CustomMap :hits-list="[]" />
     </div>
     <hr class="my-24" />
     <h1 class="pb-16">Incident details</h1>
@@ -190,7 +190,6 @@ const { open } = useModal({
 
 const checked = ref(false);
 const checkedDisabled = ref(false);
-const inputValue = ref('');
 const fileSelected = ref();
 
 function handleFileSelected(event: DragEvent) {
