@@ -102,3 +102,46 @@ export type NewTokenBackendType = {
   Url: string | null;
   token_type: string;
 };
+
+type genericObjectType = {
+  [k: string]: string;
+};
+
+export type HitsType = {
+  time_of_hit: number;
+  src_ip: string;
+  geo_info: {
+    loc: string;
+    org: string;
+    city: string;
+    country: string;
+    region: string;
+    hostname: string;
+    ip: string;
+    timezone: string;
+    postal: string;
+    asn: {
+      route: string;
+      type: string;
+      asn: string;
+      domain: string;
+      name: string;
+    };
+    readme: string;
+  };
+  is_tor_relay: true;
+  input_channel: string;
+  src_data: genericObjectType;
+  useragent: string;
+  token_type: string;
+  additional_info: {
+    [k: string]: {
+      [k: string]: string[];
+    };
+  };
+};
+
+export type HistoryTokenBackendType = {
+  hits: HitsType[];
+  token_type: string;
+};

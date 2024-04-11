@@ -38,12 +38,22 @@
       :token-backend-response="manageTokenResponse"
       class="mt-32"
     ></SettingsToken>
+    <BaseMessageBox
+      class="mt-32"
+      :variant="hasAlerts ? 'danger' : 'info'"
+      :text-link="hasAlerts ? 'Check History' : ''"
+      @click="handleCheckHistory"
+    >
+      <!-- there should no risk of injection for unescaped html -->
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <span v-html="alertsMessage"></span>
+    </BaseMessageBox>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineAsyncComponent, ref, watch, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { manageToken } from '@/api/main.ts';
 import SettingsToken from './SettingsToken.vue';
 import { tokenServices } from '@/utils/tokenServices';
@@ -51,6 +61,7 @@ import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
 
 const route = useRoute();
+const router = useRouter();
 
 const isLoading = ref(false);
 const error = ref(null);
@@ -60,6 +71,19 @@ const tokenLogoUrl = ref();
 const dynamicComponent = ref({
   props: {},
 });
+
+const hasAlerts = ref(0);
+const alertsMessage = computed(() => {
+  return !hasAlerts.value
+    ? 'This Token has never been triggered'
+    : `This Token has been triggered <span class="font-bold">${hasAlerts.value}</span> time${hasAlerts.value > 1 ? 's' : ''}`;
+});
+
+function handleCheckHistory() {
+  const auth = route.params.auth;
+  const token = route.params.token;
+  router.push({ name: 'history', params: { auth, token } });
+}
 
 async function fetchTokenData() {
   isLoading.value = true;
@@ -74,6 +98,8 @@ async function fetchTokenData() {
       isLoading.value = false;
       manageTokenResponse.value = res.data as ManageTokenBackendType;
       tokenLogoUrl.value = `token_icons/${tokenServices[manageTokenResponse.value.canarydrop.type].icon}`;
+      hasAlerts.value =
+        manageTokenResponse.value.canarydrop.triggered_details.hits.length;
 
       loadComponent();
     })
