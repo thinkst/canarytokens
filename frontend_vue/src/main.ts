@@ -18,7 +18,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
-import VueGoogleMaps from '@fawmi/vue-google-maps';
+import VueGoogleMaps from 'vue-google-maps-community-fork';
 import 'vue-final-modal/style.css';
 import 'floating-vue/dist/style.css';
 import './style.css';
@@ -44,6 +44,7 @@ const vfm = createVfm();
 app.use(vfm);
 
 app.use(VueGoogleMaps, {
+  installComponents: true,
   load: {
     key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   },
