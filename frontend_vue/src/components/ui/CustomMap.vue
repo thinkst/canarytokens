@@ -1,72 +1,142 @@
 <template>
+  <div v-if="isLoading">Loading map...</div>
   <GMapMap
+    ref="mapRef"
+    :zoom="7"
     :center="center"
-    :zoom="6"
     map-type-id="terrain"
     class="w-full rounded-lg"
-    style="height: 20rem"
+    style="height: 50svh"
     :options="options"
-  >
-    <GMapMarker
-      v-for="(m, index) in markers"
-      :key="index"
-      :position="m.position"
-      :clickable="true"
-      :icon="{
-        url: 'src/assets/icons/pin.png',
-        scaledSize: { width: 30, height: 30 },
-        labelOrigin: { x: 16, y: -30 },
-      }"
-      @click="handleOpenMarker(m.id)"
+    ><GMapCluster
+      :renderer="{ render }"
+      :zoom-on-click="true"
     >
-      <GMapInfoWindow
-        :closeclick="true"
-        :opened="openedMarkerID === m.id"
-        class="px-8 py-8"
-        @closeclick="handleOpenMarker(null)"
+      <GMapMarker
+        v-for="(m, index) in markers"
+        :key="index"
+        :position="m.position"
+        :clickable="true"
+        :icon="{
+          url: getImageUrl('icons/pin.png'),
+          scaledSize: { width: 30, height: 30 },
+          labelOrigin: { x: 16, y: -30 },
+        }"
+        @click="handleOpenMarker(m.id)"
       >
-        <ul>
-          <li class="font-weight-bold">84.138.198.174</li>
-          <li class="pb-8">p548ac6ae.dip0.t-ipconnect.de</li>
-          <li>info</li>
-          <li>info 2</li>
-          <li>info 3</li>
-        </ul>
-      </GMapInfoWindow>
-    </GMapMarker>
+        <GMapInfoWindow
+          :closeclick="true"
+          :opened="openedMarkerID === m.id"
+          class="px-8 py-8"
+          @closeclick="handleOpenMarker(null)"
+        >
+          <ul>
+            <li>
+              From IP: <span class="font-medium">{{ m.ip }}</span>
+            </li>
+            <li class="pb-8">{{ m.hostname }}</li>
+            <li class="font-medium">{{ m.date }}</li>
+            <li class="pt-8">{{ m.city }}, {{ m.country }}</li>
+            <li>Lat: {{ m.position.lat }}, Lng: {{ m.position.lng }}</li>
+          </ul>
+        </GMapInfoWindow>
+      </GMapMarker>
+    </GMapCluster>
   </GMapMap>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import type { ComputedRef } from 'vue';
+import type { HitsType } from '@/components/tokens/types.ts';
+import { convertUnixTimeStampToDate } from '@/utils/utils';
+import getImageUrl from '@/utils/getImageUrl';
 
-const center = ref({ lat: 51.093048, lng: 6.84212 });
-// example
-const markers = [
-  {
-    id: 1,
-    position: {
-      lat: 51.093048,
-      lng: 6.84212,
-    },
-  },
-  {
-    id: 2,
-    position: {
-      lat: 51.198429,
-      lng: 6.69529,
-    },
-  },
-];
+type MarkerType = {
+  id: number;
+  ip: string;
+  hostname: string;
+  city: string;
+  country: string;
+  date: string;
+  position: { lat: number; lng: number };
+};
+
+const props = defineProps<{
+  hitsList: HitsType[];
+}>();
+
+const isLoading = ref(true);
 const openedMarkerID = ref();
+const mapRef = ref();
+const center = ref({ lat: 0, lng: 0 });
+
+function parseGeoInfoLocation(info: string) {
+  const locationArray = info.split(',');
+  return {
+    lat: parseFloat(locationArray[0]),
+    lng: parseFloat(locationArray[1]),
+  };
+}
+
+onMounted(() => {
+  if (props.hitsList.length > 1) {
+    return fitMarkerBounds();
+  } else if (props.hitsList.length === 1) {
+    center.value = parseGeoInfoLocation(props.hitsList[0].geo_info.loc);
+  }
+});
+
+const markers: ComputedRef<MarkerType[]> = computed(() => {
+  return props.hitsList.map((marker) => {
+    return {
+      id: marker.time_of_hit,
+      ip: marker.geo_info.ip,
+      hostname: marker.geo_info.hostname,
+      city: marker.geo_info.city,
+      country: marker.geo_info.country,
+      date: convertUnixTimeStampToDate(marker.time_of_hit),
+      position: parseGeoInfoLocation(marker.geo_info.loc),
+    };
+  });
+});
 
 function handleOpenMarker(id: number | null) {
   openedMarkerID.value = id;
 }
 
+async function fitMarkerBounds() {
+  const googleMapInstance = await mapRef.value.$mapPromise;
+  // @ts-ignore
+  const bounds = new window.google.maps.LatLngBounds();
+  markers.value.forEach((marker) => {
+    bounds.extend(marker.position);
+  });
+  googleMapInstance.fitBounds(bounds);
+}
+
+watch(mapRef, () => {
+  mapRef.value.$mapPromise.then(() => {
+    isLoading.value = false;
+  });
+});
+
+// styles Cluster Marker
+const render = ({ count, position }: { count: string; position: string[] }) => {
+  // @ts-ignore
+  return new window.google.maps.Marker({
+    label: {
+      text: `${count}`,
+      color: 'white',
+      fontWeight: '600',
+    },
+    position,
+    zIndex: 1000 + count,
+  });
+};
+
 const options = {
-  // zoomControl: false,
+  zoomControl: true,
   mapTypeControl: false,
-  // scaleControl: true,
   streetViewControl: false,
   rotateControl: true,
   fullscreenControl: false,
