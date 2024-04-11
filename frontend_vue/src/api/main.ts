@@ -45,7 +45,6 @@ export function manageToken(params: TokenAuthType) {
 
 export function downloadToken(params: DownloadTokenType) {
   const url = '/api/download';
-  console.log(params);
   return axios
     .get(url, { params })
     .then((response) => response)
@@ -56,6 +55,14 @@ export function settingsToken(params: SettingsTokenType) {
   const url = '/api/settings';
   return axios
     .post(url, params)
+    .then((response) => response)
+    .catch((error) => error.response);
+}
+
+export function historyToken(params: TokenAuthType) {
+  const url = '/api/history';
+  return axios
+    .get(url, { params })
     .then((response) => response)
     .catch((error) => error.response);
 }
