@@ -107,34 +107,55 @@ type genericObjectType = {
   [k: string]: string;
 };
 
+export type GeoInfoType = {
+  loc: string;
+  org: string;
+  city: string;
+  country: string;
+  region: string;
+  hostname: string;
+  ip: string;
+  timezone: string;
+  postal: string;
+  asn: {
+    route: string;
+    type: string;
+    asn: string;
+    domain: string;
+    name: string;
+  };
+  readme: string;
+};
+
+export type RequestHeadersType = {
+  Host: string;
+  'X-Real-Ip': string;
+  'X-Forwarded-For': string;
+  'X-Forwarded-Host': string;
+  Connection: string;
+  'Upgrade-Insecure-Requests': string;
+  'User-Agent': string;
+  Accept: string;
+  'Accept-Encoding': string;
+  'Accept-Language': string;
+};
+
 export type HitsType = {
   time_of_hit: number;
   src_ip: string;
-  geo_info: {
-    loc: string;
-    org: string;
-    city: string;
-    country: string;
-    region: string;
-    hostname: string;
-    ip: string;
-    timezone: string;
-    postal: string;
-    asn: {
-      route: string;
-      type: string;
-      asn: string;
-      domain: string;
-      name: string;
-    };
-    readme: string;
-  };
-  is_tor_relay: true;
+  geo_info: GeoInfoType;
+  is_tor_relay: boolean;
   input_channel: string;
   src_data: genericObjectType;
   useragent: string;
   token_type: string;
+  request_headers: RequestHeadersType;
   additional_info: {
+    [k: string]: {
+      [k: string]: string[];
+    };
+  };
+  request_args: {
     [k: string]: {
       [k: string]: string[];
     };
