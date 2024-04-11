@@ -21,6 +21,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/history/:auth/:token',
+      name: 'history',
+      component: () => import('../views/HistoryView.vue'),
+      meta: {
+        title: 'Token History',
+      },
+    },
+    {
       path: '/components',
       name: 'components',
       component: () => import('../views/ComponentPreview.vue'),
