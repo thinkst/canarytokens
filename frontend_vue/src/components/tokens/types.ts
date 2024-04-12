@@ -122,11 +122,11 @@ interface RequestHeaders {
 }
 
 interface AdditionalInfo {
-  javascript: null;
-  browser: null;
-  mysql_client: null;
-  r: null;
-  l: null;
+  javascript: null | string;
+  browser: null | string;
+  mysql_client: null | string;
+  r: null | string;
+  l: null | string;
 }
 
 export type HitsType = {
@@ -135,7 +135,7 @@ export type HitsType = {
   geo_info: GeoInfo;
   is_tor_relay: boolean;
   input_channel: string;
-  src_data: null;
+  src_data: null | any;
   useragent: string;
   token_type: string;
   request_headers: RequestHeaders;
