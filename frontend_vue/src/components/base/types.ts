@@ -7,11 +7,11 @@ export interface BaseStateVariantType {
 export interface BaseColorVariantType extends BaseStateVariantType {
   primary: string;
   secondary: string;
-  'text-light': string;
 }
 
 export interface BaseButtonVariantType extends BaseColorVariantType {
   text: string;
+  'text-light': string;
 }
 
 export type ButtonVariantType = keyof BaseButtonVariantType;
