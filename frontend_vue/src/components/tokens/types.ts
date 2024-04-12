@@ -103,42 +103,44 @@ export type NewTokenBackendType = {
   token_type: string;
 };
 
-type genericObjectType = {
-  [k: string]: string;
-};
+interface GeoInfo {
+  loc: string;
+  org: string;
+  city: string;
+  country: string;
+  region: string;
+  hostname: string;
+  ip: string;
+  timezone: string;
+  postal: string;
+  asn: null | any;
+  readme: string;
+}
+
+interface RequestHeaders {
+  [key: string]: string;
+}
+
+interface AdditionalInfo {
+  javascript: null | string;
+  browser: null | string;
+  mysql_client: null | string;
+  r: null | string;
+  l: null | string;
+}
 
 export type HitsType = {
   time_of_hit: number;
   src_ip: string;
-  geo_info: {
-    loc: string;
-    org: string;
-    city: string;
-    country: string;
-    region: string;
-    hostname: string;
-    ip: string;
-    timezone: string;
-    postal: string;
-    asn: {
-      route: string;
-      type: string;
-      asn: string;
-      domain: string;
-      name: string;
-    };
-    readme: string;
-  };
-  is_tor_relay: true;
+  geo_info: GeoInfo;
+  is_tor_relay: boolean;
   input_channel: string;
-  src_data: genericObjectType;
+  src_data: null | any;
   useragent: string;
   token_type: string;
-  additional_info: {
-    [k: string]: {
-      [k: string]: string[];
-    };
-  };
+  request_headers: RequestHeaders;
+  request_args: Record<string, any>;
+  additional_info: AdditionalInfo;
 };
 
 export type HistoryTokenBackendType = {
