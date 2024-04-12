@@ -38,7 +38,7 @@
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
         <template
-          v-for="(val, key) in formattedAlertObject"
+          v-for="(val, key) in props.hitAlert"
           :key="key"
         >
           <h3 class="text-grey-500">
@@ -76,7 +76,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { HitsType } from '@/components/tokens/types.ts';
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 
@@ -91,53 +90,6 @@ function highlightBoolean(val: boolean | HitsType | undefined) {
     return val ? 'text-green' : 'text-red';
   }
 }
-
-// Removes null and undefined key/val
-function cleanupObject(obj: keyof HitsType) {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    if (value !== null && value !== undefined) {
-      //@ts-ignore
-      acc[key as keyof HitsType] =
-        typeof value === 'object' ? cleanupObject(value) : value;
-    }
-    return acc;
-  }, {} as HitsType);
-}
-
-function isNotEmptyObject(
-  val: boolean | string[] | undefined | HitsType
-): boolean {
-  return typeof val === 'object' && Object.keys(val)?.length > 0;
-}
-
-const formattedAlertObject = computed(() => {
-  const geoInfo = cleanupObject(
-    props.hitAlert.geo_info as unknown as keyof HitsType
-  );
-  const requestHeaders = cleanupObject(
-    props.hitAlert.request_headers as unknown as keyof HitsType
-  );
-  const additionalInfo = cleanupObject(
-    props.hitAlert.additional_info as unknown as keyof HitsType
-  );
-  const requestArgs = cleanupObject(
-    props.hitAlert.request_args as unknown as keyof HitsType
-  );
-
-  return {
-    ...(isNotEmptyObject(geoInfo) && { 'Geo Info': geoInfo }),
-    'Is Tor Rely': props.hitAlert.is_tor_relay,
-    ...(isNotEmptyObject(requestHeaders) && {
-      'Request Headers': requestHeaders,
-    }),
-    ...(isNotEmptyObject(additionalInfo) && {
-      'Additional Info': additionalInfo,
-    }),
-    ...(isNotEmptyObject(requestArgs) && {
-      'Request Args': requestArgs,
-    }),
-  };
-});
 </script>
 
 <style scoped>
