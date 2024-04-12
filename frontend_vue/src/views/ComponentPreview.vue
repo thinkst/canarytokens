@@ -171,6 +171,9 @@
         lang="javascript"
       />
     </div>
+    <hr class="my-24" />
+    <h1>Banner ADV</h1>
+    <BannerCanarytools />
   </div>
 </template>
 
@@ -183,6 +186,7 @@ import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import { ref } from 'vue';
+import BannerCanarytools from '@/components/ui/BannerCanarytools.vue';
 
 const { open } = useModal({
   component: ModalToken,
