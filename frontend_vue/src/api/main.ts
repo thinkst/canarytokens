@@ -5,11 +5,11 @@ type TokenAuthType = {
   token: string;
 };
 
-type DownloadTokenType = {
+type DownloadAssetType = {
   fmt: string;
   auth: string;
   token: string;
-  encoded: boolean;
+  encoded?: boolean;
 };
 
 export type EnableSettingsOptionType =
@@ -43,7 +43,7 @@ export function manageToken(params: TokenAuthType) {
     .catch((error) => error.response);
 }
 
-export function downloadToken(params: DownloadTokenType) {
+export function downloadAsset(params: DownloadAssetType) {
   const url = '/api/download';
   return axios
     .get(url, { params })

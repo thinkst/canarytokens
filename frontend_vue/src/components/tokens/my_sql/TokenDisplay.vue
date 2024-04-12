@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { downloadToken } from '@/api/main';
+import { downloadAsset } from '@/api/main';
 
 type MySQLtokenDataType = {
   code: string;
@@ -45,7 +45,7 @@ function handleDownloadDumpFile() {
     token: props.tokenData?.token,
     encoded: encoded.value,
   };
-  downloadToken(params)
+  downloadAsset(params)
     .then((res) => {
       window.location.href = res.request.responseURL;
     })
