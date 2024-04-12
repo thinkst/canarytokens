@@ -38,7 +38,7 @@
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
         <template
-          v-for="(val, key) in formatAlertObject"
+          v-for="(val, key) in formattedAlertObject"
           :key="key"
         >
           <h3 class="text-grey-500">
@@ -47,7 +47,7 @@
           <ul
             class="flex flex-col gap-16 pb-16 [&:not(:last-child)]:border-b md:ml-32 border-grey-100"
           >
-            <template v-if="isNotEmptyObject(val)">
+            <template v-if="typeof val === 'object'">
               <li
                 v-for="(subval, subkey) in val"
                 :key="subkey"
@@ -86,20 +86,13 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 
-console.log(props.hitAlert, 'hitsList');
-
-function isNotEmptyObject(
-  val: boolean | string[] | undefined | HitsType
-): boolean {
-  return typeof val === 'object' && Object.keys(val)?.length > 0;
-}
-
 function addClassToBoolean(val: boolean | HitsType | undefined) {
   if (typeof val === 'boolean') {
     return val ? 'text-green' : 'text-red';
   }
 }
 
+// Removes null and undefined key/val
 function cleanupObject(obj: keyof HitsType) {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     if (value !== null && value !== undefined) {
@@ -107,12 +100,17 @@ function cleanupObject(obj: keyof HitsType) {
       acc[key as keyof HitsType] =
         typeof value === 'object' ? cleanupObject(value) : value;
     }
-    console.log(acc);
     return acc;
   }, {} as HitsType);
 }
 
-const formatAlertObject = computed(() => {
+function isNotEmptyObject(
+  val: boolean | string[] | undefined | HitsType
+): boolean {
+  return typeof val === 'object' && Object.keys(val)?.length > 0;
+}
+
+const formattedAlertObject = computed(() => {
   const geoInfo = cleanupObject(
     props.hitAlert.geo_info as unknown as keyof HitsType
   );

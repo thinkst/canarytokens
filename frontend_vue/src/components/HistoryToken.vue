@@ -13,11 +13,15 @@
     {{ error }}
   </div>
   <template v-if="hitsList">
+    <!-- conditional { 'hidden md:block': selectedAlert } is a trick for mobile
+    to show incident info all screen height -->
     <div
       id="alerts-card-list"
-      class="flex flex-col md:p-16 md:bg-grey-50 md:rounded-xl md:overflow-scroll md:max-h-[60svh]"
+      class="flex-col md:p-16 md:bg-grey-50 md:rounded-xl md:overflow-scroll md:max-h-[60svh]"
+      :class="{ 'hidden md:block': selectedAlert }"
     >
       <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+      <!-- TODO: add number of alerts? -->
       <ul class="flex flex-col gap-16">
         <li class="flex items-center justify-between">
           <p class="text-sm text-grey-500">Download:</p>
@@ -43,20 +47,20 @@
             IP: incident.src_ip,
             Channel: incident.input_channel,
           }"
-          @click="selectedAlert = incident"
+          @click="handleSelectAlert(incident)"
         ></CardIncident>
       </ul>
     </div>
     <div>
-      <div class="md:relative md:h-[60svh] h-[30svh]">
-        <!-- TODO: add fake map/error handler when map is not loading -->
-        <CustomMap :hits-list="hitsList"></CustomMap>
+      <div class="@md:relative grid md:h-[45svh] h-[30svh]">
         <IncidentDetails
           v-if="selectedAlert"
+          id="incident_detail"
           :hit-alert="selectedAlert"
-          class="absolute top-[80px] left-[0] md:top-[0px] md:h-[59svh] md:overflow-scroll"
+          class="absolute top-[80px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll"
           @close="selectedAlert = null"
         ></IncidentDetails>
+        <CustomMap :hits-list="hitsList"></CustomMap>
       </div>
       <BannerCanarytools></BannerCanarytools>
     </div>
@@ -139,5 +143,18 @@ function handleDownloadList(type: string) {
       console.log('You downloaded the file, yay!');
     });
 }
+
+function handleSelectAlert(incident: HitsType) {
+  selectedAlert.value = incident;
+  const container = document.getElementById('incident_detail');
+  container
+    ? container.scrollTo({ top: 0, behavior: 'smooth' })
+    : window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 </script>
-<style></style>
+
+<style>
+.grid-areas {
+  grid-area: 1 / 1 / 2 / 2;
+}
+</style>
