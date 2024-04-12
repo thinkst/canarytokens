@@ -4,6 +4,12 @@
     <base-button>Primary</base-button>
     <base-button variant="secondary">Secondary</base-button>
     <base-button variant="text">Text!!</base-button>
+    <base-button
+      class="whitespace-nowrap"
+      icon="arrow-right"
+      icon-position="right"
+      >Look mum, Icons!</base-button
+    >
   </div>
   <hr class="my-24" />
   <div class="flex flex-col w-[200px] gap-16">
