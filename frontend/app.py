@@ -203,14 +203,16 @@ def index(request: Request):
     return vue_index.TemplateResponse("index.html", {"request": request})
 
 
+ROOT_API_ENDPOINT = "/d3aece8093b71007b5ccfedad91ebb11"
+
 api = FastAPI(
     title=frontend_settings.API_APP_TITLE,
     version=canarytokens.__version__,
-    openapi_prefix="/api",
+    openapi_prefix=ROOT_API_ENDPOINT,
     openapi_tags=tags_metadata,
 )
 
-app.mount("/api", api)
+app.mount(ROOT_API_ENDPOINT, api)
 app.mount(
     frontend_settings.STATIC_FILES_APPLICATION_SUB_PATH,
     StaticFiles(directory=frontend_settings.STATIC_FILES_PATH),
