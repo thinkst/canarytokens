@@ -7,8 +7,8 @@
       { 'flex flex-row flex-nowrap gap-8 items-center': icon },
       { 'flex-row-reverse': iconPosition === 'right' },
     ]"
-    :type="!link && type"
     :href="link"
+    :type="!link ? type : null"
   >
     <font-awesome-icon
       v-if="icon"
