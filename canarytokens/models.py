@@ -2308,6 +2308,7 @@ class TokenDownloadResponse(Response):
         headers = {
             "Content-Type": __pydantic_self__.contenttype,
             "Content-Disposition": f"attachment; filename={file_name}",
+            "X-Robots-Tag": "noindex",
         }
 
         super().__init__(content=content, headers=headers)
