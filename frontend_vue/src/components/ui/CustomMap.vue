@@ -5,8 +5,7 @@
     :zoom="7"
     :center="center"
     map-type-id="terrain"
-    class="w-full rounded-lg"
-    style="height: 50svh"
+    class="grid-areas"
     :options="options"
     ><GMapCluster
       :renderer="{ render }"
