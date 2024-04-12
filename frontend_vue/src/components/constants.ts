@@ -29,3 +29,8 @@ export const ENABLE_SETTINGS_TYPE = {
   BROWSER_SCANNER: 'browser_scanner_enable',
   WEB_IMAGE: 'web_image_enable',
 };
+
+export const INCIDENT_LIST_EXPORT = {
+  JSON: 'incidentlist_json',
+  CSV: 'incidentlist_csv',
+};
