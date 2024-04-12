@@ -103,11 +103,7 @@ export type NewTokenBackendType = {
   token_type: string;
 };
 
-type genericObjectType = {
-  [k: string]: string;
-};
-
-export type GeoInfoType = {
+interface GeoInfo {
   loc: string;
   org: string;
   city: string;
@@ -117,49 +113,34 @@ export type GeoInfoType = {
   ip: string;
   timezone: string;
   postal: string;
-  asn: {
-    route: string;
-    type: string;
-    asn: string;
-    domain: string;
-    name: string;
-  };
+  asn: null | any;
   readme: string;
-};
+}
 
-export type RequestHeadersType = {
-  Host: string;
-  'X-Real-Ip': string;
-  'X-Forwarded-For': string;
-  'X-Forwarded-Host': string;
-  Connection: string;
-  'Upgrade-Insecure-Requests': string;
-  'User-Agent': string;
-  Accept: string;
-  'Accept-Encoding': string;
-  'Accept-Language': string;
-};
+interface RequestHeaders {
+  [key: string]: string;
+}
+
+interface AdditionalInfo {
+  javascript: null;
+  browser: null;
+  mysql_client: null;
+  r: null;
+  l: null;
+}
 
 export type HitsType = {
   time_of_hit: number;
   src_ip: string;
-  geo_info: GeoInfoType;
+  geo_info: GeoInfo;
   is_tor_relay: boolean;
   input_channel: string;
-  src_data: genericObjectType;
+  src_data: null;
   useragent: string;
   token_type: string;
-  request_headers: RequestHeadersType;
-  additional_info: {
-    [k: string]: {
-      [k: string]: string[];
-    };
-  };
-  request_args: {
-    [k: string]: {
-      [k: string]: string[];
-    };
-  };
+  request_headers: RequestHeaders;
+  request_args: Record<string, any>;
+  additional_info: AdditionalInfo;
 };
 
 export type HistoryTokenBackendType = {

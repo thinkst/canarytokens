@@ -56,13 +56,13 @@
                 <span class="block text-xs uppercase text-grey-500">{{
                   subkey
                 }}</span>
-                <span :class="addClassToBoolean(val)">{{ subval }}</span>
+                <span :class="highlightBoolean(val)">{{ subval }}</span>
               </li>
             </template>
             <template v-else>
               <li
                 :key="key"
-                :class="addClassToBoolean(val)"
+                :class="highlightBoolean(val)"
                 class="break-words"
               >
                 {{ val }}
@@ -86,7 +86,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 
-function addClassToBoolean(val: boolean | HitsType | undefined) {
+function highlightBoolean(val: boolean | HitsType | undefined) {
   if (typeof val === 'boolean') {
     return val ? 'text-green' : 'text-red';
   }

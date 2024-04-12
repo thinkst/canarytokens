@@ -226,7 +226,7 @@ function copyContent() {
 }`);
 
 const alertSample = {
-  time_of_hit: 1712760326.557104,
+  time_of_hit: 1712839716.1747,
   src_ip: '13.245.103.199',
   geo_info: {
     loc: '-33.9258,18.4232',
@@ -247,9 +247,29 @@ const alertSample = {
   useragent:
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
   token_type: 'web',
-  request_headers: {},
+  request_headers: {
+    Host: 'maxoooo.com',
+    'X-Real-Ip': '13.245.103.199',
+    'X-Forwarded-For': '13.245.103.199',
+    'X-Forwarded-Host': 'maxoooo.com',
+    Connection: 'close',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    Accept:
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language':
+      'en-GB,en-US;q=0.9,en;q=0.8,zh-CN;q=0.7,zh;q=0.6,it;q=0.5',
+  },
   request_args: {},
-  additional_info: {},
+  additional_info: {
+    javascript: null,
+    browser: null,
+    mysql_client: null,
+    r: null,
+    l: null,
+  },
 };
 </script>
 
