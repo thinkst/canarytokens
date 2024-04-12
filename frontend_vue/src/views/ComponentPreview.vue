@@ -128,7 +128,7 @@
     <hr class="my-24" />
     <h1 class="pb-16">Incident details</h1>
     <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
-      <IncidentDetails />
+      <IncidentDetails :hit-alert="alertSample" />
     </div>
     <div class="flex flex-col gap-16 mb-32">
       <h1>Upload File</h1>
@@ -182,7 +182,7 @@ import ModalToken from '@/components/ModalToken.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const { open } = useModal({
   component: ModalToken,
@@ -225,9 +225,52 @@ function copyContent() {
   showTooltip();
 }`);
 
-watch(checked, (newVal) => {
-  console.log('checked', newVal);
-});
+const alertSample = {
+  time_of_hit: 1712839716.1747,
+  src_ip: '13.245.103.199',
+  geo_info: {
+    loc: '-33.9258,18.4232',
+    org: 'AS16509 Amazon.com, Inc.',
+    city: 'Cape Town',
+    country: 'ZA',
+    region: 'Western Cape',
+    hostname: 'ec2-13-245-103-199.af-south-1.compute.amazonaws.com',
+    ip: '13.245.103.199',
+    timezone: 'Africa/Johannesburg',
+    postal: '7945',
+    asn: null,
+    readme: 'https://ipinfo.io/missingauth',
+  },
+  is_tor_relay: false,
+  input_channel: 'HTTP',
+  src_data: null,
+  useragent:
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+  token_type: 'web',
+  request_headers: {
+    Host: 'maxoooo.com',
+    'X-Real-Ip': '13.245.103.199',
+    'X-Forwarded-For': '13.245.103.199',
+    'X-Forwarded-Host': 'maxoooo.com',
+    Connection: 'close',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    Accept:
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language':
+      'en-GB,en-US;q=0.9,en;q=0.8,zh-CN;q=0.7,zh;q=0.6,it;q=0.5',
+  },
+  request_args: {},
+  additional_info: {
+    javascript: null,
+    browser: null,
+    mysql_client: null,
+    r: null,
+    l: null,
+  },
+};
 </script>
 
 <style scoped>
