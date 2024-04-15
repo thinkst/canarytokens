@@ -15,7 +15,7 @@
           variant="text-light"
           icon-position="right"
           icon="arrow-right"
-          link="https://canary.tools/"
+          href="https://canary.tools/"
           target="_blank"
           >Find out</BaseButton
         >

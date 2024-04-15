@@ -1,14 +1,14 @@
 <template>
   <component
-    :is="link ? 'a' : 'button'"
+    :is="href ? 'a' : 'button'"
     v-bind="$attrs"
     :class="[
       buttonClass,
       { 'flex flex-row flex-nowrap gap-8 items-center': icon },
       { 'flex-row-reverse': iconPosition === 'right' },
     ]"
-    :href="link"
-    :type="!link ? type : null"
+    :href="href"
+    :type="!href ? type : null"
   >
     <font-awesome-icon
       v-if="icon"
@@ -53,7 +53,7 @@ const props = defineProps({
     type: String as PropType<'left' | 'right'>,
     default: 'left',
   },
-  link: {
+  href: {
     type: String || null,
     default: null,
   },

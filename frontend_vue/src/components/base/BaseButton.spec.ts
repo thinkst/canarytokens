@@ -80,7 +80,7 @@ describe('BaseButton', () => {
 
   test('renders <a> instead of a button', () => {
     const wrapper = mount(BaseButton, {
-      props: { variant: 'text', link: 'http://example.com' },
+      props: { variant: 'text', href: 'http://example.com' },
       global: {
         stubs: { FontAwesomeIcon },
       },
