@@ -28,7 +28,7 @@ export type SettingsTokenType = {
 };
 
 export function generateToken(form: any) {
-  const url = '/api/generate';
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/generate';
   return axios
     .post(url, form)
     .then((response) => response)
@@ -36,7 +36,7 @@ export function generateToken(form: any) {
 }
 
 export function manageToken(params: TokenAuthType) {
-  const url = '/api/manage';
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/manage';
   return axios
     .get(url, { params })
     .then((response) => response)
@@ -44,7 +44,7 @@ export function manageToken(params: TokenAuthType) {
 }
 
 export function downloadAsset(params: DownloadAssetType) {
-  const url = '/api/download';
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/download';
   return axios
     .get(url, { params })
     .then((response) => response)
@@ -52,7 +52,7 @@ export function downloadAsset(params: DownloadAssetType) {
 }
 
 export function settingsToken(params: SettingsTokenType) {
-  const url = '/api/settings';
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/settings';
   return axios
     .post(url, params)
     .then((response) => response)
@@ -60,7 +60,7 @@ export function settingsToken(params: SettingsTokenType) {
 }
 
 export function historyToken(params: TokenAuthType) {
-  const url = '/api/history';
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/history';
   return axios
     .get(url, { params })
     .then((response) => response)
