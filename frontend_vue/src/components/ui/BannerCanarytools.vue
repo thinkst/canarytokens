@@ -1,8 +1,7 @@
 <template>
   <div class="@container">
     <div
-      class="w-full gap-16 p-16 mt-16 rounded-xl banner-bg"
-      :class="[xlContainerClasses, mobileContainerClasses]"
+      class="w-full gap-16 p-16 mt-16 rounded-xl banner-bg grid @sm:justify-center @sm:items-center @sm:grid-cols-[2fr_3fr_1fr] @sm:grid-rows-[2fr] @sm:aspect-[4/1] @md:h-[180px] @sm:bg-[position:-200px_-100px,0] @sm:bg-[size:550px,cover] grid-rows-[3fr_1fr] px-16 h-[280px] aspect-[1/2] bg-[position:-250px_0px,0] bg-[size:550px,cover]"
     >
       <span class="hidden @sm:block"></span>
       <p class="@sm:self-center self-start text-xl font-light text-white">
@@ -25,12 +24,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-const xlContainerClasses =
-  'grid @sm:justify-center @sm:items-center @sm:grid-cols-[2fr_3fr_1fr] @sm:grid-rows-[2fr] @sm:aspect-[4/1] @md:h-[180px] @sm:bg-[position:-200px_-100px,0] @sm:bg-[size:550px,cover]';
-const mobileContainerClasses =
-  'grid-rows-[3fr_1fr] px-16 h-[280px] aspect-[1/2] bg-[position:-250px_0px,0] bg-[size:550px,cover]';
-</script>
+<script lang="ts" setup></script>
 
 <style scoped>
 .banner-bg {
