@@ -2,18 +2,27 @@
   <BaseFormTextField
     id="email"
     type="text"
-    placeholder="Url"
-    label="Email or webhook URL"
+    placeholder="Email"
+    label="Email"
     full-width
-    helper-message="Provide an email address or webhook URL, or both space separated"
+    helper-message="Provide an email address or webhook URL"
+  />
+  <BaseFormTextField
+    id="webhook_url"
+    type="text"
+    placeholder="Url"
+    label="URL"
+    full-width
+    helper-message="Provide an email address or webhook URL"
   />
   <BaseFormTextField
     id="memo"
     label="Add Note"
     multiline
+    required
     full-width
-  />
-  <!-- TODO: add encoding switch  -->
+    helper-message="Reminder note when this token is triggered. For instance: MySQL token in payments_db_dump.sql on SRV01"
+  ></BaseFormTextField>
 </template>
 
 <script setup lang="ts"></script>
