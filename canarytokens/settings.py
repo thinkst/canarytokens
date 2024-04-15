@@ -88,6 +88,9 @@ class FrontendSettings(BaseSettings):
     STATIC_FILES_APPLICATION_SUB_PATH: str = "/resources"
     STATIC_FILES_APPLICATION_INTERNAL_NAME: str = "resources"
 
+    # if None the API docs won't load. Loads at /API_HASH/{your_url}. Must start with a /
+    API_REDOC_URL: Optional[str]
+
     # upload settings
     MAX_UPLOAD_SIZE: int = 1024 * 1024 * 1
     WEB_IMAGE_UPLOAD_PATH: str = "/uploads"

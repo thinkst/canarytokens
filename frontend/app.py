@@ -210,6 +210,8 @@ api = FastAPI(
     version=canarytokens.__version__,
     openapi_prefix=ROOT_API_ENDPOINT,
     openapi_tags=tags_metadata,
+    docs_url=None,  # should be None on prod
+    redoc_url=frontend_settings.API_REDOC_URL,  # should default to None on prod
 )
 
 app.mount(ROOT_API_ENDPOINT, api)
