@@ -3,6 +3,10 @@ export type BaseFormValuesType = {
   memo: string;
 };
 
+export interface QRCodeTokenBackendType extends NewTokenBackendType {
+  qrcode_png: string;
+}
+
 type CanaryTokenType = {
   _value: string;
 };
@@ -74,7 +78,7 @@ export type NullableCanaryDropType = {
   [K in keyof CanaryDropType]: K extends 'canarytoken'
     ? CanaryTokenType
     : K extends 'auth'
-      ? string | boolean
+      ? string
       : CanaryDropType[K] | null;
 };
 

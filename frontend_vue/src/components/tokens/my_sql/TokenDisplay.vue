@@ -1,9 +1,11 @@
 <template>
   <p class="mt-16 mb-16">1. Insert it into a MySQL dump of your own:</p>
   <base-code-snippet
-    lang="javascript"
+    lang="sql"
     label="Your MYSQL code"
-    :code="tokenData.code"
+    multiline
+    custom-height="5rem"
+    :code="codeMYSQL"
   ></base-code-snippet>
   <p class="mt-32">
     2. Download a (pseudo) random MySQL dump with a token already embedded in it
@@ -19,24 +21,46 @@
     class="mt-16"
     label="Encode Snippet"
     helper-message="Encode snippet to make it harder to spot"
+    @input.stop="handleEncodingChange()"
   ></base-switch>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import type { Ref } from 'vue';
 import { downloadAsset } from '@/api/main';
+import generateMysqlToken from '@/components/tokens/my_sql/generateMysqlToken';
 
 type MySQLtokenDataType = {
-  code: string;
+  hostname: string;
   auth: string;
   token: string;
+  encoded?: boolean;
 };
 
 const props = defineProps<{
   tokenData: MySQLtokenDataType;
 }>();
 
-const encoded = ref(false);
+const encoded: Ref<boolean> = ref(props.tokenData.encoded || true);
+const codeMYSQL = ref();
+
+onMounted(() => {
+  codeMYSQL.value = generateMysqlToken(
+    props.tokenData.hostname,
+    props.tokenData.token,
+    encoded.value
+  );
+});
+
+function handleEncodingChange() {
+  encoded.value = !encoded.value;
+  codeMYSQL.value = generateMysqlToken(
+    props.tokenData.hostname,
+    props.tokenData.token,
+    encoded.value
+  );
+}
 
 function handleDownloadDumpFile() {
   const params = {
@@ -53,7 +77,7 @@ function handleDownloadDumpFile() {
       console.log(err, 'err');
     })
     .finally(() => {
-      console.log('You downloaded the file, yay!');
+      console.log('File downloaded');
     });
 }
 </script>
