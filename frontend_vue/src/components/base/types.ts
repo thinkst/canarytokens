@@ -11,6 +11,7 @@ export interface BaseColorVariantType extends BaseStateVariantType {
 
 export interface BaseButtonVariantType extends BaseColorVariantType {
   text: string;
+  'text-light': string;
 }
 
 export type ButtonVariantType = keyof BaseButtonVariantType;

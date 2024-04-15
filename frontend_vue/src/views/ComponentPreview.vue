@@ -4,6 +4,12 @@
     <base-button>Primary</base-button>
     <base-button variant="secondary">Secondary</base-button>
     <base-button variant="text">Text!!</base-button>
+    <base-button
+      class="whitespace-nowrap"
+      icon="arrow-right"
+      icon-position="right"
+      >Look mum, Icons!</base-button
+    >
   </div>
   <hr class="my-24" />
   <div class="flex flex-col w-[200px] gap-16">
@@ -171,6 +177,9 @@
         lang="javascript"
       />
     </div>
+    <hr class="my-24" />
+    <h1>Banner ADV</h1>
+    <BannerCanarytools />
   </div>
 </template>
 
@@ -183,6 +192,7 @@ import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import { ref } from 'vue';
+import BannerCanarytools from '@/components/ui/BannerCanarytools.vue';
 
 const { open } = useModal({
   component: ModalToken,
