@@ -1,11 +1,22 @@
 <template>
-  <button
+  <component
+    :is="href ? 'a' : 'button'"
     v-bind="$attrs"
-    :class="buttonClass"
-    :type="type"
+    :class="[
+      buttonClass,
+      { 'flex flex-row flex-nowrap gap-8 items-center': icon },
+      { 'flex-row-reverse': iconPosition === 'right' },
+    ]"
+    :href="href"
+    :type="!href ? type : null"
   >
+    <font-awesome-icon
+      v-if="icon"
+      :icon="icon"
+      aria-hidden="true"
+    />
     <slot></slot>
-  </button>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +31,7 @@ enum ButtonVariantEnum {
   DANGER = 'danger',
   WARNING = 'warning',
   INFO = 'info',
+  LIGHT = 'text-light',
 }
 
 type buttonType = 'button' | 'submit' | 'reset';
@@ -32,6 +44,18 @@ const props = defineProps({
   type: {
     type: String as PropType<buttonType>,
     default: 'button',
+  },
+  icon: {
+    type: String,
+    default: null,
+  },
+  iconPosition: {
+    type: String as PropType<'left' | 'right'>,
+    default: 'left',
+  },
+  href: {
+    type: String || null,
+    default: null,
   },
 });
 
@@ -49,6 +73,8 @@ const buttonClass = computed(() => {
       return 'text warning base-button';
     case ButtonVariantEnum.INFO:
       return 'text info base-button';
+    case ButtonVariantEnum.LIGHT:
+      return 'text-light base-button';
     default:
       return 'primary base-button';
   }
@@ -70,6 +96,10 @@ const buttonClass = computed(() => {
 
 .text {
   @apply hover:text-green-500 focus:text-green-800 text-grey-500;
+}
+
+.text-light {
+  @apply hover:text-green-800 focus:text-green-800 text-white;
 }
 
 .danger {
