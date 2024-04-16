@@ -18,6 +18,7 @@
       id="webhook-alert"
       v-model="enabledWebhookAlert"
       label="Webhook reporting"
+      :helper-message="props.tokenBackendResponse.canarydrop.alert_webhook_url"
       @change.stop="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.WEB_HOOK as EnableSettingsOptionType,
