@@ -42,6 +42,15 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.MYSQL}.png`,
     instruction: '',
   },
+  [TOKENS_TYPE.AWS_KEYS]: {
+    label: 'AWS keys token',
+    description: 'Alert when AWS key is used',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/aws-keys-token.html',
+    icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
+    instruction:
+      'Copy this credential pair to your clipboard to use as desired:',
+  },
   // [TOKENS_TYPE.LOG4SHELL]: {
   //   label: 'Log 4 Shell',
   //   description:
