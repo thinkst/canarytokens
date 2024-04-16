@@ -5,15 +5,15 @@
     placeholder="Email"
     label="Email"
     full-width
-    helper-message="Provide an email address or a webhook URL"
+    helper-message="Provide an email address or webhook URL"
   />
   <BaseFormTextField
-    id="url"
+    id="webhook_url"
     type="text"
-    placeholder="Webhook URL"
-    label="Webhook URL"
+    placeholder="URL"
+    label="URL"
     full-width
-    helper-message="Provide an email address or a webhook URL"
+    helper-message="Provide an email address or webhook URL"
   />
   <BaseFormTextField
     id="memo"
@@ -21,6 +21,7 @@
     multiline
     required
     full-width
+    helper-message="Reminder note when this token is triggered. For instance: QR code underneath Simone's phone battery"
   ></BaseFormTextField>
 </template>
 

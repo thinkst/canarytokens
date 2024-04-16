@@ -13,19 +13,14 @@ import TokenDisplay from './TokenDisplay.vue';
 import { ref } from 'vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
 
-interface MySQLtokenBackendType extends NewTokenBackendType {
-  usage: string;
-  token: string;
-  auth: string;
-}
-
 const props = defineProps<{
-  tokenData: MySQLtokenBackendType;
+  tokenData: NewTokenBackendType;
 }>();
 
 const tokenSnippetData = ref({
-  code: props.tokenData.usage || '',
+  hostname: props.tokenData.hostname || '',
   token: props.tokenData.token || '',
   auth: props.tokenData.auth_token || '',
+  encoded: true,
 });
 </script>
