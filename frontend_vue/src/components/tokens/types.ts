@@ -105,6 +105,10 @@ export type NewTokenBackendType = {
   error_message: string | null;
   Url: string | null;
   token_type: string;
+  aws_access_key_id: string;
+  aws_secret_access_key: string;
+  output: string;
+  region: string;
 };
 
 interface GeoInfo {
