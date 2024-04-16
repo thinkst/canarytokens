@@ -1,5 +1,8 @@
 <template>
-  <ul class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800">
+  <ul
+    v-if="howToUseToken.length > 0"
+    class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800"
+  >
     <li
       v-for="item in howToUseToken"
       :key="item"
@@ -7,10 +10,13 @@
       {{ item }}
     </li>
   </ul>
+  <div v-else>
+    We don't have suggestions for now, but we will add some soon!
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps<{
   selectedToken: string;
@@ -26,7 +32,7 @@ const loadHowToUse = async () => {
   howToUseToken.value = howToUse;
 };
 
-loadHowToUse();
+onMounted(loadHowToUse);
 </script>
 
 <style>

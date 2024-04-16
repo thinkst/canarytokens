@@ -1,1 +1,1 @@
-export const howToUse = [''];
+export const howToUse = [];
