@@ -11,7 +11,8 @@
     </li>
   </ul>
   <div v-else>
-    We don't have suggestions for now, but we will add some soon!
+    At this time, we do not have any suggestions available. Please check back
+    soon!
   </div>
 </template>
 
