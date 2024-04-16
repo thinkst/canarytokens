@@ -17,6 +17,7 @@ export const TOKENS_TYPE = {
   QRCODE: 'qr_code',
   MYSQL: 'my_sql',
   WEB_IMAGE: 'web_image',
+  AWS_KEYS: 'aws_keys',
 };
 
 /*
