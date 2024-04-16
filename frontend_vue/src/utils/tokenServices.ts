@@ -16,28 +16,29 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.WEB_BUG]: {
     label: 'Web Bug Token',
     description: 'An alert when a URL is visited',
-    documentationLink: '#',
+    documentationLink: 'https://docs.canarytokens.org/guide/http-token.html',
     icon: `${TOKENS_TYPE.WEB_BUG}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.DNS]: {
     label: 'DNS Token',
     description: 'An alert when a hostname is requested',
-    documentationLink: '#',
+    documentationLink: 'https://docs.canarytokens.org/guide/dns-token.html',
     icon: `${TOKENS_TYPE.DNS}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.QRCODE]: {
     label: 'QR Code Token',
     description: 'Generate a QR code for physical tokens',
-    documentationLink: '#',
+    documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.QRCODE}.png`,
     instruction: 'Use this QR Code to token a physical location or object:',
   },
   [TOKENS_TYPE.MYSQL]: {
     label: 'MySQL token',
     description: 'Get alerted when a MySQL dump is loaded',
-    documentationLink: '#',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/mysql-dump-token.html',
     icon: `${TOKENS_TYPE.MYSQL}.png`,
     instruction: '',
   },
