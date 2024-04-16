@@ -4,7 +4,7 @@
     label="AWS token"
     :code="AWSKeyCode"
     multiline
-    custom-height="100px"
+    custom-height="10rem"
   ></base-code-snippet>
 </template>
 
