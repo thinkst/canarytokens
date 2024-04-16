@@ -19,6 +19,7 @@ export const TOKENS_TYPE = {
   WEB_IMAGE: 'web_image',
   AWS_KEYS: 'aws_keys',
   FAST_REDIRECT: 'fast_redirect',
+  SLOW_REDIRECT: 'slow_redirect',
 };
 
 /*

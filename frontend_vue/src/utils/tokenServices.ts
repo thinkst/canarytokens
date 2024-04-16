@@ -65,14 +65,15 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/fast-redirect-token.html',
     icon: `${TOKENS_TYPE.FAST_REDIRECT}.png`,
-    instruction: '',
+    instruction: 'Copy this URL to your clipboard and use as you wish:',
   },
-
-  // [TOKENS_TYPE.CLONEDWEBSITE]: {
-  //   label: 'Cloned Website Token',
-  //   description: 'Trigger an alert when your website is cloned',
-  //   documentationLink: '#',
-  //   icon: `${TOKENS_TYPE.CLONEDWEBSITE}.png`,
-  //   instruction: 'Copy this URL to your clipboard and use as you wish',
-  // },
+  [TOKENS_TYPE.SLOW_REDIRECT]: {
+    label: 'Slow redirect token',
+    description:
+      'Alert when a URL is visited, User is redirected (more info collected)',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/slow-redirect-token.html',
+    icon: `${TOKENS_TYPE.SLOW_REDIRECT}.png`,
+    instruction: 'Copy this URL to your clipboard and use as you wish:',
+  },
 };
