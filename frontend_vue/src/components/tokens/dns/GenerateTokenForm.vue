@@ -10,7 +10,7 @@
   <BaseFormTextField
     id="webhook_url"
     type="text"
-    placeholder="Url"
+    placeholder="URL"
     label="URL"
     full-width
     helper-message="Provide an email address or webhook URL"
