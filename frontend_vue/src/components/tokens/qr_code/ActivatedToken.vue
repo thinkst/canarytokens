@@ -1,12 +1,9 @@
 <template>
-  <TokenDisplay :token-png="tokenSnippetData" />
-  <p class="mt-16 text-sm">
-    Remember, it gets triggered whenever someone requests the URL.
-  </p>
+  <TokenDisplay :token-data="tokenSnippetData" />
   <base-message-box
     class="mt-24"
     variant="info"
-    :message="`If the URL is requested as an image (e.g. <img src=''''>) then a 1x1 image is served. If the URL is surfed in a browser then a blank page is served with fingerprinting Javascript.`"
+    :message="`When someone scans the QR Code with a reader, it will trigger the URL tied to your token and fire an alert.`"
   />
   <p class="mt-24 text-sm"></p>
 </template>
@@ -24,5 +21,9 @@ const props = defineProps<{
   tokenData: QRCodeTokenBackendType;
 }>();
 
-const tokenSnippetData = ref(props.tokenData.qrcode_png);
+const tokenSnippetData = ref({
+  qrcode_png: props.tokenData.qrcode_png || '',
+  token: props.tokenData.token || '',
+  auth: props.tokenData.auth_token || '',
+});
 </script>
