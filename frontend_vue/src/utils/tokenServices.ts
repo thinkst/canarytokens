@@ -59,6 +59,15 @@ export const tokenServices: TokenServicesType = {
     instruction:
       'The next step is to copy the log4j snippet below and test your systems for the log4shell issue.',
   },
+  [TOKENS_TYPE.FAST_REDIRECT]: {
+    label: 'Fast redirect token',
+    description: 'Alert when a URL is visited, User is redirected',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/fast-redirect-token.html',
+    icon: `${TOKENS_TYPE.FAST_REDIRECT}.png`,
+    instruction: '',
+  },
+
   // [TOKENS_TYPE.CLONEDWEBSITE]: {
   //   label: 'Cloned Website Token',
   //   description: 'Trigger an alert when your website is cloned',
