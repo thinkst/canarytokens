@@ -51,14 +51,14 @@ export const tokenServices: TokenServicesType = {
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
   },
-  // [TOKENS_TYPE.LOG4SHELL]: {
-  //   label: 'Log 4 Shell',
-  //   description:
-  //     'Alert when a log4j logline is vulnerable to CVW-2021-44-228',
-  //   documentationLink: '#',
-  //   icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
-  //   instruction: 'Copy this URL to your clipboard and use as you wish',
-  // },
+  [TOKENS_TYPE.LOG4SHELL]: {
+    label: 'Log 4 Shell',
+    description: 'Alert when a log4j logline is vulnerable to CVW-2021-44-228',
+    documentationLink: '#',
+    icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
+    instruction:
+      'The next step is to copy the log4j snippet below and test your systems for the log4shell issue.',
+  },
   // [TOKENS_TYPE.CLONEDWEBSITE]: {
   //   label: 'Cloned Website Token',
   //   description: 'Trigger an alert when your website is cloned',
