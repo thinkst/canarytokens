@@ -3,6 +3,8 @@
     lang="javascript"
     label="AWS token"
     :code="AWSKeyCode"
+    multiline
+    custom-height="100px"
   ></base-code-snippet>
 </template>
 
@@ -20,11 +22,9 @@ const props = defineProps<{
   tokenData: AWSKeysDataType;
 }>();
 
-const AWSKeyCode = ref(`
-  [default]
-  aws_access_key_id = ${props.tokenData.aws_access_key_id}
-  aws_secret_access_key = ${props.tokenData.aws_secret_access_key}
-  output = ${props.tokenData.output}
-  region = ${props.tokenData.region}
-`);
+const AWSKeyCode = ref(`[default]
+aws_access_key_id = ${props.tokenData.aws_access_key_id}
+aws_secret_access_key = ${props.tokenData.aws_secret_access_key}
+output = ${props.tokenData.output}
+region = ${props.tokenData.region}`);
 </script>

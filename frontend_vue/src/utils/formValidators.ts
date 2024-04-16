@@ -72,8 +72,12 @@ export const formValidators: ValidateSchemaType = {
     ),
   },
   [TOKENS_TYPE.AWS_KEYS]: {
-    schema: Yup.object().shape(validationSchemaEmailOrUrl, [
-      ['webhook_url', 'email'],
-    ]),
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
   },
 };
