@@ -10,15 +10,15 @@
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
-import generateManagedToken from '@/components/tokens/my_sql/generateManagedToken';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
 }>();
 
 const tokenData = ref({
-  code: generateManagedToken(props.tokenBackendResponse),
-  token: props.tokenBackendResponse?.canarydrop?.canarytoken?._value,
-  auth: props.tokenBackendResponse.canarydrop?.auth as string,
+  hostname: props.tokenBackendResponse.canarydrop.generated_hostname || '',
+  token: props.tokenBackendResponse?.canarydrop?.canarytoken?._value || '',
+  auth: props.tokenBackendResponse.canarydrop?.auth || '',
+  encoded: true,
 });
 </script>
