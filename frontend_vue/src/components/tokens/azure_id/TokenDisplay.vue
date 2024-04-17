@@ -40,7 +40,7 @@ const CertificateTokenCode = ref(`{
 
 async function handleDownloadAzureCertificateFile() {
   const params = {
-    fmt: 'azure_id_config',
+    fmt: 'azure_id',
     auth: props.tokenData?.auth,
     token: props.tokenData?.token,
   };
