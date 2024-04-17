@@ -22,6 +22,8 @@ export const TOKENS_TYPE = {
   SLOW_REDIRECT: 'slow_redirect',
   SENSITIVE_CMD: 'cmd',
   AZURE_ID: 'azure_id',
+  MICROSOFT_EXCEL: 'ms_excel',
+  MICROSOFT_WORD: 'ms_word',
 };
 
 /*
