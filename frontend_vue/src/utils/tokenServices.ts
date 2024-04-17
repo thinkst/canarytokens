@@ -76,4 +76,12 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.SLOW_REDIRECT}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish:',
   },
+  [TOKENS_TYPE.SENSITIVE_CMD]: {
+    label: 'Sensitive command',
+    description: 'Alert when a suspicious Windows command is run',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/sensitive-cmd-token.html',
+    icon: `${TOKENS_TYPE.SENSITIVE_CMD}.png`,
+    instruction: '',
+  },
 };
