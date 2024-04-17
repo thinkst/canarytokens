@@ -20,6 +20,7 @@ export const TOKENS_TYPE = {
   AWS_KEYS: 'aws_keys',
   FAST_REDIRECT: 'fast_redirect',
   SLOW_REDIRECT: 'slow_redirect',
+  SENSITIVE_CMD: 'cmd',
 };
 
 /*
