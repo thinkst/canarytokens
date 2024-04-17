@@ -124,6 +124,18 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.AZURE_ID]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        azure_id_cert_file_name: Yup.string().required(
+          'Azure ID certificate name is required'
+        ),
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
   [TOKENS_TYPE.WEB_IMAGE]: {
     schema: Yup.object().shape(
       {
