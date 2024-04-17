@@ -123,4 +123,11 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.SVN}.png`,
     instruction: 'Run this SVN command in a dummy repo:',
   },
+  [TOKENS_TYPE.UNIQUE_EMAIL]: {
+    label: 'Unique email address',
+    description: 'Alert when an email is sent to a unique address',
+    documentationLink: '#',
+    icon: `${TOKENS_TYPE.UNIQUE_EMAIL}.png`,
+    instruction: 'Here is a unique email address:',
+  },
 };
