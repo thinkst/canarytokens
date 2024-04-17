@@ -111,6 +111,11 @@ export type NewTokenBackendType = {
   region: string;
   token_usage: string;
   token_with_usage_info: string | null;
+  app_id: string | null;
+  tenant_id: string | null;
+  cert: string | null;
+  cert_name: string | null;
+  cert_file_name: string | null;
 };
 
 interface GeoInfo {
