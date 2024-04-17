@@ -92,4 +92,12 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.WEB_IMAGE}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish:',
   },
+  [TOKENS_TYPE.AZURE_ID]: {
+    label: 'Azure Login Certificate token',
+    description:
+      'Azure Service Principal certificate that alerts when used to login with.',
+    documentationLink: '#',
+    icon: `${TOKENS_TYPE.AZURE_ID}.png`,
+    instruction: 'Save this json config file along with the certificate:',
+  },
 };
