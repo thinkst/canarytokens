@@ -19,6 +19,7 @@
   />
   <BaseCodeSnippet
     class="mt-16"
+    lang="bash"
     :code="recommendedReg"
     custom-height="5rem"
     multiline
