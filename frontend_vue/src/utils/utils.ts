@@ -13,8 +13,6 @@ export function convertUnixTimeStampToDate(unixTimestamp: number) {
   return formatter.format(date);
 }
 
-export const MAX_IMG_SIZE = 102400;
-
 export const validFileExtensions = {
   image: ['jpg', 'gif', 'png', 'jpeg'],
 };

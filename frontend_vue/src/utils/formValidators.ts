@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { TOKENS_TYPE } from '@/components/constants.ts';
-import { isValidFileType, MAX_IMG_SIZE, validFileExtensions } from './utils';
+import { isValidFileType, validFileExtensions } from './utils';
 
 type FieldsType = {
   email: string | undefined;
@@ -139,11 +139,6 @@ export const formValidators: ValidateSchemaType = {
                 value && value.name.toLowerCase(),
                 validFileExtensions.image
               ) as boolean
-          )
-          .test(
-            'validSize',
-            'Max image size allowed size is 100KB',
-            (value) => value && value.size <= MAX_IMG_SIZE
           ),
       },
       [['webhook_url', 'email']]

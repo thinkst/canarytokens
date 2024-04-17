@@ -15,11 +15,6 @@
     full-width
     helper-message="Provide an email address or webhook URL"
   />
-  <!-- max size 2mb -->
-  <BaseUploadFile
-    id="web_image"
-    info-allowed-file="JPEG, GIF or PNG"
-  />
   <BaseFormTextField
     id="memo"
     label="Add Note"
@@ -27,7 +22,11 @@
     required
     full-width
     helper-message="Reminder note when this token is triggered. For instance: Image embedded in router X's admin interface"
-  ></BaseFormTextField>
+  />
+  <BaseUploadFile
+    id="web_image"
+    info-allowed-file="JPG, JPEG, GIF or PNG"
+  />
 </template>
 
 <script setup lang="ts"></script>
