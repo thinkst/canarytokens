@@ -21,7 +21,7 @@
     placeholder="File Name"
     label="Azure ID certificate name"
     full-width
-    helper-message="File Name of Azure ID certificate, like: Code_Sign_Server_3.pem"
+    helper-message="Add a .pem exstension, e.g Code_Sign_Server_3.pem"
   />
   <BaseFormTextField
     id="memo"

@@ -128,9 +128,11 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape(
       {
         ...validationSchemaEmailOrUrl,
-        azure_id_cert_file_name: Yup.string().required(
-          'Azure ID certificate name is required'
-        ),
+        azure_id_cert_file_name: Yup.string()
+          .required('Azure ID certificate name is required')
+          .test('containsPem', 'File name must end in .pem', (value) => {
+            return value && value.endsWith('.pem') ? true : false;
+          }),
         memo: Yup.string().required(validationMessages.provideMemo),
       },
       [['webhook_url', 'email']]
