@@ -28,9 +28,14 @@ export type SettingsTokenType = {
 };
 
 export function generateToken(form: any) {
+  const formData = new FormData();
+  Object.entries(form).forEach(([key, val]) => {
+    val !== null && val !== undefined ? formData.append(key, form[key]) : null;
+  });
+
   const url = '/d3aece8093b71007b5ccfedad91ebb11/generate';
   return axios
-    .post(url, form)
+    .post(url, formData)
     .then((response) => response)
     .catch((error) => error.response);
 }

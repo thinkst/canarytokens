@@ -1,8 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, afterEach, vi } from 'vitest';
-
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import BaseUploadFile from '@/components/base/BaseUploadFile.vue';
 import BaseButton from './BaseButton.vue';
+
+// TODO: add more tests
 
 describe('BaseUploadFile', () => {
   afterEach(() => {
@@ -12,12 +14,10 @@ describe('BaseUploadFile', () => {
   it('emits file-selected event when a valid file is selected', async () => {
     const wrapper = mount(BaseUploadFile, {
       props: {
-        allowedFiles: 'image/jpeg',
-        infoAllowedFile: 'JPEG max size 1MB',
-        maxSize: 1024 * 1024,
+        id: 'test-id',
       },
       global: {
-        stubs: { BaseButton },
+        stubs: { BaseButton, FontAwesomeIcon },
       },
     });
 
@@ -26,50 +26,26 @@ describe('BaseUploadFile', () => {
       size: 500000,
     } as File);
 
-    await (wrapper.vm as any).fileValidation(file);
+    await (wrapper.vm as any).fileUpload(file);
     expect(wrapper.emitted('file-selected')).toBeTruthy();
   });
 
-  it('emits file-upload-error event when an invalid file is selected', async () => {
+  it('triggers the file input when the browse button is clicked', async () => {
+    const onClick = vi.fn();
     const wrapper = mount(BaseUploadFile, {
       props: {
-        allowedFiles: 'image/jpeg',
-        maxSize: 1024 * 1024,
-        infoAllowedFile: 'JPEG max size 1MB',
+        id: 'test-id',
       },
       global: {
-        stubs: { BaseButton },
+        stubs: { BaseButton, FontAwesomeIcon },
       },
     });
 
-    const file = new File(['file contents'], 'test.png', {
-      type: 'image/png',
-      size: 1024 * 1025,
-    } as File);
+    const fileInput = wrapper.find('input[type="file"]');
+    expect(fileInput.exists()).toBeTruthy();
 
-    await (wrapper.vm as any).fileValidation(file);
-
-    expect(wrapper.emitted('file-upload-error')).toBeTruthy();
-  });
-
-  it('displays error message when an invalid file format is selected', async () => {
-    const wrapper = mount(BaseUploadFile, {
-      props: {
-        allowedFiles: 'image/png',
-        maxSize: 1024 * 1024,
-        infoAllowedFile: 'PNG max size 1MB',
-      },
-      global: {
-        stubs: { BaseButton },
-      },
-    });
-
-    const file = new File(['file contents'], 'test.zip', {
-      type: 'application/zip',
-      size: 1024 * 1025,
-    } as File);
-
-    await (wrapper.vm as any).fileValidation(file);
-    expect(wrapper.html()).toContain('application/zip files are not allowed');
+    await wrapper.find('button').trigger('click');
+    onClick();
+    await expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

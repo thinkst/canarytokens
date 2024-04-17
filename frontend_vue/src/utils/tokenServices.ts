@@ -84,4 +84,12 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.SENSITIVE_CMD}.png`,
     instruction: '',
   },
+  [TOKENS_TYPE.WEB_IMAGE]: {
+    label: 'Web Image token',
+    description: 'Alert when an image you uploaded is viewed',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/web-image-token.html',
+    icon: `${TOKENS_TYPE.WEB_IMAGE}.png`,
+    instruction: 'Copy this URL to your clipboard and use as you wish:',
+  },
 };
