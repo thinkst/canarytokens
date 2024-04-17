@@ -21,6 +21,7 @@ export const TOKENS_TYPE = {
   FAST_REDIRECT: 'fast_redirect',
   SLOW_REDIRECT: 'slow_redirect',
   SENSITIVE_CMD: 'cmd',
+  AZURE_ID: 'azure_id',
 };
 
 /*
