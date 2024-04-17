@@ -100,4 +100,20 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.AZURE_ID}.png`,
     instruction: 'Save this json config file along with the certificate:',
   },
+  [TOKENS_TYPE.MICROSOFT_EXCEL]: {
+    label: 'Microsoft Excel document',
+    description: 'Get alerted when a document is opened in Microsoft Excel',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/ms-excel-token.html',
+    icon: `${TOKENS_TYPE.MICROSOFT_EXCEL}.png`,
+    instruction: '',
+  },
+  [TOKENS_TYPE.MICROSOFT_WORD]: {
+    label: 'Microsoft Word document',
+    description: 'Get alerted when a document is opened in Microsoft Word',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/ms-excel-token.html',
+    icon: `${TOKENS_TYPE.MICROSOFT_WORD}.png`,
+    instruction: '',
+  },
 };
