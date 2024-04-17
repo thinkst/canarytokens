@@ -109,4 +109,18 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.SENSITIVE_CMD]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        cmd_process: Yup.string()
+          .required('A process name is required')
+          .test('containsExe', 'File name must end in .exe', (value) => {
+            return value && value.endsWith('.exe') ? true : false;
+          }),
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
 };
