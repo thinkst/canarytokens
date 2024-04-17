@@ -23,7 +23,7 @@ export const TOKENS_TYPE = {
   SENSITIVE_CMD: 'cmd',
   AZURE_ID: 'azure_id',
   MICROSOFT_EXCEL: 'ms_excel',
-  MICROSOFT_WORD: 'msword',
+  MICROSOFT_WORD: 'ms_word',
 };
 
 /*
