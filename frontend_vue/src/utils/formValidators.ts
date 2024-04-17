@@ -124,6 +124,15 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.MICROSOFT_EXCEL]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
   [TOKENS_TYPE.AZURE_ID]: {
     schema: Yup.object().shape(
       {
@@ -133,6 +142,15 @@ export const formValidators: ValidateSchemaType = {
           .test('containsPem', 'File name must end in .pem', (value) => {
             return value && value.endsWith('.pem') ? true : false;
           }),
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
+  [TOKENS_TYPE.MICROSOFT_WORD]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
         memo: Yup.string().required(validationMessages.provideMemo),
       },
       [['webhook_url', 'email']]
