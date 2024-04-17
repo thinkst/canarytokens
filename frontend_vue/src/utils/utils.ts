@@ -15,16 +15,13 @@ export function convertUnixTimeStampToDate(unixTimestamp: number) {
 
 export const MAX_IMG_SIZE = 102400;
 
-const validFileExtensions = {
+export const validFileExtensions = {
   image: ['jpg', 'gif', 'png', 'jpeg'],
 };
 
 export function isValidFileType(
   fileName: string | undefined,
-  fileType: keyof typeof validFileExtensions
+  fileType: string[]
 ): string | boolean | undefined {
-  return (
-    fileName &&
-    validFileExtensions[fileType].includes(fileName.split('.').pop() as string)
-  );
+  return fileName && fileType.includes(fileName.split('.').pop() as string);
 }

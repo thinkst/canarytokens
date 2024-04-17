@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { TOKENS_TYPE } from '@/components/constants.ts';
-import { isValidFileType, MAX_IMG_SIZE } from './utils';
+import { isValidFileType, MAX_IMG_SIZE, validFileExtensions } from './utils';
 
 type FieldsType = {
   email: string | undefined;
@@ -137,7 +137,7 @@ export const formValidators: ValidateSchemaType = {
             (value) =>
               isValidFileType(
                 value && value.name.toLowerCase(),
-                'image'
+                validFileExtensions.image
               ) as boolean
           )
           .test(
