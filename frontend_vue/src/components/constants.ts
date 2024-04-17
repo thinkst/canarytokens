@@ -24,6 +24,7 @@ export const TOKENS_TYPE = {
   AZURE_ID: 'azure_id',
   MICROSOFT_EXCEL: 'ms_excel',
   MICROSOFT_WORD: 'ms_word',
+  SVN: 'svn',
 };
 
 /*

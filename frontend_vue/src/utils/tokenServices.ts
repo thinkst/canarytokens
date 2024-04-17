@@ -116,4 +116,11 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.MICROSOFT_WORD}.png`,
     instruction: '',
   },
+  [TOKENS_TYPE.SVN]: {
+    label: 'SVN token',
+    description: 'Alert when someone checks out an SVN repository',
+    documentationLink: 'https://docs.canarytokens.org/guide/svn-token.html',
+    icon: `${TOKENS_TYPE.SVN}.png`,
+    instruction: 'Run this SVN command in a dummy repo:',
+  },
 };
