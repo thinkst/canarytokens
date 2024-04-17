@@ -12,3 +12,14 @@ export function convertUnixTimeStampToDate(unixTimestamp: number) {
   const formatter = new Intl.DateTimeFormat('en-US', options);
   return formatter.format(date);
 }
+
+export const validFileExtensions = {
+  image: ['jpg', 'gif', 'png', 'jpeg'],
+};
+
+export function isValidFileType(
+  fileName: string | undefined,
+  fileType: string[]
+): string | boolean | undefined {
+  return fileName && fileType.includes(fileName.split('.').pop() as string);
+}
