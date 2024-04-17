@@ -10,7 +10,7 @@
 import { ref, onMounted } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
-import consoleImg from '@/assets/wise_man';
+import consoleImg from './wise_man';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
