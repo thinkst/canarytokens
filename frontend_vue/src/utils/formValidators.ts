@@ -28,7 +28,7 @@ const validationSchemaEmailOrUrl = {
         Yup.string().email().required(validationMessages.provideEmailOrUrl),
     }),
   webhook_url: Yup.string()
-    .url('Must be a valid URL')
+    .url()
     .when('email', {
       is: (email: string) => !email || email.length === 0,
       then: () => Yup.string().required(validationMessages.provideEmailOrUrl),
