@@ -139,21 +139,12 @@
     <div class="flex flex-col gap-16 mb-32">
       <h1>Upload File</h1>
       <BaseUploadFile
-        allowed-files="image/png, image/svg+xml"
-        info-allowed-file="SVG or PNG"
-        :max-size="200000"
+        id="upload"
         @file-selected="handleFileSelected"
-      />
-      <BaseUploadFile
-        allowed-files="image/png, image/svg+xml"
-        info-allowed-file="SVG, PNG, JPG or GIF"
-        :has-error="true"
-        error-message="Custom error message!"
       />
       Disabled
       <BaseUploadFile
-        allowed-files="image/png, image/svg+xml"
-        info-allowed-file="SVG, PNG, JPG or GIF"
+        id="disabled-upload"
         disabled
       />
       File selected name: {{ fileSelected?.name }}
