@@ -12,3 +12,19 @@ export function convertUnixTimeStampToDate(unixTimestamp: number) {
   const formatter = new Intl.DateTimeFormat('en-US', options);
   return formatter.format(date);
 }
+
+export const MAX_IMG_SIZE = 102400;
+
+const validFileExtensions = {
+  image: ['jpg', 'gif', 'png', 'jpeg'],
+};
+
+export function isValidFileType(
+  fileName: string | undefined,
+  fileType: keyof typeof validFileExtensions
+): string | boolean | undefined {
+  return (
+    fileName &&
+    validFileExtensions[fileType].includes(fileName.split('.').pop() as string)
+  );
+}

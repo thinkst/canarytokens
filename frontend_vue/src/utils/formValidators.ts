@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { TOKENS_TYPE } from '@/components/constants.ts';
+import { isValidFileType, MAX_IMG_SIZE } from './utils';
 
 type FieldsType = {
   email: string | undefined;
@@ -119,6 +120,31 @@ export const formValidators: ValidateSchemaType = {
             return value && value.endsWith('.exe') ? true : false;
           }),
         memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
+  [TOKENS_TYPE.WEB_IMAGE]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+        web_image: Yup.mixed<File>()
+          .required('Image is Required')
+          .test(
+            'validType',
+            'Not a valid image type',
+            (value) =>
+              isValidFileType(
+                value && value.name.toLowerCase(),
+                'image'
+              ) as boolean
+          )
+          .test(
+            'validSize',
+            'Max image size allowed size is 100KB',
+            (value) => value && value.size <= MAX_IMG_SIZE
+          ),
       },
       [['webhook_url', 'email']]
     ),
