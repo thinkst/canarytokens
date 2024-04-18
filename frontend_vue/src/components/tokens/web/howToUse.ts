@@ -1,6 +1,5 @@
 export const howToUse = [
-  'In an email with a juicy subject line.',
-  'Embedded in documents.',
-  'In an email with a juicy subject line.',
-  'This URL is just an example. Apart from the hostname and the actual token (the random string), you can change all other parts of the URL.',
+  'Drop the file on a Windows network share.',
+  'Leave the file on a web server in an inaccessible directory, to detect webserver breaches.',
+  'Attach to an email with a tempting Subject line.',
 ];

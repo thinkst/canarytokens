@@ -147,4 +147,12 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.CUSTOM_EXE}.png`,
     instruction: 'Save this file and deploy on Windows machines:',
   },
+  [TOKENS_TYPE.PDF]: {
+    label: 'Acrobat Reader PDF document',
+    description: 'Get alerted when a PDF document is oepened in Acrobat Reader',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
+    icon: `${TOKENS_TYPE.PDF}.png`,
+    instruction: '',
+  },
 };
