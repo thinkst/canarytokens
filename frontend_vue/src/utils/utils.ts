@@ -15,6 +15,7 @@ export function convertUnixTimeStampToDate(unixTimestamp: number) {
 
 export const validFileExtensions = {
   image: ['jpg', 'gif', 'png', 'jpeg'],
+  exe: ['exe', 'dll'],
 };
 
 export function isValidFileType(
