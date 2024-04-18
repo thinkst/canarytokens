@@ -26,6 +26,7 @@ export const TOKENS_TYPE = {
   MICROSOFT_WORD: 'ms_word',
   SVN: 'svn',
   UNIQUE_EMAIL: 'smtp',
+  SQL_SERVER: 'sql_server',
 };
 
 /*
