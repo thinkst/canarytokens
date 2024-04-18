@@ -47,6 +47,7 @@
     "eslint-config-typescript": "^3.0.0",
     "eslint-plugin-vue": "^9.23.0",
     "eslint-plugin-vuejs-accessibility": "^2.2.1",
+    "javascript-obfuscator": "^4.1.0",
     "jest": "^29.7.0",
     "jsdom": "^20.0.3",
     "npm-run-all2": "^6.1.1",
