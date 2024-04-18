@@ -263,4 +263,14 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.CLONED_WEBSITE]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        clonedsite: Yup.string().required(),
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
 };
