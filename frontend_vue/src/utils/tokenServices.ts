@@ -130,4 +130,13 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.UNIQUE_EMAIL}.png`,
     instruction: 'Here is a unique email address:',
   },
+  [TOKENS_TYPE.SQL_SERVER]: {
+    label: 'Microsoft SQL Server',
+    description: 'Get alerted when MS SQL Server database are accessed',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/sql-server-token.html',
+    icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
+    instruction:
+      'The next step is to copy the SQL snippet below and run in your SQL Server database.',
+  },
 };
