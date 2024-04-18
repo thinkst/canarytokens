@@ -13,7 +13,6 @@ export const TOKENS_TYPE = {
   WEB_BUG: 'web',
   DNS: 'dns',
   LOG4SHELL: 'log4shell',
-  CLONED_WEBSITE: 'clonedsite',
   QRCODE: 'qr_code',
   MYSQL: 'my_sql',
   WEB_IMAGE: 'web_image',
@@ -30,6 +29,7 @@ export const TOKENS_TYPE = {
   CUSTOM_EXE: 'signed_exe',
   PDF: 'adobe_pdf',
   WINDOWS_FOLDER: 'windows_dir',
+  CSS_CLONED_SITE: 'cssclonedsite',
 };
 
 /*
