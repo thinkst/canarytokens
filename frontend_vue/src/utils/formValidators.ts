@@ -194,6 +194,15 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.PDF]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
   [TOKENS_TYPE.CUSTOM_EXE]: {
     schema: Yup.object().shape(
       {
