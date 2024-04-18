@@ -153,6 +153,14 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
     icon: `${TOKENS_TYPE.PDF}.png`,
+  },
+  [TOKENS_TYPE.WINDOWS_FOLDER]: {
+    label: 'Windows Folder',
+    description:
+      'Be notified when a Windows Folder is browsed in Windows Explorer',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/windows-directory-token.html',
+    icon: `${TOKENS_TYPE.WINDOWS_FOLDER}.png`,
     instruction: '',
   },
 };
