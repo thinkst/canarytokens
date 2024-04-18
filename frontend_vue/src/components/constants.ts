@@ -30,6 +30,7 @@ export const TOKENS_TYPE = {
   PDF: 'adobe_pdf',
   WINDOWS_FOLDER: 'windows_dir',
   CSS_CLONED_SITE: 'cssclonedsite',
+  CLONED_WEBSITE: 'clonedsite',
 };
 
 /*
