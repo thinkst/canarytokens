@@ -194,4 +194,35 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.SQL_SERVER]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+        sql_server_sql_action: Yup.string().required('SQL Action is required'),
+        sql_server_table_name: Yup.string().when('sql_server_sql_action', {
+          is: (sql_server_sql_action: string) =>
+            sql_server_sql_action !== 'SELECT',
+          then: () => Yup.string().required('Table Name is required'),
+        }),
+        sql_server_trigger_name: Yup.string().when('sql_server_sql_action', {
+          is: (sql_server_sql_action: string) =>
+            sql_server_sql_action !== 'SELECT',
+          then: () => Yup.string().required('Trigger Name is required'),
+        }),
+        sql_server_view_name: Yup.string().when('sql_server_sql_action', {
+          is: (sql_server_sql_action: string) =>
+            sql_server_sql_action === 'SELECT',
+          then: () => Yup.string().required('Name SQL Server view is required'),
+        }),
+        sql_server_function_name: Yup.string().when('sql_server_sql_action', {
+          is: (sql_server_sql_action: string) =>
+            sql_server_sql_action === 'SELECT',
+          then: () =>
+            Yup.string().required('Name SQL Server function is required'),
+        }),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
 };
