@@ -163,4 +163,12 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.WINDOWS_FOLDER}.png`,
     instruction: '',
   },
+  [TOKENS_TYPE.CLONED_WEBSITE]: {
+    label: 'Cloned Website',
+    description: 'Trigger an alert when your website is cloned',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/cloned-web-token.html',
+    icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,
+    instruction: 'Place this Javascript on the page you wish to protect:',
+  },
 };
