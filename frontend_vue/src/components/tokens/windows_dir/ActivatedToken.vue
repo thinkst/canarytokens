@@ -18,16 +18,11 @@ import TokenDisplay from './TokenDisplay.vue';
 import { ref } from 'vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
 
-interface QRCodeTokenBackendType extends NewTokenBackendType {
-  qrcode_png: string;
-}
-
 const props = defineProps<{
-  tokenData: QRCodeTokenBackendType;
+  tokenData: NewTokenBackendType;
 }>();
 
 const tokenSnippetData = ref({
-  qrcode_png: props.tokenData.qrcode_png || '',
   token: props.tokenData.token || '',
   auth: props.tokenData.auth_token || '',
 });
