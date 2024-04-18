@@ -28,6 +28,7 @@ export const TOKENS_TYPE = {
   UNIQUE_EMAIL: 'smtp',
   SQL_SERVER: 'sql_server',
   CUSTOM_EXE: 'signed_exe',
+  PDF: 'adobe_pdf',
 };
 
 /*
