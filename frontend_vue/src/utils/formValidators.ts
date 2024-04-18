@@ -194,6 +194,26 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.CUSTOM_EXE]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+        signed_exe: Yup.mixed<File>()
+          .required('File is Required')
+          .test(
+            'validType',
+            'Not a valid file type: expected EXE or DLL',
+            (value) =>
+              isValidFileType(
+                value && value.name.toLowerCase(),
+                validFileExtensions.exe
+              ) as boolean
+          ),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
   [TOKENS_TYPE.SQL_SERVER]: {
     schema: Yup.object().shape(
       {
