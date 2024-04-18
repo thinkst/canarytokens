@@ -139,4 +139,12 @@ export const tokenServices: TokenServicesType = {
     instruction:
       'The next step is to copy the SQL snippet below and run in your SQL Server database.',
   },
+  [TOKENS_TYPE.CUSTOM_EXE]: {
+    label: 'Custom exe / binary',
+    description: 'Fire an alert when an EXE or DLL is executed',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/custom-exe-token.html',
+    icon: `${TOKENS_TYPE.CUSTOM_EXE}.png`,
+    instruction: 'Save this file and deploy on Windows machines:',
+  },
 };
