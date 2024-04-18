@@ -117,6 +117,8 @@ export type NewTokenBackendType = {
   cert_name: string | null;
   cert_file_name: string | null;
   unique_email: string;
+  file_name: string | null;
+  file_contents: string | null;
 };
 
 interface GeoInfo {
