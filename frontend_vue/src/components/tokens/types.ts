@@ -120,6 +120,7 @@ export type NewTokenBackendType = {
   file_name: string | null;
   file_contents: string | null;
   clonedsite_js: string | null;
+  css: string | null;
 };
 
 interface GeoInfo {
