@@ -29,6 +29,7 @@ export const TOKENS_TYPE = {
   SQL_SERVER: 'sql_server',
   CUSTOM_EXE: 'signed_exe',
   PDF: 'adobe_pdf',
+  WINDOWS_FOLDER: 'windows_dir',
 };
 
 /*
