@@ -149,7 +149,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.PDF]: {
     label: 'Acrobat Reader PDF document',
-    description: 'Get alerted when a PDF document is oepened in Acrobat Reader',
+    description: 'Get alerted when a PDF document is opened in Acrobat Reader',
     documentationLink:
       'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
     icon: `${TOKENS_TYPE.PDF}.png`,
