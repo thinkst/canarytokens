@@ -119,6 +119,7 @@ export type NewTokenBackendType = {
   unique_email: string;
   file_name: string | null;
   file_contents: string | null;
+  clonedsite_js: string | null;
 };
 
 interface GeoInfo {
