@@ -216,7 +216,7 @@ class InputChannel(Channel):
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
             # TODO: this manage url should come from the frontend / settings object.
-            manage_url="{protocol}://{host}/manage?token={token}&auth={auth}".format(
+            manage_url="{protocol}://{host}/newuiwhodis/manage/{auth}/{token}".format(
                 protocol=protocol,
                 host=host,
                 token=canarydrop.canarytoken.value(),
