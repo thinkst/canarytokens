@@ -31,6 +31,7 @@ export const TOKENS_TYPE = {
   WINDOWS_FOLDER: 'windows_dir',
   CSS_CLONED_SITE: 'cssclonedsite',
   CLONED_WEBSITE: 'clonedsite',
+  KUBECONFIG: 'kubeconfig',
 };
 
 /*
