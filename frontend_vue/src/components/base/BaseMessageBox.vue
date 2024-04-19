@@ -35,6 +35,7 @@
       v-if="textLink"
       class="self-end whitespace-nowrap md:self-center"
       :variant="props.variant"
+      :href="href"
       @click="$emit('click')"
       >{{ textLink }}</BaseButton
     >
@@ -57,6 +58,7 @@ const props = defineProps<{
   variant: NotificationBoxVariantType;
   message?: string;
   textLink?: string;
+  href?: string;
 }>();
 
 defineEmits(['click']);
