@@ -23,6 +23,16 @@
     full-width
     helper-message="Reminder note when this token is triggered. For instance: Azure Service Principal Login details on Code Sign Server 3"
   ></BaseFormTextField>
+  <!-- 
+    hidden field for expected_referrer 
+    doesn't require user input 
+  -->
+  <BaseFormTextField
+    id="expected_referrer"
+    class="hidden"
+    label="hidden"
+    value="microsoftonline.com"
+  />
 </template>
 
 <script setup lang="ts"></script>

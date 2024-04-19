@@ -7,10 +7,10 @@
       :src="getImageUrl(tokenLogoUrl)"
       class="h-[4rem]"
       aria-hidden="true"
-      :alt="`${tokenServices[manageTokenResponse.canarydrop.type].label} logo`"
+      :alt="`${tokenServices[getTokenType].label} logo`"
     />
     <h2 class="text-xl text-center text-grey-800">
-      {{ tokenServices[manageTokenResponse.canarydrop.type].label }}
+      {{ tokenServices[getTokenType].label }}
     </h2>
   </div>
   <div
@@ -59,6 +59,7 @@ import SettingsToken from './SettingsToken.vue';
 import { tokenServices } from '@/utils/tokenServices';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
+import { TOKENS_TYPE } from './constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -79,6 +80,17 @@ const alertsMessage = computed(() => {
     : `This Token has been triggered <span class="font-bold">${hasAlerts.value}</span> time${hasAlerts.value > 1 ? 's' : ''}`;
 });
 
+// AZURE CONFIG Exception handler
+// type cssclonedsite can be an azure_id_config token
+// The only way to know it, is by checking the expected_referrer
+// which is expected to be 'microsoftonline.com' for azure_id_config
+const getTokenType = computed(() => {
+  return manageTokenResponse.value.canarydrop.expected_referrer ===
+    'microsoftonline.com'
+    ? TOKENS_TYPE.AZURE_ENTRA_CONFIG
+    : manageTokenResponse.value.canarydrop.type;
+});
+
 function handleCheckHistory() {
   const auth = route.params.auth;
   const token = route.params.token;
@@ -93,31 +105,25 @@ async function fetchTokenData() {
     token: route.params.token as string,
   };
 
-  manageToken(params)
-    .then((res) => {
-      isLoading.value = false;
-      manageTokenResponse.value = res.data as ManageTokenBackendType;
-      tokenLogoUrl.value = `token_icons/${tokenServices[manageTokenResponse.value.canarydrop.type].icon}`;
-      hasAlerts.value =
-        manageTokenResponse.value.canarydrop.triggered_details.hits.length;
-
-      loadComponent();
-    })
-    .catch((err) => {
-      console.log(err, 'err!');
-      error.value = err.toString();
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
+  try {
+    const res = await manageToken(params);
+    isLoading.value = false;
+    manageTokenResponse.value = res.data as ManageTokenBackendType;
+    tokenLogoUrl.value = `token_icons/${tokenServices[getTokenType.value].icon}`;
+    hasAlerts.value =
+      manageTokenResponse.value.canarydrop.triggered_details.hits.length;
+    loadComponent();
+  } catch (err: any) {
+    console.log(err, 'err!');
+    error.value = err.toString();
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 async function loadComponent() {
   dynamicComponent.value = await defineAsyncComponent(
-    () =>
-      import(
-        `@/components/tokens/${manageTokenResponse.value?.canarydrop.type}/ManageToken.vue`
-      )
+    () => import(`@/components/tokens/${getTokenType.value}/ManageToken.vue`)
   );
 }
 

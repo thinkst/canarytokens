@@ -124,6 +124,7 @@ export type NewTokenBackendType = {
   css: string | null;
   qr_code: string | null;
   wg_conf: string | null;
+  client_id: string | null;
 };
 
 interface GeoInfo {
