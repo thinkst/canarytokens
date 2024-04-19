@@ -68,6 +68,7 @@ import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
 import ModalContentActivatedToken from './ModalContentActivatedToken.vue';
 import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
 import { generateToken } from '@/api/main';
+import { TOKENS_TYPE } from './constants';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -107,28 +108,44 @@ const hasBackButton = computed(() => {
   return modalType.value === ModalType.HowToUse;
 });
 
+/* AZURE CONFIG Exception handler */
+/* Azure ID Config must submit a POST request as CSS Cloned Site */
+const getTokenType = computed(() => {
+  return props.selectedToken === TOKENS_TYPE.AZURE_ENTRA_CONFIG
+    ? TOKENS_TYPE.CSS_CLONED_SITE
+    : props.selectedToken;
+});
+
 function handleAddToken() {
   // triggerSubmit inside ModalContentGenerateToken
   triggerSubmit.value = true;
 }
 
-function handleGenerateToken(formValues: BaseFormValuesType) {
+async function handleGenerateToken(formValues: BaseFormValuesType) {
   isLoading.value = true;
-  generateToken({ ...formValues, token_type: props.selectedToken })
-    .then((res) => {
-      isLoading.value = false;
-      newTokenResponse.value = res.data;
-    })
-    .catch((err) => {
-      isLoading.value = false;
-      triggerSubmit.value = false;
-      console.log(err, 'err');
-    })
-    .finally(() => {
-      isLoading.value = false;
-      triggerSubmit.value = false;
-      modalType.value = ModalType.NewToken;
+
+  try {
+    const res = await generateToken({
+      ...formValues,
+      token_type: getTokenType.value,
     });
+    isLoading.value = false;
+    /* AZURE CONFIG Exception handler */
+    /* Overwrite backend response for Azure ID Config token type */
+    /* It's needed as Azure ID Config returns CSS Cloned Site */
+    newTokenResponse.value = {
+      ...res.data,
+      token_type: props.selectedToken,
+    };
+  } catch (err) {
+    isLoading.value = false;
+    triggerSubmit.value = false;
+    console.log(err, 'err');
+  } finally {
+    isLoading.value = false;
+    triggerSubmit.value = false;
+    modalType.value = ModalType.NewToken;
+  }
 }
 
 function handleInvalidSubmit() {
