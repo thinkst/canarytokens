@@ -153,6 +153,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
     icon: `${TOKENS_TYPE.PDF}.png`,
+    instruction: '',
   },
   [TOKENS_TYPE.WINDOWS_FOLDER]: {
     label: 'Windows Folder',
@@ -179,5 +180,13 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.CSS_CLONED_SITE}.png`,
     instruction:
       'Place this CSS on the page you wish to protect, or import it as custom branding:',
+  },
+  [TOKENS_TYPE.KUBECONFIG]: {
+    label: 'Kubeconfig',
+    description: 'Alert when a Kubeconfig is used',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/css-cloned-site-token.html',
+    icon: `${TOKENS_TYPE.KUBECONFIG}.png`,
+    instruction: '',
   },
 };
