@@ -72,6 +72,7 @@ type CanaryDropType = {
   cc_address: string;
   cc_rendered_html: string;
   cc_rendered_csv: string;
+  wg_conf: string;
 };
 
 export type NullableCanaryDropType = {
@@ -121,6 +122,8 @@ export type NewTokenBackendType = {
   file_contents: string | null;
   clonedsite_js: string | null;
   css: string | null;
+  qr_code: string | null;
+  wg_conf: string | null;
 };
 
 interface GeoInfo {
