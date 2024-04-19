@@ -189,4 +189,13 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.KUBECONFIG}.png`,
     instruction: '',
   },
+  [TOKENS_TYPE.WIREGUARD]: {
+    label: 'WireGuard VPN',
+    description: 'Alert when a WireGuard VPN client config is used',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/wireguard-token.html',
+    icon: `${TOKENS_TYPE.WIREGUARD}.png`,
+    instruction:
+      'Scan this QR Code with the WireGuard app on your phone or copy the config below.',
+  },
 };
