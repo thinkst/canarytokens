@@ -32,6 +32,7 @@ export const TOKENS_TYPE = {
   CSS_CLONED_SITE: 'cssclonedsite',
   CLONED_WEBSITE: 'clonedsite',
   KUBECONFIG: 'kubeconfig',
+  WIREGUARD: 'wireguard',
 };
 
 /*
