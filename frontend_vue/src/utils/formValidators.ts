@@ -301,4 +301,13 @@ export const formValidators: ValidateSchemaType = {
       [['webhook_url', 'email']]
     ),
   },
+  [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
+    schema: Yup.object().shape(
+      {
+        ...validationSchemaEmailOrUrl,
+        memo: Yup.string().required(validationMessages.provideMemo),
+      },
+      [['webhook_url', 'email']]
+    ),
+  },
 };
