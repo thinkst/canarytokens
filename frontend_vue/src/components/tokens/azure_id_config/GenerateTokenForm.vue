@@ -21,7 +21,7 @@
     multiline
     required
     full-width
-    helper-message="Reminder note when this token is triggered. For instance: Azure Service Principal Login details on Code Sign Server 3"
+    helper-message="Reminder note when this token is triggered. For instance: Entra ID token for the Thinkst Azure tenant with ID:"
   ></BaseFormTextField>
   <!-- 
     hidden field for expected_referrer 

@@ -5,12 +5,13 @@
     whether the referrer domain is expected. If not, it fires the token and you
     get an alert.
   </p>
-  <base-message-box
+  <BaseMessageBox
     class="mt-24"
     variant="info"
     message="upload it as a custom branding stylesheet for your Azure Entra ID login portal (requires a P1 or P2 subscription)"
     text-link="How?"
     href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-customize-branding"
+    target="_blank"
   />
 </template>
 

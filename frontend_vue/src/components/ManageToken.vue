@@ -80,8 +80,8 @@ const alertsMessage = computed(() => {
     : `This Token has been triggered <span class="font-bold">${hasAlerts.value}</span> time${hasAlerts.value > 1 ? 's' : ''}`;
 });
 
-// AZURE CONFIG Exception handler
-// type cssclonedsite can be an azure_id_config token
+// AZURE CONFIG Exception handler:
+// type cssclonedsite type can be an azure_id_config token
 // The only way to know it, is by checking the expected_referrer
 // which is expected to be 'microsoftonline.com' for azure_id_config
 const getTokenType = computed(() => {

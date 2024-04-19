@@ -108,7 +108,7 @@ const hasBackButton = computed(() => {
   return modalType.value === ModalType.HowToUse;
 });
 
-// AZURE CONFIG Exception handler
+// AZURE CONFIG Exception handler:
 // azure_id_config must submit a post request as cssclonedsite
 const getTokenType = computed(() => {
   return props.selectedToken === TOKENS_TYPE.AZURE_ENTRA_CONFIG
@@ -130,9 +130,9 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
       token_type: getTokenType.value,
     });
     isLoading.value = false;
-    // AZURE CONFIG Exception handler
-    // overwrite the backend response token type
-    // which is cssclonedsite instead of azure_id_config
+    // AZURE CONFIG Exception handler:
+    // we have to check and overwrite the backend response for token type
+    // because azure_id_config returns cssclonedsite
     newTokenResponse.value = {
       ...res.data,
       token_type: props.selectedToken,
