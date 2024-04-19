@@ -28,7 +28,7 @@
     multiline
     required
     full-width
-    helper-message="Reminder note when this token is triggered. For instance: AWS keys placed on Jim's laptop"
+    helper-message="Reminder note when this token is triggered. For instance: CSS Cloned website token for https://thinkst.com"
   ></BaseFormTextField>
 </template>
 
