@@ -82,8 +82,8 @@ const alertsMessage = computed(() => {
 
 /* AZURE CONFIG Exception handler */
 /* CSS Cloned Site type can be an Azure ID Config token */
-/* The only way to know it, is by checking the expected_referrer */
-/* which is expected to be 'microsoftonline.com' for Azure ID Config */
+/* It checks if the token is an Azure ID Config token by verifying the expected_referrer value. */
+/* If the expected_referrer is 'microsoftonline.com', it indicates that the token is an Azure ID Config token. */
 const getTokenType = computed(() => {
   return manageTokenResponse.value.canarydrop.expected_referrer ===
     'microsoftonline.com'
