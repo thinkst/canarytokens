@@ -10,12 +10,12 @@
 <script setup lang="ts">
 import { downloadAsset } from '@/api/main';
 
-type PDFDataType = {
+type KubeconfigDataType = {
   auth: string;
   token: string;
 };
 const props = defineProps<{
-  tokenData: PDFDataType;
+  tokenData: KubeconfigDataType;
 }>();
 
 async function handleDownloadKubeconfigFile() {
