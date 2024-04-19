@@ -33,6 +33,7 @@ export const TOKENS_TYPE = {
   CLONED_WEBSITE: 'clonedsite',
   KUBECONFIG: 'kubeconfig',
   WIREGUARD: 'wireguard',
+  AZURE_ENTRA_CONFIG: 'azure_id_config',
 };
 
 /*
