@@ -31,7 +31,7 @@
     multiline
     required
     full-width
-    helper-message="Reminder note when this token is triggered. For instance: AWS keys placed on Jim's laptop"
+    helper-message="Reminder note when this token is triggered. For instance: Reg file for detection sensitive command execution"
   ></BaseFormTextField>
 </template>
 
