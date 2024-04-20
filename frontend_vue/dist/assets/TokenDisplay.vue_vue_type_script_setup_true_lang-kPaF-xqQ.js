@@ -1,1 +1,0 @@
-import{a as n}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-C6Z1St6I.js";import{d as a,o as s,e as p}from"./index-DPCVanMx.js";const i=a({__name:"TokenDisplay",props:{tokenUsage:{}},setup(t){return(e,c)=>{const o=n;return s(),p(o,{lang:"javascript",label:"Log4j snippet",code:e.tokenUsage},null,8,["code"])}}});export{i as _};
