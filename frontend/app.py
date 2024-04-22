@@ -198,9 +198,7 @@ app = FastAPI(
 vue_index = Jinja2Templates(directory="../frontend_vue/dist/")
 
 
-@app.get("/newuiwhodis/components")
-@app.get("/newuiwhodis/manage/{rest_of_path:path}")
-@app.get("/newuiwhodis/history/{rest_of_path:path}")
+@app.get("/components")
 def index(request: Request):
     return vue_index.TemplateResponse("index.html", {"request": request})
 
