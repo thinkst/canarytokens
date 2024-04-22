@@ -1,33 +1,35 @@
-<!-- TODO: replace this component with a nicer looking one -->
 <template>
   <label
     :for="id"
     class="mt-8 ml-4 font-semibold leading-3"
     >{{ label }}</label
   >
-  <select
+  <p
+    v-if="errorMessage"
+    class="text-xs text-red ml-[4px] leading-[0px]"
+  >
+    {{ errorMessage }}
+  </p>
+  <v-select
     :id="id"
-    :name="id"
+    class="v-select"
+    :options="options"
     :value="value"
-    class="h-[3rem] rounded-full px-16 border resize-none shadow-inner-shadow-grey border-grey-400 outline-offset-4 m-0"
+    :label="label"
+    :searchable="false"
+    :placeholder="placeholder"
     @input="handleSelectOption"
     @blur="handleBlur"
+    @option:selected="(value: string) => handleSelectOption(value)"
   >
-    <option
-      v-for="option in options"
-      :key="option"
-      :value="option"
-    >
-      {{ option }}
-    </option>
-    <option
-      disabled
-      value=""
-    >
-      Select an action
-    </option>
-  </select>
-  <p class="text-xs leading-4 text-red">{{ errorMessage }}</p>
+    <template #open-indicator="{ attributes }">
+      <span v-bind="attributes">
+        <font-awesome-icon
+          icon="chevron-up"
+          class="w-6 h-6 hover:text-grey-400"
+      /></span>
+    </template>
+  </v-select>
 </template>
 
 <script setup lang="ts">
@@ -38,6 +40,7 @@ const props = defineProps<{
   id: string;
   label: string;
   options: string[];
+  placeholder: string;
 }>();
 
 const id = toRef(props, 'id');
@@ -45,8 +48,36 @@ const emits = defineEmits(['selectOption']);
 
 const { value, errorMessage, handleChange, handleBlur } = useField(id);
 
-function handleSelectOption(e: Event) {
-  handleChange(e);
-  emits('selectOption', (e.target as HTMLSelectElement)?.value);
+function handleSelectOption(value: string) {
+  handleChange(value);
+  emits('selectOption', value);
 }
 </script>
+
+<style>
+.v-select .vs__search::placeholder {
+  @apply text-grey-400;
+}
+.v-select .vs__dropdown-toggle {
+  @apply px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-xl border-grey-400 bg-white outline-offset-4;
+}
+
+.v-select .vs__dropdown-menu {
+  @apply mt-[8px] bg-white shadow-none border-grey-100 rounded-b-xl;
+}
+
+.v-select .vs__clear {
+  @apply hidden;
+}
+.v-select .vs__open-indicator {
+  @apply fill-grey-400;
+}
+
+.v-select .vs__dropdown-option {
+  @apply text-grey-500;
+}
+
+.v-select .vs__dropdown-option--highlight {
+  @apply bg-green-500 text-white;
+}
+</style>

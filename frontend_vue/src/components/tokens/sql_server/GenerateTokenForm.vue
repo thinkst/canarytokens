@@ -15,52 +15,57 @@
     full-width
     helper-message="Provide an email address or webhook URL"
   />
-  <!-- TODO: replace this component !! -->
   <BaseFormSelect
     id="sql_server_sql_action"
     label="Select Server action"
     :options="sqlActions"
     required
     full-width
+    placeholder="Choose an action"
     @select-option="handleSelectOption"
   />
   <!-- ...if NOT SELECT  -->
   <div
-    v-if="selectedOption !== 'SELECT' && selectedOption !== ''"
-    class="flex flex-col gap-8 p-24 mb-8 text-center border border-l-grey-300 rounded-xl"
+    v-if="selectedOption !== ''"
+    class="flex flex-col gap-8 p-24 mb-8 text-center bg-white rounded-xl"
   >
-    <span>On</span>
+    <span>On:</span>
+    <!-- ...if NOT SELECT  -->
     <BaseFormTextField
+      v-if="selectedOption !== 'SELECT'"
       id="sql_server_table_name"
       type="text"
       placeholder="e.g. TABLE1"
       label="Table name"
       full-width
     />
-    <span>Fires</span>
+    <!-- ...if SELECT -->
     <BaseFormTextField
-      id="sql_server_trigger_name"
-      type="text"
-      placeholder="e.g. TRIGGER1"
-      label="Name SQL Server trigger"
-      full-width
-    />
-  </div>
-  <!-- ...if SELECT -->
-  <div
-    v-if="selectedOption === 'SELECT'"
-    class="flex flex-col gap-8 p-24 mb-8 text-center border border-l-grey-400 rounded-xl"
-  >
-    <span>On</span>
-    <BaseFormTextField
+      v-if="selectedOption === 'SELECT'"
       id="sql_server_view_name"
       type="text"
       placeholder="e.g. VIEW1"
       label="Name SQL Server view"
       full-width
     />
-    <span>Fires</span>
+    <font-awesome-icon
+      class="text-sm font-semibold text-green-500"
+      icon="arrow-down"
+      aria-hidden="true"
+    />
+    <span>Fires:</span>
+    <!-- ...if NOT SELECT  -->
     <BaseFormTextField
+      v-if="selectedOption !== 'SELECT'"
+      id="sql_server_trigger_name"
+      type="text"
+      placeholder="e.g. TRIGGER1"
+      label="Name SQL Server trigger"
+      full-width
+    />
+    <!-- ...if SELECT -->
+    <BaseFormTextField
+      v-if="selectedOption === 'SELECT'"
       id="sql_server_function_name"
       type="text"
       placeholder="e.g. FUNCTION1"
