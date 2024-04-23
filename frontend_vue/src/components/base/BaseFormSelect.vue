@@ -33,20 +33,33 @@
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import { toRef, onMounted } from 'vue';
 import { useField } from 'vee-validate';
 
 const props = defineProps<{
   id: string;
   label: string;
   options: string[];
-  placeholder: string;
+  placeholder?: string;
 }>();
 
 const id = toRef(props, 'id');
 const emits = defineEmits(['selectOption']);
 
 const { value, errorMessage, handleChange, handleBlur } = useField(id);
+
+onMounted(() => {
+  // When selecting the v-select, focus is set on the inner search input
+  // This function toggle the 'focus-visible' class on the parent wrapper
+  const innerEl = document.querySelector('.vs__search');
+  innerEl?.addEventListener('focusin', setParentFocus);
+  innerEl?.addEventListener('blur', setParentFocus);
+
+  function setParentFocus() {
+    const parentEl = document.querySelector('.vs__dropdown-toggle');
+    parentEl?.classList.toggle('focus-visible');
+  }
+});
 
 function handleSelectOption(value: string) {
   handleChange(value);
@@ -55,6 +68,11 @@ function handleSelectOption(value: string) {
 </script>
 
 <style>
+.focus-visible {
+  outline: 2px solid;
+  outline-color: hsl(191, 96%, 36%);
+}
+
 .v-select .vs__search::placeholder {
   @apply text-grey-400;
 }
