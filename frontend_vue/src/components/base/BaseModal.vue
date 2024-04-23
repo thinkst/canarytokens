@@ -1,54 +1,65 @@
+<!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
   <!-- @vue-expect-error content-transition ts error -->
   <VueFinalModal
-    class="flex items-center justify-center modal h-[100svh] overflow-scroll"
     overlay-class="blur-bg"
-    content-class="bg-grey-50 rounded-xl text-grey-800 md:w-[60vw] mx-16 "
+    conten-class="absolute inset-[0px]"
     overlay-transition="vfm-fade"
     :content-transition="modalCustomTransition"
-    esc-to-close
     @update:model-value="(val) => emit('update:modelValue', val)"
   >
-    <!-- header -->
-    <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
-      <button
-        v-if="hasBackButton"
-        type="button"
-        class="absolute top-[40px] left-[30px]"
-        @click="emit('handleBackButton', false)"
-      >
-        <font-awesome-icon
-          icon="angle-left"
-          class="w-6 h-6 hover:text-grey-400"
-        />
-      </button>
-      <h1 class="text-2xl font-semibold text-center">
-        {{ title }}
-      </h1>
-      <button
-        type="button"
-        class="absolute top-[20px] right-[30px]"
-        @click="emit('update:modelValue', false)"
-      >
-        <font-awesome-icon
-          icon="xmark"
-          class="w-6 h-6 hover:text-grey-400"
-        />
-      </button>
-    </div>
-
-    <!-- content -->
     <div
-      class="flex flex-col items-center justify-center px-32 py-16 rounded-b-lg bg-grey-50 text-grey-800"
+      class="absolute inset-[0px] h-full overflow-auto"
+      @click.self="() => emit('update:modelValue', false)"
     >
-      <slot></slot>
-    </div>
+      <div class="md:w-[60vw] my-16 mx-auto bg-white rounded-lg max-w-[90vw]">
+        <!-- header -->
+        <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
+          <button
+            v-if="hasBackButton"
+            type="button"
+            class="absolute top-[40px] left-[30px]"
+            @click="emit('handleBackButton', false)"
+          >
+            <font-awesome-icon
+              icon="angle-left"
+              class="w-6 h-6 hover:text-grey-400"
+              aria-hidden="true"
+            />
+            <span class="fa-sr-only">Back</span>
+          </button>
+          <h1 class="text-2xl font-semibold text-center">
+            {{ title }}
+          </h1>
+          <button
+            type="button"
+            class="absolute top-[20px] right-[30px]"
+            @click="emit('update:modelValue', false)"
+          >
+            <font-awesome-icon
+              icon="xmark"
+              class="w-6 h-6 hover:text-grey-400"
+              aria-hidden="true"
+            />
+            <span class="fa-sr-only">Close</span>
+          </button>
+        </div>
 
-    <!-- footer -->
-    <div
-      class="flex items-center justify-center gap-8 py-24 mt-16 text-center bg-white rounded-b-lg"
-    >
-      <slot name="footer"></slot>
+        <!-- content -->
+        <div
+          class="flex flex-col items-center justify-center px-32 py-16 bg-grey-50 text-grey-800"
+        >
+          <slot></slot>
+        </div>
+
+        <!-- footer -->
+        <div
+          class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-lg mb-16text-center"
+        >
+          <slot name="footer"></slot>
+        </div>
+      </div>
     </div>
   </VueFinalModal>
 </template>
