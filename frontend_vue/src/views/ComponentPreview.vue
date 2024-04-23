@@ -171,6 +171,16 @@
     <hr class="my-24" />
     <h1>Banner ADV</h1>
     <BannerCanarytools />
+    <div>
+      <hr class="my-24" />
+      <h1 class="mb-16">Select component</h1>
+      <BaseFormSelect
+        id="my-select"
+        label="Label here"
+        :options="['option1', 'option2', 'option3']"
+        placeholder="Select an option"
+      />
+    </div>
   </div>
 </template>
 
