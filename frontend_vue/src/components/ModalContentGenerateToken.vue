@@ -4,10 +4,10 @@
     :alt="`${tokenServices[props.selectedToken].label}`"
     class="w-[6rem] pb-16"
   />
-  <h2 class="text-xl font-semibold leading-4 text-center">
+  <h2 class="mb-8 text-xl font-semibold leading-tight text-center">
     {{ tokenServices[props.selectedToken].label }}
   </h2>
-  <p class="text-center">
+  <p class="leading-tight text-center">
     {{ tokenServices[props.selectedToken].description }}
     <BaseLinkDocumentation
       :link="tokenServices[props.selectedToken].documentationLink"
