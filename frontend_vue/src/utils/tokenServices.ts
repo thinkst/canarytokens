@@ -15,28 +15,28 @@ type TokenServicesType = {
 export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.WEB_BUG]: {
     label: 'Web Bug Token',
-    description: 'An alert when a URL is visited',
+    description: 'Get an alert when an attacker visits a URL.',
     documentationLink: 'https://docs.canarytokens.org/guide/http-token.html',
     icon: `${TOKENS_TYPE.WEB_BUG}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.DNS]: {
     label: 'DNS Token',
-    description: 'An alert when a hostname is requested',
+    description: 'Get an alert when an attacker resolves a DNS name.',
     documentationLink: 'https://docs.canarytokens.org/guide/dns-token.html',
     icon: `${TOKENS_TYPE.DNS}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.QRCODE]: {
     label: 'QR Code Token',
-    description: 'Generate a QR code for physical tokens',
+    description: 'Get an alert when an attacker follows your QR Code.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.QRCODE}.png`,
     instruction: 'Use this QR Code to token a physical location or object:',
   },
   [TOKENS_TYPE.MYSQL]: {
     label: 'MySQL token',
-    description: 'Get alerted when a MySQL dump is loaded',
+    description: 'Get an alert when an attacker loads your MySQL dump.',
     documentationLink:
       'https://docs.canarytokens.org/guide/mysql-dump-token.html',
     icon: `${TOKENS_TYPE.MYSQL}.png`,
@@ -44,7 +44,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.AWS_KEYS]: {
     label: 'AWS keys token',
-    description: 'Alert when AWS key is used',
+    description: 'Get an alert when an attacker uses your AWS API Key.',
     documentationLink:
       'https://docs.canarytokens.org/guide/aws-keys-token.html',
     icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
@@ -53,7 +53,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.LOG4SHELL]: {
     label: 'Log 4 Shell',
-    description: 'Alert when a log4j logline is vulnerable to CVW-2021-44-228',
+    description:
+      'Get an alert when a log4j logline is vulnerable to CVW-2021-44-228.',
     documentationLink: '#',
     icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
     instruction:
@@ -61,7 +62,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.FAST_REDIRECT]: {
     label: 'Fast redirect token',
-    description: 'Alert when a URL is visited, User is redirected',
+    description:
+      'Get an alert when an attacker visits your URL (then rediret them).',
     documentationLink:
       'https://docs.canarytokens.org/guide/fast-redirect-token.html',
     icon: `${TOKENS_TYPE.FAST_REDIRECT}.png`,
@@ -70,7 +72,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.SLOW_REDIRECT]: {
     label: 'Slow redirect token',
     description:
-      'Alert when a URL is visited, User is redirected (more info collected)',
+      'Get an alert when an attacker visits your URL (then rediret them and collect more info).',
     documentationLink:
       'https://docs.canarytokens.org/guide/slow-redirect-token.html',
     icon: `${TOKENS_TYPE.SLOW_REDIRECT}.png`,
@@ -78,7 +80,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.SENSITIVE_CMD]: {
     label: 'Sensitive command',
-    description: 'Alert when a suspicious Windows command is run',
+    description: 'Get an alert when a suspicious Windows command is run.',
     documentationLink:
       'https://docs.canarytokens.org/guide/sensitive-cmd-token.html',
     icon: `${TOKENS_TYPE.SENSITIVE_CMD}.png`,
@@ -86,7 +88,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.WEB_IMAGE]: {
     label: 'Web Image token',
-    description: 'Alert when an image you uploaded is viewed',
+    description: 'Get an alert when an image you upload to us is viewed.',
     documentationLink:
       'https://docs.canarytokens.org/guide/web-image-token.html',
     icon: `${TOKENS_TYPE.WEB_IMAGE}.png`,
@@ -95,14 +97,15 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.AZURE_ID]: {
     label: 'Azure Login Certificate token',
     description:
-      'Azure Service Principal certificate that alerts when used to login with.',
+      'Get an alert when an attacker uses your Azure Service Principal certificate to login with.',
     documentationLink: '#',
     icon: `${TOKENS_TYPE.AZURE_ID}.png`,
     instruction: 'Save this json config file along with the certificate:',
   },
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
     label: 'Microsoft Excel document',
-    description: 'Get alerted when a document is opened in Microsoft Excel',
+    description:
+      'Get an alert when an attacker opens your Microsoft Excel document.',
     documentationLink:
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_EXCEL}.png`,
@@ -110,7 +113,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.MICROSOFT_WORD]: {
     label: 'Microsoft Word document',
-    description: 'Get alerted when a document is opened in Microsoft Word',
+    description:
+      'Get an alert when an attacker opens your Microsoft Word document.',
     documentationLink:
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_WORD}.png`,
@@ -118,21 +122,23 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.SVN]: {
     label: 'SVN token',
-    description: 'Alert when someone checks out an SVN repository',
+    description: 'Get an alert when an attacker checks out an SVN repository.',
     documentationLink: 'https://docs.canarytokens.org/guide/svn-token.html',
     icon: `${TOKENS_TYPE.SVN}.png`,
     instruction: 'Run this SVN command in a dummy repo:',
   },
   [TOKENS_TYPE.UNIQUE_EMAIL]: {
     label: 'Unique email address',
-    description: 'Alert when an email is sent to a unique address',
+    description:
+      'Get an alert when an attacker send an email to this unique address.',
     documentationLink: '#',
     icon: `${TOKENS_TYPE.UNIQUE_EMAIL}.png`,
     instruction: 'Here is a unique email address:',
   },
   [TOKENS_TYPE.SQL_SERVER]: {
     label: 'Microsoft SQL Server',
-    description: 'Get alerted when MS SQL Server database are accessed',
+    description:
+      'Get an alert when an attacker accesses your MS SQL Server database.',
     documentationLink:
       'https://docs.canarytokens.org/guide/sql-server-token.html',
     icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
@@ -141,7 +147,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.CUSTOM_EXE]: {
     label: 'Custom exe / binary',
-    description: 'Fire an alert when an EXE or DLL is executed',
+    description: 'Get an alert when an attacker extecute an EXE or DLL file.',
     documentationLink:
       'https://docs.canarytokens.org/guide/custom-exe-token.html',
     icon: `${TOKENS_TYPE.CUSTOM_EXE}.png`,
@@ -149,7 +155,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.PDF]: {
     label: 'Acrobat Reader PDF document',
-    description: 'Get alerted when a PDF document is opened in Acrobat Reader',
+    description:
+      'Get an alert when an attacker open your PDF document in Acrobat Reader.',
     documentationLink:
       'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
     icon: `${TOKENS_TYPE.PDF}.png`,
@@ -158,7 +165,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.WINDOWS_FOLDER]: {
     label: 'Windows Folder',
     description:
-      'Be notified when a Windows Folder is browsed in Windows Explorer',
+      'Get an alert when an attacker browses your Windows Folder in Windows Explorer.',
     documentationLink:
       'https://docs.canarytokens.org/guide/windows-directory-token.html',
     icon: `${TOKENS_TYPE.WINDOWS_FOLDER}.png`,
@@ -166,7 +173,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.CLONED_WEBSITE]: {
     label: 'Cloned Website',
-    description: 'Trigger an alert when your website is cloned',
+    description: 'Get an alert when an attacker clones your website.',
     documentationLink:
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
     icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,
@@ -174,7 +181,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
     label: 'CSS Cloned Website',
-    description: 'Trigger an alert when your website is cloned (using CSS)',
+    description:
+      'Get an alert when an attacker clones your website (using CSS).',
     documentationLink:
       'https://docs.canarytokens.org/guide/css-cloned-site-token.html',
     icon: `${TOKENS_TYPE.CSS_CLONED_SITE}.png`,
@@ -183,7 +191,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.KUBECONFIG]: {
     label: 'Kubeconfig',
-    description: 'Alert when a Kubeconfig is used',
+    description: 'Get an alert when an attacker uses your Kubeconfig.',
     documentationLink:
       'https://docs.canarytokens.org/guide/css-cloned-site-token.html',
     icon: `${TOKENS_TYPE.KUBECONFIG}.png`,
@@ -191,7 +199,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.WIREGUARD]: {
     label: 'WireGuard VPN',
-    description: 'Alert when a WireGuard VPN client config is used',
+    description:
+      'Get an alert when an attacker uses your WireGuard VPN client config.',
     documentationLink:
       'https://docs.canarytokens.org/guide/wireguard-token.html',
     icon: `${TOKENS_TYPE.WIREGUARD}.png`,
@@ -201,7 +210,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
     label: 'Azure Entra Config ID',
     description:
-      'Trigger an alert when your Azure Entra ID login is being phished',
+      'Get an alert when an attacker phishes your Azure Entra ID login.',
     documentationLink: '',
     icon: `${TOKENS_TYPE.AZURE_ENTRA_CONFIG}.png`,
     instruction:
