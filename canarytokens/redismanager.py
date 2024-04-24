@@ -13,12 +13,14 @@ class DB:
     __db: Optional[StrictRedis[str]] = None
     __hostname: Optional[str] = None
     __port: Optional[int] = None
+    __password: Optional[str] = None
 
     @classmethod
-    def set_db_details(cls, hostname: str, port: int) -> None:
+    def set_db_details(cls, hostname: str, port: int, password: str) -> None:
         cls.__db = None
         cls.__hostname = hostname
         cls.__port = port
+        cls.__password = password
 
     @classmethod
     def get_db(cls):
@@ -26,22 +28,33 @@ class DB:
             return cls.__db
         else:
             # TODO: Fix settings / config this needs a global re think.
-            return cls.create_db(hostname=cls.__hostname, port=cls.__port)
+            return cls.create_db(hostname=cls.__hostname, port=cls.__port, password=cls.__password)
 
     @classmethod
-    def create_db(cls, *, hostname, port, logical_db=0):
+    def create_db(cls, *, hostname, port, password, logical_db=0):
         if cls.__db:
             # TODO: rethink this. Should be fine but we may want to do better.
             raise RecreatingDBException("A db connection exists and we recreating it!")
 
-        cls.__db = redis.StrictRedis(
-            host=hostname,
-            port=port,
-            db=logical_db,
-            socket_timeout=10,
-            encoding="utf-8",
-            decode_responses=True,
-        )
+        if password=="auth_disabled":
+            cls.__db = redis.StrictRedis(
+                host=hostname,
+                port=port,
+                db=logical_db,
+                socket_timeout=10,
+                encoding="utf-8",
+                decode_responses=True,
+            )
+        else:
+            cls.__db = redis.StrictRedis(
+                host=hostname,
+                port=port,
+                db=logical_db,
+                socket_timeout=10,
+                encoding="utf-8",
+                decode_responses=True,
+                password=password,
+            )
         return cls.__db
 
 

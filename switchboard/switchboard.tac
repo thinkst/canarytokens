@@ -89,7 +89,7 @@ if switchboard_settings.SENTRY_DSN and switchboard_settings.SENTRY_ENABLE:
     globalLogPublisher.addObserver(sentry_observer)
     log.debug(f"Sentry enabled. Environment: {switchboard_settings.SENTRY_ENVIRONMENT}")
 
-DB.set_db_details(switchboard_settings.REDIS_HOST, switchboard_settings.REDIS_PORT)
+DB.set_db_details(switchboard_settings.REDIS_HOST, switchboard_settings.REDIS_PORT, switchboard_settings.REDIS_PASSWORD)
 set_template_env(Path(switchboard_settings.TEMPLATES_PATH))
 add_return_for_token(switchboard_settings.TOKEN_RETURN)
 
