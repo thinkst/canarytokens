@@ -4,13 +4,13 @@
     :alt="`${tokenServices[tokenType].label}`"
     class="w-[6rem] pb-16"
   />
-  <h2 class="text-xl font-semibold leading-6 text-cente">
+  <h2 class="mb-8 text-xl font-semibold leading-tight text-center">
     {{ `Your ${tokenServices[tokenType].label} Token is active!` }}
   </h2>
-  <p class="text-center">
+  <p class="leading-tight text-center">
     {{ tokenServices[tokenType].instruction }}
   </p>
-  <div class="w-full px-32 mt-32">
+  <div class="w-full mt-32 sm:px-32">
     <component
       :is="dynamicComponent"
       :token-data="newTokenResponse"
