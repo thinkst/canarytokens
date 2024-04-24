@@ -1,18 +1,41 @@
 <template>
-  <ul
-    v-if="howToUseToken.length > 0"
-    class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800"
+  <div
+    v-if="isLoading"
+    class="flex flex-col w-full gap-8 ml-32"
   >
-    <li
-      v-for="item in howToUseToken"
-      :key="item"
-    >
-      {{ item }}
-    </li>
-  </ul>
+    <BaseSkeletonLoader
+      class="w-[60%]"
+      type="text"
+    />
+    <BaseSkeletonLoader
+      class="w-[30%]"
+      type="text"
+    />
+    <BaseSkeletonLoader
+      class="w-[30%]"
+      type="text"
+    />
+    <BaseSkeletonLoader
+      class="w-[50%]"
+      type="text"
+    />
+  </div>
   <div v-else>
-    At this time, we do not have any suggestions available. Please check back
-    soon!
+    <ul
+      v-if="howToUseToken.length > 0"
+      class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800"
+    >
+      <li
+        v-for="item in howToUseToken"
+        :key="item"
+      >
+        {{ item }}
+      </li>
+    </ul>
+    <div v-else>
+      At this time, we do not have any suggestions available. Please check back
+      soon!
+    </div>
   </div>
 </template>
 
@@ -24,12 +47,13 @@ const props = defineProps<{
 }>();
 
 const howToUseToken = ref([]);
+const isLoading = ref(true);
 
 const loadHowToUse = async () => {
   const { howToUse } = await import(
     `@/components/tokens/${props.selectedToken}/howToUse.ts`
   );
-
+  isLoading.value = false;
   howToUseToken.value = howToUse;
 };
 

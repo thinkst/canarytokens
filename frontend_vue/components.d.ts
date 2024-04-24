@@ -17,6 +17,8 @@ declare module 'vue' {
     BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
     BaseRefreshButton: typeof import('./src/components/base/BaseRefreshButton.vue')['default']
+    BaseSkeleton: typeof import('./src/components/base/BaseSkeleton.vue')['default']
+    BaseSkeletonLoader: typeof import('./src/components/base/BaseSkeletonLoader.vue')['default']
     BaseSwitch: typeof import('./src/components/base/BaseSwitch.vue')['default']
     BaseUploadFile: typeof import('./src/components/base/BaseUploadFile.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

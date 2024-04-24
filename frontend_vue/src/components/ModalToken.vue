@@ -4,30 +4,109 @@
     :has-back-button="hasBackButton"
     @handle-back-button="handleBackButton"
   >
-    <template v-if="!isLoading">
+    <Suspense v-if="modalType === ModalType.AddToken">
       <ModalContentGenerateToken
-        v-if="modalType === ModalType.AddToken"
         :selected-token="selectedToken"
         :trigger-submit="triggerSubmit"
         @token-generated="(formValues) => handleGenerateToken(formValues)"
         @invalid-submit="handleInvalidSubmit"
       />
-      <ModalContentActivatedToken
-        v-if="modalType === ModalType.NewToken"
-        :new-token-response="newTokenResponse"
-      />
-      <ModalContentHowToUse
-        v-else-if="modalType === ModalType.HowToUse"
-        :selected-token="selectedToken"
-      />
-    </template>
-    <p v-else>Loading</p>
+      <template #fallback>
+        <div class="flex flex-col items-center w-full gap-16 px-32">
+          <BaseSkeletonLoader
+            type="circle"
+            class="w-[100px] h-[100px]"
+          />
+          <BaseSkeletonLoader
+            type="header"
+            class="w-[200px]"
+          />
+          <BaseSkeletonLoader
+            type="text"
+            class="w-[200px]"
+          />
+          <div class="flex flex-col w-full gap-8 md:w-[80%] lg:w-[60%]">
+            <BaseSkeletonLoader
+              type="text"
+              class="w-[200px]"
+            />
+            <BaseSkeletonLoader
+              type="header"
+              class="w-full"
+            />
+            <BaseSkeletonLoader
+              type="text"
+              class="w-[200px]"
+            />
+            <BaseSkeletonLoader
+              type="header"
+              class="w-full"
+            />
+            <BaseSkeletonLoader
+              type="text"
+              class="w-[200px]"
+            />
+            <BaseSkeletonLoader
+              type="rectangle"
+              class="w-full h-[150px]"
+            />
+          </div>
+        </div>
+      </template>
+    </Suspense>
+    <Suspense v-if="modalType === ModalType.NewToken">
+      <ModalContentActivatedToken :new-token-response="newTokenResponse" />
+      <template #fallback>
+        <div class="flex flex-col items-center w-full gap-16 px-32">
+          <BaseSkeletonLoader
+            type="circle"
+            class="w-[100px] h-[100px]"
+          />
+          <BaseSkeletonLoader
+            type="header"
+            class="w-[200px]"
+          />
+          <BaseSkeletonLoader
+            type="text"
+            class="w-[200px]"
+          />
+          <BaseSkeletonLoader
+            type="header"
+            class="w-full"
+          />
+          <div class="flex flex-col w-full gap-8">
+            <BaseSkeletonLoader
+              type="text"
+              class="w-[200px]"
+            />
+            <BaseSkeletonLoader
+              type="text"
+              class="w-full"
+            />
+            <BaseSkeletonLoader
+              type="text"
+              class="w-full"
+            />
+            <BaseSkeletonLoader
+              type="rectangle"
+              class="w-full h-[150px]"
+            />
+          </div>
+        </div>
+      </template>
+    </Suspense>
+    <Suspense v-else-if="modalType === ModalType.HowToUse">
+      <ModalContentHowToUse :selected-token="selectedToken" />
+    </Suspense>
+    <BaseMessageBox
+      v-if="isSuspenseError"
+      variant="danger"
+      message="Oh no! Something went wrong. Please refresh the page or try again later."
+    >
+    </BaseMessageBox>
 
     <!-- footer -->
-    <template
-      v-if="!isLoading"
-      #footer
-    >
+    <template #footer>
       <template v-if="modalType === ModalType.AddToken">
         <BaseButton
           variant="primary"
@@ -61,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onErrorCaptured, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { BaseFormValuesType } from './tokens/types';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
@@ -77,7 +156,6 @@ enum ModalType {
 }
 const router = useRouter();
 const modalType = ref(ModalType.AddToken);
-const isLoading = ref(false);
 const newTokenResponse = ref<{
   token_type: string;
   [key: string]: string | number;
@@ -85,6 +163,7 @@ const newTokenResponse = ref<{
   token_type: '',
 });
 const triggerSubmit = ref(false);
+const isSuspenseError = ref(false);
 
 const props = defineProps<{
   selectedToken: string;
@@ -122,14 +201,11 @@ function handleAddToken() {
 }
 
 async function handleGenerateToken(formValues: BaseFormValuesType) {
-  isLoading.value = true;
-
   try {
     const res = await generateToken({
       ...formValues,
       token_type: getTokenType.value,
     });
-    isLoading.value = false;
     /* AZURE CONFIG Exception handler */
     /* Overwrite backend response for Azure ID Config token type */
     /* It's needed as Azure ID Config returns CSS Cloned Site */
@@ -138,11 +214,9 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
       token_type: props.selectedToken,
     };
   } catch (err) {
-    isLoading.value = false;
     triggerSubmit.value = false;
     console.log(err, 'err');
   } finally {
-    isLoading.value = false;
     triggerSubmit.value = false;
     modalType.value = ModalType.NewToken;
   }
@@ -165,6 +239,19 @@ function handleManageToken() {
 
 function handleBackButton() {
   modalType.value = ModalType.NewToken;
-  modalType.value = ModalType.NewToken;
 }
+
+// More info on Error handling for Suspense:
+// https://vuejs.org/guide/built-ins/suspense.html#error-handling
+onErrorCaptured((err) => {
+  console.error('Error loading component:', err.toString());
+  isSuspenseError.value = true;
+  return true;
+});
+
+// To cleanup the UI
+// Reset error on modal type change
+watch(modalType.value, () => {
+  isSuspenseError.value = false;
+});
 </script>
