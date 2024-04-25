@@ -4,8 +4,15 @@
       class="relative border flex-1 group flex flex-col px-24 py-32 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"
     >
+      <div v-if="isLoading">
+        <BaseSkeletonLoader
+          type="circle"
+          class="w-[4rem] h-[4rem]"
+        />
+      </div>
       <img
-        :src="getImageUrl(tokenLogoUrl)"
+        v-if="!isLoading"
+        :src="src"
         class="h-[4rem]"
         aria-hidden="true"
         :alt="`${title} logo`"
@@ -13,7 +20,7 @@
       <span class="py-16 font-semibold leading-5 text-center text-grey-800">
         {{ title }}
       </span>
-      <span class="text-sm leading-5 text-left text-grey-400 text-pretty">
+      <span class="text-sm leading-5 text-center text-grey-400 text-pretty">
         {{ description }}
       </span>
       <span
@@ -38,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 
 const emit = defineEmits(['clickToken']);
@@ -54,7 +62,23 @@ const props = withDefaults(
   }
 );
 
-const tokenLogoUrl = `token_icons/${props.logoImgUrl}`;
+const isLoading = ref(true);
+const src = ref(null);
+
+onMounted(() => {
+  loadImage();
+});
+
+async function loadImage() {
+  src.value = null;
+  isLoading.value = true;
+  const img = new Image();
+  const tokenLogoUrl = getImageUrl(`token_icons/${props.logoImgUrl}`);
+  img.src = tokenLogoUrl;
+  await new Promise((resolve) => (img.onload = resolve));
+  src.value = img.src;
+  isLoading.value = false;
+}
 
 function handleClickToken() {
   emit('clickToken');
