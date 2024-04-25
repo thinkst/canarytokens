@@ -1,11 +1,15 @@
 <template>
   <template v-if="isLoading">
-    <div class="flex flex-col gap-16 mx-16">
-      <BaseSkeletonLoader class="flex-col h-[10vh]" />
-      <BaseSkeletonLoader class="flex-col h-[10vh]" />
-      <BaseSkeletonLoader class="flex-col h-[10vh]" />
+    <div class="flex flex-col gap-16 mx-16 mt-[60px]">
+      <BaseSkeletonLoader
+        type="header"
+        class="w-[200px]"
+      />
+      <BaseSkeletonLoader class="h-[10vh]" />
+      <BaseSkeletonLoader class="h-[10vh]" />
+      <BaseSkeletonLoader class="h-[10vh]" />
     </div>
-    <div class="flex flex-col gap-16">
+    <div class="flex flex-col gap-16 mt-[60px]">
       <BaseSkeletonLoader class="h-[50svh] w-full" />
       <BaseSkeletonLoader class="h-[20svh] w-full" />
     </div>

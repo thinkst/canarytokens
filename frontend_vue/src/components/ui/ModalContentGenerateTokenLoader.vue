@@ -1,19 +1,19 @@
 <!-- Skeleton loader as Fallback for ModalContentGenerateToken-->
 <template>
-  <div class="flex flex-col items-center w-full gap-16 px-32">
+  <div class="flex flex-col items-center w-full px-32">
     <BaseSkeletonLoader
       type="circle"
-      class="w-[100px] h-[100px]"
+      class="w-[80px] h-[80px] mt-8"
     />
     <BaseSkeletonLoader
       type="header"
-      class="w-[200px]"
+      class="w-[200px] mt-24"
     />
     <BaseSkeletonLoader
       type="text"
-      class="w-[200px]"
+      class="w-[200px] mt-8"
     />
-    <div class="flex flex-col w-full gap-8 md:w-[80%] lg:w-[60%]">
+    <div class="flex flex-col w-full gap-8 md:w-[80%] lg:w-[60%] mt-32">
       <BaseSkeletonLoader
         type="text"
         class="w-[200px]"
@@ -24,7 +24,7 @@
       />
       <BaseSkeletonLoader
         type="text"
-        class="w-[200px]"
+        class="w-[200px] mt-24"
       />
       <BaseSkeletonLoader
         type="header"
@@ -32,7 +32,7 @@
       />
       <BaseSkeletonLoader
         type="text"
-        class="w-[200px]"
+        class="w-[200px] mt-24"
       />
       <BaseSkeletonLoader
         type="rectangle"
