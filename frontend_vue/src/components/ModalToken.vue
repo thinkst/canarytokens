@@ -12,92 +12,19 @@
         @invalid-submit="handleInvalidSubmit"
       />
       <template #fallback>
-        <div class="flex flex-col items-center w-full gap-16 px-32">
-          <BaseSkeletonLoader
-            type="circle"
-            class="w-[100px] h-[100px]"
-          />
-          <BaseSkeletonLoader
-            type="header"
-            class="w-[200px]"
-          />
-          <BaseSkeletonLoader
-            type="text"
-            class="w-[200px]"
-          />
-          <div class="flex flex-col w-full gap-8 md:w-[80%] lg:w-[60%]">
-            <BaseSkeletonLoader
-              type="text"
-              class="w-[200px]"
-            />
-            <BaseSkeletonLoader
-              type="header"
-              class="w-full"
-            />
-            <BaseSkeletonLoader
-              type="text"
-              class="w-[200px]"
-            />
-            <BaseSkeletonLoader
-              type="header"
-              class="w-full"
-            />
-            <BaseSkeletonLoader
-              type="text"
-              class="w-[200px]"
-            />
-            <BaseSkeletonLoader
-              type="rectangle"
-              class="w-full h-[150px]"
-            />
-          </div>
-        </div>
+        <ModalContentGenerateTokenLoader />
       </template>
     </Suspense>
     <Suspense v-if="modalType === ModalType.NewToken">
       <ModalContentActivatedToken :new-token-response="newTokenResponse" />
       <template #fallback>
-        <div class="flex flex-col items-center w-full gap-16 px-32">
-          <BaseSkeletonLoader
-            type="circle"
-            class="w-[100px] h-[100px]"
-          />
-          <BaseSkeletonLoader
-            type="header"
-            class="w-[200px]"
-          />
-          <BaseSkeletonLoader
-            type="text"
-            class="w-[200px]"
-          />
-          <BaseSkeletonLoader
-            type="header"
-            class="w-full"
-          />
-          <div class="flex flex-col w-full gap-8">
-            <BaseSkeletonLoader
-              type="text"
-              class="w-[200px]"
-            />
-            <BaseSkeletonLoader
-              type="text"
-              class="w-full"
-            />
-            <BaseSkeletonLoader
-              type="text"
-              class="w-full"
-            />
-            <BaseSkeletonLoader
-              type="rectangle"
-              class="w-full h-[150px]"
-            />
-          </div>
-        </div>
+        <ModalContentActivatedTokenLoader />
       </template>
     </Suspense>
-    <Suspense v-else-if="modalType === ModalType.HowToUse">
-      <ModalContentHowToUse :selected-token="selectedToken" />
-    </Suspense>
+    <ModalContentHowToUse
+      v-else-if="modalType === ModalType.HowToUse"
+      :selected-token="selectedToken"
+    />
     <BaseMessageBox
       v-if="isSuspenseError"
       variant="danger"
@@ -146,6 +73,8 @@ import type { BaseFormValuesType } from './tokens/types';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
 import ModalContentActivatedToken from './ModalContentActivatedToken.vue';
 import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
+import ModalContentGenerateTokenLoader from '@/components/ui/ModalContentGenerateTokenLoader.vue';
+import ModalContentActivatedTokenLoader from '@/components/ui/ModalContentActivatedTokenLoader.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 

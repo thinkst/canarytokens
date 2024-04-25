@@ -1,25 +1,5 @@
 <template>
-  <div
-    v-if="isLoading"
-    class="flex flex-col w-full gap-8 ml-32"
-  >
-    <BaseSkeletonLoader
-      class="w-[60%]"
-      type="text"
-    />
-    <BaseSkeletonLoader
-      class="w-[30%]"
-      type="text"
-    />
-    <BaseSkeletonLoader
-      class="w-[30%]"
-      type="text"
-    />
-    <BaseSkeletonLoader
-      class="w-[50%]"
-      type="text"
-    />
-  </div>
+  <ModalContentHowToUseLoader v-if="isLoading" />
   <div v-else>
     <ul
       v-if="howToUseToken.length > 0"
@@ -41,6 +21,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import ModalContentHowToUseLoader from '@/components/ui/ModalContentHowToUseLoader.vue';
 
 const props = defineProps<{
   selectedToken: string;
