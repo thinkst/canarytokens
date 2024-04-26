@@ -1,16 +1,16 @@
 <!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
   <div class="relative flex flex-col justify-between">
-    model: {{ model }}
     <input
       v-bind="$attrs"
       :id="id"
-      v-model="model"
       type="checkbox"
       role="switch"
       class="toggle"
-      :checked="model"
-      :aria-checked="model"
+      :value="modelValue"
+      :checked="modelValue"
+      :aria-checked="modelValue"
+      @change="handleToggle"
     />
     <label
       :for="id"
@@ -25,7 +25,7 @@
         class="absolute right-[0.6rem]"
         :class="[helperMessage ? 'top-[0.7rem]' : 'top-[0.2rem]']"
         height="1rem"
-        :variant="model === true ? 'secondary' : 'primary'"
+        :variant="modelValue === true ? 'secondary' : 'primary'"
       ></BaseSpinner>
     </label>
     <div>
@@ -54,9 +54,14 @@ defineProps<{
   helperMessage?: string | null;
   errorMessage?: string;
   loading?: boolean;
+  modelValue?: boolean;
 }>();
 
-const model = defineModel<boolean>();
+const emit = defineEmits(['update:modelValue']);
+
+function handleToggle(event: Event) {
+  emit('update:modelValue', (event.target as HTMLInputElement).checked);
+}
 </script>
 
 <style scoped>

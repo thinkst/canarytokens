@@ -1,56 +1,58 @@
 <template>
   <div class="flex flex-col gap-24">
-    enabledEmailAlert: {{ enabledEmailAlert }}
     <BaseSwitch
       v-if="hasEmailAlert"
       id="email-alert"
-      :v-model="enabledEmailAlert"
+      v-model="settingRefs.EMAIL"
       label="Email alerts"
       :helper-message="tokenBackendResponse.canarydrop.alert_email_recipient"
-      :loading="loadingEmailAlert"
+      :loading="loadingRefs.EMAIL"
       @click.prevent="
         handleChangeSetting(
-          ENABLE_SETTINGS_TYPE.EMAIL as EnableSettingsOptionType,
-          !enabledEmailAlert
+          SETTINGS_TYPE.EMAIL as keyof typeof SETTINGS_TYPE,
+          !settingRefs.EMAIL
         )
       "
     />
     <BaseSwitch
       v-if="hasWebhookAlert"
       id="webhook-alert"
-      v-model="enabledWebhookAlert"
+      v-model="settingRefs.WEB_HOOK"
       label="Webhook reporting"
       :helper-message="props.tokenBackendResponse.canarydrop.alert_webhook_url"
-      @change.stop="
+      :loading="loadingRefs.WEB_HOOK"
+      @click.prevent="
         handleChangeSetting(
-          ENABLE_SETTINGS_TYPE.WEB_HOOK as EnableSettingsOptionType,
-          enabledWebhookAlert
+          SETTINGS_TYPE.WEB_HOOK as keyof typeof SETTINGS_TYPE,
+          !settingRefs.WEB_HOOK
         )
       "
     />
     <BaseSwitch
       v-if="hasBrowserScan"
       id="browser-alert"
-      v-model="enabledBrowserScan"
+      v-model="settingRefs.BROWSER_SCANNER"
       label="Browser scanner"
       helper-message="Runs Javascript fingerprinting when the token is browsed"
-      @change.stop="
+      :loading="loadingRefs.BROWSER_SCANNER"
+      @click.prevent="
         handleChangeSetting(
-          ENABLE_SETTINGS_TYPE.BROWSER_SCANNER as EnableSettingsOptionType,
-          enabledBrowserScan
+          SETTINGS_TYPE.BROWSER_SCANNER as keyof typeof SETTINGS_TYPE,
+          !settingRefs.BROWSER_SCANNER
         )
       "
     />
     <BaseSwitch
       v-if="hasCustomImage"
       id="custom-image"
-      v-model="enabledCustomImage"
+      v-model="settingRefs.WEB_IMAGE"
       label="Custom web image"
       helper-message="Serve your alternative image"
-      @change.stop="
+      :loading="loadingRefs.WEB_IMAGE"
+      @click.prevent="
         handleChangeSetting(
-          ENABLE_SETTINGS_TYPE.WEB_IMAGE as EnableSettingsOptionType,
-          enabledCustomImage
+          SETTINGS_TYPE.WEB_IMAGE as keyof typeof SETTINGS_TYPE,
+          !settingRefs.WEB_IMAGE
         )
       "
     />
@@ -61,8 +63,13 @@
 import { onMounted, ref } from 'vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import { settingsToken } from '@/api/main';
-import type { SettingsTokenType, EnableSettingsOptionType } from '@/api/main';
-import { ENABLE_SETTINGS_TYPE, TOKENS_TYPE } from '@/components/constants';
+import type { SettingsTokenType } from '@/api/main';
+import {
+  SETTINGS_TYPE,
+  UPDATE_SETTINGS_BACKEND_TYPE,
+  GET_SETTINGS_BACKEND_TYPE,
+  TOKENS_TYPE,
+} from '@/components/constants';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
@@ -79,6 +86,7 @@ function isSupportCustomImage() {
   return props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
 }
 
+// Check which settings are available for this Token
 const hasEmailAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_email_recipient
 );
@@ -88,30 +96,35 @@ const hasWebhookAlert = ref(
 const hasBrowserScan = ref(isSupportBrowserScan());
 const hasCustomImage = ref(isSupportCustomImage());
 
-const enabledEmailAlert = ref(false);
-const enabledWebhookAlert = ref(false);
-const enabledBrowserScan = ref(false);
-const enabledCustomImage = ref(false);
+// State of each setting type
+const settingRefs = ref({
+  [SETTINGS_TYPE.EMAIL]: false,
+  [SETTINGS_TYPE.WEB_HOOK]: false,
+  [SETTINGS_TYPE.BROWSER_SCANNER]: false,
+  [SETTINGS_TYPE.WEB_IMAGE]: false,
+});
 
-const loadingEmailAlert = ref(false);
+// Handle Loading for Switch Component during settings change
+const loadingRefs = ref({
+  [SETTINGS_TYPE.EMAIL]: false,
+  [SETTINGS_TYPE.WEB_HOOK]: false,
+  [SETTINGS_TYPE.BROWSER_SCANNER]: false,
+  [SETTINGS_TYPE.WEB_IMAGE]: false,
+});
 
 onMounted(() => {
-  enabledEmailAlert.value =
-    (hasEmailAlert.value &&
-      props.tokenBackendResponse.canarydrop?.alert_email_enabled) ||
-    false;
-  enabledWebhookAlert.value =
-    (hasWebhookAlert.value &&
-      props.tokenBackendResponse.canarydrop?.alert_webhook_enabled) ||
-    false;
-  enabledBrowserScan.value =
-    (hasBrowserScan.value &&
-      props.tokenBackendResponse.canarydrop?.browser_scanner_enabled) ||
-    false;
-  enabledCustomImage.value =
-    (hasCustomImage.value &&
-      props.tokenBackendResponse.canarydrop?.web_image_enabled) ||
-    false;
+  // Set initial state
+  // by getting the settings from the backend response
+  Object.keys(SETTINGS_TYPE).forEach((key) => {
+    const backendPropertyName =
+      GET_SETTINGS_BACKEND_TYPE[key as keyof typeof SETTINGS_TYPE];
+
+    settingRefs.value[key] = Boolean(
+      props.tokenBackendResponse.canarydrop[backendPropertyName]
+    );
+
+    loadingRefs.value[key] = false;
+  });
 });
 
 // backend requires a string 'on' or 'off' to enable/disable feature
@@ -120,41 +133,25 @@ function convertBooleanToValue(boolean: boolean): string {
 }
 
 async function handleChangeSetting(
-  settingType: EnableSettingsOptionType,
+  settingType: keyof typeof SETTINGS_TYPE,
   isSettingTypeEnabled: boolean
 ) {
   const params = {
     value: convertBooleanToValue(isSettingTypeEnabled),
     token: props.tokenBackendResponse.canarydrop.canarytoken._value,
     auth: props.tokenBackendResponse.canarydrop.auth,
-    setting: settingType,
+    setting: UPDATE_SETTINGS_BACKEND_TYPE[settingType],
   };
 
-  loadingEmailAlert.value = true;
-  console.log(enabledEmailAlert.value);
+  loadingRefs.value[settingType] = true;
 
   try {
     await settingsToken(params as SettingsTokenType);
-    enabledEmailAlert.value = !enabledEmailAlert.value;
+    settingRefs.value[settingType] = isSettingTypeEnabled;
   } catch (err) {
     console.log(err, 'error!');
-    // enabledEmailAlert.value = !enabledEmailAlert.value;
   } finally {
-    loadingEmailAlert.value = false;
-    console.log('setting updated!');
+    loadingRefs.value[settingType] = false;
   }
-
-  // settingsToken(params as SettingsTokenType)
-  //   .then(() => {
-  //     enabledEmailAlert.value = !enabledEmailAlert.value;
-  //   })
-  //   .catch((err) => {
-  //     enabledEmailAlert.value = !enabledEmailAlert.value;
-  //     console.log(err, 'error!');
-  //   })
-  //   .finally(() => {
-  //     loadingEmailAlert.value = false;
-  //     console.log('setting updated!');
-  //   });
 }
 </script>
