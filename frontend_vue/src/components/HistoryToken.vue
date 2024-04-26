@@ -1,17 +1,26 @@
 <template>
-  <div
-    v-if="isLoading"
-    class="loading"
-  >
-    Loading...
-  </div>
+  <template v-if="isLoading">
+    <div class="flex flex-col gap-16 mx-16 mt-[60px]">
+      <BaseSkeletonLoader
+        type="header"
+        class="w-[200px]"
+      />
+      <BaseSkeletonLoader class="h-[10vh]" />
+      <BaseSkeletonLoader class="h-[10vh]" />
+      <BaseSkeletonLoader class="h-[10vh]" />
+    </div>
+    <div class="flex flex-col gap-16 mt-[60px]">
+      <BaseSkeletonLoader class="h-[50svh] w-full" />
+      <BaseSkeletonLoader class="h-[20svh] w-full" />
+    </div>
+  </template>
 
-  <div
+  <BaseMessageBox
     v-if="error"
-    class="error"
+    variant="danger"
+    message="Oh no! Something went wrong. Please refresh the page or try again later."
   >
-    {{ error }}
-  </div>
+  </BaseMessageBox>
   <template v-if="hitsList">
     <!-- conditional { 'hidden md:block': selectedAlert } is a trick for mobile
     to show incident info all screen height -->
@@ -93,8 +102,8 @@ const error = ref(null);
 const hitsList: Ref<HitsType[] | undefined> = ref();
 const selectedAlert = ref();
 
-onMounted(() => {
-  fetchTokenHistoryData();
+onMounted(async () => {
+  await fetchTokenHistoryData();
 });
 
 async function fetchTokenHistoryData() {
@@ -105,25 +114,21 @@ async function fetchTokenHistoryData() {
     token: route.params.token as string,
   };
 
-  historyToken(params)
-    .then((res) => {
-      const historyTokenData = res.data as HistoryTokenBackendType;
-      hitsList.value = historyTokenData.hits;
-
-      emits(
-        'update-token-title',
-        historyTokenData.token_type,
-        route.params.token
-      );
-    })
-    .catch((err) => {
-      console.log(err, 'err!');
-      isLoading.value = false;
-      error.value = err.toString();
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
+  try {
+    const res = await historyToken(params);
+    const historyTokenData = (await res.data) as HistoryTokenBackendType;
+    hitsList.value = historyTokenData.hits;
+    emits(
+      'update-token-title',
+      historyTokenData.token_type,
+      route.params.token
+    );
+  } catch (err: any) {
+    console.log(err, 'err!');
+    error.value = err.toString();
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 function handleDownloadList(type: string) {
