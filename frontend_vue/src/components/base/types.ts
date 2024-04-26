@@ -1,18 +1,19 @@
-export interface BaseStateVariantType {
+export interface BaseStateVariantInterface {
   danger: string;
   warning: string;
   info: string;
 }
 
-export interface BaseColorVariantType extends BaseStateVariantType {
+export interface BaseColorVariantInterface extends BaseStateVariantInterface {
   primary: string;
   secondary: string;
 }
 
-export interface BaseButtonVariantType extends BaseColorVariantType {
+export interface BaseButtonVariantInterface extends BaseColorVariantInterface {
   text: string;
   'text-light': string;
 }
 
-export type ButtonVariantType = keyof BaseButtonVariantType;
-export type NotificationBoxVariantType = keyof BaseStateVariantType;
+export type ButtonVariantType = keyof BaseButtonVariantInterface;
+export type NotificationBoxVariantType = keyof BaseStateVariantInterface;
+export type BaseColorVariantType = keyof BaseColorVariantInterface;
