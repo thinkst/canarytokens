@@ -1,4 +1,36 @@
 <template>
+  <div>
+    <hr class="my-24" />
+    <h1>Skeleton Loader</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <BaseSkeletonLoader
+        class="h-[100px] w-[300px]"
+        type="rectangle"
+      />
+      <BaseSkeletonLoader
+        class="h-[100px] w-[100px]"
+        type="circle"
+      />
+      <div class="flex flex-col gap-8">
+        <BaseSkeletonLoader
+          class="w-[100px]"
+          type="header"
+        />
+        <BaseSkeletonLoader
+          class="w-[300px]"
+          type="text"
+        />
+        <BaseSkeletonLoader
+          class="w-[300px]"
+          type="text"
+        />
+        <BaseSkeletonLoader
+          class="w-[200px]"
+          type="text"
+        />
+      </div>
+    </div>
+  </div>
   <div class="flex flex-col w-[200px] gap-16">
     <h1>Buttons</h1>
     <base-button>Primary</base-button>
