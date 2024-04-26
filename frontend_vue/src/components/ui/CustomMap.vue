@@ -1,6 +1,7 @@
 <template>
   <div v-if="isLoading">Loading map...</div>
   <GMapMap
+    v-bind="$attrs"
     ref="mapRef"
     :zoom="7"
     :center="center"

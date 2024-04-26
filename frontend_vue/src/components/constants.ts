@@ -36,15 +36,30 @@ export const TOKENS_TYPE = {
   AZURE_ENTRA_CONFIG: 'azure_id_config',
 };
 
-/*
-ENABLE_SETTINGS_TYPE values are coming from the backend
-*/
+// unique keys to use in the frontend
+export const SETTINGS_TYPE = {
+  EMAIL: 'EMAIL',
+  WEB_HOOK: 'WEB_HOOK',
+  BROWSER_SCANNER: 'BROWSER_SCANNER',
+  WEB_IMAGE: 'WEB_IMAGE',
+};
 
-export const ENABLE_SETTINGS_TYPE = {
+// values used in the backend to identify enable settings
+// on updadting
+export const UPDATE_SETTINGS_BACKEND_TYPE = {
   EMAIL: 'email_enable',
   WEB_HOOK: 'webhook_enable',
   BROWSER_SCANNER: 'browser_scanner_enable',
   WEB_IMAGE: 'web_image_enable',
+};
+
+// values used in the backend to identify enable settings
+// on getting current state
+export const GET_SETTINGS_BACKEND_TYPE = {
+  EMAIL: 'alert_email_enabled',
+  WEB_HOOK: 'alert_webhook_enabled',
+  BROWSER_SCANNER: 'browser_scanner_enabled',
+  WEB_IMAGE: 'web_image_enabled',
 };
 
 export const INCIDENT_LIST_EXPORT = {

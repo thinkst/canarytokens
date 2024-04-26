@@ -6,16 +6,30 @@
       buttonClass,
       { 'flex flex-row flex-nowrap gap-8 items-center': icon },
       { 'flex-row-reverse': iconPosition === 'right' },
+      { 'pointer-events-none': loading },
     ]"
     :href="href"
     :type="!href ? type : null"
   >
+    <BaseSpinner
+      v-if="loading"
+      height="1.5rem"
+      :variant="
+        variant === ButtonVariantEnum.PRIMARY
+          ? ButtonVariantEnum.SECONDARY
+          : ButtonVariantEnum.PRIMARY
+      "
+      class="absolute left-0 right-0 ml-auto mr-auto"
+    ></BaseSpinner>
     <font-awesome-icon
       v-if="icon"
       :icon="icon"
       aria-hidden="true"
+      :class="loading && 'opacity-30'"
     />
-    <slot></slot>
+    <span :class="loading && 'opacity-30'">
+      <slot></slot>
+    </span>
   </component>
 </template>
 
@@ -56,6 +70,10 @@ const props = defineProps({
   href: {
     type: String || null,
     default: null,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
   },
 });
 
