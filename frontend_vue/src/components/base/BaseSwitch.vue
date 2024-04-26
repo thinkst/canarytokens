@@ -37,7 +37,7 @@
         {{ helperMessage }}
       </p>
       <p
-        v-show="errorMessage"
+        v-show="hasError"
         id="error"
         class="text-xs leading-4 text-red"
       >
@@ -52,6 +52,7 @@ defineProps<{
   id: string;
   label: string;
   helperMessage?: string | null;
+  hasError?: boolean;
   errorMessage?: string;
   loading?: boolean;
   modelValue?: boolean;

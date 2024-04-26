@@ -7,6 +7,8 @@
       label="Email alerts"
       :helper-message="tokenBackendResponse.canarydrop.alert_email_recipient"
       :loading="loadingRefs.EMAIL"
+      :has-error="errorRefs.EMAIL"
+      :error-message="errorMessage"
       @click.prevent="
         handleChangeSetting(
           SETTINGS_TYPE.EMAIL as keyof typeof SETTINGS_TYPE,
@@ -21,6 +23,8 @@
       label="Webhook reporting"
       :helper-message="props.tokenBackendResponse.canarydrop.alert_webhook_url"
       :loading="loadingRefs.WEB_HOOK"
+      :has-error="errorRefs.WEB_HOOK"
+      :error-message="errorMessage"
       @click.prevent="
         handleChangeSetting(
           SETTINGS_TYPE.WEB_HOOK as keyof typeof SETTINGS_TYPE,
@@ -35,6 +39,8 @@
       label="Browser scanner"
       helper-message="Runs Javascript fingerprinting when the token is browsed"
       :loading="loadingRefs.BROWSER_SCANNER"
+      :has-error="errorRefs.BROWSER_SCANNER"
+      :error-message="errorMessage"
       @click.prevent="
         handleChangeSetting(
           SETTINGS_TYPE.BROWSER_SCANNER as keyof typeof SETTINGS_TYPE,
@@ -49,6 +55,8 @@
       label="Custom web image"
       helper-message="Serve your alternative image"
       :loading="loadingRefs.WEB_IMAGE"
+      :has-error="errorRefs.WEB_IMAGE"
+      :error-message="errorMessage"
       @click.prevent="
         handleChangeSetting(
           SETTINGS_TYPE.WEB_IMAGE as keyof typeof SETTINGS_TYPE,
@@ -112,6 +120,16 @@ const loadingRefs = ref({
   [SETTINGS_TYPE.WEB_IMAGE]: false,
 });
 
+// Handle Errors for Switch Component during settings change
+const errorRefs = ref({
+  [SETTINGS_TYPE.EMAIL]: false,
+  [SETTINGS_TYPE.WEB_HOOK]: false,
+  [SETTINGS_TYPE.BROWSER_SCANNER]: false,
+  [SETTINGS_TYPE.WEB_IMAGE]: false,
+});
+
+const errorMessage = 'An error occurred. Please try again.';
+
 onMounted(() => {
   // Set initial state
   // by getting the settings from the backend response
@@ -124,6 +142,7 @@ onMounted(() => {
     );
 
     loadingRefs.value[key] = false;
+    errorRefs.value[key] = false;
   });
 });
 
@@ -143,13 +162,24 @@ async function handleChangeSetting(
     setting: UPDATE_SETTINGS_BACKEND_TYPE[settingType],
   };
 
+  // Remove all previous errors
+  Object.keys(errorRefs.value).forEach((key) => {
+    errorRefs.value[key] = false;
+  });
+
   loadingRefs.value[settingType] = true;
 
   try {
-    await settingsToken(params as SettingsTokenType);
-    settingRefs.value[settingType] = isSettingTypeEnabled;
+    const res = await settingsToken(params as SettingsTokenType);
+    if (res.status === 200) {
+      settingRefs.value[settingType] = isSettingTypeEnabled;
+    } else {
+      console.log('Error:', res.data.detail);
+      errorRefs.value[settingType] = true;
+    }
   } catch (err) {
     console.log(err, 'error!');
+    errorRefs.value[settingType] = true;
   } finally {
     loadingRefs.value[settingType] = false;
   }
