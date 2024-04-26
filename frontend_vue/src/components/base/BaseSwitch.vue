@@ -1,6 +1,7 @@
 <!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
-  <div class="flex flex-col justify-between">
+  <div class="relative flex flex-col justify-between">
+    model: {{ model }}
     <input
       v-bind="$attrs"
       :id="id"
@@ -13,9 +14,20 @@
     />
     <label
       :for="id"
-      :class="helperMessage && 'multiline'"
-      >{{ label }}</label
-    >
+      class="relative"
+      :class="[
+        { multiline: helperMessage || errorMessage },
+        { loading: loading },
+      ]"
+      >{{ label }}
+      <BaseSpinner
+        v-if="loading"
+        class="absolute right-[0.6rem]"
+        :class="[helperMessage ? 'top-[0.7rem]' : 'top-[0.2rem]']"
+        height="1rem"
+        :variant="model === true ? 'secondary' : 'primary'"
+      ></BaseSpinner>
+    </label>
     <div>
       <p
         v-show="helperMessage"
@@ -41,6 +53,7 @@ defineProps<{
   label: string;
   helperMessage?: string | null;
   errorMessage?: string;
+  loading?: boolean;
 }>();
 
 const model = defineModel<boolean>();
@@ -58,7 +71,14 @@ label {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+label:not(.loading) {
   cursor: pointer;
+}
+
+label:is(.loading) {
+  pointer-events: none;
 }
 
 /* toggle wrapper */
@@ -82,7 +102,7 @@ label.multiline::after {
 }
 
 /* toggle ball */
-label::after {
+label:not(.loading)::after {
   content: '';
   display: flex;
   position: absolute;
@@ -132,6 +152,6 @@ input[type='checkbox'].toggle:disabled + label::after {
 
 input[type='checkbox'].toggle:disabled + label,
 input[type='checkbox'].toggle:checked:disabled + label {
-  cursor: not-allowed;
+  pointer-events: none;
 }
 </style>

@@ -42,6 +42,16 @@
       icon-position="right"
       >Look mum, Icons!</base-button
     >
+    <base-button :loading="true">Loading</base-button>
+
+    <base-button
+      :loading="true"
+      icon="arrow-right"
+      icon-position="right"
+      variant="secondary"
+      >Loading</base-button
+    >
+    <base-button :disabled="true">Disabled</base-button>
   </div>
   <hr class="my-24" />
   <div class="flex flex-col w-[200px] gap-16">
@@ -54,12 +64,30 @@
     <BaseCopyButton content="Content to copy is here" />
   </div>
   <hr class="my-24" />
-  <div class="flex flex-col w-[200px] gap-16">
+  <div class="flex flex-col w-[300px] gap-16">
     <h1>Switch</h1>
     <BaseSwitch
       id="check"
       v-model="checked"
       :label="`Checked? ${checked}`"
+    />
+    <BaseSwitch
+      id="check"
+      v-model="checked"
+      :label="`Checked? ${checked}`"
+      helper-message="My custom helper message"
+    />
+    <BaseSwitch
+      id="check"
+      v-model="checked"
+      :label="`Checked? ${checked}, With loading! `"
+      :loading="true"
+    />
+    <BaseSwitch
+      id="checkDisabled"
+      v-model="checkedDisabled"
+      label="Checked with error"
+      error-message="Oh snap, something went wrong!"
     />
     <BaseSwitch
       id="checkDisabled"
@@ -161,7 +189,10 @@
     <div>
       <hr class="my-24" />
       <h1 class="pb-16">Custom Map</h1>
-      <CustomMap :hits-list="[]" />
+      <CustomMap
+        :hits-list="[]"
+        style="height: 30svh"
+      />
     </div>
     <hr class="my-24" />
     <h1 class="pb-16">Incident details</h1>
@@ -203,6 +234,15 @@
     <hr class="my-24" />
     <h1>Banner ADV</h1>
     <BannerCanarytools />
+  </div>
+  <hr class="my-24" />
+
+  <div class="flex flex-col gap-16">
+    <h1>Spinner</h1>
+    <BaseSpinner />
+    <div class="p-16 bg-green-500">
+      <BaseSpinner variant="secondary" />
+    </div>
   </div>
 </template>
 

@@ -1,15 +1,17 @@
 <template>
   <div class="flex flex-col gap-24">
+    enabledEmailAlert: {{ enabledEmailAlert }}
     <BaseSwitch
       v-if="hasEmailAlert"
       id="email-alert"
-      v-model="enabledEmailAlert"
+      :v-model="enabledEmailAlert"
       label="Email alerts"
       :helper-message="tokenBackendResponse.canarydrop.alert_email_recipient"
-      @change.stop="
+      :loading="loadingEmailAlert"
+      @click.prevent="
         handleChangeSetting(
           ENABLE_SETTINGS_TYPE.EMAIL as EnableSettingsOptionType,
-          enabledEmailAlert
+          !enabledEmailAlert
         )
       "
     />
@@ -91,6 +93,8 @@ const enabledWebhookAlert = ref(false);
 const enabledBrowserScan = ref(false);
 const enabledCustomImage = ref(false);
 
+const loadingEmailAlert = ref(false);
+
 onMounted(() => {
   enabledEmailAlert.value =
     (hasEmailAlert.value &&
@@ -115,7 +119,7 @@ function convertBooleanToValue(boolean: boolean): string {
   return boolean ? 'on' : 'off';
 }
 
-function handleChangeSetting(
+async function handleChangeSetting(
   settingType: EnableSettingsOptionType,
   isSettingTypeEnabled: boolean
 ) {
@@ -126,13 +130,31 @@ function handleChangeSetting(
     setting: settingType,
   };
 
-  settingsToken(params as SettingsTokenType)
-    .then(() => {})
-    .catch((err) => {
-      console.log(err, 'error!');
-    })
-    .finally(() => {
-      console.log('setting updated!');
-    });
+  loadingEmailAlert.value = true;
+  console.log(enabledEmailAlert.value);
+
+  try {
+    await settingsToken(params as SettingsTokenType);
+    enabledEmailAlert.value = !enabledEmailAlert.value;
+  } catch (err) {
+    console.log(err, 'error!');
+    // enabledEmailAlert.value = !enabledEmailAlert.value;
+  } finally {
+    loadingEmailAlert.value = false;
+    console.log('setting updated!');
+  }
+
+  // settingsToken(params as SettingsTokenType)
+  //   .then(() => {
+  //     enabledEmailAlert.value = !enabledEmailAlert.value;
+  //   })
+  //   .catch((err) => {
+  //     enabledEmailAlert.value = !enabledEmailAlert.value;
+  //     console.log(err, 'error!');
+  //   })
+  //   .finally(() => {
+  //     loadingEmailAlert.value = false;
+  //     console.log('setting updated!');
+  //   });
 }
 </script>
