@@ -72,6 +72,7 @@ import { onMounted, ref } from 'vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import { settingsToken } from '@/api/main';
 import type { SettingsTokenType } from '@/api/main';
+import type { NullableCanaryDropType } from '@/components/tokens/types';
 import {
   SETTINGS_TYPE,
   UPDATE_SETTINGS_BACKEND_TYPE,
@@ -138,7 +139,9 @@ onMounted(() => {
       GET_SETTINGS_BACKEND_TYPE[key as keyof typeof SETTINGS_TYPE];
 
     settingRefs.value[key] = Boolean(
-      props.tokenBackendResponse.canarydrop[backendPropertyName]
+      props.tokenBackendResponse.canarydrop[
+        backendPropertyName as keyof NullableCanaryDropType
+      ]
     );
 
     loadingRefs.value[key] = false;
@@ -157,7 +160,7 @@ async function handleChangeSetting(
 ) {
   const params = {
     value: convertBooleanToValue(isSettingTypeEnabled),
-    token: props.tokenBackendResponse.canarydrop.canarytoken._value,
+    token: props.tokenBackendResponse.canarydrop.canarytoken?._value,
     auth: props.tokenBackendResponse.canarydrop.auth,
     setting: UPDATE_SETTINGS_BACKEND_TYPE[settingType],
   };
