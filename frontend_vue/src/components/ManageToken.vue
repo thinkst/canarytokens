@@ -15,25 +15,50 @@
   </div>
   <div
     v-if="isLoading"
-    class="loading"
+    class="flex flex-col items-center w-full gap-8"
   >
-    Loading...
+    <BaseSkeletonLoader
+      type="circle"
+      class="w-[60px] h-[60px]"
+    />
+    <BaseSkeletonLoader
+      type="header"
+      class="w-[200px]"
+    />
+    <BaseSkeletonLoader
+      type="rectangle"
+      class="md:max-w-[50vw] w-full h-[250px] mt-16"
+    />
   </div>
 
-  <div
+  <BaseMessageBox
     v-if="error"
-    class="error"
+    variant="danger"
+    message="Oh no! Something went wrong when managing your token data. Please refresh the page or try again later."
   >
-    {{ error }}
-  </div>
+  </BaseMessageBox>
   <div
     v-if="manageTokenResponse"
     class="flex flex-col justify-center p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 md:max-w-[50vw] w-full"
   >
-    <component
-      :is="dynamicComponent"
-      :token-backend-response="manageTokenResponse"
-    />
+    <Suspense>
+      <component
+        :is="dynamicComponent"
+        :token-backend-response="manageTokenResponse"
+      />
+      <template #fallback>
+        <div class="flex flex-col w-full gap-8">
+          <BaseSkeletonLoader
+            class="w-[100px]"
+            type="text"
+          />
+          <BaseSkeletonLoader
+            class="w-full"
+            type="header"
+          />
+        </div>
+      </template>
+    </Suspense>
     <SettingsToken
       :token-backend-response="manageTokenResponse"
       class="mt-32"
