@@ -16,10 +16,10 @@ const props = defineProps<{
 }>();
 
 const tokenData = ref({
-  hostname: props.tokenBackendResponse.canarydrop.generated_hostname,
+  hostname: props.tokenBackendResponse.canarydrop?.generated_hostname,
   sql_table_name: props.tokenBackendResponse.canarydrop?.sql_server_table_name,
   sql_trigger_name:
-    props.tokenBackendResponse.canarydrop.sql_server_trigger_name,
+    props.tokenBackendResponse.canarydrop?.sql_server_trigger_name,
   sql_function_name:
     props.tokenBackendResponse?.canarydrop?.sql_server_function_name,
   sql_server_view_name:

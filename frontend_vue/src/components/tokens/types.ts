@@ -75,13 +75,12 @@ type CanaryDropType = {
   wg_conf: string;
 };
 
+type NullablePartial<T> = { [P in keyof T]: T[P] | null };
 export type NullableCanaryDropType = {
-  [K in keyof CanaryDropType]: K extends 'canarytoken'
-    ? CanaryTokenType
-    : K extends 'auth'
-      ? string
-      : CanaryDropType[K] | null;
-} & { [key: string]: string | boolean | null };
+  auth: string | boolean;
+} & NullablePartial<Omit<CanaryDropType, 'auth'>> & {
+    canarytoken: CanaryTokenType;
+  } & NullablePartial<Omit<CanaryDropType, 'canarytoken'>>;
 
 export type ManageTokenBackendType = {
   canarydrop: NullableCanaryDropType;
@@ -141,9 +140,7 @@ interface GeoInfo {
   readme: string;
 }
 
-interface RequestHeaders {
-  [key: string]: string;
-}
+type RequestHeaders = Record<string, string>;
 
 interface AdditionalInfo {
   javascript: null | string;
