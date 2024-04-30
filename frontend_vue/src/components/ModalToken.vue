@@ -144,7 +144,7 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
       ...formValues,
       token_type: getTokenType.value,
     });
-    if (res.status !== 200 && res.status !== 201) {
+    if (res.status !== 200) {
       isLoadngSubmit.value = false;
       triggerSubmit.value = false;
       errorMessage.value = res.data.error_message;
