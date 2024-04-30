@@ -63,14 +63,14 @@ const props = withDefaults(
 );
 
 const isLoading = ref(true);
-const src = ref(null);
+const src = ref('');
 
 onMounted(() => {
   loadImage();
 });
 
 async function loadImage() {
-  src.value = null;
+  src.value = '';
   isLoading.value = true;
   const img = new Image();
   const tokenLogoUrl = getImageUrl(`token_icons/${props.logoImgUrl}`);
