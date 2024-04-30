@@ -31,7 +31,7 @@ const props = defineProps<{
 
 const tokenHostname = ref(props.tokenData.hostname);
 
-const tokenCode = computed(
-  () => tokenHostname.value && generateSVNToken(tokenHostname.value)
-);
+const tokenCode = computed(() => {
+  return tokenHostname.value ? generateSVNToken(tokenHostname.value) : '';
+});
 </script>
