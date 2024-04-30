@@ -254,6 +254,25 @@
       <BaseSpinner variant="secondary" />
     </div>
   </div>
+  <hr class="my-24" />
+  <div class="flex flex-col gap-16">
+    <h1>Radio Button</h1>
+    <BaseRadioInput
+      id="pizza"
+      label="Pizza"
+      name="radio-group-name"
+    />
+    <BaseRadioInput
+      id="pasta"
+      label="Pasta"
+      name="radio-group-name"
+    />
+    <BaseRadioInput
+      id="carbonara"
+      label="Carbonara"
+      name="radio-group-name"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
