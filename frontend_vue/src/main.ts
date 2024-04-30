@@ -19,10 +19,12 @@ import {
   faRobot,
   faArrowLeft,
   faArrowDown,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
 import VueGoogleMaps from 'vue-google-maps-community-fork';
+import vSelect from 'vue-select';
 import 'vue-final-modal/style.css';
 import 'floating-vue/dist/style.css';
 import './style.css';
@@ -45,7 +47,8 @@ library.add(
   faHands,
   faRobot,
   faArrowLeft,
-  faArrowDown
+  faArrowDown,
+  faChevronUp
 );
 
 const vfm = createVfm();
@@ -59,6 +62,7 @@ app.use(VueGoogleMaps, {
 });
 
 app.directive('tooltip', vTooltip);
+app.component('VSelect', vSelect);
 
 app.use(router);
 

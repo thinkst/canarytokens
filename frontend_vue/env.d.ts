@@ -2,3 +2,5 @@
 interface ImportMetaEnv {
   readonly VITE_API_URL: string;
 }
+
+declare module 'vue-select';
