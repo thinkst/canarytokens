@@ -15,57 +15,63 @@
     full-width
     helper-message="Provide an email address or webhook URL"
   />
-  <!-- TODO: replace this component !! -->
-  <BaseFormSelect
-    id="sql_server_sql_action"
-    label="Select Server action"
-    :options="sqlActions"
-    required
-    full-width
-    @select-option="handleSelectOption"
-  />
-  <!-- ...if NOT SELECT  -->
   <div
-    v-if="selectedOption !== 'SELECT' && selectedOption !== ''"
-    class="flex flex-col gap-8 p-24 mb-8 text-center border border-l-grey-300 rounded-xl"
+    class="px-16 py-24 text-center bg-white border rounded-3xl shadow-solid-shadow-grey border-grey-300"
   >
-    <span>On</span>
+    <label
+      for="radio-group-action"
+      class="mb-4 ml-4 font-semibold"
+      >Action</label
+    >
+    <div class="text-xs leading-0 text-red">{{ errorSqlServer }}</div>
+    <div
+      id="radio-group-action"
+      class="flex flex-wrap gap-16 mt-8 mb-32 justify-evenly sm:flex-row"
+    >
+      <BaseRadioInput
+        id="insert"
+        value="INSERT"
+        name="sql_server_sql_action"
+        label="INSERT"
+        @select-value="handleSelectedValue"
+        @has-error="errorSqlServer = $event"
+      />
+      <BaseRadioInput
+        id="update"
+        value="UPDATE"
+        name="sql_server_sql_action"
+        label="UPDATE"
+        @select-value="handleSelectedValue"
+        @has-error="errorSqlServer = $event"
+      />
+      <BaseRadioInput
+        id="delete"
+        value="DELETE"
+        name="sql_server_sql_action"
+        label="DELETE"
+        @select-value="handleSelectedValue"
+        @has-error="errorSqlServer = $event"
+      />
+      <BaseRadioInput
+        id="select"
+        value="SELECT"
+        name="sql_server_sql_action"
+        label="SELECT"
+        @select-value="handleSelectedValue"
+        @has-error="errorSqlServer = $event"
+      />
+    </div>
     <BaseFormTextField
-      id="sql_server_table_name"
-      type="text"
-      placeholder="e.g. TABLE1"
-      label="Table name"
-      full-width
-    />
-    <span>Fires</span>
-    <BaseFormTextField
-      id="sql_server_trigger_name"
-      type="text"
-      placeholder="e.g. TRIGGER1"
-      label="Name SQL Server trigger"
-      full-width
-    />
-  </div>
-  <!-- ...if SELECT -->
-  <div
-    v-if="selectedOption === 'SELECT'"
-    class="flex flex-col gap-8 p-24 mb-8 text-center border border-l-grey-400 rounded-xl"
-  >
-    <span>On</span>
-    <BaseFormTextField
+      v-if="selectedValue === 'SELECT'"
       id="sql_server_view_name"
-      type="text"
-      placeholder="e.g. VIEW1"
-      label="Name SQL Server view"
-      full-width
+      label="On this View"
+      placeholder="YOUR_VIEW_NAME"
     />
-    <span>Fires</span>
     <BaseFormTextField
-      id="sql_server_function_name"
-      type="text"
-      placeholder="e.g. FUNCTION1"
-      label="Name SQL Server function"
-      full-width
+      v-else
+      id="sql_server_table_name"
+      label="On this Table"
+      placeholder="YOUR_TABLE_NAME"
     />
   </div>
   <BaseFormTextField
@@ -81,11 +87,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const selectedOption = ref('');
+const errorSqlServer = ref('');
+const selectedValue = ref('');
 
-const sqlActions = ['INSERT', 'DELETE', 'UPDATE', 'SELECT'];
-
-function handleSelectOption(option: string) {
-  selectedOption.value = option;
-}
+const handleSelectedValue = (value: string) => {
+  selectedValue.value = value;
+};
 </script>
