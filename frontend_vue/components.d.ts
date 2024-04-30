@@ -16,6 +16,7 @@ declare module 'vue' {
     BaseLinkDocumentation: typeof import('./src/components/base/BaseLinkDocumentation.vue')['default']
     BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
+    BaseRadioInput: typeof import('./src/components/base/BaseRadioInput.vue')['default']
     BaseRefreshButton: typeof import('./src/components/base/BaseRefreshButton.vue')['default']
     BaseSkeletonLoader: typeof import('./src/components/base/BaseSkeletonLoader.vue')['default']
     BaseSpinner: typeof import('./src/components/base/BaseSpinner.vue')['default']
