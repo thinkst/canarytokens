@@ -26,9 +26,13 @@
       :selected-token="selectedToken"
     />
     <BaseMessageBox
-      v-if="isSuspenseError"
+      v-if="isSuspenseError || isGenerateTokenError"
       variant="danger"
-      message="Oh no! Something went wrong. Please refresh the page or try again later."
+      class="my-16"
+      :message="
+        errorMessage ||
+        'Oh no! Something went wrong. Please refresh the page or try again later.'
+      "
     >
     </BaseMessageBox>
 
@@ -37,6 +41,7 @@
       <template v-if="modalType === ModalType.AddToken">
         <BaseButton
           variant="primary"
+          :loading="isLoadngSubmit"
           @click.stop="handleAddToken"
           >Create Token</BaseButton
         >
@@ -93,6 +98,9 @@ const newTokenResponse = ref<{
 });
 const triggerSubmit = ref(false);
 const isSuspenseError = ref(false);
+const isGenerateTokenError = ref(false);
+const errorMessage = ref('');
+const isLoadngSubmit = ref(false);
 
 const props = defineProps<{
   selectedToken: string;
@@ -131,10 +139,17 @@ function handleAddToken() {
 
 async function handleGenerateToken(formValues: BaseFormValuesType) {
   try {
+    isLoadngSubmit.value = true;
     const res = await generateToken({
       ...formValues,
       token_type: getTokenType.value,
     });
+    if (res.status !== 200 && res.status !== 201) {
+      isLoadngSubmit.value = false;
+      triggerSubmit.value = false;
+      errorMessage.value = res.data.error_message;
+      return (isGenerateTokenError.value = true);
+    }
     /* AZURE CONFIG Exception handler */
     /* Overwrite backend response for Azure ID Config token type */
     /* It's needed as Azure ID Config returns CSS Cloned Site */
@@ -142,12 +157,20 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
       ...res.data,
       token_type: props.selectedToken,
     };
-  } catch (err) {
-    triggerSubmit.value = false;
-    console.log(err, 'err');
-  } finally {
+
+    // remove errors & loading
+    isGenerateTokenError.value = false;
+    errorMessage.value = '';
+    isLoadngSubmit.value = false;
+
     triggerSubmit.value = false;
     modalType.value = ModalType.NewToken;
+  } catch (err) {
+    triggerSubmit.value = false;
+    isGenerateTokenError.value = true;
+    errorMessage.value = '';
+  } finally {
+    triggerSubmit.value = false;
   }
 }
 
