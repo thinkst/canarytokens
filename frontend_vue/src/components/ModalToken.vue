@@ -180,7 +180,11 @@ onErrorCaptured((err) => {
 
 // To cleanup the UI
 // Reset error on modal type change
-watch(modalType.value, () => {
-  isSuspenseError.value = false;
-});
+watch(
+  modalType,
+  () => {
+    isSuspenseError.value = false;
+  },
+  { deep: true }
+);
 </script>
