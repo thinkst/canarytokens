@@ -24,3 +24,13 @@ export function isValidFileType(
 ): string | boolean | undefined {
   return fileName && fileType.includes(fileName.split('.').pop() as string);
 }
+
+export function isObject(val: Record<string, string>) {
+  return val && typeof val === 'object';
+}
+
+export function formatKey(key: string) {
+  return key
+    .replace(/_([a-z])/g, (match, letter) => ` ${letter.toUpperCase()}`)
+    .replace(/^./, (firstChar) => firstChar.toUpperCase());
+}

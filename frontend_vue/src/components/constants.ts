@@ -66,3 +66,9 @@ export const INCIDENT_LIST_EXPORT = {
   JSON: 'incidentlist_json',
   CSV: 'incidentlist_csv',
 };
+
+export const INCIDENT_CHANNEL_TYPE_LABELS = {
+  aws_keys: 'AWS API Key Token',
+  cc: 'Credit Card Token',
+  azure_id: 'Azure Login Certificate Token',
+};

@@ -14,52 +14,20 @@
     </div>
     <div class="px-16">
       <!-- Red box with basic info-->
-      <section class="p-16 text-white rounded-md bg-red">
-        <h2 class="font-semibold">Incident info</h2>
-        <ul class="flex flex-col justify-between gap-24 mt-16 md:flex-row">
-          <li class="flex flex-col gap-2">
-            <span class="text-xs text-red-100">Date</span>
-            <span class="font-semibold"
-              >{{
-                convertUnixTimeStampToDate(props.hitAlert.time_of_hit)
-              }} </span
-            >
-          </li>
-          <li class="flex flex-col gap-2">
-            <span class="text-xs text-red-100">IP</span>
-            <span class="font-semibold">{{ props.hitAlert.geo_info.ip }}</span>
-          </li>
-          <li class="flex flex-col gap-2">
-            <span class="text-xs text-red-100">Channel</span>
-            <span class="font-semibold">{{ props.hitAlert.src_ip }}</span>
-          </li>
-        </ul>
-      </section>
+      <IncidentDetailsSummary :hit-alert="hitAlert" />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
         <template
-          v-for="(val, key) in props.hitAlert"
+          v-for="(val, key) in hitAlert"
           :key="key"
         >
           <h3 class="text-grey-500">
-            {{ key }}
+            {{ formatKey(key) }}
           </h3>
           <ul
             class="flex flex-col gap-16 pb-16 [&:not(:last-child)]:border-b md:ml-32 border-grey-100"
           >
-            <template v-if="typeof val === 'object'">
-              <li
-                v-for="(subval, subkey) in val"
-                :key="subkey"
-                class="break-words"
-              >
-                <span class="block text-xs uppercase text-grey-500">{{
-                  subkey
-                }}</span>
-                <span :class="highlightBoolean(val)">{{ subval }}</span>
-              </li>
-            </template>
-            <template v-else>
+            <template v-if="!isObject(val)">
               <li
                 :key="key"
                 :class="highlightBoolean(val)"
@@ -67,6 +35,30 @@
               >
                 {{ val }}
               </li>
+            </template>
+
+            <!-- first level nested object -->
+            <template v-else>
+              <ul
+                v-for="(subval, subkey) in val"
+                :key="subkey"
+                class="break-words"
+              >
+                <li v-if="!isObject(subval)">
+                  <span class="block text-xs uppercase text-grey-500">{{
+                    formatKey(subkey)
+                  }}</span>
+                  <span :class="highlightBoolean(val)">{{ subval }}</span>
+                </li>
+
+                <!-- second level nested object -->
+                <template v-else>
+                  <IncidentDetailsDeepNestedList
+                    :data="subval"
+                    :key-name="subkey"
+                  />
+                </template>
+              </ul>
             </template>
           </ul>
         </template>
@@ -77,11 +69,14 @@
 
 <script setup lang="ts">
 import type { HitsType } from '@/components/tokens/types.ts';
-import { convertUnixTimeStampToDate } from '@/utils/utils';
+// import { convertUnixTimeStampToDate } from '@/utils/utils';
+import IncidentDetailsDeepNestedList from '@/components/ui/IncidentDetailsDeepNestedList.vue';
+import IncidentDetailsSummary from '@/components/ui/IncidentDetailsSummary.vue';
+import { isObject, formatKey } from '@/utils/utils';
 
-const props = defineProps<{
-  hitAlert: HitsType;
-}>();
+// defineProps<{
+//   hitAlert: HitsType;
+// }>();
 
 const emit = defineEmits(['close']);
 
@@ -90,6 +85,35 @@ function highlightBoolean(val: boolean | HitsType | undefined) {
     return val ? 'text-green' : 'text-red';
   }
 }
+
+const hitAlert = {
+  time_of_hit: 0,
+  src_ip: '123.123.123.123',
+  geo_info: {
+    loc: [],
+    org: 'string',
+    city: 'string',
+    country: 'string',
+    region: 'string',
+    hostname: 'string',
+    ip: 'string',
+    timezone: 'string',
+    postal: 'string',
+    asn: {
+      route: 'string',
+      type: 'string',
+      asn: 'string',
+      domain: 'string',
+      name: 'string',
+    },
+    readme: 'string',
+  },
+  is_tor_relay: true,
+  input_channel: 'HTML',
+  src_data: {},
+  useragent: 'string',
+  token_type: 'cc',
+};
 </script>
 
 <style scoped>
