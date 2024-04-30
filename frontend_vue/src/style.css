@@ -1,4 +1,5 @@
 @import url('./assets/fonts/typography.css');
+@import "vue-select/dist/vue-select.css";
 
 @tailwind base;
 @tailwind components;
