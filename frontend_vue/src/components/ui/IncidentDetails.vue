@@ -18,7 +18,9 @@
         v-if="builtIncidentDetail"
         :date="builtIncidentDetail?.time_of_hit"
         :ip="builtIncidentDetail.src_ip"
-        :input-channel="builtIncidentDetail.basic_info.input_channel"
+        :input-channel="
+          (builtIncidentDetail as FormattedHitsType).basic_info.input_channel
+        "
       />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
@@ -38,25 +40,25 @@
             />
             <template v-else>
               <ul
-                v-for="(subval, subkey) in val"
-                :key="subkey"
+                v-for="(nested_val, nested_key) in val"
+                :key="nested_key"
                 class="break-words"
               >
                 <IncidentDetailsListItem
-                  v-if="!isObject(subval)"
-                  :label="subkey"
-                  :value="subval"
+                  v-if="!isObject(nested_val)"
+                  :label="nested_key"
+                  :value="nested_val"
                 />
                 <template v-else>
                   <ul class="ml-24">
-                    <h3 class="text-grey-500">{{ subkey }}:</h3>
+                    <h3 class="text-grey-500">{{ nested_key }}:</h3>
                     <template
-                      v-for="(subsubval, subsubkey) in subval"
-                      :key="subsubkey"
+                      v-for="(deepnested_val, deepnested_key) in nested_val"
+                      :key="deepnested_key"
                     >
                       <IncidentDetailsListItem
-                        :label="subsubkey"
-                        :value="subsubval"
+                        :label="deepnested_key"
+                        :value="deepnested_val"
                       />
                     </template>
                   </ul>
@@ -89,7 +91,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['close']);
-const builtIncidentDetail: Ref<FormattedHitsType | null> = ref(null);
+const builtIncidentDetail: Ref<FormattedHitsType | HitsType | null> = ref(null);
 const formattedIncidentDetail = ref({});
 
 onMounted(() => {
@@ -103,37 +105,7 @@ onMounted(() => {
   formattedIncidentDetail.value = formatLabels(
     builtIncidentDetail.value as FormattedHitsType
   );
-  console.log(formattedIncidentDetail.value, 'uiFriendlyIncidentDetail');
 });
-
-// const hitAlert = {
-//   time_of_hit: 0,
-//   src_ip: '123.123.123.123',
-//   geo_info: {
-//     loc: [],
-//     org: 'string',
-//     city: 'string',
-//     country: 'string',
-//     region: 'string',
-//     hostname: 'string',
-//     ip: 'string',
-//     timezone: 'string',
-//     postal: 'string',
-//     asn: {
-//       route: 'string',
-//       type: 'string',
-//       asn: 'string',
-//       domain: 'string',
-//       name: 'string',
-//     },
-//     readme: 'string',
-//   },
-//   is_tor_relay: true,
-//   input_channel: 'HTML',
-//   src_data: {},
-//   useragent: 'string',
-//   token_type: 'aws_keys',
-// };
 </script>
 
 <style scoped>

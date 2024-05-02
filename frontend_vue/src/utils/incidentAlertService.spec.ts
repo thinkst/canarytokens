@@ -4,10 +4,9 @@ import {
 } from './incidentAlertService';
 
 describe('formatLabels', () => {
-  it('should format incident details object correctly', () => {
+  it('should remove underscores and capitalize the first letter of each key', () => {
     const incidentDetails = {
       geo_info: {
-        org: 'string',
         city: 'string',
         something_else: 'value',
       },
@@ -17,12 +16,42 @@ describe('formatLabels', () => {
 
     const expectedResult = {
       'Geo info': {
-        Organisation: 'string',
         City: 'string',
         'Something else': 'value',
       },
       'Tor Known Exit Node': true,
       'Token type': 'aws_keys',
+    };
+
+    // @ts-ignore
+    const result = formatLabels(incidentDetails);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should replace labels with custom labels if they exist', () => {
+    const incidentDetails = {
+      org: 'something',
+      is_tor_relay: 'something',
+      aws_keys: '1234',
+      useragent: 'something',
+      src_port: 'something',
+      session_index: '1234',
+      cmd_user_name: 'something',
+      cmd_computer_name: 'something',
+      last_used: 'something',
+    };
+
+    const expectedResult = {
+      'AWS Access Key ID': '1234',
+      'Client Handshake ID': '1234',
+      'Client Source Port': 'something',
+      'Computer executing command': 'something',
+      'Key Last Used': 'something',
+      Organisation: 'something',
+      'Tor Known Exit Node': 'something',
+      'User executing command': 'something',
+      'User-agent': 'something',
     };
 
     // @ts-ignore

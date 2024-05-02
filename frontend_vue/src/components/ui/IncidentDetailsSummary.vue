@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  date: string;
+  date: string | number;
   ip: string;
   inputChannel: string;
 }>();

@@ -83,6 +83,5 @@ export const INCIDENT_DETAIL_CUSTOM_LABELS = {
   session_index: 'Client Handshake ID',
   cmd_user_name: 'User executing command',
   cmd_computer_name: 'Computer executing command',
-  secretkeeper_photo: 'Photo',
-  last_used: ' Key Last Used',
+  last_used: 'Key Last Used',
 };

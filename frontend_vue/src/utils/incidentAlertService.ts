@@ -36,21 +36,29 @@ function formatKey(string: string) {
  * Formats the incident details object by applying custom labels and formatting keys.
  */
 export function formatLabels(incidentDetails: FormattedHitsType) {
-  return Object.entries(incidentDetails).reduce((acc, [key, val]) => {
-    const formattedKey = INCIDENT_DETAIL_CUSTOM_LABELS.hasOwnProperty(key)
-      ? INCIDENT_DETAIL_CUSTOM_LABELS[key]
-      : formatKey(key);
+  try {
+    return Object.entries(incidentDetails).reduce(
+      (acc: Record<string, unknown>, [key, val]) => {
+        const formattedKey = INCIDENT_DETAIL_CUSTOM_LABELS.hasOwnProperty(key)
+          ? INCIDENT_DETAIL_CUSTOM_LABELS[
+              key as keyof typeof INCIDENT_DETAIL_CUSTOM_LABELS
+            ]
+          : formatKey(key);
 
-    if (typeof val === 'object' && val !== null) {
-      acc[formattedKey] = formatLabels(val as Record<string, unknown>);
-    } else {
-      acc[formattedKey] = val;
-    }
+        if (typeof val === 'object' && val !== null) {
+          acc[formattedKey] = formatLabels(val as GeoInfo);
+        } else {
+          acc[formattedKey] = val;
+        }
 
-    return acc;
-  }, {});
-
-  //   return formatNestedObject(incidentDetails);
+        return acc;
+      },
+      {}
+    );
+  } catch (error) {
+    console.error(`Error in formatting labels: ${error}`);
+    return incidentDetails;
+  }
 }
 
 /**
@@ -58,28 +66,33 @@ export function formatLabels(incidentDetails: FormattedHitsType) {
  * or if all nested keys and values are removed.
  */
 export function removeNullEmptyObjectsAndArrays(
-  obj: FormattedHitsType
+  incidentDetails: FormattedHitsType
 ): FormattedHitsType {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    if (
-      value !== null &&
-      value !== undefined &&
-      !(typeof value === 'object' && Object.keys(value).length === 0) &&
-      !(Array.isArray(value) && value.length === 0)
-    ) {
-      if (typeof value === 'object') {
-        const nestedObj = removeNullEmptyObjectsAndArrays(
-          value as Record<string, unknown>
-        );
-        if (Object.keys(nestedObj).length !== 0) {
-          acc[key] = nestedObj;
+  try {
+    return Object.entries(incidentDetails).reduce((acc, [key, value]) => {
+      if (
+        value !== null &&
+        value !== undefined &&
+        !(typeof value === 'object' && Object.keys(value).length === 0) &&
+        !(Array.isArray(value) && value.length === 0)
+      ) {
+        if (typeof value === 'object') {
+          const nestedObj = removeNullEmptyObjectsAndArrays(
+            value as FormattedHitsType
+          );
+          if (Object.keys(nestedObj).length !== 0) {
+            acc[key] = nestedObj;
+          }
+        } else {
+          acc[key] = value;
         }
-      } else {
-        acc[key] = value;
       }
-    }
-    return acc;
-  }, {} as FormattedHitsType);
+      return acc;
+    }, {} as FormattedHitsType);
+  } catch (error) {
+    console.error(`Error in remove Null, Empty Objects and Arrays: ${error}`);
+    return incidentDetails;
+  }
 }
 
 function isCreditCardtoken(token: string) {
@@ -90,74 +103,74 @@ function isAWStoken(token: string) {
   return token === TOKENS_TYPE.AWS_KEYS;
 }
 
-// TODO what is this doing?
-// function appendGeoInfo(id, info) {
-//   geo_info[id] = info;
-// }
-
-export function buildIncidentDetails(hitAlert: HitsType): FormattedHitsType {
-  const incidentDetails = {
-    time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
-    src_ip: hitAlert.src_ip,
-    geo_info: !hitAlert.geo_info.bogon
-      ? {
-          loc: hitAlert.geo_info.loc,
-          org: hitAlert.geo_info.org,
-          city: hitAlert.geo_info.city,
-          country: hitAlert.geo_info.country,
-          region: hitAlert.geo_info.region,
-          hostname: hitAlert.geo_info.hostname,
-          ip: hitAlert.geo_info.ip,
-          timezone: hitAlert.geo_info.timezone,
-          postal: hitAlert.geo_info.postal,
-          // TODO: check what's this doing?
-          // appendGeoInfo
-          asn: hitAlert.geo_info.asn
-            ? {
-                route: hitAlert.geo_info.asn.route,
-                type: hitAlert.geo_info.asn.type,
-                asn: hitAlert.geo_info.asn.asn,
-                domain: hitAlert.geo_info.asn.domain,
-                name: hitAlert.geo_info.asn.name,
-              }
-            : null,
-          readme: hitAlert.geo_info.readme,
-        }
-      : {
-          ip: hitAlert.geo_info.ip,
-          bogon: hitAlert.geo_info.bogon,
-        },
-    is_tor_relay: !isCreditCardtoken(hitAlert.token_type)
-      ? hitAlert.is_tor_relay
-      : null,
-    basic_info: {
-      // TODO: add token, memo
-      token_type: hitAlert.token_type,
-      input_channel: hasChannelCustomLabel(hitAlert.input_channel),
-      src_data: hitAlert.src_data,
-      useragent: hitAlert.useragent,
-      last4: hitAlert.last4,
-      amount: hitAlert.amount,
-      merchant: hitAlert.merchant,
-      mail: hitAlert.mail,
-      referer: hitAlert.referer,
-      location: hitAlert.location,
-    },
-    additional_info: {
-      ...hitAlert.additional_info,
-      aws_key_log_data: isAWStoken(hitAlert.token_type)
+export function buildIncidentDetails(
+  hitAlert: HitsType
+): FormattedHitsType | HitsType {
+  try {
+    const incidentDetails = {
+      time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
+      src_ip: hitAlert.src_ip,
+      geo_info: !hitAlert.geo_info.bogon
         ? {
-            last_used: hitAlert.additional_info.aws_key_log_data.last_used
-              ? new Date(
-                  Number(hitAlert.additional_info.aws_key_log_data.last_used)
-                )
+            loc: hitAlert.geo_info.loc,
+            org: hitAlert.geo_info.org,
+            city: hitAlert.geo_info.city,
+            country: hitAlert.geo_info.country,
+            region: hitAlert.geo_info.region,
+            hostname: hitAlert.geo_info.hostname,
+            ip: hitAlert.geo_info.ip,
+            timezone: hitAlert.geo_info.timezone,
+            postal: hitAlert.geo_info.postal,
+            asn: hitAlert.geo_info.asn
+              ? {
+                  route: hitAlert.geo_info.asn.route,
+                  type: hitAlert.geo_info.asn.type,
+                  asn: hitAlert.geo_info.asn.asn,
+                  domain: hitAlert.geo_info.asn.domain,
+                  name: hitAlert.geo_info.asn.name,
+                }
               : null,
-            service_used:
-              hitAlert.additional_info.aws_key_log_data.service_used,
+            readme: hitAlert.geo_info.readme,
           }
+        : {
+            ip: hitAlert.geo_info.ip,
+            bogon: hitAlert.geo_info.bogon,
+          },
+      is_tor_relay: !isCreditCardtoken(hitAlert.token_type)
+        ? hitAlert.is_tor_relay
         : null,
-    },
-  };
+      basic_info: {
+        // TODO: add token memo
+        token_type: hitAlert.token_type,
+        input_channel: hasChannelCustomLabel(hitAlert.input_channel),
+        src_data: hitAlert.src_data,
+        useragent: hitAlert.useragent,
+        last4: hitAlert.last4,
+        amount: hitAlert.amount,
+        merchant: hitAlert.merchant,
+        mail: hitAlert.mail,
+        referer: hitAlert.referer,
+        location: hitAlert.location,
+      },
+      additional_info: {
+        ...hitAlert.additional_info,
+        aws_key_log_data: isAWStoken(hitAlert.token_type)
+          ? {
+              last_used: hitAlert.additional_info.aws_key_log_data.last_used
+                ? new Date(
+                    Number(hitAlert.additional_info.aws_key_log_data.last_used)
+                  )
+                : null,
+              service_used:
+                hitAlert.additional_info.aws_key_log_data.service_used,
+            }
+          : null,
+      },
+    };
 
-  return incidentDetails;
+    return incidentDetails;
+  } catch (error) {
+    console.error(`Error in building the Incident Details object: ${error}`);
+    return hitAlert;
+  }
 }

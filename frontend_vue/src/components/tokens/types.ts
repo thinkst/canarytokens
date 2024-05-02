@@ -126,7 +126,7 @@ export type NewTokenBackendType = {
   client_id: string | null;
 };
 
-type AsnType = {
+export type AsnType = {
   route: string;
   type: string;
   asn: string;
@@ -134,36 +134,36 @@ type AsnType = {
   name: string;
 };
 
-type GeoInfo = {
-  loc: string;
-  org: string;
-  city: string;
-  country: string;
-  region: string;
-  hostname: string;
-  ip: string;
-  timezone: string;
-  postal: string;
-  asn: null | AsnType;
-  readme: string;
-  bogon: string | null;
+export type GeoInfo = {
+  loc?: string;
+  org?: string;
+  city?: string;
+  country?: string;
+  region?: string;
+  hostname?: string;
+  ip?: string;
+  timezone?: string;
+  postal?: string;
+  asn?: null | AsnType;
+  readme?: string;
+  bogon?: string | null;
 };
 
-type RequestHeaders = Record<string, string>;
+export type RequestHeaders = Record<string, string>;
 
-type AWSLogDataType = {
+export type AWSLogDataType = {
   last_used: string | null;
   service_used: string | null;
 };
 
-interface AdditionalInfo {
+export type AdditionalInfoType = {
   javascript: null | string;
   browser: null | string;
   mysql_client: null | string;
   r: null | string;
   l: null | string;
   aws_key_log_data: AWSLogDataType;
-}
+};
 
 export type HitsType = {
   time_of_hit: number;
@@ -176,7 +176,7 @@ export type HitsType = {
   token_type: string;
   request_headers: RequestHeaders;
   request_args: Record<string, any>;
-  additional_info: AdditionalInfo;
+  additional_info: AdditionalInfoType;
   last4: string | null;
   amount: string | null;
   merchant: string | null;
@@ -188,26 +188,7 @@ export type HitsType = {
 export type FormattedHitsType = {
   time_of_hit: string;
   src_ip: string;
-  geo_info: {
-    loc?: string;
-    org?: string;
-    city?: string;
-    country?: string;
-    region?: string;
-    hostname?: string;
-    ip: string;
-    timezone?: string;
-    postal?: string;
-    asn?: {
-      route: string;
-      type: string;
-      asn: string;
-      domain: string;
-      name: string;
-    } | null;
-    readme?: string;
-    bogon?: boolean | string | null;
-  };
+  geo_info: GeoInfo;
   is_tor_relay: boolean | null;
   basic_info: {
     token_type: string;
