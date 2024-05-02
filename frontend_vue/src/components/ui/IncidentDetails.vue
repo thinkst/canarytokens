@@ -13,50 +13,54 @@
       </button>
     </div>
     <div class="px-16">
-      <!-- Red box with basic info-->
-      <IncidentDetailsSummary :hit-alert="hitAlert" />
+      <!-- Red box with Summary -->
+      <IncidentDetailsSummary
+        v-if="builtIncidentDetail"
+        :date="builtIncidentDetail?.time_of_hit"
+        :ip="builtIncidentDetail.src_ip"
+        :input-channel="builtIncidentDetail.basic_info.input_channel"
+      />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
         <template
-          v-for="(val, key) in hitAlert"
+          v-for="(val, key) in formattedIncidentDetail"
           :key="key"
         >
           <h3 class="text-grey-500">
-            {{ formatKey(key) }}
+            {{ key }}
           </h3>
           <ul
             class="flex flex-col gap-16 pb-16 [&:not(:last-child)]:border-b md:ml-32 border-grey-100"
           >
-            <template v-if="!isObject(val)">
-              <li
-                :key="key"
-                :class="highlightBoolean(val)"
-                class="break-words"
-              >
-                {{ val }}
-              </li>
-            </template>
-
-            <!-- first level nested object -->
+            <IncidentDetailsListItem
+              v-if="!isObject(val)"
+              :value="val"
+            />
             <template v-else>
               <ul
                 v-for="(subval, subkey) in val"
                 :key="subkey"
                 class="break-words"
               >
-                <li v-if="!isObject(subval)">
-                  <span class="block text-xs uppercase text-grey-500">{{
-                    formatKey(subkey)
-                  }}</span>
-                  <span :class="highlightBoolean(val)">{{ subval }}</span>
-                </li>
-
-                <!-- second level nested object -->
+                <IncidentDetailsListItem
+                  v-if="!isObject(subval)"
+                  :label="subkey"
+                  :value="subval"
+                />
                 <template v-else>
-                  <IncidentDetailsDeepNestedList
-                    :data="subval"
-                    :key-name="subkey"
-                  />
+                  <ul class="ml-24">
+                    <h3 class="text-grey-500">{{ subkey }}:</h3>
+                    <template
+                      v-for="(subsubval, subsubkey) in subval"
+                      :key="subsubkey"
+                    >
+                      <IncidentDetailsListItem
+                        :label="subsubkey"
+                        :value="subsubval"
+                      />
+                    </template>
+                  </ul>
+                  <div class="border-b border-grey-100"></div>
                 </template>
               </ul>
             </template>
@@ -68,52 +72,68 @@
 </template>
 
 <script setup lang="ts">
-import type { HitsType } from '@/components/tokens/types.ts';
-// import { convertUnixTimeStampToDate } from '@/utils/utils';
-import IncidentDetailsDeepNestedList from '@/components/ui/IncidentDetailsDeepNestedList.vue';
+import { ref, onMounted } from 'vue';
+import type { Ref } from 'vue';
+import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
+import IncidentDetailsListItem from '@/components/ui/IncidentDetailsListItem.vue';
 import IncidentDetailsSummary from '@/components/ui/IncidentDetailsSummary.vue';
-import { isObject, formatKey } from '@/utils/utils';
+import { isObject } from '@/utils/utils';
+import {
+  formatLabels,
+  removeNullEmptyObjectsAndArrays,
+  buildIncidentDetails,
+} from '@/utils/incidentAlertService';
 
-// defineProps<{
-//   hitAlert: HitsType;
-// }>();
+const props = defineProps<{
+  hitAlert: HitsType;
+}>();
 
 const emit = defineEmits(['close']);
+const builtIncidentDetail: Ref<FormattedHitsType | null> = ref(null);
+const formattedIncidentDetail = ref({});
 
-function highlightBoolean(val: boolean | HitsType | undefined) {
-  if (typeof val === 'boolean') {
-    return val ? 'text-green' : 'text-red';
-  }
-}
+onMounted(() => {
+  // Map & cleanup hitAlert
+  builtIncidentDetail.value = buildIncidentDetails(props.hitAlert);
+  builtIncidentDetail.value = removeNullEmptyObjectsAndArrays(
+    builtIncidentDetail.value as FormattedHitsType
+  );
 
-const hitAlert = {
-  time_of_hit: 0,
-  src_ip: '123.123.123.123',
-  geo_info: {
-    loc: [],
-    org: 'string',
-    city: 'string',
-    country: 'string',
-    region: 'string',
-    hostname: 'string',
-    ip: 'string',
-    timezone: 'string',
-    postal: 'string',
-    asn: {
-      route: 'string',
-      type: 'string',
-      asn: 'string',
-      domain: 'string',
-      name: 'string',
-    },
-    readme: 'string',
-  },
-  is_tor_relay: true,
-  input_channel: 'HTML',
-  src_data: {},
-  useragent: 'string',
-  token_type: 'cc',
-};
+  // Make the list UI friendly
+  formattedIncidentDetail.value = formatLabels(
+    builtIncidentDetail.value as FormattedHitsType
+  );
+  console.log(formattedIncidentDetail.value, 'uiFriendlyIncidentDetail');
+});
+
+// const hitAlert = {
+//   time_of_hit: 0,
+//   src_ip: '123.123.123.123',
+//   geo_info: {
+//     loc: [],
+//     org: 'string',
+//     city: 'string',
+//     country: 'string',
+//     region: 'string',
+//     hostname: 'string',
+//     ip: 'string',
+//     timezone: 'string',
+//     postal: 'string',
+//     asn: {
+//       route: 'string',
+//       type: 'string',
+//       asn: 'string',
+//       domain: 'string',
+//       name: 'string',
+//     },
+//     readme: 'string',
+//   },
+//   is_tor_relay: true,
+//   input_channel: 'HTML',
+//   src_data: {},
+//   useragent: 'string',
+//   token_type: 'aws_keys',
+// };
 </script>
 
 <style scoped>
