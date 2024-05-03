@@ -14,7 +14,7 @@ type TokenServicesType = {
 
 export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.WEB_BUG]: {
-    label: 'Web Bug',
+    label: 'Web bug',
     description: 'Get an alert when an attacker visits a URL.',
     documentationLink: 'https://docs.canarytokens.org/guide/http-token.html',
     icon: `${TOKENS_TYPE.WEB_BUG}.png`,
@@ -28,7 +28,7 @@ export const tokenServices: TokenServicesType = {
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.QRCODE]: {
-    label: 'QR Code',
+    label: 'QR code',
     description: 'Get an alert when an attacker follows your QR Code.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.QRCODE}.png`,
@@ -52,7 +52,7 @@ export const tokenServices: TokenServicesType = {
       'Copy this credential pair to your clipboard to use as desired:',
   },
   [TOKENS_TYPE.LOG4SHELL]: {
-    label: 'Log4Shell',
+    label: 'Log4shell',
     description:
       'Get an alert when a log4j logline is vulnerable to CVW-2021-44-228.',
     documentationLink: '#',
