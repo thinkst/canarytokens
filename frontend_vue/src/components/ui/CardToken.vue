@@ -1,7 +1,7 @@
 <template>
   <li class="relative flex">
     <button
-      class="relative border flex-1 group flex flex-col px-24 py-32 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out token-card"
+      class="relative border flex-1 group flex flex-col px-24 py-32 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey-sm border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"
     >
       <div v-if="isLoading">
@@ -28,11 +28,19 @@
       >
         <font-awesome-icon
           icon="arrow-right"
-          class="text-green-500"
+          class="hidden text-green-500 sm:block"
           aria-hidden="true"
         />
-        <span class="fa-sr-only">Add {{ title }}</span>
+        <span class="hidden fa-sr-only sm:block">Add {{ title }}</span>
       </span>
+      <span
+        class="flex flex-row items-center gap-8 mt-24 font-semibold text-green-600 sm:hidden"
+        >Add Canarytoken
+        <font-awesome-icon
+          icon="arrow-right"
+          class="text-green-500"
+          aria-hidden="true"
+      /></span>
     </button>
 
     <BaseLinkDocumentation
@@ -89,11 +97,11 @@ function handleClickToken() {
 .token-card:hover + .token-card__documentation-link,
 .token-card:focus + .token-card__documentation-link,
 .token-card:focus-visible + .token-card__documentation-link {
-  top: -0.2em;
+  /* top: -0.2em; */
 }
 
 .token-card:hover,
 .token-card:focus {
-  @apply border-green top-[-0.45em] shadow-solid-shadow-green-500-md;
+  @apply border-green shadow-solid-shadow-green-500-sm bg-green-50;
 }
 </style>

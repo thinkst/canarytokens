@@ -1,21 +1,5 @@
 <template>
-  <BaseFormTextField
-    id="email"
-    type="text"
-    placeholder="Email"
-    label="Email"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <BaseFormTextField
-    id="webhook_url"
-    type="text"
-    placeholder="URL"
-    label="URL"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <div class="relative">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseFormTextField
       id="cmd_process"
       type="text"
@@ -24,15 +8,12 @@
       helper-message="Add a .exe exstension, e.g klist.exe"
       full-width
     />
-  </div>
-  <BaseFormTextField
-    id="memo"
-    label="Add Note"
-    multiline
-    required
-    full-width
-    helper-message="Reminder note when this token is triggered. For instance: Reg file for detection sensitive command execution"
-  ></BaseFormTextField>
+  </BaseGenerateTokenSettings>
+  <GenerateTokenSettingsNotifications
+    memo-helper-example="Reg file for detection sensitive command execution"
+  />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
+</script>
