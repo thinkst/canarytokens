@@ -2,7 +2,7 @@
   <li class="w-full">
     <button
       v-bind="$attrs"
-      class="text-grey-700 flex flex-row gap-16 relative border grouped flex-1 group px-16 py-8 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 items-center duration-100 ease-in-out error-card w-full"
+      class="relative flex flex-row items-center flex-1 w-full gap-16 px-16 py-8 bg-white border text-grey-700 grouped group rounded-xl shadow-solid-shadow-grey border-grey-200 error-card"
       @click.stop="handleClickError"
     >
       <AlertShieldIcon
@@ -44,11 +44,8 @@ function handleClickError() {
 
 <style scoped>
 .error-card:hover,
-.error-card:focus {
-  @apply border-red top-[-0.45em] shadow-solid-shadow-red;
-}
-
+.error-card:focus,
 .error-card:active {
-  @apply border-red top-[0em] shadow-none;
+  @apply border-red shadow-solid-shadow-red;
 }
 </style>
