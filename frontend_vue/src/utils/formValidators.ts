@@ -15,13 +15,15 @@ type ValidateSchemaType = {
 };
 
 const validationMessages = {
-  provideEmailOrUrl: 'Provide at least a valid email or a webhook URL',
+  validEmail: 'It must be a valid email',
   provideMemo: 'Memo is a required field',
   provideEmail: 'Provide a valid email',
 };
 
 const validationNotificationSettings = {
-  email: Yup.string().email().required(validationMessages.provideEmail),
+  email: Yup.string()
+    .email(validationMessages.validEmail)
+    .required(validationMessages.provideEmail),
   memo: Yup.string().required(validationMessages.provideMemo),
 };
 
