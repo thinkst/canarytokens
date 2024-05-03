@@ -50,7 +50,7 @@
                   :value="nested_val"
                 />
                 <template v-else>
-                  <ul class="ml-24">
+                  <ul>
                     <h3 class="text-grey-500">{{ nested_key }}:</h3>
                     <template
                       v-for="(deepnested_val, deepnested_key) in nested_val"
@@ -59,6 +59,7 @@
                       <IncidentDetailsListItem
                         :label="deepnested_key"
                         :value="deepnested_val"
+                        class="py-8 ml-24"
                       />
                     </template>
                   </ul>

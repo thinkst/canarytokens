@@ -146,30 +146,30 @@ export type GeoInfo = {
   postal?: string;
   asn?: null | AsnType;
   readme?: string;
-  bogon?: string | null;
+  bogon?: boolean | null;
 };
 
 export type RequestHeaders = Record<string, string>;
 
 export type AWSLogDataType = {
-  last_used: Date | null;
+  last_used: Date | number | null;
   service_used: string;
 };
 
 export type AdditionalInfoType = {
   javascript?: null | string;
-  browser: null | string;
-  mysql_client: null | string;
-  r: null | string;
-  l: null | string;
-  aws_key_log_data: AWSLogDataType | null;
+  browser?: null | string;
+  mysql_client?: null | string;
+  r?: null | string;
+  l?: null | string;
+  aws_key_log_data?: AWSLogDataType | null;
 };
 
 type BaiscInfoType = {
   token_type: string;
   input_channel: string;
   src_data: string;
-  useragent: string;
+  useragent: string | null;
   last4: string | null;
   amount: string | null;
   merchant: string | null;
@@ -185,27 +185,27 @@ export type HitsType = {
   is_tor_relay: boolean;
   input_channel: string;
   src_data: null | any;
-  useragent: string;
+  useragent: string | null;
   token_type: string;
-  request_headers: RequestHeaders;
-  request_args: Record<string, any>;
+  request_headers?: RequestHeaders;
+  request_args?: Record<string, any>;
   additional_info: AdditionalInfoType;
-  last4: string | null;
-  amount: string | null;
-  merchant: string | null;
-  mail: string | null;
-  referer: string | null;
-  location: string | null;
+  last4?: string | null;
+  amount?: string | null;
+  merchant?: string | null;
+  mail?: string | null;
+  referer?: string | null;
+  location?: string | null;
 };
 
 export type FormattedHitsType = {
-  // [key: string]:
-  //   | string
-  //   | boolean
-  //   | null
-  //   | GeoInfo
-  //   | BaiscInfoType
-  //   | AdditionalInfoType;
+  [key: string]:
+    | string
+    | boolean
+    | null
+    | GeoInfo
+    | BaiscInfoType
+    | AdditionalInfoType;
   time_of_hit: string;
   src_ip: string;
   geo_info: GeoInfo;
