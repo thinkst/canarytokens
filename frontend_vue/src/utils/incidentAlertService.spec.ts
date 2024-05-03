@@ -1,6 +1,7 @@
 import {
   formatLabels,
   removeNullEmptyObjectsAndArrays,
+  formatTokenTypeLabel,
 } from './incidentAlertService';
 
 describe('formatLabels', () => {
@@ -91,5 +92,25 @@ describe('removeNullEmptyObjectsAndArrays', () => {
     const result = removeNullEmptyObjectsAndArrays(incidentDetails);
 
     expect(result).toEqual(expectedResult);
+  });
+});
+
+describe('formatTokenTypeLabel', () => {
+  it('should return the label of the provided token', () => {
+    const mockToken = 'azure_id_config';
+    const expectedLabel = 'Azure Entra Config ID';
+
+    const result = formatTokenTypeLabel(mockToken);
+
+    expect(result).toBe(expectedLabel);
+  });
+
+  it('should handle unknown tokens gracefully', () => {
+    const mockToken = 'unknown_token';
+    const expectedLabel = 'unknown_token';
+
+    const result = formatTokenTypeLabel(mockToken);
+
+    expect(result).toBe(expectedLabel);
   });
 });

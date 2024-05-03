@@ -152,17 +152,30 @@ export type GeoInfo = {
 export type RequestHeaders = Record<string, string>;
 
 export type AWSLogDataType = {
-  last_used: string | null;
-  service_used: string | null;
+  last_used: Date | null;
+  service_used: string;
 };
 
 export type AdditionalInfoType = {
-  javascript: null | string;
+  javascript?: null | string;
   browser: null | string;
   mysql_client: null | string;
   r: null | string;
   l: null | string;
-  aws_key_log_data: AWSLogDataType;
+  aws_key_log_data: AWSLogDataType | null;
+};
+
+type BaiscInfoType = {
+  token_type: string;
+  input_channel: string;
+  src_data: string;
+  useragent: string;
+  last4: string | null;
+  amount: string | null;
+  merchant: string | null;
+  mail: string | null;
+  referer: string | null;
+  location: string | null;
 };
 
 export type HitsType = {
@@ -186,29 +199,19 @@ export type HitsType = {
 };
 
 export type FormattedHitsType = {
+  // [key: string]:
+  //   | string
+  //   | boolean
+  //   | null
+  //   | GeoInfo
+  //   | BaiscInfoType
+  //   | AdditionalInfoType;
   time_of_hit: string;
   src_ip: string;
   geo_info: GeoInfo;
   is_tor_relay: boolean | null;
-  basic_info: {
-    token_type: string;
-    input_channel: string;
-    src_data: string;
-    useragent: string;
-    last4: string | null;
-    amount: string | null;
-    merchant: string | null;
-    mail: string | null;
-    referer: string | null;
-    location: string | null;
-  };
-  additional_info: {
-    [key: string]: any; // For additional_info fields with dynamic keys and values
-    aws_key_log_data: {
-      last_used: Date | null;
-      service_used: string | null;
-    } | null;
-  };
+  basic_info: BaiscInfoType;
+  additional_info: AdditionalInfoType;
 };
 
 export type HistoryTokenBackendType = {

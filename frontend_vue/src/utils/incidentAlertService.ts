@@ -1,6 +1,6 @@
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
-
+import { tokenServices } from './tokenServices';
 import {
   TOKENS_TYPE,
   INCIDENT_CHANNEL_TYPE_LABELS,
@@ -35,7 +35,9 @@ function formatKey(string: string) {
 /**
  * Formats the incident details object by applying custom labels and formatting keys.
  */
-export function formatLabels(incidentDetails: FormattedHitsType) {
+export function formatLabels(
+  incidentDetails: FormattedHitsType | keyof FormattedHitsType
+) {
   try {
     return Object.entries(incidentDetails).reduce(
       (acc: Record<string, unknown>, [key, val]) => {
@@ -46,7 +48,9 @@ export function formatLabels(incidentDetails: FormattedHitsType) {
           : formatKey(key);
 
         if (typeof val === 'object' && val !== null) {
-          acc[formattedKey] = formatLabels(val as GeoInfo);
+          acc[formattedKey] = formatLabels(
+            val as unknown as keyof FormattedHitsType
+          );
         } else {
           acc[formattedKey] = val;
         }
@@ -59,6 +63,16 @@ export function formatLabels(incidentDetails: FormattedHitsType) {
     console.error(`Error in formatting labels: ${error}`);
     return incidentDetails;
   }
+}
+
+/**
+ * Formats the label of a token type based on the given token.
+ */
+export function formatTokenTypeLabel(token: string) {
+  const token_const: string | undefined = Object.values(TOKENS_TYPE).find(
+    (value) => value === token
+  );
+  return token_const ? tokenServices[token_const].label : token;
 }
 
 /**
@@ -80,8 +94,8 @@ export function removeNullEmptyObjectsAndArrays(
           const nestedObj = removeNullEmptyObjectsAndArrays(
             value as FormattedHitsType
           );
-          if (Object.keys(nestedObj).length !== 0) {
-            acc[key] = nestedObj;
+          if (Object.keys(nestedObj).length > 0) {
+            acc[key] = nestedObj as Record<string, string>;
           }
         } else {
           acc[key] = value;
@@ -112,25 +126,7 @@ export function buildIncidentDetails(
       src_ip: hitAlert.src_ip,
       geo_info: !hitAlert.geo_info.bogon
         ? {
-            loc: hitAlert.geo_info.loc,
-            org: hitAlert.geo_info.org,
-            city: hitAlert.geo_info.city,
-            country: hitAlert.geo_info.country,
-            region: hitAlert.geo_info.region,
-            hostname: hitAlert.geo_info.hostname,
-            ip: hitAlert.geo_info.ip,
-            timezone: hitAlert.geo_info.timezone,
-            postal: hitAlert.geo_info.postal,
-            asn: hitAlert.geo_info.asn
-              ? {
-                  route: hitAlert.geo_info.asn.route,
-                  type: hitAlert.geo_info.asn.type,
-                  asn: hitAlert.geo_info.asn.asn,
-                  domain: hitAlert.geo_info.asn.domain,
-                  name: hitAlert.geo_info.asn.name,
-                }
-              : null,
-            readme: hitAlert.geo_info.readme,
+            ...hitAlert.geo_info,
           }
         : {
             ip: hitAlert.geo_info.ip,
@@ -141,7 +137,7 @@ export function buildIncidentDetails(
         : null,
       basic_info: {
         // TODO: add token memo
-        token_type: hitAlert.token_type,
+        token_type: formatTokenTypeLabel(hitAlert.token_type),
         input_channel: hasChannelCustomLabel(hitAlert.input_channel),
         src_data: hitAlert.src_data,
         useragent: hitAlert.useragent,
@@ -154,17 +150,21 @@ export function buildIncidentDetails(
       },
       additional_info: {
         ...hitAlert.additional_info,
-        aws_key_log_data: isAWStoken(hitAlert.token_type)
-          ? {
-              last_used: hitAlert.additional_info.aws_key_log_data.last_used
-                ? new Date(
-                    Number(hitAlert.additional_info.aws_key_log_data.last_used)
-                  )
-                : null,
-              service_used:
-                hitAlert.additional_info.aws_key_log_data.service_used,
-            }
-          : null,
+        aws_key_log_data:
+          isAWStoken(hitAlert.token_type) &&
+          hitAlert.additional_info.aws_key_log_data
+            ? {
+                last_used: hitAlert.additional_info.aws_key_log_data.last_used
+                  ? new Date(
+                      Number(
+                        hitAlert.additional_info.aws_key_log_data.last_used
+                      )
+                    )
+                  : null,
+                service_used:
+                  hitAlert.additional_info.aws_key_log_data.service_used,
+              }
+            : null,
       },
     };
 
