@@ -1,28 +1,4 @@
 <template>
-  <BaseFormTextField
-    id="email"
-    type="text"
-    placeholder="Email"
-    label="Email"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <BaseFormTextField
-    id="webhook_url"
-    type="text"
-    placeholder="URL"
-    label="URL"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <BaseFormTextField
-    id="memo"
-    label="Add Note"
-    multiline
-    required
-    full-width
-    helper-message="Reminder note when this token is triggered. For instance: Entra ID token for the Thinkst Azure tenant with ID:"
-  ></BaseFormTextField>
   <!-- 
     hidden field for expected_referrer 
     doesn't require user input 
@@ -33,6 +9,11 @@
     label="hidden"
     value="microsoftonline.com"
   />
+  <GenerateTokenSettingsNotifications
+    memo-helper-example="Entra ID token for the Thinkst Azure tenant with ID:"
+  />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
+</script>

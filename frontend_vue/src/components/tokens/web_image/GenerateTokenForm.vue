@@ -1,32 +1,21 @@
 <template>
-  <BaseFormTextField
-    id="email"
-    type="text"
-    placeholder="Email"
-    label="Email"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <BaseFormTextField
-    id="webhook_url"
-    type="text"
-    placeholder="URL"
-    label="URL"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <BaseFormTextField
-    id="memo"
-    label="Add Note"
-    multiline
-    required
-    full-width
-    helper-message="Reminder note when this token is triggered. For instance: Image embedded in router X's admin interface"
-  />
-  <BaseUploadFile
-    id="web_image"
-    info-allowed-file="JPG, JPEG, GIF or PNG"
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
+    <label
+      for="radio-group-action"
+      class="mb-8 ml-4 font-semibold text-center"
+      >Upload your image</label
+    >
+    <BaseUploadFile
+      id="web_image"
+      info-allowed-file="JPG, JPEG, GIF or PNG"
+    />
+  </BaseGenerateTokenSettings>
+
+  <GenerateTokenSettingsNotifications
+    memo-helper-example="Image embedded in router X's admin interface"
   />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
+</script>

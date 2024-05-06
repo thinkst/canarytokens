@@ -1,35 +1,18 @@
 <template>
-  <BaseFormTextField
-    id="email"
-    type="text"
-    placeholder="Email"
-    label="Email"
-    full-width
-    helper-message="Provide an email address or webhook URL"
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
+    <BaseFormTextField
+      id="redirect_url"
+      type="text"
+      placeholder="Redirect Url"
+      label="Redirect URL"
+      full-width
+    />
+  </BaseGenerateTokenSettings>
+  <GenerateTokenSettingsNotifications
+    memo-helper-example="For instance: URL within Dropbox"
   />
-  <BaseFormTextField
-    id="webhook_url"
-    type="text"
-    placeholder="Url"
-    label="URL"
-    full-width
-    helper-message="Provide an email address or webhook URL"
-  />
-  <BaseFormTextField
-    id="redirect_url"
-    type="text"
-    placeholder="Redirect Url"
-    label="Redirect URL"
-    full-width
-  />
-  <BaseFormTextField
-    id="memo"
-    label="Add Note"
-    multiline
-    required
-    full-width
-    helper-message="Reminder note when this token is triggered. For instance: URL within Dropbox"
-  ></BaseFormTextField>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
+</script>
