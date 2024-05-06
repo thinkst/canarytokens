@@ -3,7 +3,12 @@
     <div
       class="max-w-[90svw] md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-lg shadow-lg shadow-grey-200/40 min-h-[50vh] p-24 flex-auto"
     >
-      <h1 class="text-grey-800">{{ title }}</h1>
+      <h1
+        v-if="route.name !== 'home'"
+        class="text-grey-800"
+      >
+        {{ title }}
+      </h1>
       <slot></slot>
     </div>
   </main>

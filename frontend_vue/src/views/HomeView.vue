@@ -1,4 +1,16 @@
 <template>
+  <div class="my-24 text-center">
+    <div>
+      <h1 class="text-4xl font-semibold text-grey-900">
+        Here goes something, like a
+        <span class="text-green-500">clear</span> Headline.
+      </h1>
+      <h2 class="mt-8 font-md text-grey-400">
+        Something else we want to tell users when they land here.
+      </h2>
+    </div>
+    <h3 class="mt-32 text-xl text-grey-800">Generate Canarytoken</h3>
+  </div>
   <AppLayoutGrid>
     <template
       v-for="(token, key) in tokenServices"
