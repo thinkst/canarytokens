@@ -12,6 +12,7 @@ declare module 'vue' {
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
     BaseFormSelect: typeof import('./src/components/base/BaseFormSelect.vue')['default']
     BaseFormTextField: typeof import('./src/components/base/BaseFormTextField.vue')['default']
+    BaseGenerateTokenSettings: typeof import('./src/components/base/BaseGenerateTokenSettings.vue')['default']
     BaseLink: typeof import('./src/components/base/BaseLink.vue')['default']
     BaseLinkDocumentation: typeof import('./src/components/base/BaseLinkDocumentation.vue')['default']
     BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
@@ -22,6 +23,7 @@ declare module 'vue' {
     BaseSpinner: typeof import('./src/components/base/BaseSpinner.vue')['default']
     BaseSwitch: typeof import('./src/components/base/BaseSwitch.vue')['default']
     BaseUploadFile: typeof import('./src/components/base/BaseUploadFile.vue')['default']
+    GenerateTokenSettings: typeof import('./src/components/base/GenerateTokenSettings.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

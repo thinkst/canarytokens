@@ -48,7 +48,7 @@
 
         <!-- content -->
         <div
-          class="flex flex-col items-center justify-center px-32 py-16 bg-grey-50 text-grey-800"
+          class="flex flex-col items-center justify-center px-8 py-16 sm:px-32 bg-grey-50 text-grey-800"
         >
           <slot></slot>
         </div>
