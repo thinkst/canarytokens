@@ -94,12 +94,6 @@ function handleClickToken() {
 </script>
 
 <style scoped>
-.token-card:hover + .token-card__documentation-link,
-.token-card:focus + .token-card__documentation-link,
-.token-card:focus-visible + .token-card__documentation-link {
-  /* top: -0.2em; */
-}
-
 .token-card:hover,
 .token-card:focus {
   @apply border-green shadow-solid-shadow-green-500-sm bg-green-50;

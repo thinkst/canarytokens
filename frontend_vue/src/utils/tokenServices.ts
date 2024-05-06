@@ -208,7 +208,7 @@ export const tokenServices: TokenServicesType = {
       'Scan this QR Code with the WireGuard app on your phone or copy the config below.',
   },
   [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
-    label: 'Azure Entra config ID',
+    label: 'Azure Entra ID login',
     description:
       'Get an alert when an attacker phishes your Azure Entra ID login.',
     documentationLink: '',
