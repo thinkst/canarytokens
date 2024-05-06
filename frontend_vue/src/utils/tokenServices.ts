@@ -14,28 +14,28 @@ type TokenServicesType = {
 
 export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.WEB_BUG]: {
-    label: 'Web Bug Token',
+    label: 'Web bug',
     description: 'Get an alert when an attacker visits a URL.',
     documentationLink: 'https://docs.canarytokens.org/guide/http-token.html',
     icon: `${TOKENS_TYPE.WEB_BUG}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.DNS]: {
-    label: 'DNS Token',
+    label: 'DNS',
     description: 'Get an alert when an attacker resolves a DNS name.',
     documentationLink: 'https://docs.canarytokens.org/guide/dns-token.html',
     icon: `${TOKENS_TYPE.DNS}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
   },
   [TOKENS_TYPE.QRCODE]: {
-    label: 'QR Code Token',
+    label: 'QR code',
     description: 'Get an alert when an attacker follows your QR Code.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.QRCODE}.png`,
     instruction: 'Use this QR Code to token a physical location or object:',
   },
   [TOKENS_TYPE.MYSQL]: {
-    label: 'MySQL token',
+    label: 'MySQL',
     description: 'Get an alert when an attacker loads your MySQL dump.',
     documentationLink:
       'https://docs.canarytokens.org/guide/mysql-dump-token.html',
@@ -43,7 +43,7 @@ export const tokenServices: TokenServicesType = {
     instruction: '',
   },
   [TOKENS_TYPE.AWS_KEYS]: {
-    label: 'AWS keys token',
+    label: 'AWS keys',
     description: 'Get an alert when an attacker uses your AWS API Key.',
     documentationLink:
       'https://docs.canarytokens.org/guide/aws-keys-token.html',
@@ -52,7 +52,7 @@ export const tokenServices: TokenServicesType = {
       'Copy this credential pair to your clipboard to use as desired:',
   },
   [TOKENS_TYPE.LOG4SHELL]: {
-    label: 'Log 4 Shell',
+    label: 'Log4shell',
     description:
       'Get an alert when a log4j logline is vulnerable to CVW-2021-44-228.',
     documentationLink: '#',
@@ -61,7 +61,7 @@ export const tokenServices: TokenServicesType = {
       'The next step is to copy the log4j snippet below and test your systems for the log4shell issue.',
   },
   [TOKENS_TYPE.FAST_REDIRECT]: {
-    label: 'Fast redirect token',
+    label: 'Fast redirect',
     description:
       'Get an alert when an attacker visits your URL (then rediret them).',
     documentationLink:
@@ -70,7 +70,7 @@ export const tokenServices: TokenServicesType = {
     instruction: 'Copy this URL to your clipboard and use as you wish:',
   },
   [TOKENS_TYPE.SLOW_REDIRECT]: {
-    label: 'Slow redirect token',
+    label: 'Slow redirect',
     description:
       'Get an alert when an attacker visits your URL (then rediret them and collect more info).',
     documentationLink:
@@ -87,7 +87,7 @@ export const tokenServices: TokenServicesType = {
     instruction: '',
   },
   [TOKENS_TYPE.WEB_IMAGE]: {
-    label: 'Web Image token',
+    label: 'Web image',
     description: 'Get an alert when an image you upload to us is viewed.',
     documentationLink:
       'https://docs.canarytokens.org/guide/web-image-token.html',
@@ -95,7 +95,7 @@ export const tokenServices: TokenServicesType = {
     instruction: 'Copy this URL to your clipboard and use as you wish:',
   },
   [TOKENS_TYPE.AZURE_ID]: {
-    label: 'Azure Login Certificate token',
+    label: 'Azure login certificate',
     description:
       'Get an alert when an attacker uses your Azure Service Principal certificate to login with.',
     documentationLink: '#',
@@ -121,7 +121,7 @@ export const tokenServices: TokenServicesType = {
     instruction: '',
   },
   [TOKENS_TYPE.SVN]: {
-    label: 'SVN token',
+    label: 'SVN',
     description: 'Get an alert when an attacker checks out an SVN repository.',
     documentationLink: 'https://docs.canarytokens.org/guide/svn-token.html',
     icon: `${TOKENS_TYPE.SVN}.png`,
@@ -172,7 +172,7 @@ export const tokenServices: TokenServicesType = {
     instruction: '',
   },
   [TOKENS_TYPE.CLONED_WEBSITE]: {
-    label: 'Cloned Website',
+    label: 'Cloned website',
     description: 'Get an alert when an attacker clones your website.',
     documentationLink:
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
@@ -180,7 +180,7 @@ export const tokenServices: TokenServicesType = {
     instruction: 'Place this Javascript on the page you wish to protect:',
   },
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
-    label: 'CSS Cloned Website',
+    label: 'CSS cloned website',
     description:
       'Get an alert when an attacker clones your website (using CSS).',
     documentationLink:
@@ -208,7 +208,7 @@ export const tokenServices: TokenServicesType = {
       'Scan this QR Code with the WireGuard app on your phone or copy the config below.',
   },
   [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
-    label: 'Azure Entra Config ID',
+    label: 'Azure Entra ID login',
     description:
       'Get an alert when an attacker phishes your Azure Entra ID login.',
     documentationLink: '',
