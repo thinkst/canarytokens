@@ -9,7 +9,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'Generate New Canary Token',
+        title: 'Generate New Canarytoken',
       },
     },
     {

@@ -16,7 +16,7 @@
   <Form
     ref="generateTokenFormRef"
     :validation-schema="schema"
-    class="flex flex-col w-full md:w-[80%] lg:w-[60%] gap-16 px-8 mt-32"
+    class="flex flex-col w-full md:w-[90%] lg:w-[70%] gap-32 px-8 mt-32 mb-16"
     @submit="onSubmit"
     @invalid-submit="onInvalidSubmit"
   >
