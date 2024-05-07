@@ -11,11 +11,16 @@
       <h3 class="mt-32 text-xl text-grey-800">Generate new Canarytoken</h3>
     </div>
     <SearchBar
-      v-model.lazy="searchValue"
-      v-debounce="40000"
       placeholder="Which Canarytoken do you need?"
       label="Search Canarytoken"
       class="w-full lg:w-[30vw] md:w-[50vw]"
+      @input="
+        (e: Event) =>
+          debounce(
+            () => (searchValue = (e.target as HTMLInputElement).value),
+            500
+          )()
+      "
     />
     {{ searchValue }}
     <div class="flex flex-row gap-16">
@@ -120,6 +125,14 @@ function handleClickToken(selectedToken: string) {
     },
   });
   open();
+}
+
+function debounce(fn: () => void, delay: number) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(fn, delay);
+  };
 }
 </script>
 
