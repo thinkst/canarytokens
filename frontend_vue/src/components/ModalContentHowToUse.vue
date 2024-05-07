@@ -21,14 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, shallowRef } from 'vue';
 import ModalContentHowToUseLoader from '@/components/ui/ModalContentHowToUseLoader.vue';
 
 const props = defineProps<{
   selectedToken: string;
 }>();
 
-const howToUseToken = ref([]);
+const howToUseToken = shallowRef([]);
 const isLoading = ref(true);
 
 const loadHowToUse = async () => {

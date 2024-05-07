@@ -85,3 +85,9 @@ export const INCIDENT_DETAIL_CUSTOM_LABELS = {
   cmd_computer_name: 'Computer executing command',
   last_used: 'Key Last Used',
 };
+
+export const TOKEN_CATEGORY = {
+  PIZZA: 'pizza',
+  PASTA: 'pasta',
+  GELATO: 'gelato',
+};

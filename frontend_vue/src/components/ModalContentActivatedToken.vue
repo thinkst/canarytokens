@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue';
+import { defineAsyncComponent, shallowRef } from 'vue';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
 
@@ -34,7 +34,7 @@ const props = defineProps<{
   newTokenResponse: { token_type: string } & Record<string, unknown>;
 }>();
 
-const dynamicComponent = ref({
+const dynamicComponent = shallowRef({
   props: {},
 });
 const tokenType = props.newTokenResponse.token_type;
