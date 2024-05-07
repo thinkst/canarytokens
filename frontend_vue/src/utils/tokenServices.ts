@@ -76,12 +76,7 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
-    carouselSlides: [
-      'We give you a legit (defanged) AWS API Key.',
-      'You place it somewhere.',
-      'We send you an alert if some tries to use that key.',
-    ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.PIZZA,
   },
   [TOKENS_TYPE.LOG4SHELL]: {
     label: 'Log4shell',
@@ -178,12 +173,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_EXCEL}.png`,
     instruction: '',
-    carouselSlides: [
-      'We give you a unique Microsoft Excel document.',
-      'You place it somewhere.',
-      'We send you an alert if an attacker tries to open the file.',
-    ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.PASTA,
   },
   [TOKENS_TYPE.MICROSOFT_WORD]: {
     label: 'Microsoft Word document',
@@ -193,12 +183,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_WORD}.png`,
     instruction: '',
-    carouselSlides: [
-      'We give you a unique Microsoft Word document.',
-      'You place it somewhere.',
-      'We send you an alert if an attacker tries to open the file.',
-    ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.PASTA,
   },
   [TOKENS_TYPE.SVN]: {
     label: 'SVN',
@@ -236,12 +221,7 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
     instruction:
       'The next step is to copy the SQL snippet below and run in your SQL Server database.',
-    carouselSlides: [
-      'We give you a SQL snippet to run into your database.',
-      'You place it somewhere.',
-      'We send you an alert if an attacker accesses your MS SQL Server database.',
-    ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.PASTA,
   },
   [TOKENS_TYPE.CUSTOM_EXE]: {
     label: 'Custom exe / binary',
@@ -294,12 +274,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
     icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,
     instruction: 'Place this Javascript on the page you wish to protect:',
-    carouselSlides: [
-      'We give you a Javascript snippet.',
-      'You place it somewhere in your website.',
-      'We send you an alert if an attacker clones your website.',
-    ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.PASTA,
   },
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
     label: 'CSS cloned website',

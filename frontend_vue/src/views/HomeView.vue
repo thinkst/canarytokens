@@ -10,29 +10,21 @@
       </h2>
       <h3 class="mt-32 text-xl text-grey-800">Generate new Canarytoken</h3>
     </div>
-    <SearchBar
-      placeholder="Which Canarytoken do you need?"
-      label="Search Canarytoken"
-      class="w-full lg:w-[30vw] md:w-[50vw]"
-      @input="
-        (e: Event) =>
-          debounce(
-            () => (searchValue = (e.target as HTMLInputElement).value),
-            500
-          )()
-      "
+    <SearchFilterTokensHeader
+      @filtered-list="filteredList = $event"
+      @filter-search="searchValue = $event"
+      @filter-category="filterValue = $event"
     />
-    {{ searchValue }}
-    <div class="flex flex-row gap-16">
-      <button @click="filterValue = ''">Remove filter</button>
-      <button @click="filterValue = TOKEN_CATEGORY.PIZZA">Pizza</button>
-      <button @click="filterValue = TOKEN_CATEGORY.PASTA">Pasta</button>
-      <button @click="filterValue = TOKEN_CATEGORY.GELATO">Gelato</button>
-    </div>
   </div>
+  <template v-if="Object.keys(filteredList).length === 0">
+    <p class="text-xl text-center text-grey-400">
+      Nothing found for "{{ searchValue }}"
+      {{ filterValue ? `in category "${filterValue}"` : '' }}
+    </p>
+  </template>
   <AppLayoutGrid>
     <TransitionGroup
-      :name="filterValue === '' ? 'move-grid' : 'fade-items'"
+      :name="animationType"
       class="relative"
     >
       <template
@@ -52,9 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import type { ComputedRef } from 'vue';
-import { TOKEN_CATEGORY } from '@/components/constants.ts';
+import { ref, watch } from 'vue';
+import type { Ref } from 'vue';
 import { tokenServices } from '@/utils/tokenServices';
 import type {
   TokenServicesType,
@@ -64,57 +55,12 @@ import AppLayoutGrid from '@/layout/AppLayoutGrid.vue';
 import CardToken from '@/components/ui/CardToken.vue';
 import { useModal } from 'vue-final-modal';
 import ModalToken from '@/components/ModalToken.vue';
-import SearchBar from '@/components/ui/SearchBar.vue';
+import SearchFilterTokensHeader from '@/components/ui/SearchFilterTokensHeader.vue';
 
 const filterValue = ref('');
 const searchValue = ref('');
-
-const filteredList: ComputedRef<
-  TokenServicesType | [string, TokenServiceType]
-> = computed(() => {
-  const filteredByCategory = filterByCategory(tokenServices);
-  const filteredBySearch = filterBySearch(tokenServices);
-
-  if (!filterValue.value && !searchValue.value) {
-    return tokenServices;
-  }
-
-  if (filterValue.value && !searchValue.value) {
-    return filteredByCategory;
-  }
-
-  if (!filterValue.value && searchValue.value) {
-    return filteredBySearch;
-  }
-
-  return filterBySearch(filteredByCategory);
-});
-
-function filterBySearch(list: TokenServicesType) {
-  if (!searchValue.value) {
-    return list;
-  } else {
-    return Object.entries(list).reduce((acc, [key, val]) => {
-      if (val.label.toLowerCase().includes(searchValue.value.toLowerCase())) {
-        return { ...acc, [key]: val };
-      }
-      return acc;
-    }, {});
-  }
-}
-
-function filterByCategory(list: TokenServicesType) {
-  if (!filterValue.value) {
-    return list;
-  } else {
-    return Object.entries(list).reduce((acc, [key, val]) => {
-      if (val.category === filterValue.value) {
-        return { ...acc, [key]: val };
-      }
-      return acc;
-    }, {});
-  }
-}
+const filteredList: Ref<TokenServicesType> = ref(tokenServices);
+const animationType = ref('move-grid');
 
 function handleClickToken(selectedToken: string) {
   const { open, close } = useModal({
@@ -127,13 +73,17 @@ function handleClickToken(selectedToken: string) {
   open();
 }
 
-function debounce(fn: () => void, delay: number) {
-  let timeoutId: ReturnType<typeof setTimeout>;
-  return () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(fn, delay);
-  };
-}
+watch(filterValue, (newVal, oldVal) => {
+  if (oldVal === '') {
+    animationType.value = 'move-grid';
+  }
+  if (newVal === '') {
+    animationType.value = 'move-grid';
+  }
+  if (newVal !== '' && oldVal !== '') {
+    animationType.value = 'fade';
+  }
+});
 </script>
 
 <style scoped>
@@ -157,17 +107,24 @@ function debounce(fn: () => void, delay: number) {
 }
 
 .move-grid-move {
-  transition: all 0.3s cubic-bezier(0.77, 0, 0.175, 1);
+  transition: all 0.3s cubic-bezier(0.55, 0, 0.1, 1);
 }
 
-.fade-items-enter-active,
-.fade-items-leave-active {
-  transition: all 0.3s;
-  opacity: 1;
+.fade-move,
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 1s cubic-bezier(0.55, 0, 0.1, 1);
 }
 
-.fade-items-enter,
-.fade-items-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
+  transform: translate(30px, 0);
+}
+
+.fade-leave-active {
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.55, 0, 0.1, 1);
+  transform: translate(30px, 0);
 }
 </style>
