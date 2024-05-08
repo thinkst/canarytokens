@@ -126,29 +126,57 @@ export type NewTokenBackendType = {
   client_id: string | null;
 };
 
-interface GeoInfo {
-  loc: string;
-  org: string;
-  city: string;
-  country: string;
-  region: string;
-  hostname: string;
-  ip: string;
-  timezone: string;
-  postal: string;
-  asn: null | any;
-  readme: string;
-}
+export type AsnType = {
+  route: string;
+  type: string;
+  asn: string;
+  domain: string;
+  name: string;
+};
 
-type RequestHeaders = Record<string, string>;
+export type GeoInfo = {
+  loc?: string;
+  org?: string;
+  city?: string;
+  country?: string;
+  region?: string;
+  hostname?: string;
+  ip?: string;
+  timezone?: string;
+  postal?: string;
+  asn?: null | AsnType;
+  readme?: string;
+  bogon?: boolean | null;
+};
 
-interface AdditionalInfo {
-  javascript: null | string;
-  browser: null | string;
-  mysql_client: null | string;
-  r: null | string;
-  l: null | string;
-}
+export type RequestHeaders = Record<string, string>;
+
+export type AWSLogDataType = {
+  last_used: Date | number | null;
+  service_used: string;
+};
+
+export type AdditionalInfoType = {
+  javascript?: null | string;
+  browser?: null | string;
+  mysql_client?: null | string;
+  r?: null | string;
+  l?: null | string;
+  aws_key_log_data?: AWSLogDataType | null;
+};
+
+type BaiscInfoType = {
+  token_type: string;
+  input_channel: string;
+  src_data: string;
+  useragent: string | null;
+  last4: string | null;
+  amount: string | null;
+  merchant: string | null;
+  mail: string | null;
+  referer: string | null;
+  location: string | null;
+};
 
 export type HitsType = {
   time_of_hit: number;
@@ -157,11 +185,33 @@ export type HitsType = {
   is_tor_relay: boolean;
   input_channel: string;
   src_data: null | any;
-  useragent: string;
+  useragent: string | null;
   token_type: string;
-  request_headers: RequestHeaders;
-  request_args: Record<string, any>;
-  additional_info: AdditionalInfo;
+  request_headers?: RequestHeaders;
+  request_args?: Record<string, any>;
+  additional_info: AdditionalInfoType;
+  last4?: string | null;
+  amount?: string | null;
+  merchant?: string | null;
+  mail?: string | null;
+  referer?: string | null;
+  location?: string | null;
+};
+
+export type FormattedHitsType = {
+  [key: string]:
+    | string
+    | boolean
+    | null
+    | GeoInfo
+    | BaiscInfoType
+    | AdditionalInfoType;
+  time_of_hit: string;
+  src_ip: string;
+  geo_info: GeoInfo;
+  is_tor_relay: boolean | null;
+  basic_info: BaiscInfoType;
+  additional_info: AdditionalInfoType;
 };
 
 export type HistoryTokenBackendType = {
