@@ -24,3 +24,7 @@ export function isValidFileType(
 ): string | boolean | undefined {
   return fileName && fileType.includes(fileName.split('.').pop() as string);
 }
+
+export function isObject(val: Record<string, string> | string | number) {
+  return val && typeof val === 'object' && Object.keys(val).length > 0;
+}

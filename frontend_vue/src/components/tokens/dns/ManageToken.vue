@@ -15,5 +15,5 @@ const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
 }>();
 
-const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_url);
+const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_hostname);
 </script>
