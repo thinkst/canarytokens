@@ -34,6 +34,7 @@ export const TOKENS_TYPE = {
   KUBECONFIG: 'kubeconfig',
   WIREGUARD: 'wireguard',
   AZURE_ENTRA_CONFIG: 'azure_id_config',
+  CREDIT_CARD: 'cc',
 };
 
 // unique keys to use in the frontend
@@ -65,4 +66,22 @@ export const GET_SETTINGS_BACKEND_TYPE = {
 export const INCIDENT_LIST_EXPORT = {
   JSON: 'incidentlist_json',
   CSV: 'incidentlist_csv',
+};
+
+export const INCIDENT_CHANNEL_TYPE_LABELS = {
+  aws_keys: 'AWS API Key Token',
+  cc: 'Credit Card Token',
+  azure_id: 'Azure Login Certificate Token',
+};
+
+export const INCIDENT_DETAIL_CUSTOM_LABELS = {
+  org: 'Organisation',
+  is_tor_relay: 'Tor Known Exit Node',
+  aws_keys: 'AWS Access Key ID',
+  useragent: 'User-agent',
+  src_port: 'Client Source Port',
+  session_index: 'Client Handshake ID',
+  cmd_user_name: 'User executing command',
+  cmd_computer_name: 'Computer executing command',
+  last_used: 'Key Last Used',
 };
