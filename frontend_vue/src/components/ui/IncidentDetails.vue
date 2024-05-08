@@ -13,60 +13,70 @@
       </button>
     </div>
     <div class="px-16">
-      <!-- Red box with basic info-->
-      <section class="p-16 text-white rounded-md bg-red">
-        <h2 class="font-semibold">Incident info</h2>
-        <ul class="flex flex-col justify-between gap-24 mt-16 md:flex-row">
-          <li class="flex flex-col gap-2">
-            <span class="text-xs text-red-100">Date</span>
-            <span class="font-semibold"
-              >{{
-                convertUnixTimeStampToDate(props.hitAlert.time_of_hit)
-              }} </span
-            >
-          </li>
-          <li class="flex flex-col gap-2">
-            <span class="text-xs text-red-100">IP</span>
-            <span class="font-semibold">{{ props.hitAlert.geo_info.ip }}</span>
-          </li>
-          <li class="flex flex-col gap-2">
-            <span class="text-xs text-red-100">Channel</span>
-            <span class="font-semibold">{{ props.hitAlert.src_ip }}</span>
-          </li>
-        </ul>
-      </section>
+      <!-- Red box with Summary -->
+      <IncidentDetailsSummary
+        v-if="builtIncidentDetail"
+        :date="builtIncidentDetail?.time_of_hit"
+        :ip="builtIncidentDetail.src_ip"
+        :input-channel="
+          (builtIncidentDetail as FormattedHitsType).basic_info.input_channel
+        "
+      />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
         <template
-          v-for="(val, key) in props.hitAlert"
+          v-for="(val, key) in formattedIncidentDetail"
           :key="key"
         >
-          <h3 class="text-grey-500">
-            {{ key }}
+          <h3
+            v-if="isNotEmpty(key) && isNotEmpty(val)"
+            class="text-grey-500"
+          >
+            {{ key }}:
           </h3>
           <ul
+            v-if="isNotEmpty(val)"
             class="flex flex-col gap-16 pb-16 [&:not(:last-child)]:border-b md:ml-32 border-grey-100"
           >
-            <template v-if="typeof val === 'object'">
-              <li
-                v-for="(subval, subkey) in val"
-                :key="subkey"
-                class="break-words"
-              >
-                <span class="block text-xs uppercase text-grey-500">{{
-                  subkey
-                }}</span>
-                <span :class="highlightBoolean(val)">{{ subval }}</span>
-              </li>
-            </template>
+            <IncidentDetailsListItem
+              v-if="!isObject(val)"
+              :value="val"
+            />
             <template v-else>
-              <li
-                :key="key"
-                :class="highlightBoolean(val)"
-                class="break-words"
+              <template
+                v-for="(nested_val, nested_key) in val"
+                :key="nested_key"
               >
-                {{ val }}
-              </li>
+                <ul
+                  v-if="isNotEmpty(nested_val)"
+                  class="break-words"
+                >
+                  <IncidentDetailsListItem
+                    v-if="!isObject(nested_val)"
+                    :label="nested_key"
+                    :value="nested_val"
+                  />
+                  <template v-else>
+                    <ul>
+                      <h3 class="text-grey-500">{{ nested_key }}:</h3>
+                      <template
+                        v-for="(deepnested_val, deepnested_key) in nested_val"
+                        :key="deepnested_key"
+                      >
+                        <IncidentDetailsListItem
+                          v-if="
+                            !isObject(nested_val) && isNotEmpty(deepnested_val)
+                          "
+                          :label="deepnested_key"
+                          :value="deepnested_val"
+                          class="py-8 ml-24"
+                        />
+                      </template>
+                    </ul>
+                    <div class="border-b border-grey-100"></div>
+                  </template>
+                </ul>
+              </template>
             </template>
           </ul>
         </template>
@@ -76,20 +86,35 @@
 </template>
 
 <script setup lang="ts">
-import type { HitsType } from '@/components/tokens/types.ts';
-import { convertUnixTimeStampToDate } from '@/utils/utils';
+import { ref, onMounted } from 'vue';
+import type { Ref } from 'vue';
+import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
+import IncidentDetailsListItem from '@/components/ui/IncidentDetailsListItem.vue';
+import IncidentDetailsSummary from '@/components/ui/IncidentDetailsSummary.vue';
+import { isObject } from '@/utils/utils';
+import {
+  formatLabels,
+  isNotEmpty,
+  buildIncidentDetails,
+} from '@/utils/incidentAlertService';
 
 const props = defineProps<{
   hitAlert: HitsType;
 }>();
 
 const emit = defineEmits(['close']);
+const builtIncidentDetail: Ref<FormattedHitsType | HitsType | null> = ref(null);
+const formattedIncidentDetail = ref({});
 
-function highlightBoolean(val: boolean | HitsType | undefined) {
-  if (typeof val === 'boolean') {
-    return val ? 'text-green' : 'text-red';
-  }
-}
+onMounted(() => {
+  // Map & cleanup hitAlert
+  builtIncidentDetail.value = buildIncidentDetails(props.hitAlert);
+
+  // Make the list UI friendly
+  formattedIncidentDetail.value = formatLabels(
+    builtIncidentDetail.value as FormattedHitsType
+  );
+});
 </script>
 
 <style scoped>
