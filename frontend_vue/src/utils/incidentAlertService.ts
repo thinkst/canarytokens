@@ -8,15 +8,16 @@ import {
 } from '@/components/constants';
 
 /**
- * Checks if the type exists in INCIDENT_CHANNEL_TYPE_LABELS and returns the corresponding value,
- * or 'HTTP' if not found.
+ * Checks if the token type exists in INCIDENT_CHANNEL_TYPE_LABELS
+ * and returns the corresponding value.
+ * If it doesn't exist in the list, it jsut returns the returned channel.
  */
-function hasChannelCustomLabel(type: string) {
-  return INCIDENT_CHANNEL_TYPE_LABELS.hasOwnProperty(type)
+function hasChannelCustomLabel(channel: string, tokenType: string) {
+  return INCIDENT_CHANNEL_TYPE_LABELS.hasOwnProperty(tokenType)
     ? INCIDENT_CHANNEL_TYPE_LABELS[
-        type as keyof typeof INCIDENT_CHANNEL_TYPE_LABELS
+        tokenType as keyof typeof INCIDENT_CHANNEL_TYPE_LABELS
       ]
-    : 'HTTP';
+    : channel;
 }
 
 /**
@@ -125,7 +126,10 @@ export function buildIncidentDetails(
       basic_info: {
         // TODO: add token memo
         token_type: formatTokenTypeLabel(hitAlert.token_type),
-        input_channel: hasChannelCustomLabel(hitAlert.input_channel),
+        input_channel: hasChannelCustomLabel(
+          hitAlert.input_channel,
+          hitAlert.token_type
+        ),
         src_data: hitAlert.src_data,
         useragent: hitAlert.useragent || null,
         last4: hitAlert.last4 || null,

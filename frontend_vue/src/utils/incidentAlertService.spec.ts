@@ -124,11 +124,11 @@ describe('buildIncidentDetails', () => {
       },
     },
     is_tor_relay: false,
+    token_type: 'web_image',
     input_channel: 'HTTP',
     src_data: null,
     useragent:
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    token_type: 'web_image',
     additional_info: {
       javascript: null,
       browser: null,
@@ -152,6 +152,31 @@ describe('buildIncidentDetails', () => {
 
     expect(buildIncidentDetails(awsAlert)).toHaveProperty(
       'additional_info.aws_key_log_data.last_used'
+    );
+  });
+
+  it('should display AWS API Key Token channel label', () => {
+    const alert: HitsType = {
+      ...hitAlert,
+      token_type: 'aws_keys',
+    };
+
+    expect(buildIncidentDetails(alert)).toHaveProperty(
+      'basic_info.input_channel',
+      'AWS API Key Token'
+    );
+  });
+
+  it('should display DNS channel label', () => {
+    const alert: HitsType = {
+      ...hitAlert,
+      token_type: 'dns',
+      input_channel: 'DNS',
+    };
+
+    expect(buildIncidentDetails(alert)).toHaveProperty(
+      'basic_info.input_channel',
+      'DNS'
     );
   });
 
