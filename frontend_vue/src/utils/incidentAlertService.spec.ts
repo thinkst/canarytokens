@@ -1,6 +1,6 @@
 import {
   formatLabels,
-  removeNullEmptyObjectsAndArrays,
+  isNotEmpty,
   formatTokenTypeLabel,
   buildIncidentDetails,
 } from './incidentAlertService';
@@ -65,35 +65,18 @@ describe('formatLabels', () => {
 });
 
 describe('removeNullEmptyObjectsAndArrays', () => {
-  it('should remove null, empty objects, and empty arrays from an object', () => {
-    const incidentDetails = {
-      custom_key: 'value',
-      geo_info: {
-        org: 'string',
-        city: 'string',
-      },
-      key: null,
-      emptyObject: {},
-      undefinedVal: undefined,
-      emptyArray: [],
-      nestedObject: {
-        nestedKey: null,
-        nestedEmptyObject: {},
-        nestedEmptyArray: [],
-      },
-    };
-    const expectedResult = {
-      custom_key: 'value',
-      geo_info: {
-        org: 'string',
-        city: 'string',
-      },
-    };
+  it('should return true for non-empty values', () => {
+    expect(isNotEmpty(1)).toBe(true);
+    expect(isNotEmpty('hello')).toBe(true);
+    expect(isNotEmpty(['one', 'two', 'ten'])).toBe(true);
+    expect(isNotEmpty({ foo: 'bar' })).toBe(true);
+  });
 
-    // @ts-ignore
-    const result = removeNullEmptyObjectsAndArrays(incidentDetails);
-
-    expect(result).toEqual(expectedResult);
+  it('should return false for empty values', () => {
+    expect(isNotEmpty(null)).toBe(false);
+    expect(isNotEmpty(undefined)).toBe(false);
+    expect(isNotEmpty([])).toBe(false);
+    expect(isNotEmpty({})).toBe(false);
   });
 });
 

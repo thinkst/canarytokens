@@ -76,37 +76,24 @@ export function formatTokenTypeLabel(token: string) {
 }
 
 /**
- * Removes keys and values from an object if the value is null, an empty object, an empty array,
- * or if all nested keys and values are removed.
+ * Checks if a value is not empty and all its nested keys have a value
  */
-export function removeNullEmptyObjectsAndArrays(
-  incidentDetails: FormattedHitsType
-): FormattedHitsType {
-  try {
-    return Object.entries(incidentDetails).reduce((acc, [key, value]) => {
-      if (
-        value !== null &&
-        value !== undefined &&
-        !(typeof value === 'object' && Object.keys(value).length === 0) &&
-        !(Array.isArray(value) && value.length === 0)
-      ) {
-        if (typeof value === 'object') {
-          const nestedObj = removeNullEmptyObjectsAndArrays(
-            value as FormattedHitsType
-          );
-          if (Object.keys(nestedObj).length > 0) {
-            acc[key] = nestedObj as Record<string, string>;
-          }
-        } else {
-          acc[key] = value;
-        }
-      }
-      return acc;
-    }, {} as FormattedHitsType);
-  } catch (error) {
-    console.error(`Error in remove Null, Empty Objects and Arrays: ${error}`);
-    return incidentDetails;
+export function isNotEmpty(
+  value: number | string | null | string[] | undefined | Record<string, unknown>
+) {
+  if (typeof value === 'object' && value !== null) {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    } else {
+      return Object.values(value).some(
+        (val) =>
+          val !== null &&
+          val !== undefined &&
+          (typeof val !== 'object' || Object.keys(val).length > 0)
+      );
+    }
   }
+  return value !== null && value !== undefined;
 }
 
 function isCreditCardtoken(token: string) {
