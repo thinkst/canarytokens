@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center gap-32 my-24 text-center">
+  <div class="flex flex-col items-center gap-16 my-24 mb-[40px] text-center">
     <div>
       <h1 class="text-4xl font-semibold text-grey-900">
         Here goes something, like a
@@ -8,7 +8,9 @@
       <h2 class="mt-8 font-md text-grey-400">
         Something else we want to tell users when they land here.
       </h2>
-      <h3 class="mt-32 text-xl text-grey-800">Generate new Canarytoken</h3>
+      <h3 class="mt-32 mb-16 text-xl text-grey-800">
+        Generate new Canarytoken
+      </h3>
     </div>
     <SearchFilterTokensHeader
       @filtered-list="filteredList = $event"
@@ -16,12 +18,17 @@
       @filter-category="filterValue = $event"
     />
   </div>
+  <!--Tokens Grid -->
+  <!-- No elements found -->
   <template v-if="Object.keys(filteredList).length === 0">
     <p class="text-xl text-center text-grey-400">
       Nothing found for "{{ searchValue }}"
       {{ filterValue ? `in category "${filterValue}"` : '' }}
     </p>
   </template>
+
+  <!--Tokens Grid -->
+  <!-- Grid elements -->
   <AppLayoutGrid>
     <TransitionGroup
       :name="animationType"
@@ -55,7 +62,7 @@ import AppLayoutGrid from '@/layout/AppLayoutGrid.vue';
 import CardToken from '@/components/ui/CardToken.vue';
 import { useModal } from 'vue-final-modal';
 import ModalToken from '@/components/ModalToken.vue';
-import SearchFilterTokensHeader from '@/components/ui/SearchFilterTokensHeader.vue';
+import SearchFilterTokensHeader from '@/components/SearchFilterTokensHeader.vue';
 
 const filterValue = ref('');
 const searchValue = ref('');

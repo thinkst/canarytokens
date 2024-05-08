@@ -11,14 +11,19 @@
         )()
     "
   />
-  <div class="flex flex-row gap-16">
-    <button @click="handleFilterByCategory('')">Remove filter</button>
-    <button @click="handleFilterByCategory(TOKEN_CATEGORY.PIZZA)">Pizza</button>
-    <button @click="handleFilterByCategory(TOKEN_CATEGORY.PASTA)">Pasta</button>
-    <button @click="handleFilterByCategory(TOKEN_CATEGORY.GELATO)">
-      Gelato
-    </button>
-  </div>
+  <ul class="grid grid-cols-3 gap-16 list-none">
+    <li
+      v-for="category in TOKEN_CATEGORY"
+      :key="category"
+    >
+      <FilterButton
+        icon="default.png"
+        :category="category"
+        :selected="filterValue === category"
+        @click="handleFilterByCategory(category)"
+      />
+    </li>
+  </ul>
 </template>
 
 <script setup lang="ts">
@@ -30,6 +35,7 @@ import type {
 } from '@/utils/tokenServices';
 import { tokenServices } from '@/utils/tokenServices';
 import SearchBar from '@/components/ui/SearchBar.vue';
+import FilterButton from '@/components/ui/FilterButton.vue';
 import { TOKEN_CATEGORY } from '@/components/constants.ts';
 
 const emits = defineEmits([
@@ -97,6 +103,9 @@ function filterByCategory(list: TokenServicesType) {
 }
 
 function handleFilterByCategory(category: string) {
+  if (category === filterValue.value) {
+    return (filterValue.value = '');
+  }
   filterValue.value = category;
 }
 
