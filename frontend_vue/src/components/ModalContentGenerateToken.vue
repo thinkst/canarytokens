@@ -4,15 +4,20 @@
     :alt="`${tokenServices[props.selectedToken].label}`"
     class="w-[6rem] pb-16"
   />
-  <h2 class="mb-8 text-xl font-semibold leading-tight text-center">
+  <h2 class="mb-16 text-xl font-semibold leading-tight text-center">
     {{ tokenServices[props.selectedToken].label }}
   </h2>
-  <p class="leading-tight text-center">
+  <component
+    :is="dynamicCarousel"
+    v-bind="{ selectedToken }"
+  />
+
+  <!-- <p class="leading-tight text-center">
     {{ tokenServices[props.selectedToken].description }}
     <BaseLinkDocumentation
       :link="tokenServices[props.selectedToken].documentationLink"
     />
-  </p>
+  </p> -->
   <Form
     ref="generateTokenFormRef"
     :validation-schema="schema"
@@ -20,7 +25,7 @@
     @submit="onSubmit"
     @invalid-submit="onInvalidSubmit"
   >
-    <component :is="dynamicComponent" />
+    <component :is="dynamicForm" />
   </Form>
 </template>
 
@@ -40,7 +45,8 @@ const props = defineProps<{
 
 const emits = defineEmits(['token-generated', 'invalid-submit']);
 
-const dynamicComponent = ref(null);
+const dynamicForm = ref(null);
+const dynamicCarousel = ref(null);
 const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
 const schema = formValidators[props.selectedToken].schema;
@@ -60,9 +66,12 @@ function programaticSubmit() {
 }
 
 const loadComponent = async () => {
-  dynamicComponent.value = defineAsyncComponent(
+  dynamicForm.value = defineAsyncComponent(
     () =>
       import(`@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`)
+  );
+  dynamicCarousel.value = defineAsyncComponent(
+    () => import('@/components/ui/CarouselInfoToken.vue')
   );
 };
 

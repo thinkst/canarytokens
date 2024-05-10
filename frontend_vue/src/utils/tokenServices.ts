@@ -6,6 +6,7 @@ type TokenServiceType = {
   documentationLink: string;
   icon: string;
   instruction: string;
+  carouselSlides?: string[];
 };
 
 type TokenServicesType = {
@@ -19,6 +20,11 @@ export const tokenServices: TokenServicesType = {
     documentationLink: 'https://docs.canarytokens.org/guide/http-token.html',
     icon: `${TOKENS_TYPE.WEB_BUG}.png`,
     instruction: 'Copy this URL to your clipboard and use as you wish',
+    carouselSlides: [
+      'We give you a uniquely generated MySQL dump and a lot of candies and other stuff',
+      'You place it somewhere and the text goes long and on another line',
+      'We send you an alert if someone loads the dumpfile into a running MySQL instance.',
+    ],
   },
   [TOKENS_TYPE.DNS]: {
     label: 'DNS',
