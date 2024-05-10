@@ -5,20 +5,20 @@
       :link="tokenServices[props.selectedToken].documentationLink"
     />
   </h3>
-  <div class="relative w-full h-[11svh] md:w-[90%] lg:w-[70%] carousel">
+  <div class="relative w-full h-[12svh] md:w-[90%] lg:w-[70%] carousel">
     <ul class="flex flex-row mx-8 carousel__slides-container">
       <li
         v-for="(slide, index) in slideContent"
         :id="`${index + 1}__slide`"
         :key="slide"
         tabindex="0"
-        class="flex items-center my-16 bg-white border rounded-xl shadow-solid-shadow-grey-sm border-grey-200 carousel__slide"
+        class="flex-[0_0_100%] relative flex items-center my-16 bg-white border rounded-xl shadow-solid-shadow-grey-sm border-grey-200 carousel__slide"
       >
         <img
           :src="getImageUrl(`icons/carousel_${index + 1}.png`)"
           alt="icon"
           aria-hidden="true"
-          class="h-[4.5rem] -translate-y-8"
+          class="h-[5rem] -translate-y-8"
         />
         <span class="carousel__slide__snapper"></span>
         <p class="px-8 text-sm text-left text-grey-400 text-pretty">
@@ -28,16 +28,16 @@
     </ul>
   </div>
   <nav class="relative flex flex-row gap-16 carousel__nav">
-    <a
+    <button
       v-for="(_slide, index) in slideContent"
       :id="`${index + 1}__slide`"
       :key="index"
-      :href="`#${index + 1}__slide`"
       :class="isActiveSlide(index) ? 'active' : ''"
       class="w-[1.8rem] h-[1.8rem] bg-grey-300 border-4 border-grey-100 rounded-full text-white font-semibold items-center flex justify-center hover:bg-grey-200"
+      @click="handleSlideChange(index + 1)"
     >
       {{ index + 1 }}
-    </a>
+    </button>
   </nav>
 </template>
 
@@ -69,11 +69,16 @@ function calculateActiveSlide(sliderView) {
     ? sliderView.getBoundingClientRect().width
     : 0;
 
-  // Hack: Calculation is performed incorrectly. Adding 1px to the scroll position fix the issue
+  // Hack: adding 1px to sliderView.scrollLeft fix issue on slideIndex calculation
   const scrollPosition = sliderView?.scrollLeft + 1 || 0;
   const slideIndex = Math.floor(scrollPosition / singleSlideWidth);
 
   currentSlide.value = slideIndex + 1;
+}
+
+function handleSlideChange(id: number) {
+  const slide = document.getElementById(`${id}__slide`);
+  slide.scrollIntoView(false);
 }
 
 function isActiveSlide(index: number) {
@@ -82,21 +87,6 @@ function isActiveSlide(index: number) {
 </script>
 
 <style>
-@keyframes snap {
-  96% {
-    scroll-snap-align: center;
-  }
-  97% {
-    scroll-snap-align: none;
-  }
-  99% {
-    scroll-snap-align: none;
-  }
-  100% {
-    scroll-snap-align: center;
-  }
-}
-
 .carousel__slides-container {
   position: absolute;
   top: 0;
@@ -107,11 +97,6 @@ function isActiveSlide(index: number) {
   overflow-x: scroll;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
-}
-
-.carousel__slide {
-  position: relative;
-  flex: 0 0 100%;
 }
 
 .carousel__slide__snapper {

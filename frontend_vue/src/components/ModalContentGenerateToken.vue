@@ -11,13 +11,6 @@
     :is="dynamicCarousel"
     v-bind="{ selectedToken }"
   />
-
-  <!-- <p class="leading-tight text-center">
-    {{ tokenServices[props.selectedToken].description }}
-    <BaseLinkDocumentation
-      :link="tokenServices[props.selectedToken].documentationLink"
-    />
-  </p> -->
   <Form
     ref="generateTokenFormRef"
     :validation-schema="schema"
