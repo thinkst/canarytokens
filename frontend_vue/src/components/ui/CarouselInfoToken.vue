@@ -21,7 +21,7 @@
           class="h-[5rem] -translate-y-8"
         />
         <span class="carousel__slide__snapper"></span>
-        <p class="px-8 text-sm text-left text-grey-400 text-pretty">
+        <p class="px-16 text-sm text-left text-grey-400 text-pretty">
           {{ slide }}
         </p>
       </li>
