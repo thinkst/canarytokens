@@ -2,6 +2,7 @@ import { TOKENS_TYPE } from '@/components/constants.ts';
 
 type TokenServiceType = {
   label: string;
+  description: string;
   documentationLink: string;
   icon: string;
   instruction: string;
