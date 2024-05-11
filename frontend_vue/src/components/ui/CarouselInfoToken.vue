@@ -88,24 +88,11 @@ function isActiveSlide(index: number) {
 
 <style>
 .carousel__slides-container {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  overflow-x: scroll;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
+  @apply absolute top-0 right-0 bottom-0 left-0 flex overflow-x-scroll scroll-smooth snap-mandatory snap-x;
 }
 
 .carousel__slide__snapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  scroll-snap-align: center;
+  @apply absolute top-0 left-0 w-full h-full snap-center;
 }
 
 .active {
