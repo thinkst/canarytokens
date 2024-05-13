@@ -1,9 +1,16 @@
 <template>
-  <img
-    :src="getImageUrl(`token_icons/${tokenServices[tokenType].icon}`)"
-    :alt="`${tokenServices[tokenType].label}`"
-    class="w-[6rem] pb-16"
-  />
+  <div class="relative">
+    <img
+      :src="getImageUrl(`token_icons/${tokenServices[tokenType].icon}`)"
+      :alt="`${tokenServices[tokenType].label}`"
+      class="w-[6rem] pb-16"
+    />
+    <img
+      alt="active token"
+      :src="getImageUrl('icons/active_token_badge.png')"
+      class="absolute bottom-16 right-0 w-[1.5rem]"
+    />
+  </div>
   <h2 class="mb-8 text-xl font-semibold leading-tight text-center">
     {{ `Your ${tokenServices[tokenType].label} Token is active!` }}
   </h2>
