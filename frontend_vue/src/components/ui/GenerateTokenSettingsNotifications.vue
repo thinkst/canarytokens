@@ -1,6 +1,6 @@
 <template>
   <BaseGenerateTokenSettings setting-type="Notifications">
-    <div class="flex flex-col gap-8 mb-24 sm:mb-8">
+    <div class="flex flex-col gap-8 mb-24 sm:mb-24">
       <BaseFormTextField
         id="email"
         type="text"
