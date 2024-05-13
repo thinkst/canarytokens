@@ -38,8 +38,8 @@ const props = defineProps<{
 
 const emits = defineEmits(['token-generated', 'invalid-submit']);
 
-const dynamicForm = ref(null);
-const dynamicCarousel = ref(null);
+const dynamicForm = ref();
+const dynamicCarousel = ref();
 const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
 const schema = formValidators[props.selectedToken].schema;
