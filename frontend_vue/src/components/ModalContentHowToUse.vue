@@ -3,11 +3,12 @@
   <div v-else>
     <ul
       v-if="howToUseToken.length > 0"
-      class="flex flex-col gap-16 my-16 fa-ul items-left intro text-grey-800"
+      class="flex flex-col gap-16 my-16 ml-16 items-left text-grey-800"
     >
       <li
         v-for="item in howToUseToken"
         :key="item"
+        class="grid justify-start grid-flow-col gap-8 text-left"
       >
         {{ item }}
       </li>
@@ -41,13 +42,14 @@ const loadHowToUse = async () => {
 onMounted(loadHowToUse);
 </script>
 
-<style>
-.fa-ul > li::before {
-  content: '\f059';
-  font-family: 'Font Awesome 6 Free';
-  color: hsl(36, 100%, 50%);
-  display: inline-block;
-  width: 1.5em;
-  margin-left: -1.5em;
+<style scoped>
+li::before {
+  content: '';
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 1rem;
+  margin-top: 0.1rem;
+  background-color: hsl(157, 77%, 45%);
+  border: 4px solid hsl(141, 75%, 76%);
 }
 </style>
