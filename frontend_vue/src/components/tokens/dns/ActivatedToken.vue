@@ -21,5 +21,5 @@ const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
 
-const tokenUrl = ref(props.tokenData.hostname);
+const tokenUrl = ref(props.tokenData.hostname || '');
 </script>
