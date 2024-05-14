@@ -15,8 +15,8 @@
       :class="selected ? 'opacity-100' : 'opacity-75'"
     />
     <span
-      class="block pl-8 capitalize sm:mt-8 group-hover:text-green-500 sm:p-0"
-      :class="selected ? 'text-green-500' : 'text-grey-300'"
+      class="block capitalize sm:mt-8 group-hover:text-green-500 sm:p-0"
+      :class="selected ? 'text-green-500 pl-8' : 'text-grey-300 px-4'"
       >{{ category }}</span
     >
   </button>
