@@ -5,7 +5,9 @@
       :link="tokenServices[props.selectedToken].documentationLink"
     />
   </h3>
-  <div class="relative w-full h-[12svh] md:w-[90%] lg:w-[70%] carousel">
+  <div
+    class="relative w-full sm:h-[100px] h-[110px] md:w-[90%] lg:w-[70%] carousel"
+  >
     <ul class="flex flex-row mx-8 carousel__slides-container">
       <li
         v-for="(slide, index) in slideContent"
@@ -18,7 +20,7 @@
           :src="getImageUrl(`icons/carousel_${index + 1}.png`)"
           alt="icon"
           aria-hidden="true"
-          class="h-[5rem] -translate-y-8"
+          class="h-[6rem] sm:h-[5rem] -translate-y-8 sm:ml-16 ml-8"
         />
         <span class="carousel__slide__snapper"></span>
         <p class="px-16 text-sm text-left text-grey-400 text-pretty">
@@ -70,8 +72,8 @@ function calculateActiveSlide(sliderView: Element) {
     ? sliderView.getBoundingClientRect().width
     : 0;
 
-  // Hack: adding 1px to sliderView.scrollLeft fix issue on slideIndex calculation
-  const scrollPosition = sliderView?.scrollLeft + 1 || 0;
+  // Hack: adding 10px to sliderView.scrollLeft fix issue on slideIndex calculation
+  const scrollPosition = sliderView?.scrollLeft + 10 || 0;
   const slideIndex = Math.floor(scrollPosition / singleSlideWidth);
 
   currentSlide.value = slideIndex + 1;
