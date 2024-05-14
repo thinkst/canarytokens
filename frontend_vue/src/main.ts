@@ -22,6 +22,8 @@ import {
   faChevronUp,
   faPlus,
   faMinus,
+  faBell,
+  faGear,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -52,7 +54,9 @@ library.add(
   faArrowDown,
   faChevronUp,
   faPlus,
-  faMinus
+  faMinus,
+  faBell,
+  faGear
 );
 
 const vfm = createVfm();
