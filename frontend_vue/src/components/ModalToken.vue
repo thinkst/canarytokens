@@ -68,6 +68,15 @@
         >
       </template>
     </template>
+    <!-- banner ADV -->
+    <template #banner>
+      <BannerBirdCanarytools
+        v-if="
+          modalType === ModalType.NewToken || modalType === ModalType.HowToUse
+        "
+        class="mb-8"
+      />
+    </template>
   </BaseModal>
 </template>
 
@@ -80,6 +89,7 @@ import ModalContentActivatedToken from './ModalContentActivatedToken.vue';
 import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
 import ModalContentGenerateTokenLoader from '@/components/ui/ModalContentGenerateTokenLoader.vue';
 import ModalContentActivatedTokenLoader from '@/components/ui/ModalContentActivatedTokenLoader.vue';
+import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 
