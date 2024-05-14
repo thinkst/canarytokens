@@ -233,7 +233,8 @@
     </div>
     <hr class="my-24" />
     <h1>Banner ADV</h1>
-    <BannerCanarytools />
+    <BannerDeviceCanarytools />
+    <BannerBirdCanarytools />
     <div>
       <hr class="my-24" />
       <h1 class="mb-16">Select component</h1>
@@ -284,7 +285,8 @@ import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import { ref } from 'vue';
-import BannerCanarytools from '@/components/ui/BannerCanarytools.vue';
+import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
+import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 
 const { open } = useModal({
   component: ModalToken,
