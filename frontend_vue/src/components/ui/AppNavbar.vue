@@ -1,34 +1,36 @@
 <template>
-  <div class="z-50 flex justify-between gap-24">
-    <AppLogo class="px-32 py-24" />
-    <nav
-      role="navigation"
-      class="items-center justify-end hidden w-full pr-32 md:flex"
-    >
-      <ul
-        class="flex items-end pt-8 text-sm uppercase gap-x-24 lg:gap-x-32 font-regular"
+  <div class="z-50 flex justify-between w-full gap-24 sm:justify-center">
+    <div class="flex flex-row lg:w-[80vw] sm:w-full">
+      <AppLogo class="px-32 py-24" />
+      <nav
+        role="navigation"
+        class="items-center justify-end hidden w-full pr-32 md:flex"
       >
-        <li
-          v-for="item in menuItems"
-          :key="item.name"
+        <ul
+          class="flex items-end pt-8 text-sm uppercase gap-x-24 lg:gap-x-32 font-regular"
         >
-          <RouterLink
-            :to="item.path"
-            class="text-grey-400 hover:text-green desktop-link"
+          <li
+            v-for="item in menuItems"
+            :key="item.name"
           >
-            {{ item.name }}
-          </RouterLink>
-        </li>
-        <li class="cursor-pointer text-grey-400 hover:text-green">
-          <a href="#">
-            <font-awesome-icon
-              icon="link"
-              class="w-[0.8rem] pr-8"
-            />Documentation
-          </a>
-        </li>
-      </ul>
-    </nav>
+            <RouterLink
+              :to="item.path"
+              class="text-grey-400 hover:text-green desktop-link"
+            >
+              {{ item.name }}
+            </RouterLink>
+          </li>
+          <li class="cursor-pointer text-grey-400 hover:text-green">
+            <a href="#">
+              <font-awesome-icon
+                icon="link"
+                class="w-[0.8rem] pr-8"
+              />Documentation
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
     <AppNavbarMenuMobile
       :menu-items="menuItems"
       class="w-full"
