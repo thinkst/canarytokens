@@ -72,7 +72,7 @@ function calculateActiveSlide(sliderView: Element) {
     ? sliderView.getBoundingClientRect().width
     : 0;
 
-  // Hack: adding 1px to sliderView.scrollLeft fix issue on slideIndex calculation
+  // Hack: adding 10px to sliderView.scrollLeft fix issue on slideIndex calculation
   const scrollPosition = sliderView?.scrollLeft + 10 || 0;
   const slideIndex = Math.floor(scrollPosition / singleSlideWidth);
 
