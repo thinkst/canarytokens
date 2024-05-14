@@ -70,13 +70,12 @@
     </template>
     <!-- banner ADV -->
     <template #banner>
-      <!-- <BannerBirdCanarytools
+      <BannerBirdCanarytools
         v-if="
           modalType === ModalType.NewToken || modalType === ModalType.HowToUse
         "
         class="mb-8"
-      /> -->
-      <BannerBirdCanarytools class="mb-8" />
+      />
     </template>
   </BaseModal>
 </template>
