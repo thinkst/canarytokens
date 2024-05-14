@@ -83,7 +83,9 @@ async function loadImage() {
   const img = new Image();
   const tokenLogoUrl = getImageUrl(`token_icons/${props.logoImgUrl}`);
   img.src = tokenLogoUrl;
-  await new Promise((resolve) => (img.onload = resolve));
+  await new Promise(
+    (resolve) => ((img.onload = resolve), console.log(resolve, 'resolve'))
+  );
   src.value = img.src;
   isLoading.value = false;
 }

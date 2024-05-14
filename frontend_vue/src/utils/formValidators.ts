@@ -4,7 +4,6 @@ import { isValidFileType, validFileExtensions } from './utils';
 
 type FieldsType = {
   email: string | undefined;
-  webhook_url: string | undefined;
   memo: string;
 };
 
