@@ -13,7 +13,9 @@
       class="absolute inset-[0px] h-full overflow-auto"
       @click.self="() => emit('update:modelValue', false)"
     >
-      <div class="md:w-[60vw] my-16 mx-auto bg-white rounded-lg max-w-[90vw]">
+      <div
+        class="md:w-[60vw] lg:w-[50vw] my-16 mx-auto bg-white rounded-lg max-w-[900px]"
+      >
         <!-- header -->
         <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
           <button
@@ -50,9 +52,12 @@
         <div
           class="flex flex-col items-center justify-center px-8 py-16 sm:px-32 bg-grey-50 text-grey-800"
         >
+          <!--default slot -->
           <slot></slot>
-        </div>
 
+          <!-- ADV banner -->
+          <slot name="banner"></slot>
+        </div>
         <!-- footer -->
         <div
           class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-lg mb-16text-center"
