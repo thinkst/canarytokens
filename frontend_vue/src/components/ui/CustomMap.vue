@@ -37,7 +37,9 @@
             <li class="pb-8">{{ m.hostname }}</li>
             <li class="font-medium">{{ m.date }}</li>
             <li class="pt-8">{{ m.city }}, {{ m.country }}</li>
-            <li>Lat: {{ m.position.lat }}, Lng: {{ m.position.lng }}</li>
+            <li>
+              Lat: {{ m.position?.lat || '' }}, Lng: {{ m.position?.lng || '' }}
+            </li>
           </ul>
         </GMapInfoWindow>
       </GMapMarker>
@@ -54,11 +56,11 @@ import getImageUrl from '@/utils/getImageUrl';
 type MarkerType = {
   id: number;
   ip: string;
-  hostname: string;
-  city: string;
-  country: string;
+  hostname?: string;
+  city?: string;
+  country?: string;
   date: string;
-  position: { lat: number; lng: number };
+  position: { lat: number; lng: number } | undefined;
 };
 
 const props = defineProps<{
@@ -82,7 +84,9 @@ onMounted(() => {
   if (props.hitsList.length > 1) {
     return fitMarkerBounds();
   } else if (props.hitsList.length === 1) {
-    center.value = parseGeoInfoLocation(props.hitsList[0].geo_info.loc);
+    center.value = parseGeoInfoLocation(
+      props.hitsList[0].geo_info.loc as string
+    );
   }
 });
 
@@ -95,7 +99,9 @@ const markers: ComputedRef<MarkerType[]> = computed(() => {
       city: marker.geo_info.city,
       country: marker.geo_info.country,
       date: convertUnixTimeStampToDate(marker.time_of_hit),
-      position: parseGeoInfoLocation(marker.geo_info.loc),
+      position: marker.geo_info.loc
+        ? parseGeoInfoLocation(marker.geo_info.loc)
+        : undefined,
     };
   });
 });

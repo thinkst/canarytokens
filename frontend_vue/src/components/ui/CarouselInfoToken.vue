@@ -57,14 +57,15 @@ const currentSlide = ref(0);
 
 onMounted(() => {
   const sliderView = document.querySelector('.carousel__slides-container');
-  sliderView.addEventListener('scroll', () => {
-    calculateActiveSlide(sliderView);
-  });
+  sliderView &&
+    sliderView.addEventListener('scroll', () => {
+      calculateActiveSlide(sliderView);
+    });
 
-  calculateActiveSlide(sliderView);
+  sliderView && calculateActiveSlide(sliderView);
 });
 
-function calculateActiveSlide(sliderView) {
+function calculateActiveSlide(sliderView: Element) {
   const singleSlideWidth = sliderView
     ? sliderView.getBoundingClientRect().width
     : 0;
@@ -78,7 +79,7 @@ function calculateActiveSlide(sliderView) {
 
 function handleSlideChange(id: number) {
   const slide = document.getElementById(`${id}__slide`);
-  slide.scrollIntoView(false);
+  slide && slide.scrollIntoView(false);
 }
 
 function isActiveSlide(index: number) {

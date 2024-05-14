@@ -83,7 +83,7 @@ describe('removeNullEmptyObjectsAndArrays', () => {
 describe('formatTokenTypeLabel', () => {
   it('should return the label of the provided token', () => {
     const mockToken = 'azure_id_config';
-    const expectedLabel = 'Azure Entra Config ID';
+    const expectedLabel = 'Azure Entra ID login';
 
     const result = formatTokenTypeLabel(mockToken);
 
