@@ -71,7 +71,7 @@
         ></IncidentDetails>
         <CustomMap :hits-list="hitsList"></CustomMap>
       </div>
-      <BannerCanarytools></BannerCanarytools>
+      <BannerDeviceCanarytools />
     </div>
   </template>
 </template>
@@ -88,7 +88,7 @@ import type {
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
-import BannerCanarytools from '@/components/ui/BannerCanarytools.vue';
+import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import { downloadAsset } from '@/api/main';
 import { INCIDENT_LIST_EXPORT } from '@/components/constants';
