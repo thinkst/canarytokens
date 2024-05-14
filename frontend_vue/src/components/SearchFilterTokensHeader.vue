@@ -11,7 +11,7 @@
         )()
     "
   />
-  <ul class="grid grid-cols-3 gap-16 list-none">
+  <ul class="flex flex-row flex-wrap justify-center gap-16 list-none">
     <li
       v-for="category in TOKEN_CATEGORY"
       :key="category"

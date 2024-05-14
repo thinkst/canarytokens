@@ -26,7 +26,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if that URL is ever viewed.',
     ],
-    category: TOKEN_CATEGORY.PASTA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.DNS]: {
     label: 'DNS',
@@ -39,7 +39,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if that DNS name is ever resolved.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.QRCODE]: {
     label: 'QR code',
@@ -52,7 +52,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert when that QR code is viewed & followed.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.MYSQL]: {
     label: 'MySQL',
@@ -66,7 +66,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if someone loads the dumpfile into a running MySQL instance.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.DATABASE,
   },
   [TOKENS_TYPE.AWS_KEYS]: {
     label: 'AWS keys',
@@ -76,7 +76,7 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.CLOUD,
   },
   [TOKENS_TYPE.LOG4SHELL]: {
     label: 'Log4shell',
@@ -91,7 +91,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if log4j logline is consumed by a vulnerable log4j library.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.FAST_REDIRECT]: {
     label: 'Fast redirect',
@@ -106,7 +106,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker visits your URL.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.SLOW_REDIRECT]: {
     label: 'Slow redirect',
@@ -121,7 +121,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker visits your URL.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.SENSITIVE_CMD]: {
     label: 'Sensitive command',
@@ -135,7 +135,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker runs that Windows command.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.WEB_IMAGE]: {
     label: 'Web image',
@@ -149,7 +149,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker view your image.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.AZURE_ID]: {
     label: 'Azure login certificate',
@@ -163,7 +163,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker tries to login with your Azure Service Principal.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.CLOUD,
   },
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
     label: 'Microsoft Excel document',
@@ -173,7 +173,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_EXCEL}.png`,
     instruction: '',
-    category: TOKEN_CATEGORY.PASTA,
+    category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.MICROSOFT_WORD]: {
     label: 'Microsoft Word document',
@@ -183,7 +183,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_WORD}.png`,
     instruction: '',
-    category: TOKEN_CATEGORY.PASTA,
+    category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.SVN]: {
     label: 'SVN',
@@ -196,7 +196,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker tries checks out an SVN repository.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.UNIQUE_EMAIL]: {
     label: 'Unique email address',
@@ -210,7 +210,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker sends an email to this unique address.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.SQL_SERVER]: {
     label: 'Microsoft SQL Server',
@@ -221,7 +221,7 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
     instruction:
       'The next step is to copy the SQL snippet below and run in your SQL Server database.',
-    category: TOKEN_CATEGORY.PASTA,
+    category: TOKEN_CATEGORY.DATABASE,
   },
   [TOKENS_TYPE.CUSTOM_EXE]: {
     label: 'Custom exe / binary',
@@ -235,7 +235,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker executes an EXE or DLL file.',
     ],
-    category: TOKEN_CATEGORY.PIZZA,
+    category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.PDF]: {
     label: 'Acrobat Reader PDF document',
@@ -250,7 +250,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker opens your PDF document in Acrobat Reader.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.WINDOWS_FOLDER]: {
     label: 'Windows Folder',
@@ -265,7 +265,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere inside a folder on a Windows machine.',
       'We send you an alert if an attacker browses your Windows Folder in Windows Explorer.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.CLONED_WEBSITE]: {
     label: 'Cloned website',
@@ -274,7 +274,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
     icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,
     instruction: 'Place this Javascript on the page you wish to protect:',
-    category: TOKEN_CATEGORY.PASTA,
+    category: TOKEN_CATEGORY.PHISHING,
   },
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
     label: 'CSS cloned website',
@@ -290,7 +290,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere in your website.',
       'We send you an alert if an attacker clones your website.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.PHISHING,
   },
   [TOKENS_TYPE.KUBECONFIG]: {
     label: 'Kubeconfig',
@@ -304,7 +304,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker uses your Kubeconfig.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.CLOUD,
   },
   [TOKENS_TYPE.WIREGUARD]: {
     label: 'WireGuard VPN',
@@ -320,7 +320,7 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere.',
       'We send you an alert if an attacker uses your WireGuard VPN client config.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.OTHER,
   },
   [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
     label: 'Azure Entra ID login',
@@ -335,6 +335,6 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere into your Azure tenant`s Entra ID login page.',
       'We send you an alert if an attacker phishes your Azure Entra ID login.',
     ],
-    category: TOKEN_CATEGORY.GELATO,
+    category: TOKEN_CATEGORY.PHISHING,
   },
 };

@@ -87,7 +87,9 @@ export const INCIDENT_DETAIL_CUSTOM_LABELS = {
 };
 
 export const TOKEN_CATEGORY = {
-  PIZZA: 'pizza',
-  PASTA: 'pasta',
-  GELATO: 'gelato',
+  MICROSOFT: 'microsoft',
+  PHISHING: 'phishing',
+  CLOUD: 'cloud',
+  DATABASE: 'database',
+  OTHER: 'Other',
 };
