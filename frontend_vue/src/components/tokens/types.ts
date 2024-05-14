@@ -141,7 +141,7 @@ export type GeoInfo = {
   country?: string;
   region?: string;
   hostname?: string;
-  ip?: string;
+  ip: string;
   timezone?: string;
   postal?: string;
   asn?: null | AsnType;
