@@ -25,7 +25,7 @@
       v-else-if="modalType === ModalType.HowToUse"
       :selected-token="selectedToken"
     />
-    <!-- <BaseMessageBox
+    <BaseMessageBox
       v-if="isSuspenseError || isGenerateTokenError"
       variant="danger"
       class="my-16"
@@ -34,7 +34,7 @@
         'Oh no! Something went wrong. Please refresh the page or try again later.'
       "
     >
-    </BaseMessageBox> -->
+    </BaseMessageBox>
 
     <!-- footer -->
     <template #footer>
