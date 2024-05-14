@@ -73,6 +73,7 @@
       <!-- eslint-disable-next-line vue/no-v-html -->
       <span v-html="alertsMessage"></span>
     </BaseMessageBox>
+    <BannerDeviceCanarytools class="mb-8" />
   </div>
 </template>
 
@@ -85,6 +86,7 @@ import { tokenServices } from '@/utils/tokenServices';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import { TOKENS_TYPE } from './constants';
+import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 
 const route = useRoute();
 const router = useRouter();
