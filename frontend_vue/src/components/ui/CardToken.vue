@@ -1,7 +1,7 @@
 <template>
   <li class="relative flex">
     <button
-      class="relative border flex-1 group flex flex-col px-24 py-32 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey-sm border-grey-200 items-center duration-100 ease-in-out token-card"
+      class="relative border flex-1 group flex flex-col px-16 pt-16 pb-24 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey-sm border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"
     >
       <div v-if="isLoading">
@@ -17,10 +17,14 @@
         aria-hidden="true"
         :alt="`${title} logo`"
       />
-      <span class="py-16 font-semibold leading-5 text-center text-grey-800">
+      <span
+        class="flex-grow py-16 font-semibold leading-5 text-center text-grey-800"
+      >
         {{ title }}
       </span>
-      <span class="text-sm leading-5 text-center text-grey-400 text-pretty">
+      <span
+        class="flex-grow text-sm leading-5 text-center text-grey-400 text-pretty"
+      >
         {{ description }}
       </span>
       <span
