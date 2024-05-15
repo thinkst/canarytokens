@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch, computed, shallowRef } from 'vue';
+import { defineAsyncComponent, ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { manageToken } from '@/api/main.ts';
 import SettingsToken from './SettingsToken.vue';
