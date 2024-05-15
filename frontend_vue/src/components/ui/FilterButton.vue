@@ -31,7 +31,5 @@ const props = defineProps<{
   selected: boolean;
 }>();
 
-console.log(props.selected, 'selected');
-
 const filterLogo = getImageUrl(`token_icons/${props.icon}`);
 </script>
