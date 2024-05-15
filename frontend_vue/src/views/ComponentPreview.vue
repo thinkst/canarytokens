@@ -1,6 +1,5 @@
 <template>
   <div>
-    <SearchBar />
     <hr class="my-24" />
     <h1>Skeleton Loader</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
@@ -273,6 +272,13 @@
       id="carbonara"
       label="Carbonara"
       name="radio-group-name"
+    />
+  </div>
+  <hr class="my-24" />
+  <div class="flex flex-col gap-16">
+    <SearchBar
+      label="Search"
+      placeholder="Type whatever..."
     />
   </div>
 </template>

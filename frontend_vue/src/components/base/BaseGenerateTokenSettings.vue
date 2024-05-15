@@ -19,20 +19,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-enum settingTypeEnum {
-  Canarytoken = 'Canarytoken',
-  Notifications = 'Notifications',
-}
-
 const props = defineProps<{
-  settingType: settingTypeEnum.Canarytoken | settingTypeEnum.Notifications;
+  settingType: 'Canarytoken' | 'Notifications';
 }>();
 
 const icon = computed(() => {
   switch (props.settingType) {
-    case settingTypeEnum.Canarytoken:
+    case 'Canarytoken':
       return 'gear';
-    case settingTypeEnum.Notifications:
+    case 'Notifications':
       return 'bell';
     default:
       return 'gear';
