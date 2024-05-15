@@ -3,8 +3,6 @@
     lang="json"
     label="JSON config"
     :code="CertificateTokenCode"
-    multiline
-    custom-height="13rem"
   ></base-code-snippet>
   <base-button
     class="mt-16"

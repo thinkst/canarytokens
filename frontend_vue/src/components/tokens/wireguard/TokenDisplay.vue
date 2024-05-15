@@ -11,8 +11,6 @@
     lang="bash"
     label="WireGuard VPN config"
     :code="codeSnippet"
-    multiline
-    custom-height="10rem"
   ></base-code-snippet>
 </template>
 
