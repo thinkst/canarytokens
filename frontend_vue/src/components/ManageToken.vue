@@ -96,7 +96,7 @@ const error = ref(null);
 const manageTokenResponse = ref();
 const tokenLogoUrl = ref();
 
-const dynamicComponent = shallowRef({
+const dynamicComponent = ref({
   props: {},
 });
 
