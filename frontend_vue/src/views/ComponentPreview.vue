@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SearchBar />
     <hr class="my-24" />
     <h1>Skeleton Loader</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
@@ -99,7 +100,7 @@
   <hr class="my-24" />
   <div class="flex flex-col gap-16">
     <h1>Message Box</h1>
-    <BaseMessageBox
+    <!-- <BaseMessageBox
       message="This is a danger message This is a danger message This is a danger message This is a danger message This is a danger message"
       text-link="Click here"
       variant="danger"
@@ -120,7 +121,7 @@
     <BaseMessageBox
       message="This is a message without link "
       variant="info"
-    />
+    /> -->
   </div>
   <hr class="my-24" />
   <div class="flex flex-col gap-16 w-[400px]">
@@ -284,6 +285,7 @@ import ModalToken from '@/components/ModalToken.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
+import SearchBar from '@/components/ui/SearchBar.vue';
 import { ref } from 'vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';

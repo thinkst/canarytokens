@@ -43,7 +43,7 @@ const props = defineProps<{
 }>();
 
 const encoded: Ref<boolean> = ref(props.tokenData.encoded || true);
-const codeMYSQL = ref();
+const codeMYSQL = ref('');
 
 onMounted(() => {
   codeMYSQL.value = generateMysqlToken(
