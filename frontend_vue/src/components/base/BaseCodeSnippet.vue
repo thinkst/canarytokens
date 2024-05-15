@@ -10,6 +10,7 @@
     <div class="relative bg-white border rounded-lg border-grey-100">
       <button
         v-if="showExpandButton"
+        id="show-all-button"
         class="absolute w-[6rem] top-16 left-16 px-8 z-10 font-semibold text-green-600 bg-white border border-green-200 refresh-token rounded-xl hover:bg-green-50 hover:text-green-500 focus:text-green-500 focus-visible:outline-0 focus:bg-green-100 focus:border-green-200 focus:outline-0"
         @click="handleShowAllSnippet"
       >

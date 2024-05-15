@@ -15,6 +15,35 @@ const tooltip = vi.fn();
 library.add(faRotateRight, faCheck, faCopy);
 
 describe('BaseCodeSnippet', () => {
+  it('renders label when passed', () => {
+    const label = 'Test Label';
+    const wrapper = mount(BaseCodeSnippet, {
+      props: { label },
+    });
+    expect(wrapper.text()).toMatch(label);
+  });
+
+  it('toggles showAllCode when handleShowAllSnippet is called', async () => {
+    const wrapper = mount(BaseCodeSnippet);
+    expect(wrapper.vm.showAllCode).toBe(false);
+    await wrapper.vm.handleShowAllSnippet();
+    expect(wrapper.vm.showAllCode).toBe(true);
+  });
+
+  it('renders expand button when showExpandButton is true', () => {
+    const wrapper = mount(BaseCodeSnippet, {
+      props: { showExpandButton: true },
+    });
+    expect(wrapper.find('button').isVisible()).toBe(true);
+  });
+
+  it('does not render expand button when showExpandButton is false', () => {
+    const wrapper = mount(BaseCodeSnippet, {
+      props: { showExpandButton: false },
+    });
+    expect(wrapper.find('show-all-button').exists()).toBe(false);
+  });
+
   it('emits "refresh-token" event when refresh button is clicked', async () => {
     const code = 'const example = () => { return "Hello World"; }';
     const wrapper = mount(BaseCodeSnippet, {
