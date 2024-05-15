@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, toRef, watch } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 
 const emit = defineEmits(['clickToken']);
@@ -74,6 +74,7 @@ const props = withDefaults(
   }
 );
 
+const logoUrl = toRef(props, 'logoImgUrl');
 const isLoading = ref(true);
 const src = ref('');
 
@@ -85,7 +86,7 @@ async function loadImage() {
   src.value = '';
   isLoading.value = true;
   const img = new Image();
-  const tokenLogoUrl = getImageUrl(`token_icons/${props.logoImgUrl}`);
+  const tokenLogoUrl = getImageUrl(`token_icons/${logoUrl.value}`);
   img.src = tokenLogoUrl;
   await new Promise(
     (resolve) => ((img.onload = resolve), console.log(resolve, 'resolve'))
@@ -97,6 +98,10 @@ async function loadImage() {
 function handleClickToken() {
   emit('clickToken');
 }
+
+watch(logoUrl, () => {
+  loadImage();
+});
 </script>
 
 <style scoped>
