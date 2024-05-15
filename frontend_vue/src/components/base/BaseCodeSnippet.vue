@@ -56,8 +56,9 @@ const props = withDefaults(
   {
     hasRefresh: false,
     hasCopy: true,
-    customHeight: null,
+    customHeight: 'auto',
     label: null,
+    showExpandButton: false,
   }
 );
 

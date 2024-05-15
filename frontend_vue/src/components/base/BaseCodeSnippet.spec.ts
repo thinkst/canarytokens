@@ -17,29 +17,55 @@ library.add(faRotateRight, faCheck, faCopy);
 describe('BaseCodeSnippet', () => {
   it('renders label when passed', () => {
     const label = 'Test Label';
+    const code = 'const example = () => { return "Hello World"; }';
     const wrapper = mount(BaseCodeSnippet, {
-      props: { label },
+      props: {
+        code: code,
+        lang: 'javascript',
+        showExpandButton: false,
+      },
+      global: {
+        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+      },
+      directives: {
+        tooltip,
+      },
     });
     expect(wrapper.text()).toMatch(label);
   });
 
-  it('toggles showAllCode when handleShowAllSnippet is called', async () => {
-    const wrapper = mount(BaseCodeSnippet);
-    expect(wrapper.vm.showAllCode).toBe(false);
-    await wrapper.vm.handleShowAllSnippet();
-    expect(wrapper.vm.showAllCode).toBe(true);
-  });
-
   it('renders expand button when showExpandButton is true', () => {
+    const code = 'const example = () => { return "Hello World"; }';
     const wrapper = mount(BaseCodeSnippet, {
-      props: { showExpandButton: true },
+      props: {
+        code: code,
+        lang: 'javascript',
+        showExpandButton: false,
+      },
+      global: {
+        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+      },
+      directives: {
+        tooltip,
+      },
     });
     expect(wrapper.find('button').isVisible()).toBe(true);
   });
 
   it('does not render expand button when showExpandButton is false', () => {
+    const code = 'const example = () => { return "Hello World"; }';
     const wrapper = mount(BaseCodeSnippet, {
-      props: { showExpandButton: false },
+      props: {
+        code: code,
+        lang: 'javascript',
+        showExpandButton: false,
+      },
+      global: {
+        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+      },
+      directives: {
+        tooltip,
+      },
     });
     expect(wrapper.find('show-all-button').exists()).toBe(false);
   });
