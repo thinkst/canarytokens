@@ -23,7 +23,6 @@ declare module 'vue' {
     BaseSpinner: typeof import('./src/components/base/BaseSpinner.vue')['default']
     BaseSwitch: typeof import('./src/components/base/BaseSwitch.vue')['default']
     BaseUploadFile: typeof import('./src/components/base/BaseUploadFile.vue')['default']
-    GenerateTokenSettings: typeof import('./src/components/base/GenerateTokenSettings.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
