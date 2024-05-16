@@ -1,0 +1,102 @@
+import{a as p}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-CActm1hN.js";import{d as _,a as d,o as c,e as u,u as h,c as v}from"./index-DuX8kg7V.js";function b(e){const n=`
+--create a stored proc that'll ping canarytokens
+  CREATE proc ping_canarytoken
+  AS
+  BEGIN
+      declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+      --setup the variables
+      set @tokendomain = '${e.hostname}';
+      set @size = 128;
+      set @done = 0;
+      set @random = cast(round(rand()*100,0) as varchar(2));
+      set @random = concat(@random, '.');
+      set @username = SUSER_SNAME();
+
+      --loop runs until the UNC path is 128 chars or less
+      while @done <= 0
+      begin
+          --convert username into base64
+          select @base64 = (SELECT
+              CAST(N'' AS XML).value(
+                    'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                  , 'VARCHAR(MAX)'
+              )   Base64Encoding
+          FROM (
+              SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+          ) AS bin_sql_server_temp);
+
+          --replace base64 padding as dns will choke on =
+          select @base64 = replace(@base64,'=','-')
+
+          --construct the UNC path
+          select @unc = concat('\\',@base64,'.',@random,@tokendomain,'a')
+
+          -- if too big, trim the username and try again
+          if len(@unc) <= @size
+              set @done = 1
+          else
+              --trim from the front, to keep the username and lose domain details
+              select @username = substring(@username, 2, len(@username)-1)
+      end
+      exec master.dbo.xp_fileexist @unc;
+  END
+
+  --add a trigger if data is altered
+  CREATE TRIGGER ${e.sql_trigger_name}
+    ON ${e.sql_table_name}
+    AFTER ${e.sql_action}
+  AS
+  BEGIN
+  exec ping_canarytoken
+  end`,a=`
+--create a table-view function to query the canary hostname
+  CREATE function ${e.sql_function_name}(@RAND FLOAT) returns @output table (col1 varchar(max))
+  AS
+  BEGIN
+      declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+
+      --setup the variables
+      set @tokendomain = '${e.hostname}';
+      set @size = 128;
+      set @done = 0;
+      set @random = cast(round(@RAND*100,0) as varchar(2));
+      set @random = concat(@random, '.');
+      set @username = SUSER_SNAME();
+
+      --loop runs until the UNC path is 128 chars or less
+      while @done <= 0
+      begin
+          --convert username into base64
+          select @base64 = (SELECT
+              CAST(N'' AS XML).value(
+                    'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                  , 'VARCHAR(MAX)'
+              )   Base64Encoding
+          FROM (
+              SELECT CAST(@username AS VARBINARY(MAX)) AS bin
+          ) AS bin_sql_server_temp);
+
+          --replace base64 padding as dns will choke on =
+          select @base64 = replace(@base64,'=','0')
+
+          --construct the UNC path
+          select @unc = concat('\\',@base64,'.',@random,@tokendomain,'a')
+
+          -- if too big, trim the username and try again
+          if len(@unc) <= @size
+              set @done = 1
+          else
+              --trim from the front, to keep the username and lose domain details
+              select @username = substring(@username, 2, len(@username)-1)
+      end
+      exec master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
+          return
+  END
+
+  --create a view that calls the function
+  alter view ${e.sql_server_view_name} as select * from master.dbo.<span class="${e.sql_function_name}(rand());
+
+  --change permissions on ${e.sql_function_name} to SELECT for [public]
+  --change permissions on ${e.sql_server_view_name} to SELECT for [public]
+  --don't allow [public] to view the definitions`;return e.sql_action==="SELECT"?n:a}const k=_({__name:"TokenDisplay",props:{tokenData:{}},setup(e){const n=e,a=d({hostname:n.tokenData.hostname,sql_table_name:n.tokenData.sql_table_name,sql_trigger_name:n.tokenData.sql_trigger_name,sql_function_name:n.tokenData.sql_function_name,sql_server_view_name:n.tokenData.sql_server_view_name,sql_action:n.tokenData.sql_action}),s=b(a.value);return(r,o)=>{const t=p;return c(),u(t,{lang:"sql",label:"Microsoft Server SQL token",code:h(s),"custom-height":"10rem","show-expand-button":""},null,8,["code"])}}}),E={key:0},R=_({__name:"ManageToken",props:{tokenBackendResponse:{}},setup(e){var s,r,o,t,i,l,m;const n=e,a=d({hostname:(s=n.tokenBackendResponse.canarydrop)==null?void 0:s.generated_hostname,sql_table_name:(r=n.tokenBackendResponse.canarydrop)==null?void 0:r.sql_server_table_name,sql_trigger_name:(o=n.tokenBackendResponse.canarydrop)==null?void 0:o.sql_server_trigger_name,sql_function_name:(i=(t=n.tokenBackendResponse)==null?void 0:t.canarydrop)==null?void 0:i.sql_server_function_name,sql_server_view_name:(l=n.tokenBackendResponse.canarydrop)==null?void 0:l.sql_server_view_name,sql_action:(m=n.tokenBackendResponse.canarydrop)==null?void 0:m.sql_server_sql_action});return(q,A)=>a.value?(c(),u(k,{key:1,"token-data":a.value},null,8,["token-data"])):(c(),v("div",E,"Error loading"))}});export{R as default};
