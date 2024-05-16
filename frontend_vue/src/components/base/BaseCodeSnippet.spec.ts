@@ -15,6 +15,61 @@ const tooltip = vi.fn();
 library.add(faRotateRight, faCheck, faCopy);
 
 describe('BaseCodeSnippet', () => {
+  it('renders label when passed', () => {
+    const label = 'Test Label';
+    const code = 'const example = () => { return "Hello World"; }';
+    const wrapper = mount(BaseCodeSnippet, {
+      props: {
+        code: code,
+        lang: 'javascript',
+        showExpandButton: false,
+      },
+      global: {
+        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+      },
+      directives: {
+        tooltip,
+      },
+    });
+    expect(wrapper.text()).toMatch(label);
+  });
+
+  it('renders expand button when showExpandButton is true', () => {
+    const code = 'const example = () => { return "Hello World"; }';
+    const wrapper = mount(BaseCodeSnippet, {
+      props: {
+        code: code,
+        lang: 'javascript',
+        showExpandButton: false,
+      },
+      global: {
+        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+      },
+      directives: {
+        tooltip,
+      },
+    });
+    expect(wrapper.find('button').isVisible()).toBe(true);
+  });
+
+  it('does not render expand button when showExpandButton is false', () => {
+    const code = 'const example = () => { return "Hello World"; }';
+    const wrapper = mount(BaseCodeSnippet, {
+      props: {
+        code: code,
+        lang: 'javascript',
+        showExpandButton: false,
+      },
+      global: {
+        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+      },
+      directives: {
+        tooltip,
+      },
+    });
+    expect(wrapper.find('show-all-button').exists()).toBe(false);
+  });
+
   it('emits "refresh-token" event when refresh button is clicked', async () => {
     const code = 'const example = () => { return "Hello World"; }';
     const wrapper = mount(BaseCodeSnippet, {
