@@ -117,10 +117,10 @@ async function fetchTokenHistoryData() {
   try {
     const res = await historyToken(params);
     const historyTokenData = (await res.data) as HistoryTokenBackendType;
-    hitsList.value = historyTokenData.hits;
+    hitsList.value = historyTokenData.history.hits;
     emits(
       'update-token-title',
-      historyTokenData.token_type,
+      historyTokenData.history.token_type,
       route.params.token
     );
   } catch (err: any) {

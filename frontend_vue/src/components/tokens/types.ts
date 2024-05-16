@@ -215,6 +215,10 @@ export type FormattedHitsType = {
 };
 
 export type HistoryTokenBackendType = {
-  hits: HitsType[];
-  token_type: string;
+  canarydrop: Record<string, any>;
+  history: {
+    hits: HitsType[];
+    token_type: string;
+  };
+  google_api_key: string;
 };
