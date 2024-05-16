@@ -1,0 +1,1 @@
+import{d as a,o as t,e as n,p as o,E as s,z as _}from"./index-BuN6Wgu_.js";const m=a({__name:"ManageToken",setup(c){return(i,r)=>{const e=_;return t(),n(e,{variant:"warning"},{default:o(()=>[s("The CSS snippet is not available at the moment. We'll fix this soon.")]),_:1})}}});export{m as default};
