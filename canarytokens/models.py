@@ -2544,3 +2544,9 @@ class ManageResponse(BaseModel):
     wg_qr_code: Optional[str]
     qr_code: Optional[str]
     force_https: Optional[bool]
+
+
+class HistoryResponse(BaseModel):
+    canarydrop: Dict
+    history: AnyTokenHistory
+    google_api_key: Optional[str]
