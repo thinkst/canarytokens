@@ -43,7 +43,6 @@ from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
     AnyDownloadRequest,
     AnySettingsRequest,
-    AnyTokenHistory,
     AnyTokenRequest,
     AnyTokenResponse,
     AWSKeyTokenRequest,
@@ -98,6 +97,7 @@ from canarytokens.models import (
     DownloadZipResponse,
     FastRedirectTokenRequest,
     FastRedirectTokenResponse,
+    HistoryResponse,
     KubeconfigTokenRequest,
     KubeconfigTokenResponse,
     Log4ShellTokenRequest,
@@ -780,11 +780,16 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
 @api.get(
     "/history",
     tags=["Canarytokens History"],
-    response_model=AnyTokenHistory,
+    response_model=HistoryResponse,
 )
 async def api_history(token: str, auth: str) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
-    return canarydrop.triggered_details
+    response = {
+        "canarydrop": canarydrop,
+        "history": canarydrop.triggered_details,
+        "google_api_key": queries.get_canary_google_api_key(),
+    }
+    return HistoryResponse(**response)
 
 
 @api.post(
