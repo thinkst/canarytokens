@@ -3,8 +3,6 @@
     lang="css"
     label="CSS token"
     :code="tokenSnippet"
-    multiline
-    custom-height="8rem"
   ></base-code-snippet>
 </template>
 

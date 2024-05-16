@@ -5,8 +5,6 @@ we need to fix this dependency to show the obfuscated code
   <base-code-snippet
     lang="javascript"
     label="Your tokened Javascript"
-    multiline
-    custom-height="8rem"
     :code="codeClonedSite"
   >
   </base-code-snippet>

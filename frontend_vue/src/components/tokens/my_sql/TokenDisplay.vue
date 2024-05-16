@@ -3,8 +3,6 @@
   <base-code-snippet
     lang="sql"
     label="Your MYSQL code"
-    multiline
-    custom-height="5rem"
     :code="codeMYSQL"
   ></base-code-snippet>
   <p class="mt-32">

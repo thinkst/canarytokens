@@ -3,8 +3,8 @@
     lang="sql"
     label="Microsoft Server SQL token"
     :code="snippetCode"
-    multiline
     custom-height="10rem"
+    show-expand-button
   ></base-code-snippet>
 </template>
 
