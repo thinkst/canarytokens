@@ -96,7 +96,7 @@ h4 {
 }
 
 li > p {
-  margin-left: 1rem;
+  margin-left: 1.8rem;
   margin-bottom: 1rem;
 }
 </style>
