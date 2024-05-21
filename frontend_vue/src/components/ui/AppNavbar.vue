@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { ENV_MODE } from '@/constants.ts';
-import { RouterLink, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import AppLogo from './AppLogo.vue';
 import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue';
 
