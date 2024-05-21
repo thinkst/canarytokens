@@ -22,10 +22,16 @@
       </p>
       <p>
         By Using This Service, You Agree to
-        <base-link href="/legal">Our Terms of Use.</base-link>
+        <RouterLink
+          to="/legal"
+          class="text-green-500 hover:text-green"
+          >Our Terms of Use.</RouterLink
+        >
       </p>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterLink } from 'vue-router';
+</script>
