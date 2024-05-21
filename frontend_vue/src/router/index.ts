@@ -36,6 +36,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/legal',
+      name: 'legal',
+      component: () => import('../views/LegalView.vue'),
+      meta: {
+        title: 'Acceptable Use Policy',
+      },
+    },
+    {
       path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),
