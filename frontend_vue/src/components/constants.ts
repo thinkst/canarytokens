@@ -1,5 +1,5 @@
 /* 
-This module defines a set of token types that are used in various parts of the application.
+TOKENS_TYPE defines a set of token types that are used in various parts of the application.
 !! These token types should match the token_type values coming from the Backend
 
 When you add a new token inside @/components/tokens, 
