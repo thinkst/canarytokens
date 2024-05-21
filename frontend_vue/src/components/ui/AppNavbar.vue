@@ -39,14 +39,44 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+import { ENV_MODE } from '@/constants.ts';
+import { useRoute } from 'vue-router';
 import AppLogo from './AppLogo.vue';
-import { RouterLink } from 'vue-router';
 import AppNavbarMenuMobile from './AppNavbarMenuMobile.vue';
 
-const menuItems = [
-  { name: 'Home', path: '/' },
-  { name: 'Components Preview', path: '/components' },
-];
+const route = useRoute();
+
+const isDevEnv = import.meta.env.MODE === ENV_MODE.DEVELOPMENT;
+const isExistingToken = ref(false);
+const auth = ref(route.params.auth);
+const token = ref(route.params.token);
+
+const menuItems = computed(() => {
+  const items = [{ name: 'New token', path: '/' }];
+
+  if (isDevEnv) {
+    items.push({ name: 'Components Preview', path: '/components' });
+  }
+
+  if (isExistingToken.value) {
+    items.push(
+      { name: 'Token History', path: `/history/${auth.value}/${token.value}` },
+      { name: 'Manage Token', path: `/manage/${auth.value}/${token.value}` }
+    );
+  }
+
+  return items;
+});
+
+watch(
+  () => route.params,
+  (newParams) => {
+    auth.value = newParams.auth;
+    token.value = newParams.token;
+    isExistingToken.value = auth.value && token.value ? true : false;
+  }
+);
 </script>
 
 <style scoped lang="scss">
@@ -57,17 +87,6 @@ const menuItems = [
   &.router-link-active {
     color: hsl(152, 59%, 48%);
     position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -3px;
-      right: -10px;
-      width: 6px;
-      height: 6px;
-      border-radius: 3px;
-      background-color: hsl(351, 85%, 44%);
-    }
   }
 }
 </style>
