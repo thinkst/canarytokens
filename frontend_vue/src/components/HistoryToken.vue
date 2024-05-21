@@ -26,13 +26,29 @@
     to show incident info all screen height -->
     <div
       id="alerts-card-list"
-      class="flex-col md:p-16 md:bg-grey-50 md:rounded-xl md:overflow-scroll md:max-h-[60svh]"
+      class="flex-col md:p-16 md:bg-grey-50 md:rounded-xl md:overflow-scroll md:max-h-[70svh]"
       :class="{ 'hidden md:block': selectedAlert }"
     >
-      <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
       <!-- TODO: add number of alerts? -->
-      <ul class="flex flex-col gap-16">
-        <li class="flex items-center justify-between">
+      <ul class="flex flex-col h-full gap-16 pb-16">
+        <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+        <li
+          v-if="hitsList.length === 0"
+          class="flex flex-col items-center justify-center flex-grow px-16 py-16 align-middle"
+        >
+          <p class="text-xl text-center text-grey-400">
+            There are no alerts for this Canarytoken.
+          </p>
+          <img
+            :src="getImageUrl(`token_icons/default.png`)"
+            alt="No alerts"
+            class="grayscale opacity-50 w-[50%] not-sr-only group-hover:opacity-100 sm:block mt-16"
+          />
+        </li>
+        <li
+          v-else
+          class="flex items-center justify-between"
+        >
           <p class="text-sm text-grey-500">Download:</p>
           <div>
             <BaseButton
@@ -47,6 +63,7 @@
             >
           </div>
         </li>
+
         <CardIncident
           v-for="(incident, index) in hitsList"
           :key="index"
@@ -58,10 +75,15 @@
           }"
           @click="handleSelectAlert(incident)"
         ></CardIncident>
+        <!-- Benner for small screens -->
+        <BannerDeviceCanarytools class="flex sm:hidden" />
       </ul>
     </div>
     <div>
-      <div class="@md:relative grid md:h-[45svh] h-[30svh]">
+      <div
+        class="@md:relative md:h-[45svh] h-[30svh]"
+        :class="hitsList.length === 0 ? 'hidden sm:grid' : 'grid'"
+      >
         <IncidentDetails
           v-if="selectedAlert"
           id="incident_detail"
@@ -71,7 +93,8 @@
         ></IncidentDetails>
         <CustomMap :hits-list="hitsList"></CustomMap>
       </div>
-      <BannerDeviceCanarytools />
+      <!-- Benner for larger screens -->
+      <BannerDeviceCanarytools class="hidden sm:flex" />
     </div>
   </template>
 </template>
@@ -79,8 +102,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { historyToken } from '@/api/main.ts';
+import getImageUrl from '@/utils/getImageUrl';
 import type {
   HistoryTokenBackendType,
   HitsType,
@@ -96,6 +120,7 @@ import { INCIDENT_LIST_EXPORT } from '@/components/constants';
 const emits = defineEmits(['update-token-title']);
 
 const route = useRoute();
+const router = useRouter();
 
 const isLoading = ref(false);
 const error = ref(null);
@@ -126,6 +151,7 @@ async function fetchTokenHistoryData() {
   } catch (err: any) {
     console.log(err, 'err!');
     error.value = err.toString();
+    router.push({ name: 'error' });
   } finally {
     isLoading.value = false;
   }

@@ -1,11 +1,9 @@
 <template>
-  <a>
+  <RouterLink to="/">
     <img
       src="../../assets/logo.png"
       alt="Canary Tokens"
       class="w-[12rem] min-w-[12rem]"
     />
-  </a>
+  </RouterLink>
 </template>
-
-<script setup lang="ts"></script>
