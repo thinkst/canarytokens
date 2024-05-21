@@ -143,6 +143,7 @@ async function fetchTokenData() {
   } catch (err: any) {
     console.log(err, 'err!');
     error.value = err.toString();
+    router.push({ name: 'error' });
   } finally {
     isLoading.value = false;
   }

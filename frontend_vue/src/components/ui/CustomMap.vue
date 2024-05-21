@@ -1,6 +1,11 @@
 <template>
   <div v-if="isLoading">Loading map...</div>
+  <div
+    v-if="!isLoading && hitsList.length === 0"
+    class="placeholder"
+  ></div>
   <GMapMap
+    v-else
     v-bind="$attrs"
     ref="mapRef"
     :zoom="7"
@@ -38,7 +43,8 @@
             <li class="font-medium">{{ m.date }}</li>
             <li class="pt-8">{{ m.city }}, {{ m.country }}</li>
             <li>
-              Lat: {{ m.position?.lat || '' }}, Lng: {{ m.position?.lng || '' }}
+              Lat: {{ m.position?.lat || '' }}, Lng:
+              {{ m.position?.lng || '' }}
             </li>
           </ul>
         </GMapInfoWindow>
@@ -81,6 +87,9 @@ function parseGeoInfoLocation(info: string) {
 }
 
 onMounted(() => {
+  if (props.hitsList.length === 0) {
+    return;
+  }
   if (props.hitsList.length > 1) {
     return fitMarkerBounds();
   } else if (props.hitsList.length === 1) {
@@ -121,6 +130,9 @@ async function fitMarkerBounds() {
 }
 
 watch(mapRef, () => {
+  if (!mapRef.value) {
+    return;
+  }
   mapRef.value.$mapPromise.then(() => {
     isLoading.value = false;
   });
@@ -312,3 +324,13 @@ const options = {
   ],
 };
 </script>
+
+<style scoped>
+.placeholder {
+  background-image: url('@/assets/map_placeholder.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+  filter: grayscale(1) opacity(0.3);
+}
+</style>
