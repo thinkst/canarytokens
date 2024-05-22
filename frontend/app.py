@@ -773,6 +773,13 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
         response["qr_code"] = qr_code
     elif canarydrop.type == TokenTypes.CLONEDSITE:
         response["force_https"] = switchboard_settings.FORCE_HTTPS
+        response["clonedsite_js"] = canarydrop.get_cloned_site_javascript(
+            switchboard_settings.FORCE_HTTPS
+        )
+    elif canarydrop.type == TokenTypes.CSSCLONEDSITE:
+        response["clonedsite_css"] = canarydrop.get_cloned_site_css(
+            frontend_settings.CLOUDFRONT_URL
+        )
 
     return ManageResponse(**response)
 

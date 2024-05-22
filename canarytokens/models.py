@@ -2544,6 +2544,8 @@ class ManageResponse(BaseModel):
     wg_qr_code: Optional[str]
     qr_code: Optional[str]
     force_https: Optional[bool]
+    clonedsite_js: Optional[str]
+    clonedsite_css: Optional[str]
 
 
 class HistoryResponse(BaseModel):
