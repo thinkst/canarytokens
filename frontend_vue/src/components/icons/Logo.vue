@@ -73,7 +73,7 @@ function handleStartAnimation() {
   animateR.setAttribute('from', '21');
   animateR.setAttribute('to', '100');
   animateR.setAttribute('dur', '1000ms');
-  animateR.setAttribute('begin', '1500ms');
+  animateR.setAttribute('begin', '500ms');
   animateR.setAttribute('repeatCount', 'indefinite');
   circle.appendChild(animateR);
 
@@ -85,15 +85,14 @@ function handleStartAnimation() {
   animateOpacity.setAttribute('from', '1');
   animateOpacity.setAttribute('to', '0');
   animateOpacity.setAttribute('dur', '1000ms');
-  animateOpacity.setAttribute('begin', '1500ms');
+  animateOpacity.setAttribute('begin', '500ms');
   animateOpacity.setAttribute('repeatCount', 'indefinite');
   circle.appendChild(animateOpacity);
 }
 
 function handleStopAnimation() {
   const circle = document.querySelector('.logo-dot-front');
-  while (circle.firstChild) {
-    circle.removeChild(circle.firstChild);
-  }
+  // remove each animation element in the circle
+  Array.from(circle.childNodes).forEach((child) => child.remove());
 }
 </script>
