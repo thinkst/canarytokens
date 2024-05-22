@@ -69,24 +69,41 @@ function handleStartAnimation() {
     'http://www.w3.org/2000/svg',
     'animate'
   );
-  animateR.setAttribute('attributeName', 'r');
-  animateR.setAttribute('from', '21');
-  animateR.setAttribute('to', '100');
-  animateR.setAttribute('dur', '1000ms');
-  animateR.setAttribute('begin', '500ms');
-  animateR.setAttribute('repeatCount', 'indefinite');
+
+  // animate R element
+  const attributesSize = {
+    attributeName: 'r',
+    from: '21',
+    to: '100',
+    dur: '1000ms',
+    begin: '500ms',
+    repeatCount: 'indefinite',
+  };
+
+  Object.entries(attributesSize).forEach(([key, value]) => {
+    animateR.setAttribute(key, value);
+  });
+
   circle.appendChild(animateR);
 
   const animateOpacity = document.createElementNS(
     'http://www.w3.org/2000/svg',
     'animate'
   );
-  animateOpacity.setAttribute('attributeName', 'opacity');
-  animateOpacity.setAttribute('from', '1');
-  animateOpacity.setAttribute('to', '0');
-  animateOpacity.setAttribute('dur', '1000ms');
-  animateOpacity.setAttribute('begin', '500ms');
-  animateOpacity.setAttribute('repeatCount', 'indefinite');
+
+  // animate opacity circle
+  const attributesOpacity = {
+    attributeName: 'opacity',
+    from: '1',
+    to: '0',
+    dur: '1000ms',
+    begin: '500ms',
+    repeatCount: 'indefinite',
+  };
+  Object.entries(attributesOpacity).forEach(([key, value]) => {
+    animateOpacity.setAttribute(key, value);
+  });
+
   circle.appendChild(animateOpacity);
 }
 
