@@ -5,7 +5,7 @@
       shown: isTriggered,
       triggers: tooltipTriggers,
     }"
-    class="h-[2rem] w-[2rem] font-semibold text-white rounded-full bg-green hover:bg-green-300"
+    class="h-[2rem] w-[2rem] font-semibold text-white rounded-full bg-green hover:bg-green-300 transition duration-100"
     aria-label="Copy to clipboard"
     @click="copyContent"
   >

@@ -77,7 +77,7 @@ function handleSelectOption(value: string) {
   @apply text-grey-400;
 }
 .v-select .vs__dropdown-toggle {
-  @apply px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-xl border-grey-400 bg-white outline-offset-4;
+  @apply px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-xl border-grey-400 bg-white outline-offset-2;
 }
 
 .v-select .vs__dropdown-menu {

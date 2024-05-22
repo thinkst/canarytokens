@@ -45,24 +45,7 @@
             class="grayscale opacity-50 w-[50%] not-sr-only group-hover:opacity-100 sm:block mt-16"
           />
         </li>
-        <li
-          v-else
-          class="flex items-center justify-between"
-        >
-          <p class="text-sm text-grey-500">Download:</p>
-          <div>
-            <BaseButton
-              variant="text"
-              @click="handleDownloadList(INCIDENT_LIST_EXPORT.CSV)"
-              >CSV</BaseButton
-            >
-            <BaseButton
-              variant="text"
-              @click="handleDownloadList(INCIDENT_LIST_EXPORT.JSON)"
-              >JSON</BaseButton
-            >
-          </div>
-        </li>
+        <AlertsListDownload v-else />
 
         <CardIncident
           v-for="(incident, index) in hitsList"
@@ -84,13 +67,15 @@
         class="@md:relative md:h-[45svh] h-[30svh]"
         :class="hitsList.length === 0 ? 'hidden sm:grid' : 'grid'"
       >
-        <IncidentDetails
-          v-if="selectedAlert"
-          id="incident_detail"
-          :hit-alert="selectedAlert"
-          class="absolute top-[80px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll"
-          @close="selectedAlert = null"
-        ></IncidentDetails>
+        <transition name="slide-fade">
+          <IncidentDetails
+            v-if="selectedAlert"
+            id="incident_detail"
+            :hit-alert="selectedAlert"
+            class="absolute top-[80px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll"
+            @close="selectedAlert = null"
+          ></IncidentDetails>
+        </transition>
         <CustomMap :hits-list="hitsList"></CustomMap>
       </div>
       <!-- Benner for larger screens -->
@@ -114,8 +99,7 @@ import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
-import { downloadAsset } from '@/api/main';
-import { INCIDENT_LIST_EXPORT } from '@/components/constants';
+import AlertsListDownload from '@/components/ui/AlertsListDownload.vue';
 
 const emits = defineEmits(['update-token-title']);
 
@@ -142,10 +126,11 @@ async function fetchTokenHistoryData() {
   try {
     const res = await historyToken(params);
     const historyTokenData = (await res.data) as HistoryTokenBackendType;
-    hitsList.value = historyTokenData.hits;
+    console.log(res, 'res');
+    hitsList.value = historyTokenData.history.hits;
     emits(
       'update-token-title',
-      historyTokenData.token_type,
+      historyTokenData.history.token_type,
       route.params.token
     );
   } catch (err: any) {
@@ -155,24 +140,6 @@ async function fetchTokenHistoryData() {
   } finally {
     isLoading.value = false;
   }
-}
-
-function handleDownloadList(type: string) {
-  const params = {
-    fmt: type,
-    auth: route.params.auth as string,
-    token: route.params.token as string,
-  };
-  downloadAsset(params)
-    .then((res) => {
-      window.location.href = res.request.responseURL;
-    })
-    .catch((err) => {
-      console.log(err, 'err');
-    })
-    .finally(() => {
-      console.log('You downloaded the file, yay!');
-    });
 }
 
 function handleSelectAlert(incident: HitsType) {
@@ -187,5 +154,17 @@ function handleSelectAlert(incident: HitsType) {
 <style>
 .grid-areas {
   grid-area: 1 / 1 / 2 / 2;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.25s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.25s ease;
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
 }
 </style>

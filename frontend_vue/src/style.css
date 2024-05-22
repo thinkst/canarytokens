@@ -18,7 +18,8 @@
 }
 
 *:focus-visible {
-  outline-color: hsl(191, 96%, 36%);
+  border: 1px solid hsl(157, 77%, 45%);
+  outline: transparent;
 }
 
 body {
@@ -79,4 +80,9 @@ p {
     border-radius: 9px;
     font-size: 14px;
   }
+}
+
+::selection {
+  background-color: hsl(191, 96%, 36%);
+  color: white;
 }

@@ -15,7 +15,7 @@
           >
             <RouterLink
               :to="item.path"
-              class="text-grey-400 hover:text-green desktop-link"
+              class="transition-colors duration-100 text-grey-400 hover:text-green desktop-link"
             >
               {{ item.name }}
             </RouterLink>
