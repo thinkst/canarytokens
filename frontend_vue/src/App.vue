@@ -18,14 +18,3 @@ import AppFooter from '@/components/ui/AppFooter.vue';
 import AppLayout from '@/layout/AppLayout.vue';
 import { ModalsContainer } from 'vue-final-modal';
 </script>
-
-<style>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

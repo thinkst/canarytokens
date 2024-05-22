@@ -126,7 +126,6 @@ async function fetchTokenHistoryData() {
   try {
     const res = await historyToken(params);
     const historyTokenData = (await res.data) as HistoryTokenBackendType;
-    console.log(res, 'res');
     hitsList.value = historyTokenData.history.hits;
     emits(
       'update-token-title',
