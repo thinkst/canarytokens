@@ -90,8 +90,8 @@ export type ManageTokenBackendType = {
   wg_conf: string;
   wg_qr_code: string;
   qr_code: string;
-  force_https: boolean;
   clonedsite_js: string;
+  force_https: boolean;
 };
 
 export type NewTokenBackendType = {
