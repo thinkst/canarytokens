@@ -103,6 +103,7 @@ i.e. for ClonedSite
     documentationLink: 'https://docs.canarytokens.org/link-here',
     icon: `${TOKENS_TYPE.CLONED_SITE}.png`,
     instruction: 'Add here short instruction that will be shown after the token is generated',
+    carousel: ['add first slide info','add second slide info','add third slide info']
   },
 ```
 ---
