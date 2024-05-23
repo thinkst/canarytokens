@@ -780,6 +780,7 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
         response["clonedsite_css"] = canarydrop.get_cloned_site_css(
             frontend_settings.CLOUDFRONT_URL
         )
+        response["client_id"] = frontend_settings.AZUREAPP_ID
 
     return ManageResponse(**response)
 
@@ -1291,6 +1292,11 @@ def _(token_request_details: SQLServerTokenRequest, canarydrop: Canarydrop):
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
+        sql_server_sql_action=canarydrop.sql_server_sql_action,
+        sql_server_table_name=canarydrop.sql_server_table_name,
+        sql_server_view_name=canarydrop.sql_server_view_name,
+        sql_server_function_name=canarydrop.sql_server_function_name,
+        sql_server_trigger_name=canarydrop.sql_server_trigger_name,
     )
 
 
