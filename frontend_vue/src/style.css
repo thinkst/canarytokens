@@ -86,3 +86,10 @@ p {
   background-color: hsl(191, 96%, 36%);
   color: white;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
