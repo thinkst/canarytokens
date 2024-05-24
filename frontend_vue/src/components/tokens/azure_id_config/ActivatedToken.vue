@@ -1,4 +1,7 @@
 <template>
+  <h3 class="mb-16 text-lg font-semibold leading-10 text-center text-grey-800">
+    How do you want to deploy it?
+  </h3>
   <TokenDisplay :token-data="tokenData" />
   <p class="mt-16 text-sm">
     When someone clones your site, they'll load the token, which will check

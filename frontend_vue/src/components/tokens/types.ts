@@ -93,6 +93,7 @@ export type ManageTokenBackendType = {
   clonedsite_js: string;
   clonedsite_css: string;
   force_https: boolean;
+  client_id: string;
 };
 
 export type NewTokenBackendType = {
