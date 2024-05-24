@@ -1,7 +1,7 @@
 <template>
   <li class="relative flex">
     <button
-      class="relative border flex-1 group flex flex-col px-16 pt-16 pb-24 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey-sm border-grey-200 items-center duration-100 ease-in-out token-card"
+      class="relative group border flex-1 group flex flex-col px-16 pt-16 pb-24 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey-sm border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"
     >
       <div v-if="isLoading">
@@ -13,7 +13,7 @@
       <img
         v-if="!isLoading"
         :src="src"
-        class="h-[4rem]"
+        class="h-[4rem] transition-transform duration-150 group-hover:scale-95"
         aria-hidden="true"
         :alt="`${title} logo`"
       />
@@ -107,6 +107,6 @@ watch(logoUrl, () => {
 <style scoped>
 .token-card:hover,
 .token-card:focus {
-  @apply border-green shadow-solid-shadow-green-500-sm bg-green-50;
+  @apply border-green shadow-solid-shadow-green-500-sm ;
 }
 </style>

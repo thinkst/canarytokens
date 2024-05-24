@@ -1,7 +1,7 @@
 <template>
   <div class="z-50 flex justify-between w-full gap-24 sm:justify-center">
     <div class="flex flex-row lg:w-[80vw] sm:w-full">
-      <AppLogo class="px-32 py-24" />
+      <AppLogo class="px-24 py-16" />
       <nav
         role="navigation"
         class="items-center justify-end hidden w-full pr-32 md:flex"
@@ -15,13 +15,16 @@
           >
             <RouterLink
               :to="item.path"
-              class="text-grey-400 hover:text-green desktop-link"
+              class="transition-colors duration-100 text-grey-400 hover:text-green desktop-link focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               {{ item.name }}
             </RouterLink>
           </li>
-          <li class="cursor-pointer text-grey-400 hover:text-green">
-            <a href="#">
+          <li>
+            <a
+              href="#"
+              class="transition-colors duration-100 cursor-pointer text-grey-400 hover:text-green desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
               <font-awesome-icon
                 icon="link"
                 class="w-[0.8rem] pr-8"

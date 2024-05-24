@@ -27,7 +27,7 @@
       v-if="showMobileMenu"
       id="mobile_menu"
       role="navigation"
-      class="absolute transition-left ease-in-out duration-300 w-full text-center md:hidden bg-green top-[80px] py-32 min-h-svh z-50 motion-reduce:transition-none motion-reduce:hover:transform-none"
+      class="absolute transition-left ease-in-out duration-300 w-full text-center md:hidden bg-green top-[93px] py-32 min-h-svh z-50 motion-reduce:transition-none motion-reduce:hover:transform-none"
     >
       <ul class="uppercase">
         <li

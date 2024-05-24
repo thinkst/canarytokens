@@ -35,7 +35,7 @@
       :id="`${index + 1}__slide`"
       :key="index"
       :class="isActiveSlide(index) ? 'active' : ''"
-      class="w-[1.8rem] h-[1.8rem] bg-grey-300 border-4 border-grey-100 rounded-full text-white font-semibold items-center flex justify-center hover:bg-grey-200"
+      class="w-[1.8rem] h-[1.8rem] bg-grey-300 border-4 border-grey-100 rounded-full text-white font-semibold items-center flex justify-center hover:bg-grey-200 transition duration-150"
       @click="handleSlideChange(index + 1)"
     >
       {{ index + 1 }}
