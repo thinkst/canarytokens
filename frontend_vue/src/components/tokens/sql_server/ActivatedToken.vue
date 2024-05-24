@@ -1,4 +1,3 @@
-<!-- TODO: fix after related backend task on /generate is solved-->
 <template>
   <TokenDisplay :token-data="tokenCode" />
   <p class="mt-16 text-sm">
