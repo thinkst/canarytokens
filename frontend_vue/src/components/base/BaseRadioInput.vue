@@ -76,7 +76,7 @@ input[type='radio']:checked::before {
 }
 
 input[type='radio']:focus {
-  outline: max(2px, 0.15rem) solid hsl(191, 96%, 76%);
+  outline: max(2px, .25rem) solid hsl(148, 68%, 93%);
 }
 
 label:has(input[type='radio']:checked) {

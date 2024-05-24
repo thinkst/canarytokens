@@ -101,7 +101,7 @@ const buttonClass = computed(() => {
 
 <style scoped>
 .base-button {
-  @apply w-fit relative font-semibold rounded-full px-16 py-8 disabled:pointer-events-none;
+  @apply w-fit relative font-semibold rounded-full px-16 py-8 disabled:pointer-events-none transition duration-100;
 }
 
 .primary {

@@ -25,6 +25,8 @@ import {
   faBell,
   faGear,
   faMagnifyingGlass,
+  faFileExcel,
+  faFile,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -58,7 +60,9 @@ library.add(
   faMinus,
   faBell,
   faGear,
-  faMagnifyingGlass
+  faMagnifyingGlass,
+  faFileExcel,
+  faFile
 );
 
 const vfm = createVfm();

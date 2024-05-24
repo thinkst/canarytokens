@@ -1,6 +1,6 @@
 <template>
   <button
-    class="flex flex-col items-center px-16 border sm:py-8 sm:px-16 grayscale hover:grayscale-0 rounded-2xl hover:border-green-500 active:border-green-500 group"
+    class="flex flex-col items-center px-16 duration-100 border sm:py-8 sm:px-16 grayscale hover:grayscale-0 rounded-2xl hover:border-green-500 active:border-green-500 group"
     :class="selected ? ' border-green-500 grayscale-0' : 'border-grey-200'"
   >
     <font-awesome-icon
