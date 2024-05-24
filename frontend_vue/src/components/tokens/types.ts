@@ -126,6 +126,11 @@ export type NewTokenBackendType = {
   qr_code: string | null;
   wg_conf: string | null;
   client_id: string | null;
+  sql_server_function_name: string | null;
+  sql_server_sql_action: string | null;
+  sql_server_table_name: string | null;
+  sql_server_trigger_name: string | null;
+  sql_server_view_name: string | null;
 };
 
 export type AsnType = {

@@ -1,7 +1,7 @@
 import type { SQLServerDataType } from './types';
 
 export default function generateSQLServertoken(SQLData: SQLServerDataType) {
-  const snippetIsSelect = `
+  const snippetIsNotSelect = `
 --create a stored proc that'll ping canarytokens
   CREATE proc ping_canarytoken
   AS
@@ -54,7 +54,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
   exec ping_canarytoken
   end`;
 
-  const snippetIsNotSelect = `
+  const snippetIsSelect = `
 --create a table-view function to query the canary hostname
   CREATE function ${SQLData.sql_function_name}(@RAND FLOAT) returns @output table (col1 varchar(max))
   AS
