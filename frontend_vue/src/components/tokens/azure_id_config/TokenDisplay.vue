@@ -1,7 +1,4 @@
 <template>
-  <h3 class="mb-16 text-lg font-semibold leading-10 text-center text-grey-800">
-    How do you want to deploy it?
-  </h3>
   <div
     v-if="!isManualFlow"
     class="flex flex-col gap-16 md:flex-row"
