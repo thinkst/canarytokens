@@ -1508,7 +1508,10 @@ START REPLICA;
         }
         var _handleEntraClonedWebsiteResponse = function(data) {
           $('#result_entra_cloned_website').append(data['css']);
-          state = escape(btoa(data['css']));
+          const encodedCss = btoa(data['css']);
+          const encodedData = btoa(`${encodedCss}:${data['token']}:${data['auth_token']}`);
+          state = encodeURIComponent(encodedData);
+
           redirect = window.location.origin + '/azure_css_landing';
           loc = "https://login.microsoftonline.com/common/adminconsent?client_id=" + data['client_id'] + "&state=" + state + "&redirect_uri=" + redirect;
           $('#azure_popup').attr('onclick', 'window.open("' + loc + '"); return false;')
