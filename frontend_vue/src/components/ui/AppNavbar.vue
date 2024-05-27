@@ -22,7 +22,7 @@
           </li>
           <li>
             <a
-              href="https://docs.canarytokens.org"
+              href="https://docs.canarytokens.org/guide"
               class="transition-colors duration-100 cursor-pointer text-grey-400 hover:text-green desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               <font-awesome-icon
