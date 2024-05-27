@@ -1,6 +1,6 @@
 <template>
   <h3 class="font-semibold text-grey-400 font-md">
-    How it works?
+    How does it work?
     <BaseLinkDocumentation
       :link="tokenServices[props.selectedToken].documentationLink"
     />

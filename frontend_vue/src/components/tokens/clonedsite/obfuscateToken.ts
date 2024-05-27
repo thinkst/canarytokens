@@ -1,6 +1,6 @@
 import JavascriptObfuscator from 'javascript-obfuscator';
 export default function obfuscateToken(jsCode: string) {
-  const modifyScriptJs = (scriptJs, cb) => {
+  const modifyScriptJs = (scriptJs: any, cb: any) => {
     let innerJs = scriptJs.replace(/^<script>/, '');
     innerJs = innerJs.replace(/<\/script>$/, '');
     const newInnerJs = cb(innerJs);
@@ -9,7 +9,7 @@ export default function obfuscateToken(jsCode: string) {
     return '<scri' + 'pt>' + newInnerJs + '</scri' + 'pt>';
   };
 
-  const obfuscatedToken = modifyScriptJs(jsCode, (scriptJs) =>
+  const obfuscatedToken = modifyScriptJs(jsCode, (scriptJs: any) =>
     JavascriptObfuscator.obfuscate(scriptJs, {
       compact: true,
       simplify: true,

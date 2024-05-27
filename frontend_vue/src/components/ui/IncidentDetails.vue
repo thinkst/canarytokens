@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
 import IncidentDetailsListItem from '@/components/ui/IncidentDetailsListItem.vue';
@@ -115,6 +115,18 @@ onMounted(() => {
     builtIncidentDetail.value as FormattedHitsType
   );
 });
+
+watch(
+  () => props.hitAlert,
+  () => {
+    // Map & cleanup hitAlert
+    builtIncidentDetail.value = buildIncidentDetails(props.hitAlert);
+    // Make the list UI friendly
+    formattedIncidentDetail.value = formatLabels(
+      builtIncidentDetail.value as FormattedHitsType
+    );
+  }
+);
 </script>
 
 <style scoped>

@@ -275,7 +275,10 @@
       <hr class="my-24" />
       <h1>Search bar</h1>
       <div class="flex flex-col gap-16 mt-24 mb-32">
-        <SearchBar />
+        <SearchBar
+          label="Search"
+          placeholder="A nice placeholder"
+        />
       </div>
     </div>
   </div>
