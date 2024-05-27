@@ -84,7 +84,7 @@ function handleStartAnimation() {
     animateR.setAttribute(key, value);
   });
 
-  circle.appendChild(animateR);
+  circle?.appendChild(animateR);
 
   const animateOpacity = document.createElementNS(
     'http://www.w3.org/2000/svg',
@@ -104,12 +104,12 @@ function handleStartAnimation() {
     animateOpacity.setAttribute(key, value);
   });
 
-  circle.appendChild(animateOpacity);
+  circle?.appendChild(animateOpacity);
 }
 
 function handleStopAnimation() {
   const circle = document.querySelector('.logo-dot-front');
   // remove each animation element in the circle
-  Array.from(circle.childNodes).forEach((child) => child.remove());
+  circle && Array.from(circle.childNodes).forEach((child) => child.remove());
 }
 </script>

@@ -1,7 +1,8 @@
 <template>
   <h3 class="font-semibold text-grey-400 font-md">
-    How it works?
+    How does it work?
     <BaseLinkDocumentation
+      v-if="tokenServices[props.selectedToken].documentationLink"
       :link="tokenServices[props.selectedToken].documentationLink"
     />
   </h3>

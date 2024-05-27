@@ -222,7 +222,13 @@ export type FormattedHitsType = {
   additional_info: AdditionalInfoType;
 };
 
-export type HistoryTokenBackendType = {
+export type HistoryType = {
   hits: HitsType[];
   token_type: string;
+};
+
+export type HistoryTokenBackendType = {
+  history: HistoryType;
+  canarydrop: CanaryDropType;
+  google_api_key: string | null;
 };
