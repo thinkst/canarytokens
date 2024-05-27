@@ -56,7 +56,7 @@ const auth = ref(route.params.auth);
 const token = ref(route.params.token);
 
 const menuItems = computed(() => {
-  const items = [{ name: 'New token', path: '/' }];
+  const items = [];
 
   if (isDevEnv) {
     items.push({ name: 'Components Preview', path: '/components' });
@@ -64,6 +64,7 @@ const menuItems = computed(() => {
 
   if (isExistingToken.value) {
     items.push(
+      { name: 'New token', path: '/' },
       { name: 'Token History', path: `/history/${auth.value}/${token.value}` },
       { name: 'Manage Token', path: `/manage/${auth.value}/${token.value}` }
     );
