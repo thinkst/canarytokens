@@ -1,8 +1,8 @@
 <template>
   <div
-    class="text-grey-400 h-[100px] px-24 py-16 text-xs text-center grid grid-cols-1 lg:grid-cols-3 items-center"
+    class="grid items-center grid-cols-1 px-24 py-16 mb-16 text-xs text-center text-grey-400"
   >
-    <div class="flex justify-center py-16 lg:py-0 lg:justify-start">
+    <div class="flex justify-center py-16">
       <a
         href="https://canary.tools/"
         target="_blank"

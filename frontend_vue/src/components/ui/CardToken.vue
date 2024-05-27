@@ -48,8 +48,9 @@
     </button>
 
     <BaseLinkDocumentation
+      v-if="documentationLink"
       :link="documentationLink"
-      class="absolute z-10 top-[9px] left-[8px] cursor-pointer transition-all duration-100 ease-in-out token-card__documentation-link"
+      class="absolute z-10 top-[9px] right-[8px] cursor-pointer transition-all duration-100 ease-in-out token-card__documentation-link"
       tabindex="0"
       :title="title"
     />

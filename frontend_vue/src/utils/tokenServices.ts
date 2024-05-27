@@ -87,7 +87,7 @@ export const tokenServices: TokenServicesType = {
     label: 'Log4shell',
     description:
       'Get an alert when a log4j logline is vulnerable to CVW-2021-44-228.',
-    documentationLink: '#',
+    documentationLink: '',
     icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
     instruction:
       'The next step is to copy the log4j snippet below and test your systems for the log4shell issue.',
@@ -160,7 +160,7 @@ export const tokenServices: TokenServicesType = {
     label: 'Azure login certificate',
     description:
       'Get an alert when an attacker uses your Azure Service Principal certificate to login with.',
-    documentationLink: '#',
+    documentationLink: '',
     icon: `${TOKENS_TYPE.AZURE_ID}.png`,
     instruction: 'Save this json config file along with the certificate:',
     carouselSlides: [
@@ -217,7 +217,7 @@ export const tokenServices: TokenServicesType = {
     label: 'Unique email address',
     description:
       'Get an alert when an attacker send an email to this unique address.',
-    documentationLink: '#',
+    documentationLink: '',
     icon: `${TOKENS_TYPE.UNIQUE_EMAIL}.png`,
     instruction: 'Here is a unique email address:',
     carouselSlides: [
