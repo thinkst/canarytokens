@@ -59,6 +59,9 @@
         </div>
       </template>
     </Suspense>
+    <MemoDisplay class="mt-32">{{
+      manageTokenResponse.canarydrop.memo
+    }}</MemoDisplay>
     <SettingsToken
       :token-backend-response="manageTokenResponse"
       class="mt-32"
@@ -87,6 +90,7 @@ import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import { TOKENS_TYPE } from './constants';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
+import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 
 const route = useRoute();
 const router = useRouter();
