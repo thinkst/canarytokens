@@ -586,11 +586,14 @@ async def azure_css_landing(
     """
     info = ""
     if admin_consent == "True":
-        tenant_id = tenant
-        if css := state:
-            css = b64decode(unquote(state)).decode()
-        if css is not None and tenant_id is not None:
-            (success, info) = install_azure_css(tenant_id, css)
+        css = None
+        token = None
+        token_auth = None
+
+        css, token, token_auth = b64decode(unquote(state)).decode().split(":")
+
+        if css is not None and tenant is not None:
+            (success, info) = install_azure_css(tenant, css)
             info += " We have uninstalled our application from you tenant, revoking all of our permissions."
     else:
         info = "Installation failed due to lack of sufficient granted permissions."
