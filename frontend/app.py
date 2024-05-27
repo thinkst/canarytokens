@@ -590,7 +590,8 @@ async def azure_css_landing(
         token = None
         token_auth = None
 
-        css, token, token_auth = b64decode(unquote(state)).decode().split(":")
+        encodedCss, token, token_auth = b64decode(unquote(state)).decode().split(":")
+        css = b64decode(encodedCss).decode()
 
         if css is not None and tenant is not None:
             (success, info) = install_azure_css(tenant, css)
