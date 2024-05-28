@@ -114,7 +114,7 @@ const props = defineProps<{
 const isManualFlow = ref(false);
 
 const automaticLink = computed(() => {
-  const state = escape(btoa(`${props.tokenData?.css}`));
+  const state = encodeURIComponent(btoa(`${props.tokenData?.css}`));
   const redirect = `${window.location.origin}/azure_css_landing`;
   return `https://login.microsoftonline.com/common/adminconsent?client_id=${props.tokenData.client_id}&state=${state}&redirect_uri=${redirect}`;
 });
