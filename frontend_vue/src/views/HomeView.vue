@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center gap-16 my-24 mb-[40px] text-center">
+  <div class="flex flex-col items-center gap-16 my-24 mb-16 text-center">
     <div>
       <h1 class="text-4xl font-semibold text-grey-900">
         Here goes something, like a

@@ -3,15 +3,15 @@
     <label
       for="search-cnarytoken"
       class="sr-only"
-      >Search CanaryToken</label
+      >{{ label }}</label
     >
     <input
       id="search-canarytoken"
       v-bind="$attrs"
       v-model="model"
       type="text"
-      placeholder="Search Canarytoken"
-      class="placeholder:font-thin py-8 pl-[2.5rem] border font-semibold resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 outline-offset-4"
+      :placeholder="placeholder"
+      class="placeholder:font-thin py-8 pl-[2.5rem] border font-semibold resize-none shadow-inner-shadow-grey rounded-3xl border-grey-200 outline-offset-4"
     />
     <font-awesome-icon
       icon="magnifying-glass"
