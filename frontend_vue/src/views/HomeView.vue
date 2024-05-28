@@ -1,13 +1,10 @@
 <template>
-  <div class="flex flex-col items-center gap-16 my-24 mb-[40px] text-center">
+  <div class="flex flex-col items-center gap-16 my-24 mb-16 text-center">
     <div>
       <h1 class="text-4xl font-semibold text-grey-900">
-        Here goes something, like a
-        <span class="text-green-500">clear</span> Headline.
+        Create a Canarytoken, Deploy it somewhere
       </h1>
-      <h2 class="mt-8 font-md text-grey-400">
-        Something else we want to tell users when they land here.
-      </h2>
+      <h2 class="mt-8 font-md text-grey-400">Know. When it matters.</h2>
       <h3 class="mt-32 mb-16 text-xl text-grey-800">
         Generate new Canarytoken
       </h3>
