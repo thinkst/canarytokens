@@ -31,8 +31,14 @@
             />
             <span class="fa-sr-only">Back</span>
           </button>
-          <h1 class="text-2xl font-semibold text-center">
+          <h1
+            class="flex items-center justify-center text-2xl font-semibold text-center"
+          >
             {{ title }}
+            <BaseLinkDocumentation
+              v-if="documentationLink"
+              :link="documentationLink"
+            />
           </h1>
           <button
             type="button"
@@ -75,6 +81,7 @@ import { VueFinalModal } from 'vue-final-modal';
 defineProps<{
   hasBackButton: boolean;
   title: string;
+  documentationLink: string | null;
 }>();
 
 const emit = defineEmits<{
