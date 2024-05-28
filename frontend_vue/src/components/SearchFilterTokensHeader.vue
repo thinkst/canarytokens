@@ -1,29 +1,37 @@
 <template>
-  <SearchBar
-    placeholder="Which Canarytoken do you need?"
-    label="Search Canarytoken"
-    class="w-full lg:w-[30vw] md:w-[50vw]"
-    @input="
-      (e: Event) =>
-        debounce(
-          () => (searchValue = (e.target as HTMLInputElement).value),
-          250
-        )()
-    "
-  />
-  <ul class="flex flex-row flex-wrap justify-center gap-16 list-none">
-    <li
-      v-for="category in TOKEN_CATEGORY"
-      :key="category"
-    >
+  <div
+    class="flex flex-col items-center justify-between w-full gap-24 md:flex-row"
+  >
+    <ul class="flex flex-row flex-wrap gap-8 list-none justify-left">
       <FilterButton
-        icon="default.png"
-        :category="category"
-        :selected="filterValue === category"
-        @click="handleFilterByCategory(category)"
+        category="All"
+        :selected="!filterValue"
+        @click="filterValue = ''"
       />
-    </li>
-  </ul>
+      <li
+        v-for="category in TOKEN_CATEGORY"
+        :key="category"
+      >
+        <FilterButton
+          :category="category"
+          :selected="filterValue === category"
+          @click="handleFilterByCategory(category)"
+        />
+      </li>
+    </ul>
+    <SearchBar
+      placeholder="Search"
+      label="Search"
+      class="w-full md:w-[15vw]"
+      @input="
+        (e: Event) =>
+          debounce(
+            () => (searchValue = (e.target as HTMLInputElement).value),
+            250
+          )()
+      "
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
