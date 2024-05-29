@@ -12,6 +12,7 @@ export default {
       '16': '1rem',
       '24': '1.5rem',
       '32': '2rem',
+      '40': '2.25rem',
     },
     colors: {
       'green': {

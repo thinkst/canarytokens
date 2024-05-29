@@ -2,6 +2,7 @@
   <BaseModal
     :title="title"
     :has-back-button="hasBackButton"
+    :documentation-link="handleShowDocumentationLink"
     @handle-back-button="handleBackButton"
   >
     <Suspense v-if="modalType === ModalType.AddToken">
@@ -92,6 +93,7 @@ import ModalContentActivatedTokenLoader from '@/components/ui/ModalContentActiva
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
+import { tokenServices } from '@/utils/tokenServices';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -120,7 +122,7 @@ const props = defineProps<{
 const title = computed(() => {
   switch (modalType.value) {
     case ModalType.AddToken:
-      return 'Add Token';
+      return `Add  ${tokenServices[props.selectedToken].label} Token`;
     case ModalType.NewToken:
       return 'New Token';
     case ModalType.HowToUse:
@@ -132,6 +134,13 @@ const title = computed(() => {
 
 const hasBackButton = computed(() => {
   return modalType.value === ModalType.HowToUse;
+});
+
+// show Documentation link only for AddToken modal
+const handleShowDocumentationLink = computed(() => {
+  return modalType.value === ModalType.AddToken
+    ? tokenServices[props.selectedToken].documentationLink
+    : null;
 });
 
 /* AZURE CONFIG Exception handler */

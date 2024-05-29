@@ -1,11 +1,5 @@
 <template>
-  <h3 class="font-semibold text-grey-400 font-md">
-    How does it work?
-    <BaseLinkDocumentation
-      v-if="tokenServices[props.selectedToken].documentationLink"
-      :link="tokenServices[props.selectedToken].documentationLink"
-    />
-  </h3>
+  <h3 class="mt-16 text-lg font-semibold text-grey-400">How does it work?</h3>
   <div
     class="relative w-full sm:h-[100px] h-[110px] md:w-[90%] lg:w-[70%] carousel"
   >
@@ -18,10 +12,10 @@
         class="flex-[0_0_100%] relative flex items-center my-16 bg-white border rounded-xl shadow-solid-shadow-grey-sm border-grey-200 carousel__slide"
       >
         <img
-          :src="getImageUrl(`icons/carousel_${index + 1}.png`)"
+          :src="getCarouselIcon(index)"
           alt="icon"
           aria-hidden="true"
-          class="h-[6rem] sm:h-[5rem] -translate-y-8 sm:ml-16 ml-8"
+          class="h-[3.5rem] sm:ml-16 ml-8"
         />
         <span class="carousel__slide__snapper"></span>
         <p class="px-16 text-sm text-left text-grey-400 text-pretty">
@@ -67,6 +61,13 @@ onMounted(() => {
 
   sliderView && calculateActiveSlide(sliderView);
 });
+
+// Show token icon for first slide, and carousel icon for the rest
+function getCarouselIcon(index: number) {
+  return index === 0
+    ? getImageUrl(`token_icons/${tokenServices[props.selectedToken].icon}`)
+    : getImageUrl(`icons/carousel_${index + 1}.png`);
+}
 
 function calculateActiveSlide(sliderView: Element) {
   const singleSlideWidth = sliderView

@@ -6,7 +6,7 @@
         type="text"
         required
         placeholder="your-email@email.com"
-        label="I'd like to be notified via Email"
+        label="Email"
         full-width
       />
       <BaseFormTextField
@@ -14,7 +14,7 @@
         id="webhook_url"
         type="text"
         placeholder="http://your-webhook-url.com"
-        label="I'd like to be notified via Webhook"
+        label="Webhook"
         full-width
       />
       <button
@@ -30,12 +30,11 @@
 
     <BaseFormTextField
       id="memo"
-      label="Reminder for this Canarytoken"
+      label="Reminder"
       :placeholder="`E.g: ${memoHelperExample}`"
       multiline
       required
       full-width
-      helper-message="Reminder note when this token is triggered."
     ></BaseFormTextField>
   </BaseGenerateTokenSettings>
 </template>
