@@ -33,8 +33,8 @@
       :required="required"
       :disabled="disabled"
       v-bind="$attrs"
-      @input="handleChange"
-      @blur="handleBlur"
+      @blur="handleChange"
+      @input="(e: Event) => validateIfErrorExists(e)"
     />
     <div class="pr-8 mt-4 ml-16">
       <p
@@ -78,9 +78,13 @@ const id = toRef(props, 'id');
 const {
   value: inputValue,
   errorMessage,
-  handleBlur,
   handleChange,
 } = useField(id, undefined, {
   initialValue: props.value,
 });
+
+// We validate the input on typing only when the field has an error
+function validateIfErrorExists(e: Event) {
+  if (errorMessage && errorMessage.value) handleChange(e);
+}
 </script>
