@@ -1,0 +1,1 @@
+import{_ as s,a as o,c as t,i as c}from"./index-5VSA5TjA.js";const n={},a={class:"flex flex-col items-center max-w-[90svw] md:max-w-[80svw] md:mx-[10svw]"};function r(e,l){return o(),t("div",a,[c(e.$slots,"default")])}const _=s(n,[["render",r]]);export{_ as A};

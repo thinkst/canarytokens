@@ -1,0 +1,1 @@
+import{_ as n}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-DJzrpp7C.js";import{d as p,a,b as s}from"./index-5VSA5TjA.js";const l=p({__name:"TokenDisplay",props:{tokenUrl:{}},setup(t){return(e,_)=>{const o=n;return a(),s(o,{lang:"php",label:"URL token",code:e.tokenUrl},null,8,["code"])}}});export{l as _};
