@@ -1,6 +1,6 @@
 <template>
   <a
-    class="inline-flex hover:text-green-700 text-grey-400 bg-transparent border border-solid rounded-full border-grey-200 hover:border-green-500 w-[1.2rem] h-[1.2rem] justify-center items-center my-8 mx-8"
+    class="inline-flex flex-shrink-0 hover:text-green-700 text-grey-400 bg-transparent border border-solid rounded-full border-grey-200 hover:border-green-500 w-[1.2rem] h-[1.2rem] justify-center items-center my-8 mx-8"
     :href="link"
     target="_blank"
     :aria-label="`Check ${title} documentation`"
