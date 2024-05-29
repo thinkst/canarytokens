@@ -23,6 +23,10 @@
       placeholder="Search"
       label="Search"
       class="w-full md:w-[15vw]"
+      :class="{
+        stress: searchValue.includes('!!!'),
+        love: searchValue.includes('love'),
+      }"
       @input="
         (e: Event) =>
           debounce(
@@ -127,3 +131,39 @@ watch(searchValue, () => {
   emits('filter-search', searchValue.value);
 });
 </script>
+
+<style scoped>
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.stress {
+  animation: shake 0.15s infinite;
+}
+
+.love::before {
+  content: '\f004';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  display: inline-block;
+  position: absolute;
+  top: 0.5rem;
+  left: -2rem;
+  color: pink;
+  @apply animate-ping;
+}
+</style>
