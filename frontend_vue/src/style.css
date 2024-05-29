@@ -18,8 +18,7 @@
 }
 
 *:focus-visible {
-  border: 1px solid hsl(157, 77%, 45%);
-  outline: transparent;
+  outline: 2px solid hsl(162, 86%, 36%);
 }
 
 body {

@@ -21,7 +21,7 @@
       :is="inputType"
       :id="id"
       :value="inputValue"
-      class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 outline-offset-4"
+      class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:ring-green-600 focus-visible:ring-1"
       :class="[
         { 'border-red shadow-none': errorMessage },
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },
