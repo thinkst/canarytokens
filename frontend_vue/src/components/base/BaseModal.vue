@@ -17,7 +17,7 @@
         class="md:w-[60vw] lg:w-[50vw] my-16 mx-auto bg-white rounded-lg max-w-[900px]"
       >
         <!-- header -->
-        <div class="relative pt-32 pb-16 bg-white rounded-t-lg header">
+        <div class="relative pt-24 pb-24 bg-white rounded-t-lg header">
           <button
             v-if="hasBackButton"
             type="button"
@@ -31,12 +31,18 @@
             />
             <span class="fa-sr-only">Back</span>
           </button>
-          <h1 class="text-2xl font-semibold text-center">
+          <h1
+            class="flex items-center justify-center px-40 text-2xl font-semibold text-center"
+          >
             {{ title }}
+            <BaseLinkDocumentation
+              v-if="documentationLink"
+              :link="documentationLink"
+            />
           </h1>
           <button
             type="button"
-            class="absolute top-[20px] right-[30px]"
+            class="absolute top-8 right-16"
             @click="emit('update:modelValue', false)"
           >
             <font-awesome-icon
@@ -75,6 +81,7 @@ import { VueFinalModal } from 'vue-final-modal';
 defineProps<{
   hasBackButton: boolean;
   title: string;
+  documentationLink: string | null;
 }>();
 
 const emit = defineEmits<{

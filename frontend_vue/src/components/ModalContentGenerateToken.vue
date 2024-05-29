@@ -1,12 +1,4 @@
 <template>
-  <img
-    :src="getImageUrl(`token_icons/${tokenServices[props.selectedToken].icon}`)"
-    :alt="`${tokenServices[props.selectedToken].label}`"
-    class="w-[6rem] pb-16"
-  />
-  <h2 class="mb-16 text-xl font-semibold leading-tight text-center">
-    {{ tokenServices[props.selectedToken].label }}
-  </h2>
   <component
     :is="dynamicCarousel"
     v-bind="{ selectedToken }"

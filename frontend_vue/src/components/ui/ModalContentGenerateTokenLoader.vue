@@ -2,14 +2,6 @@
 <template>
   <div class="flex flex-col items-center w-full px-32">
     <BaseSkeletonLoader
-      type="circle"
-      class="w-[80px] h-[80px] mt-8"
-    />
-    <BaseSkeletonLoader
-      type="header"
-      class="w-[200px] mt-24"
-    />
-    <BaseSkeletonLoader
       type="text"
       class="w-[50%] mt-16 mb-16"
     />
