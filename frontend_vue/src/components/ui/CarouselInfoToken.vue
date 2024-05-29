@@ -15,7 +15,7 @@
           :src="getCarouselIcon(index)"
           alt="icon"
           aria-hidden="true"
-          class="animate-float h-[5rem] sm:h-[5rem] -translate-y-[10px] sm:ml-16 ml-8"
+          class="h-[3.5rem] sm:ml-16 ml-8"
         />
         <span class="carousel__slide__snapper"></span>
         <p class="px-16 text-sm text-left text-grey-400 text-pretty">
@@ -104,21 +104,6 @@ function isActiveSlide(index: number) {
   @apply bg-green-500 border-green-200 hover:bg-green-500;
 }
 
-@keyframes animate-float {
-  0% {
-    transform: translateY(-10px);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-float {
-  animation: animate-float 2000ms ease-in-out infinite;
-}
 /* Remove Scrollbar style */
 
 .carousel__slides-container {
