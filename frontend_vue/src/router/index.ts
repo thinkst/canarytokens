@@ -25,6 +25,13 @@ const router = createRouter({
       },
     },
     {
+      path: '/manage',
+      name: 'manage-old',
+      redirect: to => {
+        return { path: `/manage/${to.query.auth}/${to.query.token}`, query: {}}
+      },
+    },
+    {
       path: '/history/:auth/:token',
       name: 'history',
       component: () =>
@@ -33,6 +40,13 @@ const router = createRouter({
         }),
       meta: {
         title: 'Token History',
+      },
+    },
+    {
+      path: '/history',
+      name: 'history-old',
+      redirect: to => {
+        return { path: `/history/${to.query.auth}/${to.query.token}`, query: {}}
       },
     },
     {
