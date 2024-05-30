@@ -70,5 +70,6 @@ li::before {
 
 p >>> code {
   @apply bg-grey-100 px-8 py-[2px] rounded-md mt-4;
+  overflow-wrap: anywhere;
 }
 </style>
