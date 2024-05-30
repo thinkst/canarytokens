@@ -23,7 +23,13 @@ const router = createRouter({
       meta: {
         title: 'Manage Token',
       },
-      alias: '/manage/:auth/:token' // Handle old /manage/:auth/:token links
+    },
+    {
+      path: '/manage/:auth/:token',
+      name: 'manage-old',
+      redirect: to => {
+        return { path: `/newuiwhodis/manage/${to.params.auth}/${to.params.token}`}
+      },
     },
     {
       path: '/newuiwhodis/history/:auth/:token',
@@ -35,7 +41,13 @@ const router = createRouter({
       meta: {
         title: 'Token History',
       },
-      alias: '/history/:auth/:token' // Handle old /history/:auth/:token links
+    },
+    {
+      path: '/history/:auth/:token',
+      name: 'history-old',
+      redirect: to => {
+        return { path: `/newuiwhodis/history/${to.params.auth}/${to.params.token}`}
+      },
     },
     {
       path: '/newuiwhodis/legal',
