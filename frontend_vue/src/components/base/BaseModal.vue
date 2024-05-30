@@ -21,7 +21,7 @@
           <button
             v-if="hasBackButton"
             type="button"
-            class="absolute top-[40px] left-[30px]"
+            class="absolute top-[1.8rem] left-24"
             @click="emit('handleBackButton', false)"
           >
             <font-awesome-icon
