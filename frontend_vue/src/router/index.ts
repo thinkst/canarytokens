@@ -6,7 +6,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
+      path: '/newuiwhodis/',
       name: 'home',
       component: HomeView,
       meta: {
@@ -14,7 +14,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/manage/:auth/:token',
+      path: '/newuiwhodis/manage/:auth/:token',
       name: 'manage',
       component: () =>
         import('../views/ManageView.vue').catch(() => {
@@ -23,9 +23,10 @@ const router = createRouter({
       meta: {
         title: 'Manage Token',
       },
+      alias: '/manage/:auth/:token' // Handle old /manage/:auth/:token links
     },
     {
-      path: '/history/:auth/:token',
+      path: '/newuiwhodis/history/:auth/:token',
       name: 'history',
       component: () =>
         import('../views/HistoryView.vue').catch(() => {
@@ -34,9 +35,10 @@ const router = createRouter({
       meta: {
         title: 'Token History',
       },
+      alias: '/history/:auth/:token' // Handle old /history/:auth/:token links
     },
     {
-      path: '/legal',
+      path: '/newuiwhodis/legal',
       name: 'legal',
       component: () => import('../views/LegalView.vue'),
       meta: {
@@ -44,7 +46,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/error',
+      path: '/newuiwhodis/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),
       meta: {
@@ -62,7 +64,7 @@ const router = createRouter({
     ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
       ? [
           {
-            path: '/components',
+            path: '/newuiwhodis/components',
             name: 'components',
             component: () => import('../views/ComponentPreview.vue'),
             meta: {
