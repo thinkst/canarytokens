@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
-    base: '/newuiwhodis',
+    base: '/',
     plugins: [
       vue(),
       Components({
