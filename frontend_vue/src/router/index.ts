@@ -6,7 +6,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/newuiwhodis/',
+      path: '/',
       name: 'home',
       component: HomeView,
       meta: {
@@ -14,7 +14,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/newuiwhodis/manage/:auth/:token',
+      path: '/manage/:auth/:token',
       name: 'manage',
       component: () =>
         import('../views/ManageView.vue').catch(() => {
@@ -28,11 +28,11 @@ const router = createRouter({
       path: '/manage',
       name: 'manage-old',
       redirect: to => {
-        return { path: `/newuiwhodis/manage/${to.query.auth}/${to.query.token}`, query: {}}
+        return { path: `/manage/${to.query.auth}/${to.query.token}`, query: {}}
       },
     },
     {
-      path: '/newuiwhodis/history/:auth/:token',
+      path: '/history/:auth/:token',
       name: 'history',
       component: () =>
         import('../views/HistoryView.vue').catch(() => {
@@ -46,11 +46,11 @@ const router = createRouter({
       path: '/history',
       name: 'history-old',
       redirect: to => {
-        return { path: `/newuiwhodis/history/${to.query.auth}/${to.query.token}`, query: {}}
+        return { path: `/history/${to.query.auth}/${to.query.token}`, query: {}}
       },
     },
     {
-      path: '/newuiwhodis/legal',
+      path: '/legal',
       name: 'legal',
       component: () => import('../views/LegalView.vue'),
       meta: {
@@ -58,7 +58,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/newuiwhodis/error',
+      path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),
       meta: {
@@ -76,7 +76,7 @@ const router = createRouter({
     ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
       ? [
           {
-            path: '/newuiwhodis/components',
+            path: '/components',
             name: 'components',
             component: () => import('../views/ComponentPreview.vue'),
             meta: {

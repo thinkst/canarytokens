@@ -60,14 +60,14 @@ const menuItems = computed(() => {
   const items = [];
 
   if (isDevEnv) {
-    items.push({ name: 'Components Preview', path: '/newuiwhodis/components' });
+    items.push({ name: 'Components Preview', path: '/components' });
   }
 
   if (isExistingToken.value) {
     items.push(
-      { name: 'New token', path: '/newuiwhodis/' },
-      { name: 'Token History', path: `/newuiwhodis/history/${auth.value}/${token.value}` },
-      { name: 'Manage Token', path: `/newuiwhodis/manage/${auth.value}/${token.value}` }
+      { name: 'New token', path: '/' },
+      { name: 'Token History', path: `/history/${auth.value}/${token.value}` },
+      { name: 'Manage Token', path: `/manage/${auth.value}/${token.value}` }
     );
   }
 

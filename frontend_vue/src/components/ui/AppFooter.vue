@@ -23,7 +23,7 @@
       <p>
         By Using This Service, You Agree to
         <RouterLink
-          to="/newuiwhodis/legal"
+          to="/legal"
           class="text-green-500 hover:text-green"
           >Our Terms of Use.</RouterLink
         >

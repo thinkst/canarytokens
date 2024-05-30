@@ -37,7 +37,7 @@
 
 @media screen and (max-width: 761px) {
   .banner-bg {
-    background-image: url(/newuiwhodis/src/assets/banner_visual.png),
+    background-image: url('@/assets/banner_visual.png'),
       linear-gradient(90deg, hsl(147, 71%, 63%) -1.7%, hsl(162, 86%, 36%) 100%);
     background-repeat: no-repeat;
   }
