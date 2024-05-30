@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center w-full mt-24 md:px-32">
     <div
-      class="flex px-8 pt-16 sm:px-16 justify-centergap-16 lg:px-32 banner-bg rounded-2xl"
+      class="flex justify-center gap-16 px-8 pt-16 sm:px-16 lg:px-32 banner-bg rounded-2xl"
     >
       <img
         :src="getImageUrl('inyoni.gif')"
