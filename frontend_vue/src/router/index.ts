@@ -25,10 +25,10 @@ const router = createRouter({
       },
     },
     {
-      path: '/manage/:auth/:token',
+      path: '/manage',
       name: 'manage-old',
       redirect: to => {
-        return { path: `/newuiwhodis/manage/${to.params.auth}/${to.params.token}`}
+        return { path: `/newuiwhodis/manage/${to.query.auth}/${to.query.token}`, query: {}}
       },
     },
     {
@@ -43,10 +43,10 @@ const router = createRouter({
       },
     },
     {
-      path: '/history/:auth/:token',
+      path: '/history',
       name: 'history-old',
       redirect: to => {
-        return { path: `/newuiwhodis/history/${to.params.auth}/${to.params.token}`}
+        return { path: `/newuiwhodis/history/${to.query.auth}/${to.query.token}`, query: {}}
       },
     },
     {
