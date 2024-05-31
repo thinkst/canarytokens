@@ -58,6 +58,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/entra/:result',
+      name: 'entra-id',
+      component: () => import('../views/EntraIDResultView.vue'),
+      meta: {
+        title: 'Azure Entra ID',
+      },
+    },
+    {
       path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),

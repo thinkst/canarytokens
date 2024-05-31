@@ -1,11 +1,11 @@
-/* 
+/*
 TOKENS_TYPE defines a set of token types that are used in various parts of the application.
 !! These token types should match the token_type values coming from the Backend
 
-When you add a new token inside @/components/tokens, 
+When you add a new token inside @/components/tokens,
 name the new folder as the token_type
 
-TODO: if possible, we might add a eslint rule 
+TODO: if possible, we might add a eslint rule
 to check if a folder name matches a TOKENS_TYPE type
 */
 
@@ -93,3 +93,17 @@ export const TOKEN_CATEGORY = {
   DATABASE: 'database',
   OTHER: 'Other',
 };
+
+export const ENTRA_ID_FEEDBACK_TYPES = {
+  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "has_custom_css_already",
+  ENTRA_STATUS_ERROR: "error",
+  ENTRA_STATUS_SUCCESS: "success",
+  ENTRA_STATUS_NO_ADMIN_CONSENT: "no_admin_consent",
+}
+
+export const ENTRA_ID_FEEDBACK_MESSAGES = {
+  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos vel illum aliquid inventore et perspiciatis. Similique illum nisi, quidem pariatur quod iusto reprehenderit voluptates ipsam ut, deserunt, voluptate enim voluptatem?",
+  ENTRA_STATUS_ERROR: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
+  ENTRA_STATUS_SUCCESS: "  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos vel illum aliquid inventore et perspiciatis. Similique illum nisi, quidem pariatur quod iusto reprehenderit voluptates ipsam ut, deserunt, voluptate enim voluptatem?",
+  ENTRA_STATUS_NO_ADMIN_CONSENT: "  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos vel illum aliquid inventore et perspiciatis. Similique illum nisi, quidem pariatur quod iusto reprehenderit voluptates ipsam ut, deserunt, voluptate enim voluptatem?",
+}

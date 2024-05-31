@@ -1,6 +1,7 @@
 export interface BaseStateVariantInterface {
   danger: string;
   warning: string;
+  success: string;
   info: string;
 }
 
