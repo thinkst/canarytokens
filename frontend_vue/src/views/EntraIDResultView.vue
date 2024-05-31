@@ -17,7 +17,6 @@
         class="mb-16"
         :message="alertsMessage"
         :variant="variant"
-        @click="console.log('danger!')"
       />
       <BaseButton
         class="m-auto"
