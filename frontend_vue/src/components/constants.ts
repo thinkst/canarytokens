@@ -102,8 +102,8 @@ export const ENTRA_ID_FEEDBACK_TYPES = {
 }
 
 export const ENTRA_ID_FEEDBACK_MESSAGES = {
-  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos vel illum aliquid inventore et perspiciatis. Similique illum nisi, quidem pariatur quod iusto reprehenderit voluptates ipsam ut, deserunt, voluptate enim voluptatem?",
-  ENTRA_STATUS_ERROR: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
-  ENTRA_STATUS_SUCCESS: "  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos vel illum aliquid inventore et perspiciatis. Similique illum nisi, quidem pariatur quod iusto reprehenderit voluptates ipsam ut, deserunt, voluptate enim voluptatem?",
-  ENTRA_STATUS_NO_ADMIN_CONSENT: "  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos vel illum aliquid inventore et perspiciatis. Similique illum nisi, quidem pariatur quod iusto reprehenderit voluptates ipsam ut, deserunt, voluptate enim voluptatem?",
+  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from your tenant, revoking all of our permissions.",
+  ENTRA_STATUS_ERROR: "Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
+  ENTRA_STATUS_SUCCESS: "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.",
+  ENTRA_STATUS_NO_ADMIN_CONSENT: "Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.",
 }
