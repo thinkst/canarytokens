@@ -30,15 +30,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted} from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import AppLayoutOneColumn from '@/layout/AppLayoutOneColumn.vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import { ENTRA_ID_FEEDBACK_TYPES, ENTRA_ID_FEEDBACK_MESSAGES } from '@/components/constants'
 import getImageUrl from '@/utils/getImageUrl';
 
 const route = useRoute();
+const router = useRouter();
 const logoURL = ref('token_icons/azure_id_config.png');
+
+onMounted(async () => {
+  if (!Object.values(ENTRA_ID_FEEDBACK_TYPES).includes(route.params.result)) router.push({ name: 'error' });
+});
 
 const alertsMessage = computed(() => {
   if (route.params.result === ENTRA_ID_FEEDBACK_TYPES.ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY) return ENTRA_ID_FEEDBACK_MESSAGES.ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY
