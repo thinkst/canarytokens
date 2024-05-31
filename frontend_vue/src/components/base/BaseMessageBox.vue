@@ -52,6 +52,7 @@ import type { NotificationBoxVariantType } from './types';
 enum VariantEnum {
   DANGER = 'danger',
   WARNING = 'warning',
+  SUCCESS = 'success',
   INFO = 'info',
 }
 
@@ -67,9 +68,11 @@ defineEmits(['click']);
 const boxClasses = computed(() => {
   switch (props.variant) {
     case VariantEnum.DANGER:
-      return 'bg-red-100 text-red-500 bg-red-100';
+      return 'bg-red-100 text-red-500';
     case VariantEnum.WARNING:
       return 'text-yellow-700 bg-yellow-300';
+    case VariantEnum.SUCCESS:
+      return 'text-green-800 bg-green-200';
     case VariantEnum.INFO:
       return 'text-blue-700 bg-blue-300';
     default:
@@ -83,6 +86,8 @@ const iconClass = computed(() => {
       return 'fill-yellow';
     case VariantEnum.DANGER:
       return 'fill-red';
+    case VariantEnum.SUCCESS:
+      return 'fill-green-700';
     case VariantEnum.INFO:
       return 'fill-blue';
     default:
