@@ -1,3 +1,4 @@
+from canarytokens.constants import INVOCATION_ID_LENGTH
 from canarytokens.models import Hostname
 
 REG_TEMPLATE = r"""Windows Registry Editor Version 5.00
@@ -13,7 +14,7 @@ REG_TEMPLATE = r"""Windows Registry Editor Version 5.00
 ; magic unique canarytoken that will be fired when this command is executed
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\{PROCESS}]
 "ReportingMode"=dword:00000001
-"MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \"$($u=$(\\\"u$env:username\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join '';$c=$(\\\"c$env:computername\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join '';Resolve-DnsName -Name \\\"$c.UN.$u.CMD.{TOKEN_DNS}\\\")\""
+"MonitorProcess"="cmd.exe /c start /min powershell.exe -windowstyle hidden -command \"$($u=$(\\\"u$env:username\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join '';$c=$(\\\"c$env:computername\\\" -replace('[^a-zA-Z0-9\\-]+', ''))[0..63] -join ''; $id=\\\"\\\"; 1..{INVOCATION_ID_LENGTH} | foreach-object {{ $id += [Char[]]\\\"abcdefhijklmnonpqrstuvwxyz0123456789\\\" | Get-Random }}; Resolve-DnsName -Name \\\"$c.UN.$u.CMD.$id.{TOKEN_DNS}\\\")\""
 """
 
 
@@ -34,4 +35,8 @@ def make_canary_msreg(token_hostname: Hostname, process_name: str = "klist.exe")
     if process_name.find(".exe") == -1:
         process_name += ".exe"
 
-    return REG_TEMPLATE.format(TOKEN_DNS=token_hostname, PROCESS=process_name)
+    return REG_TEMPLATE.format(
+        TOKEN_DNS=token_hostname,
+        PROCESS=process_name,
+        INVOCATION_ID_LENGTH=INVOCATION_ID_LENGTH,
+    )
