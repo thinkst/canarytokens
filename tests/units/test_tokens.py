@@ -65,22 +65,27 @@ def test_log4_shell_pattern(query, computer_name, should_match):
 
 
 @pytest.mark.parametrize(
-    "query, cmd_computer_name,cmd_user_name,should_match,",
+    "query, cmd_computer_name,cmd_user_name,cmd_invocation_id",
     [
-        ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", True),
-        ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", True),
-        # ("xbrokenpc.L4.sometoken.com", "brokenpc", False),
+        (
+            "cbrokenpc.UN.ubrokenuser.CMD.someid78.sometoken.com",
+            "brokenpc",
+            "brokenuser",
+            "someid78",
+        ),
+        ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", None),
+        ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", None),
+        ("cbrokenpc.UN.u.CMD.sometoken.com", "brokenpc", "(not obtained)", None),
     ],
 )
-def test_cmd_process_pattern(query, cmd_computer_name, cmd_user_name, should_match):
-    if (m := t.cmd_process_pattern.match(query)) and m is not None:
-        data = t.Canarytoken._cmd_process(m)
-        assert should_match
-        assert data["src_data"]["cmd_computer_name"] == cmd_computer_name
-        assert data["src_data"]["cmd_user_name"] == cmd_user_name
-
-    else:
-        assert not should_match
+def test_cmd_process_pattern(
+    query, cmd_computer_name, cmd_user_name, cmd_invocation_id
+):
+    m = t.cmd_process_pattern.match(query)
+    data = t.Canarytoken._cmd_process(m)
+    assert data["src_data"]["cmd_computer_name"] == cmd_computer_name
+    assert data["src_data"]["cmd_user_name"] == cmd_user_name
+    assert data["src_data"].get("cmd_invocation_id") == cmd_invocation_id
 
 
 def test_canarytoken_create_and_fetch():

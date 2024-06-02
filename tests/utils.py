@@ -28,6 +28,7 @@ from canarytokens.models import (
     AWSKeyTokenResponse,
     AzureIDTokenResponse,
     AzureIDAdditionalInfo,
+    CMDTokenResponse,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -167,6 +168,34 @@ def windows_directory_fire_token(
         target = domain
     else:
         target = f"{domain}.ini.{token_info.token}.{token_info.hostname}"
+    resolver = grab_resolver(version=version)
+    resolver.resolve(target, "A")
+    return target
+
+
+def trigger_cmd_token(
+    token_info: CMDTokenResponse,
+    version: Union[V2, V3],
+    invocation_id: Optional[str],
+    computername: str = "comp",
+    username: str = "user",
+) -> str:
+    """
+    Triggers a CMD token by making a dns query with the expected parameters as Windows would produce. Older tokens don't have an invocation ID, so it reconstructs the domain based on its presence or absence.
+    """
+    domain_template = token_info.reg_file.split("-Name")[1][5:-9]
+    components = (
+        domain_template.replace("$u", f"u{username}")
+        .replace("$c", f"c{computername}")
+        .split(".")
+    )
+    if invocation_id:
+        components[components.index("$id")] = invocation_id
+    elif "$id" in components:
+        components.remove("$id")
+
+    target = ".".join(components)
+
     resolver = grab_resolver(version=version)
     resolver.resolve(target, "A")
     return target
