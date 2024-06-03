@@ -605,10 +605,10 @@ def get_commit_sha():
 @app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
 async def azure_css_landing(
     request: Request,
-    admin_consent: Optional[str],
-    tenant: Optional[str],
-    state: Optional[str],
-    error: Optional[str],
+    admin_consent: Optional[str] = None,
+    tenant: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
 ) -> HTMLResponse:
     """
     This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
