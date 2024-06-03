@@ -3,8 +3,10 @@ from canarytokens.settings import FrontendSettings
 from requests import Response, get, put, delete, post
 from time import sleep
 from cssutils.css import CSSStyleRule
+
 import logging
 import cssutils
+import enum
 
 frontend_settings = FrontendSettings()
 
@@ -14,16 +16,19 @@ EntraTokenErrorAccessDenied = "access_denied"
 
 ENTRA_BASE_REDIRECT_URL = "/nest/entra/{status}"
 
-ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY = "has_custom_css_already"
-ENTRA_STATUS_ERROR = "error"
-ENTRA_STATUS_SUCCESS = "success"
-ENTRA_STATUS_NO_ADMIN_CONSENT = "no_admin_consent"
+
+class EntraTokenStatus(enum.Enum):
+    ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY = "has_custom_css_already"
+    ENTRA_STATUS_ERROR = "error"
+    ENTRA_STATUS_SUCCESS = "success"
+    ENTRA_STATUS_NO_ADMIN_CONSENT = "no_admin_consent"
+
 
 LEGACY_ENTRA_STATUS_MAP = {
-    ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from your tenant, revoking all of our permissions.",
-    ENTRA_STATUS_ERROR: "Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
-    ENTRA_STATUS_SUCCESS: "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.",
-    ENTRA_STATUS_NO_ADMIN_CONSENT: "Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY.value: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from your tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_ERROR.value: "Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_SUCCESS.value: "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_NO_ADMIN_CONSENT.value: "Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.",
 }
 
 
@@ -144,7 +149,7 @@ def _delete_self(token: BearerToken) -> bool:
     return res.status_code == 204
 
 
-def install_azure_css(tenant_id: str, css: str) -> str:
+def install_azure_css(tenant_id: str, css: str) -> EntraTokenStatus:
     """
     Main business logic function to install the Azure CSS token into the tenant
     NB: Must be called after the Azure permission consent workflow has occurred
@@ -153,16 +158,16 @@ def install_azure_css(tenant_id: str, css: str) -> str:
     token = _auth_to_tenant(tenant_id)
     (check, existing_css) = _check_if_can_install_custom_css(token, tenant_id)
     if not check:
-        return ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY
+        return EntraTokenStatus.ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY
 
     if not _install_custom_css(token, tenant_id, existing_css + css):
         # Might as well remove ourselves anyways
         _delete_self(token)
-        return ENTRA_STATUS_ERROR
+        return EntraTokenStatus.ENTRA_STATUS_ERROR
 
     _delete_self(token)
 
-    return ENTRA_STATUS_SUCCESS
+    return EntraTokenStatus.ENTRA_STATUS_SUCCESS
 
 
 def build_entra_redirect_url(status):

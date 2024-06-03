@@ -138,7 +138,7 @@ from canarytokens.azure_css import (
     install_azure_css,
     EntraTokenErrorAccessDenied,
     build_entra_redirect_url,
-    ENTRA_STATUS_NO_ADMIN_CONSENT,
+    EntraTokenStatus,
     LEGACY_ENTRA_STATUS_MAP,
 )
 from canarytokens.pdfgen import make_canary_pdf
@@ -605,10 +605,10 @@ def get_commit_sha():
 @app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
 async def azure_css_landing(
     request: Request,
-    admin_consent: str = "",
-    tenant: str = None,
-    state: str = None,
-    error: str = None,
+    admin_consent: Optional[str],
+    tenant: Optional[str],
+    state: Optional[str],
+    error: Optional[str],
 ) -> HTMLResponse:
     """
     This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
@@ -618,17 +618,17 @@ async def azure_css_landing(
     css = b64decode(unquote(state)).decode()
 
     if not admin_consent == "True" or error == EntraTokenErrorAccessDenied:
-        status = ENTRA_STATUS_NO_ADMIN_CONSENT
+        status = EntraTokenStatus.ENTRA_STATUS_NO_ADMIN_CONSENT
     else:
         status = install_azure_css(tenant, css)
 
     if not frontend_settings.NEW_UI:
         return templates.TemplateResponse(
             "azure_install.html",
-            {"request": request, "status": LEGACY_ENTRA_STATUS_MAP[status]},
+            {"request": request, "status": LEGACY_ENTRA_STATUS_MAP[status.value]},
         )
 
-    return RedirectResponse(build_entra_redirect_url(status))
+    return RedirectResponse(build_entra_redirect_url(status.value))
 
 
 def _manually_build_docs_schema(model) -> dict:
