@@ -1,7 +1,8 @@
 import random
-from canarytokens.constants import CANARYTOKEN_ALPHABET, INVOCATION_ID_LENGTH
 import pytest
 
+from canarytokens.constants import CANARYTOKEN_ALPHABET
+from canarytokens import msreg
 from canarytokens.models import (
     CMDTokenHistory,
     CMDTokenRequest,
@@ -57,7 +58,8 @@ def test_cmd_token_fires(
     # Trigger CMD token twice, make sure the invocation ID limits it to one hit
     invocation_id = (
         "".join(
-            random.choice(CANARYTOKEN_ALPHABET) for _ in range(INVOCATION_ID_LENGTH)
+            random.choice(CANARYTOKEN_ALPHABET)
+            for _ in range(msreg.INVOCATION_ID_LENGTH)
         )
         if use_invocation_id
         else None

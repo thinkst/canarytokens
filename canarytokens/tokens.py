@@ -16,12 +16,11 @@ from twisted.web.util import redirectTo
 
 from canarytokens.settings import SwitchboardSettings
 
-from canarytokens import canarydrop, queries
+from canarytokens import canarydrop, msreg, queries
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,
     CANARYTOKEN_LENGTH,
     INPUT_CHANNEL_HTTP,
-    INVOCATION_ID_LENGTH,
 )
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
@@ -48,7 +47,9 @@ desktop_ini_browsing_pattern = re.compile(
 )
 log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
 cmd_process_pattern = re.compile(
-    r"(.+)\.UN\.(.+)\.CMD\.([A-Z0-9]{{{LEN}}}\.)?".format(LEN=INVOCATION_ID_LENGTH),
+    r"(.+)\.UN\.(.+)\.CMD\.([A-Z0-9]{{{LEN}}}\.)?".format(
+        LEN=msreg.INVOCATION_ID_LENGTH
+    ),
     re.IGNORECASE,
 )
 

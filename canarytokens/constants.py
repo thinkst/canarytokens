@@ -23,7 +23,6 @@ CANARYTOKEN_ALPHABET = ['0', '1', '2', '3', '4', '5',
                         'u', 'v', 'w', 'x', 'y', 'z']
 # fmt: on
 CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
-INVOCATION_ID_LENGTH = 8
 
 CANARY_IMAGE_URL = (
     "https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png"

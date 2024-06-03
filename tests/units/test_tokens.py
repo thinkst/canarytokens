@@ -65,7 +65,7 @@ def test_log4_shell_pattern(query, computer_name, should_match):
 
 
 @pytest.mark.parametrize(
-    "query, cmd_computer_name,cmd_user_name,cmd_invocation_id",
+    "query, cmd_computer_name, cmd_user_name, cmd_invocation_id",
     [
         (
             "cbrokenpc.UN.ubrokenuser.CMD.someid78.sometoken.com",
