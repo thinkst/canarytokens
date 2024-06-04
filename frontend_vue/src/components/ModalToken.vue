@@ -11,6 +11,7 @@
         :trigger-submit="triggerSubmit"
         @token-generated="(formValues) => handleGenerateToken(formValues)"
         @invalid-submit="handleInvalidSubmit"
+        @is-loading="isLoading = $event"
       />
       <template #fallback>
         <ModalContentGenerateTokenLoader />
@@ -39,34 +40,42 @@
 
     <!-- footer -->
     <template #footer>
-      <template v-if="modalType === ModalType.AddToken">
-        <BaseButton
-          variant="primary"
-          :loading="isLoadngSubmit"
-          @click.stop="handleAddToken"
-          >Create Token</BaseButton
-        >
+      <template v-if="isLoading">
+        <BaseSkeletonLoader
+          type="rectangle"
+          class="w-[130px] h-[40px]"
+        />
       </template>
+      <template v-else>
+        <template v-if="modalType === ModalType.AddToken">
+          <BaseButton
+            variant="primary"
+            :loading="isLoadngSubmit"
+            @click.stop="handleAddToken"
+            >Create Token</BaseButton
+          >
+        </template>
 
-      <template v-if="modalType === ModalType.NewToken">
-        <BaseButton
-          variant="secondary"
-          @click="handleHowToUse"
-          >How to use</BaseButton
-        >
-        <BaseButton
-          variant="secondary"
-          @click="handleManageToken"
-          >Manage Token</BaseButton
-        >
-      </template>
+        <template v-if="modalType === ModalType.NewToken">
+          <BaseButton
+            variant="secondary"
+            @click="handleHowToUse"
+            >How to use</BaseButton
+          >
+          <BaseButton
+            variant="secondary"
+            @click="handleManageToken"
+            >Manage Token</BaseButton
+          >
+        </template>
 
-      <template v-if="modalType === ModalType.HowToUse">
-        <BaseButton
-          variant="secondary"
-          @click="handleManageToken()"
-          >Manage Token</BaseButton
-        >
+        <template v-if="modalType === ModalType.HowToUse">
+          <BaseButton
+            variant="secondary"
+            @click="handleManageToken()"
+            >Manage Token</BaseButton
+          >
+        </template>
       </template>
     </template>
     <!-- banner ADV -->
@@ -113,6 +122,7 @@ const isSuspenseError = ref(false);
 const isGenerateTokenError = ref(false);
 const errorMessage = ref('');
 const isLoadngSubmit = ref(false);
+const isLoading = ref(false);
 
 const props = defineProps<{
   selectedToken: string;
