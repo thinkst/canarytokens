@@ -2,6 +2,7 @@
   <base-code-snippet
     lang="javascript"
     label="URL token"
+    is-single-line
     :code="tokenUrl"
   ></base-code-snippet>
 </template>
