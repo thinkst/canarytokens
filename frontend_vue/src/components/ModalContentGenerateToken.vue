@@ -17,9 +17,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { tokenServices } from '@/utils/tokenServices';
 import { formValidators } from '@/utils/formValidators';
-import getImageUrl from '@/utils/getImageUrl';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 
@@ -28,7 +26,7 @@ const props = defineProps<{
   triggerSubmit: boolean;
 }>();
 
-const emits = defineEmits(['token-generated', 'invalid-submit']);
+const emits = defineEmits(['token-generated', 'invalid-submit', 'is-loading']);
 
 const dynamicForm = ref();
 const dynamicCarousel = ref();
@@ -51,13 +49,29 @@ function programaticSubmit() {
 }
 
 const loadComponent = async () => {
-  dynamicForm.value = defineAsyncComponent(
-    () =>
-      import(`@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`)
-  );
-  dynamicCarousel.value = defineAsyncComponent(
-    () => import('@/components/ui/CarouselInfoToken.vue')
-  );
+  emits('is-loading', true);
+  try {
+    dynamicForm.value = defineAsyncComponent(
+      () =>
+        import(
+          `@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`
+        )
+    );
+    dynamicCarousel.value = defineAsyncComponent(
+      () => import('@/components/ui/CarouselInfoToken.vue')
+    );
+    await Promise.all([
+      // When defining an async component
+      // Vue adds an __asyncLoader() method to the component instance.
+      // This method returns a promise that resolves when the component finishes loading.
+      dynamicForm.value.__asyncLoader(),
+      dynamicCarousel.value.__asyncLoader(),
+    ]);
+    emits('is-loading', false);
+  } catch (error) {
+    emits('is-loading', false);
+    console.error(error);
+  }
 };
 
 loadComponent();
