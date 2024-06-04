@@ -15,7 +15,7 @@ const router = createRouter({
     },
     {
       path: '/generate',
-      name: 'home',
+      name: 'generate',
       component: HomeView,
       meta: {
         title: 'Generate New Canarytoken',
