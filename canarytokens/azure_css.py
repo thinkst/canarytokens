@@ -3,12 +3,33 @@ from canarytokens.settings import FrontendSettings
 from requests import Response, get, put, delete, post
 from time import sleep
 from cssutils.css import CSSStyleRule
+
 import logging
 import cssutils
+import enum
 
 frontend_settings = FrontendSettings()
 
 BearerToken = str
+
+EntraTokenErrorAccessDenied = "access_denied"
+
+ENTRA_BASE_REDIRECT_URL = "/nest/entra/{status}"
+
+
+class EntraTokenStatus(enum.Enum):
+    ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY = "has_custom_css_already"
+    ENTRA_STATUS_ERROR = "error"
+    ENTRA_STATUS_SUCCESS = "success"
+    ENTRA_STATUS_NO_ADMIN_CONSENT = "no_admin_consent"
+
+
+LEGACY_ENTRA_STATUS_MAP = {
+    EntraTokenStatus.ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY.value: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from your tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_ERROR.value: "Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_SUCCESS.value: "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.",
+    EntraTokenStatus.ENTRA_STATUS_NO_ADMIN_CONSENT.value: "Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.",
+}
 
 
 def _auth_to_tenant(tenant_id: str) -> BearerToken:
@@ -128,7 +149,7 @@ def _delete_self(token: BearerToken) -> bool:
     return res.status_code == 204
 
 
-def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
+def install_azure_css(tenant_id: str, css: str) -> EntraTokenStatus:
     """
     Main business logic function to install the Azure CSS token into the tenant
     NB: Must be called after the Azure permission consent workflow has occurred
@@ -137,22 +158,20 @@ def install_azure_css(tenant_id: str, css: str) -> tuple[bool, str]:
     token = _auth_to_tenant(tenant_id)
     (check, existing_css) = _check_if_can_install_custom_css(token, tenant_id)
     if not check:
-        return (
-            False,
-            "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding.",
-        )
+        return EntraTokenStatus.ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY
+
     if not _install_custom_css(token, tenant_id, existing_css + css):
         # Might as well remove ourselves anyways
         _delete_self(token)
-        return (
-            False,
-            "Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding.",
-        )
+        return EntraTokenStatus.ENTRA_STATUS_ERROR
+
     _delete_self(token)
-    return (
-        True,
-        "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed.",
-    )
+
+    return EntraTokenStatus.ENTRA_STATUS_SUCCESS
+
+
+def build_entra_redirect_url(status):
+    return ENTRA_BASE_REDIRECT_URL.format(status=status)
 
 
 # Other reference that's of note but not linked to from the other Graph API docs: https://learn.microsoft.com/en-us/graph/api/organizationalbrandinglocalization-delete
