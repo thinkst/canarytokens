@@ -11,13 +11,12 @@
       :class="
         !props.isMobile
           ? 'flex items-end pt-8 text-sm uppercase gap-x-16 lg:gap-x-32 font-regular'
-          : 'uppercase'
+          : 'flex flex-col gap-16 uppercase'
       "
     >
       <li
         v-for="item in menuRouterItems"
         :key="item.name"
-        :class="props.isMobile && 'py-8'"
       >
         <RouterLink
           :to="item.path"
@@ -34,7 +33,6 @@
       <li
         v-for="item in menuExternalLinkItems"
         :key="item.name"
-        :class="props.isMobile && 'py-8'"
       >
         <a
           :href="item.url"
