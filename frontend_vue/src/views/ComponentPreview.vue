@@ -203,6 +203,9 @@
     <h1>Banner ADV</h1>
     <BannerDeviceCanarytools />
     <BannerBirdCanarytools />
+    <div class="mt-24 mb-32">
+      <BannerTextCanarytools />
+    </div>
     <div>
       <hr class="my-24" />
       <h1 class="mb-16">Select component</h1>
@@ -296,6 +299,7 @@ import SearchBar from '@/components/ui/SearchBar.vue';
 import { ref } from 'vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
+import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 
 const { open } = useModal({
   component: ModalToken,
