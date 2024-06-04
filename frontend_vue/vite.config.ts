@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
-    base: '/',
+    base: '/nest',
     plugins: [
       vue(),
       Components({

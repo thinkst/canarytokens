@@ -134,7 +134,13 @@ from canarytokens.models import (
 from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
-from canarytokens.azure_css import install_azure_css
+from canarytokens.azure_css import (
+    install_azure_css,
+    EntraTokenErrorAccessDenied,
+    build_entra_redirect_url,
+    EntraTokenStatus,
+    LEGACY_ENTRA_STATUS_MAP,
+)
 from canarytokens.pdfgen import make_canary_pdf
 from canarytokens.queries import (
     add_canary_domain,
@@ -198,11 +204,19 @@ app = FastAPI(
 vue_index = Jinja2Templates(directory="../frontend_vue/dist/")
 
 
-@app.get("/newuiwhodis/components")
-@app.get("/newuiwhodis/manage/{rest_of_path:path}")
-@app.get("/newuiwhodis/history/{rest_of_path:path}")
-def index(request: Request):
-    return vue_index.TemplateResponse("index.html", {"request": request})
+if frontend_settings.NEW_UI:
+
+    @app.get("/")
+    @app.get("/nest/legal")
+    @app.get("/manage")
+    @app.get("/nest/manage/{rest_of_path:path}")
+    @app.get("/history")
+    @app.get("/nest/history/{rest_of_path:path}")
+    @app.get("/nest/entra/{rest_of_path:path}")
+    @app.get("/nest/generate")
+    @app.get("/generate")
+    def index(request: Request):
+        return vue_index.TemplateResponse("index.html", {"request": request})
 
 
 ROOT_API_ENDPOINT = "/d3aece8093b71007b5ccfedad91ebb11"
@@ -223,14 +237,15 @@ app.mount(
     name=frontend_settings.STATIC_FILES_APPLICATION_INTERNAL_NAME,
 )
 
-try:
-    app.mount(
-        "/newuiwhodis",
-        StaticFiles(directory="../frontend_vue/dist/", html=True),
-        name="Vue Frontend Dist",
-    )
-except RuntimeError:
-    print("Error: No Vue dist found. Is this the test Action?")
+if frontend_settings.NEW_UI:
+    try:
+        app.mount(
+            "/nest",
+            StaticFiles(directory="../frontend_vue/dist/", html=True),
+            name="Vue Frontend Dist",
+        )
+    except RuntimeError:
+        print("Error: No Vue dist found. Is this the test Action?")
 
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
@@ -325,6 +340,9 @@ def startup_event():
     add_canary_nxdomain(domain=frontend_settings.NXDOMAINS[0])
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
+
+
+# When the New UI is stable we can remove this entire "app" block up until the next comment
 
 
 @app.get("/", response_class=RedirectResponse, status_code=302)
@@ -575,39 +593,43 @@ async def download(
     return create_download_response(download_request, canarydrop=canarydrop)
 
 
+@app.get("/commitsha")
+def get_commit_sha():
+    commit_sha = get_deployed_commit_sha()
+    return JSONResponse({"commit_sha": commit_sha}, status_code=200)
+
+
+# remove up until here once new ui stable
+
+
+# NOTE: Do not remove this when cleaning up after UI is stable
 @app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
 async def azure_css_landing(
-    request: Request, admin_consent: str = "", tenant: str = None, state: str = None
+    request: Request,
+    admin_consent: Optional[str] = None,
+    tenant: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
 ) -> HTMLResponse:
     """
     This page is loaded after a user has authN and authZ'd into their tenant and granted the permissions to install the CSS
     Once the CSS is installed into their tenant, and we revoke our permission grants, we can close the window as this will happen in
     a pop-up context.
     """
-    info = ""
-    if admin_consent == "True":
-        css = None
-        token = None
-        token_auth = None
+    css = b64decode(unquote(state)).decode()
 
-        encodedCss, token, token_auth = b64decode(unquote(state)).decode().split(":")
-        css = b64decode(encodedCss).decode()
-
-        if css is not None and tenant is not None:
-            (success, info) = install_azure_css(tenant, css)
-            info += " We have uninstalled our application from you tenant, revoking all of our permissions."
+    if not admin_consent == "True" or error == EntraTokenErrorAccessDenied:
+        status = EntraTokenStatus.ENTRA_STATUS_NO_ADMIN_CONSENT
     else:
-        info = "Installation failed due to lack of sufficient granted permissions."
-    return templates.TemplateResponse(
-        "azure_install.html",
-        {"request": request, "status": info},
-    )
+        status = install_azure_css(tenant, css)
 
+    if not frontend_settings.NEW_UI:
+        return templates.TemplateResponse(
+            "azure_install.html",
+            {"request": request, "status": LEGACY_ENTRA_STATUS_MAP[status.value]},
+        )
 
-@app.get("/commitsha")
-def get_commit_sha():
-    commit_sha = get_deployed_commit_sha()
-    return JSONResponse({"commit_sha": commit_sha}, status_code=200)
+    return RedirectResponse(build_entra_redirect_url(status.value))
 
 
 def _manually_build_docs_schema(model) -> dict:

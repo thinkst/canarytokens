@@ -83,6 +83,8 @@ class FrontendSettings(BaseSettings):
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
     SENTRY_ENABLE: bool = True
 
+    NEW_UI: bool = True
+
     TEMPLATES_PATH: str = "../templates"
     STATIC_FILES_PATH: str = "../templates/static"
     STATIC_FILES_APPLICATION_SUB_PATH: str = "/resources"
