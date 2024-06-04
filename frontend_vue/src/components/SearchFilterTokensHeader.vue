@@ -34,6 +34,7 @@
             250
           )()
       "
+      @clear-search-input="searchValue = ''"
     />
   </div>
 </template>
