@@ -75,9 +75,12 @@
         :text-link="hasAlerts ? 'Check History' : ''"
         @click="handleCheckHistory"
       >
-        <!-- there should no risk of injection for unescaped html -->
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span v-html="alertsMessage"></span>
+        <span v-if="!hasAlerts">This Token has never been triggered</span>
+        <span v-else>
+          This Token has been triggered
+          <span class="font-bold">{{ hasAlerts }}</span>
+          time{{ hasAlerts > 1 ? 's' : '' }}</span
+        >
       </BaseMessageBox>
     </div>
     <div class="flex justify-center sm:max-w-[50vw]">
@@ -95,7 +98,6 @@ import { tokenServices } from '@/utils/tokenServices';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import { TOKENS_TYPE } from './constants';
-import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 
@@ -112,11 +114,6 @@ const dynamicComponent = ref({
 });
 
 const hasAlerts = ref(0);
-const alertsMessage = computed(() => {
-  return !hasAlerts.value
-    ? 'This Token has never been triggered'
-    : `This Token has been triggered <span class="font-bold">${hasAlerts.value}</span> time${hasAlerts.value > 1 ? 's' : ''}`;
-});
 
 /* AZURE CONFIG Exception handler */
 /* CSS Cloned Site type can be an Azure ID Config token */
