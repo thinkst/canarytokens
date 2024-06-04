@@ -872,6 +872,11 @@ class WebBugTokenResponse(TokenResponse):
 
 class SQLServerTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SQL_SERVER] = TokenTypes.SQL_SERVER
+    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
+    sql_server_table_name: Optional[str]
+    sql_server_view_name: Optional[str]
+    sql_server_function_name: Optional[str]
+    sql_server_trigger_name: Optional[str]
 
 
 class ClonedWebTokenResponse(TokenResponse):
@@ -2544,3 +2549,12 @@ class ManageResponse(BaseModel):
     wg_qr_code: Optional[str]
     qr_code: Optional[str]
     force_https: Optional[bool]
+    clonedsite_js: Optional[str]
+    clonedsite_css: Optional[str]
+    client_id: Optional[str]
+
+
+class HistoryResponse(BaseModel):
+    canarydrop: Dict
+    history: AnyTokenHistory
+    google_api_key: Optional[str]

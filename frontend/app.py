@@ -43,7 +43,6 @@ from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
     AnyDownloadRequest,
     AnySettingsRequest,
-    AnyTokenHistory,
     AnyTokenRequest,
     AnyTokenResponse,
     AWSKeyTokenRequest,
@@ -98,6 +97,7 @@ from canarytokens.models import (
     DownloadZipResponse,
     FastRedirectTokenRequest,
     FastRedirectTokenResponse,
+    HistoryResponse,
     KubeconfigTokenRequest,
     KubeconfigTokenResponse,
     Log4ShellTokenRequest,
@@ -198,7 +198,9 @@ app = FastAPI(
 vue_index = Jinja2Templates(directory="../frontend_vue/dist/")
 
 
-@app.get("/components")
+@app.get("/newuiwhodis/components")
+@app.get("/newuiwhodis/manage/{rest_of_path:path}")
+@app.get("/newuiwhodis/history/{rest_of_path:path}")
 def index(request: Request):
     return vue_index.TemplateResponse("index.html", {"request": request})
 
@@ -584,11 +586,15 @@ async def azure_css_landing(
     """
     info = ""
     if admin_consent == "True":
-        tenant_id = tenant
-        if css := state:
-            css = b64decode(unquote(state)).decode()
-        if css is not None and tenant_id is not None:
-            (success, info) = install_azure_css(tenant_id, css)
+        css = None
+        token = None
+        token_auth = None
+
+        encodedCss, token, token_auth = b64decode(unquote(state)).decode().split(":")
+        css = b64decode(encodedCss).decode()
+
+        if css is not None and tenant is not None:
+            (success, info) = install_azure_css(tenant, css)
             info += " We have uninstalled our application from you tenant, revoking all of our permissions."
     else:
         info = "Installation failed due to lack of sufficient granted permissions."
@@ -771,6 +777,14 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
         response["qr_code"] = qr_code
     elif canarydrop.type == TokenTypes.CLONEDSITE:
         response["force_https"] = switchboard_settings.FORCE_HTTPS
+        response["clonedsite_js"] = canarydrop.get_cloned_site_javascript(
+            switchboard_settings.FORCE_HTTPS
+        )
+    elif canarydrop.type == TokenTypes.CSSCLONEDSITE:
+        response["clonedsite_css"] = canarydrop.get_cloned_site_css(
+            frontend_settings.CLOUDFRONT_URL
+        )
+        response["client_id"] = frontend_settings.AZUREAPP_ID
 
     return ManageResponse(**response)
 
@@ -778,11 +792,16 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
 @api.get(
     "/history",
     tags=["Canarytokens History"],
-    response_model=AnyTokenHistory,
+    response_model=HistoryResponse,
 )
 async def api_history(token: str, auth: str) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
-    return canarydrop.triggered_details
+    response = {
+        "canarydrop": canarydrop,
+        "history": canarydrop.triggered_details,
+        "google_api_key": queries.get_canary_google_api_key(),
+    }
+    return HistoryResponse(**response)
 
 
 @api.post(
@@ -1277,6 +1296,11 @@ def _(token_request_details: SQLServerTokenRequest, canarydrop: Canarydrop):
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
+        sql_server_sql_action=canarydrop.sql_server_sql_action,
+        sql_server_table_name=canarydrop.sql_server_table_name,
+        sql_server_view_name=canarydrop.sql_server_view_name,
+        sql_server_function_name=canarydrop.sql_server_function_name,
+        sql_server_trigger_name=canarydrop.sql_server_trigger_name,
     )
 
 

@@ -16,7 +16,7 @@ from twisted.web.util import redirectTo
 
 from canarytokens.settings import SwitchboardSettings
 
-from canarytokens import canarydrop, queries
+from canarytokens import canarydrop, msreg, queries
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,
     CANARYTOKEN_LENGTH,
@@ -46,7 +46,12 @@ desktop_ini_browsing_pattern = re.compile(
     re.IGNORECASE,
 )
 log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
-cmd_process_pattern = re.compile(r"(.+)\.UN\.(.+)\.CMD\.", re.IGNORECASE)
+cmd_process_pattern = re.compile(
+    r"(.+)\.UN\.(.+)\.CMD\.([A-Z0-9]{{{LEN}}}\.)?".format(
+        LEN=msreg.INVOCATION_ID_LENGTH
+    ),
+    re.IGNORECASE,
+)
 
 # to validate decoded sql username, not a data extractor:
 sql_decoded_username = re.compile(r"[A-Za-z0-9\!\#\'\-\.\\\^\_\~]+")
@@ -220,15 +225,20 @@ class Canarytoken(object):
     @staticmethod
     def _cmd_process(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
         """"""
-        computer_name = matches.group(1).lower()
-        user_name = matches.group(2).lower()
-        data = {}
-        data["cmd_computer_name"] = "(not obtained)"
-        data["cmd_user_name"] = "(not obtained)"
+        computer_name = matches.group(1)
+        user_name = matches.group(2)
+        invocation_id = matches.group(3)
+        data = {
+            "cmd_computer_name": "(not obtained)",
+            "cmd_user_name": "(not obtained)",
+        }
         if user_name and user_name != "u":
-            data["cmd_user_name"] = user_name[1:]
+            data["cmd_user_name"] = user_name[1:].lower()
         if computer_name and computer_name != "c":
-            data["cmd_computer_name"] = computer_name[1:]
+            data["cmd_computer_name"] = computer_name[1:].lower()
+        if invocation_id:
+            data["cmd_invocation_id"] = invocation_id[:-1].lower()
+
         return {"src_data": data}
 
     @staticmethod
