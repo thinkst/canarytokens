@@ -28,7 +28,11 @@
       </div>
       <VCodeBlock
         :id="label"
-        :class="showExpandButton ? 'whitespace-pre-wrap' : ''"
+        :class="[
+          showExpandButton ? 'whitespace-pre-wrap' : '',
+          isSingleLine && hasCopy && !hasRefresh ? 'pr-[2rem]' : '',
+          isSingleLine && hasCopy && hasRefresh ? 'pr-[3rem]' : '',
+        ]"
         :code="code"
         highlightjs
         :height="componentHeight"
@@ -53,6 +57,7 @@ const props = withDefaults(
     showExpandButton?: boolean;
     customHeight?: string;
     label?: string | null;
+    isSingleLine?: boolean;
   }>(),
   {
     hasRefresh: false,
@@ -60,6 +65,7 @@ const props = withDefaults(
     customHeight: 'auto',
     label: null,
     showExpandButton: false,
+    isSingleLine: false,
   }
 );
 
