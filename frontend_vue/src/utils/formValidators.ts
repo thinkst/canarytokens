@@ -5,6 +5,7 @@ import { isValidFileType, validFileExtensions } from './utils';
 type FieldsType = {
   email: string | undefined;
   memo: string;
+  webhook_url: string | undefined;
 };
 
 type ValidateSchemaType = {
@@ -15,6 +16,7 @@ type ValidateSchemaType = {
 
 const validationMessages = {
   validEmail: 'It must be a valid email',
+  validURL: 'It must be a valid URL',
   provideMemo: 'Memo is a required field',
   maxLengthMemo: 'Memo cannot be longer than 1000 characters',
   provideEmail: 'Provide a valid email',
@@ -28,6 +30,8 @@ const validationNotificationSettings = {
     .required(validationMessages.provideMemo)
     .max(1000, validationMessages.maxLengthMemo)
     .test('empty-check', validationMessages.provideMemo, val => val.trim().length !== 0),
+  webhook_url: Yup.string()
+        .url(validationMessages.validURL),
 };
 
 export const formValidators: ValidateSchemaType = {
