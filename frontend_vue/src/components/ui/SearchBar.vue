@@ -20,11 +20,9 @@
     ></font-awesome-icon>
     <button
       v-if="model && model.length > 0"
-      class="absolute top-[.5rem] right-16 text-grey-300 duration-150 cursor-pointer hover:text-green-500">
-      <font-awesome-icon
-        icon="close"
-        @click="clearInput"
-      ></font-awesome-icon>
+      class="absolute top-[.5rem] right-16 text-grey-300 duration-150 cursor-pointer hover:text-green-500"
+      @click="clearInput">
+      <font-awesome-icon icon="close"></font-awesome-icon>
     </button>
   </div>
 </template>
