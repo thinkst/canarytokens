@@ -1,4 +1,14 @@
 <template>
+  <div>
+    <hr class="my-24" />
+    <h1>Search bar</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <SearchBar
+        label="Search"
+        placeholder="A nice placeholder"
+      />
+    </div>
+  </div>
   <div class="flex flex-col w-[200px] gap-16">
     <h1>Buttons</h1>
     <base-button>Primary</base-button>
@@ -185,7 +195,16 @@
       <h1 class="pb-16">Code Snippet</h1>
 
       <BaseCodeSnippet
+        is-single-line
+        class="mb-16"
+        label="Single line"
+        lang="javascript"
+        code="http://canarytokens.com/traffic/ttg75cc1ah5ae4f24o6767csk/post.jsp"
+      />
+
+      <BaseCodeSnippet
         has-refresh
+        is-single-line
         class="mb-16"
         label="Single line"
         lang="javascript"
@@ -273,16 +292,6 @@
         class="w-[200px]"
         type="text"
       />
-    </div>
-    <div>
-      <hr class="my-24" />
-      <h1>Search bar</h1>
-      <div class="flex flex-col gap-16 mt-24 mb-32">
-        <SearchBar
-          label="Search"
-          placeholder="A nice placeholder"
-        />
-      </div>
     </div>
   </div>
 </template>
