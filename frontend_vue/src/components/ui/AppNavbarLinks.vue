@@ -11,7 +11,7 @@
       :class="
         !props.isMobile
           ? 'flex items-end pt-8 text-sm uppercase gap-x-16 lg:gap-x-32 font-regular'
-          : 'flex flex-col gap-16 uppercase'
+          : 'flex flex-col gap-16 uppercase text-right'
       "
     >
       <li
@@ -39,14 +39,14 @@
           target="_blank"
           :class="
             !props.isMobile
-              ? 'transition-colors duration-100 cursor-pointer text-grey-400 hover:text-green desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
-              : 'text-green-200 hover:text-white mobile-link'
+              ? 'transition-colors duration-100 cursor-pointer text-grey-400 hover:text-green desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex flex-row gap-8 items-center'
+              : 'text-green-200 hover:text-white mobile-link flex flex-row gap-8 items-center justify-end'
           "
         >
           <font-awesome-icon
             v-if="item.icon"
             :icon="item.icon"
-            class="w-[0.8rem] pr-4"
+            class="w-[0.8rem]"
           />
           {{ item.name }}</a
         >
