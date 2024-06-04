@@ -213,6 +213,7 @@ if frontend_settings.NEW_UI:
     @app.get("/history")
     @app.get("/nest/history/{rest_of_path:path}")
     @app.get("/nest/entra/{rest_of_path:path}")
+    @app.get("/nest/generate")
     @app.get("/generate")
     def index(request: Request):
         return vue_index.TemplateResponse("index.html", {"request": request})
