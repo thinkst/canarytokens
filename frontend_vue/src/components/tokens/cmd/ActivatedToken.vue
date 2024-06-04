@@ -4,7 +4,7 @@
     class="mt-24"
     variant="info"
     message="Once installed (with admin permissions) you'll get an alert whenever someone
-  (or someone's code) runs your sensitive process.'"
+  (or someone's code) runs your sensitive process."
   />
   <p class="mt-24 text-sm">
     It will automatically provide the command used, computer the command ran on,

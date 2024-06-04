@@ -2,7 +2,7 @@
   <TokenDisplay :token-data="tokenSnippetData" />
   <p class="mt-24 text-sm">
     You'll get an alert whenever this document is opened in Microsoft Office, on
-    Windows or Mac OS.
+    Windows or macOS.
   </p>
   <base-message-box
     class="mt-24"

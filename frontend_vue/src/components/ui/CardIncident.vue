@@ -3,6 +3,7 @@
     <button
       v-bind="$attrs"
       class="relative w-full px-16 py-8 transition duration-100 bg-white border text-grey-700 grouped group rounded-xl shadow-solid-shadow-grey border-grey-200 error-card"
+      :class="{ 'mb-8': lastKey }"
       @click.stop="handleClickError"
     >
       <span class="flex flex-row items-center flex-1 gap-16">
@@ -41,6 +42,7 @@ type incidentPreviewInfoType = {
 };
 
 defineProps<{
+  lastKey: boolean,
   incidentPreviewInfo: incidentPreviewInfoType;
   incidentId: number | string;
 }>();

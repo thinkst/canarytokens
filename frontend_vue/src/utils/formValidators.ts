@@ -16,6 +16,7 @@ type ValidateSchemaType = {
 const validationMessages = {
   validEmail: 'It must be a valid email',
   provideMemo: 'Memo is a required field',
+  maxLengthMemo: 'Memo cannot be longer than 1000 characters',
   provideEmail: 'Provide a valid email',
 };
 
@@ -23,7 +24,10 @@ const validationNotificationSettings = {
   email: Yup.string()
     .email(validationMessages.validEmail)
     .required(validationMessages.provideEmail),
-  memo: Yup.string().required(validationMessages.provideMemo),
+  memo: Yup.string()
+    .required(validationMessages.provideMemo)
+    .max(1000, validationMessages.maxLengthMemo)
+    .test('empty-check', validationMessages.provideMemo, val => val.trim().length !== 0),
 };
 
 export const formValidators: ValidateSchemaType = {

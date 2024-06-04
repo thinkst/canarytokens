@@ -84,6 +84,8 @@ export const INCIDENT_DETAIL_CUSTOM_LABELS = {
   cmd_user_name: 'User executing command',
   cmd_computer_name: 'Computer executing command',
   last_used: 'Key Last Used',
+  src_ip: 'Source IP',
+  loc: 'Location',
 };
 
 export const TOKEN_CATEGORY = {

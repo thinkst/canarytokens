@@ -12,7 +12,7 @@
       v-model="model"
       type="text"
       :placeholder="placeholder"
-      class="placeholder:font-thin py-8 pl-[2.5rem] border font-semibold resize-none shadow-inner-shadow-grey rounded-3xl border-grey-200"
+      class="placeholder:font-thin py-8 pl-[2.5rem] pr-16 border font-semibold resize-none shadow-inner-shadow-grey rounded-3xl border-grey-200"
     />
     <font-awesome-icon
       icon="magnifying-glass"

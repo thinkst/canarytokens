@@ -50,7 +50,7 @@
           icon="arrow-left"
           aria-hidden="true"
         />
-        Not sure? go Back
+        Not sure? Go Back
       </button>
       <ul class="flex flex-col gap-[16px] text-center my-16">
         <li class="py-16 bg-white rounded-lg">
