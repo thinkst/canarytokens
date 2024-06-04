@@ -1,7 +1,7 @@
 <template>
   <TokenDisplay :token-data="tokenData" />
   <p class="mt-16 text-sm">
-    This canarytoken is triggered when someone uses this credential pair to
+    This token is triggered when someone uses this credential pair to
     access AWS programmatically (through the API). The key is unique. i.e. There
     is no chance of somebody guessing these credentials.
   </p>

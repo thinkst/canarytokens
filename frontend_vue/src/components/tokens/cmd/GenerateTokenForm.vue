@@ -5,7 +5,7 @@
       type="text"
       placeholder="File name"
       label="Name of the process to monitor"
-      helper-message="Add a .exe exstension, e.g klist.exe"
+      helper-message="Add a .exe extension, e.g klist.exe"
       full-width
     />
   </BaseGenerateTokenSettings>

@@ -1,7 +1,7 @@
 <template>
   <TokenDisplay :token-data="tokenData" />
   <p class="mt-16 text-sm">
-    This canarytoken is triggered when someone uses this Service Principal Login
+    This token is triggered when someone uses this Service Principal Login
     to access Azure programmatically (through the API).
   </p>
   <p class="mt-16 text-sm">

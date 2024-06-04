@@ -32,7 +32,7 @@
             v-if="isNotEmpty(key) && isNotEmpty(val)"
             class="text-grey-500"
           >
-            {{ key }}:
+            {{ formatIncidentDetails(key) }}:
           </h3>
           <ul
             v-if="isNotEmpty(val)"
@@ -53,7 +53,7 @@
                 >
                   <IncidentDetailsListItem
                     v-if="!isObject(nested_val)"
-                    :label="nested_key"
+                    :label="formatIncidentDetails(nested_key)"
                     :value="nested_val"
                   />
                   <template v-else>
@@ -115,6 +115,10 @@ onMounted(() => {
     builtIncidentDetail.value as FormattedHitsType
   );
 });
+
+const formatIncidentDetails = (value: any) => {
+  return value.replace('Src ip', 'Source IP').replace('Loc','Location')
+}
 
 watch(
   () => props.hitAlert,

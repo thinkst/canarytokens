@@ -50,6 +50,7 @@
         <CardIncident
           v-for="(incident, index) in hitsList"
           :key="index"
+          :last-key="index === hitsList.length - 1"
           :incident-id="incident.time_of_hit"
           :incident-preview-info="{
             Date: convertUnixTimeStampToDate(incident.time_of_hit),
