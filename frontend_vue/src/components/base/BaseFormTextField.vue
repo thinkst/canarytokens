@@ -1,4 +1,4 @@
-<!-- 
+<!--
 // Component specific for VeeValidate
 // https://vee-validate.logaretm.com/v4/examples/custom-inputs/
 -->
@@ -25,6 +25,7 @@
       :class="[
         { 'border-red shadow-none': errorMessage },
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },
+        { 'hide-scrollbar': multiline }
       ]"
       :style="`height: ${multilineHeight}`"
       :placeholder="placeholder"
@@ -88,3 +89,13 @@ function validateIfErrorExists(e: Event) {
   if (errorMessage && errorMessage.value) handleChange(e);
 }
 </script>
+<style>
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar { /* WebKit */
+  width: 0;
+  height: 0;
+}
+</style>

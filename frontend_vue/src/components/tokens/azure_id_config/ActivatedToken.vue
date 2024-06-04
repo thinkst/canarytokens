@@ -11,7 +11,7 @@
   <BaseMessageBox
     class="mt-24"
     variant="info"
-    message="upload it as a custom branding stylesheet for your Azure Entra ID login portal (requires a P1 or P2 subscription)"
+    message="Upload it as a custom branding stylesheet for your Azure Entra ID login portal (requires a P1 or P2 subscription)"
     text-link="How?"
     href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-customize-branding"
     target="_blank"

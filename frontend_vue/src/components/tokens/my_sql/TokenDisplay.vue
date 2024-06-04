@@ -1,5 +1,5 @@
 <template>
-  <p class="mt-16 mb-16">1. Insert it into a MySQL dump of your own:</p>
+  <p class="mt-16 mb-16">1. Insert it into a MySQL dump of your own</p>
   <base-code-snippet
     lang="sql"
     label="Your MYSQL code"

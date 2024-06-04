@@ -12,7 +12,7 @@
     <div class="mb-24 text-xl text-center text-grey-500">
       <h2>
         <span class="text-grey-300"
-          >{{ selectedTokenType }} Canarytoken Id: </span
+          >{{ selectedTokenType }} Canarytoken ID: </span
         ><span class="font-semibold">{{ selectedTokenRef }}</span>
       </h2>
     </div>
