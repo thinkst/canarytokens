@@ -1,0 +1,27 @@
+name: Run Cypress Tests
+on: [pull_request]
+
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    name: E2E on Chrome
+    steps:
+      - name: Checkout 🔖
+        uses: actions/checkout@v4.1.3
+      - name: Setup Node.js 🔨
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: 20
+
+      - name: Execute Cypress Tests 🌡️
+        uses: cypress-io/github-action@v6.6.1
+        with:
+          working-directory: ./cypress-tests
+          command: npx cypress run --headless --browser chrome
+
+      - name: Upload screenshots of tests failed 📷
+        uses: actions/upload-artifact@v4.3.3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress-tests/cypress/screenshots
