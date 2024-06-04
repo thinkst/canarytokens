@@ -240,10 +240,9 @@ class ChannelDNS(InputChannel):
         ):
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
 
-        if (canarydrop.type == TokenTypes.CMD) and (
-            invocation_id := src_data["src_data"].get("cmd_invocation_id")
-        ):
-            if any(
+        if canarydrop.type == TokenTypes.CMD:
+            invocation_id = src_data["src_data"].get("cmd_invocation_id")
+            if (invocation_id is not None) and any(
                 hit.src_data.get("cmd_invocation_id") == invocation_id
                 for hit in canarydrop.triggered_details.hits
             ):
