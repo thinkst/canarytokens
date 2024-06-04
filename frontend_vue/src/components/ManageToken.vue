@@ -39,44 +39,53 @@
   </BaseMessageBox>
   <div
     v-if="manageTokenResponse"
-    class="flex flex-col justify-center p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 md:max-w-[50vw] w-full"
+    class="md:mx-32 md:max-w-[50vw] w-full"
   >
-    <Suspense>
-      <component
-        :is="dynamicComponent"
-        :token-backend-response="manageTokenResponse"
-      />
-      <template #fallback>
-        <div class="flex flex-col w-full gap-8">
-          <BaseSkeletonLoader
-            class="w-[100px]"
-            type="text"
-          />
-          <BaseSkeletonLoader
-            class="w-full"
-            type="header"
-          />
-        </div>
-      </template>
-    </Suspense>
-    <MemoDisplay class="mt-32">{{
-      manageTokenResponse.canarydrop.memo
-    }}</MemoDisplay>
-    <SettingsToken
-      :token-backend-response="manageTokenResponse"
-      class="mt-32"
-    ></SettingsToken>
-    <BaseMessageBox
-      class="mt-32"
-      :variant="hasAlerts ? 'danger' : 'info'"
-      :text-link="hasAlerts ? 'Check History' : ''"
-      @click="handleCheckHistory"
+    <div
+      class="flex flex-col justify-center p-16 md:p-32 rounded-xl bg-grey-50 md:max-w-[50vw]"
     >
-      <!-- there should no risk of injection for unescaped html -->
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <span v-html="alertsMessage"></span>
-    </BaseMessageBox>
-    <BannerDeviceCanarytools class="mb-8" />
+      <Suspense>
+        <component
+          :is="dynamicComponent"
+          :token-backend-response="manageTokenResponse"
+        />
+        <template #fallback>
+          <div class="flex flex-col w-full gap-8">
+            <BaseSkeletonLoader
+              class="w-[100px]"
+              type="text"
+            />
+            <BaseSkeletonLoader
+              class="w-full"
+              type="header"
+            />
+          </div>
+        </template>
+      </Suspense>
+      <MemoDisplay class="mt-32">{{
+        manageTokenResponse.canarydrop.memo
+      }}</MemoDisplay>
+      <SettingsToken
+        :token-backend-response="manageTokenResponse"
+        class="mt-32"
+      ></SettingsToken>
+      <BaseMessageBox
+        class="mt-32"
+        :variant="hasAlerts ? 'danger' : 'info'"
+        :text-link="hasAlerts ? 'Check History' : ''"
+        @click="handleCheckHistory"
+      >
+        <span v-if="!hasAlerts">This Token has never been triggered</span>
+        <span v-else>
+          This Token has been triggered
+          <span class="font-bold">{{ hasAlerts }}</span>
+          time{{ hasAlerts > 1 ? 's' : '' }}</span
+        >
+      </BaseMessageBox>
+    </div>
+    <div class="flex justify-center sm:max-w-[50vw]">
+      <BannerTextCanarytools class="mt-32 mb-8" />
+    </div>
   </div>
 </template>
 
@@ -89,7 +98,7 @@ import { tokenServices } from '@/utils/tokenServices';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import { TOKENS_TYPE } from './constants';
-import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
+import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 
 const route = useRoute();
@@ -105,11 +114,6 @@ const dynamicComponent = ref({
 });
 
 const hasAlerts = ref(0);
-const alertsMessage = computed(() => {
-  return !hasAlerts.value
-    ? 'This Token has never been triggered'
-    : `This Token has been triggered <span class="font-bold">${hasAlerts.value}</span> time${hasAlerts.value > 1 ? 's' : ''}`;
-});
 
 /* AZURE CONFIG Exception handler */
 /* CSS Cloned Site type can be an Azure ID Config token */
