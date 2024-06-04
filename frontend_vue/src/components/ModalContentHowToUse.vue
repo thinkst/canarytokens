@@ -68,7 +68,7 @@ li::before {
   border: 4px solid hsl(141, 75%, 76%);
 }
 
-p >>> code {
+p :deep(code) {
   @apply bg-grey-100 px-8 py-[2px] rounded-md mt-4;
   overflow-wrap: anywhere;
 }
