@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { TOKENS_TYPE } from '@/components/constants.ts';
+import { TOKENS_TYPE, MAX_UPLOAD_SIZE } from '@/components/constants.ts';
 import { isValidFileType, validFileExtensions } from './utils';
 
 type FieldsType = {
@@ -104,6 +104,11 @@ export const formValidators: ValidateSchemaType = {
               value && value.name.toLowerCase(),
               validFileExtensions.image
             ) as boolean
+        )
+        .test(
+          'fileTooLarge',
+          'Image size must be below 1MB',
+          (value) => value.size < MAX_UPLOAD_SIZE
         ),
     }),
   },
@@ -132,6 +137,11 @@ export const formValidators: ValidateSchemaType = {
               value && value.name.toLowerCase(),
               validFileExtensions.exe
             ) as boolean
+        )
+        .test(
+          'fileTooLarge',
+          'File size must be below 1MB',
+          (value) => value.size < MAX_UPLOAD_SIZE
         ),
     }),
   },
