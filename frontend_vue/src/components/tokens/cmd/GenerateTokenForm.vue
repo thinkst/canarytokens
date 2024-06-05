@@ -7,6 +7,7 @@
       label="Name of the process to monitor"
       helper-message="Add a .exe extension, e.g klist.exe"
       full-width
+      required
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
