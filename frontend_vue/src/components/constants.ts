@@ -109,3 +109,5 @@ export const ENTRA_ID_FEEDBACK_MESSAGES = {
   ENTRA_STATUS_SUCCESS: "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.",
   ENTRA_STATUS_NO_ADMIN_CONSENT: "Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.",
 }
+
+export const MAX_UPLOAD_SIZE = 1024 * 1024 * 1;
