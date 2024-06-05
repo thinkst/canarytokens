@@ -1,7 +1,10 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+  library,
+  type IconDefinition,
+} from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   faBars,
@@ -29,6 +32,7 @@ import {
   faFile,
   faQuoteLeft,
 } from '@fortawesome/free-solid-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
 import VueGoogleMaps from 'vue-google-maps-community-fork';
@@ -64,7 +68,8 @@ library.add(
   faMagnifyingGlass,
   faFileExcel,
   faFile,
-  faQuoteLeft
+  faQuoteLeft,
+  faGithub as IconDefinition
 );
 
 const vfm = createVfm();
