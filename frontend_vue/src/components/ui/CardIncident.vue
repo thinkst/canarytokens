@@ -1,5 +1,5 @@
 <template>
-  <li class="w-full">
+  <li class="w-full @container">
     <button
       v-bind="$attrs"
       class="relative w-full px-16 py-8 transition duration-100 bg-white border text-grey-700 grouped group rounded-xl shadow-solid-shadow-grey border-grey-200 error-card"
@@ -8,7 +8,7 @@
     >
       <span class="flex flex-row items-center flex-1 gap-16">
         <AlertShieldIcon
-          class="min-w-[30px] group-hover:fill-red group-focus:fill-red group-active:fill-red fill-grey-700 group-hover:scale-95 transition duration-200"
+          class="hidden @xs:block min-w-[30px] group-hover:fill-red group-focus:fill-red group-active:fill-red fill-grey-700 group-hover:scale-95 transition duration-200"
           aria-hidden="true"
         />
         <span class="text-left">
@@ -42,7 +42,7 @@ type incidentPreviewInfoType = {
 };
 
 defineProps<{
-  lastKey: boolean,
+  lastKey: boolean;
   incidentPreviewInfo: incidentPreviewInfoType;
   incidentId: number | string;
 }>();

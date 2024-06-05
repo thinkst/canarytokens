@@ -10,11 +10,11 @@
     @update:model-value="(val) => emit('update:modelValue', val)"
   >
     <div
-      class="absolute inset-[0px] h-full overflow-auto"
+      class="absolute inset-[0px] h-full overflow-auto sm:flex p-16"
       @click.self="() => emit('update:modelValue', false)"
     >
       <div
-        class="md:w-[60vw] lg:w-[50vw] my-16 mx-auto bg-white rounded-lg max-w-[900px]"
+        class="md:w-[60vw] lg:w-[50vw] mx-auto bg-white rounded-lg max-w-screen-lg sm:self-center my-auto"
       >
         <!-- header -->
         <div class="relative pt-24 pb-24 bg-white rounded-t-lg header">
@@ -91,12 +91,11 @@ const emit = defineEmits<{
 
 const modalCustomTransition = {
   'enter-active-class': 'ease-out duration-300',
-  'enter-from-class':
-    'opacity-0 translate-y-[-2vh] sm_translate-y-0 sm_scale-95',
-  'enter-to-class': 'opacity-100 translate-y-0 sm_scale-100',
+  'enter-from-class': 'opacity-0 ',
+  'enter-to-class': 'opacity-100 sm_scale-100',
   'leave-active-class': 'ease-in duration-200',
-  'leave-from-class': 'opacity-100 translate-y-0 sm_scale-100',
-  'leave-to-class': 'opacity-0 translate-y-[-2vh] sm_translate-y-0 sm_scale-95',
+  'leave-from-class': 'opacity-100 sm_scale-100',
+  'leave-to-class': 'opacity-0 ',
 };
 </script>
 
