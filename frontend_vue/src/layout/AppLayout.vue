@@ -1,7 +1,7 @@
 <template>
   <main class="flex items-center justify-center main-height bg-grey-50">
     <div
-      class="lg:max-w-[1536px] md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-lg shadow-lg shadow-grey-200/40 min-h-[50vh] p-24 flex-auto"
+      class="lg:max-w-screen-2xl md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-lg shadow-lg shadow-grey-200/40 min-h-[50vh] p-24 flex-auto"
     >
       <h1
         v-if="route.name !== 'home'"
