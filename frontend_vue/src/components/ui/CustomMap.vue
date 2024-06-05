@@ -1,5 +1,10 @@
 <template>
-  <div v-if="isLoading">Loading map...</div>
+  <div v-if="isLoading">
+    <BaseSkeletonLoader
+      type="rectangle"
+      class="md:h-[40svh] h-[30svh]"
+    />
+  </div>
   <div
     v-if="!isLoading && hitsList.length === 0"
     class="placeholder"

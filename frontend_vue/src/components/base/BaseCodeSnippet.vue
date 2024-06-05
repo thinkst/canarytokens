@@ -26,19 +26,19 @@
           class="ring-white ring-4"
         />
       </div>
-      <VCodeBlock
+      <highlightjs
         :id="label"
+        :code="code"
+        :lang="lang"
+        class="min-h-[3.5rem] overflow-scroll rounded-xl"
+        :style="{
+          height: componentHeight,
+        }"
         :class="[
           showExpandButton ? 'whitespace-pre-wrap' : '',
-          isSingleLine && hasCopy && !hasRefresh ? 'pr-[2rem]' : '',
-          isSingleLine && hasCopy && hasRefresh ? 'pr-[3rem]' : '',
+          isSingleLine && hasCopy && !hasRefresh ? 'mr-[3.5rem]' : '',
+          isSingleLine && hasCopy && hasRefresh ? 'mr-[6rem]' : '',
         ]"
-        :code="code"
-        highlightjs
-        :height="componentHeight"
-        :lang="lang"
-        theme="github"
-        :copy-button="false"
       />
     </div>
   </div>
@@ -46,7 +46,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import VCodeBlock from '@wdns/vue-code-block';
+import 'highlight.js/lib/common';
+import 'highlight.js/styles/github.css';
+import hljsVuePlugin from '@highlightjs/vue-plugin';
 
 const props = withDefaults(
   defineProps<{
@@ -71,6 +73,7 @@ const props = withDefaults(
 
 const emits = defineEmits(['refresh-token']);
 const showAllCode = ref(false);
+const highlightjs = ref(hljsVuePlugin.component);
 
 const componentHeight = computed(() => {
   if (props.customHeight && !props.showExpandButton) {
