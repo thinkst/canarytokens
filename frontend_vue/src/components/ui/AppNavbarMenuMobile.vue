@@ -2,7 +2,7 @@
   <button
     :aria-expanded="showMobileMenu"
     aria-controls="mobile_menu"
-    class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden hover:bg-grey-200 active:bg-green focus:bg-grey-200"
+    class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden"
     @click="handleShowMobileMenu"
   >
     <Transition name="icon">
@@ -23,57 +23,17 @@
     </Transition>
   </button>
   <Transition>
-    <nav
+    <AppNavbarLinks
       v-if="showMobileMenu"
-      id="mobile_menu"
-      role="navigation"
-      class="absolute transition-left ease-in-out duration-300 w-full text-center md:hidden bg-green top-[93px] py-32 min-h-svh z-50 motion-reduce:transition-none motion-reduce:hover:transform-none"
-    >
-      <ul class="uppercase">
-        <li
-          v-for="item in menuItems"
-          :key="item.name"
-          class="py-8"
-        >
-          <RouterLink
-            :to="item.path"
-            class="text-green-200 hover:text-white mobile-link"
-            @click="handleShowMobileMenu"
-          >
-            {{ item.name }}
-          </RouterLink>
-        </li>
-        <li
-          class="py-8 text-green-200 cursor-pointer hover:text-white mobile-link"
-        >
-          <a href="#">
-            <font-awesome-icon
-              icon="link"
-              class="w-[0.8rem] pr-8"
-            />Documentation
-          </a>
-        </li>
-      </ul>
-    </nav>
+      is-mobile
+      @click-link="handleShowMobileMenu"
+    />
   </Transition>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
-import type { PropType } from 'vue';
-
-type menuItemsType = {
-  name: string;
-  path: string;
-};
-
-defineProps({
-  menuItems: {
-    type: Array as PropType<menuItemsType[]>,
-    required: true,
-  },
-});
+import AppNavbarLinks from './AppNavbarLinks.vue';
 
 const showMobileMenu = ref(false);
 
@@ -83,13 +43,6 @@ function handleShowMobileMenu() {
 </script>
 
 <style scoped lang="scss">
-.mobile-link {
-  &.router-link-active {
-    color: hsl(0, 0%, 100%);
-    position: relative;
-  }
-}
-
 .v-enter-to,
 .v-leave-from {
   right: 0;
