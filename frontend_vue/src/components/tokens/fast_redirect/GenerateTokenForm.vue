@@ -3,9 +3,10 @@
     <BaseFormTextField
       id="redirect_url"
       type="text"
-      placeholder="Redirect Url"
+      placeholder="Redirect URL"
       label="Redirect URL"
       full-width
+      required
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications

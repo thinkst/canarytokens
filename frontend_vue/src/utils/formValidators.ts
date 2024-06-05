@@ -154,7 +154,7 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.CLONED_WEBSITE]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
-      clonedsite: Yup.string().required(),
+      clonedsite: Yup.string().required('Domain is required'),
     }),
   },
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
