@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-NBq-6-7z.js";import{d as r,a as o,b as a}from"./index-WLcRglgj.js";const c=r({__name:"GenerateTokenForm",setup(t){return(n,s)=>(o(),a(e,{"memo-helper-example":" Directory token placed in U:\\Users\\Max\\CrediCardsReports\\"}))}});export{c as default};

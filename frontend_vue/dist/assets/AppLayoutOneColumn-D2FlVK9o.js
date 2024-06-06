@@ -1,0 +1,1 @@
+import{k as s,a as o,c as t,m as c}from"./index-WLcRglgj.js";const n={},a={class:"flex flex-col items-center max-w-[90svw] md:max-w-[80svw] md:mx-[10svw]"};function r(e,m){return o(),t("div",a,[c(e.$slots,"default")])}const _=s(n,[["render",r]]);export{_ as A};
