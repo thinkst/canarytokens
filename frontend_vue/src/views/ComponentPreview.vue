@@ -105,6 +105,7 @@
     <h1>Card Incident</h1>
     <ul>
       <CardIncident
+        :last-key="false"
         :incident-preview-info="{
           date: '2024-03-22 16:01:08.976860',
           IP: '84.138.198.174',
