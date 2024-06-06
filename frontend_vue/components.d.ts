@@ -22,7 +22,6 @@ declare module 'vue' {
     BaseSkeletonLoader: typeof import('./src/components/base/BaseSkeletonLoader.vue')['default']
     BaseSpinner: typeof import('./src/components/base/BaseSpinner.vue')['default']
     BaseSwitch: typeof import('./src/components/base/BaseSwitch.vue')['default']
-    BaseTextField: (typeof import('./src/components/base/BaseTextField.vue'))['default']
     BaseUploadFile: typeof import('./src/components/base/BaseUploadFile.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
