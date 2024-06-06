@@ -1,5 +1,9 @@
 name: Run Cypress Tests
-on: [pull_request]
+on:
+  push:
+    branches:
+      - master
+      - dev
 
 jobs:
   chrome:
