@@ -91,6 +91,11 @@ watch(filterValue, (newVal, oldVal) => {
 });
 
 function handleSolitaire() {
+  // don't apply effect on mobile
+  if (window.innerWidth <= 768) {
+    return;
+  }
+
   const tokenCard = document.querySelectorAll('.token-card-wrapper');
 
   tokenCard.forEach((card, index) => {
