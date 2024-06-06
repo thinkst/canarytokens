@@ -70,7 +70,7 @@
         class="mt-32"
       ></SettingsToken>
       <BaseMessageBox
-        v-if="manageTokenResponse.canarydrop.canarytoken._value"
+        v-if="manageTokenResponse.canarydrop.type === 'windows_dir'"
         class="mt-32"
         :variant="'warning'"
         :message="`This token only works on Windows 10 systems and lower. It does
