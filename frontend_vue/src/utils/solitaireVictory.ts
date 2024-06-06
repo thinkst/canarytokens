@@ -68,6 +68,7 @@ export default function solitaireVictory(target: HTMLElement[], index: number) {
     copy.style.width = width + 'px';
     copy.style.height = height + 'px';
     copy.style.position = 'fixed';
+    copy.style.zIndex = '1000';
     const originalOffset = elem.getBoundingClientRect();
     copy.style.left = originalOffset.left + 'px';
     copy.style.top = originalOffset.top + 'px';

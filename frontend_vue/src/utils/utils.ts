@@ -29,5 +29,4 @@ export function isObject(val: Record<string, string> | string | number) {
   return val && typeof val === 'object' && Object.keys(val).length > 0;
 }
 
-export const sqlInjectionPattern =
-  /\b(DELETE|SELECT|UPDATE|INSERT|DROP|FROM|WHERE|UNION|OR|AND|--|'|";|\/\*|\*\/)\b/;
+export const sqlInjectionPattern = /\b(or 1=1|OR 1=1)\b/;
