@@ -6,6 +6,7 @@
       <SearchBar
         label="Search"
         placeholder="A nice placeholder"
+        value=""
       />
     </div>
   </div>
