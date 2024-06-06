@@ -13,6 +13,7 @@
       @filtered-list="filteredList = $event"
       @filter-search="searchValue = $event"
       @filter-category="filterValue = $event"
+      @is-sql-injection="handleSolitaire"
     />
   </div>
   <!--Tokens Grid -->
@@ -23,7 +24,6 @@
       {{ filterValue ? `in category "${filterValue}"` : '' }}
     </p>
   </template>
-
   <!--Tokens Grid -->
   <!-- Grid elements -->
   <AppLayoutGrid>
@@ -60,6 +60,7 @@ import CardToken from '@/components/ui/CardToken.vue';
 import { useModal } from 'vue-final-modal';
 import ModalToken from '@/components/ModalToken.vue';
 import SearchFilterTokensHeader from '@/components/SearchFilterTokensHeader.vue';
+import solitaireVictory from '@/utils/solitaireVictory';
 
 const filterValue = ref('');
 const searchValue = ref('');
@@ -88,6 +89,19 @@ watch(filterValue, (newVal, oldVal) => {
     animationType.value = 'fade';
   }
 });
+
+function handleSolitaire() {
+  // don't apply effect on mobile
+  if (window.innerWidth <= 768) {
+    return;
+  }
+
+  const tokenCard = document.querySelectorAll('.token-card-wrapper');
+
+  tokenCard.forEach((card, index) => {
+    solitaireVictory([card as HTMLElement], index);
+  });
+}
 </script>
 
 <style scoped>
