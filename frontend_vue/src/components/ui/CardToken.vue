@@ -1,5 +1,5 @@
 <template>
-  <li class="relative flex">
+  <li class="relative flex token-card-wrapper">
     <button
       class="relative group border flex-1 group flex flex-col px-16 pt-16 pb-24 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey-sm border-grey-200 items-center duration-100 ease-in-out token-card"
       @click.stop="handleClickToken"

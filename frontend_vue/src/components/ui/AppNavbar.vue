@@ -1,6 +1,6 @@
 <template>
   <div class="z-50 flex justify-between w-full gap-24 sm:justify-center">
-    <div class="flex flex-row lg:w-[80vw] sm:w-full">
+    <div class="flex flex-row lg:max-w-screen-2xl sm:w-full">
       <AppLogo class="px-24 py-16" />
       <AppNavbarLinks />
     </div>

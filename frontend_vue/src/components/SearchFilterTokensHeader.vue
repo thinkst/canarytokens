@@ -21,6 +21,7 @@
     </ul>
     <SearchBar
       placeholder="Search"
+      :value="searchValue"
       label="Search"
       class="w-full md:w-[15vw]"
       :class="{
@@ -50,11 +51,13 @@ import { tokenServices } from '@/utils/tokenServices';
 import SearchBar from '@/components/ui/SearchBar.vue';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import { TOKEN_CATEGORY } from '@/components/constants.ts';
+import { sqlInjectionPattern } from '@/utils/utils';
 
 const emits = defineEmits([
   'filtered-list',
   'filter-category',
   'filter-search',
+  'is-sql-injection',
 ]);
 
 const filterValue = ref('');
@@ -129,6 +132,15 @@ watch(filterValue, () => {
 });
 
 watch(searchValue, () => {
+  if (sqlInjectionPattern.test(searchValue.value)) {
+    filterValue.value = '';
+    searchValue.value = '';
+    // wait for debounce on searchValue
+    setTimeout(() => {
+      searchValue.value === '' && emits('is-sql-injection', true);
+    }, 300);
+    return;
+  }
   emits('filter-search', searchValue.value);
 });
 </script>
