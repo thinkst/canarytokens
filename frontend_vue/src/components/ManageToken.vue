@@ -82,6 +82,11 @@
           time{{ hasAlerts > 1 ? 's' : '' }}</span
         >
       </BaseMessageBox>
+      <DeleteTokenButton
+        :alerts-count="hasAlerts"
+        :memo="manageTokenResponse.canarydrop.memo"
+        :token="manageTokenResponse.canarydrop.canarytoken._value"
+        :auth="manageTokenResponse.canarydrop.auth" />
     </div>
     <div class="flex justify-center sm:max-w-[50vw]">
       <BannerTextCanarytools class="mt-32 mb-8" />
@@ -99,6 +104,7 @@ import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import { TOKENS_TYPE } from './constants';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
+import DeleteTokenButton from '@/components/ui/DeleteTokenButton.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 
 const route = useRoute();
