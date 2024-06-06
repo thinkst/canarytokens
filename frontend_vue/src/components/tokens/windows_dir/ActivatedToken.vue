@@ -6,6 +6,13 @@
     folder via a network share!
   </p>
   <base-message-box
+    class="mt-32"
+    :variant="'warning'"
+    :message="`This token only works on Windows 10 systems and lower. It does
+      not work on Windows 11 or higher. This is because a recent group policy update to
+      some versions of Windows defaults to disabling functionality that this token
+      relies on to fire.`" />
+  <base-message-box
     class="mt-24"
     variant="info"
     :message="`The alert will include the network domain and username of the browsing user, if present.`"
