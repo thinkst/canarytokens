@@ -13,6 +13,7 @@ import type { BaseColorVariantType } from './types';
 enum SpinnerVariantEnum {
   PRIMARY = 'primary',
   SECONDARY = 'secondary',
+  DANGER = 'danger',
 }
 
 const props = defineProps({
@@ -32,6 +33,8 @@ const spinnerClass = computed(() => {
       return `border-green-500`;
     case SpinnerVariantEnum.SECONDARY:
       return 'border-white';
+    case SpinnerVariantEnum.DANGER:
+      return 'border-red';
     default:
       return 'border-green-500';
   }

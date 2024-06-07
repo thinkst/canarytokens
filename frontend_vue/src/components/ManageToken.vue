@@ -86,7 +86,8 @@
         :alerts-count="hasAlerts"
         :memo="manageTokenResponse.canarydrop.memo"
         :token="manageTokenResponse.canarydrop.canarytoken._value"
-        :auth="manageTokenResponse.canarydrop.auth" />
+        :auth="manageTokenResponse.canarydrop.auth"
+        :type="manageTokenResponse.canarydrop.type" />
     </div>
     <div class="flex justify-center sm:max-w-[50vw]">
       <BannerTextCanarytools class="mt-32 mb-8" />

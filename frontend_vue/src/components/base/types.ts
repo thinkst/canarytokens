@@ -8,11 +8,14 @@ export interface BaseStateVariantInterface {
 export interface BaseColorVariantInterface extends BaseStateVariantInterface {
   primary: string;
   secondary: string;
+  danger: string;
 }
 
 export interface BaseButtonVariantInterface extends BaseColorVariantInterface {
   text: string;
   'text-light': string;
+  grey: string;
+  danger: string;
 }
 
 export type ButtonVariantType = keyof BaseButtonVariantInterface;
