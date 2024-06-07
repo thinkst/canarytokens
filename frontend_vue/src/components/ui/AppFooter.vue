@@ -28,10 +28,13 @@
           >Our Terms of Use.</RouterLink
         >
       </p>
+      <p v-if="BUILD_ID">Build ID: {{ BUILD_ID }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
+
+const BUILD_ID = import.meta.env.VITE_GITHUB_SHA;
 </script>
