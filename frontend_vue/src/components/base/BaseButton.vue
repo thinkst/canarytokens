@@ -131,7 +131,7 @@ const spinnerVariant = computed(() => {
 }
 
 .danger {
-  @apply bg-white hover:bg-red hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red focus:text-white focus:border-red-500 focus:outline-0 text-red border shadow-solid-shadow-red border-red-500;
+  @apply bg-white hover:bg-red hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red focus:text-white focus:border-red-300 focus:outline-0 text-red border shadow-solid-shadow-red border-red-300;
 }
 
 .grey {
