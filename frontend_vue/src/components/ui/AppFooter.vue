@@ -28,7 +28,10 @@
           >Our Terms of Use.</RouterLink
         >
       </p>
-      <p v-if="BUILD_ID">Build ID: {{ BUILD_ID }}</p>
+      <div v-if="BUILD_ID">
+        <p>Build ID: {{ BUILD_ID }}</p>
+        <p>(This will be one commit behind the frontend Dist build if you made frontend changes)</p>
+      </div>
     </div>
   </div>
 </template>
