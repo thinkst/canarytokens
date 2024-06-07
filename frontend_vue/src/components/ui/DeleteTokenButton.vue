@@ -26,7 +26,7 @@
       <p class="text-normal leading-normal text-grey-300 mt-8">All associated alerts will be permanently lost</p>
     </div>
     <template #footer>
-      <div class="w-full flex flex-row justify-end pr-[3rem]">
+      <div class="w-full flex flex-row justify-center">
         <span v-if="errorMessage">{{ errorMessage }}</span>
         <BaseButton variant="grey" class="mr-8" @click="modalOpen = false">No, keep it</BaseButton>
         <BaseButton variant="danger" :loading="isLoading" @click="deleteToken(token, auth)">Yes, delete</BaseButton>

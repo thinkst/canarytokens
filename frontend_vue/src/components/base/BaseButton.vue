@@ -135,7 +135,7 @@ const spinnerVariant = computed(() => {
 }
 
 .grey {
-  @apply bg-white hover:bg-grey-400 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-grey-400 focus:text-white focus:border-grey-500 focus:outline-0 text-grey border shadow-solid-shadow-grey border-grey-500;
+  @apply bg-white hover:bg-grey-400 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-grey-400 focus:text-white focus:border-grey-500 focus:outline-0 text-grey-500 border shadow-solid-shadow-grey border-grey-500;
 }
 
 .warning {
