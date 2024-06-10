@@ -603,6 +603,17 @@ def get_commit_sha():
 
 
 # NOTE: Do not remove this when cleaning up after UI is stable
+@app.exception_handler(500)
+async def internal_exception_handler(request: Request, exc: Exception):
+    return templates.TemplateResponse("500.html", {"request": request})
+
+
+@app.exception_handler(404)
+async def internal_not_found_handler(request: Request, exc: Exception):
+    return templates.TemplateResponse("404.html", {"request": request})
+
+
+# NOTE: Do not remove this when cleaning up after UI is stable
 @app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
 async def azure_css_landing(
     request: Request,
