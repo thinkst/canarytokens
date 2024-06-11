@@ -2,7 +2,7 @@
   <button
     :aria-expanded="showMobileMenu"
     aria-controls="mobile_menu"
-    class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden"
+    class="self-center overflow-hidden md:hidden w-[5rem]"
     @click="handleShowMobileMenu"
   >
     <Transition name="icon">
@@ -10,14 +10,14 @@
         v-if="showMobileMenu"
         class="duration-150 ease-in-out transition-margin"
         ><font-awesome-icon
-          class="text-grey-500"
+          class="text-3xl text-green-50"
           icon="xmark"
       /></span>
       <span
         v-else
         class="duration-150 ease-in-out transition-margin"
         ><font-awesome-icon
-          class="text-grey-500"
+          class="text-3xl text-green-50"
           icon="bars"
       /></span>
     </Transition>
