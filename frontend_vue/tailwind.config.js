@@ -38,7 +38,7 @@ export default {
         '700': 'hsl(158, 8%, 26%)',
         '800': 'hsl(160, 8%, 22%)',
         '900': 'hsl(154, 7%, 19%)',
-        '950': 'hsl(168, 10%, 10%)',  
+        '950': 'hsl(168, 10%, 10%)',
       },
       'yellow': {
         '300': 'hsl(36, 100%, 91%)',
@@ -69,8 +69,8 @@ export default {
         'solid-shadow-green-500-sm': `0px 0.25rem 0px 0px  ${theme('colors.green.500')}`,
         'solid-shadow-red': `0px 0.15rem 0px 0px  ${theme('colors.red.DEFAULT')}`,
         'solid-shadow-green-300': `0px 0.15rem 0px 0px  ${theme('colors.green.300')}`,
-        'solid-shadow-grey': `0px 0.15rem 0px 0px  ${theme('colors.grey.300')}`,
-        'solid-shadow-grey-sm': `0px 0.25rem 0px 0px  ${theme('colors.grey.300')}`,
+        'solid-shadow-grey': `0px 0.20rem 0px 0px  ${theme('colors.grey.200')}`,
+        'solid-shadow-grey-sm': `0px 0.25rem 0px 0px  ${theme('colors.grey.200')}`,
         'inner-shadow-grey': `inset 0px 0.25rem 0px 0px  ${theme('colors.grey.50')}`,
       })
     },

@@ -9,7 +9,7 @@
         :id="`${index + 1}__slide`"
         :key="slide"
         tabindex="0"
-        class="flex-[0_0_100%] relative flex items-center my-16 bg-white border rounded-xl shadow-solid-shadow-grey-sm border-grey-200 carousel__slide"
+        class="flex-[0_0_100%] relative flex items-center my-16 bg-white border rounded-xl shadow-solid-shadow-grey border-grey-200 carousel__slide"
       >
         <img
           :src="getCarouselIcon(index)"
