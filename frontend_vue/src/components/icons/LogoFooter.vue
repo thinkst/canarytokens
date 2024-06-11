@@ -2,8 +2,6 @@
 <!-- eslint-disable vuejs-accessibility/mouse-events-have-key-events -->
 <template>
   <svg
-    width="223px"
-    height="51px"
     xml:space="preserve"
     shape-rendering="geometricPrecision"
     text-rendering="geometricPrecision"
