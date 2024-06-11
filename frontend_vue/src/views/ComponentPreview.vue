@@ -10,7 +10,7 @@
       />
     </div>
   </div>
-  <div class="flex flex-col w-[200px] gap-16">
+  <div class="flex flex-col max-w-[200px] gap-16">
     <h1>Buttons</h1>
     <base-button>Primary</base-button>
     <base-button variant="secondary">Secondary</base-button>
@@ -33,17 +33,17 @@
     <base-button :disabled="true">Disabled</base-button>
   </div>
   <hr class="my-24" />
-  <div class="flex flex-col w-[200px] gap-16">
+  <div class="flex flex-col max-w-[200px] gap-16">
     <h1>Modal</h1>
     <BaseButton @click="() => open()">Check modal</BaseButton>
   </div>
   <hr class="my-24" />
-  <div class="flex flex-col w-[200px] gap-16">
+  <div class="flex flex-col max-w-[200px] gap-16">
     <h1>Copy button</h1>
     <BaseCopyButton content="Content to copy is here" />
   </div>
   <hr class="my-24" />
-  <div class="flex flex-col w-[300px] gap-16">
+  <div class="flex flex-col max-w-[300px] gap-16">
     <h1>Switch</h1>
     <BaseSwitch
       id="check"
@@ -102,7 +102,7 @@
     />
   </div>
   <hr class="my-24" />
-  <div class="flex flex-col gap-16 w-[400px]">
+  <div class="flex flex-col gap-16 max-w-[400px]">
     <h1>Card Incident</h1>
     <ul>
       <CardIncident
@@ -198,7 +198,7 @@
 
       <BaseCodeSnippet
         is-single-line
-        class="mb-16"
+        class="mb-16 max-w-[300px] sm:max-w-full"
         label="Single line"
         lang="javascript"
         code="http://canarytokens.com/traffic/ttg75cc1ah5ae4f24o6767csk/post.jsp"
@@ -207,7 +207,7 @@
       <BaseCodeSnippet
         has-refresh
         is-single-line
-        class="mb-16"
+        class="mb-16 max-w-[300px] sm:max-w-full"
         label="Single line"
         lang="javascript"
         code="http://canarytokens.com/traffic/ttg75cc1ah5ae4f24o6767csk/post.jsp"
@@ -215,6 +215,7 @@
 
       <BaseCodeSnippet
         multiline
+        class="max-w-[300px] sm:max-w-full"
         label="Multiline - Javascript"
         :code="codeSnippet"
         lang="javascript"
@@ -291,7 +292,7 @@
         type="text"
       />
       <BaseSkeletonLoader
-        class="w-[200px]"
+        class="max-w-[200px]"
         type="text"
       />
     </div>

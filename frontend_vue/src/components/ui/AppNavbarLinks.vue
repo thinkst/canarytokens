@@ -4,7 +4,7 @@
     :class="
       !props.isMobile
         ? 'items-center justify-end hidden w-full pr-32 md:flex'
-        : 'absolute transition-left ease-in-out duration-300 w-[70vw] text-right md:hidden bg-green top-[93px] right-0 py-32 pr-32 min-h-svh z-50 motion-reduce:transition-none motion-reduce:hover:transform-none'
+        : 'shadow-xl absolute transition-left ease-in-out duration-300 w-[80vw] text-right md:hidden bg-white/90 backdrop-blur-sm top-[93px] right-0 py-32 pr-32 h-auto z-50 motion-reduce:transition-none motion-reduce:hover:transform-none rounded-xl mr-8'
     "
   >
     <ul
@@ -22,10 +22,9 @@
           :to="item.path"
           :class="
             !props.isMobile
-              ? 'transition-colors duration-100 text-grey-400 hover:text-green desktop-link focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500'
-              : 'text-green-200 hover:text-white mobile-link'
+              ? 'transition-colors duration-100 text-green-100 hover:text-white desktop-link focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-800'
+              : 'text-grey-400 hover:text-white mobile-link'
           "
-          @click="() => $emit('click-link')"
         >
           {{ item.name }}
         </RouterLink>
@@ -39,8 +38,8 @@
           target="_blank"
           :class="
             !props.isMobile
-              ? 'transition-colors duration-100 cursor-pointer text-grey-400 hover:text-green desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex flex-row gap-8 items-center'
-              : 'text-green-200 hover:text-white mobile-link flex flex-row gap-8 items-center justify-end'
+              ? 'transition-colors duration-100 cursor-pointer text-green-100 hover:text-white desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-800 flex flex-row gap-8 items-center'
+              : 'text-grey-400 hover:text-white mobile-link flex flex-row gap-8 items-center justify-end'
           "
         >
           <font-awesome-icon
@@ -64,7 +63,6 @@ const props = defineProps({
   isMobile: Boolean,
 });
 
-defineEmits(['click-link']);
 
 const route = useRoute();
 
@@ -129,15 +127,13 @@ watch(
 
 .desktop-link {
   &.router-link-active {
-    color: hsl(152, 59%, 48%);
-    position: relative;
+    @apply text-white;;
   }
 }
 
 .mobile-link {
   &.router-link-active {
-    color: hsl(0, 0%, 100%);
-    position: relative;
+    @apply text-green-600 
   }
 }
 </style>
