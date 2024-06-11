@@ -49,8 +49,8 @@
         />
         <circle
           fill="#EA4458"
-          cx="281"
-          cy="276"
+          cx="282"
+          cy="282"
           r="21"
           class="logo-dot-front"
         />
