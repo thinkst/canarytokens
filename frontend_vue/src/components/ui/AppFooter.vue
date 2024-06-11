@@ -3,13 +3,10 @@
     class="grid items-center grid-cols-1 px-24 py-16 mb-16 text-xs text-center text-grey-400"
   >
     <div class="flex justify-center py-16">
-      <a
-        href="https://canary.tools/"
-        target="_blank"
-        ><img
-          src="@/assets/logo_footer.svg"
-          alt="logo"
-      /></a>
+      <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+      <a href="https://canary.tools/" target="_blank">
+        <LogoFooter class="w-[15rem] min-w-[12rem]" />
+      </a>
     </div>
     <div>
       <p>
@@ -38,6 +35,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
+import LogoFooter from '@/components/icons/LogoFooter.vue';
 
 const BUILD_ID = import.meta.env.VITE_GITHUB_SHA;
 </script>
