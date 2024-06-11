@@ -37,7 +37,7 @@
       @blur="handleChange"
       @input="(e: Event) => validateIfErrorExists(e)"
     />
-    <div class="pr-8 mt-4 ml-16">
+    <div class="h-16 pr-8 mt-4 ml-16">
       <p
         v-show="helperMessage"
         id="helper"
