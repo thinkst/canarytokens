@@ -2,22 +2,22 @@
   <button
     :aria-expanded="showMobileMenu"
     aria-controls="mobile_menu"
-    class="bg-grey-100 md:hidden w-[36px] h-[36px] rounded-full self-center mr-16 overflow-hidden"
-    @click="handleShowMobileMenu"
+    class="self-center overflow-hidden md:hidden w-[5rem]"
+    @click.stop="handleShowMobileMenu"
   >
     <Transition name="icon">
       <span
         v-if="showMobileMenu"
         class="duration-150 ease-in-out transition-margin"
         ><font-awesome-icon
-          class="text-grey-500"
+          class="text-3xl text-green-50"
           icon="xmark"
       /></span>
       <span
         v-else
         class="duration-150 ease-in-out transition-margin"
         ><font-awesome-icon
-          class="text-grey-500"
+          class="text-3xl text-green-50"
           icon="bars"
       /></span>
     </Transition>
@@ -26,13 +26,12 @@
     <AppNavbarLinks
       v-if="showMobileMenu"
       is-mobile
-      @click-link="handleShowMobileMenu"
     />
   </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AppNavbarLinks from './AppNavbarLinks.vue';
 
 const showMobileMenu = ref(false);
@@ -40,6 +39,17 @@ const showMobileMenu = ref(false);
 function handleShowMobileMenu() {
   showMobileMenu.value = !showMobileMenu.value;
 }
+
+watch(
+  showMobileMenu,
+  () => {
+    if (showMobileMenu.value === true) {
+      document.addEventListener('click', handleShowMobileMenu);
+    } else {
+      document.removeEventListener('click', handleShowMobileMenu);
+    }
+  }
+);
 </script>
 
 <style scoped lang="scss">
