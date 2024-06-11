@@ -137,12 +137,13 @@ function handleSolitaire() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translate(30px, 0);
+  transform: translate(30px, 0);  
 }
 
 .fade-leave-active {
   opacity: 0;
   transition: all 0.2s cubic-bezier(0.55, 0, 0.1, 1);
-  transform: translate(30px, 0);
+  transform: translate(30px, 0);  
+  position: absolute;
 }
 </style>
