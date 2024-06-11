@@ -83,6 +83,8 @@ we will use the regular URL as 'https://api.mailgun.net' as the default.
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
 
+If you need to use authentication when connecting to a third-party Redis DB, then in addition to the `CANARY_REDIS_PASSWORD` parameter in `switchboard.env`, you can also use environment variable `REDIS_PASSWORD` (in this case, the parameter must not be specified in `switchboard.env`).
+
 ### Configuration of Outgoing SMTP
 
 When configuring outgoing SMTP please consider the following:
