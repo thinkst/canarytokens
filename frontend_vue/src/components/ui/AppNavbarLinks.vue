@@ -129,15 +129,13 @@ watch(
 
 .desktop-link {
   &.router-link-active {
-    color: hsl(150, 100%, 98%);
-    position: relative;
+    @apply text-white;;
   }
 }
 
 .mobile-link {
   &.router-link-active {
-    color: hsl(162, 86%, 36%);
-    position: relative;
+    @apply text-green-600 
   }
 }
 </style>
