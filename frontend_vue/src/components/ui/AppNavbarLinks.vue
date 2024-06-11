@@ -25,7 +25,6 @@
               ? 'transition-colors duration-100 text-green-100 hover:text-white desktop-link focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-800'
               : 'text-grey-400 hover:text-white mobile-link'
           "
-          @click="() => $emit('click-link')"
         >
           {{ item.name }}
         </RouterLink>
@@ -64,7 +63,6 @@ const props = defineProps({
   isMobile: Boolean,
 });
 
-defineEmits(['click-link']);
 
 const route = useRoute();
 
