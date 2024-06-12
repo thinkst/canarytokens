@@ -34,7 +34,7 @@
 import { RouterLink } from 'vue-router';
 import LogoFooter from '@/components/icons/LogoFooter.vue';
 
-const BUILD_ID = 'daecbdebe4dca3bdad7046f87a3d3e419f013e6e';
+const BUILD_ID = import.meta.env.VITE_GITHUB_SHA;
 </script>
 
 <style scoped>
