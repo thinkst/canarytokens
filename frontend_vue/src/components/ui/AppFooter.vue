@@ -15,7 +15,7 @@
           <LogoFooter class="w-[15rem] min-w-[12rem]" />
         </a>
       </div>
-      <div v-if="BUILD_ID">
+      <div v-if="BUILD_ID" class="mt-8">
         <p>Build ID: {{ BUILD_ID }}</p>
         <p>(This will be one commit behind the frontend Dist build if you made frontend changes)</p>
       </div>
@@ -34,7 +34,7 @@
 import { RouterLink } from 'vue-router';
 import LogoFooter from '@/components/icons/LogoFooter.vue';
 
-const BUILD_ID = import.meta.env.VITE_GITHUB_SHA;
+const BUILD_ID = 'daecbdebe4dca3bdad7046f87a3d3e419f013e6e';
 </script>
 
 <style scoped>
