@@ -48,8 +48,6 @@ describe('BaseCodeSnippet', () => {
       },
     });
 
-    console.log(wrapper.html());
-
     expect(wrapper.text()).toMatch(label);
   });
 
