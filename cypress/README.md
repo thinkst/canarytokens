@@ -1,7 +1,5 @@
 # Cypress Tests - README
 
-This README file will guide you through the process of setting up and running Cypress tests in your project.
-
 ## Table of Contents
 
 1. Prerequisites
@@ -37,12 +35,20 @@ This will launch the Cypress GUI where you can select and run tests.
 npx cypress open
 ```
 
+<img width="1508" alt="Captura de ecrã 2024-06-07, às 18 14 25" src="https://github.com/thinkst/canarytokens/assets/29093946/fc8ed414-ecc5-48e1-a48f-c66d3ec04763">
+<img width="1499" alt="Captura de ecrã 2024-06-07, às 18 14 13" src="https://github.com/thinkst/canarytokens/assets/29093946/c6ce7370-904d-406e-abfd-700f7fbdd1e8">
+<img width="1187" alt="Captura de ecrã 2024-06-07, às 18 14 01" src="https://github.com/thinkst/canarytokens/assets/29093946/0d7ce8f2-15c7-46e3-ae24-76b11fa2cafa">
+
 Headless Mode
+
 To run Cypress tests in headless mode (useful for CI/CD pipelines), use:
 
 ```
 npx cypress run
 ```
+
+<img width="765" alt="Captura de ecrã 2024-06-07, às 18 15 21" src="https://github.com/thinkst/canarytokens/assets/29093946/080e0501-5372-459c-b5f5-4088f7fb7df8">
+
 
 ### 5. Writing Tests
 
