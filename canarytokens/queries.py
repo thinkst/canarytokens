@@ -133,44 +133,67 @@ def add_canary_nxdomain(domain: str) -> int:
     return DB.get_db().sadd(KEY_CANARY_NXDOMAINS, domain)
 
 
-def add_email_token_idx(email, canarytoken):
+def remove_set_member(key: str, member: str) -> None:
+    """
+    Removes `member` from the set at `key`,
+    and deletes the key if the set is empty afterwards.
+    """
+    current_set = DB.get_db().smembers(key)
+    DB.get_db().srem(key, member)
+    current_set.remove(member)
+    if current_set == set():
+        DB.get_db().delete(key)
+
+
+def add_email_token_idx(email: str, canarytoken: str) -> int:
     return DB.get_db().sadd(KEY_EMAIL_IDX + email, canarytoken)
+
+
+def remove_email_token_idx(email: str, canarytoken: str) -> None:
+    remove_set_member(KEY_EMAIL_IDX + email, canarytoken)
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
     return DB.get_db().sadd(KEY_WEBHOOK_IDX + webhook, canarytoken)
 
 
-def add_auth_token_idx(auth: str, token: str):
+def remove_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> None:
+    remove_set_member(KEY_WEBHOOK_IDX + webhook, canarytoken)
+
+
+def add_auth_token_idx(auth: str, token: str) -> int:
     return DB.get_db().sadd(KEY_AUTH_IDX + auth, token)
 
 
+def remove_auth_token_idx(auth: str, token: str) -> None:
+    remove_set_member(KEY_AUTH_IDX + auth, token)
+
+
 def delete_email_tokens(email_address):
-    for token in DB.get_db().smembers(KEY_EMAIL_IDX + email_address):
-        DB.get_db().delete(KEY_CANARYDROP + token)
-    # delete idx set
-    DB.get_db().delete(KEY_EMAIL_IDX + email_address)
+    """
+    Delete all canarydrops associated with `email_address`.
+    """
+    token_set = list_email_tokens(email_address)
+    drops = (get_canarydrop(tokens.Canarytoken(token)) for token in token_set)
+    for drop in drops:
+        delete_canarydrop(drop)
 
 
 def delete_webhook_tokens(webhook: str):
     """
-    Looks up all tokens associated with `webhook`
-    and deletes those canarydrops.
-
-    Args:
-        webhook (str): webhook url.
+    Delete all canarydrops associated with `webhook`.
     """
-    for token in DB.get_db().smembers(KEY_WEBHOOK_IDX + webhook):
-        DB.get_db().delete(KEY_CANARYDROP + token)
-    # delete idx set
-    DB.get_db().delete(KEY_WEBHOOK_IDX + webhook)
+    token_set = list_webhook_tokens(webhook)
+    drops = (get_canarydrop(tokens.Canarytoken(token)) for token in token_set)
+    for drop in drops:
+        delete_canarydrop(drop)
 
 
-def list_email_tokens(email_address):
+def list_email_tokens(email_address) -> set[str]:
     return DB.get_db().smembers(KEY_EMAIL_IDX + email_address)
 
 
-def list_webhook_tokens(webhook):
+def list_webhook_tokens(webhook) -> set[str]:
     return DB.get_db().smembers(KEY_WEBHOOK_IDX + webhook)
 
 
@@ -201,6 +224,22 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
         add_webhook_token_idx(canarydrop.alert_webhook_url, canarytoken.value())
 
     add_auth_token_idx(canarydrop.auth, canarydrop.canarytoken.value())
+
+
+def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
+    token = canarydrop.canarytoken.value()
+    DB.get_db().delete(KEY_CANARYDROP + token)
+    log.info(f"Deleted canarydrop for token: {token}")
+
+    DB.get_db().zrem(KEY_CANARYDROPS_TIMELINE, token)
+
+    if canarydrop.alert_email_recipient:
+        remove_email_token_idx(canarydrop.alert_email_recipient, token)
+
+    if canarydrop.alert_webhook_url:
+        remove_webhook_token_idx(canarydrop.alert_webhook_url, token)
+
+    remove_auth_token_idx(canarydrop.auth, token)
 
 
 # def _v2_compatibility_serialize_canarydrop(serialized_drop:dict[str, str], canarydrop:cand.Canarydrop)->dict[str, str]:
