@@ -2529,6 +2529,10 @@ class SettingsResponse(BaseModel):
     message: Literal["success", "failure"]
 
 
+class DeleteResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
 class ManageTokenSettingsRequest(BaseModel):
     token: str
     auth: str
