@@ -1,13 +1,13 @@
 <template>
   <div class="footer">
-    <div class="lg:text-left">
+    <div class="lg:text-left order-1">
       <p>
         By Using This Service, You Agree to
         <RouterLink to="/legal" class="text-green-500 hover:text-green">Our Terms of Use.</RouterLink>
       </p>
     </div>
 
-    <div class="flex flex-col justify-center items-center">
+    <div class="flex flex-col justify-center items-center order-3 lg:order-3">
       <div class="flex justify-center items-center text-base">
         We also build
         <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="lg:text-right">
+    <div class="lg:text-right order-2 lg:order-3">
       <p>
         Read Our
         <base-link href="https://docs.canarytokens.org/guide/" target="_blank">Canarytokens Documentation</base-link>
@@ -39,6 +39,6 @@ const BUILD_ID = import.meta.env.VITE_GITHUB_SHA;
 
 <style scoped>
 .footer {
-  @apply lg:max-w-screen-2xl sm:w-full m-auto grid items-center lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-1 md:grid-flow-col md:grid-rows-3 gap-y-4 p-16 mb-24 text-xs text-center text-grey-400;
+  @apply lg:max-w-screen-2xl m-auto flex items-center flex-col lg:flex-row justify-center lg:justify-between gap-y-4 p-16 mb-24 text-xs text-center text-grey-400;
 }
 </style>
