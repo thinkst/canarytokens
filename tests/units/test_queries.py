@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 from pydantic import EmailStr
+from redis import StrictRedis
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
@@ -14,9 +15,17 @@ from canarytokens.models import (
     Memo,
     TokenTypes,
 )
+from canarytokens.redismanager import (
+    KEY_AUTH_IDX,
+    KEY_CANARYDROP,
+    KEY_CANARYDROPS_TIMELINE,
+    KEY_EMAIL_IDX,
+    KEY_WEBHOOK_IDX,
+)
 from canarytokens.queries import (
     add_canarydrop_hit,
-    add_webhook_token_idx,
+    delete_canarydrop,
+    delete_email_tokens,
     delete_webhook_tokens,
     get_canarydrop,
     get_canarydrop_and_authenticate,
@@ -27,11 +36,47 @@ from tests.utils import make_token_alert_detail
 
 
 def test_add_delete_webhook(setup_db):
-    token_value = Canarytoken.generate()
+    db: StrictRedis = setup_db
     webhook_url = "https://slack.com/api/api.test"
-    ret = add_webhook_token_idx(webhook_url, canarytoken=token_value)
-    assert ret == 1
+
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_webhook_enabled=True,
+        alert_webhook_url=webhook_url,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(canarydrop)
+
+    key = KEY_WEBHOOK_IDX + webhook_url
+    assert len(db.smembers(key)) == 1
     delete_webhook_tokens(webhook=webhook_url)
+    assert not db.exists(key)
+
+
+def test_add_delete_email(setup_db):
+    db: StrictRedis = setup_db
+    email = "test@test.com"
+
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(canarydrop)
+
+    key = KEY_EMAIL_IDX + email
+    assert len(db.smembers(key)) == 1
+    delete_email_tokens(email_address=email)
+    assert not db.exists(key)
 
 
 def test_add_hit_get_canarytoken(setup_db):
@@ -94,6 +139,58 @@ def test_add_hit_get_canarytoken_wrong_type(setup_db):
         add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
     cd = get_canarydrop(canarytoken=canarytoken)
     assert cd.triggered_details
+
+
+def test_delete_drop(setup_db):
+    db: StrictRedis = setup_db
+
+    email = "test@test.com"
+    webhook = "https://slack.com/api/api.test"
+
+    canarytoken = Canarytoken()
+
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email,
+        alert_webhook_enabled=True,
+        alert_webhook_url=webhook,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+
+    critical_keys = [
+        KEY_CANARYDROP + canarytoken.value(),
+        KEY_EMAIL_IDX + email,
+        KEY_WEBHOOK_IDX + webhook,
+        KEY_AUTH_IDX + canarydrop.auth,
+    ]
+
+    save_canarydrop(canarydrop)
+    token_hit = DNSTokenHit(
+        time_of_hit=datetime.utcnow().strftime("%s.%f"),
+        src_ip="127.0.0.1",
+        geo_info=GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+        is_tor_relay=False,
+        input_channel="dns",
+        additional_info=AdditionalInfo(),
+        location="/get",
+        useragent="Unknown",
+    )
+    add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
+    cd = get_canarydrop(canarytoken=canarytoken)
+
+    for key in critical_keys:
+        assert db.exists(key)
+    assert db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) is not None
+
+    delete_canarydrop(cd)
+
+    for key in critical_keys:
+        assert not db.exists(key)
+    assert db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) is None
 
 
 def test_remove_tokens_with_email_x(setup_db):

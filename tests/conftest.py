@@ -6,10 +6,11 @@ import threading
 import time
 from distutils.util import strtobool
 from pathlib import Path
-from typing import Generator, Optional
+from typing import Any, Generator, Optional
 from unittest import mock
 
 import pytest
+from redis import StrictRedis
 import requests
 from requests import HTTPError
 import uvicorn  # type: ignore
@@ -259,7 +260,7 @@ def setup_db_connection_only(settings: SwitchboardSettings):
 @pytest.fixture(scope="function", autouse=False)
 def setup_db(  # noqa: C901
     settings: SwitchboardSettings, frontend_settings: FrontendSettings
-):
+) -> Generator[Any, Any, Optional[StrictRedis]]:
     redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     DB.set_db_details(hostname=redis_hostname, port=6379)
     # Kubeconfig token needs a client cert in redis.
@@ -307,7 +308,7 @@ def setup_db(  # noqa: C901
     add_canary_page("post.jsp")
     add_canary_path_element("tags")
 
-    yield
+    yield db
 
     for key in db.scan_iter():
         if not any(key.startswith(key_prefix) for key_prefix in prefixes_to_persist):

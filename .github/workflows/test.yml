@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "dev"
+      - "Feature_branch_New_UI"
 
   workflow_dispatch:
     inputs:

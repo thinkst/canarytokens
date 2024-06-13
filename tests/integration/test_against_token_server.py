@@ -18,6 +18,8 @@ from canarytokens.models import (
     DNSTokenHistory,
     DNSTokenRequest,
     DNSTokenResponse,
+    DownloadFmtTypes,
+    DownloadIncidentListJsonRequest,
     FastRedirectTokenHistory,
     FastRedirectTokenRequest,
     FastRedirectTokenResponse,
@@ -43,6 +45,7 @@ from canarytokens.settings import SwitchboardSettings
 from tests.utils import (
     clear_stats_on_webhook,
     create_token,
+    delete_token,
     get_stats_from_webhook,
     get_token_history,
     log_4_shell_fire_token,
@@ -56,32 +59,40 @@ from tests.utils import (
 )
 
 
-@pytest.mark.parametrize("version", [None])
-def test_basic_v3(version, runv3, runv2):  # pragma: no cover
+@pytest.mark.parametrize("version", [v3])
+def test_delete_token(version, runv3, runv2):
     run_or_skip(version, runv2=runv2, runv3=runv3)
     token_request = DNSTokenRequest(
         webhook_url=slack_webhook_test,
+        email="test@test.com",
         memo="We are v3",
     )
     resp = create_token(token_request, version=version)
 
     # Check dns token has correct attributes
     token_info = DNSTokenResponse(**resp)
-    # assert dns_token_info.webhook_url == token_request.webhook_url
-    assert token_info.hostname.split(".")[0] == token_info.token
 
-    # Trigger DNS token
-    _ = plain_fire_token(token_info, version=version)
+    # Trigger it once
+    _ = plain_fire_token(token_info, version)
 
-    # Check that the returned history has a single hit.
+    # Check that we can query the token's history
     resp = get_token_history(token_info=token_info, version=version)
+    _ = DNSTokenHistory(**resp)
 
-    token_history = DNSTokenHistory(**resp)
+    resp = delete_token(token_info.token, token_info.auth_token, version)
+    assert resp.get("message") == "success"
 
-    # TODO: what other fields do we want to assert on.
-    #       note: making them TokenHistory have stronger validators is
-    #             the better option.
-    assert len(token_history.hits) == 1
+    token_history_request = DownloadIncidentListJsonRequest(
+        token=token_info.token,
+        # TODO: auth vs. auth_token choose one at least at the object level
+        auth=token_info.auth_token,
+        fmt=DownloadFmtTypes.INCIDENTLISTJSON,
+    )
+    resp = requests.get(
+        url=f"{version.server_url}/download", params=token_history_request
+    )
+
+    assert resp.status_code == 403
 
 
 @pytest.mark.parametrize(
