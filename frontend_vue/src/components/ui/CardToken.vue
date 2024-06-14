@@ -1,7 +1,7 @@
 <template>
   <li class="relative flex flex-col token-card-wrapper">
     <div
-      class="relative group border flex flex-col flex-1 group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out token-card justify-between"
+      class="relative border flex flex-col flex-1 group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out token-card justify-between"
     >
       <!-- content -->
       <div class="flex flex-col items-center px-16 pt-16 pb-24">
@@ -94,18 +94,28 @@ watch(logoUrl, () => {
 });
 </script>
 
-<style scoped>
-.token-card:hover,
-.token-card:focus,
+<style lang="scss" scoped>
+/* .token-card:hover,
+.token-card:focus, */
 .token-card:focus-within {
   @apply border-green shadow-solid-shadow-green-500-sm;
+
+  .card-button{
+    &:hover {
+      &.token-card {
+        @apply border-green
+      }
+  }
 }
 
-.card-button:focus {
-  @apply from-green to-green-200 text-white border-b-green shadow-solid-shadow-green-500-sm bg-gradient-to-b outline-none;
 }
 
-.hover-card {
+.card-button:focus,
+.card-button:hover {
+  @apply from-green to-green-200 text-white border-b-green shadow-solid-shadow-green-500-sm bg-gradient-to-b outline-none hover:text-white hover:border-b-green hover:shadow-solid-shadow-green-500-sm hover:bg-gradient-to-b;
+}
+
+/* .hover-card {
   @apply group-hover:from-green group-hover:to-green-200 group-hover:text-white group-hover:border-b-green group-hover:shadow-solid-shadow-green-500-sm group-hover:bg-gradient-to-b;
-}
+} */
 </style>
