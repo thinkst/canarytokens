@@ -55,6 +55,7 @@ from canarytokens.models import (
     ClonedWebTokenResponse,
     CSSClonedWebTokenRequest,
     CSSClonedWebTokenResponse,
+    DeleteResponse,
     DownloadCSSClonedWebRequest,
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
@@ -270,6 +271,7 @@ auth_key = APIKeyQuery(name="auth", description="Auth key for a token")
 
 
 async def _parse_for_x(request: Request, expected_type: Any) -> Any:
+    data: Any
     if request.headers.get("Content-Type", "application/json") == "application/json":
         if all([o in request.query_params.keys() for o in ["token", "auth"]]):
             data = dict(request.query_params.items())
@@ -388,7 +390,9 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         )
 
     try:
-        token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
+        token_request_details: AnyTokenRequest = parse_obj_as(
+            AnyTokenRequest, token_request_data
+        )
     except ValidationError:  # DESIGN: can we specialise on what went wrong?
         return response_error(1, "Malformed request, invalid data supplied.")
 
@@ -827,7 +831,7 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
     tags=["Canarytokens History"],
     response_model=HistoryResponse,
 )
-async def api_history(token: str, auth: str) -> JSONResponse:
+async def api_history(token: str, auth: str) -> HistoryResponse:
     canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
     response = {
         "canarydrop": canarydrop,
@@ -835,6 +839,16 @@ async def api_history(token: str, auth: str) -> JSONResponse:
         "google_api_key": queries.get_canary_google_api_key(),
     }
     return HistoryResponse(**response)
+
+
+@api.post("/delete", response_model=DeleteResponse)
+async def api_delete(request: Request) -> DeleteResponse:
+    data = await request.json()
+    token = data.get("token", "")
+    auth = data.get("auth", "")
+    canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
+    queries.delete_canarydrop(canarydrop)
+    return DeleteResponse(message="success")
 
 
 @api.post(

@@ -75,6 +75,8 @@ def test_get_generate_page(test_client: TestClient) -> None:
 
 
 def test_redirect_base_to_generate(test_client: TestClient) -> None:
+    if FrontendSettings().NEW_UI:
+        pytest.skip("New UI does not redirect to /generate")
     response = test_client.get("/")
     assert response.status_code == 200
     assert response.url.path == "/generate"
@@ -534,8 +536,7 @@ def test_history_page(
         ).dict(),
     )
     assert resp.status_code == 200
-    # TODO: Make this a stricter test
-    assert cd.canarytoken.value() in resp.content.decode()
+    # now that it's a Vue app we can't test further here
 
 
 @pytest.mark.parametrize(
@@ -558,6 +559,8 @@ def test_authorised_page_access(
         endpoint (str): endpoint to attempt to access.
         verb (str): HTTP verb for endpoint.
     """
+    if FrontendSettings().NEW_UI:
+        pytest.skip("New UI redirects these to index.html")
     resp = test_client.post(
         "/generate",
         data=DNSTokenRequest(

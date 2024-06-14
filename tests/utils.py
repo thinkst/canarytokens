@@ -34,6 +34,7 @@ from canarytokens.models import (
     CustomImageTokenRequest,
     CustomImageTokenResponse,
     DNSTokenResponse,
+    DownloadFmtTypes,
     DownloadGetRequestModel,
     DownloadIncidentListJsonRequest,
     GeoIPBogonInfo,
@@ -51,6 +52,7 @@ from canarytokens.models import (
     WindowsDirectoryTokenResponse,
 )
 from canarytokens.tokens import Canarytoken
+from frontend.app import ROOT_API_ENDPOINT
 
 log = Logger("test_utils")
 
@@ -321,7 +323,7 @@ def get_token_history(
     ],
     version: Union[V2, V3],
     expected_len: int = 1,
-    fmt="incidentlist_json",
+    fmt: DownloadFmtTypes = DownloadFmtTypes.INCIDENTLISTJSON,
 ) -> Dict[str, str]:
     token_history_request = DownloadIncidentListJsonRequest(
         token=token_info.token,
@@ -513,6 +515,38 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
         isinstance(version, V2) and data["Error"] == 3
     ):  # webhook failed not the servers fault
         raise CanaryTokenCreationError("Webhook failed to validate")  # pragma: no cover
+
+    return data
+
+
+@retry_on_failure(
+    retry_when_raised=(requests.exceptions.HTTPError, CanaryTokenCreationError)
+)
+def delete_token(token: str, auth: str, version: Union[V2, V3]):
+    delete_url = f"{version.server_url}{ROOT_API_ENDPOINT}/delete"
+    data = {"token": token, "auth": auth}
+    timeout = request_timeout
+    if not isinstance(version, V3):
+        raise ValueError(f"Version not supported: {version}")
+
+    resp = session.post(
+        url=delete_url,
+        timeout=timeout,
+        json=data,
+        headers={"Connection": "close"},
+    )
+    # TODO / DESIGN: The webhook receiver sometimes chokes due to ngrok rate limit 429 error.
+    #                retry for now. +1 for a webhook receiver as a docker service.
+    if resp.status_code == 429:  # webhook failed not the servers fault
+        raise CanaryTokenCreationError("Webhook failed to validate")  # pragma: no cover
+    if resp.status_code >= 400:
+        log.error(
+            f"Token deletion error: \n\t{token=}\n\t{resp.status_code=}; {resp.json()=}"
+        )
+    resp.raise_for_status()
+    data = resp.json()
+    resp.close()
+    session.close()
 
     return data
 
