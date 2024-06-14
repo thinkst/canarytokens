@@ -1,5 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
-import { nextTick } from 'vue';
+import { mount } from '@vue/test-utils';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowRight, faQuestion } from '@fortawesome/free-solid-svg-icons';
