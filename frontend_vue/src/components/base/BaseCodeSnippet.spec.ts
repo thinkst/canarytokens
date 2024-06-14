@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 import BaseCodeSnippet from '@/components/base/BaseCodeSnippet.vue';
 import BaseCopyButton from './BaseCopyButton.vue';
 import BaseRefreshButton from './BaseRefreshButton.vue';
@@ -15,6 +15,17 @@ const tooltip = vi.fn();
 library.add(faRotateRight, faCheck, faCopy);
 
 describe('BaseCodeSnippet', () => {
+  beforeEach(() => {
+    vi.mock('@highlightjs/vue-plugin', async () => {
+      const hljsVuePlugin = {
+        hljsVuePlugin: {
+          component: vi.fn(),
+        },
+      };
+      return { default: hljsVuePlugin };
+    });
+  });
+
   it('renders label when passed', () => {
     const label = 'Test Label';
     const code = 'const example = () => { return "Hello World"; }';
@@ -23,14 +34,20 @@ describe('BaseCodeSnippet', () => {
         code: code,
         lang: 'javascript',
         showExpandButton: false,
+        label: label,
       },
       global: {
-        stubs: { BaseCopyButton, BaseRefreshButton, FontAwesomeIcon },
+        stubs: {
+          BaseCopyButton,
+          BaseRefreshButton,
+          FontAwesomeIcon,
+        },
       },
       directives: {
         tooltip,
       },
     });
+
     expect(wrapper.text()).toMatch(label);
   });
 
