@@ -133,24 +133,12 @@ def add_canary_nxdomain(domain: str) -> int:
     return DB.get_db().sadd(KEY_CANARY_NXDOMAINS, domain)
 
 
-def remove_set_member(key: str, member: str) -> None:
-    """
-    Removes `member` from the set at `key`,
-    and deletes the key if the set is empty afterwards.
-    """
-    current_set = DB.get_db().smembers(key)
-    DB.get_db().srem(key, member)
-    current_set.remove(member)
-    if current_set == set():
-        DB.get_db().delete(key)
-
-
 def add_email_token_idx(email: str, canarytoken: str) -> int:
     return DB.get_db().sadd(KEY_EMAIL_IDX + email, canarytoken)
 
 
 def remove_email_token_idx(email: str, canarytoken: str) -> None:
-    remove_set_member(KEY_EMAIL_IDX + email, canarytoken)
+    DB.get_db().srem(KEY_EMAIL_IDX + email, canarytoken)
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
@@ -158,7 +146,7 @@ def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
 
 
 def remove_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> None:
-    remove_set_member(KEY_WEBHOOK_IDX + webhook, canarytoken)
+    DB.get_db().srem(KEY_WEBHOOK_IDX + webhook, canarytoken)
 
 
 def add_auth_token_idx(auth: str, token: str) -> int:
@@ -166,7 +154,7 @@ def add_auth_token_idx(auth: str, token: str) -> int:
 
 
 def remove_auth_token_idx(auth: str, token: str) -> None:
-    remove_set_member(KEY_AUTH_IDX + auth, token)
+    DB.get_db().srem(KEY_AUTH_IDX + auth, token)
 
 
 def delete_email_tokens(email_address):
