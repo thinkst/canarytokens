@@ -4,6 +4,7 @@
     :has-close-button="hasCloseButton"
   >
     <!-- Header -->
+    <!-- Back Button-->
     <template #header-btn-left>
       <button
         v-if="hasBackButton"
@@ -19,6 +20,7 @@
         <span class="fa-sr-only">Back</span>
       </button>
     </template>
+    <!-- How to deploy ? Button-->
     <template #header-btn-right>
       <BaseButtonHowToDeploy
         v-if="modalType === ModalType.AddToken"

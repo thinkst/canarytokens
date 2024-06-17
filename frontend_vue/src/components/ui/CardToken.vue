@@ -1,7 +1,8 @@
 <template>
-  <li class="relative flex flex-col token-card-wrapper">
-    <div
-      class="relative group border flex flex-col flex-1 group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out token-card justify-between"
+  <li class="relative flex flex-1">
+    <button
+      class="relative group border flex flex-col group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out token-card justify-between"
+      @click.stop="handleClickToken"
     >
       <!-- content -->
       <div class="flex flex-col items-center px-16 pt-16 pb-24">
@@ -30,13 +31,12 @@
         </p>
       </div>
       <!--- cta --->
-      <button
-        class="w-full font-semibold bg-grey-50 text-grey-400 h-[3rem] rounded-b-xl transition duration-100 hover-card shadow-solid-shadow-grey card-button"
-        @click.stop="handleClickToken"
+      <div
+        class="w-full font-semibold bg-grey-50 text-grey-400 h-[3rem] rounded-b-xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex"
       >
         Create Token
-      </button>
-    </div>
+      </div>
+    </button>
     <BaseButtonHowToDeploy
       :token-name="title"
       :is-open="false"
