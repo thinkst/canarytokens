@@ -4,7 +4,7 @@
       <h1 class="mt-24 text-4xl font-semibold text-grey-900">
         Create a Canarytoken, Deploy it somewhere
       </h1>
-      <h2 class="mt-8 font-md text-grey-400 ">Know. When it matters.</h2>
+      <h2 class="mt-8 font-md text-grey-400">Know. When it matters.</h2>
       <h3 class="mt-40 mb-16 text-xl text-grey-800">
         Generate new Canarytoken
       </h3>
@@ -36,10 +36,10 @@
         :key="key"
       >
         <CardToken
+          :selected-token="key"
           :title="(token as TokenServiceType).label"
           :description="(token as TokenServiceType).description"
           :logo-img-url="(token as TokenServiceType).icon"
-          :documentation-link="(token as TokenServiceType).documentationLink"
           @click-token="() => handleClickToken(key as string)"
         />
       </template>
@@ -137,13 +137,13 @@ function handleSolitaire() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translate(30px, 0);  
+  transform: translate(30px, 0);
 }
 
 .fade-leave-active {
   opacity: 0;
   transition: all 0.2s cubic-bezier(0.55, 0, 0.1, 1);
-  transform: translate(30px, 0);  
+  transform: translate(30px, 0);
   position: absolute;
 }
 </style>

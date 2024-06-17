@@ -37,13 +37,12 @@
         Create Token
       </button>
     </div>
-
-    <BaseLinkDocumentation
-      v-if="documentationLink"
-      :link="documentationLink"
-      class="absolute z-10 top-[9px] right-[8px] cursor-pointer transition-all duration-100 ease-in-out token-card__documentation-link"
-      tabindex="0"
-      :title="title"
+    <BaseButtonHowToDeploy
+      :token-name="title"
+      :is-open="false"
+      size="big"
+      class="absolute bottom-8 right-8 z-10 top-[9px]"
+      @click="handleHowToUseButton"
     />
   </li>
 </template>
@@ -51,6 +50,8 @@
 <script setup lang="ts">
 import { onMounted, ref, toRef, watch } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
+import { useModal } from 'vue-final-modal';
+import ModalToken from '@/components/ModalToken.vue';
 
 const emit = defineEmits(['clickToken']);
 
@@ -59,12 +60,24 @@ const props = withDefaults(
     description: string;
     title: string;
     logoImgUrl: string;
-    documentationLink: string;
+    selectedToken: string | number;
   }>(),
   {
     logoImgUrl: 'default.png',
   }
 );
+
+function handleHowToUseButton() {
+  const { open, close } = useModal({
+    component: ModalToken,
+    attrs: {
+      selectedToken: props.selectedToken as string,
+      closeModal: () => close(),
+      selectedModalType: 'howToUse',
+    },
+  });
+  open();
+}
 
 const logoUrl = toRef(props, 'logoImgUrl');
 const isLoading = ref(true);

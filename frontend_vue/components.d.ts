@@ -8,13 +8,14 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BaseButton: typeof import('./src/components/base/BaseButton.vue')['default']
+    BaseButtonHowToDeploy: typeof import('./src/components/base/BaseButtonHowToDeploy.vue')['default']
     BaseCodeSnippet: typeof import('./src/components/base/BaseCodeSnippet.vue')['default']
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
     BaseFormSelect: typeof import('./src/components/base/BaseFormSelect.vue')['default']
     BaseFormTextField: typeof import('./src/components/base/BaseFormTextField.vue')['default']
     BaseGenerateTokenSettings: typeof import('./src/components/base/BaseGenerateTokenSettings.vue')['default']
+    BaseHowToDeploy: typeof import('./src/components/base/BaseHowToDeploy.vue')['default']
     BaseLink: typeof import('./src/components/base/BaseLink.vue')['default']
-    BaseLinkDocumentation: typeof import('./src/components/base/BaseLinkDocumentation.vue')['default']
     BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
     BaseRadioInput: typeof import('./src/components/base/BaseRadioInput.vue')['default']

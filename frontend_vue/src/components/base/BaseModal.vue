@@ -16,31 +16,30 @@
       <div
         class="md:w-[60vw] lg:w-[50vw] mx-auto bg-white rounded-lg max-w-screen-lg sm:self-center my-auto"
       >
-        <!-- header -->
-        <div class="relative pt-24 pb-24 bg-white rounded-t-lg header">
-          <button
-            v-if="hasBackButton"
-            type="button"
-            class="absolute top-[1.8rem] left-24"
-            @click="emit('handleBackButton', false)"
-          >
-            <font-awesome-icon
-              icon="angle-left"
-              class="w-6 h-6 hover:text-grey-400"
-              aria-hidden="true"
-            />
-            <span class="fa-sr-only">Back</span>
-          </button>
+        <!-- Header -->
+        <div
+          class="relative flex flex-row items-center justify-between px-16 py-24 bg-white rounded-t-lg header"
+        >
+          <!-- Button left corner slot -->
+          <span class="w-24">
+            <slot name="header-btn-left"></slot>
+          </span>
+
+          <!-- Modal title -->
           <h1
             class="flex items-center justify-center px-40 text-2xl font-semibold text-center"
           >
             {{ title }}
-            <BaseLinkDocumentation
-              v-if="documentationLink"
-              :link="documentationLink"
-            />
           </h1>
+
+          <!-- Button right corner slot -->
+          <span class="w-24">
+            <slot name="header-btn-right"></slot>
+          </span>
+
+          <!-- Close 'X' button corner right -->
           <button
+            v-if="hasCloseButton"
             type="button"
             class="absolute top-8 right-16"
             @click="emit('update:modelValue', false)"
@@ -54,17 +53,17 @@
           </button>
         </div>
 
-        <!-- content -->
+        <!-- Content -->
         <div
           class="flex flex-col items-center justify-center px-8 py-16 sm:px-32 bg-grey-50 text-grey-800"
         >
-          <!--default slot -->
+          <!-- Default slot -->
           <slot></slot>
 
           <!-- ADV banner -->
           <slot name="banner"></slot>
         </div>
-        <!-- footer -->
+        <!-- Footer -->
         <div
           class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-lg mb-16text-center"
         >
@@ -79,9 +78,8 @@
 import { VueFinalModal } from 'vue-final-modal';
 
 defineProps<{
-  hasBackButton: boolean;
+  hasCloseButton: boolean;
   title: string;
-  documentationLink: string | null;
 }>();
 
 const emit = defineEmits<{
