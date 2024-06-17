@@ -9,7 +9,7 @@
         v-if="hasBackButton"
         type="button"
         :aria-label="`Back`"
-        class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white text-grey-200 border-grey-200 hover:bg-green-600 hover:border-green-300"
+        class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white text-grey-300 border-grey-300 hover:bg-green-600 hover:border-green-300"
         @click="handleBackButton"
       >
         <font-awesome-icon
@@ -93,11 +93,11 @@
           >
         </template>
 
-        <template v-if="modalType === ModalType.NewToken">
+        <template v-if="modalType === ModalType.HowToUse">
           <BaseButton
-            variant="secondary"
-            @click="handleManageTokenButton()"
-            >Manage Token</BaseButton
+            variant="primary"
+            @click="handleBackButton"
+            >Got it!</BaseButton
           >
         </template>
       </template>
@@ -174,7 +174,7 @@ const title = computed(() => {
     case ModalType.NewToken:
       return 'New Token';
     case ModalType.HowToUse:
-      return 'How to use';
+      return 'How does it work?';
     default:
       return 'Add Token';
   }
