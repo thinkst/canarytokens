@@ -1,6 +1,10 @@
 <template>
   <button
-    v-tooltip="{ content: 'How does it work?', shown: isOpen }"
+    v-tooltip="{
+      content: 'How does it work?',
+      shown: isOpen,
+      triggers: ['hover'],
+    }"
     class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white border-grey-300 hover:bg-green-600 hover:border-green-300"
     :class="[
       size === 'small' ? 'w-[0.5rem] h-[0.5rem]' : 'w-24 h-24',

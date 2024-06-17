@@ -4,7 +4,9 @@
       v-for="(item, index) in items"
       :key="index"
     >
-      <li class="flex flex-row sm:items-center sm:justify-start sm:flex-col">
+      <li
+        class="flex flex-row mt-16 sm:items-center sm:justify-start sm:flex-col sm:mt-0"
+      >
         <span class="icon-shadow">
           <img
             :src="getImageUrl(item.imgSrc)"
@@ -47,7 +49,7 @@ const props = defineProps<{
 }>();
 
 const slideContent = ref<string[]>(
-  tokenServices[props.selectedToken].carouselSlides || []
+  tokenServices[props.selectedToken].howItWorksInstructions || []
 );
 
 const items = [

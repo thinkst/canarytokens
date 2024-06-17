@@ -1,11 +1,11 @@
 <template>
-  <div class="icon-shadow">
+  <div class="relative icon-shadow">
     <img
       :src="
         getImageUrl(`token_icons/${tokenServices[props.selectedToken].icon}`)
       "
       :alt="`${tokenServices[props.selectedToken].label}`"
-      class="w-[5rem]"
+      class="sm:w-[5rem] w-[8rem]"
     />
   </div>
   <Form
@@ -89,13 +89,15 @@ watch(
 <style scoped>
 .icon-shadow::after {
   content: '';
-  position: relative;
+  position: absolute;
   display: inline-block;
-  width: 5rem;
+  bottom: 0;
+  left: 50%;
+  width: 4rem;
   height: 0.5rem;
   border-radius: 50%;
   @apply bg-grey-100;
   filter: blur(0.1rem);
-  transform: scale(0.7);
+  transform: translate(-50%, 1rem);
 }
 </style>

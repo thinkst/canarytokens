@@ -3,7 +3,7 @@
     :title="title"
     :has-close-button="hasCloseButton"
   >
-    <!-- header -->
+    <!-- Header -->
     <template #header-btn-left>
       <button
         v-if="hasBackButton"
@@ -28,7 +28,7 @@
         @click="handleHowToUseButton"
       />
     </template>
-    <!-- content -->
+    <!-- Content -->
     <Suspense v-if="modalType === ModalType.AddToken">
       <ModalContentGenerateToken
         :selected-token="selectedToken"
@@ -62,7 +62,7 @@
     >
     </BaseMessageBox>
 
-    <!-- footer -->
+    <!-- Footer -->
     <template #footer>
       <template v-if="isLoading">
         <BaseSkeletonLoader
@@ -102,7 +102,7 @@
         </template>
       </template>
     </template>
-    <!-- banner ADV -->
+    <!-- Banner ADV -->
     <template #banner>
       <BannerBirdCanarytools
         v-if="
@@ -154,14 +154,15 @@ const isGenerateTokenError = ref(false);
 const errorMessage = ref('');
 const isLoadngSubmit = ref(false);
 const isLoading = ref(false);
-// Stack to keep track of loaded components
-// Used to navigate back to previous component
-const componentStack = ref<string[]>([]);
 const showTooltip = ref(true);
+// Stack to keep track of loaded components
+// Used for Modal navigation
+const componentStack = ref<string[]>([]);
 
 onMounted(() => {
   // Keep track of loaded components
   componentStack.value.push(modalType.value);
+  // Show tooltip 'How does it work' for 2 seconds on Modal opening
   setTimeout(() => {
     showTooltip.value = false;
   }, 2000);
@@ -206,6 +207,7 @@ function handleAddTokenButton() {
 
 function handleHowToUseButton() {
   modalType.value = ModalType.HowToUse;
+  // Keep track of loaded components
   componentStack.value.push(modalType.value);
 }
 
@@ -255,6 +257,8 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
 
     triggerSubmit.value = false;
     modalType.value = ModalType.NewToken;
+    // Keep track of loaded components
+    componentStack.value.push(modalType.value);
   } catch (err) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
