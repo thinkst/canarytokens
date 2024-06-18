@@ -1,10 +1,36 @@
 <template>
   <BaseModal
     :title="title"
-    :has-back-button="hasBackButton"
-    :documentation-link="handleShowDocumentationLink"
-    @handle-back-button="handleBackButton"
+    :has-close-button="hasCloseButton"
   >
+    <!-- Header -->
+    <!-- Back Button-->
+    <template #header-btn-left>
+      <button
+        v-if="hasBackButton"
+        type="button"
+        :aria-label="`Back`"
+        class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white text-grey-300 border-grey-300 hover:bg-green-600 hover:border-green-300"
+        @click="handleBackButton"
+      >
+        <font-awesome-icon
+          icon="angle-left"
+          aria-hidden="true"
+        />
+        <span class="fa-sr-only">Back</span>
+      </button>
+    </template>
+    <!-- How to deploy ? Button-->
+    <template #header-btn-right>
+      <BaseButtonHowToDeploy
+        v-if="modalType === ModalType.AddToken"
+        :token-name="tokenServices[props.selectedToken].label"
+        size="big"
+        :is-open="showTooltip"
+        @click="handleHowToUseButton"
+      />
+    </template>
+    <!-- Content -->
     <Suspense v-if="modalType === ModalType.AddToken">
       <ModalContentGenerateToken
         :selected-token="selectedToken"
@@ -38,7 +64,7 @@
     >
     </BaseMessageBox>
 
-    <!-- footer -->
+    <!-- Footer -->
     <template #footer>
       <template v-if="isLoading">
         <BaseSkeletonLoader
@@ -51,7 +77,7 @@
           <BaseButton
             variant="primary"
             :loading="isLoadngSubmit"
-            @click.stop="handleAddToken"
+            @click.stop="handleAddTokenButton"
             >Create Token</BaseButton
           >
         </template>
@@ -59,26 +85,26 @@
         <template v-if="modalType === ModalType.NewToken">
           <BaseButton
             variant="secondary"
-            @click="handleHowToUse"
+            @click="handleHowToUseButton"
             >How to use</BaseButton
           >
           <BaseButton
             variant="secondary"
-            @click="handleManageToken"
+            @click="handleManageTokenButton"
             >Manage Token</BaseButton
           >
         </template>
 
         <template v-if="modalType === ModalType.HowToUse">
           <BaseButton
-            variant="secondary"
-            @click="handleManageToken()"
-            >Manage Token</BaseButton
+            variant="primary"
+            @click="handleBackButton"
+            >Got it!</BaseButton
           >
         </template>
       </template>
     </template>
-    <!-- banner ADV -->
+    <!-- Banner ADV -->
     <template #banner>
       <BannerBirdCanarytools
         v-if="
@@ -91,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onErrorCaptured, watch } from 'vue';
+import { ref, computed, onErrorCaptured, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { BaseFormValuesType } from './tokens/types';
 import ModalContentHowToUse from '@/components/ModalContentHowToUse.vue';
@@ -109,8 +135,15 @@ enum ModalType {
   NewToken = 'newToken',
   HowToUse = 'howToUse',
 }
+
+const props = defineProps<{
+  selectedToken: string;
+  closeModal: () => void;
+  selectedModalType?: string;
+}>();
+
 const router = useRouter();
-const modalType = ref(ModalType.AddToken);
+const modalType = ref(props.selectedModalType || ModalType.AddToken);
 const newTokenResponse = ref<{
   token_type: string;
   [key: string]: string | number;
@@ -123,11 +156,19 @@ const isGenerateTokenError = ref(false);
 const errorMessage = ref('');
 const isLoadngSubmit = ref(false);
 const isLoading = ref(false);
+const showTooltip = ref(true);
+// Stack to keep track of loaded components
+// Used for Modal navigation
+const componentStack = ref<string[]>([]);
 
-const props = defineProps<{
-  selectedToken: string;
-  closeModal: () => void;
-}>();
+onMounted(() => {
+  // Keep track of loaded components
+  componentStack.value.push(modalType.value);
+  // Show tooltip 'How does it work' for 2 seconds on Modal opening
+  setTimeout(() => {
+    showTooltip.value = false;
+  }, 2000);
+});
 
 const title = computed(() => {
   switch (modalType.value) {
@@ -136,21 +177,21 @@ const title = computed(() => {
     case ModalType.NewToken:
       return 'New Token';
     case ModalType.HowToUse:
-      return 'How to use';
+      return 'How does it work?';
     default:
       return 'Add Token';
   }
 });
 
 const hasBackButton = computed(() => {
-  return modalType.value === ModalType.HowToUse;
+  return (
+    modalType.value === ModalType.AddToken ||
+    modalType.value === ModalType.HowToUse
+  );
 });
 
-// show Documentation link only for AddToken modal
-const handleShowDocumentationLink = computed(() => {
-  return modalType.value === ModalType.AddToken
-    ? tokenServices[props.selectedToken].documentationLink
-    : null;
+const hasCloseButton = computed(() => {
+  return modalType.value === ModalType.NewToken;
 });
 
 /* AZURE CONFIG Exception handler */
@@ -161,9 +202,33 @@ const getTokenType = computed(() => {
     : props.selectedToken;
 });
 
-function handleAddToken() {
+function handleAddTokenButton() {
   // triggerSubmit inside ModalContentGenerateToken
   triggerSubmit.value = true;
+}
+
+function handleHowToUseButton() {
+  modalType.value = ModalType.HowToUse;
+  // Keep track of loaded components
+  componentStack.value.push(modalType.value);
+}
+
+function handleManageTokenButton() {
+  const auth = newTokenResponse.value?.auth_token;
+  const token = newTokenResponse.value?.token;
+  router.push({ name: 'manage', params: { auth, token } });
+  props.closeModal();
+}
+
+function handleBackButton() {
+  componentStack.value.pop();
+  // If the stack is empty, close the modal
+  if (componentStack.value.length === 0) {
+    props.closeModal();
+  } else {
+    // Otherwise, show the top component from the stack
+    modalType.value = componentStack.value[componentStack.value.length - 1];
+  }
 }
 
 async function handleGenerateToken(formValues: BaseFormValuesType) {
@@ -194,6 +259,8 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
 
     triggerSubmit.value = false;
     modalType.value = ModalType.NewToken;
+    // Keep track of loaded components
+    componentStack.value.push(modalType.value);
   } catch (err) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
@@ -205,21 +272,6 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
 
 function handleInvalidSubmit() {
   triggerSubmit.value = false;
-}
-
-function handleHowToUse() {
-  modalType.value = ModalType.HowToUse;
-}
-
-function handleManageToken() {
-  const auth = newTokenResponse.value?.auth_token;
-  const token = newTokenResponse.value?.token;
-  router.push({ name: 'manage', params: { auth, token } });
-  props.closeModal();
-}
-
-function handleBackButton() {
-  modalType.value = ModalType.NewToken;
 }
 
 // More info on Error handling for Suspense:

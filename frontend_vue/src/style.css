@@ -5,6 +5,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@view-transition {
+  navigation: auto;
+  types: slide, forwards;
+}
+
 /* gracefully copied from https://www.joshwcomeau.com/css/custom-css-reset/ */
 
 *,
@@ -24,7 +29,9 @@
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  view-transition-name: page;
 }
+
 
 img,
 picture,

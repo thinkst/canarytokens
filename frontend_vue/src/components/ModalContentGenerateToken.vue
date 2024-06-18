@@ -1,8 +1,13 @@
 <template>
-  <component
-    :is="dynamicCarousel"
-    v-bind="{ selectedToken }"
-  />
+  <div class="relative icon-shadow">
+    <img
+      :src="
+        getImageUrl(`token_icons/${tokenServices[props.selectedToken].icon}`)
+      "
+      :alt="`${tokenServices[props.selectedToken].label}`"
+      class="sm:w-[5rem] w-[8rem]"
+    />
+  </div>
   <Form
     ref="generateTokenFormRef"
     :validation-schema="schema"
@@ -15,8 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch } from 'vue';
+import { defineAsyncComponent, ref, shallowRef, watch } from 'vue';
 import type { Ref } from 'vue';
+import getImageUrl from '@/utils/getImageUrl';
+import { tokenServices } from '@/utils/tokenServices';
 import { formValidators } from '@/utils/formValidators';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
@@ -28,8 +35,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['token-generated', 'invalid-submit', 'is-loading']);
 
-const dynamicForm = ref();
-const dynamicCarousel = ref();
+const dynamicForm = shallowRef();
 const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
 const schema = formValidators[props.selectedToken].schema;
@@ -57,16 +63,11 @@ const loadComponent = async () => {
           `@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`
         )
     );
-    dynamicCarousel.value = defineAsyncComponent(
-      () => import('@/components/ui/CarouselInfoToken.vue')
-    );
-    await Promise.all([
-      // When defining an async component
-      // Vue adds an __asyncLoader() method to the component instance.
-      // This method returns a promise that resolves when the component finishes loading.
-      dynamicForm.value.__asyncLoader(),
-      dynamicCarousel.value.__asyncLoader(),
-    ]);
+    // When defining an async component
+    // Vue adds an __asyncLoader() method to the component instance.
+    // This method returns a promise that resolves when the component finishes loading.
+    await dynamicForm.value.__asyncLoader();
+
     emits('is-loading', false);
   } catch (error) {
     emits('is-loading', false);
@@ -87,3 +88,20 @@ watch(
   }
 );
 </script>
+
+<style scoped>
+/* TODO: remove once new icons with shadow are provided */
+.icon-shadow::after {
+  content: '';
+  position: absolute;
+  display: inline-block;
+  bottom: 0;
+  left: 50%;
+  width: 4rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  @apply bg-grey-100;
+  filter: blur(0.1rem);
+  transform: translate(-50%, 1rem);
+}
+</style>
