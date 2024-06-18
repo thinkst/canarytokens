@@ -75,7 +75,7 @@ export function historyToken(params: TokenAuthType) {
 export function deleteToken(params: TokenAuthType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/delete';
   return axios
-    .post(url, { params })
+    .post(url, params)
     .then((response) => response)
     .catch((error) => error.response);
 }
