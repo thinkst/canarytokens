@@ -66,8 +66,11 @@ const deleteToken = async () => {
 				router.push({ name: 'home' });
 			}, 3000);
 		}
-		if (res.status === 403 || res.status === 500) errorMessage.value = 'Oh no! Something went wrong when deleting your token.';
-		if (res.status === 404) router.push({ name: 'error' });
+		else if (res.status === 404) {
+			props.closeModal();
+			router.push({ name: 'error' });
+		}
+		else errorMessage.value = 'Oh no! Something went wrong when deleting your token.';
 	} catch (err: any) {
 		console.log(err, 'err!');
 		errorMessage.value = err.toString();
