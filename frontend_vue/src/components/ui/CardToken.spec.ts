@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowRight, faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import BaseLinkDocumentation from '@/components/base/BaseLinkDocumentation.vue';
+import BaseButtonHowToDeploy from '@/components/base/BaseButtonHowToDeploy.vue';
 import CardToken from './CardToken.vue';
 import BaseSkeletonLoader from '../base/BaseSkeletonLoader.vue';
 
@@ -29,49 +29,47 @@ describe('BaseCardToken.vue', () => {
   it('renders props when passed', async () => {
     const title = 'Test title';
     const description = 'Test description';
-    const logoImgUrl = 's3_bucket.png';
-    const documentationLink = 'Test link';
+    const logoImgUrl = 'aws_keys.png';
+    const selectedToken = 'AWS keys';
     const wrapper = mount(CardToken, {
-      props: { title, description, logoImgUrl, documentationLink },
+      props: { title, description, logoImgUrl, selectedToken },
       global: {
-        stubs: { FontAwesomeIcon, BaseLinkDocumentation, BaseSkeletonLoader },
+        stubs: { FontAwesomeIcon, BaseButtonHowToDeploy, BaseSkeletonLoader },
       },
     });
 
     expect(wrapper.text()).toContain(title);
     expect(wrapper.text()).toContain(description);
-    // expect(wrapper.text()).toContain(logoImgUrl);
-    expect(wrapper.html()).toContain(documentationLink);
+    expect(wrapper.vm.logoImgUrl).toBe('aws_keys.png');
   });
 
   it('renders default logo when no logo is passed', async () => {
     const title = 'Test title';
     const description = 'Test description';
-    const documentationLink = 'Test link';
+    const selectedToken = 'AWS keys';
+    const logoImgUrl = 'aws_keys.png';
 
     const wrapper = mount(CardToken, {
-      props: { title, description, documentationLink },
+      props: { title, description, selectedToken, logoImgUrl},
       global: {
-        stubs: { FontAwesomeIcon, BaseLinkDocumentation, BaseSkeletonLoader },
+        stubs: { FontAwesomeIcon, BaseButtonHowToDeploy, BaseSkeletonLoader },
       },
     });
 
     expect(wrapper.text()).toContain(title);
     expect(wrapper.text()).toContain(description);
-    // expect(wrapper.html()).toContain('default.png');
-    expect(wrapper.html()).toContain(documentationLink);
   });
 
   it('emits click event when card is clicked', async () => {
     const title = 'Test title';
     const description = 'Test description';
-    const logoImgUrl = 's3_bucket.png';
-    const documentationLink = 'Test link';
+    const logoImgUrl = 'aws_keys.png';
+    const selectedToken = 'AWS keys';
 
     const wrapper = mount(CardToken, {
-      props: { title, description, logoImgUrl, documentationLink },
+      props: { title, description, logoImgUrl, selectedToken },
       global: {
-        stubs: { FontAwesomeIcon, BaseLinkDocumentation, BaseSkeletonLoader },
+        stubs: { FontAwesomeIcon, BaseButtonHowToDeploy, BaseSkeletonLoader },
       },
     });
 
