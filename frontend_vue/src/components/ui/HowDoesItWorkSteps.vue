@@ -5,15 +5,13 @@
       :key="index"
     >
       <li
-        class="flex flex-row mt-16 sm:items-center sm:justify-start sm:flex-col sm:mt-0"
+        class="flex flex-row items-center flex-1 sm:justify-start sm:flex-col"
       >
-        <span class="icon-shadow">
-          <img
-            :src="getImageUrl(item.imgSrc)"
-            :alt="item.altText"
-            class="h-[5rem] w-auto"
-          />
-        </span>
+        <img
+          :src="getImageUrl(item.imgSrc)"
+          :alt="item.altText"
+          class="h-auto sm:w-[8rem]"
+        />
         <div class="mt-16">
           <h3 class="px-16 text-sm font-semibold sm:text-center text-grey-700">
             {{ item.header }}
@@ -54,21 +52,21 @@ const slideContent = ref<string[]>(
 
 const items = [
   {
-    imgSrc: 'icons/howitworks_1.png',
+    imgSrc: 'icons/howitworks_step_1.png',
     altText: 'Create it',
     header: 'Create it',
     paragraph: slideContent.value[0],
-    arrowSrc: 'howitworks_arrow0.png',
+    arrowSrc: 'howitworks_arrow_1.png',
   },
   {
-    imgSrc: 'icons/howitworks_2.png',
+    imgSrc: 'icons/howitworks_step_2.png',
     altText: 'Deploy it',
     header: 'Deploy it',
     paragraph: slideContent.value[1],
-    arrowSrc: 'howitworks_arrow1.png',
+    arrowSrc: 'howitworks_arrow_2.png',
   },
   {
-    imgSrc: 'icons/howitworks_3.png',
+    imgSrc: 'icons/howitworks_step_3.png',
     altText: 'It works!',
     header: 'It works!',
     paragraph: slideContent.value[2],
@@ -78,18 +76,6 @@ const items = [
 
 <style scoped>
 .arrow {
-  transform: scale(1.8);
-}
-
-.icon-shadow::after {
-  content: '';
-  position: relative;
-  display: inline-block;
-  width: 5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  @apply bg-grey-100;
-  filter: blur(0.1rem);
-  transform: scale(0.6) translateY(-0.5rem);
+  transform: scale(3.5);
 }
 </style>

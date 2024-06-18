@@ -1,10 +1,10 @@
 <template>
-  <li class="relative flex flex-1">
+  <li class="relative flex">
     <button
-      class="relative group border flex flex-col group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out token-card justify-between"
+      class="group border flex flex-1 flex-col group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center"
       @click.stop="handleClickToken"
     >
-      <!-- content -->
+      <!-- Content -->
       <div class="flex flex-col items-center px-16 pt-16 pb-24">
         <div v-if="isLoading">
           <BaseSkeletonLoader
@@ -30,7 +30,7 @@
           {{ description }}
         </p>
       </div>
-      <!--- cta --->
+      <!--- CTA text --->
       <div
         class="w-full font-semibold bg-grey-50 text-grey-400 h-[3rem] rounded-b-xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex"
       >

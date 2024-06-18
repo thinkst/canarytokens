@@ -2,7 +2,7 @@
   <ModalContentHowToUseLoader v-if="isLoading" />
   <template v-else>
     <div class="flex flex-col w-full md:w-[100%] lg:w-[80%] sm:mt-40 px-8">
-      <HowDoesItWork :selected-token="props.selectedToken" />
+      <HowDoesItWorkSteps :selected-token="props.selectedToken" />
       <ul
         v-if="howToUseToken.length > 0"
         class="flex flex-col w-full gap-16 my-16 mt-40 items-left text-grey-800"
@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import ModalContentHowToUseLoader from '@/components/ui/ModalContentHowToUseLoader.vue';
-import HowDoesItWork from '@/components/ui/HowDoesItWork.vue';
+import HowDoesItWorkSteps from '@/components/ui/HowDoesItWorkSteps.vue';
 
 const props = defineProps<{
   selectedToken: string;

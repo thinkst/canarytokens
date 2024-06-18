@@ -41,12 +41,11 @@
           <button
             v-if="hasCloseButton"
             type="button"
-            class="absolute top-8 right-16"
+            class="absolute w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full top-8 right-8 hover:text-white text-grey-300 border-grey-300 hover:bg-green-600 hover:border-green-300"
             @click="emit('update:modelValue', false)"
           >
             <font-awesome-icon
               icon="xmark"
-              class="w-6 h-6 hover:text-grey-400"
               aria-hidden="true"
             />
             <span class="fa-sr-only">Close</span>
