@@ -1,24 +1,27 @@
 <template>
   <ModalContentHowToUseLoader v-if="isLoading" />
   <template v-else>
-    <ul
-      v-if="howToUseToken.length > 0"
-      class="flex flex-col w-full gap-16 my-16 ml-16 items-left text-grey-800"
-    >
-      <li
-        v-for="item in parsedHowToUseToken"
-        :key="item.id"
-        class="grid justify-start grid-flow-col gap-8 text-left"
+    <div class="flex flex-col w-full md:w-[100%] lg:w-[80%] sm:mt-40 px-8">
+      <HowDoesItWorkSteps :selected-token="props.selectedToken" />
+      <ul
+        v-if="howToUseToken.length > 0"
+        class="flex flex-col w-full gap-16 my-16 mt-40 items-left text-grey-800"
       >
-        <component
-          :is="item.component"
-          v-bind="item.props"
-        />
-      </li>
-    </ul>
-    <div v-else>
-      At this time, we do not have any suggestions available. Please check back
-      soon!
+        <li
+          v-for="item in parsedHowToUseToken"
+          :key="item.id"
+          class="grid justify-start grid-flow-col gap-8 px-16 py-8 text-left bg-white border rounded-xl border-grey-200 text-grey-500"
+        >
+          <component
+            :is="item.component"
+            v-bind="item.props"
+          />
+        </li>
+      </ul>
+      <div v-else>
+        At this time, we do not have any suggestions available. Please check
+        back soon!
+      </div>
     </div>
   </template>
 </template>
@@ -26,6 +29,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import ModalContentHowToUseLoader from '@/components/ui/ModalContentHowToUseLoader.vue';
+import HowDoesItWorkSteps from '@/components/ui/HowDoesItWorkSteps.vue';
 
 const props = defineProps<{
   selectedToken: string;
@@ -59,17 +63,13 @@ onMounted(loadHowToUse);
 
 <style scoped>
 li::before {
-  content: '';
-  width: 1.2rem;
-  height: 1.2rem;
-  border-radius: 1rem;
-  margin-top: 0.1rem;
-  background-color: hsl(157, 77%, 45%);
-  border: 4px solid hsl(141, 75%, 76%);
+  font-family: 'Font Awesome 6 Free';
+  content: '\f0e7';
+  @apply text-green-500;
 }
 
 p :deep(code) {
-  @apply bg-grey-100 px-8 py-[2px] rounded-md mt-4;
+  @apply bg-green-100 px-8 py-[2px] rounded-md mt-4;
   overflow-wrap: anywhere;
 }
 </style>
