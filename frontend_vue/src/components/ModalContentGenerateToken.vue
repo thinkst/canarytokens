@@ -63,6 +63,9 @@ const loadComponent = async () => {
           `@/components/tokens/${props.selectedToken}/GenerateTokenForm.vue`
         )
     );
+    // When defining an async component
+    // Vue adds an __asyncLoader() method to the component instance.
+    // This method returns a promise that resolves when the component finishes loading.
     await dynamicForm.value.__asyncLoader();
 
     emits('is-loading', false);
@@ -87,6 +90,7 @@ watch(
 </script>
 
 <style scoped>
+/* TODO: remove once new icons with shadow are provided */
 .icon-shadow::after {
   content: '';
   position: absolute;
