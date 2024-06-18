@@ -29,11 +29,11 @@
       <div>
         <BaseMessageBox
           v-if="errorMessage || successMessage"
-          class="w-[90%] m-auto mb-16"
+          :class="`w-[90%] m-auto ${errorMessage ? 'mb-16' : ''}`"
           :variant="successMessage ? 'success' : 'danger'"
           :message="errorMessage || successMessage"
         />
-        <div class="w-full flex flex-row justify-center">
+        <div v-if="!successMessage" class="w-full flex flex-row justify-center">
           <BaseButton variant="grey" class="mr-8" @click="modalOpen = false">No, keep it</BaseButton>
           <BaseButton variant="danger" :loading="isLoading" @click="deleteToken(token, auth)">Yes, delete</BaseButton>
         </div>
@@ -72,6 +72,7 @@ const openDeleteModal = () => {
 
 const deleteToken = async (token: string, auth: string) => {
   isLoading.value = true;
+  errorMessage.value = '';
   const params = {
     auth: auth as string,
     token: token as string,
