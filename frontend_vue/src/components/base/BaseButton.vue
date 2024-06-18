@@ -14,11 +14,7 @@
     <BaseSpinner
       v-if="loading"
       height="1.5rem"
-      :variant="
-        variant === ButtonVariantEnum.PRIMARY
-          ? ButtonVariantEnum.SECONDARY
-          : ButtonVariantEnum.PRIMARY
-      "
+      :variant="spinnerVariant"
       class="absolute left-0 right-0 ml-auto mr-auto"
     ></BaseSpinner>
     <font-awesome-icon
@@ -46,6 +42,7 @@ enum ButtonVariantEnum {
   WARNING = 'warning',
   INFO = 'info',
   LIGHT = 'text-light',
+  GREY = 'grey',
 }
 
 type buttonType = 'button' | 'submit' | 'reset';
@@ -75,6 +72,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  border: {
+    type: Boolean,
+    default: true
+  },
 });
 
 const buttonClass = computed(() => {
@@ -86,17 +87,30 @@ const buttonClass = computed(() => {
     case ButtonVariantEnum.TEXT:
       return 'text base-button';
     case ButtonVariantEnum.DANGER:
-      return 'text danger base-button';
+      return `${props.border ? 'with-border' : ''} danger base-button`;
     case ButtonVariantEnum.WARNING:
       return 'text warning base-button';
     case ButtonVariantEnum.INFO:
       return 'text info base-button';
+    case ButtonVariantEnum.GREY:
+      return 'grey base-button';
     case ButtonVariantEnum.LIGHT:
       return 'text-light base-button';
     default:
       return 'primary base-button';
   }
 });
+
+const spinnerVariant = computed(() => {
+  switch (props.variant) {
+    case ButtonVariantEnum.PRIMARY:
+      return ButtonVariantEnum.SECONDARY;
+    case ButtonVariantEnum.DANGER:
+      return ButtonVariantEnum.SECONDARY
+    default:
+      return ButtonVariantEnum.PRIMARY
+  }
+})
 </script>
 
 <style scoped>
@@ -122,6 +136,14 @@ const buttonClass = computed(() => {
 
 .danger {
   @apply hover:text-red focus:text-red text-red-500;
+}
+
+.with-border.danger {
+  @apply bg-white hover:bg-red hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red focus:text-white focus:border-red-300 focus:outline-0 text-red border shadow-solid-shadow-red border-red-300;
+}
+
+.grey {
+  @apply bg-white hover:bg-grey-400 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-grey-400 focus:text-white focus:border-grey-500 focus:outline-0 text-grey-500 border shadow-solid-shadow-grey border-grey-500;
 }
 
 .warning {

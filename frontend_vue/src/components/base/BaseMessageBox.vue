@@ -35,6 +35,7 @@
       v-if="textLink"
       class="self-end whitespace-nowrap md:self-center"
       :variant="props.variant"
+      :border="false"
       :href="href"
       :target="href ? '_blank' : null"
       @click="$emit('click')"
