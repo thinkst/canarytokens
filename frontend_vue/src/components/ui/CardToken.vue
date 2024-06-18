@@ -1,11 +1,15 @@
 <template>
-  <li class="relative flex">
+  <li class="relative flex token-card-wrapper">
     <button
-      class="group border flex flex-1 flex-col group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center"
+      class="group border flex flex-1 flex-col group bg-grey-50 rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center"
       @click.stop="handleClickToken"
+      @mouseover="handleMouseOver"
+      @focus="handleMouseOver"
+      @mouseleave="handleMouseLeave"
+      @blur="handleMouseLeave"
     >
       <!-- Content -->
-      <div class="flex flex-col items-center px-16 pt-16 pb-24">
+      <div class="flex flex-col items-center px-16 pt-16">
         <div v-if="isLoading">
           <BaseSkeletonLoader
             type="circle"
@@ -19,22 +23,18 @@
           aria-hidden="true"
           :alt="`${title} logo`"
         />
-        <h3
-          class="flex-grow py-16 font-semibold leading-5 text-center text-grey-800"
-        >
-          {{ title }}
-        </h3>
+
         <p
-          class="flex-grow text-sm leading-5 text-center text-grey-400 text-pretty"
+          class="flex-grow py-16 text-sm text-center text-grey-400 text-pretty"
         >
           {{ description }}
         </p>
       </div>
       <!--- CTA text --->
       <div
-        class="w-full font-semibold bg-grey-50 text-grey-400 h-[3rem] rounded-b-xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex"
+        class="w-full px-16 leading-5 font-semibold bg-white text-grey-400 h-[3rem] rounded-b-xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex"
       >
-        Create Token
+        {{ isHoverCard ? 'Create Token' : title }}
       </div>
     </button>
     <BaseButtonHowToDeploy
@@ -67,6 +67,15 @@ const props = withDefaults(
   }
 );
 
+const logoUrl = toRef(props, 'logoImgUrl');
+const isLoading = ref(true);
+const src = ref('');
+const isHoverCard = ref(false);
+
+onMounted(() => {
+  loadImage();
+});
+
 function handleHowToUseButton() {
   const { open, close } = useModal({
     component: ModalToken,
@@ -78,14 +87,6 @@ function handleHowToUseButton() {
   });
   open();
 }
-
-const logoUrl = toRef(props, 'logoImgUrl');
-const isLoading = ref(true);
-const src = ref('');
-
-onMounted(() => {
-  loadImage();
-});
 
 async function loadImage() {
   src.value = '';
@@ -102,23 +103,27 @@ function handleClickToken() {
   emit('clickToken');
 }
 
+function handleMouseOver() {
+  isHoverCard.value = true;
+}
+
+function handleMouseLeave() {
+  isHoverCard.value = false;
+}
+
 watch(logoUrl, () => {
   loadImage();
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .token-card:hover,
 .token-card:focus,
 .token-card:focus-within {
   @apply border-green shadow-solid-shadow-green-500-sm;
-}
 
-.card-button:focus {
-  @apply from-green to-green-200 text-white border-b-green shadow-solid-shadow-green-500-sm bg-gradient-to-b outline-none;
-}
-
-.hover-card {
-  @apply group-hover:from-green group-hover:to-green-200 group-hover:text-white group-hover:border-b-green group-hover:shadow-solid-shadow-green-500-sm group-hover:bg-gradient-to-b;
+  .card-button {
+    @apply from-green to-green-200 text-white border-b-green shadow-solid-shadow-green-500-sm bg-gradient-to-b outline-none;
+  }
 }
 </style>

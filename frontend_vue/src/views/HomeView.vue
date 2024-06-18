@@ -5,8 +5,8 @@
         Create a Canarytoken, Deploy it somewhere
       </h1>
       <h2 class="mt-8 font-md text-grey-400">Know. When it matters.</h2>
-      <h3 class="mt-40 mb-16 text-xl text-grey-800">
-        Generate new Canarytoken
+      <h3 class="mt-40 mb-16 text-xl font-semibold text-grey-400">
+        Create new Canarytoken
       </h3>
     </div>
     <SearchFilterTokensHeader

@@ -8,7 +8,7 @@
 
 <style scoped>
 .layout-grid {
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.2rem;
 }
 </style>
