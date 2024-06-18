@@ -83,7 +83,6 @@
         >
       </BaseMessageBox>
       <DeleteTokenButton
-        :alerts-count="hasAlerts"
         :memo="manageTokenResponse.canarydrop.memo"
         :token="manageTokenResponse.canarydrop.canarytoken._value"
         :auth="manageTokenResponse.canarydrop.auth"
