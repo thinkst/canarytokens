@@ -2,7 +2,7 @@
   <TokenIcon
     :title="tokenServices[props.selectedToken].label"
     :logo-img-url="tokenServices[props.selectedToken].icon"
-    class="sm:w-[5rem] sm:h-[5rem] w-[8rem] h-[8rem]"
+    class="sm:w-[5rem] sm:h-[5rem] w-[7rem] h-[7rem]"
     :is-animation="true"
     :has-shadow="true"
   />
