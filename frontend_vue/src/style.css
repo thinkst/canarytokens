@@ -1,5 +1,5 @@
 @import url('./assets/fonts/typography.css');
-@import "vue-select/dist/vue-select.css";
+@import 'vue-select/dist/vue-select.css';
 
 @tailwind base;
 @tailwind components;
@@ -29,9 +29,7 @@
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  view-transition-name: page;
 }
-
 
 img,
 picture,
@@ -94,6 +92,11 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
   * {
     animation: none !important;
     transition: none !important;
