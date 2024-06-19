@@ -3,11 +3,11 @@
     v-if="manageTokenResponse"
     class="flex flex-col items-center gap-8 mb-24"
   >
-    <img
-      :src="getImageUrl(tokenLogoUrl)"
-      class="h-[4rem]"
-      aria-hidden="true"
-      :alt="`${tokenServices[getTokenType].label} logo`"
+    <TokenIcon
+      :title="tokenServices[getTokenType].label"
+      :logo-img-url="tokenServices[getTokenType].icon"
+      class="h-[4rem] w-[4rem]"
+      :has-shadow="false"
     />
     <h2 class="text-xl text-center text-grey-800">
       {{ tokenServices[getTokenType].label }}
@@ -86,7 +86,8 @@
         :memo="manageTokenResponse.canarydrop.memo"
         :token="manageTokenResponse.canarydrop.canarytoken._value"
         :auth="manageTokenResponse.canarydrop.auth"
-        :type="manageTokenResponse.canarydrop.type" />
+        :type="manageTokenResponse.canarydrop.type"
+      />
     </div>
     <div class="flex justify-center sm:max-w-[50vw]">
       <BannerTextCanarytools class="mt-32 mb-8" />
@@ -101,11 +102,11 @@ import { manageToken } from '@/api/main.ts';
 import SettingsToken from './SettingsToken.vue';
 import { tokenServices } from '@/utils/tokenServices';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
-import getImageUrl from '@/utils/getImageUrl';
 import { TOKENS_TYPE } from './constants';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import DeleteTokenButton from '@/components/ui/DeleteTokenButton.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
+import TokenIcon from '@/components/icons/TokenIcon.vue';
 
 const route = useRoute();
 const router = useRouter();

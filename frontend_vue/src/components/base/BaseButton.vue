@@ -74,7 +74,7 @@ const props = defineProps({
   },
   border: {
     type: Boolean,
-    default: true
+    default: true,
   },
 });
 
@@ -87,7 +87,7 @@ const buttonClass = computed(() => {
     case ButtonVariantEnum.TEXT:
       return 'text base-button';
     case ButtonVariantEnum.DANGER:
-      return `${props.border ? 'with-border' : ''} danger base-button`;
+      return `danger base-button`;
     case ButtonVariantEnum.WARNING:
       return 'text warning base-button';
     case ButtonVariantEnum.INFO:
@@ -106,11 +106,11 @@ const spinnerVariant = computed(() => {
     case ButtonVariantEnum.PRIMARY:
       return ButtonVariantEnum.SECONDARY;
     case ButtonVariantEnum.DANGER:
-      return ButtonVariantEnum.SECONDARY
+      return ButtonVariantEnum.SECONDARY;
     default:
-      return ButtonVariantEnum.PRIMARY
+      return ButtonVariantEnum.PRIMARY;
   }
-})
+});
 </script>
 
 <style scoped>
@@ -135,15 +135,11 @@ const spinnerVariant = computed(() => {
 }
 
 .danger {
-  @apply hover:text-red focus:text-red text-red-500;
-}
-
-.with-border.danger {
-  @apply bg-white hover:bg-red hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red focus:text-white focus:border-red-300 focus:outline-0 text-red border shadow-solid-shadow-red border-red-300;
+  @apply bg-white hover:bg-red-300 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red-300 focus:text-white focus:border-red focus:outline-0 text-red border shadow-solid-shadow-red border-red;
 }
 
 .grey {
-  @apply bg-white hover:bg-grey-400 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-grey-400 focus:text-white focus:border-grey-500 focus:outline-0 text-grey-500 border shadow-solid-shadow-grey border-grey-500;
+  @apply bg-white hover:bg-grey-300 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-grey-400 focus:text-white focus:border-grey-500 focus:outline-0 text-grey-500 border shadow-solid-shadow-grey border-grey-400;
 }
 
 .warning {
