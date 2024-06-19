@@ -3,14 +3,21 @@
   <template v-else>
     <div class="flex flex-col w-full md:w-[100%] lg:w-[80%] sm:mt-40 px-8">
       <HowDoesItWorkSteps :selected-token="props.selectedToken" />
+      <h2 class="mt-40 text-center text-grey-800">
+        Ideas for
+        <span class="font-semibold"
+          >{{ tokenServices[$props.selectedToken].label }} token</span
+        >
+        use :
+      </h2>
       <ul
         v-if="howToUseToken.length > 0"
-        class="flex flex-col w-full gap-16 my-16 mt-40 items-left text-grey-800"
+        class="flex flex-col w-full gap-16 p-16 my-16 bg-white border items-left text-grey-800 border-grey-200 rounded-xl"
       >
         <li
           v-for="item in parsedHowToUseToken"
           :key="item.id"
-          class="grid justify-start grid-flow-col gap-8 px-16 py-8 text-left bg-white border rounded-xl border-grey-200 text-grey-500"
+          class="grid justify-start grid-flow-col gap-8 px-16 py-8 text-left text-grey-500"
         >
           <component
             :is="item.component"
@@ -30,6 +37,7 @@
 import { ref, onMounted, computed } from 'vue';
 import ModalContentHowToUseLoader from '@/components/ui/ModalContentHowToUseLoader.vue';
 import HowDoesItWorkSteps from '@/components/ui/HowDoesItWorkSteps.vue';
+import { tokenServices } from '@/utils/tokenServices';
 
 const props = defineProps<{
   selectedToken: string;
