@@ -1,12 +1,9 @@
 <template>
   <ModalContentHowToUseLoader v-if="isLoading" />
   <template v-else>
-    <div class="flex flex-col w-full xl:w-[80%] sm:mt-40 px-8">
-      <HowDoesItWorkSteps
-        :selected-token="props.selectedToken"
-        class="px-16 py-40 bg-white border border-grey-200 rounded-2xl"
-      />
-      <h2 class="px-16 mt-40 text-left text-grey-800">
+    <div class="flex flex-col w-full md:w-[100%] xl:w-[80%] sm:mt-40 px-8">
+      <HowDoesItWorkSteps :selected-token="props.selectedToken" />
+      <h2 class="px-16 mt-40 text-center text-grey-800">
         Ideas for
         <span class="font-semibold"
           >{{ tokenServices[$props.selectedToken].label }} token</span
@@ -15,12 +12,12 @@
       </h2>
       <ul
         v-if="howToUseToken.length > 0"
-        class="flex flex-col w-full gap-16 px-16 my-16 items-left text-grey-800 border-grey-200 rounded-xl"
+        class="flex flex-col w-full gap-16 my-16 items-left text-grey-800"
       >
         <li
           v-for="item in parsedHowToUseToken"
           :key="item.id"
-          class="grid justify-start grid-flow-col gap-8 text-left text-grey-500"
+          class="grid justify-start grid-flow-col gap-8 px-16 py-8 text-left bg-white border rounded-xl border-grey-200 text-grey-500"
         >
           <component
             :is="item.component"
@@ -76,7 +73,7 @@ onMounted(loadHowToUse);
 li::before {
   font-family: 'Font Awesome 6 Free';
   content: '\f0e7';
-  @apply text-grey-300;
+  @apply text-green-500;
 }
 
 p :deep(code) {
