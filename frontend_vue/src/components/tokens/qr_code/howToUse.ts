@@ -1,5 +1,5 @@
 export const howToUse = [
-  'On containers left in secure locations.',
-  'Underneath your phone battery when crossing international borders.',
-  'On your desk.',
+  'Leave the provided QR code on containers left in secure locations.',
+  'Add the QR code Underneath your phone battery when crossing international borders.',
+  'Place the QR code on your desk.',
 ];

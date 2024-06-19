@@ -1,11 +1,18 @@
 <template>
   <ModalContentHowToUseLoader v-if="isLoading" />
   <template v-else>
-    <div class="flex flex-col w-full md:w-[100%] lg:w-[80%] sm:mt-40 px-8">
+    <div class="flex flex-col w-full md:w-[100%] xl:w-[80%] sm:mt-40 px-8">
       <HowDoesItWorkSteps :selected-token="props.selectedToken" />
+      <h2 class="px-16 mt-40 text-center text-grey-800">
+        Ideas for
+        <span class="font-semibold"
+          >{{ tokenServices[$props.selectedToken].label }} token</span
+        >
+        use :
+      </h2>
       <ul
         v-if="howToUseToken.length > 0"
-        class="flex flex-col w-full gap-16 my-16 mt-40 items-left text-grey-800"
+        class="flex flex-col w-full gap-16 my-16 items-left text-grey-800"
       >
         <li
           v-for="item in parsedHowToUseToken"
@@ -30,6 +37,7 @@
 import { ref, onMounted, computed } from 'vue';
 import ModalContentHowToUseLoader from '@/components/ui/ModalContentHowToUseLoader.vue';
 import HowDoesItWorkSteps from '@/components/ui/HowDoesItWorkSteps.vue';
+import { tokenServices } from '@/utils/tokenServices';
 
 const props = defineProps<{
   selectedToken: string;
