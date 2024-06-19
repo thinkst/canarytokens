@@ -5,6 +5,7 @@
       :logo-img-url="tokenServices[tokenType].icon"
       class="w-[6rem] pb-16"
       :has-animation="true"
+      :has-shadow="true"
     />
     <img
       alt="active token"

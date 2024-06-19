@@ -4,6 +4,7 @@
     :logo-img-url="tokenServices[props.selectedToken].icon"
     class="sm:w-[5rem] sm:h-[5rem] w-[8rem] h-[8rem]"
     :is-animation="true"
+    :has-shadow="true"
   />
   <Form
     ref="generateTokenFormRef"

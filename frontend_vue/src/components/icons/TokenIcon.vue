@@ -39,7 +39,7 @@ const props = withDefaults(
   }>(),
   {
     logoImgUrl: 'default.png',
-    hasShadow: true,
+    hasShadow: false,
   }
 );
 

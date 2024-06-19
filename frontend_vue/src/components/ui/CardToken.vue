@@ -15,6 +15,7 @@
           :logo-img-url="props.logoImgUrl"
           class="w-[4.2rem] h-[4.2rem]"
           :is-interacted="isHoverCard"
+          :has-shadow="true"
         />
         <p
           class="flex-grow py-16 text-sm text-center text-grey-400 text-pretty"
