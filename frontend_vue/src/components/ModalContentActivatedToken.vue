@@ -1,9 +1,11 @@
 <template>
   <div class="relative">
-    <img
-      :src="getImageUrl(`token_icons/${tokenServices[tokenType].icon}`)"
-      :alt="`${tokenServices[tokenType].label}`"
+    <TokenIcon
+      :title="tokenServices[tokenType].label"
+      :logo-img-url="tokenServices[tokenType].icon"
       class="w-[6rem] pb-16"
+      :has-animation="true"
+      :has-shadow="true"
     />
     <img
       alt="active token"
@@ -29,6 +31,7 @@
 import { defineAsyncComponent, ref } from 'vue';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
+import TokenIcon from '@/components/icons/TokenIcon.vue';
 
 const props = defineProps<{
   newTokenResponse: { token_type: string } & Record<string, unknown>;

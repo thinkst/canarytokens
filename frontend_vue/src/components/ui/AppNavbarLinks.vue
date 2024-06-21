@@ -23,7 +23,7 @@
           :class="
             !props.isMobile
               ? 'transition-colors duration-100 text-green-100 hover:text-white desktop-link focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-800'
-              : 'text-grey-400 hover:text-white mobile-link'
+              : 'text-grey-400 hover:text-green mobile-link'
           "
         >
           {{ item.name }}
@@ -39,7 +39,7 @@
           :class="
             !props.isMobile
               ? 'transition-colors duration-100 cursor-pointer text-green-100 hover:text-white desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-800 flex flex-row gap-8 items-center'
-              : 'text-grey-400 hover:text-white mobile-link flex flex-row gap-8 items-center justify-end'
+              : 'text-grey-400 hover:text-green mobile-link flex flex-row gap-8 items-center justify-end'
           "
         >
           <font-awesome-icon
@@ -62,7 +62,6 @@ import { ENV_MODE } from '@/constants.ts';
 const props = defineProps({
   isMobile: Boolean,
 });
-
 
 const route = useRoute();
 
@@ -127,13 +126,13 @@ watch(
 
 .desktop-link {
   &.router-link-active {
-    @apply text-white;;
+    @apply text-white;
   }
 }
 
 .mobile-link {
   &.router-link-active {
-    @apply text-green-600 
+    @apply text-green-600;
   }
 }
 </style>
