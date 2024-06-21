@@ -9,7 +9,7 @@
     <div>
       <base-button
         variant="danger"
-        :border="false"
+        :border="true"
         @click="openDeleteModal(type, auth, token)"
         >Delete</base-button
       >

@@ -72,6 +72,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+    border: {
+    type: Boolean,
+    default: true
+  },
 });
 
 const buttonClass = computed(() => {
@@ -83,7 +87,7 @@ const buttonClass = computed(() => {
     case ButtonVariantEnum.TEXT:
       return 'text base-button';
     case ButtonVariantEnum.DANGER:
-      return `danger base-button`;
+      return `${props.border ? 'with-border' : ''} danger base-button`;
     case ButtonVariantEnum.WARNING:
       return 'text warning base-button';
     case ButtonVariantEnum.INFO:
@@ -131,6 +135,10 @@ const spinnerVariant = computed(() => {
 }
 
 .danger {
+  @apply hover:text-red focus:text-red text-red-500;
+}
+
+.with-border.danger {
   @apply bg-white hover:bg-red-300 hover:text-white disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none  active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red-300 focus:text-white focus:border-red focus:outline-0 text-red border shadow-solid-shadow-red border-red;
 }
 
