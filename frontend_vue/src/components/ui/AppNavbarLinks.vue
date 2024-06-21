@@ -45,7 +45,7 @@
           <component
             :is="item.icon || 'font-awesome-icon'"
             :icon="item.FontAwesomeIcon"
-            class="w-[1rem] h-[1.1rem]"
+            class="w-[1rem] h-[1rem]"
             :class="
               !props.isMobile
                 ? 'fill-green-50 group-hover:fill-white'
