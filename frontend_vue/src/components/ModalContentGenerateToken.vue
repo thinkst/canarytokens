@@ -1,13 +1,11 @@
 <template>
-  <div class="relative icon-shadow">
-    <img
-      :src="
-        getImageUrl(`token_icons/${tokenServices[props.selectedToken].icon}`)
-      "
-      :alt="`${tokenServices[props.selectedToken].label}`"
-      class="sm:w-[5rem] w-[8rem]"
-    />
-  </div>
+  <TokenIcon
+    :title="tokenServices[props.selectedToken].label"
+    :logo-img-url="tokenServices[props.selectedToken].icon"
+    class="sm:w-[5rem] sm:h-[5rem] w-[7rem] h-[7rem]"
+    :is-animation="true"
+    :has-shadow="true"
+  />
   <Form
     ref="generateTokenFormRef"
     :validation-schema="schema"
@@ -22,11 +20,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, shallowRef, watch } from 'vue';
 import type { Ref } from 'vue';
-import getImageUrl from '@/utils/getImageUrl';
 import { tokenServices } from '@/utils/tokenServices';
 import { formValidators } from '@/utils/formValidators';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
+import TokenIcon from '@/components/icons/TokenIcon.vue';
 
 const props = defineProps<{
   selectedToken: string;
@@ -88,20 +86,3 @@ watch(
   }
 );
 </script>
-
-<style scoped>
-/* TODO: remove once new icons with shadow are provided */
-.icon-shadow::after {
-  content: '';
-  position: absolute;
-  display: inline-block;
-  bottom: 0;
-  left: 50%;
-  width: 4rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  @apply bg-grey-100;
-  filter: blur(0.1rem);
-  transform: translate(-50%, 1rem);
-}
-</style>

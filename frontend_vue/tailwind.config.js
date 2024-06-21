@@ -70,6 +70,7 @@ export default {
         'solid-shadow-red': `0px 0.15rem 0px 0px  ${theme('colors.red.DEFAULT')}`,
         'solid-shadow-green-300': `0px 0.15rem 0px 0px  ${theme('colors.green.300')}`,
         'solid-shadow-grey': `0px 0.20rem 0px 0px  ${theme('colors.grey.200')}`,
+        'solid-shadow-grey-400': `0px 0.20rem 0px 0px  ${theme('colors.grey.400')}`,
         'solid-shadow-grey-sm': `0px 0.25rem 0px 0px  ${theme('colors.grey.200')}`,
         'inner-shadow-grey': `inset 0px 0.25rem 0px 0px  ${theme('colors.grey.50')}`,
       })
