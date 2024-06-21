@@ -38,14 +38,14 @@
           target="_blank"
           :class="
             !props.isMobile
-              ? 'transition-colors duration-100 text-green-100 hover:text-white focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-800 flex flex-row gap-8'
+              ? 'transition-colors duration-100 text-green-100 hover:text-white focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-800 flex flex-row gap-8 items-center'
               : 'text-grey-400 group hover:text-green mobile-link flex flex-row gap-8 items-center justify-end'
           "
         >
           <component
             :is="item.icon || 'font-awesome-icon'"
             :icon="item.FontAwesomeIcon"
-            class="w-[1rem] h-[1.2rem]"
+            class="w-[1rem] h-[1.1rem]"
             :class="
               !props.isMobile
                 ? 'fill-green-50 group-hover:fill-white'
