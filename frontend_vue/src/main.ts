@@ -31,8 +31,8 @@ import {
   faFileExcel,
   faFile,
   faQuoteLeft,
+  faArrowUpRightFromSquare
 } from '@fortawesome/free-solid-svg-icons';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
 import VueGoogleMaps from 'vue-google-maps-community-fork';
@@ -69,7 +69,7 @@ library.add(
   faFileExcel,
   faFile,
   faQuoteLeft,
-  faGithub as IconDefinition
+  faArrowUpRightFromSquare,
 );
 
 const vfm = createVfm();

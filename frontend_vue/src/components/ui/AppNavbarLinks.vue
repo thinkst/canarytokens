@@ -97,12 +97,12 @@ const menuExternalLinkItems = computed(() => {
     {
       name: 'Documentation',
       url: 'https://docs.canarytokens.org/guide',
-      icon: 'link',
-    },
+      icon: 'arrow-up-right-from-square',
+   },
     {
       name: 'Github',
       url: 'https://github.com/thinkst/canarytokens',
-      icon: 'fa-brands fa-github',
+      icon: 'arrow-up-right-from-square',
     },
   ];
 
