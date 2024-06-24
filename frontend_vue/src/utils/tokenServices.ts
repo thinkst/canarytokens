@@ -101,7 +101,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.FAST_REDIRECT]: {
     label: 'Fast redirect',
     description:
-      'Get an alert when an attacker visits your URL (then rediret them).',
+      'Get an alert when an attacker visits your URL (then redirect them).',
     documentationLink:
       'https://docs.canarytokens.org/guide/fast-redirect-token.html',
     icon: `${TOKENS_TYPE.FAST_REDIRECT}.png`,
@@ -116,7 +116,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.SLOW_REDIRECT]: {
     label: 'Slow redirect',
     description:
-      'Get an alert when an attacker visits your URL (then rediret them and collect more info).',
+      'Get an alert when an attacker visits your URL (then redirect them and collect more info).',
     documentationLink:
       'https://docs.canarytokens.org/guide/slow-redirect-token.html',
     icon: `${TOKENS_TYPE.SLOW_REDIRECT}.png`,
@@ -216,7 +216,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.UNIQUE_EMAIL]: {
     label: 'Unique email address',
     description:
-      'Get an alert when an attacker send an email to this unique address.',
+      'Get an alert when an attacker sends an email to this unique address.',
     documentationLink: '',
     icon: `${TOKENS_TYPE.UNIQUE_EMAIL}.png`,
     instruction: 'Here is a unique email address:',
@@ -260,7 +260,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.PDF]: {
     label: 'Acrobat Reader PDF document',
     description:
-      'Get an alert when an attacker open your PDF document in Acrobat Reader.',
+      'Get an alert when an attacker opens your PDF document in Acrobat Reader.',
     documentationLink:
       'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
     icon: `${TOKENS_TYPE.PDF}.png`,
@@ -288,8 +288,8 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.CLONED_WEBSITE]: {
-    label: 'Cloned website',
-    description: 'Get an alert when an attacker clones your website.',
+    label: 'JS Cloned website',
+    description: 'Get an alert (using Javascript) when an attacker clones your website.',
     documentationLink:
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
     icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,
@@ -304,7 +304,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
     label: 'CSS cloned website',
     description:
-      'Get an alert when an attacker clones your website (using CSS).',
+      'Get an alert (using CSS) when an attacker clones your website.',
     documentationLink:
       'https://docs.canarytokens.org/guide/css-cloned-site-token.html',
     icon: `${TOKENS_TYPE.CSS_CLONED_SITE}.png`,
