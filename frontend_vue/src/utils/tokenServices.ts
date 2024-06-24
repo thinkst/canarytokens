@@ -116,7 +116,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.SLOW_REDIRECT]: {
     label: 'Slow redirect',
     description:
-      'Get an alert when an attacker visits your URL (then rediret them and collect more info).',
+      'Get an alert when an attacker visits your URL (then redirect them and collect more info).',
     documentationLink:
       'https://docs.canarytokens.org/guide/slow-redirect-token.html',
     icon: `${TOKENS_TYPE.SLOW_REDIRECT}.png`,
