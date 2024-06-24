@@ -1558,7 +1558,7 @@ START REPLICA;
           }
         }
         var _handleMySQLResponse = function(data) {
-          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
+          var cmd = `SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, SOURCE_PORT=3306, SOURCE_HOST='${data['hostname']}', SOURCE_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
 
           $('.mysql-cmd').text(btoa(cmd));
           $('.mysql-cmd-decoded').text(cmd);
