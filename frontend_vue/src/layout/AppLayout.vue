@@ -1,7 +1,7 @@
 <template>
-  <main class="flex items-start justify-center main-height header-bg">
+  <main class="flex items-start justify-center mb-24 main-height header-bg">
     <div
-      class="lg:max-w-screen-2xl md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-lg shadow-lg shadow-grey-200/40 min-h-[50vh] p-24 flex-auto"
+      class="lg:max-w-screen-2xl md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-3xl shadow-lg shadow-grey-200/40 min-h-[50vh] sm:px-40 sm:py-32 p-16 flex-auto"
     >
       <h1
         v-if="route.name !== 'home'"
@@ -26,7 +26,11 @@ const title = computed(() => route.meta.title);
 <style scoped>
 .header-bg::after {
   content: '';
-  background: linear-gradient(360deg, #38FF7F -43.49%, rgba(56, 127, 127, 0.94) 118%);  
+  background: linear-gradient(
+    360deg,
+    #38ff7f -43.49%,
+    rgba(56, 127, 127, 0.94) 118%
+  );
   position: absolute;
   top: 0;
   left: 0;
