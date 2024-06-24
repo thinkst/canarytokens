@@ -289,7 +289,7 @@ watch(
   { deep: true }
 );
 
-// Show tooltip 'How does it work' for 2 seconds on Modal opening
+// Show tooltip 'How does it work' for 2 seconds on loaded modal
 watch(isLoading, () => {
   if (isLoading.value === false) {
     showTooltip.value = true;
