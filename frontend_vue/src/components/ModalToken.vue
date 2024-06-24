@@ -22,13 +22,14 @@
     </template>
     <!-- How to deploy ? Button-->
     <template #header-btn-right>
-      <BaseButtonHowToDeploy
-        v-if="modalType === ModalType.AddToken"
-        :token-name="tokenServices[props.selectedToken].label"
-        size="big"
-        :is-open="showTooltip"
-        @click="handleHowToUseButton"
-      />
+      <template v-if="!isLoading && modalType === ModalType.AddToken">
+        <BaseButtonHowToDeploy
+          :token-name="tokenServices[props.selectedToken].label"
+          size="big"
+          :is-open="showTooltip"
+          @click="handleHowToUseButton"
+        />
+      </template>
     </template>
     <!-- Content -->
     <Suspense v-if="modalType === ModalType.AddToken">
@@ -156,7 +157,7 @@ const isGenerateTokenError = ref(false);
 const errorMessage = ref('');
 const isLoadngSubmit = ref(false);
 const isLoading = ref(false);
-const showTooltip = ref(true);
+const showTooltip = ref(false);
 // Stack to keep track of loaded components
 // Used for Modal navigation
 const componentStack = ref<string[]>([]);
@@ -164,10 +165,6 @@ const componentStack = ref<string[]>([]);
 onMounted(() => {
   // Keep track of loaded components
   componentStack.value.push(modalType.value);
-  // Show tooltip 'How does it work' for 2 seconds on Modal opening
-  setTimeout(() => {
-    showTooltip.value = false;
-  }, 2000);
 });
 
 const title = computed(() => {
@@ -291,4 +288,14 @@ watch(
   },
   { deep: true }
 );
+
+// Show tooltip 'How does it work' for 2 seconds on loaded modal
+watch(isLoading, () => {
+  if (isLoading.value === false) {
+    showTooltip.value = true;
+    setTimeout(() => {
+      showTooltip.value = false;
+    }, 2000);
+  }
+});
 </script>
