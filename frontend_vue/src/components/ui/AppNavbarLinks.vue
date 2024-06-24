@@ -38,15 +38,21 @@
           target="_blank"
           :class="
             !props.isMobile
-              ? 'transition-colors duration-100 cursor-pointer text-green-100 hover:text-white desktop-link focus:border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-800 flex flex-row gap-8 items-center'
-              : 'text-grey-400 hover:text-green mobile-link flex flex-row gap-8 items-center justify-end'
+              ? 'transition-colors duration-100 text-green-100 hover:text-white focus-visible:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-800 flex flex-row gap-8 items-center'
+              : 'text-grey-400 group hover:text-green mobile-link flex flex-row gap-8 items-center justify-end'
           "
         >
-          <font-awesome-icon
-            v-if="item.icon"
-            :icon="item.icon"
-            class="w-[0.8rem]"
+          <component
+            :is="item.icon || 'font-awesome-icon'"
+            :icon="item.FontAwesomeIcon"
+            class="w-[1rem] h-[1rem]"
+            :class="
+              !props.isMobile
+                ? 'fill-green-50 group-hover:fill-white'
+                : 'fill-grey-400 group-hover:fill-green-600'
+            "
           />
+
           {{ item.name }}</a
         >
       </li>
@@ -58,6 +64,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { ENV_MODE } from '@/constants.ts';
+import GithubIcon from '@/components/icons/GithubIcon.vue';
 
 const props = defineProps({
   isMobile: Boolean,
@@ -97,12 +104,12 @@ const menuExternalLinkItems = computed(() => {
     {
       name: 'Documentation',
       url: 'https://docs.canarytokens.org/guide',
-      icon: 'link',
+      FontAwesomeIcon: 'arrow-up-right-from-square',
     },
     {
       name: 'Github',
       url: 'https://github.com/thinkst/canarytokens',
-      icon: 'fa-brands fa-github',
+      icon: GithubIcon,
     },
   ];
 
