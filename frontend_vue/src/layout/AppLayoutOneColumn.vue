@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex flex-col items-center max-w-[80svw] md:max-w-[80svw] md:mx-[10svw]"
-  >
+  <div class="flex flex-col items-center justify-center w-full">
     <slot></slot>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <template>
   <div class="pb-32 m-4 bg-white rounded-md">
-    <div class="sticky top-[0px] bg-white h-[4vh] flex justify-end">
+    <div class="sticky top-[0px] bg-white h-[4rem] sm:h-40 flex justify-end">
       <button
         type="button"
         class="px-16"
@@ -8,7 +8,7 @@
       >
         <font-awesome-icon
           icon="xmark"
-          class="w-6 h-6 text-grey-400 hover:text-grey-200"
+          class="w-24 h-24 sm:w-16 sm:h-16 text-grey-400 hover:text-grey-200"
         />
       </button>
     </div>

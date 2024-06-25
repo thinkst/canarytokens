@@ -73,7 +73,7 @@
             v-if="selectedAlert"
             id="incident_detail"
             :hit-alert="selectedAlert"
-            class="absolute top-[80px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll"
+            class="absolute top-[120px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll w-full sm:w-auto"
             @close="selectedAlert = null"
           ></IncidentDetails>
         </transition>
