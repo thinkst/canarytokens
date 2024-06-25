@@ -4,7 +4,7 @@
       Oops! The page you're looking for can't be found.
     </h2>
     <img
-      :src="getImageUrl('token_icons/default.png')"
+      :src="getImageUrl('icons/404Icon.svg')"
       alt="Page Not Found"
       class="w-[50%] max-w-[200px] my-32 not-sr-only"
     />

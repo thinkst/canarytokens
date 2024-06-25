@@ -1,14 +1,16 @@
 <template>
-  <ModalsContainer />
-  <header>
-    <AppNavbar />
-  </header>
-  <AppLayout>
-    <RouterView />
-  </AppLayout>
-  <footer>
-    <AppFooter />
-  </footer>
+  <div class="flex flex-col justify-between min-h-screen">
+    <ModalsContainer />
+    <header>
+      <AppNavbar />
+    </header>
+    <AppLayout>
+      <RouterView />
+    </AppLayout>
+    <footer>
+      <AppFooter />
+    </footer>
+  </div>
 </template>
 
 <script setup lang="ts">

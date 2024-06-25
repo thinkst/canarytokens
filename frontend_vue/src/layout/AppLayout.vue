@@ -1,7 +1,7 @@
 <template>
   <main class="flex items-start justify-center mb-24 main-height header-bg">
     <div
-      class="lg:max-w-screen-2xl md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-3xl shadow-lg shadow-grey-200/40 min-h-[50vh] sm:px-40 sm:py-32 p-16 flex-auto"
+      class="lg:max-w-screen-2xl w-[90vw] md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-3xl shadow-lg shadow-grey-200/40 min-h-[50vh] sm:px-40 sm:py-32 p-16"
     >
       <h1
         v-if="route.name !== 'home' && route.name !== 'generate'"

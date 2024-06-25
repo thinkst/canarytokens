@@ -4,7 +4,7 @@
       We're sorry, but we couldn't find the token you're looking for.
     </h2>
     <img
-      :src="getImageUrl('error_visual.png')"
+      :src="getImageUrl('icons/404Icon.svg')"
       alt="Token not found"
       class="w-[50%] max-w-[200px] my-32 not-sr-only"
     />
