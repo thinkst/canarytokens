@@ -76,17 +76,45 @@ const router = createRouter({
     {
       path: '/error',
       name: 'error',
-      component: () => import('../views/ErrorView.vue'),
+      component: () => import('../views/ErrorPageView.vue'),
       meta: {
         title: 'Oh no! Something went wrong!',
+        header: 'We\'re sorry, but we couldn\'t find the token you\'re looking for.',
+        description: 'This could be because the authentication or token provided is incorrect.',
+        action: 'Please check your token details and try again.'
       },
     },
     {
       path: '/:pathMatch(.*)*',
-      name: '404',
-      component: () => import('../views/404View.vue'),
+      name: 'not-found',
+      component: () => import('../views/ErrorPageView.vue'),
       meta: {
         title: '404',
+        header: ' Oops! The page you\'re looking for can\'t be found.',
+        description: 'This might be because the URL is incorrect, or the page has been moved or deleted.',
+        action: 'Please check the URL or go back to the homepage and try again.'
+      },
+    },
+    {
+      path: '/404',
+      name: '404',
+      component: () => import('../views/ErrorPageView.vue'),
+      meta: {
+        title: '404',
+        header: ' Oops! The page you\'re looking for can\'t be found.',
+        description: 'This might be because the URL is incorrect, or the page has been moved or deleted.',
+        action: 'Please check the URL or go back to the homepage and try again.'
+      },
+    },
+    {
+      path: '/500',
+      name: '500',
+      component: () => import('../views/ErrorPageView.vue'),
+      meta: {
+        title: '500',
+        header: 'Oops! Something went wrong on our end.',
+        description: 'This might be due to a temporary issue or an unexpected server error.',
+        action: 'Please try refreshing the page, or go back to the homepage and try again later.'
       },
     },
     ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
