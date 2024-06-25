@@ -76,7 +76,7 @@ const router = createRouter({
     {
       path: '/error',
       name: 'error',
-      component: () => import('../views/ErrorPageView.vue'),
+      component: () => import('../views/ErrorView.vue'),
       meta: {
         title: 'Oh no! Something went wrong!',
         header: 'We\'re sorry, but we couldn\'t find the token you\'re looking for.',
@@ -87,7 +87,7 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('../views/ErrorPageView.vue'),
+      component: () => import('../views/ErrorView.vue'),
       meta: {
         title: '404',
         header: ' Oops! The page you\'re looking for can\'t be found.',
@@ -98,7 +98,7 @@ const router = createRouter({
     {
       path: '/404',
       name: '404',
-      component: () => import('../views/ErrorPageView.vue'),
+      component: () => import('../views/ErrorView.vue'),
       meta: {
         title: '404',
         header: ' Oops! The page you\'re looking for can\'t be found.',
@@ -109,7 +109,7 @@ const router = createRouter({
     {
       path: '/500',
       name: '500',
-      component: () => import('../views/ErrorPageView.vue'),
+      component: () => import('../views/ErrorView.vue'),
       meta: {
         title: '500',
         header: 'Oops! Something went wrong on our end.',
