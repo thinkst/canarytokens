@@ -7,13 +7,13 @@
   </div>
   <div
     v-if="!isLoading && hitsList.length === 0"
-    class="placeholder"
+    class="placeholder-map"
   ></div>
   <GMapMap
     v-else
     v-bind="$attrs"
     ref="mapRef"
-    :zoom="7"
+    :zoom="6"
     :center="center"
     map-type-id="terrain"
     class="grid-areas"
@@ -28,9 +28,9 @@
         :position="m.position"
         :clickable="true"
         :icon="{
-          url: getImageUrl('icons/pin.png'),
-          scaledSize: { width: 30, height: 30 },
-          labelOrigin: { x: 16, y: -30 },
+          url: getImageUrl('icons/map-pin.png'),
+          scaledSize: { width: 60, height: 60 },
+          labelOrigin: { x: 16, y: -60 },
         }"
         @click="handleOpenMarker(m.id)"
       >
@@ -165,152 +165,125 @@ const options = {
   fullscreenControl: false,
   styles: [
     {
-      featureType: 'all',
-      elementType: 'geometry',
+      featureType: 'administrative.country',
+      elementType: 'geometry.stroke',
       stylers: [
         {
-          color: '#202c3e',
+          lightness: '52',
         },
       ],
     },
     {
-      featureType: 'all',
+      featureType: 'administrative.country',
       elementType: 'labels.text.fill',
       stylers: [
         {
-          gamma: 0.01,
-        },
-        {
-          lightness: 20,
-        },
-        {
-          weight: '1.39',
-        },
-        {
-          color: '#ffffff',
+          lightness: '60',
         },
       ],
     },
     {
-      featureType: 'all',
-      elementType: 'labels.text.stroke',
+      featureType: 'administrative.province',
+      elementType: 'labels.text.fill',
       stylers: [
         {
-          weight: '0.96',
-        },
-        {
-          saturation: '9',
-        },
-        {
-          visibility: 'on',
-        },
-        {
-          color: '#000000',
+          lightness: '24',
         },
       ],
     },
     {
-      featureType: 'all',
+      featureType: 'administrative.locality',
+      elementType: 'labels.text.fill',
+      stylers: [
+        {
+          lightness: '29',
+        },
+      ],
+    },
+    {
+      featureType: 'administrative.locality',
       elementType: 'labels.icon',
       stylers: [
         {
-          visibility: 'off',
+          lightness: '47',
+        },
+        {
+          hue: '#ff0000',
         },
       ],
     },
     {
       featureType: 'landscape',
-      elementType: 'geometry',
+      elementType: 'all',
       stylers: [
         {
-          lightness: 30,
+          saturation: 13.400000000000006,
         },
         {
-          saturation: '9',
+          lightness: 57.599999999999994,
         },
         {
-          color: '#00a287',
+          gamma: 1,
         },
       ],
     },
     {
       featureType: 'poi',
-      elementType: 'geometry',
-      stylers: [
-        {
-          saturation: 20,
-        },
-      ],
-    },
-    {
-      featureType: 'poi.park',
       elementType: 'all',
       stylers: [
         {
-          saturation: '-16',
+          saturation: -1.0989010989011234,
         },
         {
-          lightness: '6',
+          lightness: 11.200000000000017,
         },
         {
-          gamma: '1.00',
-        },
-        {
-          color: '#00a287',
+          gamma: 1,
         },
       ],
     },
     {
-      featureType: 'poi.park',
-      elementType: 'geometry',
+      featureType: 'road.highway',
+      elementType: 'all',
       stylers: [
         {
-          lightness: 20,
+          saturation: -61.8,
         },
         {
-          saturation: -20,
+          lightness: 45.599999999999994,
         },
         {
-          visibility: 'simplified',
+          gamma: 1,
         },
       ],
     },
     {
-      featureType: 'road',
-      elementType: 'geometry',
+      featureType: 'road.arterial',
+      elementType: 'all',
       stylers: [
         {
-          lightness: 10,
+          saturation: -100,
         },
         {
-          saturation: -30,
+          lightness: 51.19999999999999,
         },
         {
-          visibility: 'simplified',
+          gamma: 1,
         },
       ],
     },
     {
-      featureType: 'road',
-      elementType: 'geometry.fill',
+      featureType: 'road.local',
+      elementType: 'all',
       stylers: [
         {
-          color: '#00846e',
-        },
-      ],
-    },
-    {
-      featureType: 'road',
-      elementType: 'geometry.stroke',
-      stylers: [
-        {
-          saturation: 25,
+          saturation: -100,
         },
         {
-          lightness: 25,
+          lightness: 52,
         },
         {
-          weight: '0.01',
+          gamma: 1,
         },
       ],
     },
@@ -319,10 +292,37 @@ const options = {
       elementType: 'all',
       stylers: [
         {
-          lightness: -20,
+          saturation: -13.200000000000003,
         },
         {
-          color: '#041f20',
+          lightness: 2.4000000000000057,
+        },
+        {
+          gamma: 1,
+        },
+      ],
+    },
+    {
+      featureType: 'water',
+      elementType: 'geometry.fill',
+      stylers: [
+        {
+          lightness: '38',
+        },
+        {
+          saturation: '-55',
+        },
+      ],
+    },
+    {
+      featureType: 'water',
+      elementType: 'labels.text.fill',
+      stylers: [
+        {
+          lightness: '65',
+        },
+        {
+          saturation: '52',
         },
       ],
     },
@@ -330,12 +330,17 @@ const options = {
 };
 </script>
 
-<style scoped>
-.placeholder {
+<style>
+.placeholder-map {
   background-image: url('@/assets/map_placeholder.png');
   background-size: cover;
   background-position: center;
   border-radius: 16px;
   filter: grayscale(1) opacity(0.3);
+}
+
+.gm-style-iw-chr > button {
+  transform: scale(0.8);
+  height: 24px !important;
 }
 </style>

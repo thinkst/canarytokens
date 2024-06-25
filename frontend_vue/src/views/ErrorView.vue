@@ -1,24 +1,31 @@
 <template>
-  <div class="flex flex-col items-center justify-center align-middle">
+  <div
+    class="flex flex-col items-center justify-center flex-grow h-auto px-16 text-center"
+  >
     <h2 class="text-xl text-grey-500">
-      We're sorry, but we couldn't find the token you're looking for.
+      {{ header }}
     </h2>
     <img
-      :src="getImageUrl('error_visual.png')"
-      alt="Token not found"
+      :src="getImageUrl('icons/errorIcon.svg')"
+      alt="Page Not Found"
       class="w-[50%] max-w-[200px] my-32 not-sr-only"
     />
     <p class="text-center text-grey-400">
-      This could be because the
-      <span class="font-semibold">authentication</span> or
-      <span class="font-semibold">token</span> provided is incorrect.
+      {{ description }}
     </p>
     <p class="text-center text-grey-400">
-      Please check your token details and try again.
+      {{ action }}
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const header = computed(() => route.meta.header);
+const description = computed(() => route.meta.description);
+const action = computed(() => route.meta.action);
 </script>
