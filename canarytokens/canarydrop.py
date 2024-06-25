@@ -343,10 +343,10 @@ class Canarydrop(BaseModel):
     def generate_mysql_usage(
         token: str, domain: str, port: int, encoded: bool = True
     ) -> str:
-        magic_sauce = "SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, "
-        magic_sauce += f"MASTER_PORT={port}, "
-        magic_sauce += f"MASTER_HOST='{domain}', "
-        magic_sauce += f'MASTER_USER=\'{token}", @@lc_time_names, @@hostname, "\';");'
+        magic_sauce = "SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, "
+        magic_sauce += f"SOURCE_PORT={port}, "
+        magic_sauce += f"SOURCE_HOST='{domain}', "
+        magic_sauce += f'SOURCE_USER=\'{token}", @@lc_time_names, @@hostname, "\';");'
         if not encoded:
             usage = textwrap.dedent(
                 f"""
