@@ -5,11 +5,13 @@
     <h3
       class="flex flex-row gap-8 mb-16 text-sm font-semibold text-left text-grey-400"
     >
-      <font-awesome-icon
-        :icon="icon"
-        class="pt-4 text-grey-300"
-        aria-hidden="true"
-      ></font-awesome-icon>
+      <div class="rounded-full bg-grey-200">
+        <img
+          :src="getImageUrl(`${icon}`)"
+          alt="Settings icon"
+          aria-hidden="true"
+        />
+      </div>
       {{ settingType }} Settings
     </h3>
     <slot></slot>
@@ -18,6 +20,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import getImageUrl from '@/utils/getImageUrl';
 
 const props = defineProps<{
   settingType: 'Canarytoken' | 'Notifications';
@@ -26,11 +29,11 @@ const props = defineProps<{
 const icon = computed(() => {
   switch (props.settingType) {
     case 'Canarytoken':
-      return 'gear';
+      return 'icons/settings.svg';
     case 'Notifications':
-      return 'bell';
+      return 'icons/alert.svg';
     default:
-      return 'gear';
+      return 'icons/settings.svg';
   }
 });
 </script>
