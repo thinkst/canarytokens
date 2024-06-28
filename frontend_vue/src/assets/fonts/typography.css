@@ -40,3 +40,12 @@
     url('./fa-solid-900.woff2') format('woff2'),
     url('./fa-solid-900.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'OCR A Extended';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src:
+    url('./ocr-a-extended.ttf') format('truetype'),
+}

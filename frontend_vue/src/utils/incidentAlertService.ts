@@ -105,7 +105,7 @@ export function isNotEmpty(
 }
 
 function isCreditCardtoken(token: string) {
-  return token === TOKENS_TYPE.CREDIT_CARD;
+  return token === TOKENS_TYPE.CREDIT_CARD_V2;
 }
 
 function isAWStoken(token: string) {

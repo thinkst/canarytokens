@@ -9,7 +9,7 @@
     <BaseSkeletonLoader
       v-if="isLoading"
       type="circle"
-      class="ratio-[1:1] w-full h-full"
+      class="ratio-[1:1] w-full h-[96px]"
     />
     <img
       v-if="!isLoading"
