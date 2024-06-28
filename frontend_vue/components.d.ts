@@ -10,6 +10,7 @@ declare module 'vue' {
     BaseButton: typeof import('./src/components/base/BaseButton.vue')['default']
     BaseButtonHowToDeploy: typeof import('./src/components/base/BaseButtonHowToDeploy.vue')['default']
     BaseCodeSnippet: typeof import('./src/components/base/BaseCodeSnippet.vue')['default']
+    BaseContentBlock: typeof import('src/components/base/BaseContentBlock.vue')['default']
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
     BaseFormSelect: typeof import('./src/components/base/BaseFormSelect.vue')['default']
     BaseFormTextField: typeof import('./src/components/base/BaseFormTextField.vue')['default']
