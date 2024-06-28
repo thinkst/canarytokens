@@ -7,8 +7,9 @@ describe('BaseContentBlock', () => {
   it('renders text correctly', () => {
     const label = 'Card Name';
     const text = 'John Doe';
+    const iconName = 'credit-card';
     const wrapper = mount(BaseContentBlock, {
-      props: { label, text, copyContent: true },
+      props: { label, text, iconName, copyContent: true },
       global: {
         stubs: { BaseCopyButton, FontAwesomeIcon },
       },
@@ -21,8 +22,9 @@ describe('BaseContentBlock', () => {
   it('emits click event when button is clicked', async () => {
     const label = 'Card Name';
     const text = 'John Doe';
+    const iconName = 'credit-card';
     const wrapper = mount(BaseContentBlock, {
-      props: { label, text, copyContent: true },
+      props: { label, text, iconName, copyContent: true },
       global: {
         stubs: { BaseCopyButton, FontAwesomeIcon },
       },
@@ -35,9 +37,10 @@ describe('BaseContentBlock', () => {
 
 	it('does not render copy if copyContent is false', async () => {
     const label = 'Card Name';
-    const text = 'John Dode';
+    const text = 'John Dude';
+    const iconName = 'credit-card';
     const wrapper = mount(BaseContentBlock, {
-      props: { label, text, copyContent: false },
+      props: { label, text, iconName, copyContent: false },
       global: {
         stubs: { BaseCopyButton },
       },

@@ -5,15 +5,15 @@
 		<span class="absolute top-[135px] sm:top-[160px] left-[20px] sm:left-[25px]">{{ props.tokenData.expiry }}</span>
 		<span class="absolute top-[135px] sm:top-[160px] left-[135px] sm:left-[165px]">{{ props.tokenData.cvc }}</span>
 	</div>
-	<div class="grid grid-cols-6 p-16 text-sm grid-flow-row-dense gap-8 mt-16 items-center border border-grey-200 rounded-xl shadow-solid-shadow-grey">
+	<div class="grid grid-cols-6 p-16 text-sm grid-flow-row-dense gap-8 mt-24 items-center border border-grey-200 rounded-xl shadow-solid-shadow-grey">
 		<BaseContentBlock
-			class="col-span-6 sm:col-span-4" :label="'Card Name'" :text="props.tokenData.card_name" copy-content />
+			class="col-span-6 sm:col-span-4" :label="'Card Name'" :text="props.tokenData.card_name" :icon-name="'id-card'" copy-content />
 		<BaseContentBlock
-			class="col-span-6 sm:col-span-4" :label="'Card Number'" :text="props.tokenData.card_number" copy-content />
+			class="col-span-6 sm:col-span-4" :label="'Card Number'" :text="props.tokenData.card_number" :icon-name="'credit-card'" copy-content />
 		<BaseContentBlock
-			class="col-span-3 sm:col-span-2" :label="'Expiry'" :text="props.tokenData.expiry" copy-content />
+			class="col-span-3 sm:col-span-2" :label="'Expires'" :text="props.tokenData.expiry" :icon-name="'calendar-day'" copy-content />
 		<BaseContentBlock
-			class="col-span-3 sm:col-span-2" :label="'CVC'" :text="props.tokenData.cvc" copy-content />
+			class="col-span-3 sm:col-span-2" :label="'CVC'" :text="props.tokenData.cvc" :icon-name="'lock'" copy-content />
 	</div>
 </template>
 
