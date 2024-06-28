@@ -165,9 +165,9 @@ async function fetchTokenData() {
 }
 
 async function loadComponent() {
-  // const toke = 'cc'
+  const toke = 'cc'
   dynamicComponent.value = await defineAsyncComponent(
-    () => import(`@/components/tokens/${getTokenType.value}/ManageToken.vue`)
+    () => import(`@/components/tokens/${toke}/ManageToken.vue`)
   );
 }
 

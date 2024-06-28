@@ -23,7 +23,7 @@ const props = defineProps<{
 const tokenInfo = ref({
 	card_name: 'Paul Ndegwa Gichuki',
 	card_number:'0000 0000 0000 0000',
-	expiry: '11/27',
+	expiry: '11/2027',
 	cvc: '344',
 });
 </script>
