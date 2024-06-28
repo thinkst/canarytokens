@@ -247,12 +247,13 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
       ...formValues,
       token_type: getTokenType.value,
     });
-    if (res.status !== 200) {
-      isLoadngSubmit.value = false;
-      triggerSubmit.value = false;
-      errorMessage.value = res.data.error_message;
-      return (isGenerateTokenError.value = true);
-    }
+    console.log(res);
+    // if (res.status !== 200) {
+    //   isLoadngSubmit.value = false;
+    //   triggerSubmit.value = false;
+    //   errorMessage.value = res.data.error_message;
+    //   return (isGenerateTokenError.value = true);
+    // }
     /* AZURE CONFIG Exception handler */
     /* Overwrite backend response for Azure ID Config token type */
     /* It's needed as Azure ID Config returns CSS Cloned Site */

@@ -41,6 +41,19 @@ export const tokenServices: TokenServicesType = {
     ],
     category: TOKEN_CATEGORY.OTHER,
   },
+  [TOKENS_TYPE.CREDIT_CARD]: {
+    label: 'Credit Card',
+    description: 'Get an alert when an attacker attempt to use your credit card.',
+    documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
+    icon: `${TOKENS_TYPE.CREDIT_CARD}.png`,
+    instruction: 'Place it on your computer and get notified when your\'e breached:',
+    howItWorksInstructions: [
+      'We give you unique Credit Card details',
+      'You place it somewhere.',
+      'We send you an alert when that Credit Card is used.',
+    ],
+    category: TOKEN_CATEGORY.OTHER,
+  },
   [TOKENS_TYPE.QRCODE]: {
     label: 'QR code',
     description: 'Get an alert when an attacker follows your QR Code.',
