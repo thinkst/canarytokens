@@ -4,6 +4,8 @@
     class="mt-24"
     variant="info"
     :message="`When someone scans the QR Code with a reader, it will trigger the URL tied to your token and fire an alert.`"
+    text-link="More tips?"
+    @click="() => $emit('howToUse')"
   />
   <p class="mt-24 text-sm"></p>
 </template>
@@ -20,6 +22,8 @@ interface QRCodeTokenBackendType extends NewTokenBackendType {
 const props = defineProps<{
   tokenData: QRCodeTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenSnippetData = ref({
   qrcode_png: props.tokenData.qrcode_png || '',

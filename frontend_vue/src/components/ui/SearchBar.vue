@@ -12,11 +12,11 @@
       :value="value"
       type="text"
       :placeholder="placeholder"
-      class="placeholder:font-thin py-8 px-[2.5rem] border font-semibold resize-none shadow-inner-shadow-grey rounded-3xl border-grey-200"
+      class="placeholder:font-thin px-[2.5rem] border font-semibold resize-none shadow-inner-shadow-grey rounded-3xl border-grey-200 h-32"
     />
     <font-awesome-icon
       icon="magnifying-glass"
-      class="absolute top-[.8rem] left-16 text-grey-300 search-icon duration-150"
+      class="absolute top-[.5rem] left-16 text-grey-200 search-icon duration-150"
     ></font-awesome-icon>
     <button
       v-if="value && value.length > 0"

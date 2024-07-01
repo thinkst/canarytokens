@@ -6,6 +6,7 @@
   <p class="mt-16 text-sm">
     Since DNS is used as the underlying transport, the Source IP will be that of
     a DNS server, not the database server.
+    <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
   </p>
 </template>
 
@@ -13,10 +14,13 @@
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
+import ButtonActivateTokenTips from '@/components/ui/ButtonActivateTokenTips.vue';
 
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenCode = ref({
   hostname: props.tokenData.hostname || '',

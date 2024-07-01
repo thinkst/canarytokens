@@ -1,10 +1,26 @@
 <template>
   <div class="flex flex-col items-center gap-16 my-24 mb-16 text-center">
-    <div class="mt-24 mb-40">
+    <div class="mt-8 mb-40">
       <h1 class="text-4xl font-semibold text-grey-900">
-        Create a Canarytoken, Deploy it somewhere
+        Create a Canarytoken, <br />Deploy it somewhere,
       </h1>
-      <h2 class="mt-8 font-md text-grey-400">Know. When it matters.</h2>
+      <h2 class="mt-16 font-md text-grey-400">
+        Know. When it matters.
+        <a
+          href="https://docs.canarytokens.org/guide"
+          target="_blank"
+        >
+          <div
+            class="inline-block w-[1.1rem] h-[1.1rem] text-xs duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 border-grey-300 text-grey-300"
+          >
+            <font-awesome-icon
+              icon="question"
+              aria-hidden="true"
+            />
+            <span class="sr-only">What is this?</span>
+          </div>
+        </a>
+      </h2>
     </div>
     <SearchFilterTokensHeader
       @filtered-list="filteredList = $event"

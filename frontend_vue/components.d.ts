@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BaseButton: typeof import('./src/components/base/BaseButton.vue')['default']
-    BaseButtonHowToDeploy: typeof import('./src/components/base/BaseButtonHowToDeploy.vue')['default']
     BaseCodeSnippet: typeof import('./src/components/base/BaseCodeSnippet.vue')['default']
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
     BaseFormSelect: typeof import('./src/components/base/BaseFormSelect.vue')['default']

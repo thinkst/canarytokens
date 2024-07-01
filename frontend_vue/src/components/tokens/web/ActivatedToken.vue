@@ -7,6 +7,8 @@
     class="mt-24"
     variant="info"
     :message="`If the URL is requested as an image (e.g. <img src=''>) then your custom image is served. If the URL is surfed in a browser then a blank page is served with fingerprinting Javascript.`"
+    text-link="More tips?"
+    @click="() => $emit('howToUse')"
   />
   <p class="mt-24 text-sm"></p>
 </template>
@@ -19,6 +21,8 @@ import type { NewTokenBackendType } from '@/components/tokens/types';
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenUrl = ref(props.tokenData.token_url);
 </script>

@@ -1,63 +1,69 @@
 <template>
-  <div class="flex flex-col items-center w-full">
-    <div class="footer">
-      <div class="order-1 lg:text-left">
-        <p>
-          By Using This Service, You Agree to
-          <RouterLink
-            to="/legal"
-            class="text-green-500 hover:text-green"
-            >Our Terms of Use.</RouterLink
-          >
-        </p>
-      </div>
-
-      <div class="flex flex-col items-center justify-center order-3 lg:order-3">
-        <div class="flex items-center justify-center text-base">
-          We also build
-          <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
-          <a
-            href="https://canary.tools/"
-            target="_blank"
-          >
-            <LogoFooter class="w-[15rem] min-w-[12rem]" />
-          </a>
-        </div>
-        <div
-          v-if="BUILD_ID"
-          class="mt-8"
+  <div
+    class="flex flex-col items-center justify-center w-full mb-24 text-xs text-center text-grey-400"
+  >
+    <p>
+      By Using This Service, You Agree to
+      <base-link
+        :href="`${basePath}/legal`"
+        target="_blank"
+        >Our Terms of Use.</base-link
+      >
+    </p>
+    <p>
+      Read Our
+      <base-link
+        href="https://docs.canarytokens.org/guide/"
+        target="_blank"
+        >Canarytokens Documentation</base-link
+      >
+    </p>
+    <div class="flex flex-row items-center gap-8 mt-8">
+      <GithubIcon class="w-16 h-16 fill-grey-700" />
+      <github-button
+        href="https://github.com/thinkst/canarytokens"
+        data-color-scheme="no-preference: light_high_contrast; light: light; dark: dark;"
+        data-icon="octicon-star"
+        data-size="large"
+        data-show-count="true"
+        aria-label="Star thinkst/canarytokens on GitHub"
+        >Star</github-button
+      >
+    </div>
+    <div class="flex items-center justify-center mt-24 text-xs">
+      We also build
+      <a
+        href="https://canary.tools/"
+        target="_blank"
+      >
+        <LogoFooter class="min-w-[12rem]" />
+        <a
+          href="https://canary.tools/"
+          target="_blank"
+          class="sr-only"
         >
-          <p>Build ID: {{ BUILD_ID }}</p>
-          <p>
-            (This will be one commit behind the frontend Dist build if you made
-            frontend changes)
-          </p>
-        </div>
-      </div>
-
-      <div class="order-2 lg:text-right lg:order-3">
-        <p>
-          Read Our
-          <base-link
-            href="https://docs.canarytokens.org/guide/"
-            target="_blank"
-            >Canarytokens Documentation</base-link
-          >
-        </p>
-      </div>
+          Canary tools
+        </a>
+      </a>
+    </div>
+    <div
+      v-if="BUILD_ID"
+      class="mt-8"
+    >
+      <p>Build ID: {{ BUILD_ID }}</p>
+      <p>
+        (This will be one commit behind the frontend Dist build if you made
+        frontend changes)
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
 import LogoFooter from '@/components/icons/LogoFooter.vue';
+import GithubButton from 'vue-github-button';
+import GithubIcon from '@/components/icons/GithubIcon.vue';
 
 const BUILD_ID = import.meta.env.VITE_GITHUB_SHA;
+const basePath = import.meta.env.BASE_URL;
 </script>
-
-<style scoped>
-.footer {
-  @apply lg:max-w-screen-2xl w-full flex items-center flex-col lg:flex-row justify-center lg:justify-between gap-4 lg:gap-40 mb-24 mx-16 px-40 text-xs text-center text-grey-400;
-}
-</style>
