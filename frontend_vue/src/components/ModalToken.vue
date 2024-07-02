@@ -134,6 +134,7 @@ import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
+import { launchConfetti } from '@/utils/confettiEffect';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -262,6 +263,7 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     modalType.value = ModalType.NewToken;
     // Keep track of loaded components
     componentStack.value.push(modalType.value);
+    launchConfetti();
   } catch (err) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
