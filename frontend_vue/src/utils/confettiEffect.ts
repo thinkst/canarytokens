@@ -25,7 +25,7 @@ export function launchConfetti() {
   myConfetti({
     particleCount: 100,
     spread: 160,
-    origin: { y: 1 },
+    origin: { y: 0.9 },
     colors: ['#F2059F', '#04D9B2', '#80C7F2'],
   });
 
