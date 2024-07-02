@@ -176,7 +176,7 @@ const title = computed(() => {
     case ModalType.AddToken:
       return `Create a ${tokenServices[props.selectedToken].label} Token`;
     case ModalType.NewToken:
-      return 'New Token created!';
+      return 'New Token Created!';
     case ModalType.HowToUse:
       return 'How does it work?';
     default:

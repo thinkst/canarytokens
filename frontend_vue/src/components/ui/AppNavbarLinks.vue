@@ -100,7 +100,7 @@ const menuExternalLinkItems = computed(() => {
       icon: 'arrow-up-right-from-square',
     },
     {
-      name: 'Canarytools',
+      name: 'Thinkst Canary',
       url: 'https://canary.tools/',
       icon: 'arrow-up-right-from-square',
     },

@@ -4,7 +4,9 @@
       <h1 class="text-4xl font-semibold text-grey-900">
         Create a Canarytoken, <br />Deploy it somewhere,
       </h1>
-      <h2 class="mt-16 font-md text-grey-400">
+      <h2
+        class="flex flex-row items-center justify-center gap-4 mt-16 leading-none font-md text-grey-400"
+      >
         Know. When it matters.
         <a
           href="https://docs.canarytokens.org/guide"

@@ -19,8 +19,11 @@
       required
       full-width
     ></BaseFormTextField>
+
+    <!-- Add Webhook Notifications -->
+
     <button
-      class="self-end px-8 py-4 mb-8 text-xs border rounded-full w-fit grow-0 text-grey-400 border-grey-200 hover:text-green-500 hover:border-green-500"
+      class="flex flex-row items-center self-end gap-8 px-8 py-4 mb-8 text-xs border rounded-full w-fit grow-0 text-grey-400 border-grey-200 hover:text-green-500 hover:border-green-500"
       @click.prevent="enableWebhook = !enableWebhook"
     >
       <font-awesome-icon
@@ -28,6 +31,7 @@
       ></font-awesome-icon>
       Add Webhook Notification
     </button>
+
     <BaseFormTextField
       v-if="enableWebhook"
       id="webhook_url"

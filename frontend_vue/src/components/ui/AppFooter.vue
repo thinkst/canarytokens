@@ -22,7 +22,7 @@
       <GithubIcon class="w-16 h-16 fill-grey-700" />
       <github-button
         href="https://github.com/thinkst/canarytokens"
-        data-color-scheme="no-preference: light_high_contrast; light: light; dark: dark;"
+        data-color-scheme="no-preference: light_high_contrast; light: light; dark: light;"
         data-icon="octicon-star"
         data-size="large"
         data-show-count="true"
@@ -30,7 +30,7 @@
         >Star</github-button
       >
     </div>
-    <div class="flex items-center justify-center mt-24 text-xs">
+    <div class="flex items-center justify-center mt-8 text-xs">
       We also build
       <a
         href="https://canary.tools/"
