@@ -5,6 +5,8 @@
     class="mt-24"
     variant="info"
     message="When the MySQL statements are run, your Canarytoken will be triggered."
+    text-link="More tips?"
+    @click="() => $emit('howToUse')"
   />
 </template>
 
@@ -16,6 +18,8 @@ import type { NewTokenBackendType } from '@/components/tokens/types';
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenSnippetData = ref({
   hostname: props.tokenData.hostname || '',

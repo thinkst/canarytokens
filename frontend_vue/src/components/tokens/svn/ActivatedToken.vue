@@ -15,7 +15,7 @@
   ></BaseCodeSnippet>
   <p class="mt-24 text-sm">
     The source IP address shown in the alert is the DNS server, not the end
-    user.
+    user. <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
   </p>
 </template>
 
@@ -24,10 +24,13 @@ import { ref, computed } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
 import generateSVNToken from './generateSVNToken.ts';
+import ButtonActivateTokenTips from '@/components/ui/ButtonActivateTokenTips.vue';
 
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenHostname = ref(props.tokenData.hostname);
 

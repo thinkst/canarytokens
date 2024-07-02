@@ -42,17 +42,11 @@
               : 'text-grey-400 group hover:text-green mobile-link flex flex-row gap-8 items-center justify-end'
           "
         >
-          <component
-            :is="item.icon || 'font-awesome-icon'"
-            :icon="item.FontAwesomeIcon"
-            class="w-[1rem] h-[1rem] max-w-[1rem]"
-            :class="
-              !props.isMobile
-                ? 'fill-green-50 group-hover:fill-white'
-                : 'fill-grey-400 group-hover:fill-green-600'
-            "
+          <font-awesome-icon
+            v-if="item.icon"
+            :icon="item.icon"
+            class="w-[0.8rem]"
           />
-
           {{ item.name }}</a
         >
       </li>
@@ -64,7 +58,6 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { ENV_MODE } from '@/constants.ts';
-import GithubIcon from '@/components/icons/GithubIcon.vue';
 
 const props = defineProps({
   isMobile: Boolean,
@@ -104,12 +97,12 @@ const menuExternalLinkItems = computed(() => {
     {
       name: 'Documentation',
       url: 'https://docs.canarytokens.org/guide',
-      FontAwesomeIcon: 'arrow-up-right-from-square',
+      icon: 'arrow-up-right-from-square',
     },
     {
-      name: 'Github',
-      url: 'https://github.com/thinkst/canarytokens',
-      icon: GithubIcon,
+      name: 'Thinkst Canary',
+      url: 'https://canary.tools/',
+      icon: 'arrow-up-right-from-square',
     },
   ];
 

@@ -30,7 +30,7 @@
         {{ isHoverCard ? 'Create Token' : title }}
       </div>
     </button>
-    <BaseButtonHowToDeploy
+    <ButtonHowToDeploy
       :token-name="title"
       :is-open="false"
       size="big"
@@ -45,6 +45,7 @@ import { ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import ModalToken from '@/components/ModalToken.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
+import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 
 const emit = defineEmits(['clickToken']);
 
@@ -86,10 +87,10 @@ function handleMouseLeave() {
 .token-card:hover,
 .token-card:focus,
 .token-card:focus-within {
-  @apply border-green shadow-solid-shadow-green-500-sm;
+  @apply border-green-600 shadow-solid-shadow-green-600-sm;
 
   .card-button {
-    @apply from-green to-green-200 text-white border-b-green shadow-solid-shadow-green-500-sm bg-gradient-to-b outline-none;
+    @apply text-white border-b-green-600 shadow-solid-shadow-green-600-sm bg-green-500 outline-none;
   }
 }
 </style>

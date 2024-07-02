@@ -8,6 +8,8 @@
     class="mt-24"
     variant="info"
     message="This WireGuard config can be installed anywhere WireGuard is used, such as on phones, laptops and servers."
+    text-link="More tips?"
+    @click="() => $emit('howToUse')"
   />
   <p class="mt-24 text-center">Don't have the WireGuard app?</p>
   <div class="flex flex-row items-center justify-center gap-16 mt-16">
@@ -43,6 +45,8 @@ import TokenDisplay from './TokenDisplay.vue';
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenSnippetData = ref({
   qr_code: props.tokenData.qr_code || '',
