@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowRight, faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import BaseButtonHowToDeploy from '@/components/base/ButtonHowToDeploy.vue';
+import ButtonHowToDeploy from './ButtonHowToDeploy.vue';
 import CardToken from './CardToken.vue';
 import BaseSkeletonLoader from '../base/BaseSkeletonLoader.vue';
 
@@ -34,7 +34,7 @@ describe('BaseCardToken.vue', () => {
     const wrapper = mount(CardToken, {
       props: { title, description, logoImgUrl, selectedToken },
       global: {
-        stubs: { FontAwesomeIcon, BaseButtonHowToDeploy, BaseSkeletonLoader },
+        stubs: { FontAwesomeIcon, ButtonHowToDeploy, BaseSkeletonLoader },
       },
     });
 
@@ -50,9 +50,9 @@ describe('BaseCardToken.vue', () => {
     const logoImgUrl = 'aws_keys.png';
 
     const wrapper = mount(CardToken, {
-      props: { title, description, selectedToken, logoImgUrl},
+      props: { title, description, selectedToken, logoImgUrl },
       global: {
-        stubs: { FontAwesomeIcon, BaseButtonHowToDeploy, BaseSkeletonLoader },
+        stubs: { FontAwesomeIcon, ButtonHowToDeploy, BaseSkeletonLoader },
       },
     });
 
@@ -69,7 +69,7 @@ describe('BaseCardToken.vue', () => {
     const wrapper = mount(CardToken, {
       props: { title, description, logoImgUrl, selectedToken },
       global: {
-        stubs: { FontAwesomeIcon, BaseButtonHowToDeploy, BaseSkeletonLoader },
+        stubs: { FontAwesomeIcon, ButtonHowToDeploy, BaseSkeletonLoader },
       },
     });
 
