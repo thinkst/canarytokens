@@ -1,10 +1,12 @@
 <template>
   <TokenDisplay :token-data="tokenData" />
   <p class="mt-16 text-sm">
-    This token is triggered when someone uses this credential pair to
-    access AWS programmatically (through the API). The key is unique. i.e. There
-    is no chance of somebody guessing these credentials.
+    This token is triggered when someone uses this credential pair to access AWS
+    programmatically (through the API). The key is unique. i.e. There is no
+    chance of somebody guessing these credentials.
   </p>
+  <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
+
   <base-message-box
     class="mt-24"
     variant="info"
@@ -17,10 +19,13 @@
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
+import ButtonActivateTokenTips from '@/components/ui/ButtonActivateTokenTips.vue';
 
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenData = ref({
   aws_access_key_id: props.tokenData.aws_access_key_id || '',

@@ -54,7 +54,7 @@
 
         <!-- Content -->
         <div
-          class="flex flex-col items-center justify-center px-8 py-16 sm:px-32 bg-grey-50 text-grey-800"
+          class="flex flex-col items-center justify-center px-16 py-16 sm:px-32 bg-grey-50 text-grey-800"
         >
           <!-- Default slot -->
           <slot></slot>

@@ -3,6 +3,7 @@
   <p class="mt-16 text-sm">
     Remember, it gets triggered whenever someone performs a DNS lookup of the
     hostname.
+    <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
   </p>
   <base-message-box
     class="mt-24"
@@ -16,10 +17,13 @@
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
+import ButtonActivateTokenTips from '@/components/ui/ButtonActivateTokenTips.vue';
 
 const props = defineProps<{
   tokenData: NewTokenBackendType;
 }>();
+
+defineEmits(['howToUse']);
 
 const tokenUrl = ref(props.tokenData.hostname || '');
 </script>

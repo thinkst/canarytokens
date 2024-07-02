@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowRight, faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import BaseButtonHowToDeploy from '@/components/base/BaseButtonHowToDeploy.vue';
+import BaseButtonHowToDeploy from '@/components/base/ButtonHowToDeploy.vue';
 import CardToken from './CardToken.vue';
 import BaseSkeletonLoader from '../base/BaseSkeletonLoader.vue';
 

@@ -23,7 +23,7 @@
     <!-- How to deploy ? Button-->
     <template #header-btn-right>
       <template v-if="!isLoading && modalType === ModalType.AddToken">
-        <BaseButtonHowToDeploy
+        <ButtonHowToDeploy
           :token-name="tokenServices[props.selectedToken].label"
           size="big"
           :is-open="showTooltip"
@@ -45,7 +45,10 @@
       </template>
     </Suspense>
     <Suspense v-if="modalType === ModalType.NewToken">
-      <ModalContentActivatedToken :new-token-response="newTokenResponse" />
+      <ModalContentActivatedToken
+        :new-token-response="newTokenResponse"
+        @how-to-use="handleHowToUseButton"
+      />
       <template #fallback>
         <ModalContentActivatedTokenLoader />
       </template>
@@ -127,6 +130,7 @@ import ModalContentGenerateToken from './ModalContentGenerateToken.vue';
 import ModalContentGenerateTokenLoader from '@/components/ui/ModalContentGenerateTokenLoader.vue';
 import ModalContentActivatedTokenLoader from '@/components/ui/ModalContentActivatedTokenLoader.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
+import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
@@ -170,9 +174,9 @@ onMounted(() => {
 const title = computed(() => {
   switch (modalType.value) {
     case ModalType.AddToken:
-      return `Add  ${tokenServices[props.selectedToken].label} Token`;
+      return `Create a ${tokenServices[props.selectedToken].label} Token`;
     case ModalType.NewToken:
-      return 'New Token';
+      return 'New Token Created!';
     case ModalType.HowToUse:
       return 'How does it work?';
     default:

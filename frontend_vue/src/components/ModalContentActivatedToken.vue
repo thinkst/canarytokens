@@ -23,6 +23,7 @@
     <component
       :is="dynamicComponent"
       :token-data="newTokenResponse"
+      @how-to-use="$emit('howToUse')"
     />
   </div>
 </template>
@@ -36,6 +37,8 @@ import TokenIcon from '@/components/icons/TokenIcon.vue';
 const props = defineProps<{
   newTokenResponse: { token_type: string } & Record<string, unknown>;
 }>();
+
+defineEmits(['howToUse']);
 
 const dynamicComponent = ref({
   props: {},

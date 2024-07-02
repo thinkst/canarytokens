@@ -1,5 +1,5 @@
 @import url('./assets/fonts/typography.css');
-@import "vue-select/dist/vue-select.css";
+@import 'vue-select/dist/vue-select.css';
 
 @tailwind base;
 @tailwind components;
@@ -31,7 +31,6 @@ body {
   -webkit-font-smoothing: antialiased;
   view-transition-name: page;
 }
-
 
 img,
 picture,
@@ -81,7 +80,6 @@ p {
 }
 
 .v-popper--theme-tooltip {
-  max-width: 200px;
   .v-popper__inner {
     border-radius: 9px;
     font-size: 14px;
