@@ -26,7 +26,7 @@ export function launchConfetti() {
     particleCount: 100,
     spread: 160,
     origin: { y: 1 },
-    colors: ['#32c37f', '#0b8e70', '#46a9d7'],
+    colors: ['#F2059F', '#04D9B2', '#80C7F2'],
   });
 
   setTimeout(() => {
