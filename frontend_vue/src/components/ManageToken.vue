@@ -42,7 +42,7 @@
     class="md:mx-32 md:max-w-[50vw] w-full"
   >
     <div
-      class="flex flex-col justify-center p-16 md:p-32 rounded-xl bg-grey-50"
+      class="flex flex-col justify-center p-16 md:p-32 rounded-3xl bg-grey-50"
     >
       <Suspense>
         <component

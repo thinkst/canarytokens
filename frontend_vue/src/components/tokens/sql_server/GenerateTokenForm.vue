@@ -1,10 +1,11 @@
 <template>
   <BaseGenerateTokenSettings setting-type="Canarytoken">
     <div class="text-center">
-      <label
-        for="radio-group-action"
-        class="mb-4 ml-4 font-semibold"
-        >Action</label
+      <BaseLabel
+        id="radio-group-action"
+        required
+      >
+        Action</BaseLabel
       >
       <div class="text-xs leading-0 text-red">{{ errorSqlServer }}</div>
       <div
@@ -14,6 +15,7 @@
         <BaseRadioInput
           id="insert"
           value="INSERT"
+          required
           name="sql_server_sql_action"
           label="INSERT"
           @select-value="handleSelectedValue"
@@ -49,12 +51,14 @@
         id="sql_server_view_name"
         label="On this View"
         placeholder="YOUR_VIEW_NAME"
+        required
       />
       <BaseFormTextField
         v-else
         id="sql_server_table_name"
         label="On this Table"
         placeholder="YOUR_TABLE_NAME"
+        required
       />
     </div>
   </BaseGenerateTokenSettings>

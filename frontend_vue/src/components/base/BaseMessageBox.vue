@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center justify-start flex-grow w-full gap-8 px-24 py-16 rounded-xl md:flex-row"
+    class="flex flex-col items-center justify-start flex-grow w-full gap-8 px-24 py-16 rounded-2xl md:flex-row"
     :class="boxClasses"
   >
     <div

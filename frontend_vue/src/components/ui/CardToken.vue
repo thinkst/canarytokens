@@ -1,7 +1,8 @@
 <template>
   <li class="relative flex token-card-wrapper">
     <button
-      class="group border flex flex-1 flex-col group bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center"
+      ref="cardTokenRef"
+      class="group border flex flex-1 flex-col group bg-white rounded-2xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center"
       @click.stop="handleClickToken"
       @mouseover="handleMouseOver"
       @focus="handleMouseOver"
@@ -25,7 +26,7 @@
       </div>
       <!--- CTA text --->
       <div
-        class="w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[3rem] rounded-b-xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex px-8"
+        class="w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[3rem] rounded-b-2xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex px-8"
       >
         {{ isHoverCard ? 'Create Token' : title }}
       </div>
@@ -57,6 +58,7 @@ const props = defineProps<{
 }>();
 
 const isHoverCard = ref(false);
+const cardTokenRef = ref();
 
 function handleHowToUseButton() {
   const { open, close } = useModal({
@@ -72,6 +74,10 @@ function handleHowToUseButton() {
 
 function handleClickToken() {
   emit('clickToken');
+  // remove focus from selected card
+  if (cardTokenRef.value) {
+    cardTokenRef.value.blur();
+  }
 }
 
 function handleMouseOver() {

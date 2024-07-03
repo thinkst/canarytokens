@@ -1,9 +1,10 @@
 <template>
   <BaseGenerateTokenSettings setting-type="Canarytoken">
-    <label
-      for="radio-group-action"
-      class="mb-8 ml-4 font-semibold text-center"
-      >Upload your file</label
+    <BaseLabel
+      id="signed_exe"
+      class="text-center"
+      required
+      >Upload your file</BaseLabel
     >
     <BaseUploadFile
       id="signed_exe"

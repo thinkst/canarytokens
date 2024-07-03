@@ -26,7 +26,7 @@
     to show incident info all screen height -->
     <div
       id="alerts-card-list"
-      class="flex-col md:p-16 md:bg-grey-50 md:rounded-xl md:overflow-scroll md:max-h-[70svh]"
+      class="flex-col md:p-16 md:bg-grey-50 md:rounded-3xl md:overflow-scroll md:max-h-[70svh]"
       :class="{ 'hidden md:block': selectedAlert }"
     >
       <!-- TODO: add number of alerts? -->

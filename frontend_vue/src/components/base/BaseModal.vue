@@ -14,11 +14,11 @@
       @click.self="() => emit('update:modelValue', false)"
     >
       <div
-        class="md:w-[60vw] lg:w-[50vw] mx-auto bg-white rounded-lg max-w-screen-lg sm:self-center my-auto"
+        class="md:w-[60vw] lg:w-[50vw] mx-auto bg-white rounded-3xl max-w-screen-lg sm:self-center my-auto"
       >
         <!-- Header -->
         <div
-          class="relative flex flex-row items-center justify-between px-16 py-24 bg-white rounded-t-lg header"
+          class="relative flex flex-row items-center justify-between px-16 py-24 bg-white rounded-t-3xl header"
         >
           <!-- Button left corner slot -->
           <span class="w-24">
@@ -64,7 +64,7 @@
         </div>
         <!-- Footer -->
         <div
-          class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-lg mb-16text-center"
+          class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-3xl mb-16text-center"
         >
           <slot name="footer"></slot>
         </div>
