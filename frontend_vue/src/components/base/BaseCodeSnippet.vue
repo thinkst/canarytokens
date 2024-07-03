@@ -7,7 +7,7 @@
       >{{ label }}</label
     >
 
-    <div class="relative bg-white border rounded-lg border-grey-100">
+    <div class="relative bg-white border rounded-2xl border-grey-100">
       <button
         v-if="showExpandButton"
         id="show-all-button"
@@ -30,7 +30,7 @@
         :id="label"
         :code="code"
         :lang="lang"
-        class="min-h-[3.5rem] overflow-scroll rounded-xl"
+        class="min-h-[3.5rem] overflow-scroll rounded-2xl"
         :style="{
           height: componentHeight,
         }"

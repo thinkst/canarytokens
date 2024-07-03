@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative border flex-1 group flex flex-col px-16 sm:px-24 pt-16 pb-24 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200"
+    class="relative border flex-1 group flex flex-col px-16 sm:px-24 pt-16 pb-24 bg-white rounded-3xl top-[0px] shadow-solid-shadow-grey border-grey-200"
   >
     <h3
       v-if="settingType"

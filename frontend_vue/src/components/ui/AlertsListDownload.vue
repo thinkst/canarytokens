@@ -1,6 +1,6 @@
 <template>
   <li
-    class="flex flex-row flex-wrap items-center justify-between px-16 py-8 mb-8 bg-white rounded-xl shadow-solid-shadow-grey border border-grey-100"
+    class="flex flex-row flex-wrap items-center justify-between px-16 py-8 mb-8 bg-white border rounded-2xl shadow-solid-shadow-grey border-grey-100"
   >
     <p class="text-sm text-grey-500">Download list</p>
     <div class="flex flex-row">
