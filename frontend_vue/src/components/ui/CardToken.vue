@@ -1,6 +1,7 @@
 <template>
   <li class="relative flex token-card-wrapper">
     <button
+      ref="cardTokenRef"
       class="group border flex flex-1 flex-col group bg-white rounded-2xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center"
       @click.stop="handleClickToken"
       @mouseover="handleMouseOver"
@@ -57,6 +58,7 @@ const props = defineProps<{
 }>();
 
 const isHoverCard = ref(false);
+const cardTokenRef = ref();
 
 function handleHowToUseButton() {
   const { open, close } = useModal({
@@ -72,6 +74,10 @@ function handleHowToUseButton() {
 
 function handleClickToken() {
   emit('clickToken');
+  // remove focus from selected card
+  if (cardTokenRef.value) {
+    cardTokenRef.value.blur();
+  }
 }
 
 function handleMouseOver() {
