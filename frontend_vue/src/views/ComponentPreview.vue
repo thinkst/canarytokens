@@ -164,6 +164,17 @@
           :has-error="true"
           error-message="Error message here"
         ></BaseFormTextField>
+        <BaseFormTextField
+          id="email"
+          type="text"
+          required
+          placeholder="your-email@email.com"
+          label="Arrow in third position"
+          full-width
+          :has-arrow="true"
+          arrow-variant="two"
+          :arrow-word-position="3"
+        />
       </div>
     </div>
     <div>
