@@ -1,8 +1,9 @@
 <template>
   <div
-    class="relative border flex-1 group flex flex-col px-16 sm:px-24 pt-16 pb-24 bg-white rounded-xl top-[0px] shadow-solid-shadow-grey border-grey-200"
+    class="relative border flex-1 group flex flex-col px-16 sm:px-24 pt-16 pb-24 bg-white rounded-3xl top-[0px] shadow-solid-shadow-grey border-grey-200"
   >
     <h3
+      v-if="settingType"
       class="flex flex-row gap-8 mb-16 text-sm font-semibold text-left text-grey-400"
     >
       <font-awesome-icon
@@ -12,6 +13,10 @@
       ></font-awesome-icon>
       {{ settingType }} Settings
     </h3>
+    <span
+      v-else
+      class="mb-8"
+    ></span>
     <slot></slot>
   </div>
 </template>
@@ -20,15 +25,13 @@
 import { computed } from 'vue';
 
 const props = defineProps<{
-  settingType: 'Canarytoken' | 'Notifications';
+  settingType?: 'Canarytoken';
 }>();
 
 const icon = computed(() => {
   switch (props.settingType) {
     case 'Canarytoken':
       return 'gear';
-    case 'Notifications':
-      return 'bell';
     default:
       return 'gear';
   }

@@ -16,7 +16,7 @@
     :zoom="6"
     :center="center"
     map-type-id="terrain"
-    class="grid-areas"
+    class="grid-areas rounded-2xl"
     :options="options"
     ><GMapCluster
       :renderer="{ render }"
@@ -335,12 +335,16 @@ const options = {
   background-image: url('@/assets/map_placeholder.png');
   background-size: cover;
   background-position: center;
-  border-radius: 16px;
+  border-radius: 1.5rem;
   filter: grayscale(1) opacity(0.3);
 }
 
 .gm-style-iw-chr > button {
   transform: scale(0.8);
   height: 24px !important;
+}
+
+.vue-map {
+  @apply rounded-3xl;
 }
 </style>

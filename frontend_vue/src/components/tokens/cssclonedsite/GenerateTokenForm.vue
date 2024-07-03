@@ -4,8 +4,9 @@
       id="expected_referrer"
       type="text"
       placeholder="e.g. thinkst.com"
-      label="Domain of protected wbsite"
+      label="Domain of protected website"
       full-width
+      required
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications

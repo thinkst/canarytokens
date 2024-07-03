@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Notifications">
+  <BaseGenerateTokenSettings>
     <div class="flex flex-col gap-8 mb-8">
       <BaseFormTextField
         id="email"
@@ -8,6 +8,9 @@
         placeholder="your-email@email.com"
         label="Mail me here when the alert fires"
         full-width
+        :has-arrow="true"
+        arrow-variant="one"
+        :arrow-word-position="3"
       />
     </div>
 
@@ -18,6 +21,9 @@
       multiline
       required
       full-width
+      :has-arrow="true"
+      arrow-variant="two"
+      :arrow-word-position="4"
     ></BaseFormTextField>
 
     <!-- Add Webhook Notifications -->
@@ -39,6 +45,9 @@
       placeholder="http://your-webhook-url.com"
       label="Notify me here when the alert fires"
       full-width
+      :has-arrow="true"
+      arrow-variant="one"
+      :arrow-word-position="3"
     />
   </BaseGenerateTokenSettings>
 </template>

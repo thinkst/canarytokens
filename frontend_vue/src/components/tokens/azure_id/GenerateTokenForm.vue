@@ -7,6 +7,7 @@
       label="Azure ID certificate name"
       full-width
       helper-message="Add a .pem extension, e.g Code_Sign_Server_3.pem"
+      required
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications

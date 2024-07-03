@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid sm:grid-cols-[1fr_5fr] border gap-32 border-grey-200 items-center p-32 bg-white rounded-xl shadow-solid-shadow-grey"
+    class="grid sm:grid-cols-[1fr_5fr] border gap-32 border-grey-200 items-center p-32 bg-white rounded-3xl shadow-solid-shadow-grey"
   >
     <div class="justify-center hidden sm:flex">
       <img

@@ -7,16 +7,21 @@
     class="flex flex-col text-grey-800 textfield-wrapper"
     :class="{ 'w-full': fullWidth }"
   >
-    <label
-      :for="id"
-      class="mb-4 ml-4 font-semibold"
-      >{{ label }}
-      <span
-        v-if="required"
-        class="text-green-500"
-        >*</span
-      ></label
+    <BaseLabel
+      v-if="!hasArrow"
+      :id="id"
+      :required="required"
     >
+      {{ label }}
+    </BaseLabel>
+    <BaseLabelArrow
+      v-if="hasArrow"
+      :id="id"
+      :label="label"
+      :arrow-variant="arrowVariant"
+      :arrow-word-position="arrowWordPosition"
+      :required="required"
+    />
     <component
       :is="inputType"
       :id="id"
@@ -25,7 +30,7 @@
       :class="[
         { 'border-red shadow-none': errorMessage },
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },
-        { 'hide-scrollbar': multiline }
+        { 'hide-scrollbar': multiline },
       ]"
       :style="`height: ${multilineHeight}`"
       :placeholder="placeholder"
@@ -71,6 +76,10 @@ const props = defineProps<{
   fullWidth?: boolean;
   disabled?: boolean;
   value?: string;
+  hasArrow?: boolean;
+  arrowVariant?: 'one' | 'two';
+  // positions the arrow under the word at the given index
+  arrowWordPosition?: number;
 }>();
 
 const inputType = computed(() => (props.multiline ? 'textarea' : 'input'));
@@ -92,9 +101,10 @@ function validateIfErrorExists(e: Event) {
 <style>
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
-.hide-scrollbar::-webkit-scrollbar { /* WebKit */
+.hide-scrollbar::-webkit-scrollbar {
+  /* WebKit */
   width: 0;
   height: 0;
 }

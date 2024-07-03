@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-32 m-4 bg-white rounded-md">
+  <div class="pb-32 m-4 bg-white rounded-2xl">
     <div class="sticky top-[0px] bg-white h-[4rem] sm:h-40 flex justify-end">
       <button
         type="button"

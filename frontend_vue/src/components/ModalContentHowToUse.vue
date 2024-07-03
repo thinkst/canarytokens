@@ -17,7 +17,7 @@
         <li
           v-for="item in parsedHowToUseToken"
           :key="item.id"
-          class="grid justify-start grid-flow-col gap-8 px-16 py-8 text-left bg-white border rounded-xl border-grey-200 text-grey-500"
+          class="grid justify-start grid-flow-col gap-8 px-16 py-8 text-left bg-white border rounded-2xl border-grey-200 text-grey-500"
         >
           <component
             :is="item.component"

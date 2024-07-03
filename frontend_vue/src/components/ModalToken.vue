@@ -179,7 +179,7 @@ const title = computed(() => {
     case ModalType.NewToken:
       return 'New Token Created!';
     case ModalType.HowToUse:
-      return 'How does it work?';
+      return 'How does this work?';
     default:
       return 'Add Token';
   }
