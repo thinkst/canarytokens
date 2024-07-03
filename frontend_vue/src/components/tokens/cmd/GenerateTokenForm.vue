@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Canarytoken">
+  <BaseGenerateTokenSettings setting-type="Additional">
     <BaseFormTextField
       id="cmd_process"
       type="text"

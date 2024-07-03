@@ -1,11 +1,12 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Canarytoken">
+  <BaseGenerateTokenSettings setting-type="Additional">
     <BaseFormTextField
       id="clonedsite"
       type="text"
       placeholder="e.g. thinkst.com"
       label="Domain of protected website"
       full-width
+      required
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications

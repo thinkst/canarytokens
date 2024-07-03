@@ -171,7 +171,7 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.CLOUD,
   },
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
-    label: 'Microsoft Excel document',
+    label: 'Microsoft Excel',
     description:
       'Get an alert when an attacker opens your Microsoft Excel document.',
     documentationLink:
@@ -186,7 +186,7 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.MICROSOFT_WORD]: {
-    label: 'Microsoft Word document',
+    label: 'Microsoft Word',
     description:
       'Get an alert when an attacker opens your Microsoft Word document.',
     documentationLink:
@@ -258,7 +258,7 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.PDF]: {
-    label: 'Acrobat Reader PDF document',
+    label: 'Acrobat Reader PDF',
     description:
       'Get an alert when an attacker opens your PDF document in Acrobat Reader.',
     documentationLink:
@@ -289,7 +289,8 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.CLONED_WEBSITE]: {
     label: 'JS Cloned website',
-    description: 'Get an alert (using Javascript) when an attacker clones your website.',
+    description:
+      'Get an alert (using Javascript) when an attacker clones your website.',
     documentationLink:
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
     icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,

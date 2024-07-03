@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Canarytoken">
+  <BaseGenerateTokenSettings setting-type="Additional">
     <BaseFormTextField
       id="azure_id_cert_file_name"
       type="text"
@@ -7,6 +7,7 @@
       label="Azure ID certificate name"
       full-width
       helper-message="Add a .pem extension, e.g Code_Sign_Server_3.pem"
+      required
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications

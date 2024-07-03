@@ -1,9 +1,10 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Canarytoken">
-    <label
-      for="radio-group-action"
-      class="mb-8 ml-4 font-semibold text-center"
-      >Upload your image</label
+  <BaseGenerateTokenSettings setting-type="Additional">
+    <BaseLabel
+      id="web_image"
+      class="text-center"
+      required
+      >Upload your image</BaseLabel
     >
     <BaseUploadFile
       id="web_image"

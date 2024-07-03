@@ -13,6 +13,7 @@ declare module 'vue' {
     BaseFormSelect: typeof import('./src/components/base/BaseFormSelect.vue')['default']
     BaseFormTextField: typeof import('./src/components/base/BaseFormTextField.vue')['default']
     BaseGenerateTokenSettings: typeof import('./src/components/base/BaseGenerateTokenSettings.vue')['default']
+    BaseLabel: typeof import('./src/components/base/BaseLabel.vue')['default']
     BaseLink: typeof import('./src/components/base/BaseLink.vue')['default']
     BaseMessageBox: typeof import('./src/components/base/BaseMessageBox.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']

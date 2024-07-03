@@ -6,15 +6,22 @@
     :is-animation="true"
     :has-shadow="true"
   />
-  <Form
-    ref="generateTokenFormRef"
-    :validation-schema="schema"
-    class="flex flex-col w-full md:w-[90%] lg:w-[70%] gap-32 px-8 mt-32 mb-16"
-    @submit="onSubmit"
-    @invalid-submit="onInvalidSubmit"
-  >
-    <component :is="dynamicForm" />
-  </Form>
+  <div class="w-full md:w-[90%] lg:w-[70%] px-8 mt-32 mb-8">
+    <Form
+      ref="generateTokenFormRef"
+      :validation-schema="schema"
+      class="flex flex-col gap-32"
+      @submit="onSubmit"
+      @invalid-submit="onInvalidSubmit"
+    >
+      <component :is="dynamicForm" />
+    </Form>
+    <div class="w-full mt-16 text-left">
+      <p class="text-xs text-grey-400">
+        <span class="text-green">*</span> Required field
+      </p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
