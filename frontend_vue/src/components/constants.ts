@@ -111,3 +111,31 @@ export const ENTRA_ID_FEEDBACK_MESSAGES = {
 }
 
 export const MAX_UPLOAD_SIZE = 1024 * 1024 * 1;
+
+export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string>} = {
+  web: ['#424242', '#3B3B3B', '#41D780', '#71E487'],
+  dns: ['#38D47F', '#37877E', '#7FF0C2', '#43D88A', '#38907F'],
+  log4shell: ['#F2F2F2', '#E84F40', '#F36A5C', '#FDBCB0'],
+  qr_code: ['#B4B4B4', '#E2E3E3', '#A0A0A0', '#737373'],
+  my_sql: ['#C2E7EF', '#AEDAE6', '#126E93'],
+  web_image: ['#888CD8', '#4554AE', '#35AAE9', '#0E3B76', '#11559D'],
+  aws_keys: ['#FEBD4C', '#A66E06', '#5E6570', '#FFC977', '#9299A4'],
+  fast_redirect: ['#FCA00D', '#A26F24', '#424242', '#FE9203', '#BB9A38', '#5C5C5C'],
+  slow_redirect: ['#FCA40F', '#424242', '#F9B219', '#E98906', '#565656'],
+  cmd: ['#1AABEE', '#026696', '#9CE5FD'],
+  azure_id: ['#38C0F0', '#0070C6', '#31AFE9', '#0B5BA5'],
+  ms_excel: ['#33c481', '#45946a', '#108d44', '#185c37', '#107c41'],
+  ms_word: ['#2B7CD3', '#1553BA', '#41A5EE', '#185ABD', '#2B6ECC'],
+  svn: ['#829ECB', '#89A5D1', '#E0E9F5'],
+  smtp: ['#E6E7E8', '#535B67', '#9FF18D', '#4EDA82', '#85EA89'],
+  sql_server: ['#BBC1C8', '#FF0000', '#CFD6DD', '#C22625'],
+  signed_exe: ['#434850', '#8BEEAB', '#3CD57F', '#69E285'],
+  adobe_pdf: ['#FE534A', '#FD705D', '#FF0000', '#FF5042', '#FF5042'],
+  windows_dir: ['#D2961B', '#FDDD81', '#F0C153', '#E5AA2E', '#F3C75E'],
+  cssclonedsite: ['#FEFEFE', '#C5C5C5', '#DD3128', '#EE5E4F'],
+  clonedsite: ['#42C348', '#4D4D4D', '#67E185', '#D2D2D2'],
+  kubeconfig: ['#0055AA', '#4A96E9', '#3190E5', '#327EE5'],
+  wireguard: ['#DF8F93', '#AA3F44', '#B95156', '#8E1E21'],
+  azure_id_config: ['#09275C', '#89E3FD', '#547EA7', '#275FA1', '#E2FBFE'],
+  cc: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
+}
