@@ -1,7 +1,8 @@
 //@ts-ignore
 import confetti from 'canvas-confetti';
+import { TOKEN_COLOR_PALETTES } from '@/components/constants';
 
-export function launchConfetti() {
+export function launchConfetti(token_type: string) {
   const confettiCanvas = document.createElement('canvas');
   const modal = document.querySelector('.vfm__content');
   modal?.appendChild(confettiCanvas);
@@ -25,8 +26,8 @@ export function launchConfetti() {
   myConfetti({
     particleCount: 100,
     spread: 160,
-    origin: { y: 0.9 },
-    colors: ['#F2059F', '#04D9B2', '#80C7F2'],
+    origin: { y: .4 },
+    colors: TOKEN_COLOR_PALETTES[token_type] || ['#F2059F', '#04D9B2', '#80C7F2'],
   });
 
   setTimeout(() => {
