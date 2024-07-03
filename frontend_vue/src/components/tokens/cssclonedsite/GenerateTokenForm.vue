@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Additional">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseFormTextField
       id="expected_referrer"
       type="text"

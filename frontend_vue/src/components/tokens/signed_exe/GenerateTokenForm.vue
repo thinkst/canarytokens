@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Additional">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseLabel
       id="signed_exe"
       class="text-center"

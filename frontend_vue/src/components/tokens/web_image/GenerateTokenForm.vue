@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Additional">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseLabel
       id="web_image"
       class="text-center"

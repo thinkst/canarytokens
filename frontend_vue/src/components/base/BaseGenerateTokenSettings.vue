@@ -25,12 +25,12 @@
 import { computed } from 'vue';
 
 const props = defineProps<{
-  settingType?: 'Additional';
+  settingType?: 'Canarytoken';
 }>();
 
 const icon = computed(() => {
   switch (props.settingType) {
-    case 'Additional':
+    case 'Canarytoken':
       return 'gear';
     default:
       return 'gear';

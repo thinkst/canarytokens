@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Additional">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseFormTextField
       id="redirect_url"
       type="text"

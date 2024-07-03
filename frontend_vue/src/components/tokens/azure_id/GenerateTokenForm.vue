@@ -1,5 +1,5 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Additional">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseFormTextField
       id="azure_id_cert_file_name"
       type="text"
