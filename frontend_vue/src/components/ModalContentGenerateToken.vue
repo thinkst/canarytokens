@@ -16,7 +16,7 @@
     >
       <component :is="dynamicForm" />
     </Form>
-    <div class="w-full mt-16 text-left">
+    <div class="w-full mt-16 text-left sm:pl-24">
       <p class="text-xs text-grey-400">
         <span class="text-green">*</span> Required field
       </p>
