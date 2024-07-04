@@ -109,7 +109,12 @@ function filterByCategory(list: TokenServicesType) {
     return list;
   }
   return Object.entries(list).reduce((acc, [key, val]) => {
-    if (val.category === filterValue.value) {
+    if (
+      Array.isArray(val.category) &&
+      val.category.includes(filterValue.value)
+    ) {
+      return { ...acc, [key]: val };
+    } else if (val.category === filterValue.value) {
       return { ...acc, [key]: val };
     }
     return acc;

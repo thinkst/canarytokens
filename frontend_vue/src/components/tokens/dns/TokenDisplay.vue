@@ -1,7 +1,7 @@
 <template>
   <base-code-snippet
     lang="php"
-    label="URL token"
+    label="Canarytoken hostname"
     is-single-line
     :code="tokenUrl"
   ></base-code-snippet>

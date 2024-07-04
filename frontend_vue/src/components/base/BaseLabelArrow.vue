@@ -3,7 +3,7 @@
   <BaseLabel
     :id="id"
     :required="required"
-    class="relative mb-8"
+    class="container relative mb-8"
   >
     <span v-html="labelArrowed"></span>
   </BaseLabel>
@@ -42,6 +42,16 @@ const labelArrowed = computed(() => {
 </script>
 
 <style>
+.container {
+  container-type: inline-size;
+}
+
+@container (max-width: 350px) {
+  .label-arrow::before {
+    display: none;
+  }
+}
+
 .label-arrow::before {
   content: '';
   height: 1.7rem;

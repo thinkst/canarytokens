@@ -28,7 +28,7 @@
       <div
         class="w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[3rem] rounded-b-2xl transition duration-100 hover-card shadow-solid-shadow-grey card-button justify-center items-center flex px-8"
       >
-        {{ isHoverCard ? 'Create Token' : title }}
+        {{ isHoverCard ? 'Create Canarytoken' : title }}
       </div>
     </button>
     <ButtonHowToDeploy

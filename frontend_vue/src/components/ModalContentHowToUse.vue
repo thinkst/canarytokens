@@ -4,11 +4,10 @@
     <div class="flex flex-col w-full md:w-[100%] xl:w-[80%] sm:mt-40 px-8">
       <HowDoesItWorkSteps :selected-token="props.selectedToken" />
       <h2 class="px-16 mt-40 text-center text-grey-800">
-        Ideas for
+        Ideas for using the
         <span class="font-semibold"
           >{{ tokenServices[$props.selectedToken].label }} token</span
-        >
-        use :
+        >:
       </h2>
       <ul
         v-if="howToUseToken.length > 0"
