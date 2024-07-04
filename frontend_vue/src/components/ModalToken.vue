@@ -263,9 +263,6 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     modalType.value = ModalType.NewToken;
     // Keep track of loaded components
     componentStack.value.push(modalType.value);
-    setTimeout(() => {
-      launchConfetti(props.selectedToken)
-    }, 1000);
   } catch (err) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
