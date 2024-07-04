@@ -175,7 +175,7 @@ onMounted(() => {
 const title = computed(() => {
   switch (modalType.value) {
     case ModalType.AddToken:
-      return `Create a ${tokenServices[props.selectedToken].label} Token`;
+      return `Create ${tokenServices[props.selectedToken].label} Token`;
     case ModalType.NewToken:
       return 'New Token Created!';
     case ModalType.HowToUse:
