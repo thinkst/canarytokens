@@ -235,7 +235,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/sql-server-token.html',
     icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
     instruction:
-      'The next step is to copy the SQL snippet below and run in your SQL Server database.',
+      'The next step is to copy the SQL snippet below and run it in your SQL Server database.',
     howItWorksInstructions: [
       'We give you a SQL snippet to run into your database.',
       'You place it somewhere.',

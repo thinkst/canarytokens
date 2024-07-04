@@ -29,8 +29,8 @@
         <img
           :src="getImageUrl(item.arrowSrc)"
           :alt="item.altText"
-          class="arrow"
-          :class="index === 0 ? 'self-start ' : 'self-center'"
+          class="self-start arrow"
+          :class="index !== 0 && 'mt-[4rem]'"
         />
       </span>
     </template>

@@ -5,7 +5,7 @@
     access Azure programmatically (through the API).
   </p>
   <p class="mt-16 text-sm">
-    The Service Principal Login is unique. i.e. There is no chance of somebody
+    The Service Principal Login is unique. i.e. there is no chance of somebody
     guessing these credentials.
   </p>
   <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />

@@ -10,7 +10,7 @@
       />
       <div class="px-16 py-8 sm:px-8">
         <p class="@sm:self-center self-start text-xl font-light text-white">
-          <span class="block mb-8 text-xs text-white">#Adv</span>
+          <span class="block mb-8 text-xs text-white">#Ad</span>
           <span class="font-bold">Did you know</span> some of the best security
           teams in the world run
           <span class="font-bold">Thinkst Canary?</span>
