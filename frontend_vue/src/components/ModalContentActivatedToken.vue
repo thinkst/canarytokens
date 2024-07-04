@@ -1,7 +1,6 @@
 <template>
   <div class="relative">
-    <component
-      :is=tokenIcon
+    <TokenIcon
       :title="tokenServices[tokenType].label"
       :logo-img-url="tokenServices[tokenType].icon"
       class="w-[6rem] pb-16"
@@ -43,7 +42,6 @@ const props = defineProps<{
 defineEmits(['howToUse']);
 
 const dynamicComponent = shallowRef();
-const tokenIcon = shallowRef();
 
 const tokenType = props.newTokenResponse.token_type;
 
@@ -51,12 +49,9 @@ async function loadComponent() {
   dynamicComponent.value = defineAsyncComponent(
     () => import(`@/components/tokens/${tokenType}/ActivatedToken.vue`)
   );
-  tokenIcon.value = defineAsyncComponent(
-    () => import(`@/components/icons/TokenIcon.vue`)
-  );
+  //  Wait for the dynamic component to load before firing the confetti
+  await dynamicComponent.value.__asyncLoader();
 
-  // Wait for the token icon to load before firing the confetti
-  await tokenIcon.value.__asyncLoader();
   launchConfetti(tokenType)
 }
 
