@@ -136,7 +136,7 @@ async function handleDownloadCSSAzureEntraID() {
   } catch (err) {
     console.log(err, 'File download failed');
   } finally {
-    console.log('Donwload ready');
+    console.log('Download ready');
   }
 }
 </script>
