@@ -7,7 +7,7 @@ export type TokenServiceType = {
   icon: string;
   instruction: string;
   howItWorksInstructions?: string[];
-  category?: string;
+  category?: string | string[];
 };
 
 export type TokenServicesType = {
@@ -361,6 +361,10 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere into your Azure tenant`s Entra ID login page.',
       'We send you an alert if an attacker phishes your Azure Entra ID login.',
     ],
-    category: TOKEN_CATEGORY.PHISHING,
+    category: [
+      TOKEN_CATEGORY.PHISHING,
+      TOKEN_CATEGORY.CLOUD,
+      TOKEN_CATEGORY.MICROSOFT,
+    ],
   },
 };
