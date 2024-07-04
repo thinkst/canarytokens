@@ -173,7 +173,7 @@ export type AdditionalInfoType = {
   aws_key_log_data?: AWSLogDataType | null;
 };
 
-type BaiscInfoType = {
+type BasicInfoType = {
   token_type: string;
   input_channel: string;
   src_data: string;
@@ -212,13 +212,13 @@ export type FormattedHitsType = {
     | boolean
     | null
     | GeoInfo
-    | BaiscInfoType
+    | BasicInfoType
     | AdditionalInfoType;
   time_of_hit: string;
   src_ip: string;
   geo_info: GeoInfo;
   is_tor_relay: boolean | null;
-  basic_info: BaiscInfoType;
+  basic_info: BasicInfoType;
   additional_info: AdditionalInfoType;
 };
 

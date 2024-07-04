@@ -10,7 +10,7 @@ import {
 /**
  * Checks if the token type exists in INCIDENT_CHANNEL_TYPE_LABELS
  * and returns the corresponding value.
- * If it doesn't exist in the list, it jsut returns the returned channel.
+ * If it doesn't exist in the list, it just returns the returned channel.
  */
 function hasChannelCustomLabel(channel: string, tokenType: string) {
   return INCIDENT_CHANNEL_TYPE_LABELS.hasOwnProperty(tokenType)
