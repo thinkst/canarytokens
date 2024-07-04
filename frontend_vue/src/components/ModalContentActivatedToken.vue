@@ -33,7 +33,6 @@ import { defineAsyncComponent, ref } from 'vue';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
-import { launchConfetti } from '@/utils/confettiEffect';
 
 const props = defineProps<{
   newTokenResponse: { token_type: string } & Record<string, unknown>;
@@ -50,9 +49,6 @@ async function loadComponent() {
   dynamicComponent.value = defineAsyncComponent(
     () => import(`@/components/tokens/${tokenType}/ActivatedToken.vue`)
   );
-  setTimeout(() => {
-    launchConfetti(tokenType)
-  }, 1500);
 }
 
 loadComponent();
