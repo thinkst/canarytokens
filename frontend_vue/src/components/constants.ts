@@ -93,26 +93,30 @@ export const TOKEN_CATEGORY = {
   PHISHING: 'phishing',
   CLOUD: 'cloud',
   DATABASE: 'database',
-  OTHER: 'Other',
+  OTHER: 'other',
 };
 
 export const ENTRA_ID_FEEDBACK_TYPES = {
-  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "has_custom_css_already",
-  ENTRA_STATUS_ERROR: "error",
-  ENTRA_STATUS_SUCCESS: "success",
-  ENTRA_STATUS_NO_ADMIN_CONSENT: "no_admin_consent",
-}
+  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: 'has_custom_css_already',
+  ENTRA_STATUS_ERROR: 'error',
+  ENTRA_STATUS_SUCCESS: 'success',
+  ENTRA_STATUS_NO_ADMIN_CONSENT: 'no_admin_consent',
+};
 
 export const ENTRA_ID_FEEDBACK_MESSAGES = {
-  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY: "Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from your tenant, revoking all of our permissions.",
-  ENTRA_STATUS_ERROR: "Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.",
-  ENTRA_STATUS_SUCCESS: "Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.",
-  ENTRA_STATUS_NO_ADMIN_CONSENT: "Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.",
-}
+  ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY:
+    'Installation failed: your tenant already has a conflicting custom CSS, please manually add the CSS to your portal branding. We have uninstalled our application from your tenant, revoking all of our permissions.',
+  ENTRA_STATUS_ERROR:
+    'Installation failed: Unable to automatically install the CSS, please manually add the CSS to your portal branding. We have uninstalled our application from you tenant, revoking all of our permissions.',
+  ENTRA_STATUS_SUCCESS:
+    'Successfully installed the CSS into your Azure tenant. Please wait for a few minutes for the changes to propagate; no further action is needed. We have uninstalled our application from your tenant, revoking all of our permissions.',
+  ENTRA_STATUS_NO_ADMIN_CONSENT:
+    'Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.',
+};
 
 export const MAX_UPLOAD_SIZE = 1024 * 1024 * 1;
 
-export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string>} = {
+export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   web: ['#424242', '#3B3B3B', '#41D780', '#71E487'],
   dns: ['#38D47F', '#37877E', '#7FF0C2', '#43D88A', '#38907F'],
   log4shell: ['#F2F2F2', '#E84F40', '#F36A5C', '#FDBCB0'],
@@ -120,7 +124,14 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string>} = {
   my_sql: ['#C2E7EF', '#AEDAE6', '#126E93'],
   web_image: ['#888CD8', '#4554AE', '#35AAE9', '#0E3B76', '#11559D'],
   aws_keys: ['#FEBD4C', '#A66E06', '#5E6570', '#FFC977', '#9299A4'],
-  fast_redirect: ['#FCA00D', '#A26F24', '#424242', '#FE9203', '#BB9A38', '#5C5C5C'],
+  fast_redirect: [
+    '#FCA00D',
+    '#A26F24',
+    '#424242',
+    '#FE9203',
+    '#BB9A38',
+    '#5C5C5C',
+  ],
   slow_redirect: ['#FCA40F', '#424242', '#F9B219', '#E98906', '#565656'],
   cmd: ['#1AABEE', '#026696', '#9CE5FD'],
   azure_id: ['#38C0F0', '#0070C6', '#31AFE9', '#0B5BA5'],
@@ -138,4 +149,4 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string>} = {
   wireguard: ['#DF8F93', '#AA3F44', '#B95156', '#8E1E21'],
   azure_id_config: ['#09275C', '#89E3FD', '#547EA7', '#275FA1', '#E2FBFE'],
   cc: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
-}
+};

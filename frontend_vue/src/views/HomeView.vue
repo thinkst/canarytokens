@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center gap-16 my-24 mb-16 text-center">
     <div class="mt-8 mb-40">
       <h1 class="text-4xl font-semibold text-grey-900">
-        Create a Canarytoken, <br />Deploy it somewhere,
+        Create a Canarytoken.<br />Deploy it somewhere.
       </h1>
       <h2
         class="flex flex-row items-center justify-center gap-4 mt-16 leading-none font-md text-grey-400"
