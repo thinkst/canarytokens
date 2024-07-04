@@ -1,6 +1,7 @@
 <template>
   <div class="relative">
-    <TokenIcon
+    <component
+      :is=tokenIcon
       :title="tokenServices[tokenType].label"
       :logo-img-url="tokenServices[tokenType].icon"
       class="w-[6rem] pb-16"
@@ -42,6 +43,7 @@ const props = defineProps<{
 defineEmits(['howToUse']);
 
 const dynamicComponent = shallowRef();
+const tokenIcon = shallowRef();
 
 const tokenType = props.newTokenResponse.token_type;
 
@@ -49,11 +51,12 @@ async function loadComponent() {
   dynamicComponent.value = defineAsyncComponent(
     () => import(`@/components/tokens/${tokenType}/ActivatedToken.vue`)
   );
-  // When defining an async component
-  // Vue adds an __asyncLoader() method to the component instance.
-  // This method returns a promise that resolves when the component finishes loading.
-  await dynamicComponent.value.__asyncLoader();
+  tokenIcon.value = defineAsyncComponent(
+    () => import(`@/components/icons/TokenIcon.vue`)
+  );
 
+  // Wait for the token icon to load before firing the confetti
+  await tokenIcon.value.__asyncLoader();
   launchConfetti(tokenType)
 }
 
