@@ -83,9 +83,9 @@ const menuRouterItems = computed(() => {
 
   if (isExistingToken.value) {
     items.push(
-      { name: 'New token', path: '/' },
-      { name: 'Token History', path: `/history/${auth.value}/${token.value}` },
-      { name: 'Manage Token', path: `/manage/${auth.value}/${token.value}` }
+      { name: 'New Canarytoken', path: '/' },
+      { name: 'Alerts History', path: `/history/${auth.value}/${token.value}` },
+      { name: 'Manage', path: `/manage/${auth.value}/${token.value}` }
     );
   }
 

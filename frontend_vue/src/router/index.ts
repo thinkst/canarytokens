@@ -50,7 +50,7 @@ const router = createRouter({
           router.push({ name: 'error' });
         }),
       meta: {
-        title: 'Canarytoken History',
+        title: 'Alerts History',
       },
     },
     {
