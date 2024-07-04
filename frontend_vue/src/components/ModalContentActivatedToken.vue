@@ -14,7 +14,7 @@
     />
   </div>
   <h2 class="mb-8 text-xl font-semibold leading-tight text-center">
-    {{ `Your ${tokenServices[tokenType].label} Token is active!` }}
+    {{ `Your ${tokenServices[tokenType].label} Canarytoken is active!` }}
   </h2>
   <p class="leading-tight text-center">
     {{ tokenServices[tokenType].instruction }}

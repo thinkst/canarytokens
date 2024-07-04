@@ -34,7 +34,7 @@
   <BaseMessageBox
     v-if="error"
     variant="danger"
-    message="Oh no! Something went wrong when managing your token data. Please refresh the page or try again later."
+    message="Oh no! Something went wrong when managing your Canarytoken data. Please refresh the page or try again later."
   >
   </BaseMessageBox>
   <div
@@ -75,9 +75,9 @@
         :text-link="hasAlerts ? 'Check History' : ''"
         @click="handleCheckHistory"
       >
-        <span v-if="!hasAlerts">This Token has never been triggered</span>
+        <span v-if="!hasAlerts">This Canarytoken has never been triggered</span>
         <span v-else>
-          This Token has been triggered
+          This Canarytoken has been triggered
           <span class="font-bold">{{ hasAlerts }}</span>
           time{{ hasAlerts > 1 ? 's' : '' }}</span
         >

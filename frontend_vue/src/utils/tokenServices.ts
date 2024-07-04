@@ -7,7 +7,7 @@ export type TokenServiceType = {
   icon: string;
   instruction: string;
   howItWorksInstructions?: string[];
-  category?: string;
+  category?: string | string[];
 };
 
 export type TokenServicesType = {
@@ -235,7 +235,7 @@ export const tokenServices: TokenServicesType = {
       'https://docs.canarytokens.org/guide/sql-server-token.html',
     icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
     instruction:
-      'The next step is to copy the SQL snippet below and run in your SQL Server database.',
+      'The next step is to copy the SQL snippet below and run it in your SQL Server database.',
     howItWorksInstructions: [
       'We give you a SQL snippet to run into your database.',
       'You place it somewhere.',
@@ -361,6 +361,10 @@ export const tokenServices: TokenServicesType = {
       'You place it somewhere into your Azure tenant`s Entra ID login page.',
       'We send you an alert if an attacker phishes your Azure Entra ID login.',
     ],
-    category: TOKEN_CATEGORY.PHISHING,
+    category: [
+      TOKEN_CATEGORY.PHISHING,
+      TOKEN_CATEGORY.CLOUD,
+      TOKEN_CATEGORY.MICROSOFT,
+    ],
   },
 };

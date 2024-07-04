@@ -29,14 +29,17 @@ const router = createRouter({
           router.push({ name: 'error' });
         }),
       meta: {
-        title: 'Manage Token',
+        title: 'Manage Canarytoken',
       },
     },
     {
       path: '/manage',
       name: 'manage-old',
-      redirect: to => {
-        return { path: `/manage/${to.query.auth}/${to.query.token}`, query: {}}
+      redirect: (to) => {
+        return {
+          path: `/manage/${to.query.auth}/${to.query.token}`,
+          query: {},
+        };
       },
     },
     {
@@ -47,14 +50,17 @@ const router = createRouter({
           router.push({ name: 'error' });
         }),
       meta: {
-        title: 'Token History',
+        title: 'Alerts History',
       },
     },
     {
       path: '/history',
       name: 'history-old',
-      redirect: to => {
-        return { path: `/history/${to.query.auth}/${to.query.token}`, query: {}}
+      redirect: (to) => {
+        return {
+          path: `/history/${to.query.auth}/${to.query.token}`,
+          query: {},
+        };
       },
     },
     {
@@ -79,9 +85,11 @@ const router = createRouter({
       component: () => import('../views/ErrorView.vue'),
       meta: {
         title: 'Oh no! Something went wrong!',
-        header: 'We\'re sorry, but we couldn\'t find the token you\'re looking for.',
-        description: 'This could be because the authentication or token provided is incorrect.',
-        action: 'Please check your token details and try again.'
+        header:
+          "We're sorry, but we couldn't find the token you're looking for.",
+        description:
+          'This could be because the authentication or Canarytoken provided is incorrect.',
+        action: 'Please check your token details and try again.',
       },
     },
     {
@@ -90,9 +98,11 @@ const router = createRouter({
       component: () => import('../views/ErrorView.vue'),
       meta: {
         title: '404',
-        header: ' Oops! The page you\'re looking for can\'t be found.',
-        description: 'This might be because the URL is incorrect, or the page has been moved or deleted.',
-        action: 'Please check the URL or go back to the homepage and try again.'
+        header: " Oops! The page you're looking for can't be found.",
+        description:
+          'This might be because the URL is incorrect, or the page has been moved or deleted.',
+        action:
+          'Please check the URL or go back to the homepage and try again.',
       },
     },
     {
@@ -101,9 +111,11 @@ const router = createRouter({
       component: () => import('../views/ErrorView.vue'),
       meta: {
         title: '404',
-        header: ' Oops! The page you\'re looking for can\'t be found.',
-        description: 'This might be because the URL is incorrect, or the page has been moved or deleted.',
-        action: 'Please check the URL or go back to the homepage and try again.'
+        header: " Oops! The page you're looking for can't be found.",
+        description:
+          'This might be because the URL is incorrect, or the page has been moved or deleted.',
+        action:
+          'Please check the URL or go back to the homepage and try again.',
       },
     },
     {
@@ -113,8 +125,10 @@ const router = createRouter({
       meta: {
         title: '500',
         header: 'Oops! Something went wrong on our end.',
-        description: 'This might be due to a temporary issue or an unexpected server error.',
-        action: 'Please try refreshing the page, or go back to the homepage and try again later.'
+        description:
+          'This might be due to a temporary issue or an unexpected server error.',
+        action:
+          'Please try refreshing the page, or go back to the homepage and try again later.',
       },
     },
     ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
