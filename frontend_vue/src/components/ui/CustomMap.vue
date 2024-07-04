@@ -18,7 +18,8 @@
     map-type-id="terrain"
     class="grid-areas rounded-2xl"
     :options="options"
-    ><GMapCluster
+  >
+    <GMapCluster
       :renderer="{ render }"
       :zoom-on-click="true"
     >
@@ -144,13 +145,17 @@ watch(mapRef, () => {
 });
 
 // styles Cluster Marker
-const render = ({ count, position }: { count: string; position: string[] }) => {
+const render = ({ count, position }: { count: number; position: string[] }) => {
   // @ts-ignore
   return new window.google.maps.Marker({
     label: {
       text: `${count}`,
       color: 'white',
       fontWeight: '600',
+    },
+    icon: {
+      url: getImageUrl('icons/map-cluster-pin.png'),
+      scaledSize: { width: 40, height: 40 },
     },
     position,
     zIndex: 1000 + count,
