@@ -53,4 +53,6 @@ async function loadComponent() {
   console.log(dynamicComponent)
   launchConfetti(tokenType)
 }
+
+loadComponent();
 </script>
