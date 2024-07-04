@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-row items-center justify-between mt-32">
     <div class="flex flex-col">
-      <span>Delete token</span>
+      <span>Delete Canarytoken</span>
       <span class="text-xs leading-4 text-grey-500 pr-[3rem]"
-        >Remove this token and delete all related alerts</span
+        >Remove this Canarytoken and delete all related alerts</span
       >
     </div>
     <div>

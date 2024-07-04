@@ -11,7 +11,7 @@
       ref="labelFileInput"
       for="dropzone-file"
       :class="labelClass"
-      class="flex flex-col items-center justify-center w-full py-16 border border-dashed rounded-lg cursor-pointer"
+      class="flex flex-col items-center justify-center w-full py-16 border border-dashed cursor-pointer rounded-2xl"
     >
       <div class="flex flex-col items-center justify-center pt-5 pb-6">
         <FolderIcon

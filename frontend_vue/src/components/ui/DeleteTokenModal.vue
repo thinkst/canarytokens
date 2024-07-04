@@ -21,7 +21,7 @@
     </span>
     <div class="text-center">
       <p class="text-xl font-semibold leading-normal text-grey-800">
-        Are you sure you want to delete this token?
+        Are you sure you want to delete this Canarytoken?
       </p>
       <p class="mt-8 leading-normal text-normal text-grey-300">
         All associated alerts will be permanently lost
@@ -90,7 +90,7 @@ const deleteToken = async () => {
     const res = await deleteTokenFnc(params);
     if (res.status === 200) {
       successMessage.value =
-        'Yay! Your token, plus associated alerts, has been successfully deleted.';
+        'Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.';
       setTimeout(() => {
         props.closeModal();
         router.push({ name: 'home' });
@@ -100,7 +100,7 @@ const deleteToken = async () => {
       router.push({ name: 'error' });
     } else
       errorMessage.value =
-        'Oh no! Something went wrong when deleting your token.';
+        'Oh no! Something went wrong when deleting your Canarytoken.';
   } catch (err: any) {
     console.log(err, 'err!');
     errorMessage.value = err.toString();

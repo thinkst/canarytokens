@@ -6,7 +6,7 @@
   <BaseMessageBox
     class="mt-24"
     variant="info"
-    message="    When someone clones your site, they'll load the token, which will check
+    message="When someone clones your site, they'll load the token, which will check
     whether the referrer domain is expected. If not, it fires the token and you
     get an alert."
     text-link="More tips?"

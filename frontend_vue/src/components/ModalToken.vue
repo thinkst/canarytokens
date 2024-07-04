@@ -82,7 +82,7 @@
             variant="primary"
             :loading="isLoadngSubmit"
             @click.stop="handleAddTokenButton"
-            >Create Token</BaseButton
+            >Create Canarytoken</BaseButton
           >
         </template>
 
@@ -95,7 +95,7 @@
           <BaseButton
             variant="secondary"
             @click="handleManageTokenButton"
-            >Manage Token</BaseButton
+            >Manage Canarytoken</BaseButton
           >
         </template>
 

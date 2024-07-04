@@ -1,7 +1,7 @@
 <template>
   <base-code-snippet
     lang="javascript"
-    label="URL token"
+    label="URL Canarytoken"
     is-single-line
     :code="tokenUrl"
   ></base-code-snippet>
