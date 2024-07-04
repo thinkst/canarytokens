@@ -50,10 +50,7 @@ async function loadComponent() {
   dynamicComponent.value = defineAsyncComponent(
     () => import(`@/components/tokens/${tokenType}/ActivatedToken.vue`)
   );
+  console.log(dynamicComponent)
+  launchConfetti(tokenType)
 }
-
-const comp = loadComponent();
-console.log(comp)
-
-launchConfetti(tokenType)
 </script>
