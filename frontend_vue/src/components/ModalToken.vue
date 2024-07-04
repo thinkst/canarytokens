@@ -134,7 +134,6 @@ import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
-import { launchConfetti } from '@/utils/confettiEffect';
 
 enum ModalType {
   AddToken = 'addToken',
