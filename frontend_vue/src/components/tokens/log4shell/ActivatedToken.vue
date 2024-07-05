@@ -7,14 +7,6 @@
   <p class="mt-16 text-sm">
     If this works, you will also obtain the hostname of the vulnerable server.
   </p>
-  <p class="mt-16 text-sm">
-    You can read more on this issue at
-    <base-link
-      href="https://www.lunasec.io/docs/blog/log4j-zero-day/"
-      target="_blank"
-      >LunaSec</base-link
-    >
-  </p>
 </template>
 
 <script setup lang="ts">

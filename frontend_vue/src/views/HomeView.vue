@@ -13,7 +13,7 @@
           target="_blank"
         >
           <div
-            class="inline-block w-[1.1rem] h-[1.1rem] text-xs duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 border-grey-300 text-grey-300"
+            class="inline-block w-[1.1rem] h-[1.1rem] text-xs duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 border-grey-200 text-grey-300"
           >
             <font-awesome-icon
               icon="question"
