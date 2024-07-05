@@ -10,7 +10,7 @@ describe('Token Tests', () => {
     { name: 'Microsoft Word document', extraFields: null },
     { name: 'SVN', extraFields: null },
     { name: 'Unique email address', extraFields: null },
-    { name: 'Acrobat Reader PDF document', extraFields: null },
+    { name: 'Acrobat Reader PDF', extraFields: null },
     { name: 'Windows Folder', extraFields: null },
     { name: 'Kubeconfig', extraFields: null },
     { name: 'WireGuard VPN', extraFields: null },
@@ -39,20 +39,9 @@ describe('Token Tests', () => {
 
   items.forEach(item => {
     it(`should execute the test for ${item.name}`, () => {
-      cy.visit('https://ssl-srv72.net/nest/')
+      cy.visit('https://honeypdfs.com/')
 
       cy.contains(item.name).click()
-      
-      cy.get('#1__slide').click()
-      // Take a screenshot for the initial state
-      cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/not_filled`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
-
-      // Perform common actions
-      cy.get('#2__slide').click()
-      cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/not_filled_step_2`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
-
-      cy.get('#3__slide').click()
-      cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/not_filled_step_3`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
 
       cy.get('#email').type('sara@thinkst.com')
       cy.get('#memo').type('test')
@@ -65,19 +54,24 @@ describe('Token Tests', () => {
       cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/filled`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
 
       // Click on 'Create Token' and take a screenshot
-      cy.contains('Create Token').click()
+      cy.contains('Create Canarytoken').click()
       cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/token_created`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
 
       // Click on 'How to use' and take a screenshot
       cy.contains('How to use').click()
       cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/how_to_use`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
 
-      // Click on 'Manage Token' and take a screenshot
-      cy.contains('Manage Token').click()
+      // Take a screenshot and click on 'Got it!'
       cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/manage_token`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
+      cy.contains('Got it!').click()
+
+      // Take a screenshot and click on 'Manage Canarytoken'
+      cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/manage_token`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
+      cy.contains('Manage Canarytoken').click()
       
-      // Click on 'Token History' and take a screenshot
-      cy.contains('Token History').click()
+      // Click on 'ALERTS HISTORY' and take a screenshot
+      cy.get('.justify-end')
+       .contains('Alerts History').click()
       cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/token_history`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
 
     })
