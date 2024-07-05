@@ -37,6 +37,7 @@ import { launchConfetti } from '@/utils/confettiEffect';
 
 const props = defineProps<{
   newTokenResponse: { token_type: string } & Record<string, unknown>;
+  shootConfetti: boolean;
 }>();
 
 defineEmits(['howToUse']);
@@ -51,8 +52,7 @@ async function loadComponent() {
   );
   //  Wait for the dynamic component to load before firing the confetti
   await dynamicComponent.value.__asyncLoader();
-
-  launchConfetti(tokenType)
+  if (props.shootConfetti) launchConfetti(tokenType);
 }
 
 loadComponent();

@@ -47,6 +47,7 @@
     <Suspense v-if="modalType === ModalType.NewToken">
       <ModalContentActivatedToken
         :new-token-response="newTokenResponse"
+        :shoot-confetti=shootConfetti
         @how-to-use="handleHowToUseButton"
       />
       <template #fallback>
@@ -162,6 +163,7 @@ const errorMessage = ref('');
 const isLoadngSubmit = ref(false);
 const isLoading = ref(false);
 const showTooltip = ref(false);
+const shootConfetti = ref(false);
 // Stack to keep track of loaded components
 // Used for Modal navigation
 const componentStack = ref<string[]>([]);
@@ -300,6 +302,14 @@ watch(isLoading, () => {
     setTimeout(() => {
       showTooltip.value = false;
     }, 2000);
+  }
+});
+// Only shoot confetti after generating a new token
+watch(modalType, (newVal, oldVal) => {
+  if (oldVal === 'addToken' && newVal === 'newToken') {
+    shootConfetti.value =  true;
+  } else {
+    shootConfetti.value =  false;
   }
 });
 </script>
