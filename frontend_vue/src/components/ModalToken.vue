@@ -306,7 +306,7 @@ watch(isLoading, () => {
 });
 // Only shoot confetti after generating a new token
 watch(modalType, (newVal, oldVal) => {
-  if (oldVal === 'addToken' && newVal === 'newToken') {
+  if (oldVal === ModalType.AddToken && newVal === ModalType.NewToken) {
     shootConfetti.value =  true;
   } else {
     shootConfetti.value =  false;
