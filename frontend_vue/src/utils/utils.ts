@@ -34,8 +34,7 @@ export const sqlInjectionPattern = /\b(or 1=1|OR 1=1)\b/;
 // Adds transition to the view
 // Available only on last versions of Chrome, Edge, Opera
 // https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API#browser_compatibility
-export function startViewTransition(callback: () => void) {
-
+export function addViewTransition(callback: () => void) {
   return new Promise<void>((resolve) => {
     const transitionCallback = () => {
       callback();

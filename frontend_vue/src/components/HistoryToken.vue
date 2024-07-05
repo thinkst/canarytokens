@@ -101,7 +101,7 @@ import CustomMap from '@/components/ui/CustomMap.vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import AlertsListDownload from '@/components/ui/AlertsListDownload.vue';
-import { startViewTransition } from '@/utils/utils';
+import { addViewTransition } from '@/utils/utils';
 
 const emits = defineEmits(['update-token-title']);
 
@@ -144,7 +144,7 @@ async function fetchTokenHistoryData() {
 }
 
 async function handleSelectAlert(incident: HitsType) {
-  await startViewTransition(() => (selectedAlert.value = incident));
+  await addViewTransition(() => (selectedAlert.value = incident));
   const container = document.getElementById('incident_detail');
   container
     ? container.scrollTo({ top: 0, behavior: 'smooth' })

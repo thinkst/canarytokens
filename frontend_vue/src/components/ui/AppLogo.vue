@@ -12,12 +12,12 @@
 <script setup lang="ts">
 import LogoNavbar from '@/components/icons/LogoNavbar.vue';
 import { useRouter } from 'vue-router';
-import { startViewTransition } from '@/utils/utils';
+import { addViewTransition } from '@/utils/utils';
 
 const router = useRouter();
 
 function handleLinkClick(path: string) {
   //@ts-ignore
-  startViewTransition(() => router.push(path));
+  addViewTransition(() => router.push(path));
 }
 </script>

@@ -136,7 +136,7 @@ import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
 import { launchConfetti } from '@/utils/confettiEffect';
-import { startViewTransition } from '@/utils/utils';
+import { addViewTransition } from '@/utils/utils';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -213,7 +213,7 @@ function handleAddTokenButton() {
 }
 
 async function handleHowToUseButton() {
-  await startViewTransition(
+  await addViewTransition(
     () => (modalType.value = ModalType.HowToUse)
     // Keep track of loaded components
   ).then(() => componentStack.value.push(modalType.value));
@@ -233,7 +233,7 @@ async function handleBackButton() {
     props.closeModal();
   } else {
     // Otherwise, show the top component from the stack
-    await startViewTransition(
+    await addViewTransition(
       () =>
         (modalType.value =
           componentStack.value[componentStack.value.length - 1])
@@ -268,7 +268,7 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     isLoadngSubmit.value = false;
     triggerSubmit.value = false;
 
-    await startViewTransition(
+    await addViewTransition(
       () => (modalType.value = ModalType.NewToken)
       // Keep track of loaded components
     ).then(() => componentStack.value.push(modalType.value));
