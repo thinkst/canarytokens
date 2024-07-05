@@ -29,26 +29,30 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue';
+import { defineAsyncComponent, shallowRef } from 'vue';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
+import { launchConfetti } from '@/utils/confettiEffect';
 
 const props = defineProps<{
   newTokenResponse: { token_type: string } & Record<string, unknown>;
+  shootConfetti: boolean;
 }>();
 
 defineEmits(['howToUse']);
 
-const dynamicComponent = ref({
-  props: {},
-});
+const dynamicComponent = shallowRef();
+
 const tokenType = props.newTokenResponse.token_type;
 
 async function loadComponent() {
   dynamicComponent.value = defineAsyncComponent(
     () => import(`@/components/tokens/${tokenType}/ActivatedToken.vue`)
   );
+  //  Wait for the dynamic component to load before firing the confetti
+  await dynamicComponent.value.__asyncLoader();
+  if (props.shootConfetti) launchConfetti(tokenType);
 }
 
 loadComponent();

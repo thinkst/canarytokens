@@ -47,6 +47,7 @@
     <Suspense v-if="modalType === ModalType.NewToken">
       <ModalContentActivatedToken
         :new-token-response="newTokenResponse"
+        :shoot-confetti=shootConfetti
         @how-to-use="handleHowToUseButton"
       />
       <template #fallback>
@@ -134,7 +135,6 @@ import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
-import { launchConfetti } from '@/utils/confettiEffect';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -163,6 +163,7 @@ const errorMessage = ref('');
 const isLoadngSubmit = ref(false);
 const isLoading = ref(false);
 const showTooltip = ref(false);
+const shootConfetti = ref(false);
 // Stack to keep track of loaded components
 // Used for Modal navigation
 const componentStack = ref<string[]>([]);
@@ -263,7 +264,6 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     modalType.value = ModalType.NewToken;
     // Keep track of loaded components
     componentStack.value.push(modalType.value);
-    launchConfetti(props.selectedToken);
   } catch (err) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
@@ -302,6 +302,14 @@ watch(isLoading, () => {
     setTimeout(() => {
       showTooltip.value = false;
     }, 2000);
+  }
+});
+// Only shoot confetti after generating a new token
+watch(modalType, (newVal, oldVal) => {
+  if (oldVal === ModalType.AddToken && newVal === ModalType.NewToken) {
+    shootConfetti.value =  true;
+  } else {
+    shootConfetti.value =  false;
   }
 });
 </script>

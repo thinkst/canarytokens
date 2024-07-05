@@ -35,7 +35,7 @@ export function launchConfetti(token_type: string) {
   myConfetti({
     particleCount: 100,
     spread: 160,
-    origin: { y: 0.4 },
+    origin: { y: 0.3 },
     colors: TOKEN_COLOR_PALETTES[token_type] || [
       '#F2059F',
       '#04D9B2',
