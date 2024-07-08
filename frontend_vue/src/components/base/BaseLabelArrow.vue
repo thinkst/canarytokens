@@ -2,7 +2,6 @@
 <template>
   <BaseLabel
     :id="id"
-    :required="required"
     class="container relative mb-8"
   >
     <span v-html="labelArrowed"></span>
@@ -17,7 +16,6 @@ const props = defineProps<{
   label: string;
   arrowVariant?: 'one' | 'two';
   arrowWordPosition?: number;
-  required?: boolean;
 }>();
 
 const label = ref(props.label);
