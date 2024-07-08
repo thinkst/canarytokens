@@ -135,6 +135,7 @@ import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
+import { addViewTransition } from '@/utils/utils';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -210,10 +211,11 @@ function handleAddTokenButton() {
   triggerSubmit.value = true;
 }
 
-function handleHowToUseButton() {
-  modalType.value = ModalType.HowToUse;
-  // Keep track of loaded components
-  componentStack.value.push(modalType.value);
+async function handleHowToUseButton() {
+  await addViewTransition(
+    () => (modalType.value = ModalType.HowToUse)
+    // Keep track of loaded components
+  ).then(() => componentStack.value.push(modalType.value));
 }
 
 function handleManageTokenButton() {
@@ -223,14 +225,18 @@ function handleManageTokenButton() {
   props.closeModal();
 }
 
-function handleBackButton() {
+async function handleBackButton() {
   componentStack.value.pop();
   // If the stack is empty, close the modal
   if (componentStack.value.length === 0) {
     props.closeModal();
   } else {
     // Otherwise, show the top component from the stack
-    modalType.value = componentStack.value[componentStack.value.length - 1];
+    await addViewTransition(
+      () =>
+        (modalType.value =
+          componentStack.value[componentStack.value.length - 1])
+    );
   }
 }
 
@@ -259,11 +265,12 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     isGenerateTokenError.value = false;
     errorMessage.value = '';
     isLoadngSubmit.value = false;
-
     triggerSubmit.value = false;
-    modalType.value = ModalType.NewToken;
-    // Keep track of loaded components
-    componentStack.value.push(modalType.value);
+
+    await addViewTransition(
+      () => (modalType.value = ModalType.NewToken)
+      // Keep track of loaded components
+    ).then(() => componentStack.value.push(modalType.value));
   } catch (err) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
