@@ -10,7 +10,6 @@
     <BaseLabel
       v-if="!hasArrow"
       :id="id"
-      :required="required"
     >
       {{ label }}
     </BaseLabel>
@@ -20,7 +19,6 @@
       :label="label"
       :arrow-variant="arrowVariant"
       :arrow-word-position="arrowWordPosition"
-      :required="required"
     />
     <component
       :is="inputType"
