@@ -6,7 +6,7 @@
     :is-animation="true"
     :has-shadow="true"
   />
-  <div class="w-full md:w-[90%] lg:w-[70%] px-8 mt-32 mb-8">
+  <div class="w-full md:w-[90%] lg:w-[70%] px-8 mt-32 mb-24">
     <Form
       ref="generateTokenFormRef"
       :validation-schema="schema"
@@ -16,11 +16,6 @@
     >
       <component :is="dynamicForm" />
     </Form>
-    <div class="w-full mt-16 text-left sm:pl-24">
-      <p class="text-xs text-grey-400">
-        <span class="text-green">*</span> Required field
-      </p>
-    </div>
   </div>
 </template>
 
