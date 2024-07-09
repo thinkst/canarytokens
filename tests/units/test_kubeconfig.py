@@ -88,7 +88,7 @@ def test_mtls_factory_receive_lines(
         kubeconfig=kube_config,
     )
     queries.save_canarydrop(canarydrop)
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     kuc = kubeconfig.KubeConfig(
         client_ca_redis_key=kc.ClientCA,
         server_ca_redis_key=kc.ServerCA,
@@ -137,7 +137,7 @@ def test_mtls_factory_receive_lines(
 def test_ChannelKubeConfig(
     frontend_settings: FrontendSettings, settings: SwitchboardSettings, setup_db
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     kube_channel = ChannelKubeConfig(
         frontend_settings=frontend_settings,
         switchboard_settings=settings,

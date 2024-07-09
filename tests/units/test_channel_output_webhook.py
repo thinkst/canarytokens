@@ -24,7 +24,7 @@ def test_broken_webhook(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     switchboard.switchboard_settings = settings
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
@@ -72,7 +72,7 @@ def test_webhook(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
@@ -118,7 +118,7 @@ def test_googlechat_webhook_format(
     settings: SwitchboardSettings,
 ):
 
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -201,7 +201,7 @@ def test_canaryalert_googlechat_webhook(
         "https://chat.googleapis.com/v1/spaces/random/messages?key=temp_key"
     )
 
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -242,7 +242,7 @@ def test_ms_teams_webhook_format(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -305,7 +305,7 @@ def test_canaryalert_ms_teams_webhook(
     """
     ms_teams_webhook_receiver = "https://azurerandomtest.webhook.office.com/webhookb2/ramdomhashhere/IncomingWebhook/randomhashhere/randomhashhere"
 
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
