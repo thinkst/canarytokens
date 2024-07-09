@@ -328,6 +328,10 @@ resource "aws_cloudwatch_log_group" "process_user_api_tokens_logs_lambda_logs" {
   retention_in_days = 14
 }
 
+data "aws_kms_key" "default_lambda_kms_key" {
+  key_id = "alias/aws/lambda"
+}
+
 resource "aws_iam_policy" "process_user_api_tokens_logs_lambda_logs" {
   name        = "${var.process_user_api_tokens_logs}-Lambda-Logs"
   path        = "/"
@@ -342,7 +346,7 @@ resource "aws_iam_policy" "process_user_api_tokens_logs_lambda_logs" {
       "Action": [
           "kms:Decrypt"
       ],
-      "Resource": "*"
+      "Resource": "${data.aws_kms_key.default_lambda_kms_key.arn}"
     },
       {
         "Effect": "Allow",
