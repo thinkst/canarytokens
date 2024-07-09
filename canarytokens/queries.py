@@ -9,6 +9,7 @@ import secrets
 from ipaddress import IPv4Address
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
+import advocate
 import requests
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
@@ -908,11 +909,12 @@ def validate_webhook(url, token_type: models.TokenTypes):
             },
             time=datetime.datetime.now(),
         )
-    response = requests.post(
+    response = advocate.post(
         url,
         payload.json(),
         headers={"content-type": "application/json"},
         timeout=10,
+        validator=advocate.AddrValidator(port_whitelist=set(range(0, 65535))),
     )
     # TODO: this accepts 3xx which is probably too lenient. We probably want any 2xx code.
     response.raise_for_status()

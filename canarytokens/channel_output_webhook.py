@@ -3,6 +3,7 @@ Output channel that sends to webhooks.
 """
 from typing import Dict
 
+import advocate
 import requests
 from pydantic import HttpUrl
 from twisted.logger import Logger
@@ -63,15 +64,23 @@ class WebhookOutputChannel(OutputChannel):
     ) -> bool:
         # Design: wrap in a retry?
         try:
-            response = requests.post(
-                url=str(alert_webhook_url), json=payload, timeout=(2, 2)
+            validator = advocate.AddrValidator(port_whitelist=set(range(0, 65535)))
+            response = advocate.post(
+                url=str(alert_webhook_url),
+                json=payload,
+                timeout=(2, 2),
+                validator=validator,
             )
             response.raise_for_status()
             log.info(f"Successfully sent to {alert_webhook_url}")
             return True
-        except requests.exceptions.HTTPError:
+        except advocate.HTTPError:
             log.debug(
                 f"Failed sending request to webhook {alert_webhook_url}.",
+            )
+        except advocate.exceptions.UnacceptableAddressException:
+            log.debug(
+                f"Disallowed requests to {alert_webhook_url}.",
             )
         except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             log.debug(
