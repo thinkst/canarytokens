@@ -86,6 +86,7 @@ export const INCIDENT_DETAIL_CUSTOM_LABELS = {
   last_used: 'Key Last Used',
   src_ip: 'Source IP',
   loc: 'Location',
+  eventName: 'Event Name',
 };
 
 export const TOKEN_CATEGORY = {

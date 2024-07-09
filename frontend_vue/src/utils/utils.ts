@@ -13,6 +13,21 @@ export function convertUnixTimeStampToDate(unixTimestamp: number) {
   return formatter.format(date);
 }
 
+export function convertISOtoLocalDate(ISODate: string) {
+  const date = new Date(ISODate);
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  };
+  const formatter = new Intl.DateTimeFormat('en-US', options);
+  return formatter.format(date);
+}
+
 export const validFileExtensions = {
   image: ['jpg', 'gif', 'png', 'jpeg'],
   exe: ['exe', 'dll'],

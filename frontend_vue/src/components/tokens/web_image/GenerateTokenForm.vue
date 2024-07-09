@@ -3,7 +3,6 @@
     <BaseLabel
       id="web_image"
       class="text-center"
-      required
       >Upload your image</BaseLabel
     >
     <BaseUploadFile

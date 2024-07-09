@@ -1,4 +1,7 @@
-import { convertUnixTimeStampToDate } from '@/utils/utils';
+import {
+  convertUnixTimeStampToDate,
+  convertISOtoLocalDate,
+} from '@/utils/utils';
 import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
 import { tokenServices } from './tokenServices';
 import {
@@ -146,14 +149,14 @@ export function buildIncidentDetails(
           hitAlert.additional_info.aws_key_log_data
             ? {
                 last_used: hitAlert.additional_info.aws_key_log_data.last_used
-                  ? new Date(
-                      Number(
-                        hitAlert.additional_info.aws_key_log_data.last_used
-                      )
+                  ? convertISOtoLocalDate(
+                      hitAlert.additional_info.aws_key_log_data.last_used
                     )
                   : null,
                 service_used:
                   hitAlert.additional_info.aws_key_log_data.service_used,
+                eventName:
+                  hitAlert.additional_info.aws_key_log_data?.eventName ?? null,
               }
             : null,
       },
