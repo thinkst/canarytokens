@@ -20,26 +20,33 @@ def _substitute_stream(
 ):
     # Ohhhh, this is nasty. Instead of trying to get the xref positions right,
     # we're going to brute-force a URL that's the right size after compression.
-    # Give up after 1000 attempts.
+    # Give up after 100 attempts.
+
+    MAX_ATTEMPTS = 100
 
     old_len = len(stream)
-    candidate_stream = zlib.compress(zlib.decompress(stream).replace(search, replace))
-    count = 1
-    while len(candidate_stream) < old_len and count < 1000:
-        padding = "".join(
-            [chr(random.randrange(65, 90)) for x in range(0, count)]
-        ).encode()
+    attempts = 0
+    while attempts < MAX_ATTEMPTS:
         candidate_stream = zlib.compress(
-            zlib.decompress(stream).replace(search, replace + b"/" + padding)
+            zlib.decompress(stream).replace(search, replace)
         )
-        count += 1
+        count = 1
+        while len(candidate_stream) < old_len and count < 10000:
+            padding = "".join(
+                [chr(random.randrange(65, 90)) for x in range(0, count)]
+            ).encode()
+            candidate_stream = zlib.compress(
+                zlib.decompress(stream).replace(search, replace + b"/" + padding)
+            )
+            count += 1
+        if old_len == len(candidate_stream):
+            break
+        attempts += 1
 
-    # header should be the same size, no need to recalc
-    # header = re.sub(r'Length [0-9]+', 'Length {len}'.format(len=len(new_stream)), header)
-    if old_len != len(candidate_stream):
+    if attempts == MAX_ATTEMPTS:
         raise Exception(
-            "Dammit, new PDF is too big ({new_len} > {old_len})".format(
-                new_len=len(candidate_stream), old_len=old_len
+            "Dammit, new PDF is too big after {attempts} attempts, ({new_len} > {old_len})".format(
+                attempts=attempts, new_len=len(candidate_stream), old_len=old_len
             )
         )
 
