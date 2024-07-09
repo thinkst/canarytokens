@@ -2559,16 +2559,17 @@ files = [
 
 [[package]]
 name = "python-multipart"
-version = "0.0.5"
+version = "0.0.9"
 description = "A streaming multipart parser for Python"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "python-multipart-0.0.5.tar.gz", hash = "sha256:f7bb5f611fc600d15fa47b3974c8aa16e93724513b49b5f95c81e6624c83fa43"},
+    {file = "python_multipart-0.0.9-py3-none-any.whl", hash = "sha256:97ca7b8ea7b05f977dc3849c3ba99d51689822fab725c3703af7c866a0c2b215"},
+    {file = "python_multipart-0.0.9.tar.gz", hash = "sha256:03f54688c663f1b7977105f021043b0793151e4cb1c1a9d4a11fc13d622c4026"},
 ]
 
-[package.dependencies]
-six = ">=1.4.0"
+[package.extras]
+dev = ["atomicwrites (==1.4.1)", "attrs (==23.2.0)", "coverage (==7.4.1)", "hatch", "invoke (==2.2.0)", "more-itertools (==10.2.0)", "pbr (==6.0.0)", "pluggy (==1.4.0)", "py (==1.11.0)", "pytest (==8.0.0)", "pytest-cov (==4.1.0)", "pytest-timeout (==2.2.0)", "pyyaml (==6.0.1)", "ruff (==0.2.1)"]
 
 [[package]]
 name = "pywin32"
@@ -3354,4 +3355,4 @@ web = ["fastapi", "sentry-sdk", "uvicorn"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "60178a1d3c8f75d3b01c9bd834cd700c2bc2bf2fa6b716f550e1b47dc5b2c158"
+content-hash = "d15bf203d177f59f34dfa38f8c1a01b427e01c5f97a0bb84bf5c8f1d4cb00c48"
