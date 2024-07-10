@@ -1,4 +1,6 @@
 # pytest caplog
+import pytest
+
 from twisted.logger import capturedLogs
 
 from canarytokens.canarydrop import Canarydrop
@@ -338,3 +340,58 @@ def test_canaryalert_ms_teams_webhook(
         host=input_channel.hostname,
     )
     assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsMsTeams)
+
+
+@pytest.mark.parametrize(
+    "bad_url",
+    [
+        "http://127.0.0.1",
+        "http://169.254.196.254",
+        "https://localhost",
+        "https://dev-docker.canary.tools",
+    ],
+)
+def test_ssrf_protection(
+    setup_db,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    bad_url: str,
+):
+    switchboard = Switchboard()
+    switchboard.switchboard_settings = settings
+    webhook_channel = WebhookOutputChannel(
+        switchboard=switchboard,
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+        frontend_domain="test.com",
+    )
+    cd = Canarydrop(
+        type=TokenTypes.DNS,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=bad_url,
+        canarytoken=Canarytoken(),
+        memo="memo",
+        browser_scanner_enabled=False,
+    )
+
+    token_hit = Canarytoken.create_token_hit(
+        token_type=TokenTypes.DNS,
+        input_channel="not_valid",
+        src_ip="127.0.0.1",
+        hit_info={"some": "data"},
+    )
+    cd.add_canarydrop_hit(token_hit=token_hit)
+    with capturedLogs() as captured:
+        webhook_channel.send_alert(
+            canarydrop=cd,
+            token_hit=token_hit,
+            input_channel=ChannelDNS(
+                switchboard=switchboard,
+                frontend_settings=frontend_settings,
+                switchboard_hostname="test.com",
+                switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+            ),
+        )
+    assert any(["Disallowed requests to" in log["log_format"] for log in captured])
