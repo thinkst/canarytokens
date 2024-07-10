@@ -144,11 +144,13 @@ async function fetchTokenHistoryData() {
 }
 
 async function handleSelectAlert(incident: HitsType) {
-  await addViewTransition(() => (selectedAlert.value = incident));
-  const container = document.getElementById('incident_detail');
+  await addViewTransition(() => {
+    selectedAlert.value = incident
+    const container = document.getElementById('incident_detail');
   container
     ? container.scrollTo({ top: 0, behavior: 'smooth' })
     : window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 }
 </script>
 

@@ -3,7 +3,6 @@
     <BaseLabel
       id="signed_exe"
       class="text-center"
-      required
       >Upload your file</BaseLabel
     >
     <BaseUploadFile

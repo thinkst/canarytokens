@@ -3,7 +3,6 @@
     <div class="text-center">
       <BaseLabel
         id="radio-group-action"
-        required
       >
         Action</BaseLabel
       >
