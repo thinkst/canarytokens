@@ -513,7 +513,9 @@ class Canarytoken(object):
     ):
         redirect_url = canarydrop.redirect_url
         if redirect_url:
-            if ":" not in redirect_url:
+            if not redirect_url.startswith("http://") and not redirect_url.startswith(
+                "https://"
+            ):
                 redirect_url = "http://" + redirect_url
             return redirectTo(redirect_url.encode(), request)
         return GIF
@@ -534,7 +536,9 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
         redirect_url = canarydrop.redirect_url
-        if redirect_url and ":" not in redirect_url:
+        if not redirect_url.startswith("http://") and not redirect_url.startswith(
+            "https://"
+        ):
             redirect_url = "http://" + redirect_url
         template = get_template_env().get_template("browser_scanner.html")
         return template.render(

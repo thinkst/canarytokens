@@ -13,7 +13,7 @@ redis = "^4.2.0"
 httpx = "^0.23.0"
 Jinja2 = "^3.1.2"
 requests = "^2.27.1"
-python-multipart = "^0.0.5"
+python-multipart = "^0.0.9"
 pyOpenSSL = "^23.0.0"
 service-identity = "^21.1.0"
 PyYAML = "^6.0"
@@ -32,6 +32,7 @@ faker = "^17.6.0"
 azure-core = "^1.23.1"
 azure-identity = "^1.10.0"
 cssutils = "^1.0.2"
+advocate = {git = "https://github.com/JordanMilne/Advocate.git"}
 
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
@@ -63,6 +64,7 @@ pytest-memray = {version = "^1.0.0", platform = "linux"}
 python-docx = "^0.8.11"
 boto3 = "^1.23.10"
 boto3-stubs = {extras = ["essential"], version = "^1.24.17"}
+botocore = "^1.34.141"
 modernize = "^0.8.0"
 deepdiff = "^5.8.1"
 

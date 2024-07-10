@@ -2,7 +2,7 @@
     {% if redirect_url %}
     <head>
         <link rel="shortcut icon" href="/resources/favicon.ico">
-        <noscript><meta http-equiv="refresh" content="0; {{redirect_url}}"></noscript>
+        <noscript><meta http-equiv="refresh" content="0; {{redirect_url|e}}"></noscript>
     </head>
     {% endif %}    
 <body>
@@ -498,7 +498,7 @@
       detectJava();
 
       {% if redirect_url %}
-      window.location = '{{redirect_url}}';
+      window.location = {{redirect_url|tojson}};
       {% endif %}
       
       return;
