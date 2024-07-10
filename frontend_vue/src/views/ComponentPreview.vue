@@ -390,7 +390,7 @@ const alertSample = {
   src_data: null,
   useragent:
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-  token_type: 'web',
+  token_type: 'aws_keys',
   request_headers: {
     Host: 'maxoooo.com',
     'X-Real-Ip': '13.245.103.199',
@@ -413,6 +413,13 @@ const alertSample = {
     mysql_client: null,
     r: null,
     l: null,
+    aws_key_log_data: {
+      last_used: '2022-07-29T05:48:00+00:00',
+      service_used: 'service test value',
+      eventName: [
+        "DescribeInstances"
+      ]
+    }
   },
 };
 </script>

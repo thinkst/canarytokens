@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-32 m-4 bg-white rounded-2xl">
+  <div class="pb-32 bg-white sm:m-8 rounded-3xl">
     <div class="sticky top-[0px] bg-white h-[4rem] sm:h-40 flex justify-end">
       <button
         type="button"
@@ -65,12 +65,28 @@
                       >
                         <IncidentDetailsListItem
                           v-if="
-                            !isObject(nested_val) && isNotEmpty(deepnested_val)
+                            !isObject(deepnested_val) && isNotEmpty(deepnested_val)
                           "
                           :label="deepnested_key"
                           :value="deepnested_val"
                           class="py-8 ml-24"
                         />
+                         <template v-else>
+                          <template
+                            v-for="(deepestnested_val, deepernested_key) in deepnested_val"
+                            :key="deepernested_key"
+                          >
+                            <IncidentDetailsListItem
+                              v-if="
+                                !isObject(deepestnested_val) &&
+                                isNotEmpty(deepestnested_val)
+                              "
+                              :label="deepnested_key"
+                              :value="deepestnested_val"
+                              class="py-8 ml-24"
+                            />
+                            </template>
+                         </template>
                       </template>
                     </ul>
                     <div class="border-b border-grey-100"></div>

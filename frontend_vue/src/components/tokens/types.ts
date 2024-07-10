@@ -160,8 +160,9 @@ export type GeoInfo = {
 export type RequestHeaders = Record<string, string>;
 
 export type AWSLogDataType = {
-  last_used: Date | number | null;
+  last_used: string | null;
   service_used: string;
+  eventName: string | null;
 };
 
 export type AdditionalInfoType = {
