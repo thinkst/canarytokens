@@ -162,7 +162,7 @@ export type RequestHeaders = Record<string, string>;
 export type AWSLogDataType = {
   last_used: string | null;
   service_used: string;
-  eventName: string | null;
+  eventName?: string[] | null;
 };
 
 export type AdditionalInfoType = {

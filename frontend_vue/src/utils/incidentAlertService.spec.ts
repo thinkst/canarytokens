@@ -144,7 +144,7 @@ describe('buildIncidentDetails', () => {
       token_type: 'aws_keys',
       additional_info: {
         aws_key_log_data: {
-          last_used: 1714637259.126385,
+          last_used: '2021-12-12T12:12:12Z',
           service_used: 'service name',
         },
       },
