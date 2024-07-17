@@ -288,7 +288,7 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.MICROSOFT,
   },
   [TOKENS_TYPE.CLONED_WEBSITE]: {
-    label: 'JS Cloned website',
+    label: 'JS cloned website',
     description:
       'Get an alert (using Javascript) when an attacker clones your website.',
     documentationLink:
