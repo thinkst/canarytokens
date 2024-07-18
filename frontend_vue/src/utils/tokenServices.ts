@@ -136,8 +136,8 @@ export const tokenServices: TokenServicesType = {
     icon: `${TOKENS_TYPE.SENSITIVE_CMD}.png`,
     instruction: '',
     howItWorksInstructions: [
-      'We give you a Windows command.',
-      'You place it somewhere.',
+      'We give you a Windows registry file.',
+      'You import the registry file.',
       'We send you an alert if an attacker runs that Windows command.',
     ],
     category: TOKEN_CATEGORY.MICROSOFT,
