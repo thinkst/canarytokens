@@ -153,7 +153,7 @@
                                                         <tr>
                                                             <td style="width:240px;">
                                                                 <img alt="Canarytokens" height="70"
-                                                                    src="https://canarytokens.org/resources/notification-email/token_logo.svg"
+                                                                    src="https://canarytokens.org/resources/notification-email/token-icons/{{BasicDetails['readable_type']}}.png"
                                                                     style="border:none;display:block;outline:none;text-decoration:none;height:70px;width:100%;font-size:13px;"
                                                                     width="240">
                                                             </td>
@@ -238,11 +238,14 @@
                                                                                     <div
                                                                                         style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">
                                                                                         <span
-                                                                                            style="color:#060606;font-weight:600">Azure
-                                                                                            Login Certificate</span>
+                                                                                            style="color:#060606;font-weight:600">{{
+                                                                                            BasicDetails['readable_type']
+                                                                                            }}</span>
                                                                                         Canarytoken has been triggered
                                                                                         by the Source IP <span
-                                                                                            style="color:#060606;font-weight:600">162.156.154.100</span>
+                                                                                            style="color:#060606;font-weight:600">{{
+                                                                                            BasicDetails['src_ip']
+                                                                                            }}</span>
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>
@@ -313,15 +316,9 @@
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
                                                                                                 <mj-text
                                                                                                     style="font-weight:400;color:#060606">
-                                                                                                    Something fun and
-                                                                                                    something less fun
-                                                                                                    and something else
-                                                                                                    just to occupy space
-                                                                                                    Something fun and
-                                                                                                    something less fun
-                                                                                                    and something else
-                                                                                                    just to occupy
-                                                                                                    space</mj-text>
+                                                                                                    {{
+                                                                                                    BasicDetails['memo']
+                                                                                                    | e}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -386,7 +383,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="https://canarytokens.org/resources/notification-email/ipsource.svg"
+                                                                                                    src="https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['continent']}}"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -395,7 +392,7 @@
                                                                                                     IP</mj-text>
                                                                                                 <mj-text
                                                                                                     style="font-weight:400;color:#060606">
-                                                                                                    123.456.789</mj-text>
+                                                                                                    {{BasicDetails['src_ip']}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -467,15 +464,13 @@
                                                                                                 <mj-text
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Day</mj-text>
                                                                                                 <mj-text
-                                                                                                    style="font-weight:400;color:#060606">01.02.2024</mj-text>
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['time_Ymd']}}</mj-text>
                                                                                             </td>
                                                                                             <td>
                                                                                                 <mj-text
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Time</mj-text>
                                                                                                 <mj-text
-                                                                                                    style="font-weight:400;color:#060606">11:52:47
-                                                                                                    .584359
-                                                                                                    UTC</mj-text>
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['time_HM']}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -548,15 +543,9 @@
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Browser
                                                                                                     Identity</mj-text>
                                                                                                 <mj-text
-                                                                                                    style="font-weight:400;color:#060606">Mozilla/5.0
-                                                                                                    (iPhone; CPU iPhone
-                                                                                                    OS 17_5 like Mac OS
-                                                                                                    X)
-                                                                                                    AppleWebKit/605.1.15
-                                                                                                    (KHTML, like Gecko)
-                                                                                                    CriOS/126.0.6478.153
-                                                                                                    Mobile/15E148
-                                                                                                    Safari/604.1</mj-text>
+                                                                                                    style="font-weight:400;color:#060606">{{
+                                                                                                    BasicDetails['useragent']
+                                                                                                    | e}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -615,7 +604,7 @@
                                                                                 role="presentation"
                                                                                 style="border:none;border-radius:24px;cursor:auto;mso-padding-alt:10px 25px;background:#818a8e;"
                                                                                 valign="middle">
-                                                                                <a href="https://canarytokens.org"
+                                                                                <a href="{{ HistoryLink }}"
                                                                                     style="display:inline-block;background:#818a8e;color:#FFFFFF;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:160%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:24px;"
                                                                                     target="_blank"> Alert History </a>
                                                                             </td>
@@ -695,7 +684,7 @@
                                                                     <div
                                                                         style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#4D4D4D;">
                                                                         More info on this Canarytoken? <a
-                                                                            href="{{ HistoryLink }}"
+                                                                            href="https://docs.canarytokens.org/guide/"
                                                                             style="text-decoration:none;color:#33c480">Click
                                                                             here</a></div>
                                                                 </td>
@@ -781,8 +770,9 @@
                                                                     style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                                     <div
                                                                         style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:white;">
-                                                                        <span style="text-decoration:underline">Find out
-                                                                            why<span></span></span>
+                                                                        <a href="https://canary.tools/"
+                                                                            style="color:white">Find out
+                                                                            why<a></a></a></span></span>
                                                                     </div>
                                                                 </td>
                                                             </tr>
