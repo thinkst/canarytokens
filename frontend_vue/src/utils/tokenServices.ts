@@ -355,7 +355,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink: '',
     icon: `${TOKENS_TYPE.AZURE_ENTRA_CONFIG}.png`,
     instruction:
-      "This token can be deployed automatically or manually. It inserts CSS into your Azure tenant's Entra ID login page to detect when the page has been cloned",
+      "This token can be deployed automatically or manually. It inserts CSS into your Azure tenant's Entra ID login page to detect when the page has been cloned.",
     howItWorksInstructions: [
       'We give you a CSS snippet.',
       'You place it somewhere into your Azure tenant`s Entra ID login page.',
