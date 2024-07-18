@@ -1,263 +1,808 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
-  <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" name="viewport" />
-  <title>{{ Title }}</title>
-  <style type="text/css">
-  @media only screen and (min-width: 510px) {
-    table.logo,
-    td.footer .left {
-      width: 50% !important;
-      float: left !important;
-      text-align: left !important;
-    }
-    table.date,
-    td.footer .right {
-      width: 50% !important;
-      float: right !important;
-      text-align: right !important;
-    }
-    table.date {
-      height: 50px;
-    }
-  }
+    <title> Canarytoken triggered! </title>
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<![endif]-->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+        #outlook a {
+            padding: 0;
+        }
 
-  </style>
+        body {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table,
+        td {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        p {
+            display: block;
+            margin: 13px 0;
+        }
+    </style>
+    <!--[if mso]>
+        <noscript>
+        <xml>
+        <o:OfficeDocumentSettings>
+          <o:AllowPNG/>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+        </xml>
+        </noscript>
+        <![endif]-->
+    <!--[if lte mso 11]>
+        <style type="text/css">
+          .mj-outlook-group-fix { width:100% !important; }
+        </style>
+        <![endif]-->
+    <style type="text/css">
+        @media only screen and (min-width:480px) {
+            .mj-column-per-100 {
+                width: 100% !important;
+                max-width: 100%;
+            }
+
+            .mj-column-per-40 {
+                width: 40% !important;
+                max-width: 40%;
+            }
+
+            .mj-column-per-50 {
+                width: 50% !important;
+                max-width: 50%;
+            }
+        }
+    </style>
+    <style media="screen and (min-width:480px)">
+        .moz-text-html .mj-column-per-100 {
+            width: 100% !important;
+            max-width: 100%;
+        }
+
+        .moz-text-html .mj-column-per-40 {
+            width: 40% !important;
+            max-width: 40%;
+        }
+
+        .moz-text-html .mj-column-per-50 {
+            width: 50% !important;
+            max-width: 50%;
+        }
+    </style>
+    <style type="text/css">
+        @media only screen and (max-width:480px) {
+            table.mj-full-width-mobile {
+                width: 100% !important;
+            }
+
+            td.mj-full-width-mobile {
+                width: auto !important;
+            }
+        }
+    </style>
 </head>
 
-<body bgcolor="#EDECED" style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #333333; margin-bottom: 20px;">
-  <table bgcolor="#EDECED" border="0" cellpadding="0" cellspacing="0" class="wrapper" style="padding-top: 20px; padding-bottom: 20px;" width="100%">
-    <tr>
-      <td>
-        <table align="center" border="0" cellpadding="0" cellspacing="0" class="container" style="padding-top:10px; padding-bottom:20px; margin: auto; min-width: 315px; max-width: 660px; overflow: hidden;" width="95%">
-          <tr>
-            <td>
-              <table bgcolor="#ffffff" border="0" cellpadding="18" cellspacing="0" class="content alert" style="border: 1px solid #D7D7D7; margin-top: 10px; border-radius: 5px; border-top: 4px solid #e94b35;" width="100%">
-                <tr>
-                  <td>
-                    <table width="100%">
-                      <tr>
-                        <td>
-                          <h1 style="text-align: center; font-weight: normal; font-size: 26px;">{{ Title }}</h1>
-                          <table bgcolor="#E94B35" cellpadding="5" class="alert" style="text-align: center; color: #ffffff; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px;" width="100%">
-                            <tr>
-                              <td>Alert </td>
-                            </tr>
-                          </table>
-                          <tr>
-                            <td>
-                              <table class="incident">
-                                <tr>
-                                  <td>{{ Intro }}</td>
-                                </tr>
-                              </table>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <table class="details" width="100%">
-                                <tr>
-                                  <td>
-                                    <h2 style="font-size: 18px;">Basic Details:</h2></td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <table class="data" style="border: 1px solid #cccccc; font-size: 14px; border-collapse: collapse;" width="100%">
-                      {% if BasicDetails['channel'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Channel</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['channel'] }}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['time'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Time</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['time'] }}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['token'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canarytoken</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['token'] }}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['memo'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token reminder</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['memo'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['readable_type'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Token type</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['readable_type'] }}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['src_ip'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Source IP</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['src_ip'] }}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['useragent'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">User-agent</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['useragent'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['referer'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><a href="" style="text-decoration: none !important;"><code>{{ BasicDetails['referer'] | replace('http', 'hxxp', 1) | e}}</code></a></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['referrer'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Referer</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><a href="" style="text-decoration: none !important;"><code>{{ BasicDetails['referrer'] | replace('http', 'hxxp', 1) | e}}</code></a></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['location'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Location</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><a href="" style="text-decoration: none !important;"><code>{{ BasicDetails['location'] | replace('http', 'hxxp', 1) | e}}</code></a></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['request_args'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Request arguments</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['request_args'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['log4_shell_computer_name'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Log4Shell hostname</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['log4_shell_computer_name'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['sql_username'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">SQL Server username</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['sql_username'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['linux_inotify_filename_access'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Filename</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['linux_inotify_filename_access'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['cmd_process'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Sensitive command</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_process'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['cmd_computer_name'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Executed on</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_computer_name'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['cmd_user_name'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Run by</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['cmd_user_name'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['merchant'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Authorizing merchant</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['merchant'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['amount'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Transaction amount</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['amount'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Service Used</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['aws_key_log_data']['service_used'][0].upper() | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['CanaryIP'] or BasicDetails['CanaryName'] %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canary</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;">
-                                          <code>
-                                            {% if BasicDetails['CanaryIP'] %}{{ BasicDetails['CanaryIP'] }}{%endif%}
-                                            {% if BasicDetails['CanaryName'] %}({{BasicDetails['CanaryName'] | e}}
-                                              {%- if BasicDetails['CanaryID'] %}, ID:{{BasicDetails['CanaryID']}}{%endif-%}
-                                            ){%endif%}
-                                          </code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails['generic_data'] %}
-                                      <tr>
-                                          <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Generic data</td>
-                                          <td style="border: 1px solid #cccccc; padding: 5px;"><code>{{ BasicDetails['generic_data'] | e}}</code></td>
-                                      </tr>
-                      {% endif %}
-                      {% if BasicDetails.get('CanaryLocation', '') %}
-                                      <tr>
-                                        <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 180px; border: 1px solid #cccccc; padding: 5px;">Canary Location</td>
-                                        <td style="border: 1px solid #cccccc; padding: 5px;">
-                                          <code>
-                                            {{ BasicDetails['CanaryLocation'] | e}}
-                                          </code></td>
-                                      </tr>
-                      {% endif %}
-                                    </table>
-                                  </td>
-                                </tr>
-                {% if ManageLink or HistoryLink %}
-                                <tr>
-                                  <td>
-                                    <h2 style="font-size: 18px;">Canarytoken Management Details:</h2></td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <table class="data" style="border: 1px solid #cccccc; font-size: 14px; border-collapse: collapse;" width="100%">
-                                      <tr>
-                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">Manage this Canarytoken <a href="{{ ManageLink }}">here</a></td>
-                                      </tr>
-                                      <tr>
-                                       <td class="label" style="background: #eeeeee; font-weight: bold; _border: none; width: 120px; border: 1px solid #cccccc; padding: 5px;text-align: center;">More info on this token <a href="{{ HistoryLink }}">here</a></td>
-                                      </tr>
-                                    </table>
-                                  </td>
-                                </tr>
-                {% endif %}
-                              </table>
-                            </td>
-                          </tr>
+<body style="word-spacing:normal;background-color:#F6F7FA;">
+    <div style="background-color:#F6F7FA;">
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:10px 0 20px 0;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+                            <div class="mj-column-per-100 mj-outlook-group-fix"
+                                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="vertical-align:top;" width="100%">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table><![endif]-->
                         </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="footer" style="font-size: 12px; text-align: center; padding-top: 10px; color: #666666; min-width: 315px; max-width: 660px; padding-bottom: 10px;" width="100%">
-                    <table class="left" width="100%">
-                      <tr>
-                        <td>Powered by: <a href="https://canary.tools">Thinkst Canary</a>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-              <a href="https://canary.tools" target="_blank" style="text-align: center; background-image: url('https://thinkst.com/images/thinkst-canary-banner-hi-res-2.png'); height: 200px; width: 100%; display: block; background-repeat: no-repeat; background-size: contain; margin-top: 15px;"></a>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- Red bar top -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#ec4f41" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div
+            style="background:#ec4f41;background-color:#ec4f41;margin:0px auto;border-radius:30px 30px 0 0;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#ec4f41;background-color:#ec4f41;width:100%;border-radius:30px 30px 0 0;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:10px 0 0px 0px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><![endif]-->
+                            <!-- Logo -->
+                            <!--[if mso | IE]><td class="" style="vertical-align:top;width:240px;" ><![endif]-->
+                            <div class="mj-column-per-40 mj-outlook-group-fix"
+                                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="vertical-align:top;" width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td align="center" style="font-size:0px;padding:0px;word-break:break-word;">
+                                                <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                                    style="border-collapse:collapse;border-spacing:0px;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width:240px;">
+                                                                <img alt="Canarytokens" height="70"
+                                                                    src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token_logo.png"
+                                                                    style="border:none;display:block;outline:none;text-decoration:none;height:70px;width:100%;font-size:13px;"
+                                                                    width="240">
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 20px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><![endif]-->
+                            <!-- Alert icon -->
+                            <!-- Alert Top details -->
+                            <!--[if mso | IE]><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div style="margin:0px auto;border-radius:16px 16px;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="width:100%;border-radius:16px 16px;">
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style="direction:ltr;font-size:0px;padding:20px 0px 20px;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><![endif]-->
+                                                <table width="100%" cellpadding="0" cellspacing="0"
+                                                    style="border-collapse: collapse; background-size: cover; height: 40px">
+                                                    <tr>
+                                                        <td
+                                                            style="width: 10%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/left.png'); background-position: center left">
+                                                            <p></p>
+                                                        </td>
+                                                        <td
+                                                            style="width: 80%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/center.png'); background-position: center">
+                                                            <img src="`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token-icons/{{BasicDetails['token_type']}}.png`"
+                                                                alt="Canarytokens" align="center" border="none"
+                                                                padding="0px" width="70px" class="center-image"
+                                                                style="display: block; margin: 0 auto;">
+                                                            <p></p>
+                                                        </td>
+                                                        <td
+                                                            style="width: 10%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/right.png'); background-position: center right">
+                                                            <p></p>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <!--[if mso | IE]><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td
+                                                                    style="background-color:#f6f8fb;border-radius:0 0 16px 16px;vertical-align:top;padding-bottom:30px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation" style width="100%">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="center"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <div
+                                                                                        style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:24px;font-weight:bold;line-height:24px;text-align:center;color:#060606;">
+                                                                                        Your Canarytoken was triggered
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td align="center"
+                                                                                    style="font-size:0px;padding:0px 20px;word-break:break-word;">
+                                                                                    <div
+                                                                                        style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">
+                                                                                        <span
+                                                                                            style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
+                                                                                        Canarytoken has been triggered
+                                                                                        {% if BasicDetails['src_ip'] %}
+                                                                                        by the Source IP <span
+                                                                                            style="color:#060606;font-weight:600">{{BasicDetails['src_ip']}}</span>
+                                                                                        {% endif %}
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- Reminder -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div
+                                style="background:#f6f8fb;background-color:#f6f8fb;margin:0px auto;border-radius:16px 16px;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="background:#f6f8fb;background-color:#f6f8fb;width:100%;border-radius:16px 16px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="vertical-align:top;padding:0px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation" style width="100%">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="left"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <table cellpadding="0"
+                                                                                        cellspacing="0" width="100%"
+                                                                                        border="0"
+                                                                                        style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
+                                                                                        <tr
+                                                                                            style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                                rowspan="2">
+                                                                                                <img align="center"
+                                                                                                    src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png"
+                                                                                                    width="50px">
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <mj-text
+                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
+                                                                                                <mj-text
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['memo']
+                                                                                                    | e}}</mj-text>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- Source IP -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        {% if BasicDetails['src_ip'] %}
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div
+                                style="background:#f6f8fb;background-color:#f6f8fb;margin:0px auto;border-radius:16px 16px;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="background:#f6f8fb;background-color:#f6f8fb;width:100%;border-radius:16px 16px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="vertical-align:top;padding:0px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation" style width="100%">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="left"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <table cellpadding="0"
+                                                                                        cellspacing="0" width="100%"
+                                                                                        border="0"
+                                                                                        style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
+                                                                                        <tr
+                                                                                            style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                                rowspan="2">
+                                                                                                <img align="center"
+                                                                                                    src="`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}`"
+                                                                                                    width="50px">
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <mj-text
+                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;">Source
+                                                                                                    IP</mj-text>
+                                                                                                <mj-text
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</mj-text>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- Day & Time -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div
+                                style="background:#f6f8fb;background-color:#f6f8fb;margin:0px auto;border-radius:16px 16px;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="background:#f6f8fb;background-color:#f6f8fb;width:100%;border-radius:16px 16px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="vertical-align:top;padding:0px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation" style width="100%">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="left"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <table cellpadding="0"
+                                                                                        cellspacing="0" width="100%"
+                                                                                        border="0"
+                                                                                        style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
+                                                                                        <tr
+                                                                                            style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                                rowspan="2">
+                                                                                                <img align="center"
+                                                                                                    src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png"
+                                                                                                    width="50px">
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <mj-text
+                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;">Day</mj-text>
+                                                                                                <mj-text
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['time_Ymd']}}</mj-text>
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <mj-text
+                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;">Time</mj-text>
+                                                                                                <mj-text
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['time_HM']}}</mj-text>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- Browser -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        {% if BasicDetails['useragent'] %}
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div
+                                style="background:#f6f8fb;background-color:#f6f8fb;margin:0px auto;border-radius:16px 16px;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="background:#f6f8fb;background-color:#f6f8fb;width:100%;border-radius:16px 16px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="vertical-align:top;padding:0px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation" style width="100%">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="left"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <table cellpadding="0"
+                                                                                        cellspacing="0" width="100%"
+                                                                                        border="0"
+                                                                                        style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
+                                                                                        <tr
+                                                                                            style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                                rowspan="2">
+                                                                                                <img align="center"
+                                                                                                    src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png"
+                                                                                                    width="50px">
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <mj-text
+                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;">Browser
+                                                                                                    Identity</mj-text>
+                                                                                                <mj-text
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['useragent']|
+                                                                                                    e}}</mj-text>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- CTA -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 0px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div style="margin:0px auto;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="width:100%;">
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style="direction:ltr;font-size:0px;padding:0px 0 20px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:270px;" ><![endif]-->
+                                                <div class="mj-column-per-50 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" style="vertical-align:top;" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td align="center" vertical-align="middle"
+                                                                    style="font-size:0px;padding:10px 20px;word-break:break-word;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation"
+                                                                        style="border-collapse:separate;width:100%;line-height:100%;">
+                                                                        <tr>
+                                                                            <td align="center" bgcolor="#818a8e"
+                                                                                role="presentation"
+                                                                                style="border:none;border-radius:24px;cursor:auto;mso-padding-alt:10px 25px;background:#818a8e;"
+                                                                                valign="middle">
+                                                                                <a href="{{ HistoryLink }}"
+                                                                                    style="display:inline-block;background:#818a8e;color:#FFFFFF;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:160%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:24px;"
+                                                                                    target="_blank"> Alert History </a>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:270px;" ><![endif]-->
+                                                <div class="mj-column-per-50 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" style="vertical-align:top;" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td align="center" vertical-align="middle"
+                                                                    style="font-size:0px;padding:10px 20px;word-break:break-word;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                                        role="presentation"
+                                                                        style="border-collapse:separate;width:100%;line-height:100%;">
+                                                                        <tr>
+                                                                            <td align="center" bgcolor="#33c480"
+                                                                                role="presentation"
+                                                                                style="border:none;border-radius:24px;cursor:auto;mso-padding-alt:10px 25px;background:#33c480;"
+                                                                                valign="middle">
+                                                                                <a href="{{ ManageLink }}"
+                                                                                    style="display:inline-block;background:#33c480;color:#FFFFFF;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:160%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:24px;"
+                                                                                    target="_blank"> Manage Alert </a>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- More info -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 0px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div style="margin:0px auto;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="width:100%;">
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style="direction:ltr;font-size:0px;padding:0px 0 20px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" style="vertical-align:top;" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td align="center"
+                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                    <div
+                                                                        style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#4D4D4D;">
+                                                                        More info on this Canarytoken? <a
+                                                                            href="https://docs.canarytokens.org/guide/"
+                                                                            style="text-decoration:none;color:#33c480">Click
+                                                                            here</a></div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!-- New Table -->
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div
+            style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;border-radius:0 0 60px 60px;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#FFFFFF;background-color:#FFFFFF;width:100%;border-radius:0 0 60px 60px;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#F6F7FA" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#F6F7FA;background-color:#F6F7FA;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#F6F7FA;background-color:#F6F7FA;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#38d07e" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#38d07e;background-color:#38d07e;margin:0px auto;border-radius:30px;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#38d07e;background-color:#38d07e;width:100%;border-radius:30px;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:10px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <div style="margin:0px auto;max-width:540px;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="width:100%;">
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style="direction:ltr;font-size:0px;padding:20px 0 10px 0;text-align:center;">
+                                                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:540px;" ><![endif]-->
+                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                        role="presentation" style="vertical-align:top;" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td align="center"
+                                                                    style="font-size:0px;padding:10px 30px;word-break:break-word;">
+                                                                    <div
+                                                                        style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:24px;font-weight:400;line-height:1.4;text-align:center;color:white;">
+                                                                        Some of the <span style="font-weight:600">best
+                                                                            security teams</span> in the world run <span
+                                                                            style="font-weight:600">Thinkst
+                                                                            Canary</span>.</div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td align="center"
+                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                    <div
+                                                                        style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:white;">
+                                                                        <a href="https://canary.tools/"
+                                                                            style="color:white">Find out why<a></a></a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--[if mso | IE]></td></tr></table><![endif]-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--[if mso | IE]></td></tr></table></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#F6F7FA" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="background:#F6F7FA;background-color:#F6F7FA;margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#F6F7FA;background-color:#F6F7FA;width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"></table><![endif]-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+    </div>
 </body>
 
 </html>
