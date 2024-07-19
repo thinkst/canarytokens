@@ -1,0 +1,209 @@
+<mjml>
+  <mj-head>
+    <mj-title>Canarytoken triggered!</mj-title>
+    <mj-attributes>
+      <mj-all font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#4D4D4D" line-height="24px" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-text>
+    </mj-attributes>
+    <mj-style inline="inline">
+      .center-image {
+        display: block;
+        margin: 0 auto;
+      }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#F6F7FA" width="600px">
+    <mj-section padding="10px 0 20px 0">
+      <mj-column>
+      </mj-column>
+    </mj-section>
+
+    <!-- Red bar top -->
+    <mj-section padding="10px 0 0px 0px" border-radius="30px 30px 0 0" background-color="#ec4f41">
+      <!--Logo -->
+      <mj-column width="40%">
+        <mj-image src="assets/token_logo.svg" alt="Canarytokens" align="center" border="none" padding="0px" height="70px" />
+      </mj-column>
+    </mj-section>
+
+
+    <mj-wrapper padding="0px 30px 20px" background-color="#FFF">
+      <!--Alert icon -->
+
+      <!--Alert Top details -->
+      <mj-section padding="20px 0px 20px" border-radius="16px 16px">
+        <mj-raw>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; background-size: cover; height: 40px">
+            <tr>
+              <td style="width: 10%; padding: 0; margin: 0; background-image: url('assets/left.png'); background-position: center left">
+                <p></p>
+              </td>
+              <td style="width: 80%; padding: 0; margin: 0; background-image: url('assets/center.png'); background-position: center">
+                <img src="assets/placeholder_token.png" alt="logo token" align="center" border="none" padding="0px" width="70px" class="center-image" />
+                <p></p>
+              </td>
+              <td style="width: 10%; padding: 0; margin: 0; background-image: url('assets/right.png'); background-position: center right">
+                <p></p>
+              </td>
+            </tr>
+          </table>
+        </mj-raw>
+        <mj-column background-color="#f6f8fb" padding-bottom="30px" border-radius="0 0 16px 16px">
+          <mj-text color="#060606" font-weight="bold" align="center" font-size="24px">
+            Your Canarytoken was triggered</mj-text>
+          <mj-text color="#818a8e" padding="0px 20px" align="center">
+            <span style="color:#060606;font-weight:600">Azure Login Certificate</span>
+            Canarytoken has been triggered by the Source IP
+            <span style="color:#060606;font-weight:600">162.156.154.100</span>
+          </mj-text>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+    <!--Reminder -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+                <img align="center" src="assets/reminder.svg" width="50px" />
+              </td>
+              <td>
+                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
+                <mj-text style="font-weight:400;color:#060606"> Something fun and something less fun and something else just to occupy space Something fun and something less fun and something else just to occupy space</mj-text>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+    <!--Source IP -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+                <img align="center" src="assets/ipsource.svg" width="50px" />
+              </td>
+              <td>
+                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Source IP</mj-text>
+                <mj-text style="font-weight:400;color:#060606"> 123.456.789</mj-text>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+    <!-- Day & Time -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+                <img align="center" src="assets/daytime.svg" width="50px" />
+              </td>
+              <td>
+                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Day</mj-text>
+                <mj-text style="font-weight:400;color:#060606">01.02.2024</mj-text>
+              </td>
+              <td>
+                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Time</mj-text>
+                <mj-text style="font-weight:400;color:#060606">11:52:47 .584359 UTC</mj-text>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+
+    <!-- Browser -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+                <img align="center" src="assets/browserid.svg" width="50px" />
+              </td>
+              <td>
+                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Browser Identity</mj-text>
+                <mj-text style="font-weight:400;color:#060606">Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.6478.153 Mobile/15E148 Safari/604.1</mj-text>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+
+
+
+    <!-- CTA -->
+    <mj-wrapper padding="0px 30px 0px" background-color="#FFF">
+      <mj-section padding="0px 0 20px 0">
+        <mj-column>
+          <mj-button line-height="160%" background-color="#818a8e" color="#FFF" font-size="16px" font-weight="bold" padding="10px 20px" border-radius="24px" align="center" href="https://canarytokens.org" width="100%">
+            Alert History
+          </mj-button>
+        </mj-column>
+        <mj-column>
+          <mj-button line-height="160%" background-color="#33c480" color="#FFF" font-size="16px" font-weight="bold" padding="10px 20px" border-radius="24px" align="center" href="https://canarytokens.org" width="100%">
+            Manage Alert
+          </mj-button>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <!-- More info -->
+    <mj-wrapper padding="0px 30px 0px" background-color="#FFF">
+      <mj-section padding="0px 0 20px 0">
+        <mj-column>
+          <mj-text align="center">More info on this Canarytoken? <a href="#" style="text-decoration:none;color:#33c480">Click here</a></mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+
+    <!-- New Table -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF" border-radius="0 0 60px 60px"></mj-wrapper>
+    <mj-wrapper padding="0px 30px 30px" background-color="#F6F7FA"></mj-wrapper>
+
+    <mj-wrapper padding="10px 30px" background-color="#38d07e" border-radius="30px">
+      <mj-section padding="20px 0 10px 0">
+        <mj-column>
+          <mj-text align="center" color="white" font-size="24px" line-height="1.4" padding="10px 30px">
+            Some of the <span style="font-weight:600">best security teams</span> in the world run <span style="font-weight:600">Thinkst Canary</span>.
+          </mj-text>
+          <mj-text align="center" color="white">
+            <a href="https://canary.tools/" style="color:white">Find out why<a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <mj-wrapper padding="0px 30px 30px" background-color="#F6F7FA"></mj-wrapper>
+
+
+  </mj-body>
+</mjml>
