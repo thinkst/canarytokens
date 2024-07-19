@@ -3,7 +3,7 @@
     xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-    <title>{{ Title }}</title>
+    <title> Canarytoken triggered! </title>
     <!--[if !mso]><!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!--<![endif]-->
@@ -153,7 +153,7 @@
                                                         <tr>
                                                             <td style="width:240px;">
                                                                 <img alt="Canarytokens" height="70"
-                                                                    src="https://canarytokens.org/resources/notification-email/token-icons/{{BasicDetails['readable_type']}}.png"
+                                                                    src="ttps://canarytokens.org/resources/notification-email/token_logo.svg"
                                                                     style="border:none;display:block;outline:none;text-decoration:none;height:70px;width:100%;font-size:13px;"
                                                                     width="240">
                                                             </td>
@@ -194,19 +194,19 @@
                                                     style="border-collapse: collapse; background-size: cover; height: 40px">
                                                     <tr>
                                                         <td
-                                                            style="width: 10%; padding: 0; margin: 0; background-image: url('https://canarytokens.org/resources/notification-email/left.png'); background-position: center left">
+                                                            style="width: 10%; padding: 0; margin: 0; background-image: url('ttps://canarytokens.org/resources/notification-email/left.png'); background-position: center left">
                                                             <p></p>
                                                         </td>
                                                         <td
-                                                            style="width: 80%; padding: 0; margin: 0; background-image: url('https://canarytokens.org/resources/notification-email/center.png'); background-position: center">
-                                                            <img src="https://canarytokens.org/resources/notification-email/placeholder_token.png"
-                                                                alt="logo token" align="center" border="none"
+                                                            style="width: 80%; padding: 0; margin: 0; background-image: url('ttps://canarytokens.org/resources/notification-email/center.png'); background-position: center">
+                                                            <img src="`https://canarytokens.org/resources/notification-email/token-icons/{{BasicDetails['readable_type']}}.png`"
+                                                                alt="Canarytokens" align="center" border="none"
                                                                 padding="0px" width="70px" class="center-image"
                                                                 style="display: block; margin: 0 auto;">
                                                             <p></p>
                                                         </td>
                                                         <td
-                                                            style="width: 10%; padding: 0; margin: 0; background-image: url('https://canarytokens.org/resources/notification-email/right.png'); background-position: center right">
+                                                            style="width: 10%; padding: 0; margin: 0; background-image: url('ttps://canarytokens.org/resources/notification-email/right.png'); background-position: center right">
                                                             <p></p>
                                                         </td>
                                                     </tr>
@@ -238,14 +238,10 @@
                                                                                     <div
                                                                                         style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">
                                                                                         <span
-                                                                                            style="color:#060606;font-weight:600">{{
-                                                                                            BasicDetails['readable_type']
-                                                                                            }}</span>
+                                                                                            style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
                                                                                         Canarytoken has been triggered
                                                                                         by the Source IP <span
-                                                                                            style="color:#060606;font-weight:600">{{
-                                                                                            BasicDetails['src_ip']
-                                                                                            }}</span>
+                                                                                            style="color:#060606;font-weight:600">{{BasicDetails['src_ip']}}</span>
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>
@@ -308,16 +304,14 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="https://canarytokens.org/resources/notification-email/reminder.svg"
+                                                                                                    src="ttps://canarytokens.org/resources/notification-email/reminder.svg"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
                                                                                                 <mj-text
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
                                                                                                 <mj-text
-                                                                                                    style="font-weight:400;color:#060606">
-                                                                                                    {{
-                                                                                                    BasicDetails['memo']
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['memo']
                                                                                                     | e}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
@@ -383,7 +377,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['continent']}}"
+                                                                                                    src="`https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['continent']}}`"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -391,8 +385,7 @@
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Source
                                                                                                     IP</mj-text>
                                                                                                 <mj-text
-                                                                                                    style="font-weight:400;color:#060606">
-                                                                                                    {{BasicDetails['src_ip']}}</mj-text>
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -457,7 +450,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="https://canarytokens.org/resources/notification-email/daytime.svg"
+                                                                                                    src="ttps://canarytokens.org/resources/notification-email/daytime.svg"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -535,7 +528,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="https://canarytokens.org/resources/notification-email/browserid.svg"
+                                                                                                    src="ttps://canarytokens.org/resources/notification-email/browserid.svg"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -543,9 +536,8 @@
                                                                                                     style="padding-bottom:4px;font-weight:600;display:block;">Browser
                                                                                                     Identity</mj-text>
                                                                                                 <mj-text
-                                                                                                    style="font-weight:400;color:#060606">{{
-                                                                                                    BasicDetails['useragent']
-                                                                                                    | e}}</mj-text>
+                                                                                                    style="font-weight:400;color:#060606">{{BasicDetails['useragent']|
+                                                                                                    e}}</mj-text>
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -604,7 +596,7 @@
                                                                                 role="presentation"
                                                                                 style="border:none;border-radius:24px;cursor:auto;mso-padding-alt:10px 25px;background:#818a8e;"
                                                                                 valign="middle">
-                                                                                <a href="{{ HistoryLink }}"
+                                                                                <a href="https://canarytokens.org"
                                                                                     style="display:inline-block;background:#818a8e;color:#FFFFFF;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:160%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:24px;"
                                                                                     target="_blank"> Alert History </a>
                                                                             </td>
@@ -632,7 +624,7 @@
                                                                                 role="presentation"
                                                                                 style="border:none;border-radius:24px;cursor:auto;mso-padding-alt:10px 25px;background:#33c480;"
                                                                                 valign="middle">
-                                                                                <a href="{{ ManageLink }}"
+                                                                                <a href="https://canarytokens.org"
                                                                                     style="display:inline-block;background:#33c480;color:#FFFFFF;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:160%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:24px;"
                                                                                     target="_blank"> Manage Alert </a>
                                                                             </td>
@@ -683,8 +675,7 @@
                                                                     style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                                     <div
                                                                         style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#4D4D4D;">
-                                                                        More info on this Canarytoken? <a
-                                                                            href="https://docs.canarytokens.org/guide/"
+                                                                        More info on this Canarytoken? <a href="#"
                                                                             style="text-decoration:none;color:#33c480">Click
                                                                             here</a></div>
                                                                 </td>
@@ -771,8 +762,7 @@
                                                                     <div
                                                                         style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:white;">
                                                                         <a href="https://canary.tools/"
-                                                                            style="color:white">Find out
-                                                                            why<a></a></a></span></span>
+                                                                            style="color:white">Find out why<a></a></a>
                                                                     </div>
                                                                 </td>
                                                             </tr>
