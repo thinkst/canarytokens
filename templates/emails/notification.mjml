@@ -73,8 +73,11 @@
             Your Canarytoken was triggered</mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center">
             <span style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
-            Canarytoken has been triggered by the Source IP
+            Canarytoken has been triggered
+            {% if BasicDetails['src_ip'] %}
+            by the Source IP
             <span style="color:#060606;font-weight:600">{{BasicDetails['src_ip']}}</span>
+            {% endif %}
           </mj-text>
           </mj-text>
         </mj-column>
@@ -105,6 +108,7 @@
     </mj-wrapper>
 
     <!--Source IP -->
+    {% if BasicDetails['src_ip'] %}
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
@@ -112,7 +116,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src=`https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['continent']}}` width="50px" />
+                <img align="center" src=`https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}` width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Source IP</mj-text>
@@ -125,6 +129,7 @@
       </mj-section>
 
     </mj-wrapper>
+    {% endif %}
 
     <!-- Day & Time -->
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
@@ -154,6 +159,7 @@
 
 
     <!-- Browser -->
+    {% if BasicDetails['useragent'] %}
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
@@ -174,6 +180,7 @@
       </mj-section>
 
     </mj-wrapper>
+    {% endif %}
 
 
 
