@@ -1328,7 +1328,7 @@ class TokenHit(BaseModel):
 
         if additional_data.get("geo_info", {}).get("country") is not None:
             additional_data["geo_info"]["continent"] = get_src_ip_continent(
-                self.geo_info.country
+                additional_data["geo_info"]["country"]
             )
 
         time = datetime.utcnow()
