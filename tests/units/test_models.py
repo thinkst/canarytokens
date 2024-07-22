@@ -533,6 +533,7 @@ def test_get_additional_data_for_webhook(
                 src_ip="127.0.0.1",
                 is_tor_relay=True,
                 input_channel="HTTP",
+                **seed_data,
             )
         ]
     )
