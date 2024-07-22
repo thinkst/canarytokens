@@ -342,6 +342,7 @@
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- Source IP -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        {% if BasicDetails['src_ip'] %}
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
@@ -412,6 +413,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- Day & Time -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -493,6 +495,7 @@
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- Browser -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        {% if BasicDetails['useragent'] %}
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
@@ -564,6 +567,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- CTA -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
