@@ -42,7 +42,7 @@
     <mj-section padding="10px 0 0px 0px" border-radius="30px 30px 0 0" background-color="#ec4f41">
       <!--Logo -->
       <mj-column width="40%">
-        <mj-image src="ttps://canarytokens.org/resources/notification-email/token_logo.svg" alt="Canarytokens" align="center" border="none" padding="0px" height="70px" />
+        <mj-image src="ttps://canarytokens.org/resources/notification-email/token_logo.png" alt="Canarytokens" align="center" border="none" padding="0px" height="70px" />
       </mj-column>
     </mj-section>
 
@@ -93,7 +93,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="ttps://canarytokens.org/resources/notification-email/reminder.svg" width="50px" />
+                <img align="center" src="ttps://canarytokens.org/resources/notification-email/reminder.png" width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
@@ -139,7 +139,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="ttps://canarytokens.org/resources/notification-email/daytime.svg" width="50px" />
+                <img align="center" src="ttps://canarytokens.org/resources/notification-email/daytime.png" width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Day</mj-text>
@@ -167,7 +167,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="ttps://canarytokens.org/resources/notification-email/browserid.svg" width="50px" />
+                <img align="center" src="ttps://canarytokens.org/resources/notification-email/browserid.png" width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Browser Identity</mj-text>

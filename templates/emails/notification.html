@@ -153,7 +153,7 @@
                                                         <tr>
                                                             <td style="width:240px;">
                                                                 <img alt="Canarytokens" height="70"
-                                                                    src="ttps://canarytokens.org/resources/notification-email/token_logo.svg"
+                                                                    src="ttps://canarytokens.org/resources/notification-email/token_logo.png"
                                                                     style="border:none;display:block;outline:none;text-decoration:none;height:70px;width:100%;font-size:13px;"
                                                                     width="240">
                                                             </td>
@@ -240,8 +240,10 @@
                                                                                         <span
                                                                                             style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
                                                                                         Canarytoken has been triggered
+                                                                                        {% if BasicDetails['src_ip'] %}
                                                                                         by the Source IP <span
                                                                                             style="color:#060606;font-weight:600">{{BasicDetails['src_ip']}}</span>
+                                                                                        {% endif %}
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>
@@ -304,7 +306,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="ttps://canarytokens.org/resources/notification-email/reminder.svg"
+                                                                                                    src="ttps://canarytokens.org/resources/notification-email/reminder.png"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -377,7 +379,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="`https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['continent']}}`"
+                                                                                                    src="`https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}`"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -450,7 +452,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="ttps://canarytokens.org/resources/notification-email/daytime.svg"
+                                                                                                    src="ttps://canarytokens.org/resources/notification-email/daytime.png"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
@@ -528,7 +530,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="ttps://canarytokens.org/resources/notification-email/browserid.svg"
+                                                                                                    src="ttps://canarytokens.org/resources/notification-email/browserid.png"
                                                                                                     width="50px">
                                                                                             </td>
                                                                                             <td>
