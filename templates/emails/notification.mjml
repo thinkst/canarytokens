@@ -16,6 +16,9 @@
 
 
   For more information, and more visit the official MJML documentation: https://mjml.io/documentation
+
+  NOTE: When exporting to html, the conditions {% if BasicDetails['something'] %} living outside a <mj-text> are not supported and will be removed from the final html file.
+  If you need to use conditions, remeber to check the output html file and add them manually if needed.
 -->
 <mjml>
   <mj-head>
@@ -42,7 +45,7 @@
     <mj-section padding="10px 0 0px 0px" border-radius="30px 30px 0 0" background-color="#ec4f41">
       <!--Logo -->
       <mj-column width="40%">
-        <mj-image src="https://canarytokens.org/resources/notification-email/token_logo.png" alt="Canarytokens" align="center" border="none" padding="0px" height="70px" />
+        <mj-image src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token_logo.png" alt="Canarytokens" align="center" border="none" padding="0px" height="70px" />
       </mj-column>
     </mj-section>
 
@@ -55,14 +58,14 @@
         <mj-raw>
           <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; background-size: cover; height: 40px">
             <tr>
-              <td style="width: 10%; padding: 0; margin: 0; background-image: url('ttps://canarytokens.org/resources/notification-email/left.png'); background-position: center left">
+              <td style="width: 10%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/left.png'); background-position: center left">
                 <p></p>
               </td>
-              <td style="width: 80%; padding: 0; margin: 0; background-image: url('ttps://canarytokens.org/resources/notification-email/center.png'); background-position: center">
-                <img src=`https://canarytokens.org/resources/notification-email/token-icons/{{BasicDetails['readable_type']}}.png` alt="Canarytokens" align="center" border="none" padding="0px" width="70px" class="center-image" />
+              <td style="width: 80%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/center.png'); background-position: center">
+                <img src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token-icons/{{BasicDetails['token_type']}}.png` alt="Canarytokens" align="center" border="none" padding="0px" width="70px" class="center-image" />
                 <p></p>
               </td>
-              <td style="width: 10%; padding: 0; margin: 0; background-image: url('ttps://canarytokens.org/resources/notification-email/right.png'); background-position: center right">
+              <td style="width: 10%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/right.png'); background-position: center right">
                 <p></p>
               </td>
             </tr>
@@ -93,7 +96,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="ttps://canarytokens.org/resources/notification-email/reminder.png" width="50px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png" width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
@@ -116,7 +119,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src=`https://canarytokens.org/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}` width="50px" />
+                <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}` width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Source IP</mj-text>
@@ -139,7 +142,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="ttps://canarytokens.org/resources/notification-email/daytime.png" width="50px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png" width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Day</mj-text>
@@ -167,7 +170,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="ttps://canarytokens.org/resources/notification-email/browserid.png" width="50px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png" width="50px" />
               </td>
               <td>
                 <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Browser Identity</mj-text>
