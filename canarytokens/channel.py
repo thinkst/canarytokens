@@ -223,6 +223,7 @@ class InputChannel(Channel):
                 auth=canarydrop.auth,
             ),
             additional_data=additional_data,  # TODO: additional details need to be re-worked.
+            public_domain=host,
         )
 
     @classmethod

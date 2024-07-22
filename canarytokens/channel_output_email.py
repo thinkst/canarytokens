@@ -295,6 +295,7 @@ class EmailOutputChannel(OutputChannel):
         readable_type = readable_token_type_names[details.token_type]
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
+        BasicDetails["token_type"] = details.token_type.value
 
         if (
             BasicDetails["additional_data"]
@@ -322,6 +323,11 @@ class EmailOutputChannel(OutputChannel):
             if BasicDetails["src_data"][field_name]:
                 BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
         BasicDetails.pop("src_data")
+
+        if "useragent" in BasicDetails and not BasicDetails["useragent"]:
+            BasicDetails.pop("useragent")
+        if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
+            BasicDetails.pop("src_ip")
 
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,

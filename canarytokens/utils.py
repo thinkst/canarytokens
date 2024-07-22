@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 from typing import Any, Literal, Union
 
+import pycountry_convert
+
 
 def dict_to_csv(d: dict) -> str:
     """Convert dict to CSV"""
@@ -74,3 +76,22 @@ def get_deployed_commit_sha(commit_sha_file: Path = Path("/COMMIT_SHA")):
 #         return wrapper
 
 #     return inner
+
+
+def get_src_ip_continent(country: str) -> str:
+    """Helper function that returns the continent of country given it's ISO 3166-2 code.
+
+    Args:
+        country (str): ISO 3166-2 code
+
+    Returns:
+        str: A two character code representing a continent
+    """
+    # AQ is the ISO 3166-2 code for Antarctica, and is returned from IPinfo,
+    # but it's not included in pycountry_convert.
+    if country == "AQ":
+        return "AN"
+    try:
+        return pycountry_convert.country_alpha2_to_continent_code(country)
+    except KeyError:
+        return "NO_CONTINENT"
