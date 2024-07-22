@@ -1878,6 +1878,7 @@ class TokenAlertDetails(BaseModel):
     # DESIGN/TODO: pin this dict down and make it a type.
     # We know what this can be.
     additional_data: Optional[dict[str, Any]]
+    public_domain: Optional[str] = "my.domain"
 
     @validator("time", pre=True)
     def validate_time(cls, value):

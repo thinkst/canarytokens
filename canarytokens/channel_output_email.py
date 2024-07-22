@@ -295,7 +295,7 @@ class EmailOutputChannel(OutputChannel):
         readable_type = readable_token_type_names[details.token_type]
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
-        BasicDetails["type"] = str(details.token_type)
+        BasicDetails["token_type"] = details.token_type.value
 
         if (
             BasicDetails["additional_data"]
