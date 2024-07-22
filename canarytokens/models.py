@@ -1333,7 +1333,7 @@ class TokenHit(BaseModel):
 
         time = datetime.utcnow()
         additional_data["time_hm"] = time.strftime("%H:%M")
-        additional_data["time_ymd"] = time.strftime("%y/%m/%d")
+        additional_data["time_ymd"] = time.strftime("%Y/%m/%d")
 
         return additional_data
 
