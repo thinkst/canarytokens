@@ -120,7 +120,7 @@
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
                 <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}.png` width="40px" />
-              </td>å
+              </td>
               <td>
                 <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Source IP</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</p>
