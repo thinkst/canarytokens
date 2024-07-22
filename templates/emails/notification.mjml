@@ -96,11 +96,11 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png" width="50px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png" width="40px" />
               </td>
               <td>
-                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Reminder</mj-text>
-                <mj-text style="font-weight:400;color:#060606">{{BasicDetails['memo'] | e}}</mj-text>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Reminder</p>
+                <p style="font-weight:400;color:#060606">{{BasicDetails['memo'] | e}}</p>
               </td>
             </tr>
 
@@ -119,11 +119,11 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}` width="50px" />
-              </td>
+                <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}.png` width="40px" />
+              </td>å
               <td>
-                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Source IP</mj-text>
-                <mj-text style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</mj-text>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Source IP</p>
+                <p style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</p>
               </td>
             </tr>
 
@@ -142,15 +142,15 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png" width="50px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png" width="40px" />
               </td>
               <td>
-                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Day</mj-text>
-                <mj-text style="font-weight:400;color:#060606">{{BasicDetails['time_Ymd']}}</mj-text>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Day</p>
+                <p style="font-weight:400;color:#060606">{{BasicDetails['time_ymd']}}</p>
               </td>
               <td>
-                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Time</mj-text>
-                <mj-text style="font-weight:400;color:#060606">{{BasicDetails['time_HM']}}</mj-text>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Time</p>
+                <p style="font-weight:400;color:#060606">{{BasicDetails['time_hm']}}</p>
               </td>
             </tr>
 
@@ -170,11 +170,11 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png" width="50px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png" width="40px" />
               </td>
               <td>
-                <mj-text style="padding-bottom:4px;font-weight:600;display:block;">Browser Identity</mj-text>
-                <mj-text style="font-weight:400;color:#060606">{{BasicDetails['useragent']| e}}</mj-text>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Browser Identity</p>
+                <p style="font-weight:400;color:#060606">{{BasicDetails['useragent']| e}}</p>
               </td>
             </tr>
 
