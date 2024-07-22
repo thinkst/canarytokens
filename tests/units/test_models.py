@@ -20,6 +20,7 @@ from canarytokens.models import (
     DownloadContentTypes,
     DownloadMSWordResponse,
     GeoIPBogonInfo,
+    GeoIPInfo,
     LegacyTokenHistory,
     LegacyTokenHit,
     Log4ShellTokenHistory,
@@ -532,11 +533,40 @@ def test_get_additional_data_for_webhook(
                 src_ip="127.0.0.1",
                 is_tor_relay=True,
                 input_channel="HTTP",
-                **seed_data,
             )
         ]
     )
     assert expected_data == hist.latest_hit().get_additional_data_for_notification()
+
+
+@pytest.mark.parametrize(
+    "history_type, hit_type, seed_data",
+    [
+        (
+            WebBugTokenHistory,
+            WebBugTokenHit,
+            {
+                "geo_info": GeoIPInfo(
+                    ip="1.1.1.1", country="ZA", loc="-33.9778,18.6167"
+                ),
+            },
+        ),
+    ],
+)
+def test_get_additional_data_for_email(history_type, hit_type, seed_data):
+    hist = history_type(
+        hits=[
+            hit_type(
+                time_of_hit=20,
+                input_channel="HTTP",
+                **seed_data,
+            )
+        ]
+    )
+    additional_data = hist.latest_hit().get_additional_data_for_notification()
+    assert additional_data["geo_info"]["continent"] == "AF"
+    assert "time_hm" in additional_data
+    assert "time_ymd" in additional_data
 
 
 @pytest.mark.parametrize(

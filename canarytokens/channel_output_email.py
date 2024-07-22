@@ -323,6 +323,11 @@ class EmailOutputChannel(OutputChannel):
                 BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
         BasicDetails.pop("src_data")
 
+        if "useragent" in BasicDetails and not BasicDetails["useragent"]:
+            BasicDetails.pop("useragent")
+        if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
+            BasicDetails.pop("src_ip")
+
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),

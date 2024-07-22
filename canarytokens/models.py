@@ -49,7 +49,7 @@ from canarytokens.constants import (
     CANARY_IMAGE_URL,
     MEMO_MAX_CHARACTERS,
 )
-from canarytokens.utils import prettify_snake_case, dict_to_csv
+from canarytokens.utils import prettify_snake_case, dict_to_csv, get_src_ip_continent
 
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
@@ -1308,7 +1308,7 @@ class TokenHit(BaseModel):
             Dict[str, str]: Key value pairs to include in webhook info.
         """
 
-        additional_info = json_safe_dict(
+        additional_data = json_safe_dict(
             self,
             exclude=(
                 "time_of_hit",
@@ -1318,14 +1318,24 @@ class TokenHit(BaseModel):
                 "token_type",
             ),
         )
-        if "additional_info" in additional_info:
-            additional_info.update(**additional_info.pop("additional_info"))
+        if "additional_data" in additional_data:
+            additional_data.update(**additional_data.pop("additional_data"))
         for key, replacement in [("l", "location"), ("r", "referer")]:
-            if key in additional_info:
-                additional_info[replacement] = additional_info.pop(key)
+            if key in additional_data:
+                additional_data[replacement] = additional_data.pop(key)
             if self.src_data and key in self.src_data:
                 self.src_data[replacement] = self.src_data[key]
-        return additional_info
+
+        if additional_data.get("geo_info", {}).get("country") is not None:
+            additional_data["geo_info"]["continent"] = get_src_ip_continent(
+                self.geo_info.country
+            )
+
+        time = datetime.utcnow()
+        additional_data["time_hm"] = time.strftime("%H:%M")
+        additional_data["time_ymd"] = time.strftime("%y/%m/%d")
+
+        return additional_data
 
 
 class AzureIDTokenHit(TokenHit):

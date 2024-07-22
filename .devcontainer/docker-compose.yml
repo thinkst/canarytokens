@@ -23,6 +23,7 @@ services:
       - "5354:5354/udp"
       - "51820:51820/udp"
       - "8082:8082"
+      - "8083:8083"
     # Overrides default command so things don't shut down after the process ends.
     entrypoint: /usr/local/share/docker-init.sh
     command: sleep infinity

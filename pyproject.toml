@@ -33,6 +33,7 @@ azure-core = "^1.23.1"
 azure-identity = "^1.10.0"
 cssutils = "^1.0.2"
 advocate = {git = "https://github.com/JordanMilne/Advocate.git"}
+pycountry-convert = "^0.7.2"
 
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
