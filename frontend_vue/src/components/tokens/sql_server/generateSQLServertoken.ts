@@ -100,7 +100,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
   END
 
   --create a view that calls the function
-  alter view ${SQLData.sql_server_view_name} as select * from master.dbo.<span class="${SQLData.sql_function_name}(rand());
+  alter view ${SQLData.sql_server_view_name} as select * from master.dbo.(rand());
 
   --change permissions on ${SQLData.sql_function_name} to SELECT for [public]
   --change permissions on ${SQLData.sql_server_view_name} to SELECT for [public]
