@@ -104,7 +104,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continent-icons/{{ BasicDetails.get('geo_info', {'continent': 'NO_CONTINENT'})['continent'].lower() }}.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continent-icons/{{ BasicDetails.get('geo_info', {'continent': 'NO_CONTINTENT'})['continent'].lower() }}.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Source IP</p>
