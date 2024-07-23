@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
 <template>
   <div
@@ -11,7 +12,7 @@
       ref="labelFileInput"
       for="dropzone-file"
       :class="labelClass"
-      class="flex flex-col items-center justify-center w-full py-16 border border-dashed cursor-pointer rounded-2xl"
+      class="flex flex-col items-center justify-center w-full py-16 border border-dashed rounded-2xl"
     >
       <div class="flex flex-col items-center justify-center pt-5 pb-6">
         <FolderIcon
