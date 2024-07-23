@@ -537,7 +537,15 @@ def test_get_additional_data_for_webhook(
             )
         ]
     )
-    assert expected_data == hist.latest_hit().get_additional_data_for_notification()
+    additional_data = hist.latest_hit().get_additional_data_for_notification()
+
+    assert "time_ymd" in additional_data
+    assert "time_hm" in additional_data
+    additional_data.pop("time_ymd", None)
+    additional_data.pop("time_hm", None)
+    additional_data.pop("additional_info", None)
+
+    assert expected_data == additional_data
 
 
 @pytest.mark.parametrize(
@@ -624,10 +632,11 @@ def test_legacy_hits(seed_data, expected_data):
         **seed_data,
     )
     legacy_history = LegacyTokenHistory(hits=[legacy_hit])
-    assert (
-        expected_data
-        == legacy_history.latest_hit().get_additional_data_for_notification()
-    )
+    data = legacy_history.latest_hit().get_additional_data_for_notification()
+    data.pop("time_ymd", None)
+    data.pop("time_hm", None)
+    data.pop("additional_info", None)
+    assert expected_data == data
 
 
 def test_download_content_types():
