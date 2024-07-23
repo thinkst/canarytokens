@@ -1,7 +1,7 @@
 <template>
   <TokenDisplay :token-url="tokenUrl" />
   <p class="mt-16 text-sm">
-    The token is similar to the Fast Redirect token, however, when the link is
+    The token is similar to the Fast redirect token, however, when the link is
     loaded the user's browser / browser plugin information is captured.
     <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
   </p>

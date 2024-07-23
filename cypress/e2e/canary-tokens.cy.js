@@ -28,12 +28,12 @@ describe('Token Tests', () => {
       cy.get('#update').click()
       cy.get('#sql_server_table_name').type('TEST')
     }},
- { name: 'Custom exe / binary',
+ { name: 'Custom EXE / binary',
   extraFields: () => {
     cy.get('input[type="file"]').selectFile('cypress/fixtures/helloWorld.dll', { force: true })
   }
 },
-    { name: 'Cloned website', extraFields: () => cy.get('#clonedsite').type('www.google.pt') },
+    { name: 'JS cloned website', extraFields: () => cy.get('#clonedsite').type('www.google.pt') },
     { name: 'CSS cloned website', extraFields: () => cy.get('#expected_referrer').type('www.google.pt') }
   ]
 

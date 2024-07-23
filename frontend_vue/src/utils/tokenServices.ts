@@ -244,7 +244,7 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.DATABASE,
   },
   [TOKENS_TYPE.CUSTOM_EXE]: {
-    label: 'Custom exe / binary',
+    label: 'Custom EXE / binary',
     description: 'Get an alert when an attacker extecute an EXE or DLL file.',
     documentationLink:
       'https://docs.canarytokens.org/guide/custom-exe-token.html',
