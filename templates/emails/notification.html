@@ -303,7 +303,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png"
@@ -311,10 +311,10 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;margin:0;">
                                                                                                     Reminder</p>
                                                                                                 <p
-                                                                                                    style="font-weight:400;color:#060606">
+                                                                                                    style="font-weight:400;color:#060606;margin:0;">
                                                                                                     {{BasicDetails['memo']
                                                                                                     | e}}</p>
                                                                                             </td>
@@ -379,7 +379,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails.get('geo_info', {'continent': 'NO_CONTINTENT'})['continent']}}.png`"
@@ -387,10 +387,10 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;margin:0;">
                                                                                                     Source IP</p>
                                                                                                 <p
-                                                                                                    style="font-weight:400;color:#060606">
+                                                                                                    style="font-weight:400;color:#060606;margin:0;">
                                                                                                     {{BasicDetails['src_ip']}}
                                                                                                 </p>
                                                                                             </td>
@@ -417,7 +417,6 @@
                 </tbody>
             </table>
             {% endif %}
-
         </div>
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- Day & Time -->
@@ -456,27 +455,29 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png"
                                                                                                     width="40px">
                                                                                             </td>
-                                                                                            <td>
+                                                                                            <td
+                                                                                                style="vertical-align: top;">
                                                                                                 <p
-                                                                                                    style="font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;margin:0;">
                                                                                                     Date</p>
                                                                                                 <p
-                                                                                                    style="font-weight:400;color:#060606">
+                                                                                                    style="font-weight:400;color:#060606;margin:0;">
                                                                                                     {{BasicDetails['time_ymd']}}
                                                                                                 </p>
                                                                                             </td>
-                                                                                            <td>
+                                                                                            <td
+                                                                                                style="vertical-align: top;">
                                                                                                 <p
-                                                                                                    style="font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;margin:0;">
                                                                                                     Time</p>
                                                                                                 <p
-                                                                                                    style="font-weight:400;color:#060606">
+                                                                                                    style="font-weight:400;color:#060606;margin:0;">
                                                                                                     {{BasicDetails['time_hm']}}
                                                                                                     UTC</p>
                                                                                             </td>
@@ -541,7 +542,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png"
@@ -549,11 +550,11 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;margin:0;">
                                                                                                     Browser Identity</p>
                                                                                                 <p
-                                                                                                    style="font-weight:400;color:#060606">
-                                                                                                    <a href=""
+                                                                                                    style="font-weight:400;color:#060606;margin:0;">
+                                                                                                    <a href
                                                                                                         style="text-decoration:none !important; color:#060606">{{BasicDetails['useragent']|
                                                                                                         e}}</a>
                                                                                                 </p>
