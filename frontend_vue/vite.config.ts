@@ -40,6 +40,9 @@ export default defineConfig(({ mode }) => {
         deep: false,
       }),
     ],
+    build: {
+      outDir: '../dist',
+    },
     optimizeDeps: {
       include: ['@fawmi/vue-google-maps', 'fast-deep-equal'],
     },
