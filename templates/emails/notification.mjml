@@ -50,28 +50,13 @@
     </mj-section>
 
 
-    <mj-wrapper padding="0px 30px 20px" background-color="#FFF">
+    <mj-wrapper padding="30px 30px 20px" background-color="#FFF">
       <!--Alert icon -->
 
       <!--Alert Top details -->
-      <mj-section padding="20px 0px 20px" border-radius="16px 16px">
-        <mj-raw>
-          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; background-size: cover; height: 40px">
-            <tr>
-              <td style="width: 10%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/left.png'); background-position: center left">
-                <p></p>
-              </td>
-              <td style="width: 80%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/center.png'); background-position: center">
-                <img src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token-icons/{{BasicDetails['token_type']}}.png` alt="Canarytokens" align="center" border="none" padding="0px" width="70px" class="center-image" />
-                <p></p>
-              </td>
-              <td style="width: 10%; padding: 0; margin: 0; background-image: url('https://{{ BasicDetails['public_domain'] }}/resources/notification-email/right.png'); background-position: center right">
-                <p></p>
-              </td>
-            </tr>
-          </table>
-        </mj-raw>
+      <mj-section padding="20px 0px 0px" border-radius="16px 16px" background-color="#F6F7FA">
         <mj-column background-color="#f6f8fb" padding-bottom="30px" border-radius="0 0 16px 16px">
+          <mj-image src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/canarytoken-icons/{{BasicDetails['token_type']}}.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
           <mj-text color="#060606" font-weight="bold" align="center" font-size="24px">
             Your Canarytoken was triggered</mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center">
@@ -99,7 +84,7 @@
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png" width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Reminder</p>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Reminder</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['memo'] | e}}</p>
               </td>
             </tr>
@@ -122,7 +107,7 @@
                 <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}.png` width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Source IP</p>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Source IP</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</p>
               </td>
             </tr>
@@ -145,12 +130,12 @@
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png" width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Day</p>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Date</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['time_ymd']}}</p>
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Time</p>
-                <p style="font-weight:400;color:#060606">{{BasicDetails['time_hm']}}</p>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Time</p>
+                <p style="font-weight:400;color:#060606">{{BasicDetails['time_hm']}} UTC</p>
               </td>
             </tr>
 
@@ -173,7 +158,7 @@
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png" width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:0;">Browser Identity</p>
+                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Browser Identity</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['useragent']| e}}</p>
               </td>
             </tr>
@@ -192,7 +177,7 @@
     <mj-wrapper padding="0px 30px 0px" background-color="#FFF">
       <mj-section padding="0px 0 20px 0">
         <mj-column>
-          <mj-button line-height="160%" background-color="#818a8e" color="#FFF" font-size="16px" font-weight="bold" padding="10px 20px" border-radius="24px" align="center" href="{{ HistoryLink }}" width="100%">
+          <mj-button line-height="160%" background-color="#33c480" color="#FFF" font-size="16px" font-weight="bold" padding="10px 20px" border-radius="24px" align="center" href="{{ HistoryLink }}" width="100%">
             Alert History
           </mj-button>
         </mj-column>
