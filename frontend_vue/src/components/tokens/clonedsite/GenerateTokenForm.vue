@@ -10,7 +10,7 @@
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
-    memo-helper-example="Cloned website token for https://thinkst.com"
+    memo-helper-example="JS cloned website token for https://thinkst.com"
   />
 </template>
 
