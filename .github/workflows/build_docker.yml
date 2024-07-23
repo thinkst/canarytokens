@@ -34,7 +34,7 @@ jobs:
       uses: actions/cache@v3
       id: cache-frontend-dist
       with:
-        path: frontend_vue/dist
+        path: dist
         key: frontend-dist-${{ hashFiles('frontend_vue/**') }}
 
     - uses: actions/setup-node@v3.5.1
@@ -81,7 +81,7 @@ jobs:
       run: |
         git config --global user.name "Frontend Github Action"
         git config --global user.email "max@thinkst.com"
-        git add -f frontend_vue/dist
+        git add -f dist
         git commit -am "Add Frontend Dist"
         git push
 

@@ -202,7 +202,7 @@ app = FastAPI(
     version=canarytokens.__version__,
 )
 
-vue_index = Jinja2Templates(directory="../frontend_vue/dist/")
+vue_index = Jinja2Templates(directory="../dist/")
 
 
 if frontend_settings.NEW_UI:
@@ -242,7 +242,7 @@ if frontend_settings.NEW_UI:
     try:
         app.mount(
             "/nest",
-            StaticFiles(directory="../frontend_vue/dist/", html=True),
+            StaticFiles(directory="../dist/", html=True),
             name="Vue Frontend Dist",
         )
     except RuntimeError:
