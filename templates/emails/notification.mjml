@@ -56,7 +56,7 @@
       <!--Alert Top details -->
       <mj-section padding="20px 0px 0px" border-radius="16px 16px" background-color="#F6F7FA">
         <mj-column background-color="#f6f8fb" padding-bottom="30px" border-radius="0 0 16px 16px">
-          <mj-image src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token-icons/{{BasicDetails['token_type']}}.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
+          <mj-image src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/canarytoken-icons/{{BasicDetails['token_type']}}.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
           <mj-text color="#060606" font-weight="bold" align="center" font-size="24px">
             Your Canarytoken was triggered</mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center">
