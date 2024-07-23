@@ -80,11 +80,11 @@
           <mj-table>
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;" rowspan="2">
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png" width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Reminder</p>
+                <p style="font-weight:600;display:block;line-height:1;">Reminder</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['memo'] | e}}</p>
               </td>
             </tr>
@@ -103,11 +103,11 @@
           <mj-table>
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
-                <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}.png` width="40px" />
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;" rowspan="2">
+                <img align="center" src=`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails.get('geo_info', {'continent': 'NO_CONTINTENT'})['continent']}}.png` width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Source IP</p>
+                <p style="font-weight:600;display:block;line-height:1;">Source IP</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['src_ip']}}</p>
               </td>
             </tr>
@@ -126,15 +126,15 @@
           <mj-table>
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;" rowspan="2">
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png" width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Date</p>
+                <p style="font-weight:600;display:block;line-height:1;">Date</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['time_ymd']}}</p>
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Time</p>
+                <p style="font-weight:600;display:block;line-height:1;">Time</p>
                 <p style="font-weight:400;color:#060606">{{BasicDetails['time_hm']}} UTC</p>
               </td>
             </tr>
@@ -154,11 +154,11 @@
           <mj-table>
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;" rowspan="2">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;" rowspan="2">
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png" width="40px" />
               </td>
               <td>
-                <p style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">Browser Identity</p>
+                <p style="font-weight:600;display:block;line-height:1;">Browser Identity</p>
                 <p style="font-weight:400;color:#060606">
                   <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['useragent']| e}}</a>
                 </p>
