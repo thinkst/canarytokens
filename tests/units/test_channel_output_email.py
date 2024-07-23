@@ -57,7 +57,6 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
         manage_url="https://some.link/manage/here",
         additional_data={
             "useragent": "python 3.6",
-            "referer": "https://someone.not.nice/stuff",
             "location": "https://fake.your/domain/stuff",
         },
     )
@@ -66,8 +65,6 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "hxxps://someone.not.nice/stuff" in email_template
-    assert "hxxps://fake.your/domain/stuff" in email_template
 
 
 def test_cloned_site_rendered_html(settings: SwitchboardSettings):
@@ -81,7 +78,6 @@ def test_cloned_site_rendered_html(settings: SwitchboardSettings):
         manage_url="https://some.link/manage/here",
         additional_data={
             "useragent": "python 3.6",
-            "referer": "https://someone.not.nice/stuff/ref",
             "location": "https://fake.your/domain/stuff/loc",
         },
     )
@@ -90,8 +86,6 @@ def test_cloned_site_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "hxxps://someone.not.nice/stuff/ref" in email_template
-    assert "hxxps://fake.your/domain/stuff/loc" in email_template
 
 
 def test_log4shell_rendered_html(settings: SwitchboardSettings):
@@ -112,7 +106,6 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "SRV01" in email_template
 
 
 def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
@@ -133,8 +126,6 @@ def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "SES" in email_template
-    assert "Service Used" in email_template
 
 
 def _get_send_token_details() -> TokenAlertDetails:

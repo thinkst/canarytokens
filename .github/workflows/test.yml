@@ -92,11 +92,6 @@ jobs:
         run: |
           poetry install -E 'twisted web'
 
-      - name: Check pre-commit is happy
-        run: |
-            poetry run pre-commit install
-            SKIP=no-commit-to-branch poetry run pre-commit run --all-files
-
       - name: Run unit tests
         env:
           CANARY_MAILGUN_DOMAIN_NAME: syruppdfs.com

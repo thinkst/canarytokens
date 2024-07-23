@@ -134,7 +134,7 @@ def test_custom_image_url(  # noqa: C901
         assert (
             input_file_contents == _resp.content
             or DEFAULT_GIF == _resp.content
-            or "<title>Fortune</title>" in _resp.content.decode()
+            or "stars" in _resp.content.decode()
         )
 
     if not browser_scanner_enabled and not web_image_enabled and accept_html:
@@ -143,10 +143,7 @@ def test_custom_image_url(  # noqa: C901
             "image/gif" == _resp.headers["Content-Type"]
             or "text/html" == _resp.headers["Content-Type"]
         )
-        assert (
-            DEFAULT_GIF == _resp.content
-            or "<title>Fortune</title>" in _resp.content.decode()
-        )
+        assert DEFAULT_GIF == _resp.content or "stars" in _resp.content.decode()
 
     # check the memo
 
@@ -170,7 +167,7 @@ def test_custom_image_url(  # noqa: C901
         assert (
             input_file_contents == _resp.content
             or DEFAULT_GIF == _resp.content
-            or "<title>Fortune</title>" in _resp.content.decode()
+            or "stars" in _resp.content.decode()
         )
 
     if not browser_scanner_enabled and not web_image_enabled and accept_html:
@@ -179,10 +176,7 @@ def test_custom_image_url(  # noqa: C901
             "image/gif" == _resp.headers["Content-Type"]
             or "text/html" == _resp.headers["Content-Type"]
         )
-        assert (
-            DEFAULT_GIF == _resp.content
-            or "<title>Fortune</title>" in _resp.content.decode()
-        )
+        assert DEFAULT_GIF == _resp.content or "stars" in _resp.content.decode()
 
     # check the memo
 
