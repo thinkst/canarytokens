@@ -346,7 +346,6 @@
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
             {% if BasicDetails['src_ip'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -383,7 +382,7 @@
                                                                                             <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
-                                                                                                    src="`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}.png`"
+                                                                                                    src="`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails.get('geo_info', {'continent': 'NO_CONTINTENT'})['continent']}}.png`"
                                                                                                     width="40px">
                                                                                             </td>
                                                                                             <td>
