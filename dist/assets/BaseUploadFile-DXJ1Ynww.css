@@ -1,0 +1,1 @@
+.file{transform:translateY(-4rem)}@keyframes fadeIn{0%{transform:translateY(-4rem)}to{transform:translateY(0);opacity:1}}@keyframes bounce{0%{transform:scaleY(.9)}50%{transform:scaleY(1.1)}80%{transform:scaleY(1)}}.is-file-animation{animation:fadeIn .3s forwards}.is-file-folder-animation{animation:bounce .6s;animation-delay:.35s forwards}
