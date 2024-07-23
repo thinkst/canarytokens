@@ -303,7 +303,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png"
@@ -311,7 +311,7 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;">
                                                                                                     Reminder</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606">
@@ -345,6 +345,8 @@
         <!-- Source IP -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            {% if BasicDetails['src_ip'] %}
+
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -378,7 +380,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="`https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continents/{{BasicDetails['geo_info']['continent']}}.png`"
@@ -386,7 +388,7 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;">
                                                                                                     Source IP</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606">
@@ -415,6 +417,8 @@
                     </tr>
                 </tbody>
             </table>
+            {% endif %}
+
         </div>
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- Day & Time -->
@@ -453,7 +457,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png"
@@ -461,7 +465,7 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;">
                                                                                                     Date</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606">
@@ -470,7 +474,7 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;">
                                                                                                     Time</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606">
@@ -538,7 +542,7 @@
                                                                                         style="color:#000000;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                                                                         <tr
                                                                                             style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: top;"
+                                                                                            <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: center;"
                                                                                                 rowspan="2">
                                                                                                 <img align="center"
                                                                                                     src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png"
@@ -546,7 +550,7 @@
                                                                                             </td>
                                                                                             <td>
                                                                                                 <p
-                                                                                                    style="padding-bottom:4px;font-weight:600;display:block;line-height:1;">
+                                                                                                    style="font-weight:600;display:block;line-height:1;">
                                                                                                     Browser Identity</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606">

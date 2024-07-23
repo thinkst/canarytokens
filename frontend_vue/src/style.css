@@ -67,6 +67,11 @@ p {
   isolation: isolate;
 }
 
+html,
+body {
+  overscroll-behavior: none;
+}
+
 :root,
 :host {
   --fa-style-family-classic: 'Font Awesome 6 Free';
