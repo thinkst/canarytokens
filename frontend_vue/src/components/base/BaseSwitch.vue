@@ -69,8 +69,8 @@ function handleToggle(event: Event) {
 input[type='checkbox'].toggle {
   opacity: 0;
   position: absolute;
-  left: -9000px;
-  top: -9000px;
+  left: 0px;
+  top: 0px;
 }
 
 label {

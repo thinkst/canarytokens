@@ -19,5 +19,7 @@ const router = useRouter();
 function handleLinkClick(path: string) {
   //@ts-ignore
   addViewTransition(() => router.push(path));
+  document.getElementById('filterAll')?.click();
+  document.getElementById('clearSearchInput')?.click();
 }
 </script>

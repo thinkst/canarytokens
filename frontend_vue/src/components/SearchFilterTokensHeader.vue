@@ -4,6 +4,7 @@
   >
     <ul class="flex flex-row flex-wrap gap-8 list-none justify-left">
       <FilterButton
+        id="filterAll"
         category="All"
         :selected="!filterValue"
         @click="filterValue = ''"
