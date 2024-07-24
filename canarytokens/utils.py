@@ -88,14 +88,13 @@ def get_src_ip_continent(geo_data: dict) -> str:
         str: A two character code representing a continent
     """
     country = geo_data.get("country")
-    if country is not None:
-        # AQ is the ISO 3166-2 code for Antarctica, and is returned from IPinfo,
-        # but it's not included in pycountry_convert.
-        if country == "AQ":
-            return "AN"
-        try:
-            return pycountry_convert.country_alpha2_to_continent_code(country)
-        except KeyError:
-            return "NO_CONTINENT"
-    else:
+    if country is None:
+        return "NO_CONTINENT"
+    # AQ is the ISO 3166-2 code for Antarctica, and is returned from IPinfo,
+    # but it's not included in pycountry_convert.
+    if country == "AQ":
+        return "AN"
+    try:
+        return pycountry_convert.country_alpha2_to_continent_code(country)
+    except KeyError:
         return "NO_CONTINENT"
