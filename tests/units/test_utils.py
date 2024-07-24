@@ -1,3 +1,5 @@
+import pytest
+
 from canarytokens.utils import (
     coerce_to_float,
     get_deployed_commit_sha,
@@ -22,12 +24,20 @@ def test_coerce_to_float():
     assert not coerce_to_float("notafloat")
 
 
-def test_get_src_ip_continent():
-    assert "AF" == get_src_ip_continent("ZA")
-    assert "AN" == get_src_ip_continent("AQ")
-    assert "AS" == get_src_ip_continent("CN")
-    assert "EU" == get_src_ip_continent("GB")
-    assert "NA" == get_src_ip_continent("US")
-    assert "OC" == get_src_ip_continent("AU")
-    assert "SA" == get_src_ip_continent("AR")
-    assert "NO_CONTINENT" == get_src_ip_continent("1234")
+@pytest.mark.parametrize(
+    "additional_data, continent",
+    [
+        ({"geo_info": {"country": "ZA"}}, "AF"),
+        ({"geo_info": {"country": "AQ"}}, "AN"),
+        ({"geo_info": {"country": "CN"}}, "AS"),
+        ({"geo_info": {"country": "GB"}}, "EU"),
+        ({"geo_info": {"country": "US"}}, "NA"),
+        ({"geo_info": {"country": "AU"}}, "OC"),
+        ({"geo_info": {"country": "AR"}}, "SA"),
+        ({"geo_info": {"country": "Mordor"}}, "NO_CONTINENT"),
+        ({"geo_info": {"bogon": True}}, "NO_CONTINENT"),
+        ({"geo_info": {}}, "NO_CONTINENT"),
+    ],
+)
+def test_get_src_ip_continent(additional_data, continent):
+    assert continent == get_src_ip_continent(additional_data)
