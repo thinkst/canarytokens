@@ -19,7 +19,6 @@ from canarytokens.models import (
     DNSTokenRequest,
     DownloadContentTypes,
     DownloadMSWordResponse,
-    GeoIPBogonInfo,
     GeoIPInfo,
     LegacyTokenHistory,
     LegacyTokenHit,
@@ -476,11 +475,19 @@ def test_all_requests_have_a_response():
             WebBugTokenHit,
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
         ),
         (
@@ -584,11 +591,19 @@ def test_get_additional_data_for_email(history_type, hit_type, seed_data):
         (
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
         ),
         (
