@@ -20,7 +20,7 @@ jobs:
       - name: Execute Cypress Tests 🌡️
         uses: cypress-io/github-action@v6.6.1
         with:
-          working-directory: ./cypress
+          working-directory: ./cypress-tests
           command: npx cypress run --headless --browser chrome
 
       - name: Upload screenshots of tests failed 📷
