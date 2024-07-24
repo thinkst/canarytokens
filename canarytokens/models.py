@@ -1326,8 +1326,9 @@ class TokenHit(BaseModel):
             if self.src_data and key in self.src_data:
                 self.src_data[replacement] = self.src_data[key]
 
-            continent = get_src_ip_continent(additional_data)
-            additional_data["geo_info"]["continent"] = continent
+            if additional_data.get("geo_info") is not None:
+                continent = get_src_ip_continent(additional_data["geo_info"])
+                additional_data["geo_info"]["continent"] = continent
 
         time = datetime.utcnow()
         additional_data["time_hm"] = time.strftime("%H:%M")
