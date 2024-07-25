@@ -1228,7 +1228,7 @@
             </table>
         </div>
         <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
-        <!-- Request arguments -->
+        <!-- Request arguments -->{% if BasicDetails['request_args'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
@@ -1236,9 +1236,7 @@
                 <tbody>
                     <tr>
                         <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
-                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><![endif]-->
-                            {% if BasicDetails['request_args'] %}
-                            <!--[if mso | IE]><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
                             <div
                                 style="background:#f6f8fb;background-color:#f6f8fb;margin:0px auto;border-radius:16px 16px;max-width:540px;">
                                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"

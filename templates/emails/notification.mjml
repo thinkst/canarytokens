@@ -390,8 +390,8 @@
     <mj-raw>{% endif %}</mj-raw>
 
     <!-- Request arguments -->
+    <mj-raw>{% if BasicDetails['request_args'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      <mj-raw>{% if BasicDetails['request_args'] %}</mj-raw>
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
