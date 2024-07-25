@@ -288,7 +288,7 @@
 
     <!-- merchant & amount -->
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['merchant'] and BasicDetails['amount']%}
+      {% if BasicDetails['merchant'] or BasicDetails['amount']%}
 
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
