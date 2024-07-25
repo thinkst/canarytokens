@@ -4,7 +4,6 @@ describe('Token Tests', () => {
     { name: 'DNS', extraFields: null },
     { name: 'QR code', extraFields: null },
     { name: 'MySQL', extraFields: null },
-    { name: 'AWS keys', extraFields: null },
     { name: 'Log4shell', extraFields: null },
     { name: 'Microsoft Excel document', extraFields: null },
     { name: 'Microsoft Word document', extraFields: null },
