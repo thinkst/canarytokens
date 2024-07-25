@@ -96,6 +96,7 @@
     </mj-wrapper>
 
     <!--Source IP -->
+    <mj-raw>{% if BasicDetails['src_ip'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
@@ -106,10 +107,8 @@
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/continent-icons/{{ BasicDetails.get('geo_info', {'continent': 'NO_CONTINTENT'})['continent'].lower() }}.png" width="40px" />
               </td>
               <td>
-                {% if BasicDetails['src_ip'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Source IP</p>
                 <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['src_ip']}}</p>
-                {% endif %}
                 {% if BasicDetails['location'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Location</p>
                 <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails.get('location', None)}}</p>
@@ -122,6 +121,8 @@
       </mj-section>
 
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
+
 
     <!-- Day & Time -->
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
@@ -162,7 +163,7 @@
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/browserid.png" width="40px" />
               </td>
               <td>
-                <p style="font-weight:600;display:block;line-height:1;margin:0;">Browser Identity</p>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">User agent</p>
                 <p style="font-weight:400;color:#060606;margin:0;">
                   <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['useragent']| e}}</a>
                 </p>
@@ -175,6 +176,31 @@
 
     </mj-wrapper>
     <mj-raw>{% endif %}</mj-raw>
+
+    <!--Location  -->
+    <mj-raw>{% if BasicDetails['location'] %}</mj-raw>
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+              </td>
+              <td>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Location</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails.get('location', None)}}</p>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
+
 
     <!-- Log4Shell hostname -->
     <mj-raw>{% if BasicDetails['log4_shell_computer_name'] %}</mj-raw>
