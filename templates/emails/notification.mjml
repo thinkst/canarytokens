@@ -112,7 +112,7 @@
                 {% endif %}
                 {% if BasicDetails['location'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Location</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['location']}}</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails.get('location', None)}}</p>
                 {% endif %}
               </td>
             </tr>
@@ -151,8 +151,8 @@
 
 
     <!-- Browser -->
+    <mj-raw>{% if BasicDetails['useragent'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['useragent'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -173,12 +173,12 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- Log4Shell hostname -->
+    <mj-raw>{% if BasicDetails['log4_shell_computer_name'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['log4_shell_computer_name'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -198,12 +198,12 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw> {% endif %}</mj-raw>
 
     <!-- SQL Server username -->
+    <mj-raw>{% if BasicDetails['sql_username'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['sql_username'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -222,13 +222,13 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
 
     <!-- AWS Service Used  -->
+    <mj-raw>{% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] %} </mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -247,13 +247,13 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
 
     <!-- CMD -->
+    <mj-raw>{% if BasicDetails['cmd_process'] or BasicDetails['cmd_computer_name'] or BasicDetails['cmd_user_name']%}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['cmd_process'] or if BasicDetails['cmd_computer_name'] or if BasicDetails['cmd_user_name']%}
 
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
@@ -282,13 +282,13 @@
           </mj-table>
         </mj-column>
       </mj-section>
-      {% endif %}
 
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- merchant & amount -->
+    <mj-raw>{% if BasicDetails['merchant'] or BasicDetails['amount']%}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['merchant'] or BasicDetails['amount']%}
 
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
@@ -313,15 +313,13 @@
           </mj-table>
         </mj-column>
       </mj-section>
-
-      {% endif %}
-
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
 
     <!-- Generic data  -->
+    <mj-raw>{% if BasicDetails['generic_data'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['generic_data'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -340,12 +338,12 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- Referer -->
+    <mj-raw>{% if BasicDetails['referer'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['referer'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -364,12 +362,12 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- Referrer -->
+    <mj-raw>{% if BasicDetails['referrer'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['referrer'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -388,12 +386,12 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- Request arguments -->
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['request_args'] %}
+      <mj-raw>{% if BasicDetails['request_args'] %}</mj-raw>
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -412,12 +410,12 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- Token ID -->
+    <mj-raw>{% if BasicDetails['token'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      {% if BasicDetails['token'] %}
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -436,8 +434,8 @@
         </mj-column>
       </mj-section>
 
-      {% endif %}
     </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
 
 

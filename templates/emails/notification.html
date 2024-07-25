@@ -399,8 +399,9 @@
                                                                                                     Location</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606;margin:0;">
-                                                                                                    {{BasicDetails['location']}}
-                                                                                                </p> {% endif %}
+                                                                                                    {{BasicDetails.get('location',
+                                                                                                    None)}}</p> {% endif
+                                                                                                %}
                                                                                             </td>
                                                                                         </tr>
                                                                                     </table>
@@ -512,10 +513,9 @@
             </table>
         </div>
         <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- Browser -->
+        <!-- Browser -->{% if BasicDetails['useragent'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['useragent'] %}
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -588,15 +588,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- Log4Shell hostname -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- Log4Shell hostname -->{% if BasicDetails['log4_shell_computer_name'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['log4_shell_computer_name'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -669,15 +665,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- SQL Server username -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- SQL Server username -->{% if BasicDetails['sql_username'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['sql_username'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -749,15 +741,12 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- AWS Service Used -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- AWS Service Used -->{% if BasicDetails['aws_key_log_data'] and
+        BasicDetails['aws_key_log_data']['service_used'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -829,16 +818,12 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- CMD -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- CMD -->{% if BasicDetails['cmd_process'] or BasicDetails['cmd_computer_name'] or
+        BasicDetails['cmd_user_name']%}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['cmd_process'] or if BasicDetails['cmd_computer_name'] or if
-            BasicDetails['cmd_user_name']%}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -927,15 +912,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- merchant & amount -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- merchant & amount -->{% if BasicDetails['merchant'] or BasicDetails['amount']%}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['merchant'] or BasicDetails['amount']%}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -1017,15 +998,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- Generic data -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- Generic data -->{% if BasicDetails['generic_data'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['generic_data'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -1097,15 +1074,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- Referer -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- Referer -->{% if BasicDetails['referer'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['referer'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -1177,15 +1150,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- Referrer -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- Referrer -->{% if BasicDetails['referrer'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['referrer'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -1257,21 +1226,19 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
         <!-- Request arguments -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['request_args'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
                     <tr>
                         <td style="direction:ltr;font-size:0px;padding:0px 30px 30px;text-align:center;">
-                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+                            <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><![endif]-->
+                            {% if BasicDetails['request_args'] %}
+                            <!--[if mso | IE]><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:540px;" width="540" bgcolor="#f6f8fb" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
                             <div
                                 style="background:#f6f8fb;background-color:#f6f8fb;margin:0px auto;border-radius:16px 16px;max-width:540px;">
                                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
@@ -1338,15 +1305,11 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
-        <!-- Token ID -->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
+        <!-- Token ID -->{% if BasicDetails['token'] %}
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['token'] %}
-
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -1389,7 +1352,7 @@
                                                                                             <td>
                                                                                                 <p
                                                                                                     style="font-weight:600;display:block;line-height:1;margin:0;">
-                                                                                                    Canarytoken</p>
+                                                                                                    Canarytoken ID</p>
                                                                                                 <p
                                                                                                     style="font-weight:400;color:#060606;margin:0;">
                                                                                                     {{
@@ -1418,10 +1381,8 @@
                     </tr>
                 </tbody>
             </table>
-            {% endif %}
-
         </div>
-        <!--[if mso | IE]></td></tr></table><![endif]-->
+        <!--[if mso | IE]></td></tr></table><![endif]--> {% endif %}
         <!-- CTA -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
