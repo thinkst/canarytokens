@@ -185,7 +185,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Log4Shell hostname</p>
@@ -210,7 +210,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">SQL Server username</p>
@@ -235,7 +235,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Service Used</p>
@@ -285,6 +285,8 @@
 
     <!-- merchant & amount -->
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      {% if BasicDetails['merchant'] and BasicDetails['amount']%}
+
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
           <mj-table>
@@ -309,6 +311,8 @@
         </mj-column>
       </mj-section>
 
+      {% endif %}
+
     </mj-wrapper>
 
 
@@ -321,7 +325,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Generic data</p>
@@ -345,7 +349,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Referer</p>
@@ -369,7 +373,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Referer</p>
@@ -393,7 +397,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Request arguments</p>
@@ -417,7 +421,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/placeholder.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Canarytoken</p>
