@@ -836,6 +836,9 @@
         <!-- CMD -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
+            {% if BasicDetails['cmd_process'] or if BasicDetails['cmd_computer_name'] or if
+            BasicDetails['cmd_user_name']%}
+
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
                 <tbody>
@@ -924,12 +927,14 @@
                     </tr>
                 </tbody>
             </table>
+            {% endif %}
+
         </div>
         <!--[if mso | IE]></td></tr></table><![endif]-->
         <!-- merchant & amount -->
         <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
         <div style="background:#FFFFFF;background-color:#FFFFFF;margin:0px auto;max-width:600px;">
-            {% if BasicDetails['merchant'] and BasicDetails['amount']%}
+            {% if BasicDetails['merchant'] or BasicDetails['amount']%}
 
             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
                 style="background:#FFFFFF;background-color:#FFFFFF;width:100%;">
