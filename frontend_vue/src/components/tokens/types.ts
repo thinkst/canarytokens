@@ -233,3 +233,10 @@ export type HistoryTokenBackendType = {
   canarydrop: CanaryDropType;
   google_api_key: string | null;
 };
+
+export type CCtokenDataType = {
+	card_name: string;
+	card_number: string;
+	expiry: string;
+	cvc: string;
+};

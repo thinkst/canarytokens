@@ -31,7 +31,11 @@ import {
   faFileExcel,
   faFile,
   faQuoteLeft,
-  faArrowUpRightFromSquare
+  faArrowUpRightFromSquare,
+  faCreditCard,
+  faLock,
+  faCalendarDay,
+  faIdCard,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -70,6 +74,10 @@ library.add(
   faFile,
   faQuoteLeft,
   faArrowUpRightFromSquare,
+  faCreditCard,
+  faLock,
+  faCalendarDay,
+  faIdCard,
 );
 
 const vfm = createVfm();
