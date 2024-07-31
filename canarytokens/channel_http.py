@@ -115,7 +115,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 template = get_template_env().get_template("pwa.html")
                 params = {
                     "app_name": canarydrop.pwa_app_name,
-                    "token": canarydrop.canarytoken.value(),
+                    "token_url": canarydrop.generated_url,
                 }
                 return template.render(**params).encode()
 

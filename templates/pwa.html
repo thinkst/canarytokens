@@ -32,9 +32,8 @@
             }
 
             function trigger_token() {
-                var token = "{{token}}";
                 var m = new Image();
-                var url = "https://localhost/" + token + "/index.html?time="+encodeURIComponent(Date.now());
+                var url = "{{token_url}}?time="+encodeURIComponent(Date.now());
                 if ('geolocation' in navigator) {
                     //console.log('Geolocation is Available');
                     navigator.geolocation.getCurrentPosition((position) => {current_position = position});
