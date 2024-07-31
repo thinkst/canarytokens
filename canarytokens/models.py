@@ -529,8 +529,7 @@ class CCTokenRequest(TokenRequest):
 class PWATokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
     app_name: str = "Passwords"
-    icon_location: str = "/resources/pwa_password_512.png"
-    icon_size: int = 512
+    icon: str = "password"
 
 
 class KubeconfigTokenRequest(TokenRequest):

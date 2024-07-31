@@ -186,7 +186,7 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
       app_name: Yup.string(),//.required('An app name is required'),
-      icon_location: Yup.string(),//.required('An icon is required'),
+      icon: Yup.string(),//.required('An icon is required'),
     }),
   },
 };

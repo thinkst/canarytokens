@@ -1315,8 +1315,7 @@ def _(
     token_request_details: PWATokenRequest, canarydrop: Canarydrop
 ) -> PWATokenResponse:
     canarydrop.pwa_app_name = token_request_details.app_name
-    canarydrop.pwa_icon_location = token_request_details.icon_location
-    canarydrop.pwa_icon_size = token_request_details.icon_size
+    canarydrop.pwa_icon = token_request_details.icon
     save_canarydrop(canarydrop)
 
     return PWATokenResponse(

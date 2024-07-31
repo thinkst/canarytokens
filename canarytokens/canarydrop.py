@@ -147,8 +147,7 @@ class Canarydrop(BaseModel):
 
     # PWA specific stuff
     pwa_app_name: Optional[str]
-    pwa_icon_location: Optional[str]
-    pwa_icon_size: Optional[int]
+    pwa_icon: Optional[str]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):

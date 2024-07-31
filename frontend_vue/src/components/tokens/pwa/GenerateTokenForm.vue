@@ -10,11 +10,11 @@
       required
     />
     <BaseFormTextField
-      id="icon_location"
+      id="icon"
       type="text"
-      placeholder="/resources/pwa_password_512.png"
+      placeholder="password"
       label="Icon location (optional)"
-      helper-message="Location of the icon, this will be replaced with a grid of choices. currently we have '/resources/pwa_password_512.png', '/resources/pwa_gallery_512.png', and '/resources/pwa_fnb_512.png'"
+      helper-message="The icon to be used, this will be replaced with a grid of choices. currently we have 'password', 'gallery', and 'fnb'"
       full-width
       required
     />
