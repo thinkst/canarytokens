@@ -182,4 +182,11 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },
+  [TOKENS_TYPE.PWA]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      app_name: Yup.string(),//.required('An app name is required'),
+      icon_location: Yup.string(),//.required('An icon is required'),
+    }),
+  },
 };

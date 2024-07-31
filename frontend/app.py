@@ -112,6 +112,8 @@ from canarytokens.models import (
     MySQLTokenResponse,
     PDFTokenRequest,
     PDFTokenResponse,
+    PWATokenRequest,
+    PWATokenResponse,
     QRCodeTokenRequest,
     QRCodeTokenResponse,
     response_error,
@@ -781,7 +783,12 @@ async def api_generate(  # noqa: C901  # gen is large
     )
 
     # add generate random hostname an token
-    canarydrop.get_url(canary_domains=[canary_http_channel])
+    canarydrop.get_url(
+        canary_domains=[canary_http_channel],
+        page="index.html"
+        if token_request_details.token_type == TokenTypes.PWA
+        else None,
+    )
     canarydrop.generated_hostname = canarydrop.get_hostname()
 
     save_canarydrop(canarydrop)
@@ -1291,6 +1298,28 @@ def _(
     # canarydrop.browser_scanner_enabled = True
 
     return WebBugTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: PWATokenRequest, canarydrop: Canarydrop
+) -> PWATokenResponse:
+    canarydrop.pwa_app_name = token_request_details.app_name
+    canarydrop.pwa_icon_location = token_request_details.icon_location
+    canarydrop.pwa_icon_size = token_request_details.icon_size
+    save_canarydrop(canarydrop)
+
+    return PWATokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url
         if canarydrop.alert_webhook_url

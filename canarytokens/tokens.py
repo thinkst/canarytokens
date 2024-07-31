@@ -513,6 +513,33 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_pwa(request: Request):
+        src_data = {}
+        # we're already getting hit time;
+        # this is just for uniqueness so drop it
+        if b"time" in request.args:
+            request.args.pop(b"time")
+
+        # if there's loc data, extract it for the hit
+        if request.args.get(b"loc"):
+            loc_str = request.args.pop(b"loc")[0]
+            try:
+                d = json.loads(loc_str)
+                src_data["location"] = d
+            except json.decoder.JSONDecodeError:
+                pass
+
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        return http_general_info, src_data
+
+    @staticmethod
+    def _get_response_for_pwa(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_fast_redirect(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         return http_general_info, {}

@@ -18,7 +18,7 @@ from canarytokens.models import AnyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
-from canarytokens.tokens import Canarytoken, GIF
+from canarytokens.tokens import Canarytoken, GIF, get_template_env
 from canarytokens.utils import coerce_to_float
 
 log = Logger()
@@ -60,7 +60,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return self
         return Resource.getChild(self, name, request)
 
-    def render_GET(self, request: Request):
+    def render_GET(self, request: Request):  # noqa: C901
         # A GET request to a token URL can trigger one of a few responses:
         # 1. Check if link has been clicked on (rather than loaded from an
         #    <img>) by looking at the Accept header, then:
@@ -96,6 +96,28 @@ class CanarytokenPage(InputChannel, resource.Resource):
             log.info(f"Error: {e}")
             request.setHeader("Content-Type", "image/gif")
             return GIF
+
+        if canarydrop.type == TokenTypes.PWA:
+            if request.path.endswith(b"/manifest.json"):
+                request.setHeader("Content-Type", "application/manifest+json")
+                template = get_template_env().get_template("pwa_manifest.json")
+                params = {
+                    "app_name": canarydrop.pwa_app_name,
+                    "icon_location": canarydrop.pwa_icon_location,
+                    "icon_size": canarydrop.pwa_icon_size,
+                }
+                return template.render(**params).encode()
+            elif request.path.endswith(b"/sw.js"):
+                request.setHeader("Content-Type", "text/javascript")
+                template = get_template_env().get_template("pwa_sw.js")
+                return template.render().encode()
+            elif request.args == {}:
+                template = get_template_env().get_template("pwa.html")
+                params = {
+                    "app_name": canarydrop.pwa_app_name,
+                    "token": canarydrop.canarytoken.value(),
+                }
+                return template.render(**params).encode()
 
         handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
         http_general_info, src_data = handler(request)

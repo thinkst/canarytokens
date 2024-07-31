@@ -1,0 +1,13 @@
+{
+    "name": "{{app_name}}",
+    "start_url": "./",
+    "icons": [
+        {
+          "src": "{{icon_location}}",
+          "sizes": "{{icon_size}}x{{icon_size}}"
+        }
+    ],
+    "theme_color": "#141820",
+    "background_color": "#141820",
+    "display": "standalone"
+  }

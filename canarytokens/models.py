@@ -304,6 +304,7 @@ class TokenTypes(str, enum.Enum):
     LOG4SHELL = "log4shell"
     CMD = "cmd"
     CC = "cc"
+    PWA = "pwa"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
 
@@ -346,6 +347,7 @@ readable_token_type_names = {
     TokenTypes.LOG4SHELL: "Log4Shell",
     TokenTypes.CMD: "Sensitive command",
     TokenTypes.CC: "Credit card",
+    TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
 }
@@ -524,6 +526,13 @@ class CCTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
 
 
+class PWATokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    app_name: str = "Passwords"
+    icon_location: str = "/resources/pwa_password_512.png"
+    icon_size: int = 512
+
+
 class KubeconfigTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
 
@@ -680,6 +689,7 @@ class WindowsDirectoryTokenRequest(TokenRequest):
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
+        PWATokenRequest,
         CMDTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
@@ -713,7 +723,8 @@ class TokenResponse(BaseModel):
     token: str
     # TODO: make host name validation stricter
     hostname: Hostname
-    token_url: Union[HttpUrl, Literal[""]]
+    # `str` for token_url is needed for local dev
+    token_url: Union[HttpUrl, Literal[""], str]
     auth_token: str
     email: Union[EmailStr, Literal[""]] = ""
     webhook_url: Union[HttpUrl, Literal[""]] = ""
@@ -786,6 +797,10 @@ class CCTokenResponse(TokenResponse):
     name: str
     billing_zip: str
     rendered_html: str
+
+
+class PWATokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
 
 
 class QRCodeTokenResponse(TokenResponse):
@@ -981,6 +996,7 @@ class MySQLTokenResponse(TokenResponse):
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
+        PWATokenResponse,
         CMDTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
@@ -1478,6 +1494,26 @@ class CCTokenHit(TokenHit):
     merchant: Optional[str]
 
 
+class GeolocationCoordinates(BaseModel):
+    accuracy: Optional[float]
+    altitude: Optional[float]
+    altitudeAccuracy: Optional[float]
+    heading: Optional[float]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    speed: Optional[float]
+
+
+class GeolocationPosition(BaseModel):
+    coords: Optional[GeolocationCoordinates]
+    timestamp: Optional[int]
+
+
+class PWATokenHit(TokenHit):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    location: Optional[GeolocationPosition]
+
+
 class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
 
@@ -1599,6 +1635,7 @@ class LegacyTokenHit(TokenHit):
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
+        PWATokenHit,
         CMDTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
@@ -1724,6 +1761,11 @@ class CCTokenHistory(TokenHistory[CCTokenHit]):
     hits: List[CCTokenHit]
 
 
+class PWATokenHistory(TokenHistory[PWATokenHit]):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    hits: List[PWATokenHit]
+
+
 class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     hits: List[CMDTokenHit]
@@ -1830,6 +1872,7 @@ class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
 AnyTokenHistory = Annotated[
     Union[
         CCTokenHistory,
+        PWATokenHistory,
         CMDTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,

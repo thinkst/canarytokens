@@ -35,6 +35,7 @@ export const TOKENS_TYPE = {
   WIREGUARD: 'wireguard',
   AZURE_ENTRA_CONFIG: 'azure_id_config',
   CREDIT_CARD: 'cc',
+  PWA: 'pwa',
 };
 
 // unique keys to use in the frontend

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{app_name}} </title>
+    <link rel="icon" type="image/x-icon" href="/resources/favicon.ico">
+    <link rel="manifest" href="./manifest.json">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        integrity="sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=" 
+        crossorigin="anonymous"
+        />
+
+        <script>
+            if('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js', { scope: './' });
+            }
+    
+            var current_position = {};
+            if ('geolocation' in navigator) {
+                //console.log('Geolocation is Available');
+                navigator.geolocation.getCurrentPosition((position) => {console.log(position)});
+            } else {
+                //console.log('Geolocation is NOT Available');
+            }
+    
+            if('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js', { scope: './' });
+            }
+
+            function trigger_token() {
+                var token = "{{token}}";
+                var m = new Image();
+                var url = "https://localhost/" + token + "/index.html?time="+encodeURIComponent(Date.now());
+                if ('geolocation' in navigator) {
+                    //console.log('Geolocation is Available');
+                    navigator.geolocation.getCurrentPosition((position) => {current_position = position});
+                    url += "&loc=" + encodeURIComponent(JSON.stringify(current_position));
+                } else {
+                    //console.log('Geolocation is NOT Available');
+                }
+                //console.log(url);
+                m.src = url;
+            }
+            
+            window.addEventListener("visibilitychange", function () {
+                //console.log("Visibility changed");
+                if (document.visibilityState === "visible") {
+                    trigger_token();
+                    //console.log("token triggered!");
+                }
+                });
+        </script>
+    <style>
+        html,body,main {height: 100%}
+        .center {margin-top: 80%}
+    </style>
+</head>
+<body onpageshow="trigger_token()">
+    <main class="container">
+        <!-- <h1>Installation instructions:</h1>
+        <ol>
+            <li>Click Share</li>
+            <li>Click Add to Home Screen</li>
+            <li>Click OK</li>
+        </ol> -->
+    </main>
+</body>
+</html>
