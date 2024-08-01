@@ -1,5 +1,6 @@
 {
     "name": "{{app_name}}",
+    "short_name": "{{app_name}}",
     "start_url": "./",
     "theme_color": "#141820",
     "background_color": "#141820",
