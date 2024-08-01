@@ -4,6 +4,7 @@
     <h1>Image Select</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <BaseFormImageSelect
+        id="image-select"
         label="Select an image"
         :options="[
           { value: 'image1', url: `${getImageUrl('pwa_fnb.png')}` },
@@ -13,6 +14,7 @@
         ]"
       />
       <BaseFormImageSelect
+        id="image-select-big"
         label="Select an image"
         image-class="w-[100px] h-[100px]"
         :options="[

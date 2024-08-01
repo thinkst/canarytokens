@@ -1,6 +1,6 @@
 <template>
   <fieldset>
-    <legend class="font-semibold">{{ label }}</legend>
+    <legend class="mb-8 font-semibold text-center">{{ label }}</legend>
     <div class="flex flex-row flex-wrap items-center justify-center gap-16">
       <template
         v-for="image in options"
@@ -42,23 +42,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, toRef } from 'vue';
+import { useField } from 'vee-validate';
 
 type imageType = {
   value: string;
   url: string;
 };
 
-defineProps<{
+const props = defineProps<{
+  id: string;
   options: imageType[];
   imageClass?: string;
   label?: string;
 }>();
 
+const emit = defineEmits(['image-selected']);
+
 const selectedImage = ref<string>('');
+const id = toRef(props, 'id');
+
+const { value } = useField(id);
 
 const handleChange = () => {
   console.log(selectedImage.value);
+  value.value = selectedImage.value;
+  emit('image-selected', selectedImage.value);
 };
 </script>
 
@@ -83,16 +92,6 @@ input[type='radio']:checked::after {
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   font-size: 0.6rem;
-  position: absolute;
-  width: 1.2rem;
-  height: 1.2rem;
-  top: -5px;
-  right: -5px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  @apply bg-green-500;
+  @apply bg-green-500 text-white items-center justify-center flex rounded-full absolute w-[1.2rem] h-[1.2rem] top-[-5px] right-[-5px];
 }
 </style>

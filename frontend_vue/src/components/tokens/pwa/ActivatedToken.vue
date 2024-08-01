@@ -1,6 +1,6 @@
 <template>
   <TokenDisplay :token-url="tokenUrl" />
-  <p class="mt-16 text-sm">
+  <p class="mt-16 text-sm text-center">
     Remember, it gets triggered whenever someone opens the app.
   </p>
   <base-message-box

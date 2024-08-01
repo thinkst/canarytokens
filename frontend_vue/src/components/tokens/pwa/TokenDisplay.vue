@@ -1,10 +1,13 @@
 <template>
-  <base-code-snippet
-    lang="javascript"
-    label="Canarytoken URL"
-    is-single-line
-    :code="tokenUrl"
-  ></base-code-snippet>
+  <div class="flex justify-center">
+    <base-button
+      class="w-full mt-16"
+      :href="tokenUrl"
+      :download="tokenUrl"
+      target="_blank"
+      >Download Fake App Canarytoken</base-button
+    >
+  </div>
 </template>
 
 <script setup lang="ts">
