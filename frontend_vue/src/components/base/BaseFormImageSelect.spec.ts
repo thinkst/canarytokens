@@ -30,17 +30,20 @@ describe('BaseFormImageSelect.vue', () => {
     expect(labels.length).toBe(options.length);
   });
 
-  // it('updates selectedImage when an option is clicked', async () => {
-  //   const wrapper = mount(BaseFormImageSelect, {
-  //     props: {
-  //       label: 'Select an Image',
-  //       options,
-  //     },
-  //   });
-  //   const radioInput = wrapper.find('input[type="radio"][value="image1"]');
-  //   await radioInput.trigger('click');
-  //   expect(wrapper.vm.selectedImage).toBe('image1');
-  // });
+  it('updates selectedImage when an option is clicked', async () => {
+    const wrapper = mount(BaseFormImageSelect, {
+      props: {
+        id: 'image-select',
+        label: 'Select an Image',
+        options,
+      },
+    });
+    const radioInput = wrapper.find('input[type="radio"][value="image1"]');
+    //@ts-ignore
+    await radioInput.setChecked();
+    //@ts-ignore
+    expect(wrapper.vm.selectedImage).toBe('image1');
+  });
 
   it('applies the correct class when an option is selected', async () => {
     const wrapper = mount(BaseFormImageSelect, {
@@ -51,12 +54,9 @@ describe('BaseFormImageSelect.vue', () => {
       },
     });
     const label = wrapper.find('label[for="image1"]');
-    // const radioInput = wrapper.find('input[type="radio"][value="image1"]');
-    await label.trigger('click');
-    const selectedImageRef = wrapper.vm.selectedImage;
-    // Check if the selectedImage is updated correctly
-    // expect(selectedImageRef.value).toBe('image1');
-
+    const radioInput = wrapper.find('input[type="radio"][value="image1"]');
+    //@ts-ignore
+    await radioInput.setChecked();
     // Check if the correct class is applied to the label
     expect(label.classes()).toContain('border-green-500');
   });
@@ -70,8 +70,8 @@ describe('BaseFormImageSelect.vue', () => {
       },
     });
     const radioInput = wrapper.find('input[type="radio"][value="image1"]');
-    console.log(radioInput);
-    await radioInput.trigger('click');
+    //@ts-ignore
+    await radioInput.setChecked();
     expect(wrapper.emitted().change).toBeTruthy();
   });
 });

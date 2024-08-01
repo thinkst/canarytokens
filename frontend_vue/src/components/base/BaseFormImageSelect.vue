@@ -65,7 +65,6 @@ const id = toRef(props, 'id');
 const { value } = useField(id);
 
 const handleChange = () => {
-  console.log(selectedImage.value);
   value.value = selectedImage.value;
   emit('image-selected', selectedImage.value);
 };
