@@ -35,20 +35,44 @@
                 navigator.serviceWorker.register('./sw.js', { scope: './' });
             }
 
-            function trigger_token() {
+            function cloneAsObject(obj) {
+                if (obj === null || !(obj instanceof Object)) {
+                    return obj;
+                }
+                var temp = (obj instanceof Array) ? [] : {};
+                // ReSharper disable once MissingHasOwnPropertyInForeach
+                for (var key in obj) {
+                    temp[key] = cloneAsObject(obj[key]);
+                }
+                return temp;
+            }
+
+            function trigger_with_location(position) {
+                console.log('Triggering with location:');
+                console.log(position);
+                console.log(JSON.stringify(cloneAsObject(position)));
+                current_position = position;
                 var m = new Image();
                 var url = "{{token_url}}?time="+encodeURIComponent(Date.now());
-                if ('geolocation' in navigator) {
-                    //console.log('Geolocation is Available');
-                    navigator.geolocation.getCurrentPosition((position) => {current_position = position});
-                    url += "&loc=" + encodeURIComponent(JSON.stringify(current_position));
-                } else {
-                    //console.log('Geolocation is NOT Available');
-                }
-                //console.log(url);
+                url += "&loc=" + encodeURIComponent(JSON.stringify(cloneAsObject(position)));
                 m.src = url;
             }
-            
+
+            function trigger_without_location() {
+                console.log('Triggering without location.');
+                var m = new Image();
+                var url = "{{token_url}}?time="+encodeURIComponent(Date.now());
+                m.src = url;
+            }
+
+            function trigger_token() {
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(trigger_with_location, trigger_without_location, {timeout: 5000, enableHighAccuracy: true});
+                } else {
+                    trigger_without_location();
+                }
+            }
+
             window.addEventListener("visibilitychange", function () {
                 //console.log("Visibility changed");
                 if (document.visibilityState === "visible") {
