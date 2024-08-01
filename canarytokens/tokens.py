@@ -525,7 +525,7 @@ class Canarytoken(object):
             loc_str = request.args.pop(b"loc")[0]
             try:
                 d = json.loads(loc_str)
-                src_data["location"] = d
+                src_data["device_location"] = d
             except json.decoder.JSONDecodeError:
                 pass
 

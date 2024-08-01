@@ -1522,7 +1522,7 @@ class GeolocationPosition(BaseModel):
 
 class PWATokenHit(TokenHit):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
-    location: Optional[GeolocationPosition]
+    device_location: Optional[GeolocationPosition]
 
 
 class CMDTokenHit(TokenHit):
