@@ -6,14 +6,15 @@
       placeholder="E.g. Password Manager"
       label="App name (optional)"
       full-width
+      class="text-center"
     />
     <BaseFormImageSelect
       id="app_icon"
       label="Select App icon (optional)"
       :options="[
-        { value: 'image1', url: `${getImageUrl('pwa_fnb.png')}` },
-        { value: 'image2', url: `${getImageUrl('pwa_gallery.png')}` },
-        { value: 'image3', url: `${getImageUrl('pwa_password.png')}` },
+        { value: 'fnb', url: `${getImageUrl('pwa_fnb.png')}` },
+        { value: 'gallery', url: `${getImageUrl('pwa_gallery.png')}` },
+        { value: 'password', url: `${getImageUrl('pwa_password.png')}` },
       ]"
     />
   </BaseGenerateTokenSettings>
