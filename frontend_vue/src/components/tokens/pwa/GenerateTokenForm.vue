@@ -9,7 +9,7 @@
       class="text-center"
     />
     <BaseFormImageSelect
-      id="app_icon"
+      id="icon"
       label="Select App icon (optional)"
       :options="[
         { value: 'fnb', url: `${getImageUrl('pwa_fnb.png')}` },
