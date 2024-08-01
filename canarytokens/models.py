@@ -526,10 +526,22 @@ class CCTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
 
 
+class PWAType(enum.Enum):
+    password = "password"
+    fnb = "fnb"
+    gallery = "gallery"
+
+
+PWA_APP_TITLES = {
+    PWAType.password: "Passwords",
+    PWAType.fnb: "FNB",
+    PWAType.gallery: "Private Photos",
+}
+
+
 class PWATokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
-    app_name: str = "Passwords"
-    icon: str = "password"
+    icon: PWAType
 
 
 class KubeconfigTokenRequest(TokenRequest):

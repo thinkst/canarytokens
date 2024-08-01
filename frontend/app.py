@@ -41,6 +41,7 @@ from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
+    PWA_APP_TITLES,
     AnyDownloadRequest,
     AnySettingsRequest,
     AnyTokenRequest,
@@ -1314,8 +1315,8 @@ def _(
 def _(
     token_request_details: PWATokenRequest, canarydrop: Canarydrop
 ) -> PWATokenResponse:
-    canarydrop.pwa_app_name = token_request_details.app_name
     canarydrop.pwa_icon = token_request_details.icon
+    canarydrop.pwa_app_name = PWA_APP_TITLES[token_request_details.icon]
     save_canarydrop(canarydrop)
 
     return PWATokenResponse(

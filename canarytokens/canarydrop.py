@@ -146,8 +146,8 @@ class Canarydrop(BaseModel):
     cc_rendered_csv: Optional[str]
 
     # PWA specific stuff
-    pwa_app_name: Optional[str]
     pwa_icon: Optional[str]
+    pwa_app_name: Optional[str]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
