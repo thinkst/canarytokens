@@ -20,7 +20,7 @@
       :download="tokenData.url"
       target="_blank"
       variant="primary"
-      >Download Fake App Canarytoken</base-button
+      >Get Fake App Canarytoken</base-button
     >
   </div>
   <div class="flex justify-center"></div>
