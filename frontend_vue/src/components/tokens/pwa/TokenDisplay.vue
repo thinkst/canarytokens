@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center gap-8 p-16 py-24 m-16 bg-white border border-grey-100 rounded-3xl"
+    class="flex flex-col items-center justify-center gap-8 p-16 py-24 mb-16 bg-white border border-grey-100 rounded-3xl"
   >
     <div class="p-4 border rounded-2xl border-grey-100">
       <img
