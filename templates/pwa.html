@@ -87,13 +87,19 @@
     </style>
 </head>
 <body onpageshow="trigger_token()">
-    <main class="container">
-        <!-- <h1>Installation instructions:</h1>
+    <main class="container" hidden>
+        <h1>Installation instructions:</h1>
         <ol>
             <li>Click Share</li>
             <li>Click Add to Home Screen</li>
             <li>Click OK</li>
-        </ol> -->
+        </ol>
     </main>
+    <script>
+        if (!(document.cookie === 'instructions_shown=true')) {
+            document.getElementsByClassName('container')[0].removeAttribute('hidden');
+            document.cookie = 'instructions_shown=true';
+        }
+    </script>
 </body>
 </html>
