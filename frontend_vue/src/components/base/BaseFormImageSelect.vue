@@ -24,7 +24,7 @@
             @change="handleChange"
           />
           <div
-            class="bg-cover min-w-[4rem] min-h-[4rem] rounded-2xl duration-100"
+            class="bg-cover min-w-[3rem] min-h-[3rem] rounded-2xl duration-100"
             :class="[
               selectedImage === image.value ? 'opacity-100' : 'opacity-30',
               imageClass,
