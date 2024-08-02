@@ -26,9 +26,7 @@
           <div
             class="bg-cover min-w-[4rem] min-h-[4rem] rounded-2xl duration-100"
             :class="[
-              selectedImage === image.value
-                ? 'filter-none'
-                : 'filter grayscale opacity-40',
+              selectedImage === image.value ? 'opacity-100' : 'opacity-30',
               imageClass,
             ]"
             :style="{ backgroundImage: `url(${image.url})` }"

@@ -1,5 +1,13 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Canarytoken">
+  <BaseGenerateTokenSettings
+    setting-type="Canarytoken"
+    class="flex gap-16"
+  >
+    <BaseFormImageSelect
+      id="icon"
+      label="Select App icon (optional)"
+      :options="pwaIconService"
+    />
     <BaseFormTextField
       id="app_name"
       type="text"
@@ -7,15 +15,6 @@
       label="App name (optional)"
       full-width
       class="text-center"
-    />
-    <BaseFormImageSelect
-      id="icon"
-      label="Select App icon (optional)"
-      :options="[
-        { value: 'fnb', url: `${getImageUrl('pwa_fnb.png')}` },
-        { value: 'gallery', url: `${getImageUrl('pwa_gallery.png')}` },
-        { value: 'password', url: `${getImageUrl('pwa_password.png')}` },
-      ]"
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
@@ -25,5 +24,5 @@
 
 <script setup lang="ts">
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
-import getImageUrl from '@/utils/getImageUrl';
+import { pwaIconService } from './pwaIconService';
 </script>
