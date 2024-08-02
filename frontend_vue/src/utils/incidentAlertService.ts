@@ -113,19 +113,6 @@ export function buildIncidentDetails(
 ): FormattedHitsType | HitsType {
   try {
     const incidentDetails = {
-      time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
-      src_ip: hitAlert.src_ip,
-      geo_info: !hitAlert.geo_info.bogon
-        ? {
-            ...hitAlert.geo_info,
-          }
-        : {
-            ip: hitAlert.geo_info.ip,
-            bogon: hitAlert.geo_info.bogon,
-          },
-      is_tor_relay: !isCreditCardtoken(hitAlert.token_type)
-        ? hitAlert.is_tor_relay
-        : null,
       basic_info: {
         // TODO: add token memo
         token_type: formatTokenTypeLabel(hitAlert.token_type),
@@ -141,7 +128,21 @@ export function buildIncidentDetails(
         mail: hitAlert.mail || null,
         referer: hitAlert.referer || null,
         location: hitAlert.location || null,
+        request_args: hitAlert.request_args || null,
       },
+      time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
+      src_ip: hitAlert.src_ip,
+      geo_info: !hitAlert.geo_info.bogon
+        ? {
+            ...hitAlert.geo_info,
+          }
+        : {
+            ip: hitAlert.geo_info.ip,
+            bogon: hitAlert.geo_info.bogon,
+          },
+      is_tor_relay: !isCreditCardtoken(hitAlert.token_type)
+        ? hitAlert.is_tor_relay
+        : null,
       additional_info: {
         ...hitAlert.additional_info,
         aws_key_log_data:
