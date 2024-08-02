@@ -103,7 +103,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 template = get_template_env().get_template("pwa_manifest.json")
                 params = {
                     "app_name": canarydrop.pwa_app_name,
-                    "icon": canarydrop.pwa_icon,
+                    "icon": canarydrop.pwa_icon.value,
                 }
                 return template.render(**params).encode()
             elif request.path.endswith(b"/sw.js"):
@@ -115,7 +115,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 params = {
                     "app_name": canarydrop.pwa_app_name,
                     "token_url": canarydrop.generated_url,
-                    "icon": canarydrop.pwa_icon,
+                    "icon": canarydrop.pwa_icon.value,
                 }
                 return template.render(**params).encode()
 
