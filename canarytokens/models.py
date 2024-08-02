@@ -582,6 +582,7 @@ PWA_APP_TITLES = {
 class PWATokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
     icon: PWAType
+    app_name: Optional[str]
 
 
 class KubeconfigTokenRequest(TokenRequest):
