@@ -77,7 +77,6 @@ jobs:
         npm run build
 
     - name: Commit report
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
       run: |
         git config --global user.name "Frontend Github Action"
         git config --global user.email "max@thinkst.com"
