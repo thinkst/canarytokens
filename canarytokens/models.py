@@ -527,15 +527,55 @@ class CCTokenRequest(TokenRequest):
 
 
 class PWAType(enum.Enum):
-    password = "password"
+    absa = "absa"
+    amex = "amex"
+    applemail = "applemail"
+    applewallet = "applewallet"
+    boa = "boa"
+    bunq = "bunq"
+    capitec = "capitec"
+    chase = "chase"
     fnb = "fnb"
-    gallery = "gallery"
+    gmail = "gmail"
+    googlewallet = "googlewallet"
+    monzo = "monzo"
+    n26 = "n26"
+    nedbank = "nedbank"
+    oldmutual = "oldmutual"
+    password = "password"
+    paypal = "paypal"
+    rbc = "rbc"
+    revolut = "revolut"
+    snapscan = "snapscan"
+    standard = "standard"
+    starling = "starling"
+    zapper = "zapper"
 
 
 PWA_APP_TITLES = {
-    PWAType.password: "Passwords",
+    PWAType.absa: "Absa",
+    PWAType.amex: "American Express",
+    PWAType.applemail: "Mail",
+    PWAType.applewallet: "Wallet",
+    PWAType.boa: "Bank of America",
+    PWAType.bunq: "bunq",
+    PWAType.capitec: "Capitec",
+    PWAType.chase: "Chase",
     PWAType.fnb: "FNB",
-    PWAType.gallery: "Private Photos",
+    PWAType.gmail: "Gmail",
+    PWAType.googlewallet: "Wallet",
+    PWAType.monzo: "Monzo",
+    PWAType.n26: "N26",
+    PWAType.nedbank: "Nedbank",
+    PWAType.oldmutual: "Old Mutual",
+    PWAType.password: "Passwords",
+    PWAType.paypal: "PayPal",
+    PWAType.rbc: "RBC Mobile",
+    PWAType.revolut: "Revolut",
+    PWAType.snapscan: "SnapScan",
+    PWAType.standard: "Standard Bank",
+    PWAType.starling: "Starling",
+    PWAType.zapper: "Zapper",
 }
 
 
