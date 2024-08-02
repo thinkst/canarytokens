@@ -853,6 +853,8 @@ class CCTokenResponse(TokenResponse):
 
 class PWATokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    pwa_icon: str
+    pwa_app_name: str
 
 
 class QRCodeTokenResponse(TokenResponse):

@@ -34,6 +34,7 @@ from canarytokens.models import (
     AnyTokenHit,
     BrowserScannerSettingsRequest,
     EmailSettingsRequest,
+    PWAType,
     TokenTypes,
     User,
     WebhookSettingsRequest,
@@ -146,7 +147,7 @@ class Canarydrop(BaseModel):
     cc_rendered_csv: Optional[str]
 
     # PWA specific stuff
-    pwa_icon: Optional[str]
+    pwa_icon: Optional[PWAType]
     pwa_app_name: Optional[str]
 
     @root_validator(pre=True)

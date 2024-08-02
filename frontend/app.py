@@ -1332,6 +1332,8 @@ def _(
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
+        pwa_icon=canarydrop.pwa_icon.value,
+        pwa_app_name=canarydrop.pwa_app_name,
     )
 
 
