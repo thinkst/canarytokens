@@ -117,6 +117,7 @@ export const ENTRA_ID_FEEDBACK_MESSAGES = {
 };
 
 export const MAX_UPLOAD_SIZE = 1024 * 1024 * 1;
+export const MAX_APP_NAME_LENGTH = 30;
 
 export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   web: ['#424242', '#3B3B3B', '#41D780', '#71E487'],

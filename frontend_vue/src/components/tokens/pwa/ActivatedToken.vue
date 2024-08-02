@@ -1,5 +1,5 @@
 <template>
-  <TokenDisplay :token-url="tokenUrl" />
+  <TokenDisplay :token-data="tokenSnippetData" />
   <p class="mt-16 text-sm text-center">
     Remember, it gets triggered whenever someone opens the app.
   </p>
@@ -23,6 +23,11 @@ const props = defineProps<{
 }>();
 
 defineEmits(['howToUse']);
+console.log(props.tokenData);
 
-const tokenUrl = ref(props.tokenData.token_url);
+const tokenSnippetData = ref({
+  url: props.tokenData.token_url || '',
+  pwa_icon: props.tokenData.pwa_icon || '',
+  pwa_app_name: props.tokenData.pwa_app_name || '',
+});
 </script>

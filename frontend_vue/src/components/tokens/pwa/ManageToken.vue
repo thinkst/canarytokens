@@ -1,8 +1,8 @@
 <template>
-  <div v-if="!tokenUrl">Error loading</div>
+  <div v-if="!tokenSnippetData">Error loading</div>
   <TokenDisplay
     v-else
-    :token-url="tokenUrl"
+    :token-data="tokenSnippetData"
   />
 </template>
 
@@ -15,5 +15,9 @@ const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
 }>();
 
-const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_url);
+const tokenSnippetData = ref({
+  url: props.tokenBackendResponse.canarydrop?.generated_url || '',
+  pwa_icon: props.tokenBackendResponse.canarydrop?.pwa_icon || '',
+  pwa_app_name: props.tokenBackendResponse.canarydrop?.pwa_app_name || '',
+});
 </script>
