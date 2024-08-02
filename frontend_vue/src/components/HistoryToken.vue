@@ -128,7 +128,8 @@ async function fetchTokenHistoryData() {
   try {
     const res = await historyToken(params);
     const historyTokenData = (await res.data) as HistoryTokenBackendType;
-    hitsList.value = historyTokenData.history.hits;
+    hitsList.value = historyTokenData.history.hits.sort((a, b) => b.time_of_hit - a.time_of_hit);
+    
     emits(
       'update-token-title',
       historyTokenData.history.token_type,
