@@ -1,22 +1,18 @@
 <template>
-    <BaseGenerateTokenSettings setting-type="Canarytoken">
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
+    <BaseFormImageSelect
+      id="icon"
+      label="Select App icon"
+      :options="pwaIconService"
+      class="mb-16"
+    />
     <BaseFormTextField
       id="app_name"
       type="text"
-      placeholder="Passwords"
-      label="App Name (optional)"
-      helper-message="Something an attacker would like to open that matches your icon"
+      placeholder="E.g. Password Manager"
+      label="App name (optional)"
       full-width
-      required
-    />
-    <BaseFormTextField
-      id="icon"
-      type="text"
-      placeholder="password"
-      label="Icon location (optional)"
-      helper-message="The icon to be used, this will be replaced with a grid of choices. currently we have 'password', 'gallery', and 'fnb'"
-      full-width
-      required
+      class="text-center"
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
@@ -26,4 +22,5 @@
 
 <script setup lang="ts">
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
+import { pwaIconService } from './pwaIconService';
 </script>

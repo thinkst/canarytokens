@@ -117,6 +117,7 @@ export const ENTRA_ID_FEEDBACK_MESSAGES = {
 };
 
 export const MAX_UPLOAD_SIZE = 1024 * 1024 * 1;
+export const MAX_APP_NAME_LENGTH = 30;
 
 export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   web: ['#424242', '#3B3B3B', '#41D780', '#71E487'],
@@ -151,4 +152,5 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   wireguard: ['#DF8F93', '#AA3F44', '#B95156', '#8E1E21'],
   azure_id_config: ['#09275C', '#89E3FD', '#547EA7', '#275FA1', '#E2FBFE'],
   cc: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
+  pwa: ['#1AABEE', '#026696', '#9CE5FD'],
 };

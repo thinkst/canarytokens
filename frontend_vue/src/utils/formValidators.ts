@@ -1,5 +1,9 @@
 import * as Yup from 'yup';
-import { TOKENS_TYPE, MAX_UPLOAD_SIZE } from '@/components/constants.ts';
+import {
+  TOKENS_TYPE,
+  MAX_UPLOAD_SIZE,
+  MAX_APP_NAME_LENGTH,
+} from '@/components/constants.ts';
 import { isValidFileType, validFileExtensions } from './utils';
 
 type FieldsType = {
@@ -29,9 +33,12 @@ const validationNotificationSettings = {
   memo: Yup.string()
     .required(validationMessages.provideMemo)
     .max(1000, validationMessages.maxLengthMemo)
-    .test('empty-check', validationMessages.provideMemo, val => val.trim().length !== 0),
-  webhook_url: Yup.string()
-        .url(validationMessages.validURL),
+    .test(
+      'empty-check',
+      validationMessages.provideMemo,
+      (val) => val.trim().length !== 0
+    ),
+  webhook_url: Yup.string().url(validationMessages.validURL),
 };
 
 export const formValidators: ValidateSchemaType = {
@@ -185,8 +192,11 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.PWA]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
-      app_name: Yup.string(),//.required('An app name is required'),
-      icon: Yup.string(),//.required('An icon is required'),
+      icon: Yup.string().required('Selecting an icon is required'),
+      app_name: Yup.string().max(
+        MAX_APP_NAME_LENGTH,
+        `App name cannot be longer than ${MAX_APP_NAME_LENGTH} characters`
+      ),
     }),
   },
 };

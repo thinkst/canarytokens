@@ -78,6 +78,7 @@ const props = defineProps<{
   arrowVariant?: 'one' | 'two';
   // positions the arrow under the word at the given index
   arrowWordPosition?: number;
+  maxLength?: number;
 }>();
 
 const inputType = computed(() => (props.multiline ? 'textarea' : 'input'));
