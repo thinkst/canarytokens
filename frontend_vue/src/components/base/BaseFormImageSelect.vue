@@ -36,6 +36,13 @@
         </label>
       </template>
     </div>
+    <p
+      v-show="errorMessage"
+      id="error"
+      class="mt-8 text-xs leading-4 text-center text-red"
+    >
+      {{ errorMessage }}
+    </p>
   </fieldset>
 </template>
 
@@ -60,7 +67,7 @@ const emit = defineEmits(['image-selected']);
 const selectedImage = ref<string>('');
 const id = toRef(props, 'id');
 
-const { value } = useField(id);
+const { value, errorMessage } = useField(id);
 
 const handleChange = () => {
   value.value = selectedImage.value;

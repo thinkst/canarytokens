@@ -192,6 +192,7 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.PWA]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
+      icon: Yup.string().required('Selecting an icon is required'),
       app_name: Yup.string().max(
         MAX_APP_NAME_LENGTH,
         `App name cannot be longer than ${MAX_APP_NAME_LENGTH} characters`

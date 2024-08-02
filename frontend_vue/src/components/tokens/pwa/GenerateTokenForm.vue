@@ -2,7 +2,7 @@
   <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseFormImageSelect
       id="icon"
-      label="Select App icon (optional)"
+      label="Select App icon"
       :options="pwaIconService"
       class="mb-16"
     />
