@@ -34,6 +34,10 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_chase.png')}`,
   },
   {
+    value: 'fnb',
+    url: `${getImageUrl('pwa_icons/pwa_fnb.png')}`,
+  },
+  {
     value: 'gmail',
     url: `${getImageUrl('pwa_icons/pwa_gmail.png')}`,
   },
