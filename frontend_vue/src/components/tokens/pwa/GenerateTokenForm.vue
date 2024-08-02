@@ -1,12 +1,10 @@
 <template>
-  <BaseGenerateTokenSettings
-    setting-type="Canarytoken"
-    class="flex gap-16"
-  >
+  <BaseGenerateTokenSettings setting-type="Canarytoken">
     <BaseFormImageSelect
       id="icon"
       label="Select App icon (optional)"
       :options="pwaIconService"
+      class="mb-16"
     />
     <BaseFormTextField
       id="app_name"

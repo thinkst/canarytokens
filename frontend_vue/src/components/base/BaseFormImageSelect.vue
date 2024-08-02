@@ -1,7 +1,7 @@
 <template>
   <fieldset>
     <legend class="mb-8 font-semibold text-center">{{ label }}</legend>
-    <div class="flex flex-row flex-wrap items-center justify-center gap-16">
+    <div class="flex flex-row flex-wrap items-center justify-center gap-8">
       <template
         v-for="image in options"
         :key="image.value"
@@ -24,7 +24,7 @@
             @change="handleChange"
           />
           <div
-            class="bg-cover min-w-[3rem] min-h-[3rem] rounded-2xl duration-100"
+            class="bg-cover min-w-[2.5rem] min-h-[2.5rem] rounded-2xl duration-100"
             :class="[
               selectedImage === image.value ? 'opacity-100' : 'opacity-30',
               imageClass,
