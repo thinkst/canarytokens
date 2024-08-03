@@ -83,6 +83,7 @@ input[type='radio'] {
   /* For iOS < 15 */
   background-color: #fff;
   /* Not removed via appearance */
+  width: 0;
   margin: 0;
 }
 
