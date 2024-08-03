@@ -81,7 +81,7 @@ jobs:
         git config --global user.name "Frontend Github Action"
         git config --global user.email "max@thinkst.com"
         git add -f dist
-        git commit -am "Add Frontend Dist"
+        git commit --allow-empty -am "Add Frontend Dist"
         git push
 
   build:
