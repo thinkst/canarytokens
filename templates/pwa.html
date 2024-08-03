@@ -80,6 +80,22 @@
                     //console.log("token triggered!");
                 }
                 });
+
+            async function trigger_install() {
+                if (!installPrompt) {
+                    return;
+                }
+                const result = await installPrompt.prompt();
+                console.log(`Install prompt was: ${result.outcome}`);
+                disableInAppInstallPrompt();
+            }
+                
+            function disableInAppInstallPrompt() {
+                installPrompt = null;
+                installButton.setAttribute("hidden", "");
+            }
+
+            trigger_install();
         </script>
     <style>
         html,body,main {height: 100%}
@@ -89,11 +105,17 @@
 <body onpageshow="trigger_token()">
     <main class="container" hidden>
         <h1>Installation instructions:</h1>
+
+        <h3>For iPhones:</h3>
         <ol>
             <li>Click Share</li>
             <li>Click Add to Home Screen</li>
             <li>Click OK</li>
         </ol>
+
+        <h3>For Android:</h3>
+        Web app installation on Android happens in a variety of ways.
+        <p>These instructions will disappear when you reload the page.</p>
     </main>
     <script>
         if (!(document.cookie === 'instructions_shown=true')) {
