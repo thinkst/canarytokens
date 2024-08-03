@@ -17,7 +17,6 @@
     <base-button
       class="w-full"
       :href="tokenData.url"
-      :download="tokenData.url"
       target="_blank"
       variant="primary"
       >Get Fake App Canarytoken</base-button
