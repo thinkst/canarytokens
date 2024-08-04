@@ -11,6 +11,7 @@
       type="text"
       placeholder="E.g. Password Manager"
       label="App name (optional)"
+      helper-message="If you leave this blank, we'll use a reasonable default."
       full-width
       class="text-center"
     />
