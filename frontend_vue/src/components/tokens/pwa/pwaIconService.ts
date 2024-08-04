@@ -3,18 +3,22 @@ import getImageUrl from '@/utils/getImageUrl';
 export const pwaIconService = [
   {
     value: 'absa',
+    label: 'Absa',
     url: `${getImageUrl('pwa_icons/pwa_absa.png')}`,
   },
   {
     value: 'amex',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_amex.png')}`,
   },
   {
     value: 'applemail',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_applemail.png')}`,
   },
   {
     value: 'applewallet',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_applewallet.png')}`,
   },
   {
@@ -23,18 +27,22 @@ export const pwaIconService = [
   },
   {
     value: 'boa',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_boa.png')}`,
   },
   {
     value: 'bunq',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_bunq.png')}`,
   },
   {
     value: 'capitec',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_capitec.png')}`,
   },
   {
     value: 'chase',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_chase.png')}`,
   },
   {
@@ -47,10 +55,12 @@ export const pwaIconService = [
   },
   {
     value: 'fnb',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_fnb.png')}`,
   },
   {
     value: 'gmail',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_gmail.png')}`,
   },
   {
@@ -59,6 +69,7 @@ export const pwaIconService = [
   },
   {
     value: 'googlewallet',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_googlewallet.png')}`,
   },
   {
@@ -71,14 +82,17 @@ export const pwaIconService = [
   },
   {
     value: 'monzo',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_monzo.png')}`,
   },
   {
     value: 'n26',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_n26.png')}`,
   },
   {
     value: 'nedbank',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_nedbank.png')}`,
   },
   {
@@ -87,6 +101,7 @@ export const pwaIconService = [
   },
   {
     value: 'oldmutual',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_oldmutual.png')}`,
   },
   {
@@ -95,6 +110,7 @@ export const pwaIconService = [
   },
   {
     value: 'paypal',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_paypal.png')}`,
   },
   {
@@ -111,10 +127,12 @@ export const pwaIconService = [
   },
   {
     value: 'rbc',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_rbc.png')}`,
   },
   {
     value: 'revolut',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_revolut.png')}`,
   },
   {
@@ -123,18 +141,22 @@ export const pwaIconService = [
   },
   {
     value: 'snapscan',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_snapscan.png')}`,
   },
   {
     value: 'standard',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_standard.png')}`,
   },
   {
     value: 'starling',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_starling.png')}`,
   },
   {
     value: 'zapper',
+    label: '',
     url: `${getImageUrl('pwa_icons/pwa_zapper.png')}`,
   },
 ];

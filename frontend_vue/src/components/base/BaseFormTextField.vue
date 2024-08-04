@@ -23,7 +23,7 @@
     <component
       :is="inputType"
       :id="id"
-      :value="inputValue"
+      :value="value"
       class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:ring-green-600 focus-visible:ring-1"
       :class="[
         { 'border-red shadow-none': errorMessage },
