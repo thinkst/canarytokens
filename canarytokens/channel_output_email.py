@@ -328,6 +328,8 @@ class EmailOutputChannel(OutputChannel):
             BasicDetails.pop("useragent")
         if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
             BasicDetails.pop("src_ip")
+        if details.token_type == TokenTypes.PWA and "location" in BasicDetails:
+            BasicDetails["pwa_location"] = BasicDetails.pop("location")
 
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
