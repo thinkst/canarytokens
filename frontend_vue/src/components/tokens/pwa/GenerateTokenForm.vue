@@ -32,7 +32,10 @@ const appName = ref('test');
 
 function onImageSelected(img: String) {
   const selectedImage = pwaIconService.find((e) => e.value === img);
-  if (selectedImage?.label === undefined) return;
-  appName.value = selectedImage.label;
+  if (selectedImage?.label === undefined) {
+    appName.value = '';
+  } else {
+    appName.value = selectedImage.label;
+  }
 }
 </script>
