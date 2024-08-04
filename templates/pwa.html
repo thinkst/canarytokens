@@ -24,7 +24,7 @@
             }
     
             var current_position = {};
-            const location_settings = {timeout: 5000, enableHighAccuracy: true};
+            const location_settings = {timeout: 1000, enableHighAccuracy: true};
             if ('geolocation' in navigator) {
                 //console.log('Geolocation is Available');
                 navigator.geolocation.getCurrentPosition((position) => {}, () => {}, location_settings);

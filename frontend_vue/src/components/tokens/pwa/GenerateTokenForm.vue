@@ -28,7 +28,7 @@ import { ref } from 'vue';
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 import { pwaIconService } from './pwaIconService';
 
-const appName = ref('test');
+const appName = ref('');
 
 function onImageSelected(img: String) {
   const selectedImage = pwaIconService.find((e) => e.value === img);
