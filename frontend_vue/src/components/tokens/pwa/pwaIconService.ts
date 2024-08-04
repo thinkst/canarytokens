@@ -18,6 +18,10 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_applewallet.png')}`,
   },
   {
+    value: 'axis',
+    url: `${getImageUrl('pwa_icons/pwa_axis.png')}`,
+  },
+  {
     value: 'boa',
     url: `${getImageUrl('pwa_icons/pwa_boa.png')}`,
   },
@@ -34,6 +38,14 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_chase.png')}`,
   },
   {
+    value: 'cred',
+    url: `${getImageUrl('pwa_icons/pwa_cred.png')}`,
+  },
+  {
+    value: 'dashlane',
+    url: `${getImageUrl('pwa_icons/pwa_dashlane.png')}`,
+  },
+  {
     value: 'fnb',
     url: `${getImageUrl('pwa_icons/pwa_fnb.png')}`,
   },
@@ -42,8 +54,20 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_gmail.png')}`,
   },
   {
+    value: 'googlepay',
+    url: `${getImageUrl('pwa_icons/pwa_googlepay.png')}`,
+  },
+  {
     value: 'googlewallet',
     url: `${getImageUrl('pwa_icons/pwa_googlewallet.png')}`,
+  },
+  {
+    value: 'hdfc',
+    url: `${getImageUrl('pwa_icons/pwa_hdfc.png')}`,
+  },
+  {
+    value: 'icici',
+    url: `${getImageUrl('pwa_icons/pwa_icici.png')}`,
   },
   {
     value: 'monzo',
@@ -58,12 +82,32 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_nedbank.png')}`,
   },
   {
+    value: 'nordpass',
+    url: `${getImageUrl('pwa_icons/pwa_nordpass.png')}`,
+  },
+  {
     value: 'oldmutual',
     url: `${getImageUrl('pwa_icons/pwa_oldmutual.png')}`,
   },
   {
+    value: 'onepassword',
+    url: `${getImageUrl('pwa_icons/pwa_onepassword.png')}`,
+  },
+  {
     value: 'paypal',
     url: `${getImageUrl('pwa_icons/pwa_paypal.png')}`,
+  },
+  {
+    value: 'paytm',
+    url: `${getImageUrl('pwa_icons/pwa_paytm.png')}`,
+  },
+  {
+    value: 'phonepe',
+    url: `${getImageUrl('pwa_icons/pwa_phonepe.png')}`,
+  },
+  {
+    value: 'protonpass',
+    url: `${getImageUrl('pwa_icons/pwa_protonpass.png')}`,
   },
   {
     value: 'rbc',
@@ -72,6 +116,10 @@ export const pwaIconService = [
   {
     value: 'revolut',
     url: `${getImageUrl('pwa_icons/pwa_revolut.png')}`,
+  },
+  {
+    value: 'sbi',
+    url: `${getImageUrl('pwa_icons/pwa_sbi.png')}`,
   },
   {
     value: 'snapscan',

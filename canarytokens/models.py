@@ -531,21 +531,33 @@ class PWAType(enum.Enum):
     amex = "amex"
     applemail = "applemail"
     applewallet = "applewallet"
+    axis = "axis"
     boa = "boa"
     bunq = "bunq"
     capitec = "capitec"
     chase = "chase"
+    cred = "cred"
+    dashlane = "dashlane"
     fnb = "fnb"
     gmail = "gmail"
+    googlepay = "googlepay"
     googlewallet = "googlewallet"
+    hdfc = "hdfc"
+    icici = "icici"
     monzo = "monzo"
     n26 = "n26"
     nedbank = "nedbank"
+    nordpass = "nordpass"
     oldmutual = "oldmutual"
+    onepassword = "onepassword"
     password = "password"
     paypal = "paypal"
+    paytm = "paytm"
+    phonepe = "phonepe"
+    protonpass = "protonpass"
     rbc = "rbc"
     revolut = "revolut"
+    sbi = "sbi"
     snapscan = "snapscan"
     standard = "standard"
     starling = "starling"
@@ -557,21 +569,33 @@ PWA_APP_TITLES = {
     PWAType.amex: "American Express",
     PWAType.applemail: "Mail",
     PWAType.applewallet: "Wallet",
+    PWAType.axis: "Axis Mobile",
     PWAType.boa: "Bank of America",
     PWAType.bunq: "bunq",
     PWAType.capitec: "Capitec",
     PWAType.chase: "Chase",
+    PWAType.cred: "CRED",
+    PWAType.dashlane: "Dashlane",
     PWAType.fnb: "FNB",
     PWAType.gmail: "Gmail",
+    PWAType.googlepay: "GPay",
     PWAType.googlewallet: "Wallet",
+    PWAType.hdfc: "HDFC Bank",
+    PWAType.icici: "iMobile Pay",
     PWAType.monzo: "Monzo",
     PWAType.n26: "N26",
     PWAType.nedbank: "Nedbank",
+    PWAType.nordpass: "NordPass",
     PWAType.oldmutual: "Old Mutual",
+    PWAType.onepassword: "1Password",
     PWAType.password: "Passwords",
     PWAType.paypal: "PayPal",
+    PWAType.paytm: "Paytm",
+    PWAType.phonepe: "PhonePe",
+    PWAType.protonpass: "Proton Pass",
     PWAType.rbc: "RBC Mobile",
     PWAType.revolut: "Revolut",
+    PWAType.sbi: "YONO SBI",
     PWAType.snapscan: "SnapScan",
     PWAType.standard: "Standard Bank",
     PWAType.starling: "Starling",
