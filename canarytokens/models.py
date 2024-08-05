@@ -550,7 +550,6 @@ class PWAType(enum.Enum):
     nordpass = "nordpass"
     oldmutual = "oldmutual"
     onepassword = "onepassword"
-    password = "password"
     paypal = "paypal"
     paytm = "paytm"
     phonepe = "phonepe"
@@ -588,7 +587,6 @@ PWA_APP_TITLES = {
     PWAType.nordpass: "NordPass",
     PWAType.oldmutual: "Old Mutual",
     PWAType.onepassword: "1Password",
-    PWAType.password: "Passwords",
     PWAType.paypal: "PayPal",
     PWAType.paytm: "Paytm",
     PWAType.phonepe: "PhonePe",

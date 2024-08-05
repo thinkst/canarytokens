@@ -82,6 +82,8 @@ input[type='radio'] {
   appearance: none;
   /* For iOS < 15 */
   background-color: #fff;
+  position: absolute;
+  opacity: 0;
   /* Not removed via appearance */
   width: 0;
   margin: 0;
@@ -92,7 +94,7 @@ input[type='radio']:focus {
   outline: none;
 }
 
-input[type='radio']:checked::after {
+label:has(input[type='radio']:checked)::after {
   content: '\f00c';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
