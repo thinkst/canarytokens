@@ -790,6 +790,10 @@ async def api_generate(  # noqa: C901  # gen is large
         if token_request_details.token_type == TokenTypes.PWA
         else None,
     )
+    if token_request_details.token_type == TokenTypes.PWA:
+        canarydrop.generated_url = canarydrop.generated_url.replace(
+            "http://", "https://"
+        )
     canarydrop.generated_hostname = canarydrop.get_hostname()
 
     save_canarydrop(canarydrop)
