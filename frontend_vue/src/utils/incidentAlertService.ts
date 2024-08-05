@@ -108,6 +108,15 @@ function isAWStoken(token: string) {
   return token === TOKENS_TYPE.AWS_KEYS;
 }
 
+function isPWAtoken(token: string) {
+  return token === TOKENS_TYPE.PWA;
+}
+
+function locationValue(token: string, location: GeolocationPosition | string | null) {
+  return isPWAtoken(token) ? (typeof location === 'string' ? location : location?.coords) : location;
+}
+
+
 export function buildIncidentDetails(
   hitAlert: HitsType
 ): FormattedHitsType | HitsType {
@@ -140,8 +149,7 @@ export function buildIncidentDetails(
         merchant: hitAlert.merchant || null,
         mail: hitAlert.mail || null,
         referer: hitAlert.referer || null,
-        // TODO make this typecheck; remove the ignore below at `return` after
-        location: (hitAlert.token_type === TOKENS_TYPE.PWA ? (typeof hitAlert.location === 'string' ? hitAlert.location : hitAlert.location?.coords) : hitAlert.location) || null,
+        location: locationValue(hitAlert.token_type, hitAlert.location) || null,
       },
       additional_info: {
         ...hitAlert.additional_info,
@@ -162,7 +170,6 @@ export function buildIncidentDetails(
             : null,
       },
     };
-    //@ts-ignore
     return incidentDetails;
   } catch (error) {
     console.error(`Error in building the Incident Details object: ${error}`);

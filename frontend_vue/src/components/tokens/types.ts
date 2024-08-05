@@ -188,7 +188,7 @@ type BasicInfoType = {
   merchant: string | null;
   mail: string | null;
   referer: string | null;
-  location: string | null;
+  location: string | GeolocationPosition | GeolocationCoordinates | null;
 };
 
 export type HitsType = {
@@ -208,7 +208,7 @@ export type HitsType = {
   merchant?: string | null;
   mail?: string | null;
   referer?: string | null;
-  location?: string | GeolocationPosition | null;
+  location: string | GeolocationPosition | null;
 };
 
 export type FormattedHitsType = {
