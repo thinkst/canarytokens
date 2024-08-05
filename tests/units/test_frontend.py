@@ -46,6 +46,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    PWATokenRequest,
+    PWATokenResponse,
     PageRequest,
     PDFTokenRequest,
     PDFTokenResponse,
@@ -152,6 +154,7 @@ set_of_unsupported_request_classes = [
     CCTokenRequest,  # don't use up a CC
     CustomImageTokenRequest,
     CustomBinaryTokenRequest,
+    PWATokenRequest,
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -159,6 +162,7 @@ set_of_unsupported_response_classes = [
     CCTokenResponse,
     CustomImageTokenResponse,
     CustomBinaryTokenResponse,
+    PWATokenResponse,
 ]
 
 [set_of_response_classes.remove(o) for o in set_of_unsupported_response_classes]
