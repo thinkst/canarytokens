@@ -304,6 +304,7 @@ class TokenTypes(str, enum.Enum):
     LOG4SHELL = "log4shell"
     CMD = "cmd"
     CC = "cc"
+    PWA = "pwa"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
 
@@ -346,6 +347,7 @@ readable_token_type_names = {
     TokenTypes.LOG4SHELL: "Log4Shell",
     TokenTypes.CMD: "Sensitive command",
     TokenTypes.CC: "Credit card",
+    TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
 }
@@ -524,6 +526,87 @@ class CCTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
 
 
+class PWAType(enum.Enum):
+    absa = "absa"
+    amex = "amex"
+    applemail = "applemail"
+    applewallet = "applewallet"
+    axis = "axis"
+    boa = "boa"
+    bunq = "bunq"
+    capitec = "capitec"
+    chase = "chase"
+    cred = "cred"
+    dashlane = "dashlane"
+    fnb = "fnb"
+    gmail = "gmail"
+    googlepay = "googlepay"
+    googlewallet = "googlewallet"
+    hdfc = "hdfc"
+    icici = "icici"
+    monzo = "monzo"
+    n26 = "n26"
+    nedbank = "nedbank"
+    nordpass = "nordpass"
+    oldmutual = "oldmutual"
+    onepassword = "onepassword"
+    paypal = "paypal"
+    paytm = "paytm"
+    phonepe = "phonepe"
+    protonpass = "protonpass"
+    rbc = "rbc"
+    revolut = "revolut"
+    sbi = "sbi"
+    snapscan = "snapscan"
+    standard = "standard"
+    starling = "starling"
+    zapper = "zapper"
+
+
+PWA_APP_TITLES = {
+    PWAType.absa: "Absa",
+    PWAType.amex: "American Express",
+    PWAType.applemail: "Mail",
+    PWAType.applewallet: "Wallet",
+    PWAType.axis: "Axis Mobile",
+    PWAType.boa: "Bank of America",
+    PWAType.bunq: "bunq",
+    PWAType.capitec: "Capitec",
+    PWAType.chase: "Chase",
+    PWAType.cred: "CRED",
+    PWAType.dashlane: "Dashlane",
+    PWAType.fnb: "FNB",
+    PWAType.gmail: "Gmail",
+    PWAType.googlepay: "GPay",
+    PWAType.googlewallet: "Wallet",
+    PWAType.hdfc: "HDFC Bank",
+    PWAType.icici: "iMobile Pay",
+    PWAType.monzo: "Monzo",
+    PWAType.n26: "N26",
+    PWAType.nedbank: "Nedbank",
+    PWAType.nordpass: "NordPass",
+    PWAType.oldmutual: "Old Mutual",
+    PWAType.onepassword: "1Password",
+    PWAType.paypal: "PayPal",
+    PWAType.paytm: "Paytm",
+    PWAType.phonepe: "PhonePe",
+    PWAType.protonpass: "Proton Pass",
+    PWAType.rbc: "RBC Mobile",
+    PWAType.revolut: "Revolut",
+    PWAType.sbi: "YONO SBI",
+    PWAType.snapscan: "SnapScan",
+    PWAType.standard: "Standard Bank",
+    PWAType.starling: "Starling",
+    PWAType.zapper: "Zapper",
+}
+
+
+class PWATokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    icon: PWAType
+    app_name: Optional[str]
+
+
 class KubeconfigTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
 
@@ -680,6 +763,7 @@ class WindowsDirectoryTokenRequest(TokenRequest):
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
+        PWATokenRequest,
         CMDTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
@@ -713,7 +797,8 @@ class TokenResponse(BaseModel):
     token: str
     # TODO: make host name validation stricter
     hostname: Hostname
-    token_url: Union[HttpUrl, Literal[""]]
+    # `str` for token_url is needed for local dev
+    token_url: Union[HttpUrl, Literal[""], str]
     auth_token: str
     email: Union[EmailStr, Literal[""]] = ""
     webhook_url: Union[HttpUrl, Literal[""]] = ""
@@ -786,6 +871,12 @@ class CCTokenResponse(TokenResponse):
     name: str
     billing_zip: str
     rendered_html: str
+
+
+class PWATokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    pwa_icon: str
+    pwa_app_name: str
 
 
 class QRCodeTokenResponse(TokenResponse):
@@ -981,6 +1072,7 @@ class MySQLTokenResponse(TokenResponse):
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
+        PWATokenResponse,
         CMDTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
@@ -1478,6 +1570,26 @@ class CCTokenHit(TokenHit):
     merchant: Optional[str]
 
 
+class GeolocationCoordinates(BaseModel):
+    accuracy: Optional[float]
+    altitude: Optional[float]
+    altitudeAccuracy: Optional[float]
+    heading: Optional[float]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    speed: Optional[float]
+
+
+class GeolocationPosition(BaseModel):
+    coords: Optional[GeolocationCoordinates]
+    timestamp: Optional[int]
+
+
+class PWATokenHit(TokenHit):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    location: Optional[GeolocationPosition]
+
+
 class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
 
@@ -1599,6 +1711,7 @@ class LegacyTokenHit(TokenHit):
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
+        PWATokenHit,
         CMDTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
@@ -1724,6 +1837,11 @@ class CCTokenHistory(TokenHistory[CCTokenHit]):
     hits: List[CCTokenHit]
 
 
+class PWATokenHistory(TokenHistory[PWATokenHit]):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    hits: List[PWATokenHit]
+
+
 class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     hits: List[CMDTokenHit]
@@ -1830,6 +1948,7 @@ class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
 AnyTokenHistory = Annotated[
     Union[
         CCTokenHistory,
+        PWATokenHistory,
         CMDTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,

@@ -367,4 +367,17 @@ export const tokenServices: TokenServicesType = {
       TOKEN_CATEGORY.MICROSOFT,
     ],
   },
+  [TOKENS_TYPE.PWA]: {
+    label: 'Fake App',
+    description: 'Get an alert when someone opens a fake app on your device.',
+    documentationLink: 'https://docs.canarytokens.org/guide/fake-app-token.html',
+    icon: `${TOKENS_TYPE.PWA}.png`,
+    instruction: 'Open the link to the app\'s page and install it from the Share menu.',
+    howItWorksInstructions: [
+      'We give you a fake app.',
+      'You install it on your phone.',
+      'We send you an alert if that app is ever opened.',
+    ],
+    category: TOKEN_CATEGORY.OTHER,
+  },
 };

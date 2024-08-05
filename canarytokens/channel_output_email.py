@@ -328,7 +328,17 @@ class EmailOutputChannel(OutputChannel):
             BasicDetails.pop("useragent")
         if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
             BasicDetails.pop("src_ip")
-
+        if details.token_type == TokenTypes.PWA and "location" in BasicDetails:
+            BasicDetails["pwa_location"] = BasicDetails.pop("location")
+            latitude = BasicDetails["pwa_location"]["coords"].get("latitude")
+            longitude = BasicDetails["pwa_location"]["coords"].get("longitude")
+            if latitude and longitude:
+                BasicDetails["pwa_location"][
+                    "google_maps_link"
+                ] = f"https://google.com/maps?q={latitude},{longitude}"
+                BasicDetails["pwa_location"][
+                    "apple_maps_link"
+                ] = f"https://maps.apple.com/?q={latitude},{longitude}"
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),

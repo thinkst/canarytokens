@@ -1,6 +1,33 @@
 <template>
   <div>
     <hr class="my-24" />
+    <h1>Image Select</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <BaseFormImageSelect
+        id="image-select"
+        label="Select an image"
+        :options="[
+          { value: 'image1', url: `${getImageUrl('pwa_fnb.png')}` },
+          { value: 'image2', url: `${getImageUrl('pwa_gallery.png')}` },
+          { value: 'image3', url: `${getImageUrl('pwa_password.png')}` },
+          { value: 'image4', url: `${getImageUrl('map_placeholder.png')}` },
+        ]"
+      />
+      <BaseFormImageSelect
+        id="image-select-big"
+        label="Select an image"
+        image-class="w-[100px] h-[100px]"
+        :options="[
+          { value: 'image5', url: `${getImageUrl('pwa_fnb.png')}` },
+          { value: 'image7', url: `${getImageUrl('pwa_password.png')}` },
+          { value: 'image8', url: `${getImageUrl('map_placeholder.png')}` },
+          { value: 'image6', url: `${getImageUrl('pwa_gallery.png')}` },
+        ]"
+      />
+    </div>
+  </div>
+  <div>
+    <hr class="my-24" />
     <h1>Search bar</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <SearchBar
@@ -126,13 +153,15 @@
           id="test input"
           label="Standalone input"
           placeholder="This is a great input"
-        ></BaseFormTextField>
+        >
+        </BaseFormTextField>
         <BaseFormTextField
           id="test input"
           label="Full width input"
           placeholder="This is a great input"
           full-width
-        ></BaseFormTextField>
+        >
+        </BaseFormTextField>
         <BaseFormTextField
           id="test input"
           label="Custom label very long"
@@ -144,19 +173,22 @@
           label="Disabled input"
           disabled
           placeholder="This is a great input"
-        ></BaseFormTextField>
+        >
+        </BaseFormTextField>
         <BaseFormTextField
           id="test input"
           label="Custom label required"
           required
           placeholder="This is a great input"
-        ></BaseFormTextField>
+        >
+        </BaseFormTextField>
         <BaseFormTextField
           id="test input"
           label="Custom label required"
           required
           placeholder="This is a great input"
-        ></BaseFormTextField>
+        >
+        </BaseFormTextField>
         <BaseFormTextField
           id="test input"
           label="Error input"
@@ -323,6 +355,7 @@ import { ref } from 'vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
+import getImageUrl from '@/utils/getImageUrl';
 
 const { open } = useModal({
   component: ModalToken,
@@ -416,10 +449,8 @@ const alertSample = {
     aws_key_log_data: {
       last_used: '2022-07-29T05:48:00+00:00',
       service_used: 'service test value',
-      eventName: [
-        "DescribeInstances"
-      ]
-    }
+      eventName: ['DescribeInstances'],
+    },
   },
 };
 </script>

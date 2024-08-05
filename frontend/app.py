@@ -41,6 +41,7 @@ from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
+    PWA_APP_TITLES,
     AnyDownloadRequest,
     AnySettingsRequest,
     AnyTokenRequest,
@@ -112,6 +113,8 @@ from canarytokens.models import (
     MySQLTokenResponse,
     PDFTokenRequest,
     PDFTokenResponse,
+    PWATokenRequest,
+    PWATokenResponse,
     QRCodeTokenRequest,
     QRCodeTokenResponse,
     response_error,
@@ -781,7 +784,12 @@ async def api_generate(  # noqa: C901  # gen is large
     )
 
     # add generate random hostname an token
-    canarydrop.get_url(canary_domains=[canary_http_channel])
+    canarydrop.get_url(
+        canary_domains=[canary_http_channel],
+        page="index.html"
+        if token_request_details.token_type == TokenTypes.PWA
+        else None,
+    )
     canarydrop.generated_hostname = canarydrop.get_hostname()
 
     save_canarydrop(canarydrop)
@@ -1300,6 +1308,32 @@ def _(
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: PWATokenRequest, canarydrop: Canarydrop
+) -> PWATokenResponse:
+    canarydrop.pwa_icon = token_request_details.icon
+    if token_request_details.app_name:
+        canarydrop.pwa_app_name = token_request_details.app_name
+    else:
+        canarydrop.pwa_app_name = PWA_APP_TITLES[token_request_details.icon]
+    save_canarydrop(canarydrop)
+
+    return PWATokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        pwa_icon=canarydrop.pwa_icon.value,
+        pwa_app_name=canarydrop.pwa_app_name,
     )
 
 

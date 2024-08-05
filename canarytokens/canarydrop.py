@@ -34,6 +34,7 @@ from canarytokens.models import (
     AnyTokenHit,
     BrowserScannerSettingsRequest,
     EmailSettingsRequest,
+    PWAType,
     TokenTypes,
     User,
     WebhookSettingsRequest,
@@ -145,6 +146,10 @@ class Canarydrop(BaseModel):
     cc_rendered_html: Optional[str]
     cc_rendered_csv: Optional[str]
 
+    # PWA specific stuff
+    pwa_icon: Optional[PWAType]
+    pwa_app_name: Optional[str]
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """
@@ -245,7 +250,12 @@ class Canarydrop(BaseModel):
             queries.get_all_canary_pages(),
         )
 
-    def generate_random_url(self, canary_domains: list[str], skip_cache: bool = False):
+    def generate_random_url(
+        self,
+        canary_domains: list[str],
+        page: Optional[str] = None,
+        skip_cache: bool = False,
+    ) -> str:
         """
         Return a URL generated at random with the saved Canarytoken.
         The random URL is also saved into the Canarydrop.
@@ -267,15 +277,15 @@ class Canarydrop(BaseModel):
             path_elements.remove(elem)
         path.append(self.canarytoken.value())
 
-        path.append(pages[random.randint(0, len(pages) - 1)])
+        path.append(pages[random.randint(0, len(pages) - 1)] if page is None else page)
         generated_url += "/".join(path)
         # cache
         if not skip_cache:
             self.generated_url = generated_url
         return generated_url
 
-    def get_url(self, canary_domains: list[str]):
-        return self.generate_random_url(canary_domains)
+    def get_url(self, canary_domains: list[str], page: Optional[str] = None):
+        return self.generate_random_url(canary_domains, page)
 
     def generate_random_hostname(self, with_random=False, nxdomain=False):
         """

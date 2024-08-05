@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
+import { computed, toRef, watch } from 'vue';
 import { useField } from 'vee-validate';
 
 const props = defineProps<{
@@ -78,6 +78,7 @@ const props = defineProps<{
   arrowVariant?: 'one' | 'two';
   // positions the arrow under the word at the given index
   arrowWordPosition?: number;
+  maxLength?: number;
 }>();
 
 const inputType = computed(() => (props.multiline ? 'textarea' : 'input'));
@@ -95,6 +96,13 @@ const {
 function validateIfErrorExists(e: Event) {
   if (errorMessage && errorMessage.value) handleChange(e);
 }
+
+watch(
+  () => props.value,
+    (newValue) => {
+      handleChange(newValue)
+    },
+);
 </script>
 <style>
 .hide-scrollbar {
