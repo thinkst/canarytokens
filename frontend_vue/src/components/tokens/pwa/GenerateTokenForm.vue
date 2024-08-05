@@ -9,13 +9,13 @@
     />
     <BaseFormTextField
       id="app_name"
+      :value="appName"
       type="text"
       placeholder="E.g. Password Manager"
       label="App name (optional)"
       helper-message="If you leave this blank, we'll use a reasonable default."
       full-width
       class="text-center"
-      :value="appName"
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
@@ -30,7 +30,7 @@ import { pwaIconService } from './pwaIconService';
 
 const appName = ref('');
 
-function onImageSelected(img: String) {
+function onImageSelected(img: string) {
   const selectedImage = pwaIconService.find((e) => e.value === img);
   if (selectedImage?.label === undefined) {
     appName.value = '';

@@ -23,7 +23,7 @@
     <component
       :is="inputType"
       :id="id"
-      :value="value"
+      :value="inputValue"
       class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:ring-green-600 focus-visible:ring-1"
       :class="[
         { 'border-red shadow-none': errorMessage },
@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
+import { computed, toRef, watch } from 'vue';
 import { useField } from 'vee-validate';
 
 const props = defineProps<{
@@ -96,6 +96,13 @@ const {
 function validateIfErrorExists(e: Event) {
   if (errorMessage && errorMessage.value) handleChange(e);
 }
+
+watch(
+  () => props.value,
+    (newValue) => {
+      handleChange(newValue)
+    },
+);
 </script>
 <style>
 .hide-scrollbar {
