@@ -81,7 +81,7 @@
                                 !isObject(deepestnested_val) &&
                                 isNotEmpty(deepestnested_val)
                               "
-                              :label="deepernested_key"
+                              :label="deepnested_key"
                               :value="deepestnested_val"
                               class="py-8 ml-24"
                             />
