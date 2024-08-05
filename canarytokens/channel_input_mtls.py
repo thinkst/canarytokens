@@ -76,7 +76,7 @@ class mTLS(basic.LineReceiver):
             line.split(b":")[0]: line.split(b":")[1].strip()
             for line in self.lines[2:-1]
         }
-        user_agent = headers.get("User-Agent", "Unknown")
+        user_agent = headers.get(b"User-Agent", "Unknown")
 
         try:
             peer_certificate = Certificate.peerFromTransport(self.transport)
