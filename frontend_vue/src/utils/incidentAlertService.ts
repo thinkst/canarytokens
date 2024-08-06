@@ -2,7 +2,11 @@ import {
   convertUnixTimeStampToDate,
   convertISOtoLocalDate,
 } from '@/utils/utils';
-import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
+import type {
+  HitsType,
+  FormattedHitsType,
+  CoordsType,
+} from '@/components/tokens/types.ts';
 import { tokenServices } from './tokenServices';
 import {
   TOKENS_TYPE,
@@ -112,10 +116,16 @@ function isPWAtoken(token: string) {
   return token === TOKENS_TYPE.PWA;
 }
 
-function locationValue(token: string, location: GeolocationPosition | string | null) {
-  return isPWAtoken(token) ? (typeof location === 'string' ? location : location?.coords) : location;
+function locationValue(
+  token: string,
+  location: GeolocationPosition | CoordsType | string | null
+) {
+  return isPWAtoken(token)
+    ? typeof location === 'string'
+      ? location
+      : location?.coords
+    : location;
 }
-
 
 export function buildIncidentDetails(
   hitAlert: HitsType
@@ -149,7 +159,10 @@ export function buildIncidentDetails(
         merchant: hitAlert.merchant || null,
         mail: hitAlert.mail || null,
         referer: hitAlert.referer || null,
-        location: locationValue(hitAlert.token_type, hitAlert.location) || null,
+        location:
+          (hitAlert.location &&
+            locationValue(hitAlert.token_type, hitAlert.location)) ||
+          null,
       },
       additional_info: {
         ...hitAlert.additional_info,

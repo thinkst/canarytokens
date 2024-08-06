@@ -163,6 +163,10 @@ export type GeoInfo = {
 
 export type RequestHeaders = Record<string, string>;
 
+export type CoordsType = {
+  coords: GeolocationPosition | null;
+};
+
 export type AWSLogDataType = {
   last_used: string | null;
   service_used: string;
@@ -188,7 +192,12 @@ type BasicInfoType = {
   merchant: string | null;
   mail: string | null;
   referer: string | null;
-  location: string | GeolocationPosition | GeolocationCoordinates | null;
+  location:
+    | string
+    | GeolocationPosition
+    | GeolocationCoordinates
+    | CoordsType
+    | null;
 };
 
 export type HitsType = {
@@ -208,7 +217,7 @@ export type HitsType = {
   merchant?: string | null;
   mail?: string | null;
   referer?: string | null;
-  location: string | GeolocationPosition | null;
+  location: string | GeolocationPosition | CoordsType | null;
 };
 
 export type FormattedHitsType = {
