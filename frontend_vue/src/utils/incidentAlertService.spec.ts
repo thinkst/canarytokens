@@ -136,6 +136,7 @@ describe('buildIncidentDetails', () => {
       r: null,
       l: null,
     },
+    location: null,
   };
 
   it('should handle AWS key token', () => {

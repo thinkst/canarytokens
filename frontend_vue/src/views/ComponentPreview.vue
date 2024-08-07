@@ -452,6 +452,7 @@ const alertSample = {
       eventName: ['DescribeInstances'],
     },
   },
+  location: null,
 };
 </script>
 
