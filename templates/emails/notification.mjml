@@ -283,7 +283,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/cmd.png" width="40px" />
               </td>
               <td>
                 {% if BasicDetails['cmd_process'] %}
@@ -318,7 +318,7 @@
 
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/transaction.png" width="40px" />
               </td>
               <td>
                 {% if BasicDetails['merchant'] %}
