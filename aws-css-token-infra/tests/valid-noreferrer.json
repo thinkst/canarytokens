@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "context": {
+    "eventType": "viewer-request"
+  },
+  "viewer": {
+    "ip": "1.2.3.4"
+  },
+  "request": {
+    "method": "GET",
+    "uri": "/TESTING/bG9naW4ubWljcm9zb2Z0b25saW5lLmNvbQ%3D%3D/img.gif",
+    "headers": {},
+    "cookies": {},
+    "querystring": {}
+  }
+}
