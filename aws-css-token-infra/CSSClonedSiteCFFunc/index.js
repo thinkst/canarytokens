@@ -2,23 +2,29 @@
 // Expected uri looks like: /TOKEN_ID/escape(btoa(expected_referrer))/imagename.gif
 // Either returns a 1x1 pixel GIF, or forwards it to the token server with the referrer as a GET parameter for reporting
 
-var querystring = require('querystring');
+const querystring = require('querystring');
 
-var token_server = 'https://canarytokens.com';
+import cf from 'cloudfront';
+const kvsId = "KVS_ID";
+const kvsHandle = cf.kvs(kvsId);
 
-var matching_ref_response = {
+const token_server = 'https://canarytokens.com';
+
+const matching_ref_response = {
     statusCode: 200,
     statusDescription: 'OK',
     headers: {
-        'content-type': { value: 'image/gif' }
+        'content-type': { value: 'image/gif' },
+        'cache-control': { value: 'no-store' }
     },
     body: "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff"
     + "\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00"
     + "\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"
 };
 
-function handler(event) {
-    var uri = event.request.uri.split('/');
+async function handler(event) {
+    const decoder = new TextDecoder();
+    const uri = event.request.uri.split('/');
     var expected_referrer = '';
     if (uri.length != 4) { // We have a malformed request, return a 404
         return {
@@ -26,13 +32,15 @@ function handler(event) {
             statusDescription: 'Not Found'
         };
     }
-    expected_referrer = String.bytesFrom(uri[2], 'base64url');
+    const token_id = uri[1];
+    const exclusions_exist = await kvsHandle.exists(token_id);
+    expected_referrer = decoder.decode(Buffer.from(uri[2], 'base64url'));
     var referer = '';
     var referer_origin = '';
     if ('referer' in event.request.headers) {
         referer = event.request.headers.referer.value;
         if (referer.indexOf('//') >= 0) {
-            var pathArray = referer.split( '/' );
+            const pathArray = referer.split( '/' );
             referer_origin = pathArray[2];
         } else {
             referer_origin = referer;
@@ -54,6 +62,7 @@ function handler(event) {
         // Happy case where the referer matches
         return matching_ref_response;
     }
+
     if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
         // Special case of an MS login token came from login.microsoft.com instead of microsoftonline.com
         // We still want to treat this as a good login since the referer is a valid MS domain
@@ -64,12 +73,25 @@ function handler(event) {
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
+    if (expected_referrer.endsWith('microsoftonline.com') && (referer_origin.endsWith('aadcdn.msauthimages.net') || referer_origin.endsWith('aadcdn.msftauthimages.net'))) {
+        // Special case of an MS login token came from the Azure CDN
+        // We still want to treat this as a good login since the referer is a valid MS domain
+        return matching_ref_response;
+    }
+
+    if (exclusions_exist) {
+        const exclusions = (await kvsHandle.get(token_id)).split(',');
+        for (var i = 0; i < exclusions.length; i++) {
+            if (referer_origin.endsWith(exclusions[i]))
+                return matching_ref_response;
+        }
+    }
     // Default case of redirecting to the tokens server
-    var response = {
+    const response = {
         statusCode: 302,
         statusDescription: 'Found',
         headers: {
-            'location': { value: token_server + '/' + uri[1] + '/' + uri[3] + '?' + querystring.stringify({"r": referer}) }
+            'location': { value: token_server + '/' + token_id + '/' + uri[3] + '?' + querystring.stringify({"r": referer}) }
         }
     };
     return response;
