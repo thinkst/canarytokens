@@ -43,6 +43,12 @@ function handler(event) {
             var domain_port = referer_origin.split(':');
             referer_origin = domain_port[0];
         }
+        if (referer_origin[referer_origin.length-1] === ".")
+        {
+            // According to the DNS spec in RFC 1034 domains always end with a trailing "." (dot)
+            // Most tools simply strip this out.
+            referer_origin = referer_origin.slice(0,-1);
+        }
     }
 
     if (expected_referrer == '')
