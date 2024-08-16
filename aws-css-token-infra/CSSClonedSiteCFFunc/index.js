@@ -78,8 +78,8 @@ async function handler(event) {
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
-    if (expected_referrer.endsWith('microsoftonline.com') && (referer_origin.endsWith('aadcdn.msauthimages.net') || referer_origin.endsWith('aadcdn.msftauthimages.net'))) {
-        // Special case of an MS login token came from the Azure CDN
+    if (expected_referrer.endsWith('microsoftonline.com') && (referer_origin.endsWith('aadcdn.msauthimages.net') || referer_origin.endsWith('aadcdn.msftauthimages.net') || referer_origin.endsWith('login.windows.net'))) {
+        // Special case of an MS login token came from the Azure CDN or a MS Windows domain
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
