@@ -538,12 +538,16 @@ class PWAType(enum.Enum):
     chase = "chase"
     cred = "cred"
     dashlane = "dashlane"
+    discord = "discord"
+    facebook = "facebook"
     fnb = "fnb"
     gmail = "gmail"
     googlepay = "googlepay"
     googlewallet = "googlewallet"
     hdfc = "hdfc"
     icici = "icici"
+    instagram = "instagram"
+    messenger = "messenger"
     monzo = "monzo"
     n26 = "n26"
     nedbank = "nedbank"
@@ -557,9 +561,15 @@ class PWAType(enum.Enum):
     rbc = "rbc"
     revolut = "revolut"
     sbi = "sbi"
+    signal = "signal"
+    snapchat = "snapchat"
     snapscan = "snapscan"
     standard = "standard"
     starling = "starling"
+    telegram = "telegram"
+    tiktok = "tiktok"
+    twitter = "twitter"
+    whatsapp = "whatsapp"
     zapper = "zapper"
 
 
@@ -575,12 +585,16 @@ PWA_APP_TITLES = {
     PWAType.chase: "Chase",
     PWAType.cred: "CRED",
     PWAType.dashlane: "Dashlane",
+    PWAType.discord: "Discord",
+    PWAType.facebook: "Facebook",
     PWAType.fnb: "FNB",
     PWAType.gmail: "Gmail",
     PWAType.googlepay: "GPay",
     PWAType.googlewallet: "Wallet",
     PWAType.hdfc: "HDFC Bank",
     PWAType.icici: "iMobile Pay",
+    PWAType.instagram: "Instagram",
+    PWAType.messenger: "Messenger",
     PWAType.monzo: "Monzo",
     PWAType.n26: "N26",
     PWAType.nedbank: "Nedbank",
@@ -594,9 +608,15 @@ PWA_APP_TITLES = {
     PWAType.rbc: "RBC Mobile",
     PWAType.revolut: "Revolut",
     PWAType.sbi: "YONO SBI",
+    PWAType.signal: "Signal",
+    PWAType.snapchat: "Snapchat",
     PWAType.snapscan: "SnapScan",
     PWAType.standard: "Standard Bank",
     PWAType.starling: "Starling",
+    PWAType.telegram: "Telegram",
+    PWAType.tiktok: "TikTok",
+    PWAType.twitter: "X",
+    PWAType.whatsapp: "Whatsapp",
     PWAType.zapper: "Zapper",
 }
 
