@@ -1,5 +1,4 @@
 import getImageUrl from '@/utils/getImageUrl';
-
 export const pwaIconService = [
   {
     value: 'absa',
@@ -57,6 +56,16 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_dashlane.png')}`,
   },
   {
+    value: 'discord',
+    label: 'Discord',
+    url: `${getImageUrl('pwa_icons/pwa_discord.png')}`
+  },
+  {
+    value: 'facebook',
+    label: 'Facebook',
+    url: `${getImageUrl('pwa_icons/pwa_facebook.png')}`
+  },
+  {
     value: 'fnb',
     label: 'FNB',
     url: `${getImageUrl('pwa_icons/pwa_fnb.png')}`,
@@ -85,6 +94,16 @@ export const pwaIconService = [
     value: 'icici',
     label: 'iMobile Pay',
     url: `${getImageUrl('pwa_icons/pwa_icici.png')}`,
+  },
+  {
+    value: 'instagram',
+    label: 'Instagram',
+    url: `${getImageUrl('pwa_icons/pwa_instagram.png')}`
+  },
+  {
+    value: 'messenger',
+    label: 'Messenger',
+    url: `${getImageUrl('pwa_icons/pwa_messenger.png')}`
   },
   {
     value: 'monzo',
@@ -152,6 +171,16 @@ export const pwaIconService = [
     url: `${getImageUrl('pwa_icons/pwa_sbi.png')}`,
   },
   {
+    value: 'signal',
+    label: 'Signal',
+    url: `${getImageUrl('pwa_icons/pwa_signal.png')}`
+  },
+  {
+    value: 'snapchat',
+    label: 'Snapchat',
+    url: `${getImageUrl('pwa_icons/pwa_snapchat.png')}`
+  },
+  {
     value: 'snapscan',
     label: 'SnapScan',
     url: `${getImageUrl('pwa_icons/pwa_snapscan.png')}`,
@@ -165,6 +194,26 @@ export const pwaIconService = [
     value: 'starling',
     label: 'Starling',
     url: `${getImageUrl('pwa_icons/pwa_starling.png')}`,
+  },
+  {
+    value: 'telegram',
+    label: 'Telegram',
+    url: `${getImageUrl('pwa_icons/pwa_telegram.png')}`
+  },
+  {
+    value: 'tiktok',
+    label: 'TikTok',
+    url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}`
+  },
+  {
+    value: 'twitter',
+    label: 'X',
+    url: `${getImageUrl('pwa_icons/pwa_twitter.png')}`
+  },
+  {
+    value: 'whatsapp',
+    label: 'Whatsapp',
+    url: `${getImageUrl('pwa_icons/pwa_whatsapp.png')}`
   },
   {
     value: 'zapper',
