@@ -616,7 +616,7 @@ PWA_APP_TITLES = {
     PWAType.telegram: "Telegram",
     PWAType.tiktok: "TikTok",
     PWAType.twitter: "X",
-    PWAType.whatsapp: "Whatsapp",
+    PWAType.whatsapp: "WhatsApp",
     PWAType.zapper: "Zapper",
 }
 
