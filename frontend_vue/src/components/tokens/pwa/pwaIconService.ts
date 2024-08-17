@@ -212,7 +212,7 @@ export const pwaIconService = [
   },
   {
     value: 'whatsapp',
-    label: 'Whatsapp',
+    label: 'WhatsApp',
     url: `${getImageUrl('pwa_icons/pwa_whatsapp.png')}`
   },
   {
