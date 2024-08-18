@@ -33,7 +33,8 @@ describe('Token Tests', () => {
   }
 },
     { name: 'JS cloned website', extraFields: () => cy.get('#clonedsite').type('www.google.pt') },
-    { name: 'CSS cloned website', extraFields: () => cy.get('#expected_referrer').type('www.google.pt') }
+    { name: 'CSS cloned website', extraFields: () => cy.get('#expected_referrer').type('www.google.pt') },
+    { name: 'Fake App', extraFields: () => cy.get('[for="whatsapp"]').click() }
   ]
 
   items.forEach(item => {
