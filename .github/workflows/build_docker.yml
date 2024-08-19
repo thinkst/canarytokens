@@ -81,8 +81,12 @@ jobs:
         git config --global user.name "Frontend Github Action"
         git config --global user.email "max@thinkst.com"
         git add -f dist
-        git commit --allow-empty -am "Add Frontend Dist"
-        git push
+        # Only commit if any files have changed
+        # git status --porcelain is empty if there are no changes
+        if [ -n "$(git status --porcelain)" ]; then
+          git commit -am "Add Frontend Dist"
+          git push
+        fi
 
   build:
     needs: build-and-commit-frontend-dist
