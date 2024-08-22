@@ -26,7 +26,7 @@
           <div
             class="bg-cover min-w-[2.5rem] min-h-[2.5rem] rounded-2xl duration-100"
             :class="[
-              selectedImage === image.value ? 'opacity-100' : 'opacity-30',
+              selectedImage === image.value ? 'opacity-100' : 'opacity-40',
               imageClass,
             ]"
             :style="{ backgroundImage: `url(${image.url})` }"

@@ -1,7 +1,7 @@
 <template>
   <TokenDisplay :token-data="tokenSnippetData" />
   <p class="mt-16 text-sm text-center">
-    Remember, it gets triggered whenever someone opens the app.
+    The token gets triggered whenever you open the app.
   </p>
   <base-message-box
     class="mt-24"

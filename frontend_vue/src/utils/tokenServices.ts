@@ -88,7 +88,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when someone opens a fake app on your device.',
     documentationLink: 'https://docs.canarytokens.org/guide/fake-app-token.html',
     icon: `${TOKENS_TYPE.PWA}.png`,
-    instruction: 'Open the link to the app\'s page and install it from the Share menu.',
+    instruction: 'Open the link to the app\'s page in your Native Browser (iOS: Safari, Android: Chrome) and install the app.',
     howItWorksInstructions: [
       'We give you a fake app.',
       'You install it on your phone.',
