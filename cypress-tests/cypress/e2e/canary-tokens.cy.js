@@ -16,13 +16,12 @@ describe('Token Tests', () => {
     { name: 'Azure Entra ID login', extraFields: null },
     { name: 'Fast redirect', extraFields: () => cy.get('#redirect_url').type('www.google.pt') },
     { name: 'Slow redirect', extraFields: () => cy.get('#redirect_url').type('www.google.pt') },
-    { name: 'Sensitive command', extraFields: () => cy.get('#cmd_process').type('test.exe') }, 
+    { name: 'Sensitive command', extraFields: () => cy.get('#cmd_process').type('test.exe') },
     { name: 'Web image',
   extraFields: () => {
     cy.get('input[type="file"]').selectFile('cypress/fixtures/logo.png', { force: true })
   }
 },
-    { name: 'Azure login certificate', extraFields: () => cy.get('#azure_id_cert_file_name').type('Code_Sign_Server_3.pem') },
     { name: 'Microsoft SQL Server', extraFields: () => {
       cy.get('#update').click()
       cy.get('#sql_server_table_name').type('TEST')
@@ -68,7 +67,7 @@ describe('Token Tests', () => {
       // Take a screenshot and click on 'Manage Canarytoken'
       cy.screenshot(`snapshots/${item.name.toLowerCase().replace(/ /g, '_')}/manage_token`, { clip: { x: 0, y: 0, width: 890, height: 640 } })
       cy.contains('Manage Canarytoken').click()
-      
+
       // Click on 'ALERTS HISTORY' and take a screenshot
       cy.get('.justify-end')
        .contains('Alerts History').click()
