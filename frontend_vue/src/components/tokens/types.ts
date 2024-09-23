@@ -217,7 +217,7 @@ export type HitsType = {
   merchant?: string | null;
   mail?: string | null;
   referer?: string | null;
-  location: string | GeolocationPosition | CoordsType | null;
+  location?: string | GeolocationPosition | CoordsType | null;
 };
 
 export type FormattedHitsType = {
