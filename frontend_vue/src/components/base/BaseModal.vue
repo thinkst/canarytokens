@@ -4,7 +4,7 @@
   <!-- @vue-expect-error content-transition ts error -->
   <VueFinalModal
     overlay-class="blur-bg"
-    conten-class="absolute inset-[0px]"
+    content-class="absolute inset-[0px]"
     overlay-transition="vfm-fade"
     :content-transition="modalCustomTransition"
     @update:model-value="(val) => emit('update:modelValue', val)"
