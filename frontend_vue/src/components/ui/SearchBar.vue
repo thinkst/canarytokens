@@ -20,9 +20,9 @@
     ></font-awesome-icon>
     <button
       v-if="value && value.length > 0"
+      id="clearSearchInput"
       class="absolute top-[.25rem] right-16 text-grey-300 duration-150 cursor-pointer hover:text-green-500"
       @click="clearInput"
-      id="clearSearchInput"
     >
       <font-awesome-icon
         icon="close"
