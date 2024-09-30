@@ -101,6 +101,14 @@ function filterBySearch(list: TokenServicesType) {
     if (val.label.toLowerCase().includes(searchValue.value.toLowerCase())) {
       return { ...acc, [key]: val };
     }
+    if (
+      Array.isArray(val.keywords) &&
+      val.keywords.some((keyword) =>
+        keyword.toLowerCase().includes(searchValue.value.toLowerCase())
+      )
+    ) {
+      return { ...acc, [key]: val };
+    }
     return acc;
   }, {});
 }

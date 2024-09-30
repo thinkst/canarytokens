@@ -7,10 +7,10 @@
         id="image-select"
         label="Select an image"
         :options="[
-          { value: 'image1', url: `${getImageUrl('pwa_fnb.png')}` },
-          { value: 'image2', url: `${getImageUrl('pwa_gallery.png')}` },
-          { value: 'image3', url: `${getImageUrl('pwa_password.png')}` },
-          { value: 'image4', url: `${getImageUrl('map_placeholder.png')}` },
+          { value: 'image1', url: `${getImageUrl('pwa_icons/pwa_fnb.png')}` },
+          { value: 'image2', url: `${getImageUrl('pwa_icons/pwa_axis.png')}` },
+          { value: 'image3', url: `${getImageUrl('pwa_icons/pwa_rbc.png')}` },
+          { value: 'image4', url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}` },
         ]"
       />
       <BaseFormImageSelect
@@ -18,10 +18,10 @@
         label="Select an image"
         image-class="w-[100px] h-[100px]"
         :options="[
-          { value: 'image5', url: `${getImageUrl('pwa_fnb.png')}` },
-          { value: 'image7', url: `${getImageUrl('pwa_password.png')}` },
-          { value: 'image8', url: `${getImageUrl('map_placeholder.png')}` },
-          { value: 'image6', url: `${getImageUrl('pwa_gallery.png')}` },
+          { value: 'image5', url: `${getImageUrl('pwa_icons/pwa_snapchat.png')}` },
+          { value: 'image6', url: `${getImageUrl('pwa_icons/pwa_paypal.png')}` },
+          { value: 'image7', url: `${getImageUrl('pwa_icons/pwa_messenger.png')}` },
+          { value: 'image8', url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}` },
         ]"
       />
     </div>
