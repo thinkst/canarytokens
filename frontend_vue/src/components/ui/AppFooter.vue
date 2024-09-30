@@ -23,15 +23,9 @@
       <a
         href="https://canary.tools/"
         target="_blank"
+        aria-label="Canary tools"
       >
         <LogoFooter class="min-w-[12rem]" />
-        <a
-          href="https://canary.tools/"
-          target="_blank"
-          class="sr-only"
-        >
-          Canary tools
-        </a>
       </a>
     </div>
     <div
