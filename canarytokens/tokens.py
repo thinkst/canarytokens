@@ -461,7 +461,7 @@ class Canarytoken(object):
     def _parse_credit_card_v2_trigger(
         request: Request,
     ) -> CreditCardV2TokenHit:
-        trigger_data = CreditCardTrigger(**request.args)
+        trigger_data = CreditCardTrigger(**json.loads(request.content.read()))
 
         hit_time = datetime.utcnow().strftime("%s.%f")
         hit_info = {
