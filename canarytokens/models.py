@@ -1732,6 +1732,14 @@ class CreditCardV2TokenHit(TokenHit):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
     additional_info: Optional[CreditCardV2AdditionalInfo]
 
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `CreditCardV2TokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: CreditCardV2TokenHit in v2 dict representation.
+        """
+        return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+
 
 class LegacyTokenHit(TokenHit):
     # excel; word; image; QR;
@@ -1817,7 +1825,11 @@ class TokenHistory(GenericModel, Generic[TH]):
         """
         data = {}
         for hit in self.hits:
-            if isinstance(hit, AWSKeyTokenHit) or isinstance(hit, SlackAPITokenHit):
+            if (
+                isinstance(hit, AWSKeyTokenHit)
+                or isinstance(hit, SlackAPITokenHit)
+                or isinstance(hit, CreditCardV2TokenHit)
+            ):
                 hit_data = hit.serialize_for_v2()
             else:
                 hit_data = json_safe_dict(hit, exclude=("token_type", "time_of_hit"))
