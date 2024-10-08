@@ -59,6 +59,8 @@ from canarytokens.models import (
     WebImageSettingsRequest,
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
+    CreditCardV2TokenRequest,
+    CreditCardV2TokenResponse,
 )
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -155,6 +157,7 @@ set_of_unsupported_request_classes = [
     CustomImageTokenRequest,
     CustomBinaryTokenRequest,
     PWATokenRequest,
+    CreditCardV2TokenRequest,
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -163,6 +166,7 @@ set_of_unsupported_response_classes = [
     CustomImageTokenResponse,
     CustomBinaryTokenResponse,
     PWATokenResponse,
+    CreditCardV2TokenResponse,
 ]
 
 [set_of_response_classes.remove(o) for o in set_of_unsupported_response_classes]

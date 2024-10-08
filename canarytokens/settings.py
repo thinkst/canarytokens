@@ -120,6 +120,13 @@ class FrontendSettings(BaseSettings):
     CLOUDFRONT_URL: Optional[HttpUrl]
     AZUREAPP_ID: Optional[str]
     AZUREAPP_SECRET: Optional[str]  # TODO: Figure out SecretStr with Azure secrets
+    CREDIT_CARD_TOKEN_ENABLED: bool = False
+    CREDIT_CARD_INFRA_CUSTOMER_GUID: Optional[str]
+    CREDIT_CARD_INFRA_CUSTOMER_SECRET: Optional[str]
+    CREDIT_CARD_INFRA_LAMBDA: Optional[str]
+    CREDIT_CARD_INFRA_ACCOUNT_ID: Optional[str]
+    CREDIT_CARD_INFRA_REGION: Optional[str]
+    CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
 
     class Config:
         allow_mutation = False
