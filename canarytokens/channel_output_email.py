@@ -248,7 +248,7 @@ def smtp_send(
 
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
-            if smtp_username != "" or smtp_password != "":
+            if smtp_username is not None or smtp_password is not None:
                 server.login(smtp_username, smtp_password)
             server.sendmail(fromaddr, toaddr, smtpmsg.as_string())
     except smtplib.SMTPException as e:
