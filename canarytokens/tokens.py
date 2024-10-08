@@ -461,20 +461,14 @@ class Canarytoken(object):
     def _parse_credit_card_v2_trigger(
         request: Request,
     ) -> CreditCardV2TokenHit:
-        # data = {k.decode(): [o.decode() for o in v][0] for k, v in request.args.items()}
-
-        # if "merchant" in data:
-        #     data["merchant"] = json.loads(data["merchant"])
-        # if "risk_details" in data:
-        #     data["risk_details"] = json.loads(data["risk_details"])
-        data = json.loads(request.content.read().decode())
-        trigger_data = CreditCardTrigger(**data)
+        request_data = json.loads(request.content.read().decode())
+        trigger_data = CreditCardTrigger(**request_data)
 
         hit_time = datetime.utcnow().strftime("%s.%f")
         hit_info = {
             "time_of_hit": hit_time,
             "input_channel": INPUT_CHANNEL_HTTP,
-            "additional_info": CreditCardV2AdditionalInfo(trigger_data),
+            "additional_info": CreditCardV2AdditionalInfo(**trigger_data.dict()),
         }
         return CreditCardV2TokenHit(**hit_info)
 
