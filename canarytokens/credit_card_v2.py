@@ -86,7 +86,7 @@ def _get_lambda_client(refresh_client: bool = False):
     """
     global _CACHED_LAMBDA_CLIENT
 
-    if _CACHED_LAMBDA_CLIENT and not refresh_client:
+    if _CACHED_LAMBDA_CLIENT is not None and not refresh_client:
         return _CACHED_LAMBDA_CLIENT
 
     botocore_session = botocore.session.get_session()

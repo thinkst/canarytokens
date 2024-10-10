@@ -1885,9 +1885,7 @@ def _(
 
     return CreditCardV2TokenResponse(
         email=canarydrop.alert_email_recipient or "",
-        webhook_url=canarydrop.alert_webhook_url
-        if canarydrop.alert_webhook_url
-        else "",
+        webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
         token_url=canarydrop.generated_url,
         auth_token=canarydrop.auth,
