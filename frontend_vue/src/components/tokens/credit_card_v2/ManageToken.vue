@@ -9,21 +9,14 @@ import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
 
 const props = defineProps<{
-	tokenData: ManageTokenBackendType;
+	tokenBackendResponse: ManageTokenBackendType;
 }>();
 
-// TODO: these fields are coming empty from the backend
-// const tokenData = ref({
-// 	card_name: props.tokenData.card_name || 'Paul Ndegwa Gichuki',
-// 	card_number: props.tokenData.card_number || '0000 0000 0000 0000 0000',
-// 	expiry: props.tokenData.expiry || '11/27',
-// 	cvc: props.tokenData.cvc || '344',
-// });
-
 const tokenInfo = ref({
-	card_name: 'Paul Ndegwa Gichuki',
-	card_number:'0000 0000 0000 0000',
-	expiry: '11/2027',
-	cvc: '344',
+	name_on_card: props.tokenBackendResponse.canarydrop?.cc_v2_name_on_card || '',
+	card_number: props.tokenBackendResponse.canarydrop?.cc_v2_card_number || '',
+	expiry_month: props.tokenBackendResponse.canarydrop?.cc_v2_expiry_month || '',
+	expiry_year: props.tokenBackendResponse.canarydrop?.cc_v2_expiry_year || '',
+	cvv: props.tokenBackendResponse?.canarydrop.cc_v2_cvv || '',
 });
 </script>

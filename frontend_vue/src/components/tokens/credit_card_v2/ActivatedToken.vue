@@ -20,9 +20,10 @@ const props = defineProps<{
 }>();
 
 const tokenData = ref({
-	card_name: props.tokenData.card_name || '',
+	name_on_card: props.tokenData.name_on_card || '',
 	card_number: props.tokenData.card_number || '',
-	expiry: props.tokenData.expiry || '',
-	cvc: props.tokenData.cvc || '',
+	expiry_month: props.tokenData.expiry_month || '',
+	expiry_year: props.tokenData.expiry_year || '',
+	cvv: props.tokenData.cvv || '',
 });
 </script>

@@ -1093,6 +1093,7 @@ class MySQLTokenResponse(TokenResponse):
 
 class CreditCardV2TokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    name_on_card: str
     card_number: str
     cvv: str
     expiry_month: int

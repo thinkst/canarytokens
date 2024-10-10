@@ -155,7 +155,7 @@ class Canarydrop(BaseModel):
     cc_v2_cvv: Optional[str]
     cc_v2_expiry_month: Optional[int]
     cc_v2_expiry_year: Optional[int]
-    cc_v2_name_on_card: Optional[str]
+    cc_v2_name_on_card: Literal["Canarytokens.org"] = "Canarytokens.org"
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):

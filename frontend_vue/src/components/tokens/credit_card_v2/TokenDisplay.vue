@@ -22,7 +22,7 @@ const props = defineProps<{
 }>();
 
 const href = ref('download?fmt=cc'+'&token=mwnioj2ijoij2223'+'&auth=wkoowmwojojoow')
-const download = ref(props.tokenData.card_name.concat('_'))
+const download = ref(props.tokenData.name_on_card.concat('_'))
 
 const handleDownloadCC = () =>  {
 	console.log('Download CC')
