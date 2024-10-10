@@ -33,6 +33,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 import canarytokens
+import canarytokens.credit_card_v2 as credit_card_infra
 from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
@@ -61,6 +62,8 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    CreditCardV2TokenRequest,
+    CreditCardV2TokenResponse,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -796,7 +799,8 @@ async def api_generate(  # noqa: C901  # gen is large
         )
     canarydrop.generated_hostname = canarydrop.get_hostname()
 
-    save_canarydrop(canarydrop)
+    if token_request_details.token_type != TokenTypes.CREDIT_CARD_V2:
+        save_canarydrop(canarydrop)
 
     return create_response(token_request_details, canarydrop)
 
@@ -1851,4 +1855,44 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
             domain=frontend_settings.DOMAINS[0],
             port=switchboard_settings.CHANNEL_MYSQL_PORT,
         ),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: CreditCardV2TokenRequest, canarydrop: Canarydrop
+) -> CreditCardV2TokenResponse:
+    canarytoken = Canarytoken()
+    canarydrop.canarytoken = canarytoken
+
+    (status, card) = credit_card_infra.create_card(canarytoken.value())
+
+    if status == credit_card_infra.Status.SUCCESS:
+        canarydrop.cc_v2_card_id = card.card_id
+        canarydrop.cc_v2_card_number = card.card_number
+        canarydrop.cc_v2_cvv = card.cvv
+        canarydrop.cc_v2_expiry_month = card.expiry_month
+        canarydrop.cc_v2_expiry_year = card.expiry_year
+        canarydrop.cc_v2_name_on_card = card.name_on_card
+    elif status == credit_card_infra.Status.NO_MORE_CREDITS:
+        return JSONResponse(
+            {"message": "No more Card Credits available."}, status_code=500
+        )
+    else:
+        return JSONResponse({"message": "Something went wrong!"}, status_code=500)
+
+    save_canarydrop(canarydrop)
+
+    return CreditCardV2TokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        card_number=canarydrop.cc_v2_card_number,
+        cvv=canarydrop.cc_v2_cvv,
+        expiry_month=canarydrop.cc_v2_expiry_month,
+        expiry_year=canarydrop.cc_v2_expiry_year,
     )

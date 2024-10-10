@@ -29,7 +29,10 @@ from canarytokens.models import (
     AzureIDTokenHit,
     SlackAPITokenHit,
     TokenTypes,
+    CreditCardV2TokenHit,
+    CreditCardV2AdditionalInfo,
 )
+from canarytokens.credit_card_v2 import CreditCardTrigger
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -453,6 +456,21 @@ class Canarytoken(object):
             },
         }
         return SlackAPITokenHit(**hit_info)
+
+    @staticmethod
+    def _parse_credit_card_v2_trigger(
+        request: Request,
+    ) -> CreditCardV2TokenHit:
+        request_data = json.loads(request.content.read().decode())
+        trigger_data = CreditCardTrigger(**request_data)
+
+        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_info = {
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "additional_info": CreditCardV2AdditionalInfo(**trigger_data.dict()),
+        }
+        return CreditCardV2TokenHit(**hit_info)
 
     @staticmethod
     def _get_info_for_clonedsite(request):

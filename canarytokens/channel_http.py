@@ -195,6 +195,11 @@ class CanarytokenPage(InputChannel, resource.Resource):
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
+        elif canarydrop.type == TokenTypes.CREDIT_CARD_V2:
+            token_hit = Canarytoken._parse_credit_card_v2_trigger(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
         elif canarydrop.type in [
             TokenTypes.SLOW_REDIRECT,
             TokenTypes.WEB_IMAGE,

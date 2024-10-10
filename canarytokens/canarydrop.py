@@ -150,6 +150,13 @@ class Canarydrop(BaseModel):
     pwa_icon: Optional[PWAType]
     pwa_app_name: Optional[str]
 
+    cc_v2_card_id: Optional[str]
+    cc_v2_card_number: Optional[str]
+    cc_v2_cvv: Optional[str]
+    cc_v2_expiry_month: Optional[int]
+    cc_v2_expiry_year: Optional[int]
+    cc_v2_name_on_card: Optional[str]
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """

@@ -272,11 +272,6 @@ class ApiProvider(metaclass=ABCMeta):
         pass
 
 
-# class CCToken(object):
-#     def __init__(self, api_provider: ApiProvider):
-#         pass
-
-
 class TokenTypes(str, enum.Enum):
     """Enumerates all supported token types"""
 
@@ -290,6 +285,7 @@ class TokenTypes(str, enum.Enum):
     WINDOWS_DIR = "windows_dir"
     CLONEDSITE = "clonedsite"
     CSSCLONEDSITE = "cssclonedsite"
+    CREDIT_CARD_V2 = "credit_card_v2"
     QR_CODE = "qr_code"
     SVN = "svn"
     SMTP = "smtp"
@@ -347,6 +343,7 @@ readable_token_type_names = {
     TokenTypes.LOG4SHELL: "Log4Shell",
     TokenTypes.CMD: "Sensitive command",
     TokenTypes.CC: "Credit card",
+    TokenTypes.CREDIT_CARD_V2: "Credit card",
     TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
@@ -780,6 +777,10 @@ class WindowsDirectoryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
 
+class CreditCardV2TokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
@@ -807,6 +808,7 @@ AnyTokenRequest = Annotated[
         MsExcelDocumentTokenRequest,
         SQLServerTokenRequest,
         KubeconfigTokenRequest,
+        CreditCardV2TokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1089,6 +1091,14 @@ class MySQLTokenResponse(TokenResponse):
     usage: Optional[str]
 
 
+class CreditCardV2TokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    card_number: str
+    cvv: str
+    expiry_month: int
+    expiry_year: int
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
@@ -1126,6 +1136,7 @@ AnyTokenResponse = Annotated[
         MsWordDocumentTokenResponse,
         MsExcelDocumentTokenResponse,
         KubeconfigTokenResponse,
+        CreditCardV2TokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1711,6 +1722,25 @@ class WireguardTokenHit(TokenHit):
     src_data: WireguardSrcData
 
 
+class CreditCardV2AdditionalInfo(BaseModel):
+    merchant: Optional[dict]
+    transaction_amount: Optional[str]
+    transaction_currency: Optional[str]
+
+
+class CreditCardV2TokenHit(TokenHit):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    additional_info: Optional[CreditCardV2AdditionalInfo]
+
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `CreditCardV2TokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: CreditCardV2TokenHit in v2 dict representation.
+        """
+        return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+
+
 class LegacyTokenHit(TokenHit):
     # excel; word; image; QR;
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
@@ -1758,6 +1788,7 @@ AnyTokenHit = Annotated[
         SQLServerTokenHit,
         KubeconfigTokenHit,
         LegacyTokenHit,
+        CreditCardV2TokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1794,7 +1825,11 @@ class TokenHistory(GenericModel, Generic[TH]):
         """
         data = {}
         for hit in self.hits:
-            if isinstance(hit, AWSKeyTokenHit) or isinstance(hit, SlackAPITokenHit):
+            if (
+                isinstance(hit, AWSKeyTokenHit)
+                or isinstance(hit, SlackAPITokenHit)
+                or isinstance(hit, CreditCardV2TokenHit)
+            ):
                 hit_data = hit.serialize_for_v2()
             else:
                 hit_data = json_safe_dict(hit, exclude=("token_type", "time_of_hit"))
@@ -1956,6 +1991,11 @@ class SvnTokenHistory(TokenHistory[SvnTokenHit]):
     hits: List[SvnTokenHit] = []
 
 
+class CreditCardV2TokenHistory(TokenHistory[CreditCardV2TokenHit]):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    hits: List[CreditCardV2TokenHit] = []
+
+
 class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
     hits: List[LegacyTokenHit] = []
@@ -1995,6 +2035,7 @@ AnyTokenHistory = Annotated[
         SQLServerTokenHistory,
         KubeconfigTokenHistory,
         LegacyTokenHistory,
+        CreditCardV2TokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
