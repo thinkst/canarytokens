@@ -1,7 +1,10 @@
 <template>
-  <div class="pb-32 bg-white sm:m-8 rounded-3xl">
+  <div
+    class="pb-32 bg-white rounded-3xl"
+    :class="{ 'sm:m-8': props.showingMap, 'border shadow-solid-shadow-grey border-grey-100': !props.showingMap }">
     <div class="sticky top-[0px] bg-white h-[4rem] sm:h-40 flex justify-end">
       <button
+        v-if="props.showingMap"
         type="button"
         class="px-16"
         @click="emit('close')"
@@ -113,10 +116,16 @@ import {
   isNotEmpty,
   buildIncidentDetails,
 } from '@/utils/incidentAlertService';
+import { boolean } from 'yup';
 
-const props = defineProps<{
-  hitAlert: HitsType;
-}>();
+const props = withDefaults(
+  defineProps<{
+    hitAlert: HitsType;
+    showingMap: boolean;
+  }>(), {
+    showingMap: true,
+  },
+);
 
 const emit = defineEmits(['close']);
 const builtIncidentDetail: Ref<FormattedHitsType | HitsType | null> = ref(null);

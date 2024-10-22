@@ -72,12 +72,13 @@
           <IncidentDetails
             v-if="selectedAlert"
             id="incident_detail"
+            :showingMap="showMap()"
             :hit-alert="selectedAlert"
             class="absolute top-[120px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll w-full sm:w-auto"
             @close="selectedAlert = null"
           ></IncidentDetails>
         </transition>
-        <CustomMap :hits-list="hitsList"></CustomMap>
+        <CustomMap v-if="showMap()" :hits-list="hitsList"></CustomMap>
       </div>
       <!-- Benner for larger screens -->
       <BannerDeviceCanarytools class="hidden sm:flex" />
@@ -102,6 +103,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import AlertsListDownload from '@/components/ui/AlertsListDownload.vue';
 import { addViewTransition } from '@/utils/utils';
+import { TOKENS_TYPE } from '@/components/constants';
 
 const emits = defineEmits(['update-token-title']);
 
@@ -112,6 +114,7 @@ const isLoading = ref(false);
 const error = ref(null);
 const hitsList: Ref<HitsType[] | undefined> = ref();
 const selectedAlert = ref();
+const tokenType = ref();
 
 onMounted(async () => {
   await fetchTokenHistoryData();
@@ -129,12 +132,17 @@ async function fetchTokenHistoryData() {
     const res = await historyToken(params);
     const historyTokenData = (await res.data) as HistoryTokenBackendType;
     hitsList.value = historyTokenData.history.hits.sort((a, b) => b.time_of_hit - a.time_of_hit);
-    
+    tokenType.value = historyTokenData.history.token_type;
+
     emits(
       'update-token-title',
       historyTokenData.history.token_type,
       route.params.token
     );
+
+    if (tokenType.value == TOKENS_TYPE.CREDIT_CARD_V2 && hitsList.value.length > 0) {
+      handleSelectAlert(hitsList.value[0]);
+    }
   } catch (err: any) {
     console.log(err, 'err!');
     error.value = err.toString();
@@ -152,6 +160,11 @@ async function handleSelectAlert(incident: HitsType) {
     ? container.scrollTo({ top: 0, behavior: 'smooth' })
     : window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+}
+
+function showMap(): boolean {
+  const tokensWithoutGeoIPInfo = [TOKENS_TYPE.CREDIT_CARD_V2];
+  return !tokensWithoutGeoIPInfo.includes(tokenType.value);
 }
 </script>
 

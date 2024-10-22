@@ -13,6 +13,7 @@ import {
   INCIDENT_CHANNEL_TYPE_LABELS,
   INCIDENT_DETAIL_CUSTOM_LABELS,
 } from '@/components/constants';
+import { useScrollLock } from '@vueuse/core';
 
 /**
  * Checks if the token type exists in INCIDENT_CHANNEL_TYPE_LABELS
@@ -127,6 +128,21 @@ function locationValue(
     : location;
 }
 
+function parseGeoInfo(hitAlert: Record<string, any>) {
+  if (isCreditCardtoken(hitAlert.token_type)) return null;
+
+  if (!hitAlert.geo_info.bogon) {
+    return {
+      ...hitAlert.geo_info,
+    }
+  }
+
+  return {
+    ip: hitAlert.geo_info.ip,
+    bogon: hitAlert.geo_info.bogon,
+  };
+}
+
 export function buildIncidentDetails(
   hitAlert: HitsType
 ): FormattedHitsType | HitsType {
@@ -153,14 +169,7 @@ export function buildIncidentDetails(
       },
       time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
       src_ip: hitAlert.src_ip,
-      geo_info: !hitAlert.geo_info.bogon
-        ? {
-            ...hitAlert.geo_info,
-          }
-        : {
-            ip: hitAlert.geo_info.ip,
-            bogon: hitAlert.geo_info.bogon,
-          },
+      geo_info: parseGeoInfo(hitAlert),
       is_tor_relay: !isCreditCardtoken(hitAlert.token_type)
         ? hitAlert.is_tor_relay
         : null,

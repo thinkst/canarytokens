@@ -1727,6 +1727,10 @@ class CreditCardV2AdditionalInfo(BaseModel):
     merchant: Optional[dict]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
+    masked_card_number: Optional[str]
+    transaction_date: Optional[str]
+    transaction_type: Optional[str]
+    status: Optional[str]
 
 
 class CreditCardV2TokenHit(TokenHit):

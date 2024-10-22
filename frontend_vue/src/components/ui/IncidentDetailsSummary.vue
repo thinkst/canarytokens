@@ -6,7 +6,7 @@
         <span class="text-xs text-red-100">Date</span>
         <span class="font-semibold">{{ date }} </span>
       </li>
-      <li class="flex flex-col gap-2">
+      <li v-if="ip" class="flex flex-col gap-2">
         <span class="text-xs text-red-100">IP</span>
         <span class="font-semibold">{{ ip }}</span>
       </li>
