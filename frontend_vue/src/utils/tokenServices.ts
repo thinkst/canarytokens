@@ -106,7 +106,7 @@ export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.LOG4SHELL]: {
     label: 'Log4shell',
     description:
-      'Get an alert when a log4j logline is vulnerable to CVW-2021-44-228.',
+      'Get an alert when a log4j logline is vulnerable to CVE-2021-44-228.',
     documentationLink: '',
     icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
     instruction:
