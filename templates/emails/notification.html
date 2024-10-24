@@ -822,9 +822,9 @@
                                               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
                                                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/transaction.png" width="40px">
                                               </td>
-                                              <td> {% if BasicDetails['merchant'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Authorizing merchant</p>
-                                                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['merchant']['name']}}</p> {% endif %} {% if BasicDetails['transaction_amount'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Transaction amount</p>
-                                                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['transaction_amount']}} {{BasicDetails['transaction_currency']}}</p> {% endif %}
+                                              <td> {% if BasicDetails['additional_info']['merchant'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Authorizing merchant</p>
+                                                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['additional_info']['merchant']['name']}}</p> {% endif %} {% if BasicDetails['transaction_amount'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Transaction amount</p>
+                                                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['additional_info']['transaction_amount']}} {{BasicDetails['additional_info']['transaction_currency']}}</p> {% endif %}
                                               </td>
                                             </tr>
                                           </table>
