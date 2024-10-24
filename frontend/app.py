@@ -1178,7 +1178,7 @@ def _(
             f"""
             Name on card: {canarydrop.cc_v2_name_on_card}
             Card number: {canarydrop.cc_v2_card_number}
-            Expiry: {canarydrop.cc_v2_expiry_month}/{canarydrop.cc_v2_expiry_year[2:]}
+            Expiry: {canarydrop.cc_v2_expiry_month}/{canarydrop.cc_v2_expiry_year}
             CVV: {canarydrop.cc_v2_cvv}
             """
         ).strip(),
