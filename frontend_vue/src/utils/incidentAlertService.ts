@@ -13,7 +13,6 @@ import {
   INCIDENT_CHANNEL_TYPE_LABELS,
   INCIDENT_DETAIL_CUSTOM_LABELS,
 } from '@/components/constants';
-import { useScrollLock } from '@vueuse/core';
 
 /**
  * Checks if the token type exists in INCIDENT_CHANNEL_TYPE_LABELS

@@ -1,6 +1,6 @@
 <template>
 	<span
-		class="content-block flex items-center justify-between gap-8 sm:gap-24 py-8 px-[1em] text-grey-500 border border-grey-200 rounded-xl hover:bg-white hover:text-grey-700">
+		class="content-block flex items-center justify-between gap-8 sm:gap-24 py-8 px-[1em] text-grey-500 border border-grey-100 rounded-xl bg-white hover:text-grey-700">
 		<div class="flex items-center">
 			<font-awesome-icon class="text-grey-200 mr-8 sm:mr-[.75em] text-lg sm:text-xl" aria-hidden="true" :icon="iconName" />
 			<div>
@@ -32,14 +32,6 @@ const handleCopyText = () => {
 }
 </script>
 <style lang="scss" scoped>
-.content-block {
-	button {
-		opacity: 0;
-	}
-	&:hover button {
-		opacity: 1;
-	}
-}
 span.copied {
 	background-color: #0393b3;
 	color: white;

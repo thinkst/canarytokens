@@ -140,7 +140,7 @@ async function fetchTokenHistoryData() {
       route.params.token
     );
 
-    if (tokenType.value == TOKENS_TYPE.CREDIT_CARD_V2 && hitsList.value.length > 0) {
+    if (!showMap() && hitsList.value.length > 0) {
       handleSelectAlert(hitsList.value[0]);
     }
   } catch (err: any) {

@@ -116,7 +116,6 @@ import {
   isNotEmpty,
   buildIncidentDetails,
 } from '@/utils/incidentAlertService';
-import { boolean } from 'yup';
 
 const props = withDefaults(
   defineProps<{

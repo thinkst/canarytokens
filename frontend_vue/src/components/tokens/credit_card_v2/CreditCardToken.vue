@@ -5,7 +5,7 @@
 		<span class="absolute top-[135px] sm:top-[160px] left-[20px] sm:left-[25px] text-base sm:text-lg">{{ props.tokenData.expiry_month }}/{{ props.tokenData.expiry_year }}</span>
 		<span class="absolute top-[135px] sm:top-[160px] left-[135px] sm:left-[165px] text-base sm:text-lg">{{ props.tokenData.cvv }}</span>
 	</div>
-	<div class="grid grid-cols-6 p-16 text-sm grid-flow-row-dense gap-8 mt-24 items-center border border-grey-200 rounded-xl shadow-solid-shadow-grey">
+	<div class="grid grid-cols-6 p-16 text-sm grid-flow-row-dense gap-8 mt-24 items-center border border-grey-200 rounded-xl shadow-solid-shadow-grey bg-white">
 		<BaseContentBlock
 			class="col-span-6 xl:col-span-4" :label="'Card Name'" :text="props.tokenData.name_on_card" :icon-name="'id-card'" copy-content />
 		<BaseContentBlock

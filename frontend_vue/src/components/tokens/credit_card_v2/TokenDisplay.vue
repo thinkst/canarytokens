@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import CreditCardToken from '@/components/ui/CreditCardToken.vue';
-import type { CreditCardDataType } from '@/components/ui/CreditCardToken.vue';
+import CreditCardToken from '@/components/tokens/credit_card_v2/CreditCardToken.vue';
+import type { CreditCardDataType } from '@/components/tokens/credit_card_v2/CreditCardToken.vue';
 import { downloadAsset } from '@/api/main';
 
 const props = defineProps<{
