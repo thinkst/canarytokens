@@ -51,6 +51,7 @@
         :key="key"
       >
         <CardToken
+          v-if="key !== 'credit_card_v2'"
           :selected-token="key"
           :title="(token as TokenServiceType).label"
           :description="(token as TokenServiceType).description"
