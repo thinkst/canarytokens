@@ -11,7 +11,7 @@
 		<BaseContentBlock
 			class="col-span-6 xl:col-span-4" :label="'Card Number'" :text="formatCreditCardNumber(props.tokenData.card_number)" :icon-name="'credit-card'" copy-content />
 		<BaseContentBlock
-			class="col-span-3 xl:col-span-2" :label="'Expiry'" :text="`${props.tokenData.expiry_month}/${props.tokenData.expiry_year}`" :icon-name="'calendar-day'" copy-content />
+			class="col-span-3 xl:col-span-2" :label="'Expires'" :text="`${props.tokenData.expiry_month}/${props.tokenData.expiry_year}`" :icon-name="'calendar-day'" copy-content />
 		<BaseContentBlock
 			class="col-span-3 xl:col-span-2" :label="'CVV'" :text="props.tokenData.cvv" :icon-name="'lock'" copy-content />
 	</div>
