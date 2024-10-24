@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { downloadAsset } from '@/api/main';
 
 type AWSKeysDataType = {
   aws_access_key_id: string;

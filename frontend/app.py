@@ -80,6 +80,8 @@ from canarytokens.models import (
     DownloadCCResponse,
     DownloadCMDRequest,
     DownloadCMDResponse,
+    DownloadCreditCardV2Request,
+    DownloadCreditCardV2Response,
     DownloadIncidentListCSVRequest,
     DownloadIncidentListCSVResponse,
     DownloadIncidentListJsonRequest,
@@ -1162,6 +1164,25 @@ def _(
         auth=download_request_details.auth,
         content=segno.make(canarydrop.generated_url).png_data_uri(scale=5),
         filename=f"{canarydrop.canarytoken.value()}.png",
+    )
+
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadCreditCardV2Request, canarydrop: Canarydrop
+) -> Response:
+    return DownloadCreditCardV2Response(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=textwrap.dedent(
+            f"""
+            Name on card: {canarydrop.cc_v2_name_on_card}
+            Card number: {canarydrop.cc_v2_card_number}
+            Expiry: {canarydrop.cc_v2_expiry_month}/{canarydrop.cc_v2_expiry_year}"
+            CVV: {canarydrop.cc_v2_cvv}
+            """
+        ).strip(),
+        filename="credit_card",
     )
 
 

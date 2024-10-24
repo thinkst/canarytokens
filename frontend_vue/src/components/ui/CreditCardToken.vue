@@ -19,10 +19,19 @@
 
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import type { CCtokenDataType } from '@/components/tokens/types.ts';
+
+export type CreditCardDataType = {
+  auth: string;
+  token: string;
+  name_on_card: string;
+  card_number: string;
+  expiry_month: string;
+  expiry_year: string;
+  cvv: string;
+};
 
 const props = defineProps<{
-	tokenData: CCtokenDataType;
+	tokenData: CreditCardDataType;
 }>();
 
 const { isSupported, copy, copied } = useClipboard({

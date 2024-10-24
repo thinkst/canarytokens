@@ -13,6 +13,8 @@ const props = defineProps<{
 }>();
 
 const tokenInfo = ref({
+  	token: props.tokenBackendResponse?.canarydrop?.canarytoken?._value || '',
+  	auth: props.tokenBackendResponse.canarydrop?.auth || '',
 	name_on_card: props.tokenBackendResponse.canarydrop?.cc_v2_name_on_card || '',
 	card_number: props.tokenBackendResponse.canarydrop?.cc_v2_card_number || '',
 	expiry_month: props.tokenBackendResponse.canarydrop?.cc_v2_expiry_month || '',

@@ -13,13 +13,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
-import type { CCtokenDataType } from '@/components/tokens/types.ts';
+import type { NewTokenBackendType } from '@/components/tokens/types.ts';
 
 const props = defineProps<{
-	tokenData: CCtokenDataType;
+	tokenData: NewTokenBackendType;
 }>();
 
 const tokenData = ref({
+  	token: props.tokenData.token || '',
+  	auth: props.tokenData.auth_token || '',
 	name_on_card: props.tokenData.name_on_card || '',
 	card_number: props.tokenData.card_number || '',
 	expiry_month: props.tokenData.expiry_month || '',
