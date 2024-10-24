@@ -53,25 +53,13 @@ class Customer:
 
 class CreditCardTrigger(BaseModel):
     canarytoken: Canarytoken
-    auth_code: Optional[str]
-    billing_amount: Optional[str]
-    billing_currency: Optional[str]
-    card_id: Optional[str]
-    card_nickname: Optional[str]
-    client_data: Optional[str]
-    failure_reason: Optional[str]
     masked_card_number: Optional[str]
     merchant: Optional[dict]
-    network_transaction_id: Optional[str]
-    posted_date: Optional[str]
-    retrieval_ref: Optional[str]
-    status: Optional[str]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
     transaction_date: Optional[str]
-    transaction_id: Optional[str]
     transaction_type: Optional[str]
-    risk_details: Optional[dict]
+    status: Optional[str]
 
 
 def _get_lambda_client(refresh_client: bool = False):

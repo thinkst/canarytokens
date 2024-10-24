@@ -80,6 +80,8 @@ from canarytokens.models import (
     DownloadCCResponse,
     DownloadCMDRequest,
     DownloadCMDResponse,
+    DownloadCreditCardV2Request,
+    DownloadCreditCardV2Response,
     DownloadIncidentListCSVRequest,
     DownloadIncidentListCSVResponse,
     DownloadIncidentListJsonRequest,
@@ -1165,6 +1167,25 @@ def _(
     )
 
 
+@create_download_response.register
+def _(
+    download_request_details: DownloadCreditCardV2Request, canarydrop: Canarydrop
+) -> Response:
+    return DownloadCreditCardV2Response(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=textwrap.dedent(
+            f"""
+            Name on card: {canarydrop.cc_v2_name_on_card}
+            Card number: {canarydrop.cc_v2_card_number}
+            Expiry: {canarydrop.cc_v2_expiry_month}/{canarydrop.cc_v2_expiry_year}
+            CVV: {canarydrop.cc_v2_cvv}
+            """
+        ).strip(),
+        filename="credit_card",
+    )
+
+
 @singledispatch
 def create_response(token_request_details, canarydrop: Canarydrop):
     """"""
@@ -1873,7 +1894,6 @@ def _(
         canarydrop.cc_v2_cvv = card.cvv
         canarydrop.cc_v2_expiry_month = card.expiry_month
         canarydrop.cc_v2_expiry_year = card.expiry_year
-        canarydrop.cc_v2_name_on_card = card.name_on_card
     elif status == credit_card_infra.Status.NO_MORE_CREDITS:
         return JSONResponse(
             {"message": "No more Card Credits available."}, status_code=500
@@ -1891,6 +1911,7 @@ def _(
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
+        name_on_card=canarydrop.cc_v2_name_on_card,
         card_number=canarydrop.cc_v2_card_number,
         cvv=canarydrop.cc_v2_cvv,
         expiry_month=canarydrop.cc_v2_expiry_month,

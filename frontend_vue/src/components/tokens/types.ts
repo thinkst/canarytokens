@@ -75,6 +75,12 @@ type CanaryDropType = {
   wg_conf: string;
   pwa_icon: string | null;
   pwa_app_name: string | null;
+  cc_v2_card_id: string;
+  cc_v2_card_number: string;
+  cc_v2_cvv: string;
+  cc_v2_expiry_month: string;
+  cc_v2_expiry_year: string;
+  cc_v2_name_on_card: string;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -96,6 +102,12 @@ export type ManageTokenBackendType = {
   clonedsite_css: string;
   force_https: boolean;
   client_id: string;
+  cc_v2_card_id: string;
+  cc_v2_card_number: string;
+  cc_v2_cvv: string;
+  cc_v2_expiry_month: string;
+  cc_v2_expiry_year: string;
+  cc_v2_name_on_card: string;
 };
 
 export type NewTokenBackendType = {
@@ -136,6 +148,11 @@ export type NewTokenBackendType = {
   sql_server_view_name: string | null;
   pwa_icon: string | null;
   pwa_app_name: string | null;
+  name_on_card: string | null;
+  card_number: string | null;
+  cvv: string | null;
+  expiry_month: string | null;
+  expiry_year: string | null;
 };
 
 export type AsnType = {
@@ -245,4 +262,14 @@ export type HistoryTokenBackendType = {
   history: HistoryType;
   canarydrop: CanaryDropType;
   google_api_key: string | null;
+};
+
+export type CreditCardDataType = {
+  auth: string;
+  token: string;
+  name_on_card: string;
+  card_number: string;
+  expiry_month: string;
+  expiry_year: string;
+  cvv: string;
 };

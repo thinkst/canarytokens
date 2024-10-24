@@ -1093,6 +1093,7 @@ class MySQLTokenResponse(TokenResponse):
 
 class CreditCardV2TokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    name_on_card: str
     card_number: str
     cvv: str
     expiry_month: int
@@ -1726,6 +1727,10 @@ class CreditCardV2AdditionalInfo(BaseModel):
     merchant: Optional[dict]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
+    masked_card_number: Optional[str]
+    transaction_date: Optional[str]
+    transaction_type: Optional[str]
+    status: Optional[str]
 
 
 class CreditCardV2TokenHit(TokenHit):
@@ -2375,6 +2380,7 @@ class DownloadFmtTypes(str, enum.Enum):
     CMD = "cmd"
     CC = "cc"
     CSSCLONEDSITE = "cssclonedsite"
+    CREDIT_CARD_V2 = "credit_card_v2"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2469,6 +2475,10 @@ class DownloadSlackAPIRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.SLACK_API] = DownloadFmtTypes.SLACK_API
 
 
+class DownloadCreditCardV2Request(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CREDIT_CARD_V2] = DownloadFmtTypes.CREDIT_CARD_V2
+
+
 AnyDownloadRequest = Annotated[
     Union[
         DownloadAWSKeysRequest,
@@ -2487,6 +2497,7 @@ AnyDownloadRequest = Annotated[
         DownloadSlackAPIRequest,
         DownloadZipRequest,
         DownloadQRCodeRequest,
+        DownloadCreditCardV2Request,
     ],
     Field(discriminator="fmt"),
 ]
@@ -2649,6 +2660,15 @@ class DownloadSlackAPIResponse(TokenDownloadResponse):
     ] = DownloadContentTypes.TEXTPLAIN
     slack_api_key: str
     filename: str = "slack_creds"
+    token: str
+    auth: str
+
+
+class DownloadCreditCardV2Response(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str = "credit_card"
     token: str
     auth: str
 
