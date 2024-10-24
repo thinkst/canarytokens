@@ -154,4 +154,5 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   azure_id_config: ['#09275C', '#89E3FD', '#547EA7', '#275FA1', '#E2FBFE'],
   cc: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
   pwa: ['#1AABEE', '#026696', '#9CE5FD'],
+  credit_card_v2: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
 };

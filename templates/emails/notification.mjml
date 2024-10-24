@@ -338,6 +338,35 @@
     </mj-wrapper>
     <mj-raw>{% endif %}</mj-raw>
 
+    <!-- Credit Card Token V2 -->
+    <mj-raw>{% if BasicDetails['token_type'] == 'credit_card_v2' %}</mj-raw>
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/transaction.png" width="40px" />
+              </td>
+              <td>
+                {% if BasicDetails['merchant'] %}
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Authorizing merchant</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['merchant']['name']}}</p>
+                {% endif %}
+                {% if BasicDetails['transaction_amount'] %}
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Transaction amount</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['transaction_amount']}} {{BasicDetails['transaction_currency']}}</p>
+                {% endif %}
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
 
     <!-- Generic data  -->
     <mj-raw>{% if BasicDetails['generic_data'] %}</mj-raw>
