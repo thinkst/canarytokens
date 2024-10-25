@@ -738,6 +738,23 @@ async def api_generate(  # noqa: C901  # gen is large
                 6,
                 "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
             )
+
+    if token_request_details.token_type == TokenTypes.CREDIT_CARD_V2:
+        token = token_request_details.cf_turnstile_response
+        if token is None:
+            return JSONResponse({"message": "failure"}, status_code=401)
+
+        data = {
+            "secret": frontend_settings.CLOUDFLARE_TURNSTILE_SECRET,
+            "response": token,
+        }
+        result = requests.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify", data=data
+        ).json()
+
+        if not result.get("success", False):
+            return JSONResponse({"message": "failure"}, status_code=401)
+
     # TODO: refactor this. KUBECONFIG token creates it's own token
     # value and cannot follow same path as before.
     if token_request_details.token_type == TokenTypes.KUBECONFIG:

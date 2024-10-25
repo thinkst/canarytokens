@@ -57,6 +57,7 @@ jobs:
         touch .env
         echo VITE_GITHUB_SHA=${GITHUB_SHA} >> .env
         echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_DEV }}" >> .env
+        echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}" >> .env
         cat .env
 
     - name: Include git Google Maps Key for Frontend Production release
@@ -65,6 +66,7 @@ jobs:
       run: |
         touch .env
         echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_PROD }}" >> .env
+        echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD }}" >> .env
         cat .env
 
     - name: Build Frontend Dist

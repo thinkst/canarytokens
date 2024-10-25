@@ -779,6 +779,7 @@ class WindowsDirectoryTokenRequest(TokenRequest):
 
 class CreditCardV2TokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    cf_turnstile_response: Optional[str]
 
 
 AnyTokenRequest = Annotated[

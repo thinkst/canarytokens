@@ -32,6 +32,7 @@
     "vue-google-maps-community-fork": "^0.3.1",
     "vue-router": "^4.2.5",
     "vue-select": "^4.0.0-beta.6",
+    "vue-turnstile": "^1.0.11",
     "yup": "^1.4.0"
   },
   "devDependencies": {
