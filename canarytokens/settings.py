@@ -127,6 +127,7 @@ class FrontendSettings(BaseSettings):
     CREDIT_CARD_INFRA_ACCOUNT_ID: Optional[str]
     CREDIT_CARD_INFRA_REGION: Optional[str]
     CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
+    CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
 
     class Config:
         allow_mutation = False
