@@ -929,6 +929,30 @@ def api_get_commit_sha():
     return JSONResponse({"commit_sha": commit_sha}, status_code=200)
 
 
+@api.get("/credit_card/quota")
+async def api_get_credit_card_customer_details(cf_turnstile_response: str):
+    if cf_turnstile_response is None:
+        return JSONResponse({"message": "failure"}, status_code=401)
+
+    data = {
+        "secret": frontend_settings.CLOUDFLARE_TURNSTILE_SECRET,
+        "response": cf_turnstile_response,
+    }
+    result = requests.post(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify", data=data
+    ).json()
+
+    if not result.get("success", False):
+        return JSONResponse({"message": "failure"}, status_code=401)
+
+    (status, customer) = credit_card_infra.get_customer_details()
+
+    if status != credit_card_infra.Status.SUCCESS:
+        return JSONResponse({"message": "Something went wrong!"}, status_code=500)
+
+    return JSONResponse({"quota": customer.cards_quota}, status_code=200)
+
+
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
     """"""

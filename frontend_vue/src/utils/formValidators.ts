@@ -205,6 +205,7 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.CREDIT_CARD_V2]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
+      cf_turnstile_response: Yup.string().required(),
     }),
   },
 };

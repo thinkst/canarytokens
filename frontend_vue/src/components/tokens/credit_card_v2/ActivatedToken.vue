@@ -6,7 +6,7 @@
 	<TokenDisplay v-else :token-data="tokenData" />
 	<base-message-box
 		class="mt-24" variant="info"
-		:message="`If the card number is ever used in an authorization, the transaction will be declined, but you will be alerted.'`" />
+		:message="`If the card is ever used in an authorization, the transaction will be declined, but you will be alerted.'`" />
 	<p class="mt-24 text-sm"></p>
 </template>
 
