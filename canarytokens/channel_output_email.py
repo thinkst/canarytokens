@@ -238,7 +238,7 @@ def smtp_send(
         fromaddr = from_email
         toaddr = email_address
         smtpmsg = MIMEMultipart("alternative")
-        smtpmsg["From"] = f"{from_display} <{from_email}"
+        smtpmsg["From"] = f"{from_display} <{from_email}>"
         smtpmsg["To"] = email_address
         smtpmsg["Subject"] = email_subject
         part1 = MIMEText(email_content_text, "plain")
