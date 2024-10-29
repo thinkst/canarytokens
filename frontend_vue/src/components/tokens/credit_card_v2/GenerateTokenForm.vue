@@ -7,6 +7,11 @@
       v-model="getQuotaCloudflareResponse"
       />
   </div>
+  <div v-else-if="errorGettingCreditCardDetails">
+    <base-message-box
+        class="mt-24" variant="danger"
+        :message="`Oops, something went wrong!`" />
+  </div>
   <div v-else>
     <div v-if="cards_quota > 0">
       <GenerateTokenSettingsNotifications
@@ -50,13 +55,18 @@ const generateTokenCloudflareResponse: Ref<string> = ref('');
 const cloudflareSiteKey: string = import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY;
 
 const loadingCreditCardDetails = ref(true);
+const errorGettingCreditCardDetails = ref(false);
 const cards_quota: Ref<number> = ref(0);
 
 async function getCCDetails() {
   loadingCreditCardDetails.value = true;
+  errorGettingCreditCardDetails.value = false;
   try {
     const result = await getCreditCardDetails(getQuotaCloudflareResponse.value);
     cards_quota.value = result.data.quota;
+  } catch (err) {
+    errorGettingCreditCardDetails.value = true;
+    console.log(err, 'Getting CC Details failed.');
   } finally {
     loadingCreditCardDetails.value = false;
   }
