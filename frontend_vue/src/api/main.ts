@@ -79,3 +79,11 @@ export function deleteToken(params: TokenAuthType) {
     .then((response) => response)
     .catch((error) => error.response);
 }
+
+export function getCreditCardDetails(cf_turnstile_response: string) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/credit_card/quota';
+  return axios
+    .get(url, { params: { cf_turnstile_response } })
+    .then((response) => response)
+    .catch((error) => error.response);
+}

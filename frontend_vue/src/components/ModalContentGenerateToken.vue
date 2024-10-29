@@ -16,13 +16,6 @@
     >
       <component :is="dynamicForm" />
     </Form>
-	  <vue-turnstile
-      v-if="selectedToken == TOKENS_TYPE.CREDIT_CARD_V2"
-      class="flex align-center justify-center mt-24"
-      :site-key="cloudflareSiteKey"
-      theme="light"
-      v-model="cloudflareResponse"
-    />
   </div>
 </template>
 
@@ -34,8 +27,6 @@ import { formValidators } from '@/utils/formValidators';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
-import { TOKENS_TYPE } from './constants';
-import VueTurnstile from 'vue-turnstile';
 
 const props = defineProps<{
   selectedToken: string;
@@ -47,16 +38,9 @@ const emits = defineEmits(['token-generated', 'invalid-submit', 'is-loading']);
 const dynamicForm = shallowRef();
 const generateTokenFormRef: Ref<HTMLFormElement | null> = ref(null);
 
-const cloudflareResponse: Ref<string> = ref('');
-const cloudflareSiteKey: string = import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY;
-
 const schema = formValidators[props.selectedToken].schema;
 
 function onSubmit(values: GenericObject) {
-  if (props.selectedToken == TOKENS_TYPE.CREDIT_CARD_V2) {
-    values['cf_turnstile_response'] = cloudflareResponse.value;
-  }
-
   emits('token-generated', values);
 }
 
