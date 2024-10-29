@@ -953,6 +953,20 @@ async def api_get_credit_card_customer_details(cf_turnstile_response: str):
     return JSONResponse({"quota": customer.cards_quota}, status_code=200)
 
 
+@api.post("/credit_card/demo/trigger")
+async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
+    data = await request.json()
+    card_id = data.get("card_id")
+    card_number = data.get("card_number")
+
+    status = credit_card_infra.trigger_demo_alert(card_id, card_number)
+
+    if status != credit_card_infra.Status.SUCCESS:
+        return JSONResponse({"message": "Something went wrong!"}, status_code=500)
+
+    return JSONResponse({"message": "Success"}, status_code=200)
+
+
 @singledispatch
 def create_download_response(download_request_details, canarydrop: Canarydrop):
     """"""

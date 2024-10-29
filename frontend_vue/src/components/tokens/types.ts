@@ -148,6 +148,7 @@ export type NewTokenBackendType = {
   sql_server_view_name: string | null;
   pwa_icon: string | null;
   pwa_app_name: string | null;
+  card_id: string | null;
   name_on_card: string | null;
   card_number: string | null;
   cvv: string | null;

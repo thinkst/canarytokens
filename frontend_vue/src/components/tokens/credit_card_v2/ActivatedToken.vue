@@ -22,6 +22,7 @@ const props = defineProps<{
 const tokenData = ref({
   	token: props.tokenData.token || '',
   	auth: props.tokenData.auth_token || '',
+	card_id: props.tokenData.card_id || '',
 	name_on_card: props.tokenData.name_on_card || '',
 	card_number: props.tokenData.card_number || '',
 	expiry_month: props.tokenData.expiry_month || '',
