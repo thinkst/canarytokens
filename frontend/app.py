@@ -1966,6 +1966,7 @@ def _(
         auth_token=canarydrop.auth,
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
+        card_id=canarydrop.cc_v2_card_id,
         name_on_card=canarydrop.cc_v2_name_on_card,
         card_number=canarydrop.cc_v2_card_number,
         cvv=canarydrop.cc_v2_cvv,
