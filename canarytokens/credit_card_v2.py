@@ -18,6 +18,10 @@ _CACHED_LAMBDA_CLIENT = None
 _RETRY_COUNT = 2
 
 
+class Lambda(Enum):
+    PAYMENTS_DEMO = "CreditCardPaymentsDemoBackend"
+
+
 class _Api(Enum):
     CARD_CREATE = "/card/create"
     CUSTOMER_DETAILS = "/customer/details"
@@ -98,13 +102,13 @@ def _get_lambda_client(refresh_client: bool = False):
     return _CACHED_LAMBDA_CLIENT
 
 
-def _invoke_lambda(payload: dict) -> dict:
+def _invoke_lambda(lambda_name: str, payload: dict) -> dict:
     client = _get_lambda_client()
 
     for attempt in range(_RETRY_COUNT):
         try:
             return client.invoke(
-                FunctionName=frontend_settings.CREDIT_CARD_INFRA_LAMBDA,
+                FunctionName=lambda_name,
                 InvocationType="RequestResponse",
                 Payload=json.dumps(payload),
             )
@@ -129,7 +133,7 @@ def create_card(canarytoken: str) -> Tuple[Status, Optional[CreditCard]]:
         "canarytoken": canarytoken,
     }
 
-    response = _invoke_lambda(payload)
+    response = _invoke_lambda(frontend_settings.CREDIT_CARD_INFRA_LAMBDA, payload)
     response_payload = json.loads(response["Payload"].read())
 
     status = Status(response_payload.get("status"))
@@ -150,7 +154,7 @@ def get_customer_details() -> Tuple[Status, Optional[Customer]]:
         "secret": frontend_settings.CREDIT_CARD_INFRA_CUSTOMER_SECRET,
     }
 
-    response = _invoke_lambda(payload)
+    response = _invoke_lambda(frontend_settings.CREDIT_CARD_INFRA_LAMBDA, payload)
     response_payload = json.loads(response["Payload"].read())
 
     status = Status(response_payload.get("status"))
@@ -159,3 +163,21 @@ def get_customer_details() -> Tuple[Status, Optional[Customer]]:
         return (Status.SUCCESS, Customer(**response_payload["body"]["customer"]))
 
     return (status, None)
+
+
+def trigger_demo_alert(card_id: str, card_number: str) -> Status:
+    if not frontend_settings.CREDIT_CARD_TOKEN_ENABLED:
+        return Status.ERROR
+
+    if card_id is None or card_number is None:
+        return Status.ERROR
+
+    payload = {
+        "card_id": card_id,
+        "card_number": card_number,
+    }
+
+    response = _invoke_lambda(Lambda.PAYMENTS_DEMO.value, payload)
+    response_payload = json.loads(response["Payload"].read())
+
+    return Status(response_payload.get("status"))
