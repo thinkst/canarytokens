@@ -3,7 +3,7 @@
     <div v-if="!showTestForm">
       <CreditCardToken
         :token-data="tokenData" />
-      <div class="flex justify-center gap-16">
+      <div class="flex flex-col lg:flex-row justify-center items-center gap-16">
         <base-button
           variant="secondary"
           class="mt-24"

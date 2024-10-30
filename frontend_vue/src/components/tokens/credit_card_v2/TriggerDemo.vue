@@ -15,7 +15,7 @@
       <div v-if="currentState === _PaymentsFlowStates._Form" class="flex items-center justify-center w-full gap-4">
         <div class="form flex-col gap-[24px] w-[225px] sm:w-[325px]">
         <div class="flex-col">
-          <p class="mb-[28px] p-[16px] mt-[12px]">
+          <p class="mb-[28px] p-[16px] mt-[24px] lg:mt-[12px]">
             We'll generate a fake transaction that'll trigger alert notifications for this token.
           </p>
           <label class="form-label">Card Number</label>

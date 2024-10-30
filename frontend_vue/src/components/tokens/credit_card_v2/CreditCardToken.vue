@@ -7,19 +7,17 @@
   </div>
   <div class="grid grid-cols-6 p-16 text-sm grid-flow-row-dense gap-8 mt-24 items-center border border-grey-200 rounded-xl shadow-solid-shadow-grey bg-white">
     <BaseContentBlock
-      class="col-span-6 xl:col-span-4" :label="'Card Name'" :text="props.tokenData.name_on_card" :icon-name="'id-card'" copy-content />
+      class="col-span-6 xl:col-span-6" :label="'Card Name'" :text="props.tokenData.name_on_card" :icon-name="'id-card'" copy-content />
     <BaseContentBlock
-      class="col-span-6 xl:col-span-4" :label="'Card Number'" :text="formatCreditCardNumber(props.tokenData.card_number)" :icon-name="'credit-card'" copy-content />
+      class="col-span-6 xl:col-span-6" :label="'Card Number'" :text="formatCreditCardNumber(props.tokenData.card_number)" :icon-name="'credit-card'" copy-content />
     <BaseContentBlock
-      class="col-span-3 xl:col-span-2" :label="'Expires'" :text="`${props.tokenData.expiry_month}/${props.tokenData.expiry_year}`" :icon-name="'calendar-day'" copy-content />
+      class="col-span-6 lg:col-span-3" :label="'Expires'" :text="`${props.tokenData.expiry_month}/${props.tokenData.expiry_year}`" :icon-name="'calendar-day'" copy-content />
     <BaseContentBlock
-      class="col-span-3 xl:col-span-2" :label="'CVV'" :text="props.tokenData.cvv" :icon-name="'lock'" copy-content />
+      class="col-span-6 lg:col-span-3" :label="'CVV'" :text="props.tokenData.cvv" :icon-name="'lock'" copy-content />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useClipboard } from "@vueuse/core";
-
 export type CreditCardDataType = {
   auth: string;
   token: string;
@@ -36,11 +34,6 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits(['close']);
-
-const { isSupported, copy, copied } = useClipboard({
-  //@ts-ignore
-  content: props.content,
-});
 
 function formatCreditCardNumber(number: string) {
   return `${number.match(/(\d{4})/g)?.join(' ')}`;
