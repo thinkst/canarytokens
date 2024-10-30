@@ -417,7 +417,10 @@ def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
         resp.raise_for_status()
         info = resp.json()
     except requests.exceptions.HTTPError as e:
-        log.error(f"ip info error: {e}")
+        if e.response.status_code == 503:
+            log.info(f"ip info error: {e}")
+        else:
+            log.error(f"ip info error: {e}")
         # not strictly Bogon , we have no info
         info = models.GeoIPBogonInfo(ip=ip, bogon=True).dict()
     return info

@@ -1,8 +1,9 @@
 from datetime import datetime
-
+from twisted.logger import LogLevel, capturedLogs
 import pytest
 from pydantic import EmailStr
 from redis import StrictRedis
+import requests
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
@@ -325,6 +326,25 @@ def test_get_geoinfo_is_cached():
     assert geoinfo == geoinfo_cache
     # TODO:   Check we evicte cache based on time. unittest.mock
     # to modify the date and check we empty the cache and re-fetch
+
+
+def test_get_geoinfo_503_response_code_handling(monkeypatch):
+    ip = "166.73.125.172"
+
+    def mock_get(*args, **kwargs):
+        response = requests.Response()
+        response.status_code = 503
+        response.headers = {"Content-Type": "text/plain"}
+        response._content = b"Service Unavailable"
+        return response
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    with capturedLogs() as captured:
+        _ = queries.get_geoinfo_from_ip(ip)
+
+    assert "ip info error: 503 Server" in captured[0]["log_format"]
+    assert captured[0]["log_level"] == LogLevel.info
 
 
 def test_mail_queue(setup_db):
