@@ -446,8 +446,8 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
         kube_config = None
         canarytoken = Canarytoken()
 
-    src_ip = (
-        request.headers.get(switchboard_settings.REAL_IP_HEADER) or request.client.host
+    src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
+        request.client.host if request.client else ""
     )
     x_forwarded_for = request.headers.get("x-forwarded-for") or ""
 
@@ -772,8 +772,8 @@ async def api_generate(  # noqa: C901  # gen is large
         kube_config = None
         canarytoken = Canarytoken()
 
-    src_ip = (
-        request.headers.get(switchboard_settings.REAL_IP_HEADER) or request.client.host
+    src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
+        request.client.host if request.client else ""
     )
     x_forwarded_for = request.headers.get("x-forwarded-for") or ""
 

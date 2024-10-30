@@ -66,6 +66,7 @@ from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_basic_hit, get_token_request
+from frontend.app import ROOT_API_ENDPOINT
 
 
 def test_read_docs(test_client: TestClient) -> None:
@@ -760,3 +761,57 @@ def test_block_user(
         json=token_request.json_safe_dict(),
     )
     assert not resp.json()["error"]
+
+
+@pytest.mark.parametrize(
+    "headers, expected_headers",
+    [
+        pytest.param(
+            {
+                "x-real-ip": "127.0.300.1",
+                "x-forwarded-for": "127.0.400.1",
+            },
+            {
+                "created_from_ip": "127.0.300.1",
+                "created_from_ip_x_forwarded_for": "127.0.400.1",
+            },
+            id="ValidHeaders",
+        ),
+        pytest.param(
+            {},
+            {
+                "created_from_ip": "",
+                "created_from_ip_x_forwarded_for": "",
+            },
+            id="EmptyHeaders",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "token_request_type, token_response_type",
+    zip(set_of_request_classes, set_of_response_classes),
+)
+def test_generate_token_ip_headers(
+    token_request_type: AnyTokenRequest,
+    token_response_type: AnyTokenResponse,
+    test_client: TestClient,
+    setup_db: None,
+    headers: dict[str, str],
+    expected_headers: dict[str, str],
+) -> None:
+    resp = test_client.post(
+        "/generate", data=get_token_request(token_request_type).json(), headers=headers
+    )
+    token_resp = token_response_type(**resp.json())
+    manage_resp = test_client.get(
+        f"{ROOT_API_ENDPOINT}/manage",
+        params=ManagePageRequest(
+            token=token_resp.token,
+            auth=token_resp.auth_token,
+        ).dict(),
+        follow_redirects=True,
+    )
+    assert manage_resp.status_code == 200
+    canarydrop = manage_resp.json()["canarydrop"]
+    for key, value in expected_headers.items():
+        assert canarydrop[key] == value
