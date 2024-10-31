@@ -821,12 +821,13 @@
                                             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
                                               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
                                                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/transaction.png" width="40px">
-                                              </td> {% if BasicDetails['additional_info']['merchant'] %} <td style="vertical-align: top;">
-                                                <p style="font-weight:600;display:block;line-height:1;margin:0;">Authorizing merchant</p>
-                                                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['additional_info']['merchant']['name']}}</p>
-                                              </td> {% endif %} <td style="vertical-align: top;"> {% if BasicDetails['additional_info']['transaction_amount'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Transaction amount</p>
-                                                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['additional_info']['transaction_amount']}} {{BasicDetails['additional_info']['transaction_currency']}}</p>
-                                              </td> {% endif %}
+                                              </td>
+                                              <td style="vertical-align: top;"> {% if BasicDetails['additional_info']['merchant'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Authorizing merchant</p>
+                                                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
+                                                  <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['merchant'] | e}}</a>
+                                                </p> {% endif %} {% if BasicDetails['additional_info']['transaction_amount'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Transaction amount</p>
+                                                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['additional_info']['transaction_amount']}} {{BasicDetails['additional_info']['transaction_currency']}}</p> {% endif %}
+                                              </td>
                                             </tr>
                                           </table>
                                         </td>

@@ -56,6 +56,7 @@ export const tokenServices: TokenServicesType = {
       'We send you an alert when that Credit Card is used.',
     ],
     category: TOKEN_CATEGORY.OTHER,
+    keywords: ['cc'],
   },
   [TOKENS_TYPE.QRCODE]: {
     label: 'QR code',

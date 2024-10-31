@@ -17,8 +17,8 @@
             :key="key"
             class="block"
           >
-            <span class="capitalize text-grey-400">{{ key }}: </span>
-            <span class="mr-8 font-semibold">{{ val }}</span>
+            <span v-if="val !== null" class="capitalize text-grey-400">{{ key }}: </span>
+            <span v-if="val !== null" class="mr-8 font-semibold">{{ val }}</span>
           </span>
         </span>
       </span>

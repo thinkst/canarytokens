@@ -462,6 +462,12 @@ class Canarytoken(object):
         request: Request,
     ) -> CreditCardV2TokenHit:
         request_data = json.loads(request.content.read().decode())
+
+        merchant = request_data["merchant"]
+        request_data[
+            "merchant"
+        ] = f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
+
         trigger_data = CreditCardTrigger(**request_data)
 
         hit_time = datetime.utcnow().strftime("%s.%f")

@@ -58,7 +58,7 @@ class Customer:
 class CreditCardTrigger(BaseModel):
     canarytoken: Canarytoken
     masked_card_number: Optional[str]
-    merchant: Optional[dict]
+    merchant: Optional[str]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
     transaction_date: Optional[str]
