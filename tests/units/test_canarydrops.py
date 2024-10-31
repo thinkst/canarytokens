@@ -34,12 +34,19 @@ def test_canarydrop(token_type):
         alert_webhook_url=None,
         canarytoken=canarytoken,
         memo="memo",
+        created_from_ip="127.0.100.1",
+        created_from_ip_x_forwarded_for="127.0.200.1",
         browser_scanner_enabled=False,
         redirect_url="https://youtube.com",
     )
     save_canarydrop(cd)
     cd_retrieved = get_canarydrop(canarytoken)
     assert cd_retrieved.memo == cd.memo
+    assert cd_retrieved.created_from_ip == cd.created_from_ip
+    assert (
+        cd_retrieved.created_from_ip_x_forwarded_for
+        == cd.created_from_ip_x_forwarded_for
+    )
     assert cd_retrieved.canarytoken.value() == cd.canarytoken.value()
     if cd_retrieved.type in [TokenTypes.SLOW_REDIRECT, TokenTypes.FAST_REDIRECT]:
         assert cd_retrieved.redirect_url == "https://youtube.com"

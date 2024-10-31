@@ -445,12 +445,20 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     else:
         kube_config = None
         canarytoken = Canarytoken()
+
+    src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
+        request.client.host if request.client else ""
+    )
+    x_forwarded_for = request.headers.get("x-forwarded-for") or ""
+
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
         alert_email_enabled=True if token_request_details.email else False,
         alert_email_recipient=token_request_details.email,
         alert_webhook_enabled=True if token_request_details.webhook_url else False,
         alert_webhook_url=token_request_details.webhook_url or "",
+        created_from_ip=src_ip,
+        created_from_ip_x_forwarded_for=x_forwarded_for,
         canarytoken=canarytoken,
         memo=token_request_details.memo,
         browser_scanner_enabled=False,
@@ -763,12 +771,20 @@ async def api_generate(  # noqa: C901  # gen is large
     else:
         kube_config = None
         canarytoken = Canarytoken()
+
+    src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
+        request.client.host if request.client else ""
+    )
+    x_forwarded_for = request.headers.get("x-forwarded-for") or ""
+
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
         alert_email_enabled=True if token_request_details.email else False,
         alert_email_recipient=token_request_details.email,
         alert_webhook_enabled=True if token_request_details.webhook_url else False,
         alert_webhook_url=token_request_details.webhook_url or "",
+        created_from_ip=src_ip,
+        created_from_ip_x_forwarded_for=x_forwarded_for,
         canarytoken=canarytoken,
         memo=token_request_details.memo,
         browser_scanner_enabled=False,

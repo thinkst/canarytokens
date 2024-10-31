@@ -72,6 +72,8 @@ class Canarydrop(BaseModel):
     memo: str = ""
     # Make created_at v2 compatible - add timestamp as alias.
     created_at: datetime = Field(default_factory=datetime.utcnow, alias="timestamp")
+    created_from_ip: Optional[str]
+    created_from_ip_x_forwarded_for: Optional[str]
 
     auth: str = Field(default_factory=make_auth_token)
     type: TokenTypes
