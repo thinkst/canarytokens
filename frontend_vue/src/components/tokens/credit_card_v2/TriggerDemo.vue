@@ -100,8 +100,8 @@
   const error = ref(false);
 
   const triggerBlurb = [
-    'This allows you to test alerting, SIEM integrations, etc. without having to try and visit a shop.',
-    'While we are providing you with these tokens, we are not doing so to charge money against them (only criminals should do so). In some jurisdictions, this could be considered attempted fraud, so we\'d rather you use this testing system instead.',
+    'Use our purpose-built store to test your new Canary Credit Card.',
+    'It\'s probably a lot easier than testing it against a live store (and is probably a lot less illegal too).',
   ];
 
   function randomInRange(min: number, max: number) {
