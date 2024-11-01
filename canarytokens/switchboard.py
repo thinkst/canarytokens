@@ -1,16 +1,17 @@
 """
 Class that receives alerts, and dispatches them to the registered endpoint.
 """
+
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from twisted.logger import Logger
 
 from canarytokens import channel, queries
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import DuplicateChannel, InvalidChannel
-from canarytokens.models import AnyTokenHit
+from canarytokens.models import AnyTokenHit, AnyTokenExposedHit
 from canarytokens.settings import SwitchboardSettings
 
 log = Logger()
@@ -54,7 +55,9 @@ class Switchboard:
 
         self.output_channels[name] = channel
 
-    def dispatch(self, canarydrop: Canarydrop, token_hit: AnyTokenHit) -> str:
+    def dispatch(
+        self, canarydrop: Canarydrop, token_hit: Union[AnyTokenHit, AnyTokenExposedHit]
+    ) -> str:
         """
         Calls the correct alerting method for the trigger and channel combination.
         """
@@ -64,9 +67,11 @@ class Switchboard:
             )
 
         if not canarydrop.alertable(
-            alert_limit=self.switchboard_settings.MAX_ALERTS_PER_MINUTE
-            if self.switchboard_settings
-            else 1000
+            alert_limit=(
+                self.switchboard_settings.MAX_ALERTS_PER_MINUTE
+                if self.switchboard_settings
+                else 1000
+            )
         ):
             log.warn(
                 "Token {token} is not alertable at this stage.".format(

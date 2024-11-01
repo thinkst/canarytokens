@@ -10,12 +10,12 @@ import requests
 
 from canarytokens.models import (
     Memo,
-    TokenAlertDetailGeneric,
     TokenTypes,
     WindowsDirectoryTokenHistory,
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
     create_token,
     get_stats_from_webhook,

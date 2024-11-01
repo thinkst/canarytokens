@@ -33,7 +33,6 @@ from canarytokens.models import (
     SMTPTokenHistory,
     SMTPTokenRequest,
     SMTPTokenResponse,
-    TokenAlertDetailGeneric,
     WebBugTokenHistory,
     WebBugTokenRequest,
     WebBugTokenResponse,
@@ -41,6 +40,7 @@ from canarytokens.models import (
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from canarytokens.settings import SwitchboardSettings
 from tests.utils import (
     clear_stats_on_webhook,

@@ -14,7 +14,7 @@ from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
-from canarytokens.models import AnyTokenHit, TokenTypes
+from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
@@ -162,7 +162,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         request.responseHeaders.removeHeader("Content-Type")
         return b""
 
-    def render_POST(self, request: Request):
+    def render_POST(self, request: Request):  # noqa: C901
         try:
             token = Canarytoken(value=request.path)
         except NoCanarytokenFound:
@@ -182,7 +182,10 @@ class CanarytokenPage(InputChannel, resource.Resource):
 
         if canarydrop.type == TokenTypes.AWS_KEYS:
             token_hit = Canarytoken._parse_aws_key_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            if isinstance(token_hit, AWSKeyTokenHit):
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            else:
+                canarydrop.add_key_exposed_hit(token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
         elif canarydrop.type == TokenTypes.AZURE_ID:

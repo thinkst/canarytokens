@@ -19,6 +19,7 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 from canarytokens.constants import CANARY_IMAGE_URL
+from canarytokens.webhook_formatting import format_details_for_webhook, get_webhook_type
 
 
 def test_broken_webhook(
@@ -230,12 +231,10 @@ def test_canaryalert_googlechat_webhook(
     )
     cd.add_canarydrop_hit(token_hit=token_hit)
 
-    canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
-        canarydrop=cd,
-        protocol=input_channel.switchboard_scheme,
-        host=input_channel.hostname,
-    )
-    assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsGoogleChat)
+    webhook_type = get_webhook_type(cd.alert_webhook_url)
+    details = input_channel.gather_alert_details(cd, "http", "example.com")
+    payload = format_details_for_webhook(webhook_type, details)
+    assert isinstance(payload, TokenAlertDetailsGoogleChat)
 
 
 def test_ms_teams_webhook_format(
@@ -334,12 +333,10 @@ def test_canaryalert_ms_teams_webhook(
     )
     cd.add_canarydrop_hit(token_hit=token_hit)
 
-    canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
-        canarydrop=cd,
-        protocol=input_channel.switchboard_scheme,
-        host=input_channel.hostname,
-    )
-    assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsMsTeams)
+    webhook_type = get_webhook_type(cd.alert_webhook_url)
+    details = input_channel.gather_alert_details(cd, "http", "example.com")
+    payload = format_details_for_webhook(webhook_type, details)
+    assert isinstance(payload, TokenAlertDetailsMsTeams)
 
 
 @pytest.mark.parametrize(

@@ -11,11 +11,11 @@ from canarytokens.models import (
     CustomImageTokenRequest,
     CustomImageTokenResponse,
     Memo,
-    TokenAlertDetailGeneric,
     TokenTypes,
     UploadedImage,
     WebImageSettingsRequest,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
     create_token,
     get_stats_from_webhook,

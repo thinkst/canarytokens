@@ -9,9 +9,9 @@ from canarytokens.models import (
     MsWordDocumentTokenHistory,
     MsWordDocumentTokenRequest,
     MsWordDocumentTokenResponse,
-    TokenAlertDetailGeneric,
     TokenTypes,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
     create_token,
     get_stats_from_webhook,

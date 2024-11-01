@@ -10,9 +10,9 @@ from canarytokens.models import (
     SQLServerTokenHistory,
     SQLServerTokenRequest,
     SQLServerTokenResponse,
-    TokenAlertDetailGeneric,
     TokenTypes,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import create_token, get_stats_from_webhook, get_token_history, v2
 
 
