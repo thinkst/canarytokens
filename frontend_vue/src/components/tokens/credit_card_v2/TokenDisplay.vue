@@ -14,7 +14,7 @@
           class="mt-24 relative"
           @click="showTestForm = !showTestForm">
           <span class="text-grey-800 absolute top-[-20px] right-[-68px] text-sm font-medium rotate-[30deg]">Use me!</span>
-          <img class="absolute top-[-4px] right-[-36px]" src="@/assets/icons/label_arrow_1.svg" />
+          <img class="absolute top-[-4px] right-[-36px]" :src="getImageUrl('icons/label_arrow_1.svg')" />
           Test Credit Card
         </base-button>
       </div>
@@ -32,6 +32,7 @@ import CreditCardToken from '@/components/tokens/credit_card_v2/CreditCardToken.
 import type { CreditCardDataType } from '@/components/tokens/credit_card_v2/CreditCardToken.vue';
 import TriggerDemo from '@/components/tokens/credit_card_v2/TriggerDemo.vue';
 import { downloadAsset } from '@/api/main';
+import getImageUrl from '@/utils/getImageUrl';
 
 const props = defineProps<{
   tokenData: CreditCardDataType;
