@@ -1,4 +1,7 @@
 <template>
+  <base-message-box
+    class="mb-24 w-fit" variant="info"
+    :messages="triggerBlurb" />
   <div class="payments-portal-container">
     <div class="payments-portal flex items-center justify-center p-24 border border-grey-200 rounded-xl shadow-solid-shadow-grey relative">
       <button
@@ -95,6 +98,11 @@
   const currentState = ref(_PaymentsFlowStates._Form);
   const loading = ref(false);
   const error = ref(false);
+
+  const triggerBlurb = [
+    'This allows you to test alerting, SIEM integrations, etc. without having to try and visit a shop.',
+    'While we are providing you with these tokens, we are not doing so to charge money against them (only criminals should do so). In some jurisdictions, this could be considered attempted fraud, so we\'d rather you use this testing system instead.',
+  ];
 
   function randomInRange(min: number, max: number) {
     return Math.random() * (max - min) + min;

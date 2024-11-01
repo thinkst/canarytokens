@@ -4,7 +4,7 @@
     :class="boxClasses"
   >
     <div
-      class="flex flex-row items-center self-start flex-grow gap-16 md:gap-16 md:self-center"
+      class="flex flex-col lg:flex-row items-center self-start flex-grow gap-16 md:gap-16 md:self-center"
     >
       <AlertShieldIcon
         v-if="variant !== 'info'"
@@ -18,8 +18,16 @@
         :class="iconClass"
         aria-hidden="true"
       />
+      <div v-if="messages">
+        <p
+          v-for="msg in messages"
+          class="text-pretty mb-4"
+        >
+          {{ msg }}
+        </p>
+      </div>
       <p
-        v-if="message"
+        v-else-if="message"
         class="text-pretty"
       >
         {{ message }}
@@ -60,6 +68,7 @@ enum VariantEnum {
 const props = defineProps<{
   variant: NotificationBoxVariantType;
   message?: string;
+  messages?: Array<string>;
   textLink?: string;
   href?: string;
 }>();

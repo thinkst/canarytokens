@@ -11,8 +11,10 @@
           Download Credit Card
         </base-button>
         <base-button
-          class="mt-24"
+          class="mt-24 relative"
           @click="showTestForm = !showTestForm">
+          <span class="text-grey-800 absolute top-[-20px] right-[-68px] text-sm font-medium rotate-[30deg]">Use me!</span>
+          <img class="absolute top-[-4px] right-[-36px]" src="@/assets/icons/label_arrow_1.svg" />
           Test Credit Card
         </base-button>
       </div>
