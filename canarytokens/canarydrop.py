@@ -162,6 +162,8 @@ class Canarydrop(BaseModel):
 
     key_exposed_details: Optional[AnyTokenExposedHit] = None
 
+    idp_app_entity_id: Optional[str]
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """
@@ -300,6 +302,7 @@ class Canarydrop(BaseModel):
         self,
         canary_domains: list[str],
         page: Optional[str] = None,
+        use_path_elements: bool = True,
         skip_cache: bool = False,
     ) -> str:
         """
@@ -312,26 +315,28 @@ class Canarydrop(BaseModel):
             return self.generated_url
         (path_elements, pages) = self.get_url_components()
 
-        generated_url = random.choice(canary_domains) + "/"
         path = []
-        for count in range(0, random.randint(1, 3)):
-            if len(path_elements) == 0:
-                break
-
-            elem = path_elements[random.randint(0, len(path_elements) - 1)]
-            path.append(elem)
-            path_elements.remove(elem)
+        if use_path_elements:
+            path = random.sample(
+                path_elements, random.randint(1, min(3, len(path_elements)))
+            )
         path.append(self.canarytoken.value())
+        path.append(random.choice(pages) if page is None else page)
 
-        path.append(pages[random.randint(0, len(pages) - 1)] if page is None else page)
+        generated_url = random.choice(canary_domains) + "/"
         generated_url += "/".join(path)
         # cache
         if not skip_cache:
             self.generated_url = generated_url
         return generated_url
 
-    def get_url(self, canary_domains: list[str], page: Optional[str] = None):
-        return self.generate_random_url(canary_domains, page)
+    def get_url(
+        self,
+        canary_domains: list[str],
+        page: Optional[str] = None,
+        use_path_elements: Optional[bool] = True,
+    ):
+        return self.generate_random_url(canary_domains, page, use_path_elements)
 
     def generate_random_hostname(self, with_random=False, nxdomain=False):
         """

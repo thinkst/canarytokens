@@ -81,6 +81,7 @@ type CanaryDropType = {
   cc_v2_expiry_month: string;
   cc_v2_expiry_year: string;
   cc_v2_name_on_card: string;
+  idp_app_entity_id: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -154,6 +155,7 @@ export type NewTokenBackendType = {
   cvv: string | null;
   expiry_month: string | null;
   expiry_year: string | null;
+  entity_id: string | null;
 };
 
 export type AsnType = {

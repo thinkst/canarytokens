@@ -208,4 +208,10 @@ export const formValidators: ValidateSchemaType = {
       cf_turnstile_response: Yup.string().required(),
     }),
   },
+  [TOKENS_TYPE.IDP_APP]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      redirect_url: Yup.string(),
+    }),
+  },
 };

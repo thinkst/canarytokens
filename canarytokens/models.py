@@ -305,6 +305,7 @@ class TokenTypes(str, enum.Enum):
     CMD = "cmd"
     CC = "cc"
     PWA = "pwa"
+    IDP_APP = "idp_app"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
 
@@ -351,6 +352,7 @@ readable_token_type_names = {
     TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
+    TokenTypes.IDP_APP: "SAML2 IdP App",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -782,6 +784,21 @@ class CreditCardV2TokenRequest(TokenRequest):
     cf_turnstile_response: Optional[str]
 
 
+class IdPAppTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    redirect_url: Optional[str] = None
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "token_type": TokenTypes.IDP_APP,
+                "memo": "Reminder note when this token is triggered",
+                "email": "username@domain.com",
+                "redirect_url": "https://youtube.com",
+            },
+        }
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
@@ -810,6 +827,7 @@ AnyTokenRequest = Annotated[
         SQLServerTokenRequest,
         KubeconfigTokenRequest,
         CreditCardV2TokenRequest,
+        IdPAppTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1102,6 +1120,11 @@ class CreditCardV2TokenResponse(TokenResponse):
     expiry_year: int
 
 
+class IdPAppTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    entity_id: str
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
@@ -1140,6 +1163,7 @@ AnyTokenResponse = Annotated[
         MsExcelDocumentTokenResponse,
         KubeconfigTokenResponse,
         CreditCardV2TokenResponse,
+        IdPAppTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1775,6 +1799,11 @@ class LegacyTokenHit(TokenHit):
     mail: Optional[SMTPMailField]
 
 
+class IdPAppTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    additional_info: AdditionalInfo = AdditionalInfo()
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
@@ -1806,6 +1835,7 @@ AnyTokenHit = Annotated[
         KubeconfigTokenHit,
         LegacyTokenHit,
         CreditCardV2TokenHit,
+        IdPAppTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2020,6 +2050,11 @@ class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
     hits: List[LegacyTokenHit] = []
 
 
+class IdPAppTokenHistory(TokenHistory[IdPAppTokenHit]):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    hits: List[IdPAppTokenHit] = []
+
+
 # AnyTokenHistory is used to type annotate functions that
 # handle any token history. It makes use of an annotated type
 # that discriminates on `token_type` so pydantic can parse
@@ -2055,6 +2090,7 @@ AnyTokenHistory = Annotated[
         KubeconfigTokenHistory,
         LegacyTokenHistory,
         CreditCardV2TokenHistory,
+        IdPAppTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]

@@ -37,6 +37,7 @@ export const TOKENS_TYPE = {
   CREDIT_CARD: 'cc',
   PWA: 'pwa',
   CREDIT_CARD_V2: 'credit_card_v2',
+  IDP_APP: 'idp_app',
 };
 
 // unique keys to use in the frontend

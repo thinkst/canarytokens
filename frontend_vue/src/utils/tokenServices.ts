@@ -420,4 +420,20 @@ export const tokenServices: TokenServicesType = {
     ],
     keywords: ['microsoft', 'css', 'cloned']
   },
+  [TOKENS_TYPE.IDP_APP]: {
+    label: 'SAML IdP App',
+    description:
+      'Get an alert when an attacker opens a fake app from your Identity Provider dashboard.',
+    documentationLink: '',
+    icon: `${TOKENS_TYPE.IDP_APP}.png`,
+    instruction:
+      'Use this login URL and entity ID to create a SAML2 app in your Identity Provider. [sth about suggested name-icon combinations?]',
+    howItWorksInstructions: [
+      'We give you a “fake” SAML2 app endpoint.',
+      'You install it in your Identity Provider as an app.',
+      'We send you an alert if an attacker tries to log into that app.',
+    ],
+    category: TOKEN_CATEGORY.OTHER,
+    keywords: []
+  },
 };
