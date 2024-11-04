@@ -36,6 +36,7 @@ export const TOKENS_TYPE = {
   AZURE_ENTRA_CONFIG: 'azure_id_config',
   CREDIT_CARD: 'cc',
   PWA: 'pwa',
+  IDP_APP: 'idp_app',
 };
 
 // unique keys to use in the frontend

@@ -375,47 +375,6 @@ def test_add_in():
     assert ad_in.browser.enabled
 
 
-@pytest.mark.parametrize("class_suffix", ["TokenHit", "TokenHistory"])
-def test_override_hits_are_not_in_GeneralHistoryTokenTypes(class_suffix):
-    """
-    GeneralHistoryTokenTypes is a list of Literal's that contains all non-specialised
-    TokenHit and TokenHistory. This test ensures a Hit or History are
-    not "General" when they have been specialised.
-    """
-    all_classes = inspect.getmembers(models, inspect.isclass)
-    hit_classes = {
-        o[1].construct().token_type
-        for o in filter(
-            lambda name_class: name_class[0].endswith(class_suffix)
-            and not name_class[0] == class_suffix,
-            all_classes,
-        )
-    }
-    assert (
-        hit_classes.intersection(set(models.GeneralHistoryTokenType.__args__)) == set()
-    )
-
-
-@pytest.mark.parametrize("class_suffix", ["TokenRequest"])
-def test_override_hits_are_not_in_BlankRequestTokenTypes(class_suffix):
-    """
-    BlankRequestTokenType is a list of Literal's that contains all non-specialised
-    RequestToken. This test ensures a XXXTokenRequest is not "General" when
-    they have been specialised.
-    """
-    all_classes = inspect.getmembers(models, inspect.isclass)
-    request_classes_token_types = {
-        o[1].construct().token_type
-        for o in filter(
-            lambda name_class: name_class[0].endswith(class_suffix)
-            and not name_class[0] == class_suffix,
-            all_classes,
-        )
-    }
-    generic_requests = set(models.BlankRequestTokenType.__args__)
-    assert request_classes_token_types.intersection(generic_requests) == set()
-
-
 @pytest.mark.parametrize(
     "class_suffix,any_annotated_union",
     [

@@ -73,10 +73,10 @@ npm run format
 # Add a new token
 For the component of the app to work together, every token name should be aligned with the backend.
 
-i.e. the Clode Site, will be always referenced as ```clonedsite```, as per backend documentation.
+i.e. the Cloned Site, will be always referenced as ```clonedsite```, as per backend documentation.
 
 ### Add a constant and token service
-1. Define a constant in the TOKENS_TYPE list to reference the token name. 
+1. Define a constant in the TOKENS_TYPE list to reference the token name.
 
 This constant will be used throughout the dynamic imports. For example, for the Cloned Site token, add the following constant:
 
@@ -87,10 +87,10 @@ export const TOKENS_TYPE = {
 };
 ```
 
-2. Add the UI elements in tokenServices.ts 
+2. Add the UI elements in tokenServices.ts
 
    - Upload the icon for the token to the ```assets/token_icons``` directory.
-  
+
    - Make sure the icon filename matches the backend-provided name.
 
 
@@ -108,9 +108,9 @@ i.e. for ClonedSite
 ```
 ---
 
-### Token's folder 
+### Token's folder
 
-Add a folder inside components/tokens 
+Add a folder inside components/tokens
 > Name it as the backend provided token's name
 
 #### The folder should contain the following files:
@@ -122,7 +122,7 @@ Add a folder inside components/tokens
     ├── howToUse.ts                     # Array of suggestions
     ├── ManageToken                     # Component included in the ManageToken page
     ├── TokenDisplay                    # Displayer for token snippet/url/png/download/etc
-    
+
 #### ActivatedToken.vue
 - Displays the `TokenDisplay` component along with additional instructions for the user if needed.
 
@@ -138,8 +138,6 @@ Add a folder inside components/tokens
 
 #### TokenDisplay.vue
 - The core component that displays the token code snippet, download buttons, and any other necessary elements.
-
----
 
 ### Form validation
 

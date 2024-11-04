@@ -75,6 +75,7 @@ type CanaryDropType = {
   wg_conf: string;
   pwa_icon: string | null;
   pwa_app_name: string | null;
+  idp_app_entity_id: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -136,6 +137,7 @@ export type NewTokenBackendType = {
   sql_server_view_name: string | null;
   pwa_icon: string | null;
   pwa_app_name: string | null;
+  entity_id: string | null;
 };
 
 export type AsnType = {

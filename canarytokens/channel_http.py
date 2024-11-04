@@ -16,6 +16,7 @@ from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import AnyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
+from canarytokens.saml import SAML_POST_ARG
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken, GIF, get_template_env
@@ -179,58 +180,83 @@ class CanarytokenPage(InputChannel, resource.Resource):
         #    -getting an aws trigger (key == aws_s3)
         # otherwise, slack api token data perhaps
         # store the info and don't re-render
-
-        if canarydrop.type == TokenTypes.AWS_KEYS:
-            token_hit = Canarytoken._parse_aws_key_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
-            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
-            return b"success"
-        elif canarydrop.type == TokenTypes.AZURE_ID:
-            token_hit = Canarytoken._parse_azure_id_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
-            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
-            return b"success"
-        elif canarydrop.type == TokenTypes.SLACK_API:
-            token_hit = Canarytoken._parse_slack_api_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
-            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
-            return b"success"
-        elif canarydrop.type == TokenTypes.CREDIT_CARD_V2:
-            token_hit = Canarytoken._parse_credit_card_v2_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
-            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
-            return b"success"
-        elif canarydrop.type in [
-            TokenTypes.SLOW_REDIRECT,
-            TokenTypes.WEB_IMAGE,
-            TokenTypes.WEB,
-        ]:
-            key = request.args.get(b"key", [None])[0]
-            if (key := coerce_to_float(key)) and token:
-                additional_info = {
-                    k.decode(): v
-                    for k, v in request.args.items()
-                    if k.decode() not in ["key", "canarytoken", "name"]
-                }
-                canarydrop.add_additional_info_to_hit(
-                    hit_time=key,
-                    additional_info={
-                        request.args[b"name"][0].decode(): additional_info
-                    },
-                )
-                self.dispatch(
-                    canarydrop=canarydrop,
-                    token_hit=canarydrop.triggered_details.hits[-1],
-                )
+        match canarydrop.type:
+            case TokenTypes.AWS_KEYS:
+                token_hit = Canarytoken._parse_aws_key_trigger(request)
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+                self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
                 return b"success"
-            else:
-                log.info(
-                    f"Either {key=} or {token=} were falsy. Dropping this request."
-                )
-                # TODO: These returns are not really needed
-                return b"failed"
-        else:
-            return self.render_GET(request)
+            case TokenTypes.AZURE_ID:
+                token_hit = Canarytoken._parse_azure_id_trigger(request)
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+                self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+                return b"success"
+            case TokenTypes.SLACK_API:
+                token_hit = Canarytoken._parse_slack_api_trigger(request)
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+                self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+                return b"success"
+            case TokenTypes.CREDIT_CARD_V2:
+                token_hit = Canarytoken._parse_credit_card_v2_trigger(request)
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+                self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+                return b"success"
+            case TokenTypes.SLOW_REDIRECT | TokenTypes.WEB_IMAGE | TokenTypes.WEB:
+                key = request.args.get(b"key", [None])[0]
+                if (key := coerce_to_float(key)) and token:
+                    additional_info = {
+                        k.decode(): v
+                        for k, v in request.args.items()
+                        if k.decode() not in ["key", "canarytoken", "name"]
+                    }
+                    canarydrop.add_additional_info_to_hit(
+                        hit_time=key,
+                        additional_info={
+                            request.args[b"name"][0].decode(): additional_info
+                        },
+                    )
+                    self.dispatch(
+                        canarydrop=canarydrop,
+                        token_hit=canarydrop.triggered_details.hits[-1],
+                    )
+                    return b"success"
+                else:
+                    log.info(
+                        f"Either {key=} or {token=} were falsy. Dropping this request."
+                    )
+                    # TODO: These returns are not really needed
+                    return b"failed"
+            case TokenTypes.IDP_APP:
+                log.debug(f"{request.args=}")
+                log.debug(f"{request.getAllHeaders()=}")
+                if SAML_POST_ARG in request.args:
+                    return self.render_GET(request)
+                key = request.args.get(b"key", [None])[0]
+                if (key := coerce_to_float(key)) and token:
+                    additional_info = {
+                        k.decode(): v
+                        for k, v in request.args.items()
+                        if k.decode() not in ["key", "canarytoken", "name"]
+                    }
+                    canarydrop.add_additional_info_to_hit(
+                        hit_time=key,
+                        additional_info={
+                            request.args[b"name"][0].decode(): additional_info
+                        },
+                    )
+                    self.dispatch(
+                        canarydrop=canarydrop,
+                        token_hit=canarydrop.triggered_details.hits[-1],
+                    )
+                    return b"success"
+                else:
+                    log.info(
+                        f"Either {key=} or {token=} were falsy. Dropping this request."
+                    )
+                    # TODO: These returns are not really needed
+                    return b"failed"
+            case _:
+                return self.render_GET(request)
 
 
 class ChannelHTTP:

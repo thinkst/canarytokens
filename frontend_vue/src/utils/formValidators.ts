@@ -199,4 +199,10 @@ export const formValidators: ValidateSchemaType = {
       ),
     }),
   },
+  [TOKENS_TYPE.IDP_APP]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      redirect_url: Yup.string(),
+    }),
+  },
 };

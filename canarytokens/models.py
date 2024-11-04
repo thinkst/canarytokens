@@ -301,6 +301,7 @@ class TokenTypes(str, enum.Enum):
     CMD = "cmd"
     CC = "cc"
     PWA = "pwa"
+    IDP_APP = "idp_app"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
 
@@ -347,58 +348,8 @@ readable_token_type_names = {
     TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
+    TokenTypes.IDP_APP: "SAML2 IdP App",
 }
-
-GeneralHistoryTokenType = Literal[
-    "blank"
-    # TokenTypes.DNS,
-    # TokenTypes.FAST_REDIRECT,
-    # These have been specialised.
-    # TokenTypes.KUBECONFIG,
-    # TokenTypes.SQL_SERVER,
-    # TokenTypes.MS_WORD,
-    # TokenTypes.WEB_IMAGE,
-    # TokenTypes.AWS_KEYS,
-    # TokenTypes.KUBECONFIG,
-    # TokenTypes.ADOBE_PDF,
-    # TokenTypes.MS_EXCEL,
-    # TokenTypes.SVN,
-    # TokenTypes.SIGNED_EXE,
-    # TokenTypes.QR_CODE,
-    # TokenTypes.WIREGUARD,
-    # TokenTypes.WEB,
-    # TokenTypes.MY_SQL,
-    # TokenTypes.SLOW_REDIRECT,
-    # TokenTypes.SMTP,
-    # TokenTypes.CLONEDSITE,
-    # TokenTypes.LOG4SHELL,
-]
-
-BlankRequestTokenType = Literal[
-    "blank",
-    # TokenTypes.QR_CODE,
-    # These have been specialised.
-    # TokenTypes.KUBECONFIG,
-    # TokenTypes.SQL_SERVER,
-    # TokenTypes.ADOBE_PDF,
-    # TokenTypes.MS_EXCEL,
-    # TokenTypes.WEB_IMAGE,
-    # TokenTypes.KUBECONFIG,
-    # TokenTypes.AWS_KEYS,
-    # TokenTypes.ADOBE_PDF,
-    # TokenTypes.SVN,
-    # TokenTypes.SIGNED_EXE,
-    # TokenTypes.WINDOWS_DIR,
-    # TokenTypes.FAST_REDIRECT,
-    # TokenTypes.DNS,
-    # TokenTypes.WIREGUARD,
-    # TokenTypes.WEB,
-    # TokenTypes.MY_SQL,
-    # TokenTypes.SLOW_REDIRECT,
-    # TokenTypes.SMTP,
-    # TokenTypes.CLONEDSITE,
-    # TokenTypes.LOG4SHELL,
-]
 
 
 def json_safe_dict(m: BaseModel, exclude: Tuple = ()) -> Dict[str, str]:
@@ -410,7 +361,6 @@ class TokenRequest(BaseModel):
     TokenRequest holds fields needed to create a Canarytoken.
     """
 
-    # token_type: BlankRequestTokenType
     email: Optional[EmailStr]
     webhook_url: Optional[HttpUrl]
     memo: Memo
@@ -781,6 +731,21 @@ class CreditCardV2TokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
 
 
+class IdPAppTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    redirect_url: Optional[str] = None
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "token_type": TokenTypes.IDP_APP,
+                "memo": "Reminder note when this token is triggered",
+                "email": "username@domain.com",
+                "redirect_url": "https://youtube.com",
+            },
+        }
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
@@ -809,6 +774,7 @@ AnyTokenRequest = Annotated[
         SQLServerTokenRequest,
         KubeconfigTokenRequest,
         CreditCardV2TokenRequest,
+        IdPAppTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1099,6 +1065,11 @@ class CreditCardV2TokenResponse(TokenResponse):
     expiry_year: int
 
 
+class IdPAppTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    entity_id: str
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
@@ -1137,6 +1108,7 @@ AnyTokenResponse = Annotated[
         MsExcelDocumentTokenResponse,
         KubeconfigTokenResponse,
         CreditCardV2TokenResponse,
+        IdPAppTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1405,7 +1377,6 @@ class SMTPMailField(BaseModel):
 
 
 class TokenHit(BaseModel):
-    # token_type: GeneralHistoryTokenType
     time_of_hit: float
     src_ip: Optional[str]
     geo_info: Union[GeoIPInfo, GeoIPBogonInfo, None, Literal[""]]
@@ -1758,6 +1729,11 @@ class LegacyTokenHit(TokenHit):
     mail: Optional[SMTPMailField]
 
 
+class IdPAppTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    additional_info: AdditionalInfo = AdditionalInfo()
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
@@ -1789,6 +1765,7 @@ AnyTokenHit = Annotated[
         KubeconfigTokenHit,
         LegacyTokenHit,
         CreditCardV2TokenHit,
+        IdPAppTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2001,6 +1978,11 @@ class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
     hits: List[LegacyTokenHit] = []
 
 
+class IdPAppTokenHistory(TokenHistory[IdPAppTokenHit]):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    hits: List[IdPAppTokenHit] = []
+
+
 # AnyTokenHistory is used to type annotate functions that
 # handle any token history. It makes use of an annotated type
 # that discriminates on `token_type` so pydantic can parse
@@ -2036,6 +2018,7 @@ AnyTokenHistory = Annotated[
         KubeconfigTokenHistory,
         LegacyTokenHistory,
         CreditCardV2TokenHistory,
+        IdPAppTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
