@@ -68,39 +68,56 @@ def get_webhook_type(url: str) -> WebhookType:
 def format_details_for_webhook(
     webhook_type: WebhookType, details: Union[TokenAlertDetails, TokenExposedDetails]
 ):
-    match (webhook_type, details):
-        case (WebhookType.SLACK, TokenAlertDetails()):
-            return format_as_slack_canaryalert(details=details)
-        case (WebhookType.GOOGLE_CHAT, TokenAlertDetails()):
-            return format_as_googlechat_canaryalert(details=details)
-        case (WebhookType.DISCORD, TokenAlertDetails()):
-            return format_as_discord_canaryalert(details=details)
-        case (WebhookType.MS_TEAMS, TokenAlertDetails()):
-            return format_as_ms_teams_canaryalert(details=details)
-        case (WebhookType.GENERIC, TokenAlertDetails()):
-            return TokenAlertDetailGeneric(**details.dict())
-        case (WebhookType.SLACK, TokenExposedDetails()):
-            raise NotImplementedError(
-                f"format_details_for_webhook not {webhook_type} - {details}"
-            )
-        case (WebhookType.GOOGLE_CHAT, TokenExposedDetails()):
-            raise NotImplementedError(
-                f"format_details_for_webhook not {webhook_type} - {details}"
-            )
-        case (WebhookType.DISCORD, TokenExposedDetails()):
-            raise NotImplementedError(
-                f"format_details_for_webhook not {webhook_type} - {details}"
-            )
-        case (WebhookType.MS_TEAMS, TokenExposedDetails()):
-            raise NotImplementedError(
-                f"format_details_for_webhook not {webhook_type} - {details}"
-            )
-        case (WebhookType.GENERIC, TokenExposedDetails()):
-            return TokenExposedDetailGeneric(**details.dict())
-        case _:
-            raise Exception(
-                f"Unhandled combination of webhook type and details type: {webhook_type=} | {details}"
-            )
+    if isinstance(details, TokenAlertDetails):
+        return _format_alert_details_for_webhook(webhook_type, details)
+    else:
+        return _format_exposed_details_for_webhook(webhook_type, details)
+
+
+def _format_alert_details_for_webhook(
+    webhook_type: WebhookType, details: TokenAlertDetails
+):
+    if webhook_type == WebhookType.SLACK:
+        return format_as_slack_canaryalert(details)
+    elif webhook_type == WebhookType.GOOGLE_CHAT:
+        return format_as_googlechat_canaryalert(details)
+    elif webhook_type == WebhookType.DISCORD:
+        return format_as_discord_canaryalert(details)
+    elif webhook_type == WebhookType.MS_TEAMS:
+        return format_as_ms_teams_canaryalert(details)
+    elif webhook_type == WebhookType.GENERIC:
+        return TokenAlertDetailGeneric(**details.dict())
+    else:
+        raise NotImplementedError(
+            f"_format_alert_details_for_webhook not implemented for webhook type: {webhook_type}"
+        )
+
+
+def _format_exposed_details_for_webhook(
+    webhook_type: WebhookType, details: TokenExposedDetails
+):
+    if webhook_type == WebhookType.SLACK:
+        raise NotImplementedError(
+            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
+        )
+    elif webhook_type == WebhookType.GOOGLE_CHAT:
+        raise NotImplementedError(
+            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
+        )
+    elif webhook_type == WebhookType.DISCORD:
+        raise NotImplementedError(
+            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
+        )
+    elif webhook_type == WebhookType.MS_TEAMS:
+        raise NotImplementedError(
+            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
+        )
+    elif webhook_type == WebhookType.GENERIC:
+        return TokenExposedDetailGeneric(**details.dict())
+    else:
+        raise NotImplementedError(
+            f"_format_alert_details_for_webhook not implemented for webhook type: {webhook_type}"
+        )
 
 
 def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTypes):
