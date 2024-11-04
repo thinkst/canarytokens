@@ -121,43 +121,42 @@ def _format_exposed_details_for_webhook(
 
 
 def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTypes):
-    match webhook_type:
-        case WebhookType.SLACK:
-            raise NotImplementedError(
-                "generate_webhook_test_payload not implemented for SLACK"
-            )
-        case WebhookType.GOOGLE_CHAT:
-            raise NotImplementedError(
-                "generate_webhook_test_payload not implemented for GOOGLE_CHAT"
-            )
-        case WebhookType.DISCORD:
-            raise NotImplementedError(
-                "generate_webhook_test_payload not implemented for DISCORD"
-            )
-        case WebhookType.MS_TEAMS:
-            raise NotImplementedError(
-                "generate_webhook_test_payload not implemented for MS_TEAMS"
-            )
-        case WebhookType.GENERIC:
-            return TokenAlertDetails(
-                manage_url=WEBHOOK_TEST_URL,
-                channel="HTTP",
-                memo=Memo("Congrats! The newly saved webhook works"),
-                token="a+test+token",
-                token_type=token_type,
-                src_ip="127.0.0.1",
-                additional_data={
-                    "src_ip": "1.1.1.1",
-                    "useragent": "Mozilla/5.0...",
-                    "referer": "http://example.com/referrer",
-                    "location": "http://example.com/location",
-                },
-                time=datetime.now(),
-            )
-        case _:
-            raise NotImplementedError(
-                f"generate_webhook_test_payload not implemented for {webhook_type}"
-            )
+    if webhook_type == WebhookType.SLACK:
+        raise NotImplementedError(
+            "generate_webhook_test_payload not implemented for SLACK"
+        )
+    elif webhook_type == WebhookType.GOOGLE_CHAT:
+        raise NotImplementedError(
+            "generate_webhook_test_payload not implemented for GOOGLE_CHAT"
+        )
+    elif webhook_type == WebhookType.DISCORD:
+        raise NotImplementedError(
+            "generate_webhook_test_payload not implemented for DISCORD"
+        )
+    elif webhook_type == WebhookType.MS_TEAMS:
+        raise NotImplementedError(
+            "generate_webhook_test_payload not implemented for MS_TEAMS"
+        )
+    elif webhook_type == WebhookType.GENERIC:
+        return TokenAlertDetails(
+            manage_url=WEBHOOK_TEST_URL,
+            channel="HTTP",
+            memo=Memo("Congrats! The newly saved webhook works"),
+            token="a+test+token",
+            token_type=token_type,
+            src_ip="127.0.0.1",
+            additional_data={
+                "src_ip": "1.1.1.1",
+                "useragent": "Mozilla/5.0...",
+                "referer": "http://example.com/referrer",
+                "location": "http://example.com/location",
+            },
+            time=datetime.now(),
+        )
+    else:
+        raise NotImplementedError(
+            f"generate_webhook_test_payload not implemented for {webhook_type}"
+        )
 
 
 class TokenAlertDetailGeneric(TokenAlertDetails):

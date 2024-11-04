@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Union
 import pytest
 from canarytokens.models import Memo, TokenAlertDetails, TokenExposedDetails, TokenTypes
 from canarytokens.webhook_formatting import (
@@ -45,7 +45,7 @@ def test_get_webhook_type(url: str, expected_type: WebhookType):
     ],
 )
 def test_format_details_for_webhook_alert_type(
-    details_type: Literal["alert"] | Literal["exposed"],
+    details_type: Union[Literal["alert"], Literal["exposed"]],
     webhook_type: WebhookType,
     expected_payload_type,
 ):
