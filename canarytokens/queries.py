@@ -7,7 +7,7 @@ import json
 import re
 import secrets
 from ipaddress import IPv4Address
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple
 
 import advocate
 import requests
@@ -876,29 +876,8 @@ def validate_webhook(url, token_type: models.TokenTypes):
     if len(url) > constants.MAX_WEBHOOK_URL_LENGTH:
         raise WebhookTooLongError()
 
-    payload: Union[
-        models.TokenAlertDetails,
-        models.TokenAlertDetailsSlack,
-        models.TokenAlertDetailsGoogleChat,
-        models.TokenAlertDetailsDiscord,
-        models.TokenAlertDetailsMsTeams,
-    ]
     webhook_type = get_webhook_type(url)
-    if webhook_type == WebhookType.SLACK:
-        payload = models.TokenAlertDetailsSlack(
-            attachments=[
-                models.SlackAttachment(
-                    title_link=HttpUrl("https://test.com/check", scheme="https"),
-                    fields=[
-                        models.SlackField(
-                            title="test",
-                            value="Working",
-                        )
-                    ],
-                )
-            ]
-        )
-    elif webhook_type == WebhookType.GOOGLE_CHAT:
+    if webhook_type == WebhookType.GOOGLE_CHAT:
         # construct google chat alert card
         card = models.GoogleChatCard(
             header=models.GoogleChatHeader(

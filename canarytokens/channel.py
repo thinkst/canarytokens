@@ -5,7 +5,7 @@ Base class for all canarydrop channels.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Coroutine, List, Optional, Union
+from typing import Any, Coroutine, Optional, Union
 
 import twisted.internet.reactor
 from twisted.internet import threads
@@ -24,8 +24,6 @@ from canarytokens.models import (
     GoogleChatHeader,
     GoogleChatSection,
     Memo,
-    SlackAttachment,
-    SlackField,
     DiscordDetails,
     DiscordEmbeds,
     DiscordAuthorField,
@@ -34,33 +32,11 @@ from canarytokens.models import (
     MsTeamsPotentialAction,
     TokenAlertDetails,
     TokenAlertDetailsGoogleChat,
-    TokenAlertDetailsSlack,
     TokenAlertDetailsDiscord,
     TokenAlertDetailsMsTeams,
 )
 
 log = Logger()
-
-
-def format_as_slack_canaryalert(details: TokenAlertDetails) -> TokenAlertDetailsSlack:
-    """
-    Transforms `TokenAlertDetails` to `TokenAlertDetailsSlack`.
-    """
-    fields: List[SlackField] = [
-        SlackField(title="Channel", value=details.channel),
-        SlackField(title="Memo", value=details.memo),
-        SlackField(
-            title="time",
-            value=details.time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        ),
-        SlackField(title="Manage", value=details.manage_url),
-    ]
-
-    attchments = [SlackAttachment(title_link=details.manage_url, fields=fields)]
-    return TokenAlertDetailsSlack(
-        # channel="#general",
-        attachments=attchments,
-    )
 
 
 def format_as_googlechat_canaryalert(

@@ -1,8 +1,14 @@
+import json
 import subprocess
 from pathlib import Path
-from typing import Any, Literal, Union
+from typing import Any, Dict, Literal, Tuple, Union
 
 import pycountry_convert
+from pydantic import BaseModel
+
+
+def json_safe_dict(m: BaseModel, exclude: Tuple = ()) -> Dict[str, str]:
+    return json.loads(m.json(exclude_none=True, exclude=set(exclude)))
 
 
 def dict_to_csv(d: dict) -> str:
