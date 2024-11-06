@@ -2139,82 +2139,6 @@ class TokenExposedDetails(BaseModel):
         }
 
 
-class GoogleChatDecoratedText(BaseModel):
-    topLabel: str = ""
-    text: str = ""
-
-
-class GoogleChatWidget(BaseModel):
-    decoratedText: GoogleChatDecoratedText
-
-
-class GoogleChatAlertDetailsSectionData(BaseModel):
-    channel: str = ""
-    time: datetime
-    canarytoken: Canarytoken
-    token_reminder: Memo
-    manage_url: HttpUrl
-
-    @validator("time", pre=True)
-    def validate_time(cls, value):
-        if isinstance(value, str):
-            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S (UTC)")
-        return value
-
-    def get_googlechat_data(self) -> Dict[str, str]:
-        data = json_safe_dict(self)
-        data["Channel"] = data.pop("channel", "")
-        data["Time"] = data.pop("time", "")
-        data["Canarytoken"] = data.pop("canarytoken", "")
-        data["Token Reminder"] = data.pop("token_reminder", "")
-        data["Manage URL"] = '<a href="{manage_url}">{manage_url}</a>'.format(
-            manage_url=data.pop("manage_url", "")
-        )
-        return data
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        }
-
-
-class GoogleChatHeader(BaseModel):
-    title: str = "Canarytoken Triggered"
-    imageUrl: HttpUrl
-    imageType: str = "CIRCLE"
-    imageAltText: str = "Thinkst Canary"
-
-
-class GoogleChatSection(BaseModel):
-    header: str = ""
-    collapsible: bool = False
-    widgets: List[GoogleChatWidget] = []
-
-    def add_widgets(self, widgets_info: Optional[Dict[str, str]] = {}) -> None:
-        for label, text in widgets_info.items():
-            if not label or not text:
-                continue
-            message_text = (
-                json.dumps(text) if isinstance(text, dict) else "{}".format(text)
-            )
-            self.widgets.append(
-                GoogleChatWidget(
-                    decoratedText=GoogleChatDecoratedText(
-                        topLabel=label, text=message_text
-                    )
-                )
-            )
-
-
-class GoogleChatCard(BaseModel):
-    header: GoogleChatHeader
-    sections: List[GoogleChatSection] = []
-
-
-class GoogleChatCardV2(BaseModel):
-    cardId: str = "unique-card-id"
-    card: GoogleChatCard
-
 
 class DiscordFieldEntry(BaseModel):
     name: str = ""
@@ -2275,12 +2199,6 @@ class DiscordEmbeds(BaseModel):
             datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
         }
 
-
-class TokenAlertDetailsGoogleChat(BaseModel):
-    cardsV2: List[GoogleChatCardV2]
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
 
 
 class MsTeamsDetailsSection(BaseModel):

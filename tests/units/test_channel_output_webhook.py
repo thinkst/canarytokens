@@ -5,13 +5,11 @@ from twisted.logger import capturedLogs
 
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel import (
-    format_as_googlechat_canaryalert,
     format_as_ms_teams_canaryalert,
 )
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
 from canarytokens.models import (
-    TokenAlertDetailsGoogleChat,
     TokenAlertDetailsMsTeams,
     TokenTypes,
 )
@@ -19,7 +17,12 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 from canarytokens.constants import CANARY_IMAGE_URL
-from canarytokens.webhook_formatting import format_details_for_webhook, get_webhook_type
+from canarytokens.webhook_formatting import (
+    WebhookType,
+    format_details_for_webhook,
+    get_webhook_type,
+    TokenAlertDetailsGoogleChat,
+)
 
 
 def test_broken_webhook(
@@ -153,7 +156,7 @@ def test_googlechat_webhook_format(
         host=settings.PUBLIC_DOMAIN,
     )
     print("Webhook details = {}".format(details))
-    webhook_payload = format_as_googlechat_canaryalert(details=details)
+    webhook_payload = format_details_for_webhook(WebhookType.GOOGLE_CHAT, details)
     webhook_payload_json = webhook_payload.json_safe_dict()
     print("Webhook_payload json = {}".format(webhook_payload.json()))
 
