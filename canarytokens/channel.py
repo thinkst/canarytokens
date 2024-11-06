@@ -19,46 +19,15 @@ from canarytokens.models import (
     AnyTokenHit,
     AnyTokenExposedHit,
     Memo,
-    DiscordDetails,
-    DiscordEmbeds,
-    DiscordAuthorField,
     MsTeamsTitleSection,
     MsTeamsDetailsSection,
     MsTeamsPotentialAction,
     TokenAlertDetails,
-    TokenAlertDetailsDiscord,
     TokenAlertDetailsMsTeams,
 )
 
 log = Logger()
 
-
-
-def format_as_discord_canaryalert(
-    details: TokenAlertDetails,
-) -> TokenAlertDetailsDiscord:
-    embeds = DiscordEmbeds(
-        author=DiscordAuthorField(
-            icon_url="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
-        ),
-        url=details.manage_url,
-        timestamp=details.time.strftime("%Y-%m-%dT%H:%M:%S"),
-    )
-
-    embeds.add_fields(
-        fields_info=DiscordDetails(
-            canarytoken=details.token,
-            token_reminder=details.memo,
-            src_data=details.src_data if details.src_data else None,
-        ).get_discord_data(),
-    )
-
-    if details.additional_data:
-        embeds.add_fields(
-            fields_info=details.additional_data,
-        )
-
-    return TokenAlertDetailsDiscord(embeds=[embeds])
 
 
 def format_as_ms_teams_canaryalert(

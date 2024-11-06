@@ -9,6 +9,7 @@ from canarytokens.webhook_formatting import (
     get_webhook_type,
     TokenAlertDetailGeneric,
     TokenAlertDetailsGoogleChat,
+    TokenAlertDetailsDiscord,
     TokenExposedDetailGeneric,
 )
 
@@ -48,6 +49,8 @@ def test_get_webhook_type(url: str, expected_type: WebhookType):
         ("exposed", WebhookType.SLACK, TokenAlertDetailsSlack),
         ("alert", WebhookType.GOOGLE_CHAT, TokenAlertDetailsGoogleChat),
         ("exposed", WebhookType.GOOGLE_CHAT, TokenAlertDetailsGoogleChat),
+        ("alert", WebhookType.DISCORD, TokenAlertDetailsDiscord),
+        ("exposed", WebhookType.DISCORD, TokenAlertDetailsDiscord),
     ],
 )
 def test_format_details_for_webhook_alert_type(

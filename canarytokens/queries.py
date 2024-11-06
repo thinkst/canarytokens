@@ -877,18 +877,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         raise WebhookTooLongError()
 
     webhook_type = get_webhook_type(url)
-    if webhook_type == WebhookType.DISCORD:
-        # construct discord alert card
-        embeds = models.DiscordEmbeds(
-            author=models.DiscordAuthorField(
-                icon_url="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png"
-            ),
-            title="Validating new canarytokens webhook",
-            fields=[],
-            timestamp=datetime.datetime.now(),
-        )
-        payload = models.TokenAlertDetailsDiscord(embeds=[embeds])
-    elif webhook_type == WebhookType.MS_TEAMS:
+    if webhook_type == WebhookType.MS_TEAMS:
         section = models.MsTeamsTitleSection(
             activityTitle="<b>Validating new Canarytokens webhook</b>"
         )
