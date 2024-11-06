@@ -5,6 +5,11 @@
     :token-url="tokenUrl"
     :entity-id="entityId"
   />
+  <BaseMessageBox
+    variant="info"
+    class="mt-32"
+    >Some info here to tell user what the Preview is about</BaseMessageBox
+  >
   <CreateAppPreview />
 </template>
 
