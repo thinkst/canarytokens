@@ -1,10 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import {
-  library,
-  type IconDefinition,
-} from '@fortawesome/fontawesome-svg-core';
+import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   faBars,
@@ -31,7 +28,7 @@ import {
   faFileExcel,
   faFile,
   faQuoteLeft,
-  faArrowUpRightFromSquare
+  faArrowUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -69,7 +66,7 @@ library.add(
   faFileExcel,
   faFile,
   faQuoteLeft,
-  faArrowUpRightFromSquare,
+  faArrowUpRightFromSquare
 );
 
 const vfm = createVfm();

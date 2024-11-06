@@ -9,6 +9,7 @@
     When the fake app is opened from your IdP dashboard you receive an alert.
     <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
   </p>
+  <CreateAppPreview />
 </template>
 
 <script setup lang="ts">
@@ -16,6 +17,7 @@ import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { NewTokenBackendType } from '@/components/tokens/types';
 import ButtonActivateTokenTips from '@/components/ui/ButtonActivateTokenTips.vue';
+import CreateAppPreview from './CreateAppPreview.vue';
 
 const props = defineProps<{
   tokenData: NewTokenBackendType;

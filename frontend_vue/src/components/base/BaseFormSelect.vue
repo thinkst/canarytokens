@@ -29,6 +29,21 @@
           class="w-6 h-6 hover:text-grey-400"
       /></span>
     </template>
+    <template #option="option">
+      <slot
+        name="option"
+        :option="option"
+        :value="option.value"
+      >
+      </slot>
+    </template>
+    <template #selected-option="option">
+      <slot
+        name="selected-option"
+        :option="option"
+        :value="option.value"
+      ></slot>
+    </template>
   </v-select>
 </template>
 
@@ -36,10 +51,14 @@
 import { toRef, onMounted } from 'vue';
 import { useField } from 'vee-validate';
 
+type OptionType = {
+  [key: string]: string;
+};
+
 const props = defineProps<{
   id: string;
   label: string;
-  options: string[];
+  options: string[] | OptionType[];
   placeholder?: string;
 }>();
 
@@ -61,9 +80,11 @@ onMounted(() => {
   }
 });
 
-function handleSelectOption(value: string) {
+function handleSelectOption(selectedVal: string | OptionType) {
+  const value =
+    typeof selectedVal === 'object' ? selectedVal.value : selectedVal;
   handleChange(value);
-  emits('selectOption', value);
+  emits('selectOption', selectedVal);
 }
 </script>
 
