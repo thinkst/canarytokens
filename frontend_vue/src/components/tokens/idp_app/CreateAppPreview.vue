@@ -1,5 +1,10 @@
 <template>
-  <div class="flex flex-col gap-16 mt-24 mb-32">
+  <div
+    class="flex flex-col gap-16 p-16 mt-24 mb-32 border border-grey-200 rounded-xl"
+  >
+    <h3 class="flex flex-row text-sm font-semibold text-left text-grey-400">
+      App Custom appareance
+    </h3>
     <base-form-select
       id="idp-app-look"
       label="Select Custom App look"
@@ -30,7 +35,7 @@
       </template>
     </base-form-select>
 
-    <div class="p-16 border border-grey-200 rounded-xl">
+    <div class="p-16 bg-white rounded-xl">
       <h3
         class="flex flex-row gap-8 mb-16 text-sm font-semibold text-left text-grey-400"
       >
