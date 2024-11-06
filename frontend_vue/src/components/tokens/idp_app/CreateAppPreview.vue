@@ -41,7 +41,7 @@
       >
         Preview
       </h3>
-      <div class="grid gap-16 md:grid-cols-2 sm:grid-cols-1 sm:gap-24">
+      <div class="grid grid-cols-1 gap-16 sm:gap-24">
         <div class="flex flex-col items-center justify-center gap-8">
           <BaseLabelArrow
             id="idp-app-img"
@@ -66,10 +66,12 @@
             class="text-center"
           />
           <div
-            class="flex flex-row items-center gap-16 p-16 bg-white rounded-2xl"
+            class="flex flex-row items-center justify-center gap-16 p-16 bg-white rounded-2xl"
           >
             <!-- Copy Name Input Readonly -->
-            <div class="relative flex flex-col grow">
+            <div
+              class="relative flex flex-col grow max-w-[60ch] items-center gap-8"
+            >
               <label
                 for="text-input"
                 class="sr-only"
