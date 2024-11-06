@@ -68,6 +68,7 @@
           <div
             class="flex flex-row items-center gap-16 p-16 bg-white rounded-2xl"
           >
+            <!-- Copy Name Input Readonly -->
             <div class="relative flex flex-col grow">
               <label
                 for="text-input"
