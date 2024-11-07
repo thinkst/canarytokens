@@ -11,14 +11,18 @@ Canarytokens help track activity and actions on your network.
 If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try to get back to you as soon as possible.
 
 ## Table of Contents
-- [Code of Conduct](#code-of-conduct)
-- [Deprecations](#deprecations)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Configuration of Outgoing SMTP](#configuration-of-outgoing-smtp)
-- [Alert throttling](#alert-throttling)
-- [FAQ](#faq)
-- [Contributing](#contributing)
+- [Canarytokens](#canarytokens)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Code of Conduct](#code-of-conduct)
+  - [Deprecations](#deprecations)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [Configuration of Outgoing SMTP](#configuration-of-outgoing-smtp)
+  - [Alert throttling](#alert-throttling)
+  - [Webhook failure limiting](#webhook-failure-limiting)
+  - [FAQ](#faq)
+  - [Contributing](#contributing)
 
 ## Code of Conduct
 
@@ -91,6 +95,7 @@ Restrictions:
 * no other provider like Mailgun or Sendgrid must be configured for this to work
 * only supports StartTLS right now (you have to use the corresponding port)
 * no anonymous SMTP is supported right now (you have to use a username/password to authenticate)
+* For AWS SES `CANARY_ALERT_EMAIL_FROM_DISPLAY` should be in the format: `CANARY_ALERT_EMAIL_FROM_DISPLAY=CanaryAlert <canaryalert@my-email-domain.here>`
 
 The following settings have to be configured in `switchboard.env` for SMTP to work:
 * CANARY_SMTP_SERVER: the SMTP server
