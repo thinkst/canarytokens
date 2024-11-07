@@ -27,6 +27,21 @@
           class="w-6 h-6 hover:text-grey-400"
       /></span>
     </template>
+    <template #option="option">
+      <slot
+        name="option"
+        :option="option"
+        :value="option.value"
+      >
+      </slot>
+    </template>
+    <template #selected-option="option">
+      <slot
+        name="selected-option"
+        :option="option"
+        :value="option.value"
+      ></slot>
+    </template>
   </v-select>
 </template>
 
@@ -35,6 +50,7 @@ import { toRef, onMounted } from 'vue';
 import { useField } from 'vee-validate';
 
 export type SelectOption = { label: string, value: string };
+
 
 const props = defineProps<{
   id: string;
@@ -66,7 +82,7 @@ function handleSelectOption(value: string | SelectOption) {
     value = value.value
   };
   handleChange(value);
-  emits('selectOption', value);
+  emits('selectOption', selectedVal);
 }
 </script>
 

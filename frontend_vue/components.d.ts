@@ -11,6 +11,7 @@ declare module 'vue' {
     BaseCodeSnippet: typeof import('./src/components/base/BaseCodeSnippet.vue')['default']
     BaseContentBlock: typeof import('./src/components/base/BaseContentBlock.vue')['default']
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
+    BaseDownloadIconButtom: typeof import('./src/components/base/BaseDownloadIconButtom.vue')['default']
     BaseFormImageSelect: typeof import('./src/components/base/BaseFormImageSelect.vue')['default']
     BaseFormSelect: typeof import('./src/components/base/BaseFormSelect.vue')['default']
     BaseFormTextField: typeof import('./src/components/base/BaseFormTextField.vue')['default']
