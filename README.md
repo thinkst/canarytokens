@@ -11,9 +11,6 @@ Canarytokens help track activity and actions on your network.
 If you have any issues please check out our FAQ over [here](https://github.com/thinkst/canarytokens/wiki#), or create an issue and we'll try to get back to you as soon as possible.
 
 ## Table of Contents
-- [Canarytokens](#canarytokens)
-  - [Overview](#overview)
-  - [Table of Contents](#table-of-contents)
   - [Code of Conduct](#code-of-conduct)
   - [Deprecations](#deprecations)
   - [Installation](#installation)
