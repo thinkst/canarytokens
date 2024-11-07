@@ -1,6 +1,11 @@
 <template>
   <div>
     <hr class="my-24" />
+    <h1>App preview</h1>
+    <CreateAppPreview />
+  </div>
+  <div>
+    <hr class="my-24" />
     <h1>Image Select</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <BaseFormImageSelect
@@ -10,7 +15,10 @@
           { value: 'image1', url: `${getImageUrl('pwa_icons/pwa_fnb.png')}` },
           { value: 'image2', url: `${getImageUrl('pwa_icons/pwa_axis.png')}` },
           { value: 'image3', url: `${getImageUrl('pwa_icons/pwa_rbc.png')}` },
-          { value: 'image4', url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}` },
+          {
+            value: 'image4',
+            url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}`,
+          },
         ]"
       />
       <BaseFormImageSelect
@@ -18,10 +26,22 @@
         label="Select an image"
         image-class="w-[100px] h-[100px]"
         :options="[
-          { value: 'image5', url: `${getImageUrl('pwa_icons/pwa_snapchat.png')}` },
-          { value: 'image6', url: `${getImageUrl('pwa_icons/pwa_paypal.png')}` },
-          { value: 'image7', url: `${getImageUrl('pwa_icons/pwa_messenger.png')}` },
-          { value: 'image8', url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}` },
+          {
+            value: 'image5',
+            url: `${getImageUrl('pwa_icons/pwa_snapchat.png')}`,
+          },
+          {
+            value: 'image6',
+            url: `${getImageUrl('pwa_icons/pwa_paypal.png')}`,
+          },
+          {
+            value: 'image7',
+            url: `${getImageUrl('pwa_icons/pwa_messenger.png')}`,
+          },
+          {
+            value: 'image8',
+            url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}`,
+          },
         ]"
       />
     </div>
@@ -68,6 +88,10 @@
   <div class="flex flex-col max-w-[200px] gap-16">
     <h1>Copy button</h1>
     <BaseCopyButton content="Content to copy is here" />
+    <BaseCopyButton
+      content="Content to copy is here"
+      disabled
+    />
   </div>
   <hr class="my-24" />
   <div class="flex flex-col max-w-[300px] gap-16">
@@ -356,6 +380,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
+import CreateAppPreview from '@/components/tokens/idp_app/CreateAppPreview.vue';
 
 const { open } = useModal({
   component: ModalToken,

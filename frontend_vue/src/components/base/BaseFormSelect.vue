@@ -56,6 +56,7 @@ import { useField } from 'vee-validate';
 
 export type SelectOption = { label: string; value: string };
 
+
 const props = defineProps<{
   id: string;
   label: string;
@@ -88,7 +89,7 @@ function handleSelectOption(value: string | SelectOption) {
     value = value.value;
   }
   handleChange(value);
-  emits('selectOption', value);
+  emits('selectOption', selectedVal);
 }
 </script>
 
