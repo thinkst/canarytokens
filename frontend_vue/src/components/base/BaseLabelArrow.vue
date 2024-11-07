@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <BaseLabel
+    v-bind="$attrs"
     :id="id"
     class="container relative mb-8"
   >

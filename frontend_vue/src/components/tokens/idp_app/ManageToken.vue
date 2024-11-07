@@ -5,12 +5,19 @@
     :token-url="tokenUrl"
     :entity-id="entityId"
   />
+  <BaseMessageBox
+    variant="info"
+    class="mt-32"
+    >Some info here to tell user what the Preview is about</BaseMessageBox
+  >
+  <CreateAppPreview />
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
+import CreateAppPreview from './CreateAppPreview.vue';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
