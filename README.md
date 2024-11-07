@@ -15,7 +15,6 @@ If you have any issues please check out our FAQ over [here](https://github.com/t
   - [Deprecations](#deprecations)
   - [Installation](#installation)
   - [Configuration](#configuration)
-    - [Configuration of Outgoing SMTP](#configuration-of-outgoing-smtp)
   - [Alert throttling](#alert-throttling)
   - [Webhook failure limiting](#webhook-failure-limiting)
   - [FAQ](#faq)
