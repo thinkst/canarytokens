@@ -7,8 +7,8 @@ from canarytokens.models import (
     CMDTokenHistory,
     CMDTokenRequest,
     CMDTokenResponse,
-    TokenAlertDetailGeneric,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 
 from tests.utils import (
     clear_stats_on_webhook,

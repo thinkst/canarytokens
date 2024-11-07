@@ -19,7 +19,7 @@ from pathlib import Path
 from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, parse_obj_as, root_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, parse_obj_as, root_validator
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (
@@ -32,6 +32,7 @@ from canarytokens.models import (
     AnySettingsRequest,
     AnyTokenHistory,
     AnyTokenHit,
+    AnyTokenExposedHit,
     BrowserScannerSettingsRequest,
     EmailSettingsRequest,
     PWAType,
@@ -159,12 +160,13 @@ class Canarydrop(BaseModel):
     cc_v2_expiry_year: Optional[int]
     cc_v2_name_on_card: Literal["Canarytokens.org"] = "Canarytokens.org"
 
+    key_exposed_details: Optional[AnyTokenExposedHit] = None
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """
         Ensure canarydrop `type` and `triggered_details` `token_type` match.
         """
-
         if values.get("triggered_details", None) is None:
             values["triggered_details"] = parse_obj_as(
                 AnyTokenHistory, {"token_type": values["type"], "hits": []}
@@ -181,7 +183,32 @@ class Canarydrop(BaseModel):
             {getattr(values["triggered_details"], "token_type")} != {values["type"]}
             """
             )
+
+        if "key_exposed_details" in values:
+            values["key_exposed_details"] = parse_obj_as(
+                AnyTokenExposedHit, values["key_exposed_details"]
+            )
+            token_type, expected_token_type = (
+                values["key_exposed_details"].token_type,
+                values["type"],
+            )
+            if token_type != expected_token_type:
+                raise ValueError(
+                    f"key_exposed_details token_type must match drop type. Got {token_type} instead of {expected_token_type}."
+                )
+
         return values
+
+    def build_manage_url(self, protocol: str, host: str) -> AnyHttpUrl:
+        return parse_obj_as(
+            AnyHttpUrl,
+            "{protocol}://{host}/manage?token={token}&auth={auth}".format(
+                protocol=protocol,
+                host=host,
+                token=self.canarytoken.value(),
+                auth=self.auth,
+            ),
+        )
 
     class Config:
         arbitrary_types_allowed = True
@@ -223,6 +250,16 @@ class Canarydrop(BaseModel):
             token_hit=token_hit,
             canarytoken=self.canarytoken,
         )
+
+    def add_key_exposed_hit(self, token_exposed_hit: AnyTokenExposedHit):
+        if self.key_exposed_details is not None:
+            # Only store the first event since that's the most important - gives the best indication of how
+            # long the key has been exposed
+            return
+
+        queries.save_canarydrop(self)
+        self.key_exposed_details = token_exposed_hit
+        queries.add_key_exposed_hit(token_exposed_hit, self.canarytoken)
 
     def apply_settings_change(self, setting_request: AnySettingsRequest) -> bool:
         """
@@ -419,6 +456,7 @@ class Canarydrop(BaseModel):
                     "canarytoken",
                     "switchboard_settings",
                     "triggered_details",  # V2 compatible.
+                    "key_exposed_details",
                 }
             ),
         )  # TODO: check https://github.com/samuelcolvin/pydantic/issues/1409 and swap out when possible

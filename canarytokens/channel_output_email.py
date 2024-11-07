@@ -4,7 +4,7 @@ Output channel that sends emails. Relies on Sendgrid to actually send mails.
 from pathlib import Path
 from textwrap import dedent
 import textwrap
-from typing import Optional
+from typing import Optional, Union
 import enum
 import uuid
 
@@ -26,6 +26,7 @@ from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL, MAILGUN_IGNORE_ERRORS
 from canarytokens.models import (
     AnyTokenHit,
+    AnyTokenExposedHit,
     readable_token_type_names,
     TokenAlertDetails,
     token_types_with_article_an,
@@ -418,7 +419,7 @@ class EmailOutputChannel(OutputChannel):
         self,
         input_channel: InputChannel,
         canarydrop: Canarydrop,
-        token_hit: AnyTokenHit,
+        token_hit: Union[AnyTokenHit, AnyTokenExposedHit],
     ):
         alert_details = input_channel.gather_alert_details(
             canarydrop=canarydrop,

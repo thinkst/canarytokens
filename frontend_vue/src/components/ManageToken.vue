@@ -82,6 +82,17 @@
           time{{ hasAlerts > 1 ? 's' : '' }}</span
         >
       </BaseMessageBox>
+      <BaseMessageBox
+        v-if="keyExposedHit"
+        class="mt-32"
+        variant="warning"
+        text-link="Go to token"
+        @click="handleGoToExposedToken"
+      >
+        This Canarytoken has been found
+        <a class="font-bold" :href="keyExposedHit.public_location" target="_blank">here</a>
+        on the internet. Please replace it with a new Canarytoken.
+      </BaseMessageBox>
       <DeleteTokenButton
         :memo="manageTokenResponse.canarydrop.memo"
         :token="manageTokenResponse.canarydrop.canarytoken._value"
@@ -121,6 +132,7 @@ const dynamicComponent = ref({
 });
 
 const hasAlerts = ref(0);
+const keyExposedHit = ref();
 
 /* AZURE CONFIG Exception handler */
 /* CSS Cloned Site type can be an Azure ID Config token */
@@ -139,6 +151,11 @@ function handleCheckHistory() {
   router.push({ name: 'history', params: { auth, token } });
 }
 
+function handleGoToExposedToken() {
+  window.open(keyExposedHit.value.public_location, '_blank');
+}
+
+
 async function fetchTokenData() {
   isLoading.value = true;
 
@@ -154,6 +171,7 @@ async function fetchTokenData() {
     tokenLogoUrl.value = `token_icons/${tokenServices[getTokenType.value].icon}`;
     hasAlerts.value =
       manageTokenResponse.value.canarydrop.triggered_details.hits.length;
+    keyExposedHit.value = manageTokenResponse.value.canarydrop.key_exposed_details;
     loadComponent();
   } catch (err: any) {
     console.log(err, 'err!');

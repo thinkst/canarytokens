@@ -1,11 +1,11 @@
 """"
 Base class for all canarydrop channels.
 """
+
 from __future__ import annotations
 
 import datetime
 from typing import Any, Coroutine, List, Optional, Union
-import re
 
 import twisted.internet.reactor
 from twisted.internet import threads
@@ -13,11 +13,11 @@ from twisted.logger import Logger
 
 from canarytokens import switchboard as sb
 from canarytokens.canarydrop import Canarydrop
-from canarytokens import constants
 
 # from canarytokens.exceptions import DuplicateChannel
 from canarytokens.models import (
     AnyTokenHit,
+    AnyTokenExposedHit,
     GoogleChatAlertDetailsSectionData,
     GoogleChatCard,
     GoogleChatCardV2,
@@ -32,7 +32,6 @@ from canarytokens.models import (
     MsTeamsTitleSection,
     MsTeamsDetailsSection,
     MsTeamsPotentialAction,
-    TokenAlertDetailGeneric,
     TokenAlertDetails,
     TokenAlertDetailsGoogleChat,
     TokenAlertDetailsSlack,
@@ -216,57 +215,17 @@ class InputChannel(Channel):
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
             # TODO: this manage url should come from the frontend / settings object.
-            manage_url="{protocol}://{host}/manage?token={token}&auth={auth}".format(
-                protocol=protocol,
-                host=host,
-                token=canarydrop.canarytoken.value(),
-                auth=canarydrop.auth,
-            ),
+            manage_url=canarydrop.build_manage_url(protocol, host),
             additional_data=additional_data,  # TODO: additional details need to be re-worked.
             public_domain=host,
         )
 
-    @classmethod
-    def format_webhook_canaryalert(
-        cls,
+    def dispatch(
+        self,
+        *,
         canarydrop: Canarydrop,
-        protocol: str,
-        host: str,  # DESIGN: Shift this to settings. Do we need to have this logic here?
-    ) -> Union[
-        TokenAlertDetailsSlack, TokenAlertDetailGeneric, TokenAlertDetailsGoogleChat
-    ]:
-        # TODO: Need to add `host` and `protocol` that can be used to manage the token.
-        details = cls.gather_alert_details(
-            canarydrop,
-            protocol=protocol,
-            host=host,
-        )
-        if canarydrop.alert_webhook_url and (
-            str(canarydrop.alert_webhook_url).startswith(
-                constants.WEBHOOK_BASE_URL_SLACK
-            )
-        ):
-            return format_as_slack_canaryalert(details=details)
-        elif canarydrop.alert_webhook_url and (
-            str(canarydrop.alert_webhook_url).startswith(
-                constants.WEBHOOK_BASE_URL_GOOGLE_CHAT
-            )
-        ):
-            return format_as_googlechat_canaryalert(details=details)
-        elif canarydrop.alert_webhook_url and (
-            str(canarydrop.alert_webhook_url).startswith(
-                constants.WEBHOOK_BASE_URL_DISCORD
-            )
-        ):
-            return format_as_discord_canaryalert(details=details)
-        elif re.match(
-            constants.WEBHOOK_BASE_URL_REGEX_MS_TEAMS, str(canarydrop.alert_webhook_url)
-        ):
-            return format_as_ms_teams_canaryalert(details=details)
-        else:
-            return TokenAlertDetailGeneric(**details.dict())
-
-    def dispatch(self, *, canarydrop: Canarydrop, token_hit: AnyTokenHit) -> None:
+        token_hit: Union[AnyTokenHit, AnyTokenExposedHit],
+    ) -> None:
         """
         Spins off a `switchboard.dispatch` which notifies on all necessary channels.
         """
@@ -313,7 +272,7 @@ class OutputChannel(Channel):
         self,
         input_channel: InputChannel,
         canarydrop: Canarydrop,
-        token_hit: AnyTokenHit,
+        token_hit: Union[AnyTokenHit, AnyTokenExposedHit],
     ) -> None:
         self.do_send_alert(
             input_channel=input_channel,
@@ -325,7 +284,7 @@ class OutputChannel(Channel):
         self,
         input_channel: InputChannel,
         canarydrop: Canarydrop,
-        token_hit: AnyTokenHit,
+        token_hit: Union[AnyTokenHit, AnyTokenExposedHit],
     ) -> Coroutine[Any, Any, None]:
         #  Design: Make this a typing.protocol and drop this.
         raise NotImplementedError("Generic Output channel cannot `do_send_alert`")

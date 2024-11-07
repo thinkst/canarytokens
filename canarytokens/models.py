@@ -1568,6 +1568,16 @@ class AWSKeyTokenHit(TokenHit):
         return values
 
 
+class TokenExposedHit(BaseModel):
+    time_of_hit: float
+
+
+class AWSKeyTokenExposedHit(TokenExposedHit):
+    token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
+    public_location: Optional[str]
+    input_channel: str = "HTTP"
+
+
 class SlackAPITokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
     additional_info: Optional[dict]
@@ -1799,6 +1809,8 @@ AnyTokenHit = Annotated[
     ],
     Field(discriminator="token_type"),
 ]
+
+AnyTokenExposedHit = AWSKeyTokenExposedHit
 
 TH = TypeVar("TH", bound=AnyTokenHit)
 
@@ -2087,6 +2099,45 @@ class TokenAlertDetails(BaseModel):
         }
 
 
+class TokenExposedDetails(BaseModel):
+    token_type: TokenTypes
+    token: str
+    memo: Memo
+    key_id: str
+    public_location: Optional[str]
+    exposed_time: datetime
+    manage_url: AnyHttpUrl
+    public_domain: Optional[str] = "my.domain"
+
+    @validator("exposed_time", pre=True)
+    def validate_time(cls, value):
+        if isinstance(value, str):
+            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S (UTC)")
+        return value
+
+    def json_safe_dict(self) -> Dict[str, str]:
+        return json_safe_dict(self)
+
+    @property
+    def history_url(self):
+        return HttpUrl(
+            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
+        )
+
+    @property
+    def time_hm(self) -> str:
+        return self.exposed_time.strftime("%H:%M")
+
+    @property
+    def time_ymd(self) -> str:
+        return self.exposed_time.strftime("%Y/%m/%d")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
+        }
+
+
 class SlackField(BaseModel):
     title: str
     value: str
@@ -2330,10 +2381,6 @@ class TokenAlertDetailsDiscord(BaseModel):
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
-
-
-class TokenAlertDetailGeneric(TokenAlertDetails):
-    ...
 
 
 class UserName(ConstrainedStr):

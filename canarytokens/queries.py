@@ -41,6 +41,11 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_WEBHOOK_IDX,
     KEY_WIREGUARD_KEYMAP,
 )
+from canarytokens.webhook_formatting import (
+    WebhookType,
+    generate_webhook_test_payload,
+    get_webhook_type,
+)
 
 log = Logger()
 
@@ -63,6 +68,10 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
     if "user" in canarydrop.keys():
         # Make user in redis fully supported.
         canarydrop["user"] = models.User(name=canarydrop["user"])
+    if "key_exposed_details" in canarydrop:
+        canarydrop["key_exposed_details"] = json.loads(
+            canarydrop.pop("key_exposed_details")
+        )
 
     canarydrop["canarytoken"] = canarytoken
     try:
@@ -313,6 +322,16 @@ def add_canarydrop_hit(token_hit: models.AnyTokenHit, canarytoken):
         json.dumps(token_history.serialize_for_v2()),
     )
     return token_hit.time_of_hit
+
+
+def add_key_exposed_hit(
+    token_exposed_hit: models.AnyTokenExposedHit, canarytoken: tokens.Canarytoken
+):
+    DB.get_db().hset(
+        KEY_CANARYDROP + canarytoken.value(),
+        "key_exposed_details",
+        json.dumps(token_exposed_hit.dict()),
+    )
 
 
 # def get_canarydrop_history():
@@ -847,7 +866,8 @@ def validate_webhook(url, token_type: models.TokenTypes):
         models.TokenAlertDetailsDiscord,
         models.TokenAlertDetailsMsTeams,
     ]
-    if url.startswith(constants.WEBHOOK_BASE_URL_SLACK):
+    webhook_type = get_webhook_type(url)
+    if webhook_type == WebhookType.SLACK:
         payload = models.TokenAlertDetailsSlack(
             attachments=[
                 models.SlackAttachment(
@@ -861,7 +881,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
                 )
             ]
         )
-    elif url.startswith(constants.WEBHOOK_BASE_URL_GOOGLE_CHAT):
+    elif webhook_type == WebhookType.GOOGLE_CHAT:
         # construct google chat alert card
         card = models.GoogleChatCard(
             header=models.GoogleChatHeader(
@@ -876,7 +896,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         payload = models.TokenAlertDetailsGoogleChat(
             cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
         )
-    elif url.startswith(constants.WEBHOOK_BASE_URL_DISCORD):
+    elif webhook_type == WebhookType.DISCORD:
         # construct discord alert card
         embeds = models.DiscordEmbeds(
             author=models.DiscordAuthorField(
@@ -887,7 +907,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
             timestamp=datetime.datetime.now(),
         )
         payload = models.TokenAlertDetailsDiscord(embeds=[embeds])
-    elif re.match(constants.WEBHOOK_BASE_URL_REGEX_MS_TEAMS, url):
+    elif webhook_type == WebhookType.MS_TEAMS:
         section = models.MsTeamsTitleSection(
             activityTitle="<b>Validating new Canarytokens webhook</b>"
         )
@@ -895,23 +915,8 @@ def validate_webhook(url, token_type: models.TokenTypes):
             summary="Validating new Canarytokens webhook", sections=[section]
         )
     else:
-        payload = models.TokenAlertDetails(
-            manage_url=HttpUrl(
-                "http://example.com/test/url/for/webhook", scheme="http"
-            ),
-            channel="HTTP",
-            memo=models.Memo("Congrats! The newly saved webhook works"),
-            token="a+test+token",
-            token_type=token_type,
-            src_ip="127.0.0.1",
-            additional_data={
-                "src_ip": "1.1.1.1",
-                "useragent": "Mozilla/5.0...",
-                "referer": "http://example.com/referrer",
-                "location": "http://example.com/location",
-            },
-            time=datetime.datetime.now(),
-        )
+        payload = generate_webhook_test_payload(webhook_type, token_type)
+
     response = advocate.post(
         url,
         payload.json(),
@@ -921,18 +926,6 @@ def validate_webhook(url, token_type: models.TokenTypes):
     )
     # TODO: this accepts 3xx which is probably too lenient. We probably want any 2xx code.
     response.raise_for_status()
-    # return True
-    # except requests.exceptions.Timeout as e:
-    #     log.error("Timed out sending test payload to webhook: {url}".format(url=url))
-    #     return False
-    # except requests.exceptions.RequestException as e:
-    #     log.error(
-    #         "Failed sending test payload to webhook: {url} with error {error}".format(
-    #             url=url,
-    #             error=e,
-    #         ),
-    #     )
-    #     return False
 
 
 def is_valid_email(email):

@@ -31,7 +31,6 @@ from canarytokens.models import (
     SMTPMailField,
     SMTPTokenHistory,
     SMTPTokenHit,
-    TokenAlertDetailGeneric,
     TokenRequest,
     TokenTypes,
     WebBugTokenHistory,
@@ -39,6 +38,7 @@ from canarytokens.models import (
     json_safe_dict,
 )
 from canarytokens.tokens import Canarytoken
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import v2, v3
 
 

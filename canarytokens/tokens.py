@@ -7,7 +7,7 @@ import random
 import re
 from datetime import datetime
 from functools import cache
-from typing import Any, AnyStr, Match, Optional
+from typing import Any, AnyStr, Match, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
@@ -26,6 +26,7 @@ from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
     AnyTokenHit,
     AWSKeyTokenHit,
+    AWSKeyTokenExposedHit,
     AzureIDTokenHit,
     SlackAPITokenHit,
     TokenTypes,
@@ -315,7 +316,7 @@ class Canarytoken(object):
     @staticmethod
     def _parse_aws_key_trigger(
         request: Request,
-    ) -> AWSKeyTokenHit:
+    ) -> Union[AWSKeyTokenHit, AWSKeyTokenExposedHit]:
         """When an AWSKey token is triggered a lambda makes a POST request
         back to switchboard. The `request` is processed, fields extracted,
         and an `AWSKeyTokenHit` is created.
@@ -329,6 +330,21 @@ class Canarytoken(object):
         data: dict[str, list[str]] = {
             k.decode(): [o.decode() for o in v] for k, v in request.args.items()
         }
+
+        if "token_exposed" in data:
+            exposed_time = data.get(
+                "exposed_time", [datetime.utcnow().strftime("%s.%f")]
+            )[0]
+
+            public_location = data.get("public_location", [""])[0]
+            if not public_location.strip():
+                public_location = None
+
+            return AWSKeyTokenExposedHit(
+                public_location=public_location,
+                input_channel=INPUT_CHANNEL_HTTP,
+                time_of_hit=exposed_time,
+            )
 
         if "safety_net" in data and data["safety_net"][0] == "True":
             timestamp = data["last_used"][0]

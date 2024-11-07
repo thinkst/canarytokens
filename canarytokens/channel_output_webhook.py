@@ -1,7 +1,8 @@
 """
 Output channel that sends to webhooks.
 """
-from typing import Dict
+
+from typing import Dict, Union
 
 import advocate
 import requests
@@ -11,7 +12,14 @@ from twisted.logger import Logger
 from canarytokens import canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_WEBHOOK
-from canarytokens.models import AnyTokenHit
+from canarytokens.models import (
+    AnyTokenHit,
+    AnyTokenExposedHit,
+    Memo,
+    TokenExposedDetails,
+    TokenExposedHit,
+)
+from canarytokens.webhook_formatting import format_details_for_webhook, get_webhook_type
 
 log = Logger()
 
@@ -23,7 +31,7 @@ class WebhookOutputChannel(OutputChannel):
         self,
         input_channel: InputChannel,
         canarydrop: canarydrop.Canarydrop,
-        token_hit: AnyTokenHit,
+        token_hit: Union[AnyTokenHit, AnyTokenExposedHit],
     ) -> None:
         # TODO we should format using the hit directly,
         #      we use the drop to get the latest when we already have it
@@ -33,11 +41,28 @@ class WebhookOutputChannel(OutputChannel):
                 f"alert_webhook_url must start with http[s]://; url found for drop {canarydrop.canarytoken.value()}: {url}"
             )
 
-        payload = input_channel.format_webhook_canaryalert(
-            canarydrop=canarydrop,
-            host=self.hostname,
-            protocol=self.switchboard_scheme,
-        )
+        if isinstance(token_hit, TokenExposedHit):
+            details = TokenExposedDetails(
+                token_type=token_hit.token_type,
+                token=canarydrop.canarytoken.value(),
+                key_id=canarydrop.aws_access_key_id,
+                memo=Memo(canarydrop.memo),
+                public_location=token_hit.public_location,
+                exposed_time=token_hit.time_of_hit,
+                manage_url=canarydrop.build_manage_url(
+                    self.switchboard_scheme, self.hostname
+                ),
+                public_domain=self.hostname,
+            )
+        else:
+            details = input_channel.gather_alert_details(
+                canarydrop=canarydrop,
+                protocol=self.switchboard_scheme,
+                host=self.hostname,
+            )
+
+        webhook_type = get_webhook_type(url)
+        payload = format_details_for_webhook(webhook_type, details)
 
         success = self.generic_webhook_send(
             payload=payload.json_safe_dict(),
