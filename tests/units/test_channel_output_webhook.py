@@ -4,13 +4,9 @@ import pytest
 from twisted.logger import capturedLogs
 
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.channel import (
-    format_as_ms_teams_canaryalert,
-)
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
 from canarytokens.models import (
-    TokenAlertDetailsMsTeams,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -22,6 +18,7 @@ from canarytokens.webhook_formatting import (
     format_details_for_webhook,
     get_webhook_type,
     TokenAlertDetailsGoogleChat,
+    TokenAlertDetailsMsTeams,
 )
 
 
@@ -277,23 +274,23 @@ def test_ms_teams_webhook_format(
         protocol=input_channel.switchboard_scheme,
         host=settings.PUBLIC_DOMAIN,
     )
-    webhook_payload = format_as_ms_teams_canaryalert(details=details)
+    webhook_payload = format_details_for_webhook(WebhookType.MS_TEAMS, details)
     payload = webhook_payload.json_safe_dict()
 
-    assert payload["summary"] == "Canarytoken triggered"
-    assert payload["themeColor"] == "ff0000"
+    assert payload["summary"] == "Canarytoken Triggered"
+    assert payload["themeColor"] == "d32f2f"
     assert payload["potentialAction"] == [
         {
             "@context": "http://schema.org",
             "@type": "ViewAction",
-            "name": "Manage",
+            "name": "Manage token",
             "target": [details.manage_url],
         }
     ]
     assert len(payload["sections"]) == 2
 
     assert payload["sections"][0] == {
-        "activityTitle": "<b>Canarytoken triggered</b>",
+        "activityTitle": "<b>Canarytoken Triggered</b>",
         "activityImage": CANARY_IMAGE_URL,
     }
 

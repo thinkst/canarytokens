@@ -10,6 +10,7 @@ from canarytokens.webhook_formatting import (
     TokenAlertDetailGeneric,
     TokenAlertDetailsGoogleChat,
     TokenAlertDetailsDiscord,
+    TokenAlertDetailsMsTeams,
     TokenExposedDetailGeneric,
 )
 
@@ -51,6 +52,8 @@ def test_get_webhook_type(url: str, expected_type: WebhookType):
         ("exposed", WebhookType.GOOGLE_CHAT, TokenAlertDetailsGoogleChat),
         ("alert", WebhookType.DISCORD, TokenAlertDetailsDiscord),
         ("exposed", WebhookType.DISCORD, TokenAlertDetailsDiscord),
+        ("alert", WebhookType.MS_TEAMS, TokenAlertDetailsMsTeams),
+        ("exposed", WebhookType.MS_TEAMS, TokenAlertDetailsMsTeams),
     ],
 )
 def test_format_details_for_webhook_alert_type(
