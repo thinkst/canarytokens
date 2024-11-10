@@ -12,7 +12,7 @@
   <BaseMessageBox
     variant="info"
     class="mt-32"
-    >Some info here to tell user what the Preview is about</BaseMessageBox
+    >Select an app to download an icon to use for the fake app on your IdP dashboard.</BaseMessageBox
   >
   <CreateAppPreview />
 </template>
