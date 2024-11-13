@@ -479,10 +479,11 @@ class Canarytoken(object):
     ) -> CreditCardV2TokenHit:
         request_data = json.loads(request.content.read().decode())
 
-        merchant = request_data["merchant"]
-        request_data[
-            "merchant"
-        ] = f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
+        if request_data.get("merchant") is not None:
+            merchant = request_data["merchant"]
+            request_data[
+                "merchant"
+            ] = f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
 
         trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
 
