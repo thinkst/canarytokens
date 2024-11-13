@@ -1736,6 +1736,7 @@ class WireguardTokenHit(TokenHit):
 
 
 class CreditCardV2AdditionalInfo(BaseModel):
+    trigger_type: Optional[str]
     merchant: Optional[str]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]

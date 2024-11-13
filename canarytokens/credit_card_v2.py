@@ -6,7 +6,7 @@ import json
 from canarytokens.settings import FrontendSettings
 from canarytokens.models import Canarytoken
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Literal, Union
 from enum import Enum
 from pydantic import BaseModel
 
@@ -36,6 +36,11 @@ class Status(Enum):
     FORBIDDEN = "forbidden"
 
 
+class TriggerWebhookEvent(str, Enum):
+    TransactionFailed = "issuing.transaction.failed"
+    ThreeDSecureNotification = "issuing.3ds_notification.stepup_otp"
+
+
 @dataclass(frozen=True)
 class CreditCard:
     card_id: str
@@ -55,7 +60,20 @@ class Customer:
     cards_assigned: int
 
 
-class CreditCardTrigger(BaseModel):
+class CreditCardTrigger3DSNotification(BaseModel):
+    trigger_type: Literal[
+        TriggerWebhookEvent.ThreeDSecureNotification
+    ] = TriggerWebhookEvent.ThreeDSecureNotification
+    canarytoken: Optional[str]
+    masked_card_number: Optional[str]
+    transaction_amount: Optional[str]
+    transaction_currency: Optional[str]
+
+
+class CreditCardTriggerTransaction(BaseModel):
+    trigger_type: Literal[
+        TriggerWebhookEvent.TransactionFailed
+    ] = TriggerWebhookEvent.TransactionFailed
     canarytoken: Canarytoken
     masked_card_number: Optional[str]
     merchant: Optional[str]
@@ -64,6 +82,12 @@ class CreditCardTrigger(BaseModel):
     transaction_date: Optional[str]
     transaction_type: Optional[str]
     status: Optional[str]
+
+
+AnyCreditCardTrigger = Union[
+    CreditCardTrigger3DSNotification,
+    CreditCardTriggerTransaction,
+]
 
 
 def _get_lambda_client(refresh_client: bool = False):
