@@ -33,7 +33,7 @@ from canarytokens.models import (
     CreditCardV2TokenHit,
     CreditCardV2AdditionalInfo,
 )
-from canarytokens.credit_card_v2 import CreditCardTrigger
+from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -479,12 +479,13 @@ class Canarytoken(object):
     ) -> CreditCardV2TokenHit:
         request_data = json.loads(request.content.read().decode())
 
-        merchant = request_data["merchant"]
-        request_data[
-            "merchant"
-        ] = f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
+        if request_data.get("merchant") is not None:
+            merchant = request_data["merchant"]
+            request_data[
+                "merchant"
+            ] = f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
 
-        trigger_data = CreditCardTrigger(**request_data)
+        trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
 
         hit_time = datetime.utcnow().strftime("%s.%f")
         hit_info = {
