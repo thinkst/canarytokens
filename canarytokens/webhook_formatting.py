@@ -306,7 +306,7 @@ def _data_to_slack_blocks(data: dict[str, Union[str, dict]]) -> list[SlackBlock]
 
 
 class SlackTextObject(BaseModel):
-    type: Union[Literal["plain_text"] | Literal["mrkdwn"]] = "mrkdwn"
+    type: Union[Literal["plain_text"], Literal["mrkdwn"]] = "mrkdwn"
     text: str
 
 
