@@ -4,12 +4,12 @@ from http.client import OK
 
 from canarytokens.models import (
     Memo,
-    TokenAlertDetailGeneric,
     TokenTypes,
     IdPAppTokenHistory,
     IdPAppTokenRequest,
     IdPAppTokenResponse,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
     create_token,
     get_stats_from_webhook,
@@ -41,7 +41,9 @@ def test_saml_token(redirect_url, webhook_receiver, version=v3):
     data = {"SAMLResponse": [raw_text]}
 
     # Fire the token
-    resp = requests.post(login_url, data, headers={"Accept": "text/html"})
+    resp = requests.post(
+        login_url, data, headers={"Accept": "text/html"}, timeout=(30, 30)
+    )
     assert resp.status_code == OK
 
     # Check that the returned history has a single hit
