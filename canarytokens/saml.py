@@ -13,10 +13,10 @@ def prepare_request(request: Request) -> Optional[bytes]:
 def extract_identity(saml_request: bytes) -> Optional[str]:
     data = b64decode(saml_request).decode()
 
-    SEARCH_PATTERN = re.compile(r"<saml2:NameID[^>]*>(.+)</saml2:NameID>")
+    SEARCH_PATTERN = re.compile(r"<(saml2:)?NameID[^>]*>(.+)</(saml2:)?NameID>")
     result = SEARCH_PATTERN.search(data)
     if result is None:
         return None
 
-    email: str = result.groups()[0]
+    email: str = result.groups()[1]
     return email
