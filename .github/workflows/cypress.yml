@@ -1,6 +1,8 @@
 name: Run Cypress Tests
 on:
-  push:
+  workflow_run:
+    workflows: [Build Docker Image]
+    types: [completed]
     branches:
       - master
       - dev
