@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Union, Literal
 from enum import Enum
 import re
 from functools import partial
@@ -143,15 +143,13 @@ def _format_exposed_details_for_webhook(
 def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTypes):
     if webhook_type == WebhookType.SLACK:
         return TokenAlertDetailsSlack(
-            attachments=[
-                SlackAttachment(
-                    title="Validating new Canarytokens webhook",
-                    text="It's working :tada:!",
-                    color=HexColor.CANARY_GREEN.value,
-                    footer="Canarytokens",
-                    footer_icon=CANARY_LOGO_ROUND_PUBLIC_URL,
-                    fields=[],
-                )
+            blocks=[
+                SlackHeader(
+                    text=SlackTextObject(
+                        text="Validating new Canarytokens webhook", type="plain_text"
+                    )
+                ),
+                SlackFooter(),
             ]
         )
     elif webhook_type == WebhookType.GOOGLE_CHAT:
@@ -192,121 +190,204 @@ def _format_as_slack_canaryalert(details: TokenAlertDetails) -> TokenAlertDetail
     """
     Transforms `TokenAlertDetails` to `TokenAlertDetailsSlack`.
     """
-    fields: List[SlackField] = [
-        SlackField(title="Channel", value=details.channel),
-        SlackField(title="Token Reminder", value=details.memo),
-        SlackField(
-            title="Time",
-            value=details.time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        ),
-    ]
-
-    if details.src_data:
-        fields.extend(_data_to_slack_fields(details.src_data))
-    if details.additional_data:
-        fields.extend(_data_to_slack_fields(details.additional_data))
-
-    fields.append(
-        SlackField(title="Manage token", value=details.manage_url, short=False)
+    blocks: list[SlackBlock] = []
+    blocks.append(
+        SlackHeader(
+            text=SlackTextObject(
+                type="plain_text",
+                text=":red_circle: Canarytoken Triggered :red_circle:",
+            )
+        )
     )
 
-    attachments = [
-        SlackAttachment(
-            title_link=details.manage_url,
-            fields=fields,
-            footer="Canarytokens",
-            footer_icon=CANARY_LOGO_ROUND_PUBLIC_URL,
-            ts=details.time.timestamp(),
-            color=HexColor.ERROR.value,
+    blocks.append(
+        SlackSection(
+            fields=[
+                SlackTextWithLabel("Channel", details.channel),
+                SlackTextWithLabel("Token Reminder", details.memo),
+            ]
         )
-    ]
-    return TokenAlertDetailsSlack(attachments=attachments)
+    )
+
+    blocks.append(
+        SlackSection(
+            fields=[
+                SlackTextWithLabel(
+                    "Time", details.time.strftime("%Y-%m-%d %H:%M:%S (UTC)")
+                )
+            ]
+        )
+    )
+
+    if details.src_data:
+        blocks.extend(_data_to_slack_blocks(details.src_data))
+    if details.additional_data:
+        blocks.extend(_data_to_slack_blocks(details.additional_data))
+
+    blocks.append(
+        SlackSectionText(
+            text=SlackTextObject(text=f":gear: *<{details.manage_url}|Manage token>*")
+        )
+    )
+    blocks.append(SlackFooter())
+
+    return TokenAlertDetailsSlack(blocks=blocks)
 
 
 def _format_as_slack_token_exposed(
     details: TokenExposedDetails,
 ) -> TokenAlertDetailsSlack:
-    fields: List[SlackField] = [
-        SlackField(title="Token Reminder", value=details.memo),
-        SlackField(title="Key ID", value=details.key_id),
-        SlackField(title="Manage token", value=details.manage_url, short=False),
-    ]
+    blocks: list[SlackBlock] = []
 
+    blocks.append(
+        SlackHeader(
+            text=SlackTextObject(
+                type="plain_text",
+                text=":large_orange_circle: Canarytoken Exposed :large_orange_circle:",
+            )
+        )
+    )
+
+    blocks.append(
+        SlackRichText(text=_get_exposed_token_description(details.token_type))
+    )
+    blocks.append(SlackDivider())
+
+    blocks.append(
+        SlackSection(
+            fields=[
+                SlackTextWithLabel("Token Reminder", details.memo),
+                SlackTextWithLabel("Key ID", details.key_id),
+            ]
+        )
+    )
+
+    blocks.append(
+        SlackSection(
+            fields=[
+                SlackTextWithLabel(
+                    "Key exposed at",
+                    details.exposed_time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
+                )
+            ]
+        )
+    )
+
+    fields = [SlackTextObject(text=f":gear: *<{details.manage_url}|Manage token>*")]
     if details.public_location:
         fields.insert(
-            2,
-            SlackField(
-                title="Key exposed here", value=details.public_location, short=False
+            0,
+            SlackTextObject(
+                text=f":arrow_right: *<{details.public_location}|View exposed key>*"
             ),
         )
 
-    attachments = [
-        SlackAttachment(
-            title="Canarytoken Exposed",
-            title_link=details.manage_url,
-            fields=fields,
-            text=_get_exposed_token_description(details.token_type),
-            footer="Canarytokens",
-            footer_icon=CANARY_LOGO_ROUND_PUBLIC_URL,
-            ts=details.exposed_time.timestamp(),
-            color=HexColor.WARNING.value,
-        )
-    ]
-    return TokenAlertDetailsSlack(
-        attachments=attachments,
-    )
+    blocks.append(SlackSection(fields=fields))
+    blocks.append(SlackFooter())
+
+    return TokenAlertDetailsSlack(blocks=blocks)
 
 
-def _data_to_slack_fields(data: dict[str, Union[str, dict]]) -> list[SlackField]:
-    fields: list[SlackField] = []
+def _data_to_slack_blocks(data: dict[str, Union[str, dict]]) -> list[SlackBlock]:
+    blocks: list[SlackBlock] = []
     for label, value in data.items():
-        if not label or not value:
+        if (
+            not label or not value or label in ["time_hm", "time_ymd"]
+        ):  # We already display the time
             continue
 
-        message_text = json.dumps(value) if isinstance(value, dict) else value
-        fields.append(
-            SlackField(
-                title=prettify_snake_case(label),
-                value=message_text,
-                short=len(max(message_text.split("\n"))) < MAX_INLINE_LENGTH,
-            )
-        )
+        blocks.append(SlackRichText(text=prettify_snake_case(label)).set_bold())
+        if isinstance(value, dict):
+            blocks.append(SlackRichText(text=json.dumps(value)).set_code_block())
+        else:
+            blocks.append(SlackRichText(text=value))
 
-    return fields
+    return blocks
 
 
-class SlackField(BaseModel):
-    title: str
-    value: str
-    short: bool = True
+class SlackTextObject(BaseModel):
+    type: Union[Literal["plain_text"] | Literal["mrkdwn"]] = "mrkdwn"
+    text: str
 
 
-class SlackAttachment(BaseModel):
-    title: str = "Canarytoken Triggered"
-    title_link: Optional[HttpUrl] = None
-    mrkdwn_in: List[str] = ["title"]
-    fallback: str = ""
-    fields: List[SlackField]
-    text: Optional[str] = None
-    footer: Optional[str] = None
-    footer_icon: Optional[HttpUrl] = None
-    ts: Optional[int] = None
-    color: Optional[str] = None
+class SlackTextWithLabel(SlackTextObject):
+    def __init__(self, label: str, text: str):
+        super().__init__(text=f"*{label}*\n{text}")
 
-    def __init__(self, **data: Any) -> None:
-        # HACK: We can do better here.
-        title = data.get("title", "Canarytoken Triggered")
-        title_link_str = f": {data['title_link']}" if "title_link" in data else ""
-        data["fallback"] = f"{title}{title_link_str}"
-        super().__init__(**data)
+
+class SlackBlock(BaseModel):
+    ...
+
+
+class SlackHeader(SlackBlock):
+    type = "header"
+    text: SlackTextObject
+
+
+class SlackRichText(SlackBlock):
+    text: str
+    bold = False
+    rich_text_type: Union[
+        Literal["rich_text_section"], Literal["rich_text_preformatted"]
+    ] = "rich_text_section"
+
+    def set_code_block(self):
+        self.rich_text_type = "rich_text_preformatted"
+        return self
+
+    def set_bold(self):
+        self.bold = True
+        return self
+
+    def dict(self, *_args, **__kwargs):
+        text = {"type": "text", "text": self.text}
+        if self.bold is True:
+            text["style"] = {"bold": True}
+
+        return {
+            "type": "rich_text",
+            "elements": [{"type": self.rich_text_type, "elements": [text]}],
+        }
+
+
+class SlackFooter(SlackBlock):
+    def dict(self, *_args, **_kwargs):
+        return {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "image",
+                    "image_url": CANARY_LOGO_ROUND_PUBLIC_URL,
+                    "alt_text": "images",
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "<https://canarytokens.org|Canarytokens.org>",
+                },
+            ],
+        }
+
+
+class SlackDivider(SlackBlock):
+    type = "divider"
+
+
+class SlackSection(SlackBlock):
+    type = "section"
+    fields: list[SlackTextObject]
+
+
+class SlackSectionText(SlackBlock):
+    type = "section"
+    text: SlackTextObject
 
 
 class TokenAlertDetailsSlack(BaseModel):
     """Details that are sent to slack webhooks."""
 
-    attachments: List[SlackAttachment]
+    blocks: list[SlackBlock]
 
-    def json_safe_dict(self) -> Dict[str, str]:
+    def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
 
 
