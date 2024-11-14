@@ -278,7 +278,7 @@ def _format_as_slack_token_exposed(
         fields.insert(
             0,
             SlackTextObject(
-                text=f":arrow_right: *<{details.public_location}|View exposed key>*"
+                text=f":link: *<{details.public_location}|View exposed key>*"
             ),
         )
 
