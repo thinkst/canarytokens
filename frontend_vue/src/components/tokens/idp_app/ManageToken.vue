@@ -5,11 +5,6 @@
     :token-url="tokenUrl"
     :entity-id="entityId"
   />
-  <BaseMessageBox
-    variant="info"
-    class="mt-32"
-    >Select an app to download an icon to use for the fake app on your IdP dashboard.</BaseMessageBox
-  >
   <CreateAppPreview />
 </template>
 
