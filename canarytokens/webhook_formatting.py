@@ -1,6 +1,6 @@
 from __future__ import annotations
+from typing import Union, Optional, Literal
 import json
-from typing import Optional, List, Union, Literal, Dict
 from enum import Enum
 import re
 from functools import partial
@@ -720,9 +720,9 @@ class DiscordEmbeds(BaseModel):
     description: Optional[str] = None
     url: Optional[HttpUrl]
     timestamp: datetime
-    fields: List[DiscordFieldEntry] = []
+    fields: list[DiscordFieldEntry] = []
 
-    def add_fields(self, fields_info: Dict[str, str]) -> None:
+    def add_fields(self, fields_info: dict[str, str]) -> None:
         for label, text in fields_info.items():
             if not label or not text:
                 continue
@@ -755,9 +755,9 @@ class DiscordEmbeds(BaseModel):
 class TokenAlertDetailsDiscord(BaseModel):
     """Details that are sent to Discord webhooks"""
 
-    embeds: List[DiscordEmbeds]
+    embeds: list[DiscordEmbeds]
 
-    def json_safe_dict(self) -> Dict[str, str]:
+    def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
 
 

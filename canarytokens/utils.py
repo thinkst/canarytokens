@@ -1,13 +1,14 @@
 import json
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Literal, Tuple, Union
+from typing import Any, Literal, Union
+import json
 
 import pycountry_convert
 from pydantic import BaseModel
 
 
-def json_safe_dict(m: BaseModel, exclude: Tuple = ()) -> Dict[str, str]:
+def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:
     return json.loads(m.json(exclude_none=True, exclude=set(exclude)))
 
 
