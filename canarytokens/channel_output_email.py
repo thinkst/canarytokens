@@ -381,53 +381,39 @@ class EmailOutputChannel(OutputChannel):
         return minify_html.minify(rendered_html)
 
     @staticmethod
-    def format_report_text(details: TokenAlertDetails, body_length: int = 999999999):
+    def format_report_text(details: TokenAlertDetails):
         """Returns a string containing an incident report in text,
         suitable for emailing"""
 
-        if body_length <= 140:
-            body = """Canarydrop@{time} via {channel_name}: """.format(
-                channel_name=details.channel, time=details.time
-            )
-            capacity = 140 - len(body)
-            body += details.memo[:capacity]
-        else:
-            additional_data = "\n" + "\n".join(
-                f"{k}: {v}" for k, v in details.additional_data.items()
-            )
-            body = textwrap.dedent(
-                f"""
-                One of your canarydrops was triggered.
-                Channel: {details.channel}
-                Time   : {details.time}
-                Memo   : {details.memo}{additional_data}
-                Manage your settings for this Canarydrop:
-                {details.manage_url}
-                """
-            ).strip()
+        additional_data = "\n" + "\n".join(
+            f"{k}: {v}" for k, v in details.additional_data.items()
+        )
+        body = textwrap.dedent(
+            f"""
+            One of your canarydrops was triggered.
+            Channel: {details.channel}
+            Time   : {details.time}
+            Memo   : {details.memo}{additional_data}
+            Manage your settings for this Canarydrop:
+            {details.manage_url}
+            """
+        ).strip()
         return body
 
     @staticmethod
-    def format_token_exposed_text(
-        details: TokenExposedDetails, body_length: int = 999999999
-    ):
+    def format_token_exposed_text(details: TokenExposedDetails):
         """Returns a string containing an incident report in text,
         suitable for emailing"""
-        if body_length <= 140:
-            body = f"Canarytoken exposed on the internet @ {details.exposed_time}: "
-            capacity = 140 - len(body)
-            body += details.memo[:capacity]
-        else:
-            body = textwrap.dedent(
-                f"""
-                One of your Canarytokens was exposed on the internet.
-                Location: {details.public_location or "unknown"}
-                Time    : {details.exposed_time}
-                Memo    : {details.memo}
-                Manage your settings for this Canarydrop:
-                {details.manage_url}
-                """
-            ).strip()
+        body = textwrap.dedent(
+            f"""
+            One of your Canarytokens was exposed on the internet.
+            Location: {details.public_location or "unknown"}
+            Time    : {details.exposed_time}
+            Memo    : {details.memo}
+            Manage your settings for this Canarydrop:
+            {details.manage_url}
+            """
+        ).strip()
         return body
 
     @staticmethod
