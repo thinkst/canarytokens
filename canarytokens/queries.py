@@ -7,7 +7,7 @@ import json
 import re
 import secrets
 from ipaddress import IPv4Address
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Literal, Optional
 
 import advocate
 import requests
@@ -110,7 +110,7 @@ def add_canary_path_element(path_element: str) -> int:
     return DB.get_db().sadd(KEY_CANARY_PATH_ELEMENTS, path_element)
 
 
-def get_all_canary_pages() -> List[str]:
+def get_all_canary_pages() -> list[str]:
     return list(DB.get_db().smembers(KEY_CANARY_PAGES))
 
 
@@ -421,7 +421,7 @@ def get_geoinfo(ip: str):
             return ""
 
 
-def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
+def get_geoinfo_from_ip(ip: str) -> dict[str, str]:
     """
     Performs IP info lookup if cache check failed.
     Don't use directly, use get_geoinfo() instead.
@@ -999,7 +999,7 @@ def save_kc_endpoint(ip: IPv4Address, port: models.Port):
     DB.get_db().set(KEY_KUBECONFIG_SERVEREP, f"{ip}:{port}")
 
 
-def get_kc_endpoint() -> Tuple[Optional[IPv4Address], Optional[models.Port]]:
+def get_kc_endpoint() -> tuple[Optional[IPv4Address], Optional[models.Port]]:
     endpoint = DB.get_db().get(KEY_KUBECONFIG_SERVEREP)
     if endpoint is None:
         return None, None
