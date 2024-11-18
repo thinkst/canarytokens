@@ -9,11 +9,6 @@
     When the fake app is opened from your IdP dashboard you receive an alert.
     <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
   </p>
-  <BaseMessageBox
-    variant="info"
-    class="mt-32"
-    >Select an app to download an icon to use for the fake app on your IdP dashboard.</BaseMessageBox
-  >
   <CreateAppPreview />
 </template>
 
