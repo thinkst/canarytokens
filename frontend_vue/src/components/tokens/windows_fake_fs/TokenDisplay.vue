@@ -11,13 +11,13 @@
 <script setup lang="ts">
 import { downloadAsset } from '@/api/main';
 
-type FakeWindowsFSDataType = {
+type WindowsFakeFSDataType = {
   auth: string;
   token: string;
 };
 
 const props = defineProps<{
-  tokenData: FakeWindowsFSDataType;
+  tokenData: WindowsFakeFSDataType;
 }>();
 
 async function handleDownloadMSregistryFile() {

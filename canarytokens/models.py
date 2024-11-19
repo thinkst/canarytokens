@@ -523,7 +523,7 @@ class CMDTokenRequest(TokenRequest):
         return value
 
 
-class FakeWindowsFSTokenRequest(TokenRequest):
+class WindowsFakeFSTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
     windows_fake_fs_root: str
     windows_fake_fs_file_structure: str
@@ -819,7 +819,7 @@ AnyTokenRequest = Annotated[
         CCTokenRequest,
         PWATokenRequest,
         CMDTokenRequest,
-        FakeWindowsFSTokenRequest,
+        WindowsFakeFSTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
@@ -919,7 +919,7 @@ class CMDTokenResponse(TokenResponse):
     reg_file: str
 
 
-class FakeWindowsFSTokenResponse(TokenResponse):
+class WindowsFakeFSTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
     powershell_file: str
 
@@ -1153,7 +1153,7 @@ AnyTokenResponse = Annotated[
         CCTokenResponse,
         PWATokenResponse,
         CMDTokenResponse,
-        FakeWindowsFSTokenResponse,
+        WindowsFakeFSTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
         SvnTokenResponse,
@@ -1687,7 +1687,7 @@ class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
 
 
-class FakeWindowsFSTokenHit(TokenHit):
+class WindowsFakeFSTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
 
 
@@ -1846,7 +1846,7 @@ AnyTokenHit = Annotated[
         CCTokenHit,
         PWATokenHit,
         CMDTokenHit,
-        FakeWindowsFSTokenHit,
+        WindowsFakeFSTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
         AzureIDTokenHit,
@@ -1989,9 +1989,9 @@ class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     hits: List[CMDTokenHit]
 
 
-class FakeWindowsFSTokenHistory(TokenHistory[FakeWindowsFSTokenHit]):
+class WindowsFakeFSTokenHistory(TokenHistory[WindowsFakeFSTokenHit]):
     token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
-    hits: List[FakeWindowsFSTokenHit]
+    hits: List[WindowsFakeFSTokenHit]
 
 
 class SlowRedirectTokenHistory(TokenHistory[SlowRedirectTokenHit]):
@@ -2107,7 +2107,7 @@ AnyTokenHistory = Annotated[
         CCTokenHistory,
         PWATokenHistory,
         CMDTokenHistory,
-        FakeWindowsFSTokenHistory,
+        WindowsFakeFSTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
         AzureIDTokenHistory,
@@ -2345,7 +2345,7 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
-class DownloadFakeWindowsFSRequest(TokenDownloadRequest):
+class DownloadWindowsFakeFSRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.WINDOWS_FAKE_FS] = DownloadFmtTypes.WINDOWS_FAKE_FS
 
 
@@ -2376,7 +2376,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
-        DownloadFakeWindowsFSRequest,
+        DownloadWindowsFakeFSRequest,
         DownloadCSSClonedWebRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
@@ -2494,7 +2494,7 @@ class DownloadCMDResponse(TokenDownloadResponse):
     auth: str
 
 
-class DownloadFakeWindowsFSResponse(TokenDownloadResponse):
+class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN

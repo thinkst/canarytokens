@@ -62,8 +62,8 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
-    FakeWindowsFSTokenRequest,
-    FakeWindowsFSTokenResponse,
+    WindowsFakeFSTokenRequest,
+    WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
     CreditCardV2TokenResponse,
     CustomBinaryTokenRequest,
@@ -82,8 +82,8 @@ from canarytokens.models import (
     DownloadCCResponse,
     DownloadCMDRequest,
     DownloadCMDResponse,
-    DownloadFakeWindowsFSRequest,
-    DownloadFakeWindowsFSResponse,
+    DownloadWindowsFakeFSRequest,
+    DownloadWindowsFakeFSResponse,
     DownloadCreditCardV2Request,
     DownloadCreditCardV2Response,
     DownloadIncidentListCSVRequest,
@@ -1021,10 +1021,10 @@ def _(
 
 @create_download_response.register
 def _(
-    download_request_details: DownloadFakeWindowsFSRequest, canarydrop: Canarydrop
-) -> DownloadFakeWindowsFSResponse:
+    download_request_details: DownloadWindowsFakeFSRequest, canarydrop: Canarydrop
+) -> DownloadWindowsFakeFSResponse:
     """"""
-    return DownloadFakeWindowsFSResponse(
+    return DownloadWindowsFakeFSResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
         content=windows_fake_fs.make_windows_fake_fs(
@@ -1708,14 +1708,14 @@ def _(
 
 @create_response.register
 def _(
-    token_request_details: FakeWindowsFSTokenRequest, canarydrop: Canarydrop
-) -> FakeWindowsFSTokenResponse:
+    token_request_details: WindowsFakeFSTokenRequest, canarydrop: Canarydrop
+) -> WindowsFakeFSTokenResponse:
     canarydrop.windows_fake_fs_root = token_request_details.windows_fake_fs_root
     canarydrop.windows_fake_fs_file_structure = (
         token_request_details.windows_fake_fs_file_structure
     )
     queries.save_canarydrop(canarydrop=canarydrop)
-    return FakeWindowsFSTokenResponse(
+    return WindowsFakeFSTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url
         if canarydrop.alert_webhook_url
