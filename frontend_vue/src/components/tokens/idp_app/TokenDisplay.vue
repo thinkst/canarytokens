@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-16">
     <base-code-snippet
       lang="javascript"
-      label="Assertion Consumer Service / Relay State URL"
+      label="ACS / Relay State URL"
       is-single-line
       :code="tokenUrl"
     ></base-code-snippet>
