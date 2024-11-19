@@ -1029,7 +1029,7 @@ def _(
         auth=download_request_details.auth,
         content=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
-            root_dir=windows_fake_fs.DUMMY_ROOT_DIR,
+            root_dir=canarydrop.windows_fake_fs_root,
             fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
         ),
         filename=f"{canarydrop.canarytoken.value()}.ps",
@@ -1727,7 +1727,7 @@ def _(
         url_components=list(canarydrop.get_url_components()),
         powershell_file=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
-            root_dir=windows_fake_fs.DUMMY_ROOT_DIR,
+            root_dir=canarydrop.windows_fake_fs_root,
             fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
         ),
     )

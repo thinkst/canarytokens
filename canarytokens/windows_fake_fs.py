@@ -942,7 +942,6 @@ else {
 }
 """
 
-DUMMY_ROOT_DIR = "C:\\vfs"
 DUMMY_FOLDER_STRUCTURE = [
     {
         "name": "Projects",
