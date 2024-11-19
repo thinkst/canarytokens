@@ -828,7 +828,7 @@ Invoke-CanaryFS -DebugMode $true
 
         #Append Root Path
 
-        $processScript =  $processScript + "-RootPath $RootPath"
+        $processScript =  $processScript + " -RootPath $RootPath"
         # Save the process script (using the existing $processScript variable)
         $processScript | Out-File -FilePath $ScriptPath -Force
 
