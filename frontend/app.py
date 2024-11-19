@@ -1032,7 +1032,7 @@ def _(
             root_dir=canarydrop.windows_fake_fs_root,
             fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
         ),
-        filename=f"{canarydrop.canarytoken.value()}.ps",
+        filename=f"{canarydrop.canarytoken.value()}.ps1",
     )
 
 
