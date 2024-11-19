@@ -304,6 +304,7 @@ class TokenTypes(str, enum.Enum):
     KUBECONFIG = "kubeconfig"
     LOG4SHELL = "log4shell"
     CMD = "cmd"
+    WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
     PWA = "pwa"
     SLACK_API = "slack_api"
@@ -348,6 +349,7 @@ readable_token_type_names = {
     TokenTypes.KUBECONFIG: "Kubeconfig",
     TokenTypes.LOG4SHELL: "Log4Shell",
     TokenTypes.CMD: "Sensitive command",
+    TokenTypes.WINDOWS_FAKE_FS: "Fake Windows File Structure",
     TokenTypes.CC: "Credit card",
     TokenTypes.CREDIT_CARD_V2: "Credit card",
     TokenTypes.PWA: "Fake app",
@@ -519,6 +521,19 @@ class CMDTokenRequest(TokenRequest):
         if not value.endswith(".exe"):
             raise ValueError(f"cmd_process must end in .exe. Given: {value}")
         return value
+
+
+class FakeWindowsFSTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    windows_fake_fs_root: str
+    windows_fake_fs_file_structure: str
+
+    # TODO validators
+    # @validator("cmd_process")
+    # def check_process_name(value: str):
+    #     if not value.endswith(".exe"):
+    #         raise ValueError(f"cmd_process must end in .exe. Given: {value}")
+    #     return value
 
 
 class CCTokenRequest(TokenRequest):
@@ -804,6 +819,7 @@ AnyTokenRequest = Annotated[
         CCTokenRequest,
         PWATokenRequest,
         CMDTokenRequest,
+        FakeWindowsFSTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
@@ -901,6 +917,11 @@ class PDFTokenResponse(TokenResponse):
 class CMDTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     reg_file: str
+
+
+class FakeWindowsFSTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    powershell_file: str
 
 
 class CCTokenResponse(TokenResponse):
@@ -1132,6 +1153,7 @@ AnyTokenResponse = Annotated[
         CCTokenResponse,
         PWATokenResponse,
         CMDTokenResponse,
+        FakeWindowsFSTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
         SvnTokenResponse,
@@ -1665,6 +1687,10 @@ class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
 
 
+class FakeWindowsFSTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+
+
 class SMTPTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
     mail: Optional[SMTPMailField]
@@ -1820,6 +1846,7 @@ AnyTokenHit = Annotated[
         CCTokenHit,
         PWATokenHit,
         CMDTokenHit,
+        FakeWindowsFSTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
         AzureIDTokenHit,
@@ -1962,6 +1989,11 @@ class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     hits: List[CMDTokenHit]
 
 
+class FakeWindowsFSTokenHistory(TokenHistory[FakeWindowsFSTokenHit]):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    hits: List[FakeWindowsFSTokenHit]
+
+
 class SlowRedirectTokenHistory(TokenHistory[SlowRedirectTokenHit]):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
     hits: List[SlowRedirectTokenHit]
@@ -2075,6 +2107,7 @@ AnyTokenHistory = Annotated[
         CCTokenHistory,
         PWATokenHistory,
         CMDTokenHistory,
+        FakeWindowsFSTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
         AzureIDTokenHistory,
@@ -2230,6 +2263,7 @@ class DownloadFmtTypes(str, enum.Enum):
     MYSQL = "my_sql"
     QRCODE = "qr_code"
     CMD = "cmd"
+    WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
     CSSCLONEDSITE = "cssclonedsite"
     CREDIT_CARD_V2 = "credit_card_v2"
@@ -2311,6 +2345,10 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
+class DownloadFakeWindowsFSRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.WINDOWS_FAKE_FS] = DownloadFmtTypes.WINDOWS_FAKE_FS
+
+
 class DownloadCSSClonedWebRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
 
@@ -2338,6 +2376,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
+        DownloadFakeWindowsFSRequest,
         DownloadCSSClonedWebRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
@@ -2447,6 +2486,15 @@ class DownloadCCResponse(TokenDownloadResponse):
 
 
 class DownloadCMDResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadFakeWindowsFSResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN

@@ -34,7 +34,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 import canarytokens
 import canarytokens.credit_card_v2 as credit_card_infra
-from canarytokens import extendtoken, kubeconfig, msreg, queries
+from canarytokens import extendtoken, kubeconfig, msreg, queries, windows_fake_fs
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens.awskeys import get_aws_key
@@ -62,6 +62,8 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    FakeWindowsFSTokenRequest,
+    FakeWindowsFSTokenResponse,
     CreditCardV2TokenRequest,
     CreditCardV2TokenResponse,
     CustomBinaryTokenRequest,
@@ -80,6 +82,8 @@ from canarytokens.models import (
     DownloadCCResponse,
     DownloadCMDRequest,
     DownloadCMDResponse,
+    DownloadFakeWindowsFSRequest,
+    DownloadFakeWindowsFSResponse,
     DownloadCreditCardV2Request,
     DownloadCreditCardV2Response,
     DownloadIncidentListCSVRequest,
@@ -1017,6 +1021,23 @@ def _(
 
 @create_download_response.register
 def _(
+    download_request_details: DownloadFakeWindowsFSRequest, canarydrop: Canarydrop
+) -> DownloadFakeWindowsFSResponse:
+    """"""
+    return DownloadFakeWindowsFSResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=windows_fake_fs.make_windows_fake_fs(
+            token_hostname=canarydrop.get_hostname(),
+            root_dir=windows_fake_fs.DUMMY_ROOT_DIR,
+            fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
+        ),
+        filename=f"{canarydrop.canarytoken.value()}.ps",
+    )
+
+
+@create_download_response.register
+def _(
     download_request_details: DownloadCCRequest, canarydrop: Canarydrop
 ) -> DownloadCCResponse:
     """"""
@@ -1681,6 +1702,33 @@ def _(
         reg_file=msreg.make_canary_msreg(
             token_hostname=canarydrop.get_hostname(),
             process_name=canarydrop.cmd_process,
+        ),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: FakeWindowsFSTokenRequest, canarydrop: Canarydrop
+) -> FakeWindowsFSTokenResponse:
+    canarydrop.windows_fake_fs_root = token_request_details.windows_fake_fs_root
+    canarydrop.windows_fake_fs_file_structure = (
+        token_request_details.windows_fake_fs_file_structure
+    )
+    queries.save_canarydrop(canarydrop=canarydrop)
+    return FakeWindowsFSTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        powershell_file=windows_fake_fs.make_windows_fake_fs(
+            token_hostname=canarydrop.get_hostname(),
+            root_dir=windows_fake_fs.DUMMY_ROOT_DIR,
+            fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
         ),
     )
 
