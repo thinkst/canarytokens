@@ -180,6 +180,21 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.MICROSOFT,
     keywords: ['windows', 'cmd']
   },
+  [TOKENS_TYPE.WINDOWS_FAKE_FS]: {
+    label: 'Windows Fake File System',
+    description: 'Get an alert when a attacker accesses a file in the fake file system.',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/TBD.html',
+    icon: `${TOKENS_TYPE.WINDOWS_FAKE_FS}.png`,
+    instruction: '',
+    howItWorksInstructions: [
+      'We give you a Powershell script.',
+      'You run the script to configure the fake file system on your machine.',
+      'We send you an alert if an attacker opens or copies a file.',
+    ],
+    category: TOKEN_CATEGORY.MICROSOFT,
+    keywords: ['windows', 'windows_fake_fs', 'fake', 'file']
+  },
   [TOKENS_TYPE.WEB_IMAGE]: {
     label: 'Web image',
     description: 'Get an alert when an image you upload to us is viewed.',

@@ -20,6 +20,7 @@ export const TOKENS_TYPE = {
   FAST_REDIRECT: 'fast_redirect',
   SLOW_REDIRECT: 'slow_redirect',
   SENSITIVE_CMD: 'cmd',
+  WINDOWS_FAKE_FS: 'windows_fake_fs',
   AZURE_ID: 'azure_id',
   MICROSOFT_EXCEL: 'ms_excel',
   MICROSOFT_WORD: 'ms_word',

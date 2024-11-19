@@ -61,6 +61,8 @@ type CanaryDropType = {
   browser_scanner_enabled: boolean;
   wg_key: string;
   cmd_process: string;
+  windows_fake_fs_root: string;
+  windows_fake_fs_file_structure: string;
   slack_api_key: string;
   cc_id: string;
   cc_kind: string;

@@ -85,6 +85,9 @@ export const formValidators: ValidateSchemaType = {
         }),
     }),
   },
+  [TOKENS_TYPE.WINDOWS_FAKE_FS]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },
