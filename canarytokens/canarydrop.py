@@ -158,7 +158,7 @@ class Canarydrop(BaseModel):
     cc_v2_cvv: Optional[str]
     cc_v2_expiry_month: Optional[int]
     cc_v2_expiry_year: Optional[int]
-    cc_v2_name_on_card: Literal["Canarytokens.org"] = "Canarytokens.org"
+    cc_v2_name_on_card: Optional[Literal["Canarytokens.org"]]
 
     key_exposed_details: Optional[AnyTokenExposedHit] = None
 
