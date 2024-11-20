@@ -88,6 +88,52 @@ def test_cmd_process_pattern(
     assert data["src_data"].get("cmd_invocation_id") == cmd_invocation_id
 
 
+@pytest.mark.parametrize(
+    "query, invocation_id, file_name, process_name, ",
+    [
+        # (
+        #     "cbrokenpc.UN.ubrokenuser.CMD.someid78.sometoken.com",
+        #     "brokenpc",
+        #     "brokenuser",
+        #     "someid78",
+        # ),
+        # ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", None),
+        # ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", None),
+        # ("cbrokenpc.UN.u.CMD.sometoken.com", "brokenpc", "(not obtained)", None),
+        (
+            "u7595.fMRXWGIDCFZSG6Y3Y.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
+            "7595",
+            "MRXWGIDCFZSG6Y3Y",
+            "MV4HA3DPOJSXELTFPBSQ",
+        ),
+        (
+            "u7595.f.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
+            "7595",
+            "(not obtained)",
+            "MV4HA3DPOJSXELTFPBSQ",
+        ),
+        (
+            "u7595.fMRXWGIDCFZSG6Y3Y.i.someid.sometoken.com",
+            "7595",
+            "MRXWGIDCFZSG6Y3Y",
+            "(not obtained)",
+        ),
+        (
+            "u7595.f.i.someid.sometoken.com",
+            "7595",
+            "(not obtained)",
+            "(not obtained)",
+        ),
+    ],
+)
+def test_windows_fake_fs_pattern(query, invocation_id, file_name, process_name):
+    m = t.windows_fake_fs_pattern.match(query)
+    data = t.Canarytoken._windows_fake_fs(m)
+    assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id.lower()
+    assert data["src_data"]["windows_fake_fs_file_name"] == file_name.lower()
+    assert data["src_data"]["windows_fake_fs_process_name"] == process_name.lower()
+
+
 def test_canarytoken_create_and_fetch():
     ct = t.Canarytoken()
     ct_new = t.Canarytoken(value=ct.value())
