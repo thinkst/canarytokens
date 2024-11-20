@@ -9,6 +9,8 @@ from distutils.util import strtobool
 from functools import wraps
 from logging import Logger
 from typing import Callable, Dict, Optional, Union
+import base64
+import re
 
 import dns.resolver
 import pytest
@@ -29,6 +31,7 @@ from canarytokens.models import (
     AzureIDTokenResponse,
     AzureIDAdditionalInfo,
     CMDTokenResponse,
+    WindowsFakeFSTokenResponse,
     CustomBinaryTokenRequest,
     CustomBinaryTokenResponse,
     CustomImageTokenRequest,
@@ -197,6 +200,36 @@ def trigger_cmd_token(
         components.remove("$id")
 
     target = ".".join(components)
+
+    resolver = grab_resolver(version=version)
+    resolver.resolve(target, "A")
+    return target
+
+
+def trigger_windows_fake_fs_token(
+    token_info: WindowsFakeFSTokenResponse,
+    version: Union[V2, V3],
+    invocation_id: int,
+    file_name: str = "doc b.docx",
+    process_name: str = "explorer.exe",
+) -> str:
+    """
+    Triggers a Windows Fake File System token by making a dns query with the expected parameters  as Windows would.
+    """
+    alert_domain_pattern = re.compile(
+        r"\$alertDomain = \"([A-Za-z0-9.]*)\"", re.IGNORECASE | re.MULTILINE
+    )
+    re_search_result = alert_domain_pattern.search(token_info.powershell_file)
+    domain = re_search_result.groups()[0]
+
+    target = "u{invocation_id}.f{file_name}.i{process_name}.{domain}".format(
+        invocation_id=invocation_id,
+        file_name=base64.b32encode(file_name.encode("utf-8")).decode().replace("=", ""),
+        process_name=base64.b32encode(process_name.encode("utf-8"))
+        .decode()
+        .replace("=", ""),
+        domain=domain,
+    )
 
     resolver = grab_resolver(version=version)
     resolver.resolve(target, "A")
