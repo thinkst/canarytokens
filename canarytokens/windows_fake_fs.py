@@ -94,6 +94,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ProjectedFileSystemProvider
 {
@@ -188,7 +189,7 @@ namespace ProjectedFileSystemProvider
 
             try {
                 // Resolve the DNS
-                Dns.GetHostEntry(uniqueval + "f" + fnb32 + ".i" + inb32 + "." + alertDomain);
+                Task.Run(() => Dns.GetHostEntry(uniqueval + "f" + fnb32 + ".i" + inb32 + "." + alertDomain));
             } catch (Exception ex) {
                 Console.WriteLine("Error: " + ex.Message);
             }
@@ -823,7 +824,7 @@ namespace ProjectedFileSystemProvider
     }
 }
 
-Invoke-CanaryFS -DebugMode $true
+Invoke-CanaryFS
 '@
 
         #Append Root Path
@@ -875,7 +876,7 @@ Invoke-CanaryFS -DebugMode $true
     <Actions Context="Author">
         <Exec>
             <Command>cmd.exe</Command>
-            <Arguments>/c start /min powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File "$ScriptPath" -RootFolder "$RootPath" -EnableDebug "true"</Arguments>
+            <Arguments>/c start /min powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File "$ScriptPath" -RootFolder "$RootPath" </Arguments>
         </Exec>
     </Actions>
 </Task>
@@ -910,11 +911,14 @@ Invoke-CanaryFS -DebugMode $true
 if ((Read-Host "Preparing to Install Canary ProjFS. Do you want to continue? (Y/N)") -notmatch '^[Yy]$') { exit }
 
 $projfsResult = Install-ProjFS
+
 if ($projfsResult) {
     $taskResult = Create-ScheduledTask
 
     # Final results
     if ($taskResult) {
+        Start-ScheduledTask -TaskName $TaskName
+
         Write-Host "`nParameter Values:" -ForegroundColor Cyan
         Write-Host "=================" -ForegroundColor Cyan
 
