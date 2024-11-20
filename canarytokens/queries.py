@@ -587,12 +587,18 @@ def can_send_alert(canarydrop: cand.Canarydrop, alert_limit: int):
 #         raise Exception("Imgur response was unexpected: {resp}".format(resp=resp))
 #     return resp["data"][imgur_id]
 def add_mail_to_send_status(
-    recipient: EmailStr, details: models.TokenAlertDetails
+    recipient: EmailStr,
+    details: Union[models.TokenAlertDetails, models.TokenExposedDetails],
 ) -> int:
     data = {"recipient": recipient, **details.json_safe_dict()}
     mail_to_send = json.dumps(data)
+    time = (
+        details.time
+        if isinstance(details, models.TokenAlertDetails)
+        else details.exposed_time
+    )
     return DB.get_db().set(
-        f"{KEY_MAIL_TO_SEND}:{details.token}:{details.time.timestamp()}", mail_to_send
+        f"{KEY_MAIL_TO_SEND}:{details.token}:{time.timestamp()}", mail_to_send
     )
 
 
@@ -610,17 +616,28 @@ def get_all_mails_in_send_status(
 
 def remove_mail_from_to_send_status(
     token: str, time: datetime.datetime
-) -> tuple[Optional[list[EmailStr]], Optional[models.TokenAlertDetails]]:
+) -> tuple[
+    Optional[list[EmailStr]],
+    Optional[Union[models.TokenAlertDetails, models.TokenExposedDetails]],
+]:
     item = DB.get_db().getdel(f"{KEY_MAIL_TO_SEND}:{token}:{time.timestamp()}")
     if item is None:
         log.info(f"No mail at key: {KEY_MAIL_TO_SEND}:{token}:{time.timestamp()}")
         return None, None
+
     data = json.loads(item)
     recipient = EmailStr(data.pop("recipient"))
-    return recipient, models.TokenAlertDetails(**data)
+    details = (
+        models.TokenExposedDetails(**data)
+        if "public_location" in data
+        else models.TokenAlertDetails(**data)
+    )
+    return recipient, details
 
 
-def put_mail_on_sent_queue(mail_key: str, details: models.TokenAlertDetails) -> int:
+def put_mail_on_sent_queue(
+    mail_key: str, details: Union[models.TokenAlertDetails, models.TokenExposedDetails]
+) -> int:
     sent_mail = json.dumps({"mail_key": mail_key, **details.json_safe_dict()})
     return DB.get_db().lpush(KEY_SENT_MAIL_QUEUE, sent_mail)
 
