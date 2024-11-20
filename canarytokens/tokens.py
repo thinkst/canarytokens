@@ -263,15 +263,18 @@ class Canarytoken(object):
         }
         if invocation_id:
             data["windows_fake_fs_invocation_id"] = invocation_id[0:]
-        if file_name and file_name != "f":
-            b32_data = file_name[0:]
+
+        def correct_base32_padding(b32_data):
             padding_count = len(b32_data) % 8
-            b32_data = b32_data + "=" * padding_count
+            if padding_count != 0:
+                b32_data += "=" * (8 - padding_count)
+            return b32_data
+
+        if file_name and file_name != "f":
+            b32_data = correct_base32_padding(file_name[0:])
             data["windows_fake_fs_file_name"] = base64.b32decode(b32_data).decode()
         if process_name and process_name != "i":
-            b32_data = process_name[0:]
-            padding_count = len(b32_data) % 8
-            b32_data = b32_data + "=" * padding_count
+            b32_data = correct_base32_padding(process_name[0:])
             data["windows_fake_fs_process_name"] = base64.b32decode(b32_data).decode()
 
         return {"src_data": data}
