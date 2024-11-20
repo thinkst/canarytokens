@@ -2140,66 +2140,6 @@ class TokenExposedDetails(BaseModel):
 
 
 
-class DiscordFieldEntry(BaseModel):
-    name: str = ""
-    value: str = ""
-    inline: bool = False
-
-
-class DiscordDetails(BaseModel):
-    canarytoken: Canarytoken
-    token_reminder: Memo
-    src_data: Optional[dict[str, Any]]
-
-    def get_discord_data(self) -> Dict[str, str]:
-        data = json_safe_dict(self)
-        data["Canarytoken"] = data.pop("canarytoken", "")
-        data["Token Reminder"] = data.pop("token_reminder", "")
-        if "src_data" in data:
-            data["Source Data"] = data.pop("src_data", "")
-        return data
-
-
-class DiscordAuthorField(BaseModel):
-    name: str = "Canary Alerts"
-    icon_url: str
-
-
-class DiscordEmbeds(BaseModel):
-    author: DiscordAuthorField
-    color: int = 3724415  # Magic colour number. Trust the process
-    title: str = "Canarytoken Triggered"
-    url: Optional[HttpUrl]
-    timestamp: datetime
-    fields: List[DiscordFieldEntry] = []
-
-    def add_fields(self, fields_info: Optional[Dict[str, str]] = {}) -> None:
-        for label, text in fields_info.items():
-            if not label or not text:
-                continue
-            message_text = (
-                json.dumps(text) if isinstance(text, dict) else "{}".format(text)
-            )
-            self.fields.append(
-                DiscordFieldEntry(
-                    name=label,
-                    value=message_text,
-                    inline=len(max(message_text.split("\n"))) < 40,
-                )
-            )
-
-    @validator("timestamp", pre=True)
-    def validate_timestamp(cls, value):
-        if isinstance(value, str):
-            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
-        return value
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
-        }
-
-
 
 class MsTeamsDetailsSection(BaseModel):
     canarytoken: Canarytoken
@@ -2260,15 +2200,6 @@ class TokenAlertDetailsMsTeams(BaseModel):
     themeColor = "ff0000"
     sections: Optional[List[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
     potentialAction: Optional[List[MsTeamsPotentialAction]] = None
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
-
-
-class TokenAlertDetailsDiscord(BaseModel):
-    """Details that are sent to Discord webhooks"""
-
-    embeds: List[DiscordEmbeds]
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)

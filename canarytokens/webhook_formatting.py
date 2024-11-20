@@ -1,16 +1,16 @@
 from __future__ import annotations
+from typing import Union, Optional, Literal
 import json
-from typing import Optional, Union, Literal
 from enum import Enum
 import re
 from functools import partial
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as
+from pydantic import BaseModel, HttpUrl, parse_obj_as, validator
 
 from canarytokens import constants
+from canarytokens.utils import json_safe_dict, prettify_snake_case
 from canarytokens.channel import (
-    format_as_discord_canaryalert,
     format_as_ms_teams_canaryalert,
 )
 from canarytokens.models import (
@@ -44,6 +44,12 @@ class HexColor(Enum):
     @property
     def value_without_hash(self):
         return self.value[1:]
+
+
+class DecimalColor(Enum):
+    WARNING = HexColor.WARNING.decimal_value
+    ERROR = HexColor.ERROR.decimal_value
+    CANARY_GREEN = HexColor.CANARY_GREEN.decimal_value
 
 
 class WebhookType(Enum):
@@ -103,7 +109,7 @@ def _format_alert_details_for_webhook(
     elif webhook_type == WebhookType.GOOGLE_CHAT:
         return _format_as_googlechat_canaryalert(details)
     elif webhook_type == WebhookType.DISCORD:
-        return format_as_discord_canaryalert(details)
+        return _format_as_discord_canaryalert(details)
     elif webhook_type == WebhookType.MS_TEAMS:
         return format_as_ms_teams_canaryalert(details)
     elif webhook_type == WebhookType.GENERIC:
@@ -122,9 +128,7 @@ def _format_exposed_details_for_webhook(
     elif webhook_type == WebhookType.GOOGLE_CHAT:
         return _format_as_googlechat_token_exposed(details)
     elif webhook_type == WebhookType.DISCORD:
-        raise NotImplementedError(
-            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
-        )
+        return _format_as_discord_token_exposed(details)
     elif webhook_type == WebhookType.MS_TEAMS:
         raise NotImplementedError(
             f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
@@ -163,9 +167,14 @@ def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTy
             cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
         )
     elif webhook_type == WebhookType.DISCORD:
-        raise NotImplementedError(
-            "generate_webhook_test_payload not implemented for DISCORD"
+        embeds = DiscordEmbeds(
+            author=DiscordAuthorField(icon_url=CANARY_LOGO_ROUND_PUBLIC_URL),
+            url=WEBHOOK_TEST_URL,
+            title="Validating new Canarytokens webhook",
+            fields=[],
+            timestamp=datetime.now(),
         )
+        return TokenAlertDetailsDiscord(embeds=[embeds])
     elif webhook_type == WebhookType.MS_TEAMS:
         raise NotImplementedError(
             "generate_webhook_test_payload not implemented for MS_TEAMS"
@@ -635,6 +644,118 @@ class GoogleChatCardV2(BaseModel):
 
 class TokenAlertDetailsGoogleChat(BaseModel):
     cardsV2: list[GoogleChatCardV2]
+
+    def json_safe_dict(self) -> dict[str, str]:
+        return json_safe_dict(self)
+
+
+def _format_as_discord_canaryalert(
+    details: TokenAlertDetails,
+) -> TokenAlertDetailsDiscord:
+    embeds = DiscordEmbeds(
+        author=DiscordAuthorField(
+            icon_url=CANARY_LOGO_ROUND_PUBLIC_URL,
+        ),
+        url=details.manage_url,
+        timestamp=details.time.strftime("%Y-%m-%dT%H:%M:%S"),
+        color=DecimalColor.ERROR.value,
+    )
+
+    embeds.add_fields(
+        {
+            "canarytoken": details.token,
+            "token_reminder": details.memo,
+            "src_data": details.src_data if details.src_data else None,
+        }
+    )
+
+    if details.additional_data:
+        embeds.add_fields(details.additional_data)
+
+    embeds.add_fields({"Manage token": details.manage_url})
+
+    return TokenAlertDetailsDiscord(embeds=[embeds])
+
+
+def _format_as_discord_token_exposed(
+    details: TokenExposedDetails,
+) -> TokenAlertDetailsDiscord:
+    embeds = DiscordEmbeds(
+        author=DiscordAuthorField(
+            icon_url=CANARY_LOGO_ROUND_PUBLIC_URL,
+        ),
+        url=details.manage_url,
+        timestamp=details.exposed_time.strftime("%Y-%m-%dT%H:%M:%S"),
+        description=_get_exposed_token_description(details.token_type),
+        color=DecimalColor.WARNING.value,
+    )
+
+    embeds.add_fields(
+        {
+            "Key ID": details.key_id,
+            "Token Reminder": details.memo,
+            "Key exposed here": details.public_location,
+            "Manage token": details.manage_url,
+        }
+    )
+
+    return TokenAlertDetailsDiscord(embeds=[embeds])
+
+
+class DiscordFieldEntry(BaseModel):
+    name: str = ""
+    value: str = ""
+    inline: bool = False
+
+
+class DiscordAuthorField(BaseModel):
+    name: str = "Canary Alerts"
+    icon_url: str
+
+
+class DiscordEmbeds(BaseModel):
+    author: DiscordAuthorField
+    color: int = DecimalColor.CANARY_GREEN.value
+    title: str = "Canarytoken Triggered"
+    description: Optional[str] = None
+    url: Optional[HttpUrl]
+    timestamp: datetime
+    fields: list[DiscordFieldEntry] = []
+
+    def add_fields(self, fields_info: dict[str, str]) -> None:
+        for label, text in fields_info.items():
+            if not label or not text:
+                continue
+
+            message_text = (
+                f"```{json.dumps(text)}```"
+                if isinstance(text, dict)
+                else "{}".format(text)
+            )
+            self.fields.append(
+                DiscordFieldEntry(
+                    name=prettify_snake_case(label),
+                    value=message_text,
+                    inline=len(max(message_text.split("\n"))) < MAX_INLINE_LENGTH,
+                )
+            )
+
+    @validator("timestamp", pre=True)
+    def validate_timestamp(cls, value):
+        if isinstance(value, str):
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+        return value
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
+        }
+
+
+class TokenAlertDetailsDiscord(BaseModel):
+    """Details that are sent to Discord webhooks"""
+
+    embeds: list[DiscordEmbeds]
 
     def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
