@@ -935,7 +935,7 @@ if ($projfsResult) {
         Write-Host "RootPath        : " -NoNewline
         Write-Host $RootPath -ForegroundColor Green
 
-        Write-Host " IMPORTANT: Changes will take effect after next login/reboot"  -ForegroundColor Yellow
+        Write-Host " IMPORTANT: Scheduled task has started and will launch on future logons" -ForegroundColor Yellow
     }
     else {
         Write-Host "`nScheduled task creation failed." -ForegroundColor Yellow
