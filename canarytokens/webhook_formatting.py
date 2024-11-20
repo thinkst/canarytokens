@@ -9,8 +9,6 @@ from datetime import datetime
 from pydantic import BaseModel, HttpUrl, parse_obj_as, validator
 
 from canarytokens import constants
-from canarytokens.utils import json_safe_dict, prettify_snake_case
-
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
 from canarytokens.models import (
     readable_token_type_names,
@@ -19,8 +17,6 @@ from canarytokens.models import (
     TokenAlertDetails,
     TokenExposedDetails,
 )
-from canarytokens.utils import json_safe_dict, prettify_snake_case
-
 
 CANARY_LOGO_ROUND_PUBLIC_URL = parse_obj_as(
     HttpUrl,
@@ -849,7 +845,7 @@ class MsTeamsTitleSection(BaseModel):
 
 class MsTeamsPotentialAction(BaseModel):
     name: str
-    target: List[HttpUrl]
+    target: list[HttpUrl]
     type: str = "ViewAction"
     context: str = "http://schema.org"
 
@@ -867,11 +863,11 @@ class TokenAlertDetailsMsTeams(BaseModel):
 
     summary: str
     themeColor: str = HexColor.CANARY_GREEN.value
-    sections: Optional[List[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
-    potentialAction: Optional[List[MsTeamsPotentialAction]] = None
+    sections: Optional[list[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
+    potentialAction: Optional[list[MsTeamsPotentialAction]] = None
     text: Optional[str] = None
 
-    def json_safe_dict(self) -> Dict[str, str]:
+    def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
 
 

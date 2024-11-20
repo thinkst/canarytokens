@@ -42,7 +42,6 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_WIREGUARD_KEYMAP,
 )
 from canarytokens.webhook_formatting import (
-    WebhookType,
     generate_webhook_test_payload,
     get_webhook_type,
 )
