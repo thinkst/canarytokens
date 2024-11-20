@@ -349,7 +349,7 @@ readable_token_type_names = {
     TokenTypes.KUBECONFIG: "Kubeconfig",
     TokenTypes.LOG4SHELL: "Log4Shell",
     TokenTypes.CMD: "Sensitive command",
-    TokenTypes.WINDOWS_FAKE_FS: "Fake Windows File Structure",
+    TokenTypes.WINDOWS_FAKE_FS: "Windows Fake File System",
     TokenTypes.CC: "Credit card",
     TokenTypes.CREDIT_CARD_V2: "Credit card",
     TokenTypes.PWA: "Fake app",
