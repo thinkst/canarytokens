@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json
-from typing import Union, Literal
+from typing import Optional, Union, Literal
 from enum import Enum
 import re
 from functools import partial
@@ -11,7 +11,6 @@ from pydantic import BaseModel, HttpUrl, parse_obj_as
 from canarytokens import constants
 from canarytokens.channel import (
     format_as_discord_canaryalert,
-    format_as_googlechat_canaryalert,
     format_as_ms_teams_canaryalert,
 )
 from canarytokens.models import (
@@ -102,7 +101,7 @@ def _format_alert_details_for_webhook(
     if webhook_type == WebhookType.SLACK:
         return _format_as_slack_canaryalert(details)
     elif webhook_type == WebhookType.GOOGLE_CHAT:
-        return format_as_googlechat_canaryalert(details)
+        return _format_as_googlechat_canaryalert(details)
     elif webhook_type == WebhookType.DISCORD:
         return format_as_discord_canaryalert(details)
     elif webhook_type == WebhookType.MS_TEAMS:
@@ -121,9 +120,7 @@ def _format_exposed_details_for_webhook(
     if webhook_type == WebhookType.SLACK:
         return _format_as_slack_token_exposed(details)
     elif webhook_type == WebhookType.GOOGLE_CHAT:
-        raise NotImplementedError(
-            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
-        )
+        return _format_as_googlechat_token_exposed(details)
     elif webhook_type == WebhookType.DISCORD:
         raise NotImplementedError(
             f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
@@ -153,8 +150,17 @@ def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTy
             ]
         )
     elif webhook_type == WebhookType.GOOGLE_CHAT:
-        raise NotImplementedError(
-            "generate_webhook_test_payload not implemented for GOOGLE_CHAT"
+        card = GoogleChatCard(
+            header=GoogleChatHeader(
+                title="Validating new Canarytokens webhook",
+                imageUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
+                imageType="CIRCLE",
+                imageAltText="Thinkst Canary",
+            ),
+            sections=[],
+        )
+        return TokenAlertDetailsGoogleChat(
+            cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
         )
     elif webhook_type == WebhookType.DISCORD:
         raise NotImplementedError(
@@ -386,6 +392,249 @@ class TokenAlertDetailsSlack(BaseModel):
     """Details that are sent to slack webhooks."""
 
     blocks: list[SlackBlock]
+
+    def json_safe_dict(self) -> dict[str, str]:
+        return json_safe_dict(self)
+
+
+def _format_as_googlechat_canaryalert(
+    details: TokenAlertDetails,
+) -> TokenAlertDetailsGoogleChat:
+    # construct google chat alert , top section
+    top_section = GoogleChatSection(
+        header="Alert Details",
+        widgets=_data_to_googlechat_text_widgets(
+            {
+                "channel": details.channel,
+                "time": details.time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
+                "canarytoken": details.token,
+                "token_reminder": details.memo,
+            }
+        ),
+    )
+
+    # construct google chat alert , additional section
+    additional_widgets: list[GoogleChatTextWithTopLabel] = []
+    if details.src_data:
+        additional_widgets.extend(_data_to_googlechat_text_widgets(details.src_data))
+    if details.additional_data:
+        additional_widgets.extend(
+            _data_to_googlechat_text_widgets(details.additional_data)
+        )
+
+    additional_widgets.append(
+        GoogleChatButtonList(
+            buttons=[
+                GoogleChatButton(
+                    text="Manage token",
+                    url=details.manage_url,
+                    material_icon="settings",
+                )
+            ]
+        )
+    )
+    additional_section = GoogleChatSection(
+        header="Additional Details", widgets=additional_widgets
+    )
+
+    # construct google chat alert card
+    card = GoogleChatCard(
+        header=GoogleChatHeader(
+            title="Canarytoken Triggered",
+            imageUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
+            imageType="CIRCLE",
+            imageAltText="Thinkst Canary",
+        ),
+        sections=[top_section, additional_section],
+    )
+    # make google chat payload
+    return TokenAlertDetailsGoogleChat(
+        cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
+    )
+
+
+def _format_as_googlechat_token_exposed(
+    details: TokenExposedDetails,
+) -> TokenAlertDetailsGoogleChat:
+    card = GoogleChatCardV2(
+        cardId="unique-card-id",
+        card=GoogleChatCard(
+            header=GoogleChatHeader(
+                title="Canarytoken Exposed",
+                imageUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
+                imageType="CIRCLE",
+                imageAltText="Thinkst Canary",
+            ),
+            sections=[
+                GoogleChatSection(
+                    widgets=[
+                        GoogleChatParagraph(
+                            text=_get_exposed_token_description(details.token_type)
+                        )
+                    ]
+                ),
+                GoogleChatSection(
+                    header="Exposure Details",
+                    widgets=[
+                        GoogleChatColumns(
+                            column_items=[
+                                GoogleChatColumnItems(
+                                    widgets=[
+                                        GoogleChatTextWithTopLabel(
+                                            top_label="Key ID", text=details.key_id
+                                        ),
+                                        GoogleChatTextWithTopLabel(
+                                            top_label="Key exposed here",
+                                            text=f'<a href="{details.public_location}">{details.public_location}</a>',
+                                        ),
+                                    ]
+                                ),
+                                GoogleChatColumnItems(
+                                    widgets=[
+                                        GoogleChatTextWithTopLabel(
+                                            top_label="Token Reminder",
+                                            text=details.memo,
+                                        ),
+                                        GoogleChatTextWithTopLabel(
+                                            top_label="Key exposed at",
+                                            text=details.exposed_time.strftime(
+                                                "%Y-%m-%d %H:%M:%S (UTC)"
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
+                        GoogleChatButtonList(
+                            buttons=[
+                                GoogleChatButton(
+                                    text="Manage token",
+                                    url=details.manage_url,
+                                    material_icon="settings",
+                                )
+                            ]
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
+
+    return TokenAlertDetailsGoogleChat(cardsV2=[card])
+
+
+def _data_to_googlechat_text_widgets(
+    data: dict[str, str]
+) -> list[GoogleChatTextWithTopLabel]:
+    widgets: list[GoogleChatTextWithTopLabel] = []
+    for label, text in data.items():
+        if not label or not text:
+            continue
+
+        message_text = json.dumps(text) if isinstance(text, dict) else "{}".format(text)
+        widgets.append(
+            GoogleChatTextWithTopLabel(
+                text=message_text, top_label=prettify_snake_case(label)
+            )
+        )
+
+    return widgets
+
+
+class GoogleChatWidget(BaseModel):
+    ...
+
+
+class GoogleChatParagraph(GoogleChatWidget):
+    text: str
+
+    def dict(self, *args, **kwargs):
+        return {"textParagraph": {"text": self.text}}
+
+
+class GoogleChatTextWithTopLabel(GoogleChatWidget):
+    text: str
+    top_label: Optional[str] = None
+
+    def dict(self, *args, **kwargs):
+        d = {"decoratedText": {"text": self.text}}
+        if self.top_label:
+            d["decoratedText"]["topLabel"] = self.top_label
+
+        return d
+
+
+class GoogleChatButton(BaseModel):
+    text: str
+    url: HttpUrl
+    material_icon: Optional[str] = None
+    alt_text: Optional[str] = None
+
+    def dict(self, *args, **kwargs):
+        d = {"text": self.text, "onClick": {"openLink": {"url": self.url}}}
+        if self.material_icon:
+            d["icon"] = {
+                "materialIcon": {"name": self.material_icon},
+                "altText": self.alt_text or self.text.lower(),
+            }
+
+        return d
+
+
+class GoogleChatButtonList(GoogleChatWidget):
+    buttons: list[GoogleChatButton]
+
+    def dict(self, *args, **kwargs):
+        return {"buttonList": {"buttons": [button.dict() for button in self.buttons]}}
+
+
+class GoogleChatColumnItems(BaseModel):
+    widgets: list[GoogleChatWidget]
+    horizontalSizeStyle: str = "FILL_MINIMUM_SPACE"
+    horizontalAlignment: str = "START"
+    verticalAlignment: str = "CENTER"
+
+    def dict(self, *args, **kwargs):
+        return {
+            "horizontalSizeStyle": self.horizontalSizeStyle,
+            "horizontalAlignment": self.horizontalAlignment,
+            "verticalAlignment": self.verticalAlignment,
+            "widgets": [widget.dict() for widget in self.widgets],
+        }
+
+
+class GoogleChatColumns(GoogleChatWidget):
+    column_items: list[GoogleChatColumnItems]
+
+    def dict(self, *args, **kwargs):
+        return {"columns": {"columnItems": [ci.dict() for ci in self.column_items]}}
+
+
+class GoogleChatHeader(BaseModel):
+    title: str = "Canarytoken Triggered"
+    imageUrl: HttpUrl
+    imageType: str = "CIRCLE"
+    imageAltText: str = "Thinkst Canary"
+
+
+class GoogleChatSection(BaseModel):
+    header: str = ""
+    collapsible: bool = False
+    widgets: list[GoogleChatWidget] = []
+
+
+class GoogleChatCard(BaseModel):
+    header: GoogleChatHeader
+    sections: list[GoogleChatSection] = []
+
+
+class GoogleChatCardV2(BaseModel):
+    cardId: str = "unique-card-id"
+    card: GoogleChatCard
+
+
+class TokenAlertDetailsGoogleChat(BaseModel):
+    cardsV2: list[GoogleChatCardV2]
 
     def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)

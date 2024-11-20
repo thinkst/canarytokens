@@ -18,11 +18,6 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
     AnyTokenHit,
     AnyTokenExposedHit,
-    GoogleChatAlertDetailsSectionData,
-    GoogleChatCard,
-    GoogleChatCardV2,
-    GoogleChatHeader,
-    GoogleChatSection,
     Memo,
     DiscordDetails,
     DiscordEmbeds,
@@ -31,49 +26,12 @@ from canarytokens.models import (
     MsTeamsDetailsSection,
     MsTeamsPotentialAction,
     TokenAlertDetails,
-    TokenAlertDetailsGoogleChat,
     TokenAlertDetailsDiscord,
     TokenAlertDetailsMsTeams,
 )
 
 log = Logger()
 
-
-def format_as_googlechat_canaryalert(
-    details: TokenAlertDetails,
-) -> TokenAlertDetailsGoogleChat:
-    # construct google chat alert , top section
-    top_section = GoogleChatSection(header="Alert Details")
-    top_section.add_widgets(
-        widgets_info=GoogleChatAlertDetailsSectionData(
-            channel=details.channel,
-            time=details.time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-            canarytoken=details.token,
-            token_reminder=details.memo,
-            manage_url=details.manage_url,
-        ).get_googlechat_data()
-    )
-    # construct google chat alert , additional section
-    additional_section = GoogleChatSection(header="Additional Details")
-    if details.src_data:
-        additional_section.add_widgets(widgets_info=details.src_data)
-    if details.additional_data:
-        additional_section.add_widgets(widgets_info=details.additional_data)
-
-    # construct google chat alert card
-    card = GoogleChatCard(
-        header=GoogleChatHeader(
-            title="Canarytoken Triggered",
-            imageUrl="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
-            imageType="CIRCLE",
-            imageAltText="Thinkst Canary",
-        ),
-        sections=[top_section, additional_section],
-    )
-    # make google chat payload
-    return TokenAlertDetailsGoogleChat(
-        cardsV2=[GoogleChatCardV2(cardId="unique-card-id", card=card)]
-    )
 
 
 def format_as_discord_canaryalert(

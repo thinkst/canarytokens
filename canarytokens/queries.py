@@ -877,22 +877,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         raise WebhookTooLongError()
 
     webhook_type = get_webhook_type(url)
-    if webhook_type == WebhookType.GOOGLE_CHAT:
-        # construct google chat alert card
-        card = models.GoogleChatCard(
-            header=models.GoogleChatHeader(
-                title="Validating new canarytokens webhook",
-                imageUrl="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
-                imageType="CIRCLE",
-                imageAltText="Thinkst Canary",
-            ),
-            sections=[],
-        )
-        # make google chat payload
-        payload = models.TokenAlertDetailsGoogleChat(
-            cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
-        )
-    elif webhook_type == WebhookType.DISCORD:
+    if webhook_type == WebhookType.DISCORD:
         # construct discord alert card
         embeds = models.DiscordEmbeds(
             author=models.DiscordAuthorField(
