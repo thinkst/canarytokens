@@ -91,31 +91,22 @@ def test_cmd_process_pattern(
 @pytest.mark.parametrize(
     "query, invocation_id, file_name, process_name, ",
     [
-        # (
-        #     "cbrokenpc.UN.ubrokenuser.CMD.someid78.sometoken.com",
-        #     "brokenpc",
-        #     "brokenuser",
-        #     "someid78",
-        # ),
-        # ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", None),
-        # ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", None),
-        # ("cbrokenpc.UN.u.CMD.sometoken.com", "brokenpc", "(not obtained)", None),
         (
             "u7595.fMRXWGIDCFZSG6Y3Y.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
             "7595",
-            "MRXWGIDCFZSG6Y3Y",
-            "MV4HA3DPOJSXELTFPBSQ",
+            "doc b.docx",
+            "explorer.exe",
         ),
         (
             "u7595.f.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
             "7595",
             "(not obtained)",
-            "MV4HA3DPOJSXELTFPBSQ",
+            "explorer.exe",
         ),
         (
             "u7595.fMRXWGIDCFZSG6Y3Y.i.someid.sometoken.com",
             "7595",
-            "MRXWGIDCFZSG6Y3Y",
+            "doc b.docx",
             "(not obtained)",
         ),
         (

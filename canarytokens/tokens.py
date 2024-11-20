@@ -59,7 +59,7 @@ cmd_process_pattern = re.compile(
     re.IGNORECASE,
 )
 windows_fake_fs_pattern = re.compile(
-    r"u([A-Za-z0-9]*)\.f([A-Za-z0-9]*)\.i([A-Za-z0-9]*)", re.IGNORECASE
+    r"u([0-9]*)\.f([A-Za-z0-9]*)\.i([A-Za-z0-9]*)\.", re.IGNORECASE
 )
 
 # to validate decoded sql username, not a data extractor:
@@ -262,11 +262,17 @@ class Canarytoken(object):
             "windows_fake_fs_process_name": "(not obtained)",
         }
         if invocation_id:
-            data["windows_fake_fs_invocation_id"] = invocation_id[0:].lower()
-        if file_name and file_name != "u":
-            data["windows_fake_fs_file_name"] = file_name[0:].lower()
-        if process_name and process_name != "c":
-            data["windows_fake_fs_process_name"] = process_name[0:].lower()
+            data["windows_fake_fs_invocation_id"] = invocation_id[0:]
+        if file_name and file_name != "f":
+            b32_data = file_name[0:]
+            padding_count = len(b32_data) % 8
+            b32_data = b32_data + "=" * padding_count
+            data["windows_fake_fs_file_name"] = base64.b32decode(b32_data).decode()
+        if process_name and process_name != "i":
+            b32_data = process_name[0:]
+            padding_count = len(b32_data) % 8
+            b32_data = b32_data + "=" * padding_count
+            data["windows_fake_fs_process_name"] = base64.b32decode(b32_data).decode()
 
         return {"src_data": data}
 
