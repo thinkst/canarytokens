@@ -19,37 +19,11 @@ from canarytokens.models import (
     AnyTokenHit,
     AnyTokenExposedHit,
     Memo,
-    MsTeamsTitleSection,
-    MsTeamsDetailsSection,
-    MsTeamsPotentialAction,
     TokenAlertDetails,
-    TokenAlertDetailsMsTeams,
 )
 
 log = Logger()
 
-
-
-def format_as_ms_teams_canaryalert(
-    details: TokenAlertDetails,
-) -> TokenAlertDetailsMsTeams:
-    sections = [
-        MsTeamsTitleSection(activityTitle="<b>Canarytoken triggered</b>"),
-        MsTeamsDetailsSection(
-            canarytoken=details.token,
-            token_reminder=details.memo,
-            src_data=details.src_data if details.src_data else None,
-            additional_data=details.additional_data,
-        ),
-    ]
-
-    return TokenAlertDetailsMsTeams(
-        summary="Canarytoken triggered",
-        sections=sections,
-        potentialAction=[
-            MsTeamsPotentialAction(name="Manage", target=[details.manage_url])
-        ],
-    )
 
 
 class Channel(object):

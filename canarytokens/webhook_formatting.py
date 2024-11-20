@@ -9,10 +9,7 @@ from datetime import datetime
 from pydantic import BaseModel, HttpUrl, parse_obj_as, validator
 
 from canarytokens import constants
-from canarytokens.utils import json_safe_dict, prettify_snake_case
-from canarytokens.channel import (
-    format_as_ms_teams_canaryalert,
-)
+from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
 from canarytokens.models import (
     readable_token_type_names,
     Memo,
@@ -20,8 +17,6 @@ from canarytokens.models import (
     TokenAlertDetails,
     TokenExposedDetails,
 )
-from canarytokens.utils import json_safe_dict, prettify_snake_case
-
 
 CANARY_LOGO_ROUND_PUBLIC_URL = parse_obj_as(
     HttpUrl,
@@ -111,7 +106,7 @@ def _format_alert_details_for_webhook(
     elif webhook_type == WebhookType.DISCORD:
         return _format_as_discord_canaryalert(details)
     elif webhook_type == WebhookType.MS_TEAMS:
-        return format_as_ms_teams_canaryalert(details)
+        return _format_as_ms_teams_canaryalert(details)
     elif webhook_type == WebhookType.GENERIC:
         return TokenAlertDetailGeneric(**details.dict())
     else:
@@ -130,9 +125,7 @@ def _format_exposed_details_for_webhook(
     elif webhook_type == WebhookType.DISCORD:
         return _format_as_discord_token_exposed(details)
     elif webhook_type == WebhookType.MS_TEAMS:
-        raise NotImplementedError(
-            f"_format_exposed_details_for_webhook not implemented for webhook type: {webhook_type}"
-        )
+        return _format_as_ms_teams_token_exposed(details)
     elif webhook_type == WebhookType.GENERIC:
         return TokenExposedDetailGeneric(**details.dict())
     else:
@@ -176,8 +169,11 @@ def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTy
         )
         return TokenAlertDetailsDiscord(embeds=[embeds])
     elif webhook_type == WebhookType.MS_TEAMS:
-        raise NotImplementedError(
-            "generate_webhook_test_payload not implemented for MS_TEAMS"
+        section = MsTeamsTitleSection(
+            activityTitle="<b>Validating new Canarytokens webhook</b>"
+        )
+        return TokenAlertDetailsMsTeams(
+            summary="Validating new Canarytokens webhook", sections=[section]
         )
     elif webhook_type == WebhookType.GENERIC:
         return TokenAlertDetails(
@@ -756,6 +752,120 @@ class TokenAlertDetailsDiscord(BaseModel):
     """Details that are sent to Discord webhooks"""
 
     embeds: list[DiscordEmbeds]
+
+    def json_safe_dict(self) -> dict[str, str]:
+        return json_safe_dict(self)
+
+
+def _format_as_ms_teams_canaryalert(
+    details: TokenAlertDetails,
+) -> TokenAlertDetailsMsTeams:
+    facts = [
+        MsTeamsFact(name="Canarytoken", value=details.token),
+        MsTeamsFact(name="Token Reminder", value=details.memo),
+    ]
+
+    if details.src_data:
+        facts.extend(_data_to_ms_teams_facts(details.src_data))
+    if details.additional_data:
+        facts.extend(_data_to_ms_teams_facts(details.additional_data))
+
+    sections = [
+        MsTeamsTitleSection(activityTitle="<b>Canarytoken Triggered</b>"),
+        MsTeamsDetailsSection(facts=facts),
+    ]
+
+    return TokenAlertDetailsMsTeams(
+        summary="Canarytoken Triggered",
+        themeColor=HexColor.ERROR.value_without_hash,
+        sections=sections,
+        potentialAction=[
+            MsTeamsPotentialAction(name="Manage token", target=[details.manage_url])
+        ],
+    )
+
+
+def _format_as_ms_teams_token_exposed(
+    details: TokenExposedDetails,
+) -> TokenAlertDetailsMsTeams:
+    facts = [
+        MsTeamsFact(name="Key ID", value=details.key_id),
+        MsTeamsFact(name="Token Reminder", value=details.memo),
+        MsTeamsFact(
+            name="Key exposed at",
+            value=details.exposed_time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
+        ),
+        MsTeamsFact(name="Key exposed here", value=details.public_location),
+    ]
+
+    sections = [
+        MsTeamsTitleSection(activityTitle="<b>Canarytoken Exposed</b>"),
+        MsTeamsDetailsSection(
+            facts=facts, text=_get_exposed_token_description(details.token_type)
+        ),
+    ]
+
+    return TokenAlertDetailsMsTeams(
+        summary="Canarytoken Exposed",
+        themeColor=HexColor.WARNING.value_without_hash,
+        sections=sections,
+        potentialAction=[
+            MsTeamsPotentialAction(name="Manage token", target=[details.manage_url])
+        ],
+    )
+
+
+def _data_to_ms_teams_facts(data: dict[str, Union[str, dict]]) -> list[MsTeamsFact]:
+    facts: list[MsTeamsFact] = []
+
+    for label, value in data.items():
+        if not label or not value:
+            continue
+
+        message_text = dict_to_csv(value) if isinstance(value, dict) else value
+        facts.append(MsTeamsFact(name=prettify_snake_case(label), value=message_text))
+
+    return facts
+
+
+class MsTeamsFact(BaseModel):
+    name: str
+    value: str
+
+
+class MsTeamsDetailsSection(BaseModel):
+    facts: list[MsTeamsFact]
+    text: Optional[str] = None
+
+
+class MsTeamsTitleSection(BaseModel):
+    activityTitle: str
+    activityImage = CANARY_LOGO_ROUND_PUBLIC_URL
+
+
+class MsTeamsPotentialAction(BaseModel):
+    name: str
+    target: list[HttpUrl]
+    type: str = "ViewAction"
+    context: str = "http://schema.org"
+
+    def dict(self, *args, **kwargs):
+        d = super().dict(*args, **kwargs)
+
+        d["@type"] = d.pop("type")
+        d["@context"] = d.pop("context")
+
+        return d
+
+
+class TokenAlertDetailsMsTeams(BaseModel):
+    """Details that are sent to MS Teams webhooks."""
+
+    summary: str
+    themeColor: str = HexColor.CANARY_GREEN.value
+    sections: Optional[list[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
+    potentialAction: Optional[list[MsTeamsPotentialAction]] = None
+    text: Optional[str] = None
 
     def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)

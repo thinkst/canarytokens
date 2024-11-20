@@ -7,7 +7,7 @@ import json
 import re
 import secrets
 from ipaddress import IPv4Address
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import advocate
 import requests
@@ -42,7 +42,6 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_WIREGUARD_KEYMAP,
 )
 from canarytokens.webhook_formatting import (
-    WebhookType,
     generate_webhook_test_payload,
     get_webhook_type,
 )
@@ -877,15 +876,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         raise WebhookTooLongError()
 
     webhook_type = get_webhook_type(url)
-    if webhook_type == WebhookType.MS_TEAMS:
-        section = models.MsTeamsTitleSection(
-            activityTitle="<b>Validating new Canarytokens webhook</b>"
-        )
-        payload = models.TokenAlertDetailsMsTeams(
-            summary="Validating new Canarytokens webhook", sections=[section]
-        )
-    else:
-        payload = generate_webhook_test_payload(webhook_type, token_type)
+    payload = generate_webhook_test_payload(webhook_type, token_type)
 
     response = advocate.post(
         url,
