@@ -1965,6 +1965,7 @@ def _(
         canarydrop.cc_v2_cvv = card.cvv
         canarydrop.cc_v2_expiry_month = card.expiry_month
         canarydrop.cc_v2_expiry_year = card.expiry_year
+        canarydrop.cc_v2_name_on_card = "Canarytokens.org"
     elif status == credit_card_infra.Status.NO_MORE_CREDITS:
         return JSONResponse(
             {"message": "No more Card Credits available."}, status_code=500
