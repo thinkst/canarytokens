@@ -3,7 +3,7 @@
     <base-button
       class="mt-16"
       @click="handleDownloadMSregistryFile"
-      >Download your powershell script</base-button
+      >Download your PowerShell script</base-button
     >
   </div>
 </template>
