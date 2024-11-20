@@ -14,8 +14,6 @@
     :id="id"
     class="v-select"
     :options="options"
-    :value="value"
-    :label="label"
     :searchable="false"
     :placeholder="placeholder"
     @input="handleSelectOption"
@@ -36,10 +34,12 @@
 import { toRef, onMounted } from 'vue';
 import { useField } from 'vee-validate';
 
+export type SelectOption = { label: string, value: string };
+
 const props = defineProps<{
   id: string;
   label: string;
-  options: string[];
+  options: string[] | SelectOption[];
   placeholder?: string;
 }>();
 
@@ -61,7 +61,10 @@ onMounted(() => {
   }
 });
 
-function handleSelectOption(value: string) {
+function handleSelectOption(value: string | SelectOption) {
+  if (typeof value === 'object') {
+    value = value.value
+  };
   handleChange(value);
   emits('selectOption', value);
 }
