@@ -49,7 +49,12 @@ from canarytokens.constants import (
     CANARY_IMAGE_URL,
     MEMO_MAX_CHARACTERS,
 )
-from canarytokens.utils import prettify_snake_case, dict_to_csv, get_src_ip_continent
+from canarytokens.utils import (
+    json_safe_dict,
+    prettify_snake_case,
+    dict_to_csv,
+    get_src_ip_continent,
+)
 
 CANARYTOKEN_RE = re.compile(
     ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
@@ -399,10 +404,6 @@ BlankRequestTokenType = Literal[
     # TokenTypes.CLONEDSITE,
     # TokenTypes.LOG4SHELL,
 ]
-
-
-def json_safe_dict(m: BaseModel, exclude: Tuple = ()) -> Dict[str, str]:
-    return json.loads(m.json(exclude_none=True, exclude=set(exclude)))
 
 
 class TokenRequest(BaseModel):
@@ -2138,25 +2139,6 @@ class TokenExposedDetails(BaseModel):
         }
 
 
-class SlackField(BaseModel):
-    title: str
-    value: str
-    short: bool = True
-
-
-class SlackAttachment(BaseModel):
-    title: str = "Canarytoken Triggered"
-    title_link: HttpUrl
-    mrkdwn_in: List[str] = ["title"]
-    fallback: str = ""
-    fields: List[SlackField]
-
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        # HACK: We can do better here.
-        data["fallback"] = f"Canarytoken Triggered: {data['title_link']}"
-        super().__init__(**data)
-
-
 class GoogleChatDecoratedText(BaseModel):
     topLabel: str = ""
     text: str = ""
@@ -2296,15 +2278,6 @@ class DiscordEmbeds(BaseModel):
 
 class TokenAlertDetailsGoogleChat(BaseModel):
     cardsV2: List[GoogleChatCardV2]
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
-
-
-class TokenAlertDetailsSlack(BaseModel):
-    """Details that are sent to slack webhooks."""
-
-    attachments: List[SlackAttachment]
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)

@@ -3,6 +3,7 @@ from typing import Literal, Union
 import pytest
 from canarytokens.models import Memo, TokenAlertDetails, TokenExposedDetails, TokenTypes
 from canarytokens.webhook_formatting import (
+    TokenAlertDetailsSlack,
     WebhookType,
     format_details_for_webhook,
     get_webhook_type,
@@ -42,6 +43,8 @@ def test_get_webhook_type(url: str, expected_type: WebhookType):
     [
         ("alert", WebhookType.GENERIC, TokenAlertDetailGeneric),
         ("exposed", WebhookType.GENERIC, TokenExposedDetailGeneric),
+        ("alert", WebhookType.SLACK, TokenAlertDetailsSlack),
+        ("exposed", WebhookType.SLACK, TokenAlertDetailsSlack),
     ],
 )
 def test_format_details_for_webhook_alert_type(
