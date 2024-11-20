@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
-import json
-from typing import List, Optional, Union, Literal
+from typing import Optional, Union, Literal
 from enum import Enum
 import re
 from functools import partial
@@ -526,7 +525,7 @@ def _format_as_googlechat_token_exposed(
 
 def _data_to_googlechat_text_widgets(
     data: dict[str, str]
-) -> List[GoogleChatTextWithTopLabel]:
+) -> list[GoogleChatTextWithTopLabel]:
     widgets: list[GoogleChatTextWithTopLabel] = []
     for label, text in data.items():
         if not label or not text:
@@ -583,14 +582,14 @@ class GoogleChatButton(BaseModel):
 
 
 class GoogleChatButtonList(GoogleChatWidget):
-    buttons: List[GoogleChatButton]
+    buttons: list[GoogleChatButton]
 
     def dict(self, *args, **kwargs):
         return {"buttonList": {"buttons": [button.dict() for button in self.buttons]}}
 
 
 class GoogleChatColumnItems(BaseModel):
-    widgets: List[GoogleChatWidget]
+    widgets: list[GoogleChatWidget]
     horizontalSizeStyle: str = "FILL_MINIMUM_SPACE"
     horizontalAlignment: str = "START"
     verticalAlignment: str = "CENTER"
@@ -605,7 +604,7 @@ class GoogleChatColumnItems(BaseModel):
 
 
 class GoogleChatColumns(GoogleChatWidget):
-    column_items: List[GoogleChatColumnItems]
+    column_items: list[GoogleChatColumnItems]
 
     def dict(self, *args, **kwargs):
         return {"columns": {"columnItems": [ci.dict() for ci in self.column_items]}}
@@ -621,12 +620,12 @@ class GoogleChatHeader(BaseModel):
 class GoogleChatSection(BaseModel):
     header: str = ""
     collapsible: bool = False
-    widgets: List[GoogleChatWidget] = []
+    widgets: list[GoogleChatWidget] = []
 
 
 class GoogleChatCard(BaseModel):
     header: GoogleChatHeader
-    sections: List[GoogleChatSection] = []
+    sections: list[GoogleChatSection] = []
 
 
 class GoogleChatCardV2(BaseModel):
@@ -635,7 +634,7 @@ class GoogleChatCardV2(BaseModel):
 
 
 class TokenAlertDetailsGoogleChat(BaseModel):
-    cardsV2: List[GoogleChatCardV2]
+    cardsV2: list[GoogleChatCardV2]
 
     def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
