@@ -499,7 +499,7 @@ class EmailOutputChannel(OutputChannel):
             email_content_html = EmailOutputChannel.format_token_exposed_html(
                 details,
                 Path(
-                    f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification_token_exposed.html"
+                    f"{self.switchboard_settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification_token_exposed.html"
                 ),
             )
             email_content_text = EmailOutputChannel.format_token_exposed_text(details)
