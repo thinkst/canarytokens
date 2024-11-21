@@ -138,6 +138,10 @@ def remove_canary_domain():
     return DB.get_db().delete(KEY_CANARY_DOMAINS)
 
 
+def remove_canary_nxdomain():
+    return DB.get_db().delete(KEY_CANARY_NXDOMAINS)
+
+
 def add_canary_nxdomain(domain: str) -> int:
     return DB.get_db().sadd(KEY_CANARY_NXDOMAINS, domain)
 

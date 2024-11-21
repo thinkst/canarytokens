@@ -162,6 +162,7 @@ from canarytokens.queries import (
     is_email_blocked,
     is_valid_email,
     remove_canary_domain,
+    remove_canary_nxdomain,
     save_canarydrop,
     validate_webhook,
     WebhookTooLongError,
@@ -342,7 +343,7 @@ def startup_event():
         hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT
     )
     remove_canary_domain()
-    remove_canary_domain()
+    remove_canary_nxdomain()
 
     add_canary_domain(domain=frontend_settings.DOMAINS[0])
     if frontend_settings.GOOGLE_API_KEY:
