@@ -1,9 +1,7 @@
 import type { NetworkFolderDataType } from './types';
 
 export default function generateNetworkFoldertoken(NetworkFolder: NetworkFolderDataType) {
-  const usageDescription = `
-      Host: ${NetworkFolder.webdav_server}
-      Username: <AnyUsernameIsFine>
-      Password: ${NetworkFolder.webdav_password}`
-  return usageDescription;
+  const usageDescription = `cmdkey /add:${NetworkFolder.webdav_server} /user:user /pass:${NetworkFolder.webdav_password}
+NET USE * \\\\${NetworkFolder.webdav_server}@SSL\\DavWWWRoot /persistent:yes`
+    return usageDescription;
 }
