@@ -186,7 +186,28 @@
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Location</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails.get('pwa_location', None)}}</p>
+                <p>
+                  <div style="font-weight:500;color:#060606;margin:0;">Latitude:</div> <div style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['pwa_location']['coords'].get('latitude', '-')}}</div>
+                </p>
+                <p>
+                  <div style="font-weight:500;color:#060606;margin:0;">Longitude:</div> <div style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['pwa_location']['coords'].get('longitude', '-')}}</div>
+                </p>
+                <p>
+                  <div style="font-weight:500;color:#060606;margin:0;">Accuracy (m):</div> <div style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['pwa_location']['coords'].get('accuracy', '-')}}</div>
+                </p>
+                <!-- Maps Links -->
+                  {% if BasicDetails['pwa_location'].get('google_maps_link') %}
+                    <p style="font-weight:600;display:block;line-height:1;margin:0;margin-top:12px">
+                      <a href="{{ BasicDetails['pwa_location']['google_maps_link'] }}" style="text-decoration:none;color:#33c480">
+                        Show in Google Maps
+                      </a>
+                    </p>
+                    <p style="font-weight:600;display:block;line-height:1;margin:0;margin-top:15px">
+                      <a href="{{ BasicDetails['pwa_location']['apple_maps_link'] }}"style="text-decoration:none;color:#33c480">
+                        Show in Apple Maps
+                      </a>
+                    </p>
+                  {% endif %}
               </td>
             </tr>
 
