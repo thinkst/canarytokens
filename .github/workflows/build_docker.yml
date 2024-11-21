@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "dev"
+      - "dev2"
 
   workflow_dispatch:
     inputs:
@@ -51,7 +52,7 @@ jobs:
         npm ci
 
     - name: Include git commit SHA and Google Maps Key for Frontend Development release
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && github.ref == 'refs/heads/dev'
+      if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && ( github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/dev2' )
       working-directory: frontend_vue
       run: |
         touch .env
@@ -167,6 +168,25 @@ jobs:
     needs: build
     steps:
       - name: Deploy to dev machine
+        run: |
+          cd /home/ubuntu/canarytokens-scripts/
+          ./canarytokensdb_s3backup.sh
+          cd /home/ubuntu/canarytokens-docker
+          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }} && git pull
+          sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
+          sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
+          sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
+          sudo docker pull thinkst/canarytokens:${GITHUB_REF##*/}
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml pull
+          sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml up -d
+          sudo docker system prune -f -a
+
+  dev2-deploy:
+    if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev2'
+    runs-on: [self-hosted, dev2]
+    needs: build
+    steps:
+      - name: Deploy to dev2 machine
         run: |
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
