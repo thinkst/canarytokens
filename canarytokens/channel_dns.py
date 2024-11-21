@@ -235,7 +235,12 @@ class ChannelDNS(InputChannel):
         #     d = deferLater(...)
         if (
             canarydrop.type
-            in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR, TokenTypes.CMD]
+            in [
+                TokenTypes.LOG4SHELL,
+                TokenTypes.WINDOWS_DIR,
+                TokenTypes.CMD,
+                TokenTypes.WINDOWS_FAKE_FS,
+            ]
             and src_data == {}
         ):
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
