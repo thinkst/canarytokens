@@ -14,16 +14,16 @@ terraform {
   required_version = ">= 1.2.0"
 
   backend "s3" {
-    bucket         = "aws-exposed-key-checker-infra-tfstate-frcebvb1wabk"
+    bucket         = "aws-exposed-key-checker-infra-tfstate"
     key            = "terraform/state.tfstate"
-    region         = "us-east-1"
+    region         = "us-east-2"
     dynamodb_table = "aws-exposed-key-checker-tf-locks"
     encrypt        = true
   }
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
 # DB
@@ -185,7 +185,7 @@ resource "aws_secretsmanager_secret" "zendesk_auth_data_secret" {
 
 # TF state
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "aws-exposed-key-checker-infra-tfstate-frcebvb1wabk"
+  bucket = "aws-exposed-key-checker-infra-tfstate"
   tags = {
     Name = "Terraform State Bucket for aws-exposed-key-checker"
   }

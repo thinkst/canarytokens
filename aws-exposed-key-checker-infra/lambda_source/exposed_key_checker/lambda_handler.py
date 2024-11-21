@@ -19,7 +19,7 @@ TOKENS_SERVERS_ALLOW_LIST = [
 ]
 TOKENS_POST_URL_OVERRIDE = os.getenv("TOKENS_POST_URL_OVERRIDE")
 
-BOTO_CONFIG = Config(region_name="us-east-1")
+BOTO_CONFIG = Config(region_name="us-east-2")
 
 
 def lambda_handler(_event, _context):

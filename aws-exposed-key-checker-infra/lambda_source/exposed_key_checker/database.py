@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from exposed_keys import ExposedKeyData
 
 DB_TABLE_NAME = "ExposedKeyCheckerProcessed"
-BOTO_CONFIG = Config(region_name="us-east-1")
+BOTO_CONFIG = Config(region_name="us-east-2")
 
 
 class Database:
