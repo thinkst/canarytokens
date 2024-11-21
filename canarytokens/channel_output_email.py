@@ -68,6 +68,13 @@ class EmailResponseStatuses(str, enum.Enum):
     IGNORED = "ignored"
 
 
+class EmailTemplates(str, enum.Enum):
+    NOTIFICATION_TOKEN_EXPOSED = (
+        "emails/_generated_dont_edit_notification_token_exposed.html"
+    )
+    NOTIFICATION = "emails/_generated_dont_edit_notification.html"
+
+
 class EmailResponse(object):
     def __init__(
         self,
@@ -499,7 +506,8 @@ class EmailOutputChannel(OutputChannel):
             email_content_html = EmailOutputChannel.format_token_exposed_html(
                 details,
                 Path(
-                    f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification_token_exposed.html"
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION_TOKEN_EXPOSED}",
                 ),
             )
             email_content_text = EmailOutputChannel.format_token_exposed_text(details)
@@ -508,7 +516,8 @@ class EmailOutputChannel(OutputChannel):
             email_content_html = EmailOutputChannel.format_report_html(
                 details,
                 Path(
-                    f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION}",
                 ),
             )
             email_content_text = EmailOutputChannel.format_report_text(details)
