@@ -43,6 +43,9 @@ resource "aws_dynamodb_table" "processed_table" {
 resource "null_resource" "pip_install" {
   triggers = {
     shell_hash = "${sha256(file("${path.module}/requirements.txt"))}"
+
+    # Rebuild if directory is empty (ignoring .gitignore which is always there). Use a timestamp since we always want empty to trigger, not only when changing from not_empty
+    empty_check = "${chomp(join("", [for file in fileset("${path.module}/layer/python", "*") : file != ".gitignore" ? "not_empty" : ""])) == "" ? timestamp() : "not_empty"}"
   }
 
   provisioner "local-exec" {
