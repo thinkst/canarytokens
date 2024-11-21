@@ -612,7 +612,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         azure_id_cert_file_name="test.pem",
         expected_referrer="testreferrer.com",
         windows_fake_fs_root=r"C:\Secrets",
-        windows_fake_fs_file_structure="option1",  # TODO Fix,
+        windows_fake_fs_file_structure="TESTFS",
     )
 
 

@@ -59,7 +59,7 @@ def test_windows_fake_fs_token_fires(
     assert token_info.token in token_info.hostname.split(".")
 
     clear_stats_on_webhook(webhook_receiver, token=token_info.token)
-    # Trigger CMD token twice, make sure the invocation ID limits it to one hit
+    # Trigger token twice, make sure the invocation ID limits it to one hit
     invocation_id = random.randint(1000, 10000)
     _ = trigger_windows_fake_fs_token(
         token_info=token_info,
@@ -87,7 +87,4 @@ def test_windows_fake_fs_token_fires(
     resp = get_token_history(token_info=token_info, version=version)
 
     token_history = WindowsFakeFSTokenHistory(**resp)
-    # TODO: what other fields do we want to assert on.
-    #       note: making them TokenHistory have stronger validators is
-    #             the better option.
     assert len(token_history.hits) == expected_hits
