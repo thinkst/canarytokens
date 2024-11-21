@@ -7,8 +7,8 @@ from botocore.config import Config
 
 from exposed_key_checker.database import Database
 from exposed_key_checker.ticket_manager import ZendeskTicketManager
-from exposed_key_checker.util import create_support_ticket
 from exposed_key_checker.exposed_keys import ExposedKeyData, parse_tickets
+from exposed_key_checker import support_ticketer
 
 DB_TABLE_NAME = "ExposedKeyCheckerProcessed"
 MAX_PROCESS_AGE_DAYS = 7
@@ -30,7 +30,7 @@ def lambda_handler(_event, _context):
         key_data, failed_ids = gather_data(ticket_manager)
     except Exception as e:
         text = f"The key checker could not query the Zendesk API for tickets.\nThe exception was {e}."
-        create_support_ticket(
+        support_ticketer.create_ticket(
             "Exposed AWS Key Checker could not query the Zendesk API",
             text,
             "exposed-aws-key-checker-zendesk-api-error",
@@ -41,7 +41,7 @@ def lambda_handler(_event, _context):
 
     if failed_ids:
         text = f"The key checker could not parse the following Zendesk ticket IDs: {failed_ids}"
-        create_support_ticket(
+        support_ticketer.create_ticket(
             "Exposed AWS Key Checker could not parse Zendesk tickets",
             text,
             "exposed-aws-key-checker-parse-error",
@@ -70,7 +70,7 @@ def process_data(db: Database, data: "list[ExposedKeyData]"):
             send_to_tokens_server(item)
         except Exception as e:
             text = f"The key checker could not post the exposed event to the tokens server for the following item: {item}\nThe exception was: {e}.\n\nThis post will be retried automatically on the next run of the lambda. This only needs to be investigated if the failures continue."
-            create_support_ticket(
+            support_ticketer.create_ticket(
                 "Exposed AWS Key Checker could not post to tokens server",
                 text,
                 "exposed-aws-key-checker-post-error",

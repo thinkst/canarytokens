@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 import boto3
 from botocore.config import Config
-from exposed_key_checker.util import create_support_ticket
+from exposed_key_checker import support_ticketer
 
 if TYPE_CHECKING:
     from exposed_keys import ExposedKeyData
@@ -19,7 +19,7 @@ class Database:
             self._db.put_item(TableName=DB_TABLE_NAME, Item=key_data.to_db_item())
         except Exception as e:
             text = f"The key checker could not save the following item as processed in DynamoDB: {key_data}. The exception was {e}."
-            create_support_ticket(
+            support_ticketer.create_ticket(
                 "Exposed AWS Key Checker could not save processed state",
                 text,
                 "exposed-aws-key-checker-save-error",

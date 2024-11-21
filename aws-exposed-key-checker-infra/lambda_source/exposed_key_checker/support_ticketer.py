@@ -2,7 +2,7 @@ import os
 import requests
 
 
-def create_support_ticket(subject: str, text: str, dedupe_key: str):
+def create_ticket(subject: str, text: str, dedupe_key: str):
     ticket_service_url = os.getenv("TICKET_SERVICE_URL")
     ticket_service_recipient = os.getenv("TICKET_SERVICE_RECIPIENT")
 
