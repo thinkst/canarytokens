@@ -173,6 +173,30 @@
     </mj-wrapper>
     <mj-raw>{% endif %}</mj-raw>
 
+    <!--PWA Location  -->
+    <mj-raw>{% if BasicDetails['pwa_location'] %}</mj-raw>
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+              </td>
+              <td>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Location</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails.get('pwa_location', None)}}</p>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
+
     <!--Location  -->
     <mj-raw>{% if BasicDetails['location'] %}</mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">

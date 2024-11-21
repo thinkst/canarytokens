@@ -508,7 +508,7 @@ class EmailOutputChannel(OutputChannel):
             email_content_html = EmailOutputChannel.format_report_html(
                 details,
                 Path(
-                    f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
+                    f"{self.switchboard_settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
                 ),
             )
             email_content_text = EmailOutputChannel.format_report_text(details)

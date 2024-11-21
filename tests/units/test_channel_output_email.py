@@ -40,7 +40,10 @@ def test_dns_rendered_html(settings: SwitchboardSettings):
         additional_data={},
     )
     email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        details,
+        Path(
+            f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+        ),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
@@ -61,7 +64,10 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
         },
     )
     email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        details,
+        Path(
+            f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+        ),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
@@ -82,7 +88,10 @@ def test_cloned_site_rendered_html(settings: SwitchboardSettings):
         },
     )
     email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        details,
+        Path(
+            f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+        ),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
@@ -102,7 +111,10 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
         },
     )
     email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        details,
+        Path(
+            f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+        ),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
@@ -122,7 +134,10 @@ def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
         },
     )
     email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        details,
+        Path(
+            f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+        ),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
@@ -164,7 +179,10 @@ def test_sendgrid_send(
     result, message_id = sendgrid_send(
         api_key=settings.SENDGRID_API_KEY,
         email_content_html=EmailOutputChannel.format_report_html(
-            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+            details,
+            Path(
+                f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+            ),
         ),
         email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
@@ -199,7 +217,10 @@ def test_mailgun_send(
     details = _get_send_token_details()
     result, message_id = mailgun_send(
         email_content_html=EmailOutputChannel.format_report_html(
-            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+            details,
+            Path(
+                f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+            ),
         ),
         email_content_text=EmailOutputChannel.format_report_text(details),
         email_address=EmailStr(email),
@@ -226,7 +247,10 @@ def test_smtp_send(
     details = _get_send_token_details()
     result, message_id = smtp_send(
         email_content_html=EmailOutputChannel.format_report_html(
-            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+            details,
+            Path(
+                f"{settings.TEMPLATES_PATH}/emails/_generated_dont_edit_notification.html"
+            ),
         ),
         email_content_text=EmailOutputChannel.format_report_text(details),
         email_address=EmailStr("tokens-testing@thinkst.com"),
