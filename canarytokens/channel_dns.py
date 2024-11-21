@@ -252,9 +252,7 @@ class ChannelDNS(InputChannel):
                 return defer.succeed(self._do_dynamic_response(name=query.name.name))
 
         if canarydrop.type == TokenTypes.WINDOWS_FAKE_FS:
-            invocation_id = src_data.get("src_data", {}).get(
-                "windows_fake_fs_invocation_id"
-            )
+            invocation_id = src_data["src_data"].get("windows_fake_fs_invocation_id")
             if (invocation_id is not None) and any(
                 hit.src_data.get("windows_fake_fs_invocation_id") == invocation_id
                 for hit in canarydrop.triggered_details.hits
