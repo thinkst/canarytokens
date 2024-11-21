@@ -81,6 +81,9 @@ type CanaryDropType = {
   cc_v2_expiry_month: string;
   cc_v2_expiry_year: string;
   cc_v2_name_on_card: string;
+  webdav_fs_type: string;
+  webdav_password: string;
+  webdav_server: string;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -154,6 +157,9 @@ export type NewTokenBackendType = {
   cvv: string | null;
   expiry_month: string | null;
   expiry_year: string | null;
+  webdav_fs_type: string | null;
+  webdav_password: string | null;
+  webdav_server: string | null;
 };
 
 export type AsnType = {
@@ -198,6 +204,8 @@ export type AdditionalInfoType = {
   r?: null | string;
   l?: null | string;
   aws_key_log_data?: AWSLogDataType | null;
+  file_path?: null | string;
+  useragent?: null | string;
 };
 
 type BasicInfoType = {

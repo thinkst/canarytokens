@@ -451,6 +451,7 @@ const alertSample = {
       service_used: 'service test value',
       eventName: ['DescribeInstances'],
     },
+    file_path: '/blah/foo/moo.txt',
   },
   location: null,
 };

@@ -1,7 +1,7 @@
 <template>
   <label
     :for="id"
-    class="mt-8 ml-4 font-semibold leading-3"
+    class="mt-8 ml-4 mb-8 font-semibold leading-3"
     >{{ label }}</label
   >
   <p

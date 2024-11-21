@@ -32,6 +32,8 @@ from canarytokens.models import (
     TokenTypes,
     CreditCardV2TokenHit,
     CreditCardV2AdditionalInfo,
+    WebDavTokenHit,
+    WebDavAdditionalInfo,
 )
 from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
@@ -527,6 +529,31 @@ class Canarytoken(object):
             "referrer": r_arg,
         }
         return http_general_info, src_data
+
+    @staticmethod
+    def _get_info_for_webdav(request: Request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        client_ip = request.getHeader("X-Client-Ip")
+        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_info = {
+            "additional_info": WebDavAdditionalInfo(
+                **{
+                    "file_path": request.getHeader("X-Alert-Path"),
+                    "useragent": http_general_info["useragent"],
+                }
+            ),
+            "geo_info": queries.get_geoinfo(ip=client_ip),
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "is_tor_relay": queries.is_tor_relay(client_ip),
+            "src_ip": client_ip,
+            "time_of_hit": hit_time,
+        }
+        return WebDavTokenHit(**hit_info)
+
+    @staticmethod
+    def _get_response_for_webdav(canarydrop: canarydrop.Canarydrop, request: Request):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
 
     @staticmethod
     def _get_response_for_cssclonedsite(

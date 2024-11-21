@@ -420,4 +420,20 @@ export const tokenServices: TokenServicesType = {
     ],
     keywords: ['microsoft', 'css', 'cloned']
   },
+  [TOKENS_TYPE.WEBDAV]: {
+    label: 'Network Folder',
+    description:
+      'Get an alert when an attacker browsers a mapped Network Folder (WebDAV).',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/webdav-token.html',
+    icon: `${TOKENS_TYPE.WEBDAV}.png`,
+    instruction:
+      'Map a drive to the host below, with any username and the password below.',
+    howItWorksInstructions: [
+      'We give you a WebDAV host and credentials',
+      'You map a drive to that network folder.',
+      'We send you an alert if an attacker browses that folder.',
+    ],
+    category: TOKEN_CATEGORY.OTHER,
+  },
 };

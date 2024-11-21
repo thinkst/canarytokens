@@ -287,6 +287,7 @@ class TokenTypes(str, enum.Enum):
     ADOBE_PDF = "adobe_pdf"
     WIREGUARD = "wireguard"
     WINDOWS_DIR = "windows_dir"
+    WEBDAV = "webdav"
     CLONEDSITE = "clonedsite"
     CSSCLONEDSITE = "cssclonedsite"
     CREDIT_CARD_V2 = "credit_card_v2"
@@ -331,6 +332,7 @@ readable_token_type_names = {
     TokenTypes.ADOBE_PDF: "Adobe PDF",
     TokenTypes.WIREGUARD: "WireGuard",
     TokenTypes.WINDOWS_DIR: "Windows folder",
+    TokenTypes.WEBDAV: "Network folder",
     TokenTypes.CLONEDSITE: "JS cloned website",
     TokenTypes.CSSCLONEDSITE: "CSS cloned website",
     TokenTypes.QR_CODE: "QR code",
@@ -777,6 +779,21 @@ class WindowsDirectoryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
 
+class WebDavTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    webdav_fs_type: str
+
+    @validator("webdav_fs_type")
+    def check_webdav_fs_type(value: str):
+        from canarytokens.webdav import FsType
+
+        if not value.upper() in FsType.__members__.keys():
+            raise ValueError(
+                f"webdav_fs_type must be in the FsType enum. Given: {value}"
+            )
+        return value
+
+
 class CreditCardV2TokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
     cf_turnstile_response: Optional[str]
@@ -798,6 +815,7 @@ AnyTokenRequest = Annotated[
         ClonedWebTokenRequest,
         CSSClonedWebTokenRequest,
         WindowsDirectoryTokenRequest,
+        WebDavTokenRequest,
         WebBugTokenRequest,
         SlowRedirectTokenRequest,
         MySQLTokenRequest,
@@ -1061,6 +1079,13 @@ class WindowsDirectoryTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
 
+class WebDavTokenResponse(TokenResponse):
+    webdav_fs_type: str
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    webdav_password: str
+    webdav_server: str
+
+
 class SMTPTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
     unique_email: Optional[EmailStr]
@@ -1123,6 +1148,7 @@ AnyTokenResponse = Annotated[
         MySQLTokenResponse,
         WireguardTokenResponse,
         WindowsDirectoryTokenResponse,
+        WebDavTokenResponse,
         FastRedirectTokenResponse,
         ClonedWebTokenResponse,
         CSSClonedWebTokenResponse,
@@ -1339,6 +1365,7 @@ class AdditionalInfo(BaseModel):
     mysql_client: Optional[dict[str, list[str]]]
     r: Optional[list[str]]
     l: Optional[list[str]]
+    file_path: Optional[list[str]]
 
     def serialize_for_v2(self) -> dict:
         data = json_safe_dict(self)
@@ -1657,6 +1684,19 @@ class WindowsDirectoryTokenHit(TokenHit):
     src_data: Optional[dict]
 
 
+class WebDavAdditionalInfo(BaseModel):
+    file_path: Optional[str]
+    useragent: Optional[str]
+
+    def serialize_for_v2(self) -> dict:
+        return self.dict()
+
+
+class WebDavTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    additional_info: Optional[WebDavAdditionalInfo]
+
+
 class MsExcelDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
 
@@ -1792,6 +1832,7 @@ AnyTokenHit = Annotated[
         FastRedirectTokenHit,
         SMTPTokenHit,
         WebBugTokenHit,
+        WebDavTokenHit,
         MySQLTokenHit,
         WireguardTokenHit,
         QRCodeTokenHit,
@@ -1941,6 +1982,11 @@ class WindowsDirectoryTokenHistory(TokenHistory[WindowsDirectoryTokenHit]):
     hits: List[WindowsDirectoryTokenHit] = []
 
 
+class WebDavTokenHistory(TokenHistory[WebDavTokenHit]):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    hits: List[WebDavTokenHit] = []
+
+
 class CustomBinaryTokenHistory(TokenHistory[CustomBinaryTokenHit]):
     token_type: Literal[TokenTypes.SIGNED_EXE] = TokenTypes.SIGNED_EXE
     hits: List[CustomBinaryTokenHit] = []
@@ -2041,6 +2087,7 @@ AnyTokenHistory = Annotated[
         SlowRedirectTokenHistory,
         FastRedirectTokenHistory,
         WebBugTokenHistory,
+        WebDavTokenHistory,
         CustomBinaryTokenHistory,
         WireguardTokenHistory,
         QRCodeTokenHistory,

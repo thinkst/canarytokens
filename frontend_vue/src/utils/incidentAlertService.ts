@@ -116,6 +116,11 @@ function isPWAtoken(token: string) {
   return token === TOKENS_TYPE.PWA;
 }
 
+function isWebDAVtoken(token: string) {
+  return token === TOKENS_TYPE.WEBDAV;
+}
+
+
 function locationValue(
   token: string,
   location: GeolocationPosition | CoordsType | string | null

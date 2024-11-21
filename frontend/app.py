@@ -135,6 +135,8 @@ from canarytokens.models import (
     TokenTypes,
     WebBugTokenRequest,
     WebBugTokenResponse,
+    WebDavTokenRequest,
+    WebDavTokenResponse,
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
     WireguardTokenRequest,
@@ -150,6 +152,7 @@ from canarytokens.azure_css import (
     EntraTokenStatus,
     LEGACY_ENTRA_STATUS_MAP,
 )
+from canarytokens.webdav import generate_webdav_password, insert_webdav_token, FsType
 from canarytokens.pdfgen import make_canary_pdf
 from canarytokens.queries import (
     add_canary_domain,
@@ -1602,6 +1605,50 @@ def _create_azure_id_token_response(
         cert=canarydrop.cert,
         tenant_id=canarydrop.tenant_id,
         cert_name=canarydrop.cert_name,
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: WebDavTokenRequest, canarydrop: Canarydrop
+) -> WebDavTokenResponse:
+    if not (
+        frontend_settings.WEBDAV_SERVER
+        and frontend_settings.CLOUDFLARE_ACCOUNT_ID
+        and frontend_settings.CLOUDFLARE_API_TOKEN
+        and frontend_settings.CLOUDFLARE_NAMESPACE
+    ):
+        return JSONResponse(
+            {
+                "error_message": "This Canarytokens instance does not have the Network Folder Canarytoken enabled."
+            },
+            status_code=400,
+        )
+    canarydrop.webdav_fs_type = FsType(token_request_details.webdav_fs_type)
+    canarydrop.webdav_server = frontend_settings.WEBDAV_SERVER
+    queries.save_canarydrop(canarydrop=canarydrop)
+    canarydrop.webdav_password = generate_webdav_password(
+        canarydrop.canarytoken.value()
+    )
+    queries.save_canarydrop(canarydrop=canarydrop)
+    insert_webdav_token(
+        canarydrop.webdav_password,
+        canarydrop.get_url([canary_http_channel]),
+        canarydrop.webdav_fs_type,
+    )
+    return WebDavTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        webdav_password=canarydrop.webdav_password,
+        webdav_server=canarydrop.webdav_server,
+        webdav_fs_type=canarydrop.webdav_fs_type,
     )
 
 
