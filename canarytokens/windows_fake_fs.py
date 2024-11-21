@@ -1014,24 +1014,26 @@ def _gen_ts() -> str:
     return str(now - (random_hours * 60 * 60))
 
 
-def _new_item(
-    path: str, is_folder: bool, size: int = 0, timestamp: int = _gen_ts()
-) -> dict:
+def _new_item(path: str, is_folder: bool, size: int = 0) -> dict:
     isdir = "false"
     if is_folder:
         isdir = "true"
-    return {"path": path, "isdir": isdir, "size": size, "timestamp": timestamp}
+    return {"path": path, "isdir": isdir, "size": size, "timestamp": _gen_ts()}
 
 
 def _process_item(item: dict, path: str) -> str:
     out = []
     if item["type"] == "folder":
-        out.append(_new_item(path + "\\" + item["name"], True))
+        out.append(_new_item(path=path + "\\" + item["name"], is_folder=True))
         for c in item["children"]:
             out += _process_item(c, path + "\\" + item["name"])
     else:
         out.append(
-            _new_item(path + "\\" + item["name"], False, random.randint(1024, 51200))
+            _new_item(
+                path=path + "\\" + item["name"],
+                is_folder=False,
+                size=random.randint(1024, 51200),
+            )
         )
     return out
 
