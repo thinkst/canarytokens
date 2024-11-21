@@ -4,6 +4,10 @@ SHELL=/bin/bash
 switchboard:
 	cd switchboard; poetry run twistd -noy switchboard.tac --pidfile=switchboard.pid
 
+.PHONY: switchboard-debug
+switchboard-debug:
+	cd switchboard; poetry run twistd --debug -noy switchboard.tac --pidfile=switchboard.pid
+
 .PHONY: frontend
 frontend:
 	cd frontend; poetry run uvicorn app:app --reload --log-config log.ini --host 0.0.0.0 --port 8082
