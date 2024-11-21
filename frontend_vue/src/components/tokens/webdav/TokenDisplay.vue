@@ -12,7 +12,7 @@
       <li>Enter <strong>"{{NetworkFolder.webdav_server}}"</strong> as the hostname, and click Connect</li>
       <li>Enter any username (e.g. "user")</li>
       <li>Use <strong>{{NetworkFolder.webdav_password}}</strong> as the password</li>
-      <li>Optionally you can save the credentials into your Keychain if you want to remount at login. To remount at log, open System Settings -> General -> Open at Login, click the \'+\' to add a new item, navigate to the newly-mounted folder, and select it, then click Open.</li>
+      <li>Optionally you can save the credentials into your Keychain if you want to remount at login. To remount at log, open System Settings -> General -> Open at Login, click the '+' to add a new item, navigate to the newly-mounted folder, and select it, then click Open.</li>
     </ul>
   </div>
 </template>
