@@ -668,11 +668,11 @@ class Canarytoken(object):
 
     @staticmethod
     def _get_response_for_idp_app(canarydrop: canarydrop.Canarydrop, request: Request):
-        if canarydrop.redirect_url:
-            if canarydrop.browser_scanner_enabled:
-                return Canarytoken._get_response_for_slow_redirect(canarydrop, request)
+        if not canarydrop.redirect_url:
+            return Canarytoken._get_response_for_web(canarydrop, request)
+        if not canarydrop.browser_scanner_enabled:
             return Canarytoken._get_response_for_fast_redirect(canarydrop, request)
-        return Canarytoken._get_response_for_web(canarydrop, request)
+        return Canarytoken._get_response_for_slow_redirect(canarydrop, request)
 
     @staticmethod
     def _get_info_for_slow_redirect(request):

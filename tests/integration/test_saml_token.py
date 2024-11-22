@@ -51,7 +51,7 @@ def test_saml_token(redirect_url, webhook_receiver, version=v3):
     if stats:
         assert len(stats) == 1
         assert stats[0]["memo"] == memo
-        _ = TokenAlertDetailGeneric(**stats[0])
+        TokenAlertDetailGeneric(**stats[0])
 
     resp = get_token_history(token_info=token_info, version=version)
     token_history = IdPAppTokenHistory(**resp)
