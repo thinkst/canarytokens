@@ -8,11 +8,22 @@ from canarytokens.models import Hostname
 
 PS_TEMPLATE = r"""
 # CanaryFS-Wrapper.ps1
+
+<#
+Sample Invocation.
+.\CanaryFS.ps1 -TaskName "CanaryFS" -TaskDescription "Create Fake Files" -ScriptPath "C:\users\Thinkst\data-script.ps1" -RootPath "C:\CanaryFs"
+
+Sample exe invocation
+.\CanaryFS.exe C:\vfstest $(Get-Content .\csharp\test_file.csv -Raw) example.canarytokens.com true
+
+#>
+
 param(
     [string]$TaskName = "Microsoft_DataProcessor",
     [string]$ScriptPath = "$env:USERPROFILE\Scripts\Process-Data.ps1",
     [string]$TaskDescription = "Process data files in specified directory",
-    [string]$RootPath = "{ROOT_DIR}"
+    [string]$RootPath = "{ROOT_DIR}",
+    [switch]$Remove = $false
 )
 
 # Function Definitions
@@ -151,7 +162,6 @@ namespace ProjectedFileSystemProvider
                     Console.WriteLine("Win32 Error Code: " + ((System.ComponentModel.Win32Exception)ex).NativeErrorCode);
                 }
             }
-
         }
     }
 
@@ -180,6 +190,7 @@ namespace ProjectedFileSystemProvider
 
         private void AlertOnFileAccess(string filePath, string imgFileName)
         {
+            Console.WriteLine("Alerting on: {0} from process {1}", filePath, imgFileName);
             string filename = filePath.Split('\\')[filePath.Split('\\').Length - 1];
             string imgname = imgFileName.Split('\\')[imgFileName.Split('\\').Length - 1];
             string fnb32 = BytesToBase32(Encoding.UTF8.GetBytes(filename));
@@ -189,6 +200,7 @@ namespace ProjectedFileSystemProvider
 
             try {
                 // Resolve the DNS
+                DebugWrite(string.Format("Resolving the following hostname: {0}", uniqueval + "f" + fnb32 + ".i" + inb32 + "." + alertDomain));
                 Task.Run(() => Dns.GetHostEntry(uniqueval + "f" + fnb32 + ".i" + inb32 + "." + alertDomain));
             } catch (Exception ex) {
                 Console.WriteLine("Error: " + ex.Message);
@@ -322,7 +334,7 @@ namespace ProjectedFileSystemProvider
                 return 0; // FILE_NOT_FOUND
             }
 
-            var entry = entries.Find(e => e.Name == fileName.ToLower());
+            var entry = entries.Find(e => string.Equals(e.Name, fileName, StringComparison.OrdinalIgnoreCase));
             if (entry == null || entry.IsDirectory)
             {
                 DebugWrite("File is a dir?!");
@@ -507,6 +519,8 @@ namespace ProjectedFileSystemProvider
 
         private int GetFileData(ProjFSNative.PrjCallbackData callbackData, ulong byteOffset, uint length)
         {
+            DebugWrite(string.Format("GetFileData: {0}, {1}, {2}", callbackData.FilePathName, byteOffset, length));
+
             string parentPath = Path.GetDirectoryName(callbackData.FilePathName);
             if (string.IsNullOrEmpty(parentPath))
             {
@@ -826,13 +840,10 @@ namespace ProjectedFileSystemProvider
 
 Invoke-CanaryFS
 '@
-
         #Append Root Path
-
         $processScript =  $processScript + " -RootPath $RootPath"
         # Save the process script (using the existing $processScript variable)
         $processScript | Out-File -FilePath $ScriptPath -Force
-
         # Create task XML
         $FullUsername = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
         $taskXml = @"
@@ -907,7 +918,88 @@ Invoke-CanaryFS
     }
 }
 
+function Write-StatusMessage {
+    param(
+        [string]$Message,
+        [bool]$Success = $true
+    )
+    if ($Success) {
+        Write-Host "** $Message" -ForegroundColor Green
+    } else {
+        Write-Host "-- $Message" -ForegroundColor Red
+    }
+}
+
+function Remove-ProjFS {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$RootPath,
+        [Parameter(Mandatory=$true)]
+        [string]$ScriptPath,
+        [Parameter(Mandatory=$true)]
+        [string]$TaskName
+    )
+    $ErrorActionPreference = "Stop"
+
+    function Invoke-Step {
+        param($Message, [scriptblock]$Action)
+        try {
+            & $Action
+            Write-Host "++ $Message" -ForegroundColor Green
+        } catch {
+            Write-Host "-- $Message - Error: $_" -ForegroundColor Red
+        }
+    }
+
+    if (-not (Test-Administrator)) {
+        Write-Host "Administrator privileges required for ProjFS installation." -ForegroundColor Yellow
+        return $false
+    }
+    # Step 1: Stop Provider Process
+    $projFSProcesses = Get-Process -Name powershell* | Where-Object {
+        $_.Modules | Where-Object { $_.ModuleName -eq "ProjectedFSLib.dll" }
+    }
+    if ($projFSProcesses) {
+        Write-Host "`nFound PowerShell processes using Projected File System Providers:"
+        $projFSProcesses | ForEach-Object { Write-Host "PID: $($_.Id) - Path: $($_.Path)" }
+        if ((Read-Host "Kill these processes? (Y/N)").ToUpper() -eq "Y") {
+            Invoke-Step "Terminating ProjFS processes" {
+                $projFSProcesses | Stop-Process -Force
+            }
+        }
+    }
+
+    Invoke-Step "Removing scheduled task" {
+        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+    }
+
+    Invoke-Step "Deleting script file" {
+        if (Test-Path $ScriptPath) { Remove-Item $ScriptPath -Force }
+    }
+
+    Invoke-Step "Removing ProjFS feature" {
+        Disable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart
+    }
+
+    # Execute remaining steps
+    Invoke-Step "Removing folder" {
+        Remove-Item "$RootPath" -Force -Recurse
+    }
+
+    Write-Host "`nNOTE: System reboot required to complete ProjFS removal." -ForegroundColor Yellow
+}
+
 # Main execution
+if($Remove )
+{
+    if ((Read-Host "Preparing to Remove Canary ProjFS. Do you want to continue? (Y/N)") -notmatch '^[Yy]$') { exit }
+    else
+    {
+        Remove-ProjFS -RootPath $RootPath -ScriptPath $ScriptPath -TaskName $TaskName
+        exit
+    }
+}
+
 if ((Read-Host "Preparing to Install Canary ProjFS. Do you want to continue? (Y/N)") -notmatch '^[Yy]$') { exit }
 
 $projfsResult = Install-ProjFS
