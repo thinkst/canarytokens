@@ -14,6 +14,7 @@ from pydantic import parse_obj_as
 from twisted.web.http import Request
 from twisted.web.util import redirectTo
 
+from canarytokens.saml import extract_identity, prepare_request
 from canarytokens.settings import SwitchboardSettings
 
 from canarytokens import canarydrop, msreg, queries
@@ -656,6 +657,24 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_idp_app(request: Request):
+        src_data = {}
+        saml_request = prepare_request(request)
+        if saml_request:
+            identity = extract_identity(saml_request)
+            src_data["identity"] = identity
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        return http_general_info, {"src_data": src_data}
+
+    @staticmethod
+    def _get_response_for_idp_app(canarydrop: canarydrop.Canarydrop, request: Request):
+        if canarydrop.redirect_url:
+            if canarydrop.browser_scanner_enabled:
+                return Canarytoken._get_response_for_slow_redirect(canarydrop, request)
+            return Canarytoken._get_response_for_fast_redirect(canarydrop, request)
+        return Canarytoken._get_response_for_web(canarydrop, request)
+
+    @staticmethod
     def _get_info_for_slow_redirect(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         location = request.args.get(b"l", [None])[0]
@@ -700,7 +719,7 @@ class Canarytoken(object):
                 # set-up response template
                 browser_scanner_template_params = {
                     "key": latest_hit_time,
-                    "canarytoken": canarydrop.canarytoken.value,
+                    "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
                 }
                 template = get_template_env().get_template("browser_scanner.html")
@@ -775,7 +794,7 @@ class Canarytoken(object):
                 # set-up response template
                 browser_scanner_template_params = {
                     "key": latest_hit_time,
-                    "canarytoken": canarydrop.canarytoken.value,
+                    "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
                 }
                 template = get_template_env().get_template("browser_scanner.html")
@@ -848,7 +867,7 @@ class Canarytoken(object):
                 # set-up response template
                 browser_scanner_template_params = {
                     "key": latest_hit_time,
-                    "canarytoken": canarydrop.canarytoken.value,
+                    "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
                 }
                 template = get_template_env().get_template("browser_scanner.html")

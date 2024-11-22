@@ -126,6 +126,8 @@ from canarytokens.models import (
     PWATokenResponse,
     QRCodeTokenRequest,
     QRCodeTokenResponse,
+    IdPAppTokenRequest,
+    IdPAppTokenResponse,
     response_error,
     SettingsResponse,
     SlowRedirectTokenRequest,
@@ -834,12 +836,17 @@ async def api_generate(  # noqa: C901  # gen is large
         else None,
     )
 
+    page = None
+    if token_request_details.token_type == TokenTypes.PWA:
+        page = "index.html"
+    elif token_request_details.token_type == TokenTypes.IDP_APP:
+        page = "saml/sso"
+
     # add generate random hostname an token
     canarydrop.get_url(
         canary_domains=[canary_http_channel],
-        page="index.html"
-        if token_request_details.token_type == TokenTypes.PWA
-        else None,
+        page=page,
+        use_path_elements=(token_request_details.token_type != TokenTypes.IDP_APP),
     )
     if token_request_details.token_type == TokenTypes.PWA:
         canarydrop.generated_url = canarydrop.generated_url.replace(
@@ -2060,10 +2067,7 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
 def _(
     token_request_details: CreditCardV2TokenRequest, canarydrop: Canarydrop
 ) -> CreditCardV2TokenResponse:
-    canarytoken = Canarytoken()
-    canarydrop.canarytoken = canarytoken
-
-    (status, card) = credit_card_infra.create_card(canarytoken.value())
+    (status, card) = credit_card_infra.create_card(canarydrop.canarytoken.value())
 
     if status == credit_card_infra.Status.SUCCESS:
         canarydrop.cc_v2_card_id = card.card_id
@@ -2095,4 +2099,25 @@ def _(
         cvv=canarydrop.cc_v2_cvv,
         expiry_month=canarydrop.cc_v2_expiry_month,
         expiry_year=canarydrop.cc_v2_expiry_year,
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: IdPAppTokenRequest, canarydrop: Canarydrop
+) -> IdPAppTokenResponse:
+    canarydrop.idp_app_entity_id = canarydrop.generated_url.removesuffix("/saml/sso")
+    if not canarydrop.redirect_url:
+        canarydrop.browser_scanner_enabled = True
+    save_canarydrop(canarydrop)
+
+    return IdPAppTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        entity_id=canarydrop.idp_app_entity_id,
     )
