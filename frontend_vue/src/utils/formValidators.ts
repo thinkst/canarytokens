@@ -226,4 +226,10 @@ export const formValidators: ValidateSchemaType = {
       windows_fake_fs_file_structure: Yup.string().required('A file structure is required'),
     }),
   },
+  [TOKENS_TYPE.IDP_APP]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      redirect_url: Yup.string(),
+    }),
+  },
 };

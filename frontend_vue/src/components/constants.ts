@@ -39,6 +39,7 @@ export const TOKENS_TYPE = {
   PWA: 'pwa',
   CREDIT_CARD_V2: 'credit_card_v2',
   WEBDAV: 'webdav',
+  IDP_APP: 'idp_app',
 };
 
 // unique keys to use in the frontend
