@@ -86,6 +86,7 @@ type CanaryDropType = {
   webdav_fs_type: string;
   webdav_password: string;
   webdav_server: string;
+  idp_app_entity_id: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -162,6 +163,7 @@ export type NewTokenBackendType = {
   webdav_fs_type: string | null;
   webdav_password: string | null;
   webdav_server: string | null;
+  entity_id: string | null;
 };
 
 export type AsnType = {

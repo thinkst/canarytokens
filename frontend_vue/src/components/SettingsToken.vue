@@ -87,7 +87,8 @@ const props = defineProps<{
 function isSupportBrowserScan() {
   return (
     props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
-    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE ||
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.IDP_APP
   );
 }
 
