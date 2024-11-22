@@ -61,6 +61,8 @@ from canarytokens.models import (
     WindowsDirectoryTokenResponse,
     CreditCardV2TokenRequest,
     CreditCardV2TokenResponse,
+    WebDavTokenRequest,
+    WebDavTokenResponse,
 )
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -714,6 +716,129 @@ def test_aws_keys(
         assert token_info.aws_secret_access_key
         assert token_info.region == "us-east-2"
         assert token_info.output == "json"
+
+
+def test_webdav(
+    webhook_receiver: HttpUrl,
+    frontend_settings: FrontendSettings,
+    setup_db: None,
+) -> None:
+    (webdav_server, cf_account_id, cf_api_token, cf_namespace) = (
+        "https://examplewebdavserver.com",
+        "nosuchaccountid",
+        "nosuchapitoken",
+        "nosuchnamespace",
+    )
+    overrides = {
+        "WEBDAV_SERVER": webdav_server,
+        "CLOUDFLARE_ACCOUNT_ID": cf_account_id,
+        "CLOUDFLARE_API_TOKEN": cf_api_token,
+        "CLOUDFLARE_NAMESPACE": cf_namespace,
+    }
+    with mock.patch.dict(
+        os.environ,
+        {"CANARY_" + k: v for (k, v) in overrides.items()},
+        clear=False,
+    ):
+        local_settings = frontend_settings.dict()
+        for k, v in overrides.items():
+            local_settings[k] = v
+        local_settings = FrontendSettings(**local_settings)
+
+        from frontend.app import _create_webdav_token_response
+
+        token_request_details = WebDavTokenRequest(
+            webhook_url=webhook_receiver,
+            memo=Memo("Testing WebDav token generation in frontend"),
+            webdav_fs_type="it",
+        )
+
+        canarytoken = Canarytoken()
+        cd = canarydrop.Canarydrop(
+            type=token_request_details.token_type,
+            alert_email_enabled=False,
+            alert_webhook_enabled=True,
+            alert_webhook_url=token_request_details.webhook_url,
+            canarytoken=canarytoken,
+            memo=token_request_details.memo,
+        )
+
+        # add generate random hostname an token
+        canary_http_channel = f"http://{local_settings.DOMAINS[0]}"
+        cd.get_url([canary_http_channel])
+        cd.generated_hostname = cd.get_hostname()
+        save_canarydrop(cd)
+
+        import frontend.app  # noqa: F401
+
+        with mock.patch("frontend.app.insert_webdav_token", return_value=True):
+            resp = _create_webdav_token_response(
+                token_request_details=token_request_details,
+                canarydrop=cd,
+                settings=local_settings,
+            )
+
+        token_info = WebDavTokenResponse(**resp.dict())
+        assert token_info.webdav_fs_type
+        assert token_info.webdav_password
+        assert token_info.webdav_server
+
+
+def test_webdav_no_cloudflare(
+    webhook_receiver: HttpUrl,
+    frontend_settings: FrontendSettings,
+) -> None:
+    (webdav_server, cf_account_id, cf_api_token, cf_namespace) = ("", "", "", "")
+    overrides = {
+        "WEBDAV_SERVER": webdav_server,
+        "CLOUDFLARE_ACCOUNT_ID": cf_account_id,
+        "CLOUDFLARE_API_TOKEN": cf_api_token,
+        "CLOUDFLARE_NAMESPACE": cf_namespace,
+    }
+    with mock.patch.dict(
+        os.environ,
+        {"CANARY_" + k: v for (k, v) in overrides.items()},
+        clear=False,
+    ):
+        local_settings = frontend_settings.dict()
+        for k, v in overrides.items():
+            local_settings[k] = v
+        local_settings = FrontendSettings(**local_settings)
+
+        from frontend.app import _create_webdav_token_response
+
+        token_request_details = WebDavTokenRequest(
+            webhook_url=webhook_receiver,
+            memo=Memo("Testing WebDav token generation in frontend"),
+            webdav_fs_type="it",
+        )
+
+        canarytoken = Canarytoken()
+        cd = canarydrop.Canarydrop(
+            type=token_request_details.token_type,
+            alert_email_enabled=False,
+            alert_webhook_enabled=True,
+            alert_webhook_url=token_request_details.webhook_url,
+            canarytoken=canarytoken,
+            memo=token_request_details.memo,
+        )
+
+        # add generate random hostname an token
+        canary_http_channel = f"http://{local_settings.DOMAINS[0]}"
+        cd.get_url([canary_http_channel])
+        cd.generated_hostname = cd.get_hostname()
+        save_canarydrop(cd)
+
+        resp = _create_webdav_token_response(
+            token_request_details=token_request_details,
+            canarydrop=cd,
+            settings=local_settings,
+        )
+        assert resp.status_code == 400
+        assert (
+            b"This Canarytokens instance does not have the Network Folder Canarytoken enabled."
+            in resp.body
+        )
 
 
 @pytest.mark.parametrize(

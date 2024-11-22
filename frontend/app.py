@@ -1609,14 +1609,20 @@ def _create_azure_id_token_response(
 
 
 @create_response.register
-def _(
-    token_request_details: WebDavTokenRequest, canarydrop: Canarydrop
+def _create_webdav_token_response(
+    token_request_details: WebDavTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
 ) -> WebDavTokenResponse:
+
+    if settings is None:
+        settings = frontend_settings
+
     if not (
-        frontend_settings.WEBDAV_SERVER
-        and frontend_settings.CLOUDFLARE_ACCOUNT_ID
-        and frontend_settings.CLOUDFLARE_API_TOKEN
-        and frontend_settings.CLOUDFLARE_NAMESPACE
+        settings.WEBDAV_SERVER
+        and settings.CLOUDFLARE_ACCOUNT_ID
+        and settings.CLOUDFLARE_API_TOKEN
+        and settings.CLOUDFLARE_NAMESPACE
     ):
         return JSONResponse(
             {
@@ -1625,7 +1631,7 @@ def _(
             status_code=400,
         )
     canarydrop.webdav_fs_type = FsType(token_request_details.webdav_fs_type)
-    canarydrop.webdav_server = frontend_settings.WEBDAV_SERVER
+    canarydrop.webdav_server = settings.WEBDAV_SERVER
     queries.save_canarydrop(canarydrop=canarydrop)
     canarydrop.webdav_password = generate_webdav_password(
         canarydrop.canarytoken.value()

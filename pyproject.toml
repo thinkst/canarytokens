@@ -69,6 +69,7 @@ botocore = "^1.34.141"
 modernize = "^0.8.0"
 deepdiff = "^5.8.1"
 pypdf = "^4.2.0"
+easywebdav = "1.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
