@@ -89,6 +89,7 @@
 
 <script lang="ts" setup>
 import getImageUrl from '@/utils/getImageUrl';
+import { emit } from 'process';
 import { ref } from 'vue';
 
 type SelectedAppType = {
@@ -226,8 +227,8 @@ const idpOptions = [
   },
 ];
 
-function handleSelectedApp(selected: { value: string; label: string }) {
+function handleSelectedApp(selected: string) {
   console.log('Selected app:', selected);
-  selectedApp.value = selected;
+  selectedApp.value = idpOptions.find(o => o.value === selected);
 }
 </script>
