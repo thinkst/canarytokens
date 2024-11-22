@@ -89,7 +89,7 @@ function handleSelectOption(value: string | SelectOption) {
     value = value.value;
   }
   handleChange(value);
-  emits('selectOption', selectedVal);
+  emits('selectOption', value);
 }
 </script>
 
