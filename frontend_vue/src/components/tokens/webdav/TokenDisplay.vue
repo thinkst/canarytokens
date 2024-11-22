@@ -3,7 +3,7 @@
     lang="shell"
     label="On Windows systems, run these commands in cmd.exe:"
     :code="snippetWindowsCode"
-    custom-height="6rem"
+    custom-height="9.5rem"
   ></base-code-snippet>
   <div>
     <label class="mt-16 mb-8 text-grey-500 inline-block" >On <strong>MacOS</strong> systems, configure a Network Folder with these steps:</label>
