@@ -159,7 +159,7 @@ resource "aws_iam_role_policy_attachment" "console_event_dispatcher_lambda_basic
 # Schedule lambda run
 resource "aws_cloudwatch_event_rule" "periodic_run" {
   name                = "run_exposed_key_checker_periodically"
-  schedule_expression = "rate(12 hours)"
+  schedule_expression = "rate(4 hours)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
