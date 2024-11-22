@@ -102,127 +102,127 @@ const selectedApp = ref<SelectedAppType>();
 const idpOptions = [
   {
     value: 'Gmail',
-    iconUrl: 'idp_icons/gmail.png'
+    label: 'idp_icons/gmail.png'
   },
   {
     value: 'Outlook',
-    iconUrl: 'idp_icons/outlook.png'
+    label: 'idp_icons/outlook.png'
   },
   {
     value: 'Google Drive',
-    iconUrl: 'idp_icons/gdrive.png'
+    label: 'idp_icons/gdrive.png'
   },
   {
     value: 'OneDrive',
-    iconUrl: 'idp_icons/onedrive.png'
+    label: 'idp_icons/onedrive.png'
   },
   {
     value: 'AWS',
-    iconUrl: 'idp_icons/aws.png'
+    label: 'idp_icons/aws.png'
   },
   {
     value: 'Azure',
-    iconUrl: 'idp_icons/azure.png'
+    label: 'idp_icons/azure.png'
   },
   {
     value: 'Google Cloud',
-    iconUrl: 'idp_icons/gcloud.png'
+    label: 'idp_icons/gcloud.png'
   },
   {
     value: 'Zoho',
-    iconUrl: 'idp_icons/zoho.png'
+    label: 'idp_icons/zoho.png'
   },
   {
     value: 'Salesforce',
-    iconUrl: 'idp_icons/salesforce.png'
+    label: 'idp_icons/salesforce.png'
   },
   {
     value: 'Zendesk',
-    iconUrl: 'idp_icons/zendesk.png'
+    label: 'idp_icons/zendesk.png'
   },
   {
     value: 'Freshbooks',
-    iconUrl: 'idp_icons/freshbooks.png'
+    label: 'idp_icons/freshbooks.png'
   },
   {
     value: 'Elasticsearch',
-    iconUrl: 'idp_icons/elasticsearch.png'
+    label: 'idp_icons/elasticsearch.png'
   },
   {
     value: 'Kibana',
-    iconUrl: 'idp_icons/kibana.png'
+    label: 'idp_icons/kibana.png'
   },
   {
     value: '1Password',
-    iconUrl: 'idp_icons/1password.png'
+    label: 'idp_icons/1password.png'
   },
   {
     value: 'LastPass',
-    iconUrl: 'idp_icons/lastpass.png'
+    label: 'idp_icons/lastpass.png'
   },
   {
     value: 'Bitwarden',
-    iconUrl: 'idp_icons/bitwarden.png'
+    label: 'idp_icons/bitwarden.png'
   },
   {
     value: 'SAP',
-    iconUrl: 'idp_icons/sap.png'
+    label: 'idp_icons/sap.png'
   },
   {
     value: 'Jira',
-    iconUrl: 'idp_icons/jira.png'
+    label: 'idp_icons/jira.png'
   },
   {
     value: 'JAMF',
-    iconUrl: 'idp_icons/jamf.png'
+    label: 'idp_icons/jamf.png'
   },
   {
     value: 'Duo',
-    iconUrl: 'idp_icons/duo.png'
+    label: 'idp_icons/duo.png'
   },
   {
     value: 'Intune',
-    iconUrl: 'idp_icons/intune.png'
+    label: 'idp_icons/intune.png'
   },
   {
     value: 'Zoom',
-    iconUrl: 'idp_icons/zoom.png'
+    label: 'idp_icons/zoom.png'
   },
   {
     value: 'Dropbox',
-    iconUrl: 'idp_icons/dropbox.png'
+    label: 'idp_icons/dropbox.png'
   },
   {
     value: 'GitHub',
-    iconUrl: 'idp_icons/github.png'
+    label: 'idp_icons/github.png'
   },
   {
     value: 'Slack',
-    iconUrl: 'idp_icons/slack.png'
+    label: 'idp_icons/slack.png'
   },
   {
     value: 'MS Teams',
-    iconUrl: 'idp_icons/ms-teams.png'
+    label: 'idp_icons/ms-teams.png'
   },
   {
     value: 'Microsoft 365',
-    iconUrl: 'idp_icons/ms-365.png'
+    label: 'idp_icons/ms-365.png'
   },
   {
     value: 'GitLab',
-    iconUrl: 'idp_icons/gitlab.png'
+    label: 'idp_icons/gitlab.png'
   },
   {
     value: 'PagerDuty',
-    iconUrl: 'idp_icons/pagerduty.png'
+    label: 'idp_icons/pagerduty.png'
   },
   {
     value: 'Sage',
-    iconUrl: 'idp_icons/sage.png'
+    label: 'idp_icons/sage.png'
   },
   {
     value: 'Virtru',
-    iconUrl: 'idp_icons/virtru.png'
+    label: 'idp_icons/virtru.png'
   },
 ];
 
