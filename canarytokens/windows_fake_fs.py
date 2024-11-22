@@ -969,8 +969,20 @@ function Remove-ProjFS {
         }
     }
 
-    Invoke-Step "Removing scheduled task" {
-        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+    Invoke-Step "Deleting script file" {
+        if (Test-Path $ScriptPath) { Remove-Item $ScriptPath -Force }
+
+        $ParentFolder = Split-Path -Parent $ScriptPath
+        if (Test-Path -Path $ParentFolder -PathType Container) {
+            $FolderContents = Get-ChildItem -Path $ParentFolder -Force
+
+            if ($null -eq $FolderContents) {
+                Remove-Item -Path $ParentFolder -Force
+                Write-Host "Empty folder removed: $ParentFolder"
+            } else {
+                Write-Host "Warning: Folder '$ParentFolder' is not empty. Leaving in place." -ForegroundColor Yellow
+            }
+        }
     }
 
     Invoke-Step "Deleting script file" {
