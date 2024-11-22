@@ -3,7 +3,6 @@ from abc import ABCMeta, abstractmethod
 import csv
 
 import enum
-import json
 import os
 import re
 import socket
@@ -50,8 +49,6 @@ from canarytokens.constants import (
 )
 from canarytokens.utils import (
     json_safe_dict,
-    prettify_snake_case,
-    dict_to_csv,
     get_src_ip_continent,
 )
 
@@ -528,12 +525,30 @@ class WindowsFakeFSTokenRequest(TokenRequest):
     windows_fake_fs_root: str
     windows_fake_fs_file_structure: str
 
-    # TODO validators
-    # @validator("cmd_process")
-    # def check_process_name(value: str):
-    #     if not value.endswith(".exe"):
-    #         raise ValueError(f"cmd_process must end in .exe. Given: {value}")
-    #     return value
+    @validator("windows_fake_fs_root")
+    def check_process_name(value: str):
+        invalid_chars = r'[<>:"/\\|?*]'
+        drive_pattern = r"^[A-Za-z]:[\\/]"
+
+        if not re.match(drive_pattern, value):
+            raise ValueError(
+                f"windows_fake_fs_root does not have a drive letter specified. Given: {value}"
+            )
+
+        folder_path = re.sub(drive_pattern, "", value, 1)
+        if re.search(invalid_chars, folder_path):
+            raise ValueError(
+                f"windows_fake_fs_root contains invalid Windows Path Characters. Given: {value}"
+            )
+        if value.endswith(" "):
+            raise ValueError(
+                f"windows_fake_fs_root cannot end with a space. Given: {value}"
+            )
+        if value.endswith("."):
+            raise ValueError(
+                f"windows_fake_fs_root cannot end with a fullstop. Given: {value}"
+            )
+        return value
 
 
 class CCTokenRequest(TokenRequest):
@@ -2216,7 +2231,6 @@ class TokenExposedDetails(BaseModel):
         json_encoders = {
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
         }
-
 
 
 class UserName(ConstrainedStr):

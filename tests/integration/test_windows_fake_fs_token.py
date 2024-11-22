@@ -1,5 +1,6 @@
 import random
 import pytest
+from typing import List
 
 from canarytokens.models import (
     WindowsFakeFSTokenHistory,
@@ -88,3 +89,54 @@ def test_windows_fake_fs_token_fires(
 
     token_history = WindowsFakeFSTokenHistory(**resp)
     assert len(token_history.hits) == expected_hits
+
+
+@pytest.mark.parametrize("version", [v3])
+@pytest.mark.parametrize(
+    "directories, expected_error_message",
+    [
+        (
+            [
+                r"C:\Secrets["
+                r"C:\Secrets<"
+                r"C:\Secrets>"
+                r"C:\Secrets:"
+                r'C:\Secrets"'
+                r"C:\Secrets/"
+                r"C:\Secrets\\"
+                r"C:\Secrets|"
+                r"C:\Secrets?"
+                r"C:\Secrets*"
+                r"C:\Secrets]"
+            ],
+            "windows_fake_fs_root contains invalid Windows Path Characters.",
+        ),
+        ([r"C:\Secrets "], "windows_fake_fs_root cannot end with a space."),
+        ([r"C:\Secrets."], "windows_fake_fs_root cannot end with a fullstop."),
+        ([r"Secrets"], "windows_fake_fs_root does not have a drive letter specified."),
+    ],
+)
+def test_windows_fake_fs_token_validator(
+    directories: List[str],
+    expected_error_message: str,
+    webhook_receiver,
+    version,
+    runv2,
+    runv3,
+):
+    """
+    Tests the Windows Fake FS token.
+    """
+    run_or_skip(version, runv2=runv2, runv3=runv3)
+
+    memo = "Testing"
+    file_structure = "TESTFS"
+
+    for root_dir in directories:
+        with pytest.raises(ValueError, match=expected_error_message):
+            WindowsFakeFSTokenRequest(
+                webhook_url=webhook_receiver,
+                memo=memo,
+                windows_fake_fs_root=root_dir,
+                windows_fake_fs_file_structure=file_structure,
+            )
