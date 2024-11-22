@@ -16,7 +16,7 @@
         <div class="flex flex-row items-center gap-16">
           <div
             alt="icon"
-            :style="{ backgroundImage: `url(${getImageUrl(option.iconUrl)})` }"
+            :style="{ backgroundImage: `url(${getImageUrl(option.label)})` }"
             class="bg-cover w-[2rem] h-[2rem] rounded-2xl duration-100"
           ></div>
           {{ option.value }}
@@ -27,7 +27,7 @@
         <div class="flex flex-row items-center gap-16">
           <div
             alt="icon"
-            :style="{ backgroundImage: `url(${getImageUrl(option.iconUrl)})` }"
+            :style="{ backgroundImage: `url(${getImageUrl(option.label)})` }"
             class="bg-cover w-[1.5rem] h-[1.5rem] rounded-2xl duration-100"
           ></div>
           {{ option.value }}
@@ -45,8 +45,8 @@
           class="text-center"
         />
         <BaseDownloadIconButtom
-          :url="selectedApp?.iconUrl && getImageUrl(`${selectedApp?.iconUrl}`)"
-          :disabled="!selectedApp?.iconUrl"
+          :url="selectedApp?.label && getImageUrl(`${selectedApp?.label}`)"
+          :disabled="!selectedApp?.label"
         />
       </div>
       <div
@@ -93,7 +93,7 @@ import { ref } from 'vue';
 
 type SelectedAppType = {
   value: string;
-  iconUrl: string;
+  label: string;
 };
 
 const selectedApp = ref<SelectedAppType>();
@@ -226,7 +226,7 @@ const idpOptions = [
   },
 ];
 
-function handleSelectedApp(selected: { value: string; iconUrl: string }) {
+function handleSelectedApp(selected: { value: string; label: string }) {
   console.log('Selected app:', selected);
   selectedApp.value = selected;
 }
