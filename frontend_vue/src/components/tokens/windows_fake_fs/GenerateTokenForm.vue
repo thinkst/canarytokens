@@ -3,18 +3,17 @@
     <BaseFormTextField
       id="windows_fake_fs_root"
       type="text"
-      placeholder="Directory Path"
-      label="The root directory for the fake file system"
-      helper-message="C:\Secrets"
+      placeholder="C:\Secrets"
+      label="Where will this directory be placed?"
       full-width
       required
     />
-    <div class="flex flex-col gap-16 mt-24 mb-32">
+    <div class="flex flex-col gap-16">
       <BaseFormSelect
         id="windows_fake_fs_file_structure"
-        label="Industry Generated File Tree"
+        label="Create (fake) files for the following Industry/Sector"
         :options="['option1', 'option2', 'option3']"
-        placeholder="Select an option"
+        placeholder="Choose an Industry/Sector"
         full-width
         required
       />
