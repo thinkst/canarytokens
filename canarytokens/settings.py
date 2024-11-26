@@ -22,6 +22,7 @@ class SwitchboardSettings(BaseSettings):
     REDIS_HOST: str = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     REDIS_PORT: Port = Port(6379)
     REDIS_DB: str = "0"
+    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD", "auth_disabled")
 
     REAL_IP_HEADER: str = "x-real-ip"
 
