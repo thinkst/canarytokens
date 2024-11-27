@@ -1030,7 +1030,10 @@ def _(
         content=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
             root_dir=canarydrop.windows_fake_fs_root,
-            fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
+            fake_file_structure=windows_fake_fs.FOLDER_MAP.get(
+                canarydrop.windows_fake_fs_file_structure,
+                windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
+            ),
         ),
         filename=f"{canarydrop.canarytoken.value()}.ps1",
     )
@@ -1728,7 +1731,10 @@ def _(
         powershell_file=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
             root_dir=canarydrop.windows_fake_fs_root,
-            fake_file_structure=windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
+            fake_file_structure=windows_fake_fs.FOLDER_MAP.get(
+                canarydrop.windows_fake_fs_file_structure,
+                windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
+            ),
         ),
     )
 

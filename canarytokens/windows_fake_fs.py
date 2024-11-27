@@ -1108,7 +1108,6 @@ DUMMY_FOLDER_STRUCTURE = [
     },
 ]
 
-
 PERSONAL_FINANCES_STRUCTURE = [
     {
         "name": "PersonalFinances",
