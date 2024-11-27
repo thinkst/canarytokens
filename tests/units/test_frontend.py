@@ -161,6 +161,7 @@ set_of_unsupported_request_classes = [
     CustomBinaryTokenRequest,
     PWATokenRequest,
     CreditCardV2TokenRequest,
+    WebDavTokenRequest,
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -170,6 +171,7 @@ set_of_unsupported_response_classes = [
     CustomBinaryTokenResponse,
     PWATokenResponse,
     CreditCardV2TokenResponse,
+    WebDavTokenResponse,
 ]
 
 [set_of_response_classes.remove(o) for o in set_of_unsupported_response_classes]
