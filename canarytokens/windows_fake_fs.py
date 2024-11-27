@@ -1109,6 +1109,279 @@ DUMMY_FOLDER_STRUCTURE = [
 ]
 
 
+PERSONAL_FINANCES_STRUCTURE = [
+    {
+        "name": "PersonalFinances",
+        "type": "folder",
+        "children": [
+            {
+                "name": "BankAccounts",
+                "type": "folder",
+                "children": [
+                    {"name": "Checking.xlsx", "type": "xls"},
+                    {"name": "Savings.xlsx", "type": "xls"},
+                    {"name": "CreditCards.xlsx", "type": "xls"},
+                ],
+            },
+            {
+                "name": "Investments",
+                "type": "folder",
+                "children": [
+                    {"name": "Stocks.xlsx", "type": "xls"},
+                    {"name": "Retirement.xlsx", "type": "xls"},
+                    {"name": "Crypto.xlsx", "type": "xls"},
+                ],
+            },
+            {
+                "name": "Budget",
+                "type": "folder",
+                "children": [
+                    {"name": "MonthlyBudget.xlsx", "type": "xls"},
+                    {"name": "ExpenseTracker.xlsx", "type": "xls"},
+                    {"name": "SavingsPlan.docx", "type": "docx"},
+                ],
+            },
+            {
+                "name": "Loans",
+                "type": "folder",
+                "children": [
+                    {"name": "Mortgage.pdf", "type": "pdf"},
+                    {"name": "CarLoan.pdf", "type": "pdf"},
+                    {"name": "StudentLoan.docx", "type": "docx"},
+                ],
+            },
+        ],
+    },
+    {
+        "name": "Taxes",
+        "type": "folder",
+        "children": [
+            {
+                "name": "Income",
+                "type": "folder",
+                "children": [
+                    {"name": "W2_Forms.pdf", "type": "pdf"},
+                    {"name": "1099_Forms.pdf", "type": "pdf"},
+                    {"name": "PayStubs.pdf", "type": "pdf"},
+                ],
+            },
+            {
+                "name": "Deductions",
+                "type": "folder",
+                "children": [
+                    {"name": "CharityReceipts.pdf", "type": "pdf"},
+                    {"name": "MedicalExpenses.docx", "type": "docx"},
+                    {"name": "EducationCosts.pdf", "type": "pdf"},
+                ],
+            },
+            {
+                "name": "Returns",
+                "type": "folder",
+                "children": [
+                    {"name": "LatestTaxReturn.pdf", "type": "pdf"},
+                    {"name": "PreviousTaxReturn.docx", "type": "docx"},
+                    {"name": "ArchivedTaxReturn.pdf", "type": "pdf"},
+                ],
+            },
+        ],
+    },
+]
+
+HOME_NETWORK_STRUCTURE = [
+    {
+        "name": "HomeNetwork",
+        "type": "folder",
+        "children": [
+            {
+                "name": "NetworkDevices",
+                "type": "folder",
+                "children": [
+                    {"name": "RouterConfig.pdf", "type": "pdf"},
+                    {"name": "SwitchConfig.docx", "type": "docx"},
+                    {"name": "AccessPoints.xlsx", "type": "xls"},
+                ],
+            },
+            {
+                "name": "ISP",
+                "type": "folder",
+                "children": [
+                    {"name": "ISP_Contract.pdf", "type": "pdf"},
+                    {"name": "BillingStatements.xlsx", "type": "xls"},
+                    {"name": "SupportContacts.docx", "type": "docx"},
+                ],
+            },
+            {
+                "name": "NetworkDiagram",
+                "type": "folder",
+                "children": [
+                    {"name": "TopologyDiagram.pdf", "type": "pdf"},
+                    {"name": "IPAddresses.xlsx", "type": "xls"},
+                    {"name": "PortMapping.docx", "type": "docx"},
+                ],
+            },
+            {
+                "name": "Security",
+                "type": "folder",
+                "children": [
+                    {"name": "FirewallRules.docx", "type": "docx"},
+                    {"name": "DevicePasswords.xlsx", "type": "xls"},
+                    {"name": "SecurityChecklist.pdf", "type": "pdf"},
+                ],
+            },
+        ],
+    }
+]
+
+PERSONAL_CORRESPONDENCE_STRUCTURE = [
+    {
+        "name": "PersonalCorrespondence",
+        "type": "folder",
+        "children": [
+            {
+                "name": "Family",
+                "type": "folder",
+                "children": [
+                    {"name": "Letters.docx", "type": "docx"},
+                    {"name": "Photos.pdf", "type": "pdf"},
+                    {"name": "Birthdays.xlsx", "type": "xls"},
+                ],
+            },
+            {
+                "name": "Friends",
+                "type": "folder",
+                "children": [
+                    {"name": "Emails.docx", "type": "docx"},
+                    {"name": "GroupPhotos.pdf", "type": "pdf"},
+                    {"name": "EventInvites.xlsx", "type": "xls"},
+                ],
+            },
+            {
+                "name": "WorkAcquaintances",
+                "type": "folder",
+                "children": [
+                    {"name": "LinkedInContacts.xlsx", "type": "xls"},
+                    {"name": "ThankYouNotes.docx", "type": "docx"},
+                    {"name": "NetworkingEvents.pdf", "type": "pdf"},
+                ],
+            },
+            {
+                "name": "Miscellaneous",
+                "type": "folder",
+                "children": [
+                    {"name": "HolidayCards.pdf", "type": "pdf"},
+                    {"name": "PenPals.docx", "type": "docx"},
+                    {"name": "CorrespondenceTracker.xlsx", "type": "xls"},
+                ],
+            },
+        ],
+    }
+]
+
+PHOTO_ARCHIVE_STRUCTURE = [
+    {
+        "name": "PhotoArchive",
+        "type": "folder",
+        "children": [
+            {
+                "name": "Family",
+                "type": "folder",
+                "children": [
+                    {
+                        "name": "Vacations",
+                        "type": "folder",
+                        "children": [
+                            {"name": "BeachTrip.jpg", "type": "jpg"},
+                            {"name": "MountainHike.jpg", "type": "jpg"},
+                        ],
+                    },
+                    {
+                        "name": "Reunions",
+                        "type": "folder",
+                        "children": [
+                            {"name": "ReunionDinner.jpg", "type": "jpg"},
+                            {"name": "CousinsGathering.jpg", "type": "jpg"},
+                        ],
+                    },
+                ],
+            },
+            {
+                "name": "Friends",
+                "type": "folder",
+                "children": [
+                    {
+                        "name": "Parties",
+                        "type": "folder",
+                        "children": [
+                            {"name": "NewYearParty.jpg", "type": "jpg"},
+                            {"name": "BirthdayBash.jpg", "type": "jpg"},
+                        ],
+                    },
+                    {
+                        "name": "Trips",
+                        "type": "folder",
+                        "children": [
+                            {"name": "RoadTrip.jpg", "type": "jpg"},
+                            {"name": "CityExploration.jpg", "type": "jpg"},
+                        ],
+                    },
+                ],
+            },
+            {
+                "name": "Nature",
+                "type": "folder",
+                "children": [
+                    {
+                        "name": "Landscapes",
+                        "type": "folder",
+                        "children": [
+                            {"name": "SunsetOverHills.jpg", "type": "jpg"},
+                            {"name": "LakeReflection.jpg", "type": "jpg"},
+                        ],
+                    },
+                    {
+                        "name": "Wildlife",
+                        "type": "folder",
+                        "children": [
+                            {"name": "DeerInForest.jpg", "type": "jpg"},
+                            {"name": "BirdInFlight.jpg", "type": "jpg"},
+                        ],
+                    },
+                ],
+            },
+            {
+                "name": "Miscellaneous",
+                "type": "folder",
+                "children": [
+                    {
+                        "name": "RandomShots",
+                        "type": "folder",
+                        "children": [
+                            {"name": "StreetArt.jpg", "type": "jpg"},
+                            {"name": "AbstractPattern.jpg", "type": "jpg"},
+                        ],
+                    },
+                    {
+                        "name": "Projects",
+                        "type": "folder",
+                        "children": [
+                            {"name": "PhotoEssay1.jpg", "type": "jpg"},
+                            {"name": "PhotoEssay2.jpg", "type": "jpg"},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+]
+
+FOLDER_MAP = {
+    "personal_finances": PERSONAL_FINANCES_STRUCTURE,
+    "home_network": HOME_NETWORK_STRUCTURE,
+    "personal_correspondence": PERSONAL_CORRESPONDENCE_STRUCTURE,
+    "photo_archive": PHOTO_ARCHIVE_STRUCTURE,
+}
+
+
 def _gen_ts() -> str:
     """
     Generates a random timestamp in the near past
