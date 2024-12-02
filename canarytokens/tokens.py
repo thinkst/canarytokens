@@ -537,10 +537,8 @@ class Canarytoken(object):
         hit_time = datetime.utcnow().strftime("%s.%f")
         hit_info = {
             "additional_info": WebDavAdditionalInfo(
-                **{
-                    "file_path": request.getHeader("X-Alert-Path"),
-                    "useragent": http_general_info["useragent"],
-                }
+                 file_path=request.getHeader("X-Alert-Path"),
+                 useragent=http_general_info["useragent"],
             ),
             "geo_info": queries.get_geoinfo(ip=client_ip),
             "input_channel": INPUT_CHANNEL_HTTP,
