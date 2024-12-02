@@ -48,7 +48,7 @@ def insert_webdav_token(
     fd = {"value": json.dumps(value), "metadata": "{}"}
     put_url = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/storage/kv/namespaces/{NAMESPACE_ID}/values/{password}"
     res = requests.put(
-        put_url, files=fd, headers={"Authorization": "Bearer " + api_cred}
+        put_url, files=fd, headers={"Authorization": f"Bearer {settings.CLOUDFLARE_API_TOKEN}"}
     )
     if res.status_code == 200:
         return True
