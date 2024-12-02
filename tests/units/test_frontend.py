@@ -725,17 +725,11 @@ def test_webdav(
     frontend_settings: FrontendSettings,
     setup_db: None,
 ) -> None:
-    (webdav_server, cf_account_id, cf_api_token, cf_namespace) = (
-        "https://examplewebdavserver.com",
-        "nosuchaccountid",
-        "nosuchapitoken",
-        "nosuchnamespace",
-    )
     overrides = {
-        "WEBDAV_SERVER": webdav_server,
-        "CLOUDFLARE_ACCOUNT_ID": cf_account_id,
-        "CLOUDFLARE_API_TOKEN": cf_api_token,
-        "CLOUDFLARE_NAMESPACE": cf_namespace,
+        "WEBDAV_SERVER": "https://examplewebdavserver.com",
+        "CLOUDFLARE_ACCOUNT_ID": "nosuchaccountid",
+        "CLOUDFLARE_API_TOKEN": "nosuchapitoken",
+        "CLOUDFLARE_NAMESPACE": "nosuchnamespace",
     }
     with mock.patch.dict(
         os.environ,
