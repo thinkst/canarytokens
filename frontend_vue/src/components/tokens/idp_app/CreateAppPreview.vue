@@ -89,7 +89,6 @@
 
 <script lang="ts" setup>
 import getImageUrl from '@/utils/getImageUrl';
-import { emit } from 'process';
 import { ref } from 'vue';
 
 type SelectedAppType = {
@@ -155,7 +154,7 @@ const idpOptions = [
   },
   {
     value: '1Password',
-    label: 'idp_icons/1password.png'
+    label: 'idp_icons/onepassword.png'
   },
   {
     value: 'LastPass',
@@ -203,11 +202,11 @@ const idpOptions = [
   },
   {
     value: 'MS Teams',
-    label: 'idp_icons/ms-teams.png'
+    label: 'idp_icons/msteams.png'
   },
   {
     value: 'Microsoft 365',
-    label: 'idp_icons/ms-365.png'
+    label: 'idp_icons/ms365.png'
   },
   {
     value: 'GitLab',
@@ -228,7 +227,6 @@ const idpOptions = [
 ];
 
 function handleSelectedApp(selected: string) {
-  console.log('Selected app:', selected);
   selectedApp.value = idpOptions.find(o => o.value === selected);
 }
 </script>
