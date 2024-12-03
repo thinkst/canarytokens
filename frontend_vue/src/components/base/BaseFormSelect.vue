@@ -56,7 +56,6 @@ import { useField } from 'vee-validate';
 
 export type SelectOption = { label: string; value: string };
 
-
 const props = defineProps<{
   id: string;
   label: string;

@@ -6,6 +6,7 @@
         label="Select App"
         placeholder="Select an app"
         :options="IDP_OPTIONS"
+        :searchable="true"
         @select-option="handleSelectedApp"
       >
         <template #option="{ option }">
