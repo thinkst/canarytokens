@@ -383,6 +383,14 @@ def generate_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("generate_new.html", generate_template_params)
 
 
+def _get_src_ip(request):
+    return request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
+        request.client.host
+        if (request.client and request.client.host != "testclient")
+        else ""
+    )
+
+
 @app.post(
     "/generate",
     tags=["Create Canarytokens"],
@@ -449,10 +457,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     else:
         kube_config = None
         canarytoken = Canarytoken()
-    print(request.client)
-    src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
-        request.client.host if request.client else ""
-    )
+    src_ip = _get_src_ip(request)
     x_forwarded_for = request.headers.get("x-forwarded-for") or ""
 
     canarydrop = Canarydrop(
@@ -776,9 +781,7 @@ async def api_generate(  # noqa: C901  # gen is large
         kube_config = None
         canarytoken = Canarytoken()
 
-    src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
-        request.client.host if request.client else ""
-    )
+    src_ip = _get_src_ip(request)
     x_forwarded_for = request.headers.get("x-forwarded-for") or ""
 
     canarydrop = Canarydrop(
