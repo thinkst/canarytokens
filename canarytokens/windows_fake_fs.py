@@ -20,6 +20,16 @@ from canarytokens.windows_fake_fs_templates.folder_personal_correspondence impor
 from canarytokens.windows_fake_fs_templates.folder_photo_archive import (
     PHOTO_ARCHIVE_STRUCTURE,
 )
+from canarytokens.windows_fake_fs_templates.folder_defense import (
+    DEFENSE_STRUCTURE,
+)
+from canarytokens.windows_fake_fs_templates.folder_med_tech import MED_TECH_STRUCTURE
+from canarytokens.windows_fake_fs_templates.folder_network_admin import (
+    NETWORK_ADMIN_STRUCTURE,
+)
+from canarytokens.windows_fake_fs_templates.folder_security_admin import (
+    SECURITY_ADMIN_STRUCTURE,
+)
 
 
 FOLDER_MAP = {
@@ -27,6 +37,10 @@ FOLDER_MAP = {
     "home_network": HOME_NETWORK_STRUCTURE,
     "personal_correspondence": PERSONAL_CORRESPONDENCE_STRUCTURE,
     "photo_archive": PHOTO_ARCHIVE_STRUCTURE,
+    "defense": DEFENSE_STRUCTURE,
+    "med_tech": MED_TECH_STRUCTURE,
+    "network_admin": NETWORK_ADMIN_STRUCTURE,
+    "security_admin": SECURITY_ADMIN_STRUCTURE,
 }
 
 

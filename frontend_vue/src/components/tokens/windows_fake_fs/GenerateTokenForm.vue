@@ -32,5 +32,9 @@ const options: SelectOption[] = [
           {value: 'home_network', label: 'Home Network'},
           {value: 'personal_correspondence', label: 'Personal Correspondence'},
           {value: 'photo_archive', label: 'Photo Archive'},
+          {value: 'defense', label: 'Defense'},
+          {value: 'med_tech', label: 'Medical Technician'},
+          {value: 'network_admin', label: 'Network Admin'},
+          {value: 'security_admin', label: 'Security Admin'},
           ];
 </script>
