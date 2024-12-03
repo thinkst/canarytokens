@@ -449,7 +449,7 @@ async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen i
     else:
         kube_config = None
         canarytoken = Canarytoken()
-
+    print(request.client)
     src_ip = request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
         request.client.host if request.client else ""
     )
