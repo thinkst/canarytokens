@@ -2107,6 +2107,7 @@ def _(
     token_request_details: IdPAppTokenRequest, canarydrop: Canarydrop
 ) -> IdPAppTokenResponse:
     canarydrop.idp_app_entity_id = canarydrop.generated_url.removesuffix("/saml/sso")
+    canarydrop.idp_app_type = token_request_details.app_type
     if not canarydrop.redirect_url:
         canarydrop.browser_scanner_enabled = True
     save_canarydrop(canarydrop)
@@ -2120,4 +2121,5 @@ def _(
         hostname=canarydrop.generated_hostname,
         url_components=list(canarydrop.get_url_components()),
         entity_id=canarydrop.idp_app_entity_id,
+        app_type=canarydrop.idp_app_type,
     )
