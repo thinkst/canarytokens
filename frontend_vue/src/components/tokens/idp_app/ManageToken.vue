@@ -1,18 +1,17 @@
 <template>
-  <div v-if="!tokenUrl || !entityId">Error loading</div>
+  <div v-if="!tokenUrl || !entityId || !appType">Error loading</div>
   <TokenDisplay
     v-else
     :token-url="tokenUrl"
     :entity-id="entityId"
+    :app-type="appType"
   />
-  <CreateAppPreview />
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
-import CreateAppPreview from './CreateAppPreview.vue';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
@@ -20,4 +19,5 @@ const props = defineProps<{
 
 const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_url);
 const entityId = ref(props.tokenBackendResponse.canarydrop?.idp_app_entity_id);
+const appType = ref(props.tokenBackendResponse.canarydrop?.idp_app_type);
 </script>
