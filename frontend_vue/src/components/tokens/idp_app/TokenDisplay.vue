@@ -8,7 +8,7 @@
         arrow-variant="one"
         class="text-center"
       />
-      <BaseDownloadIconButtom
+      <BaseDownloadIconButton
         :url="getImageUrl(`idp_icons/${appType}.png`)"
       />
     </div>
