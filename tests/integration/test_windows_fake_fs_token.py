@@ -45,7 +45,7 @@ def test_windows_fake_fs_token_fires(
     # Create a Windows Fake File System token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
     root_dir = r"C:\Secrets"
-    file_structure = "TESTFS"
+    file_structure = "home_network"
 
     token_request = WindowsFakeFSTokenRequest(
         webhook_url=webhook_receiver,
@@ -130,7 +130,7 @@ def test_windows_fake_fs_token_validator(
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
     memo = "Testing"
-    file_structure = "TESTFS"
+    file_structure = "home_network"
 
     for root_dir in directories:
         with pytest.raises(ValueError, match=expected_error_message):

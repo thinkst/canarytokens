@@ -1024,16 +1024,19 @@ def _(
     download_request_details: DownloadWindowsFakeFSRequest, canarydrop: Canarydrop
 ) -> DownloadWindowsFakeFSResponse:
     """"""
+    fake_file_structure = windows_fake_fs.FOLDER_MAP.get(
+        canarydrop.windows_fake_fs_file_structure
+    )
+    if not fake_file_structure:
+        return JSONResponse({"message": "Something went wrong!"}, status_code=500)
+
     return DownloadWindowsFakeFSResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
         content=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
             root_dir=canarydrop.windows_fake_fs_root,
-            fake_file_structure=windows_fake_fs.FOLDER_MAP.get(
-                canarydrop.windows_fake_fs_file_structure,
-                windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
-            ),
+            fake_file_structure=fake_file_structure,
         ),
         filename=f"{canarydrop.canarytoken.value()}.ps1",
     )
@@ -1718,6 +1721,13 @@ def _(
         token_request_details.windows_fake_fs_file_structure
     )
     queries.save_canarydrop(canarydrop=canarydrop)
+
+    fake_file_structure = windows_fake_fs.FOLDER_MAP.get(
+        canarydrop.windows_fake_fs_file_structure
+    )
+    if not fake_file_structure:
+        return response_error(1, "Invalid fake file structure selected.")
+
     return WindowsFakeFSTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url
@@ -1731,10 +1741,7 @@ def _(
         powershell_file=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
             root_dir=canarydrop.windows_fake_fs_root,
-            fake_file_structure=windows_fake_fs.FOLDER_MAP.get(
-                canarydrop.windows_fake_fs_file_structure,
-                windows_fake_fs.DUMMY_FOLDER_STRUCTURE,
-            ),
+            fake_file_structure=fake_file_structure,
         ),
     )
 
