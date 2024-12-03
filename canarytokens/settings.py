@@ -118,6 +118,10 @@ class FrontendSettings(BaseSettings):
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
     CLOUDFRONT_URL: Optional[HttpUrl]
+    CLOUDFLARE_ACCOUNT_ID: Optional[str] = ""
+    CLOUDFLARE_NAMESPACE: Optional[str] = ""
+    CLOUDFLARE_API_TOKEN: Optional[str] = ""
+    WEBDAV_SERVER: Optional[str] = ""
     AZUREAPP_ID: Optional[str]
     AZUREAPP_SECRET: Optional[str]  # TODO: Figure out SecretStr with Azure secrets
     CREDIT_CARD_TOKEN_ENABLED: bool = False

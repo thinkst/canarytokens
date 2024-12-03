@@ -271,10 +271,12 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
       () => (modalType.value = ModalType.NewToken)
       // Keep track of loaded components
     ).then(() => componentStack.value.push(modalType.value));
-  } catch (err) {
+  } catch (err: any) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
-    errorMessage.value = '';
+    if (err.response.data.error_message) {
+      errorMessage.value = err.response.data.error_message;
+    }
   } finally {
     triggerSubmit.value = false;
   }

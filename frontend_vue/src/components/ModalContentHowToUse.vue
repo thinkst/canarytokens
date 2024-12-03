@@ -74,9 +74,12 @@ li::before {
   content: '\f0e7';
   @apply text-green-500;
 }
-
+p :deep(li) {
+  list-style-type: disc;
+}
 p :deep(code) {
   @apply bg-green-100 px-8 py-[2px] rounded-md mt-4;
   overflow-wrap: anywhere;
 }
+
 </style>

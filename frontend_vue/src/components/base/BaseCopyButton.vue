@@ -61,7 +61,7 @@ function delay(ms: number) {
 // 1. prevents UI from jumping when tooltip content changes
 // 2. shows tooltip when content is copied
 async function showTooltip() {
-  if (!isSupported) return (tooltipText.value = 'Copy not supported');
+  if (!isSupported || !navigator.clipboard) return (tooltipText.value = 'Copy not supported');
   await delay(150);
   tooltipTriggers.value = [];
   isTriggered.value = true;

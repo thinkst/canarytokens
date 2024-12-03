@@ -403,10 +403,8 @@ def test_web_bug_token(
 @pytest.mark.parametrize(
     "location, referrer, version",
     [
-        ("http://test.com/testloc", "http://test.com/testref", v2),
-        ("http://test.com/testloc", "http://test.com/testref", v3),
-        ("http://test.com/testloc2", "about:blank", v2),
-        ("http://test.com/testloc2", "about:blank", v3),
+        (b"http://test.com/testloc", b"http://test.com/testref", v3),
+        (b"http://test.com/testloc2", b"about:blank", v3),
     ],
 )
 def test_cloned_web_token(

@@ -37,6 +37,7 @@ export const TOKENS_TYPE = {
   CREDIT_CARD: 'cc',
   PWA: 'pwa',
   CREDIT_CARD_V2: 'credit_card_v2',
+  WEBDAV: 'webdav',
 };
 
 // unique keys to use in the frontend
@@ -89,6 +90,7 @@ export const INCIDENT_DETAIL_CUSTOM_LABELS = {
   src_ip: 'Source IP',
   loc: 'Location',
   eventName: 'Event Name',
+  file_path: 'File Path Accessed',
 };
 
 export const TOKEN_CATEGORY = {

@@ -208,4 +208,7 @@ export const formValidators: ValidateSchemaType = {
       cf_turnstile_response: Yup.string().required(),
     }),
   },
+  [TOKENS_TYPE.WEBDAV]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
 };
