@@ -384,6 +384,7 @@ def generate_page(request: Request) -> HTMLResponse:
 
 
 def _get_src_ip(request):
+    # starlette's testclient includes a non-IP hostname which is pointless and makes tests fail
     return request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
         request.client.host
         if (request.client and request.client.host != "testclient")
