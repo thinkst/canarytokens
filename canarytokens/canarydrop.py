@@ -36,6 +36,7 @@ from canarytokens.models import (
     AnyTokenExposedHit,
     BrowserScannerSettingsRequest,
     EmailSettingsRequest,
+    IdPAppType,
     PWAType,
     TokenTypes,
     User,
@@ -171,6 +172,7 @@ class Canarydrop(BaseModel):
     key_exposed_details: Optional[AnyTokenExposedHit] = None
 
     idp_app_entity_id: Optional[str]
+    idp_app_type: Optional[IdPAppType]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):

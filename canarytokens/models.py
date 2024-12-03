@@ -828,8 +828,78 @@ class CreditCardV2TokenRequest(TokenRequest):
     cf_turnstile_response: Optional[str]
 
 
+class IdPAppType(enum.Enum):
+    aws = "aws"
+    azure = "azure"
+    bitwarden = "bitwarden"
+    dropbox = "dropbox"
+    duo = "duo"
+    elasticsearch = "elasticsearch"
+    freshbooks = "freshbooks"
+    gcloud = "gcloud"
+    gdrive = "gdrive"
+    github = "github"
+    gitlab = "gitlab"
+    gmail = "gmail"
+    intune = "intune"
+    jamf = "jamf"
+    jira = "jira"
+    kibana = "kibana"
+    lastpass = "lastpass"
+    ms365 = "ms365"
+    msteams = "msteams"
+    onedrive = "onedrive"
+    onepassword = "onepassword"
+    outlook = "outlook"
+    pagerduty = "pagerduty"
+    sage = "sage"
+    salesforce = "salesforce"
+    sap = "sap"
+    slack = "slack"
+    virtru = "virtru"
+    zendesk = "zendesk"
+    zoho = "zoho"
+    zoom = "zoom"
+
+
+IDP_APP_TITLES = {
+    IdPAppType.aws: "AWS",
+    IdPAppType.azure: "Azure",
+    IdPAppType.bitwarden: "Bitwarden",
+    IdPAppType.dropbox: "Dropbox",
+    IdPAppType.duo: "Duo",
+    IdPAppType.elasticsearch: "Elasticsearch",
+    IdPAppType.freshbooks: "Freshbooks",
+    IdPAppType.gcloud: "Google Cloud",
+    IdPAppType.gdrive: "Google Drive",
+    IdPAppType.github: "GitHub",
+    IdPAppType.gitlab: "GitLab",
+    IdPAppType.gmail: "Gmail",
+    IdPAppType.intune: "Intune",
+    IdPAppType.jamf: "JAMF",
+    IdPAppType.jira: "Jira",
+    IdPAppType.kibana: "Kibana",
+    IdPAppType.lastpass: "LastPass",
+    IdPAppType.ms365: "Microsoft 365",
+    IdPAppType.msteams: "MS Teams",
+    IdPAppType.onedrive: "OneDrive",
+    IdPAppType.onepassword: "1Password",
+    IdPAppType.outlook: "Outlook",
+    IdPAppType.pagerduty: "PagerDuty",
+    IdPAppType.sage: "Sage",
+    IdPAppType.salesforce: "Salesforce",
+    IdPAppType.sap: "SAP",
+    IdPAppType.slack: "Slack",
+    IdPAppType.virtru: "Virtru",
+    IdPAppType.zendesk: "Zendesk",
+    IdPAppType.zoho: "Zoho",
+    IdPAppType.zoom: "Zoom",
+}
+
+
 class IdPAppTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    app_type: IdPAppType
     redirect_url: Optional[str] = None
 
     class Config:
@@ -1181,6 +1251,7 @@ class CreditCardV2TokenResponse(TokenResponse):
 class IdPAppTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
     entity_id: str
+    app_type: IdPAppType
 
 
 AnyTokenResponse = Annotated[
