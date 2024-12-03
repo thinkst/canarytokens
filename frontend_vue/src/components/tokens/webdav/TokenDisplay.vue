@@ -27,7 +27,7 @@
       <ul>
         <li>Open the Finder, then type &#8984;-K to Connect to Server.</li>
         <li>Copy and paste <span id="input-wrapper">
-            <input :value="webdavUrl" />
+            <input class="w-[12rem]" :value="webdavUrl" />
             <BaseCopyButton
               :content="webdavUrl"
               class="ring-white ring-4"
@@ -52,7 +52,6 @@ ul li {
 
 input {
   text-overflow:ellipsis;
-  width: 12rem;
 }
 
 #input-wrapper {
