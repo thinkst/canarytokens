@@ -44,8 +44,8 @@ def test_windows_fake_fs_token_fires(
 
     # Create a Windows Fake File System token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
-    root_dir = r"C:\Secrets"
-    file_structure = "home_network"
+    root_dir = r"C:\Testing"
+    file_structure = "testing"
 
     token_request = WindowsFakeFSTokenRequest(
         webhook_url=webhook_receiver,
@@ -97,23 +97,23 @@ def test_windows_fake_fs_token_fires(
     [
         (
             [
-                r"C:\Secrets["
-                r"C:\Secrets<"
-                r"C:\Secrets>"
-                r"C:\Secrets:"
-                r'C:\Secrets"'
-                r"C:\Secrets/"
-                r"C:\Secrets\\"
-                r"C:\Secrets|"
-                r"C:\Secrets?"
-                r"C:\Secrets*"
-                r"C:\Secrets]"
+                r"C:\Testing["
+                r"C:\Testing<"
+                r"C:\Testing>"
+                r"C:\Testing:"
+                r'C:\Testing"'
+                r"C:\Testing/"
+                r"C:\Testing\\"
+                r"C:\Testing|"
+                r"C:\Testing?"
+                r"C:\Testing*"
+                r"C:\Testing]"
             ],
             "windows_fake_fs_root contains invalid Windows Path Characters.",
         ),
-        ([r"C:\Secrets "], "windows_fake_fs_root cannot end with a space."),
-        ([r"C:\Secrets."], "windows_fake_fs_root cannot end with a fullstop."),
-        ([r"Secrets"], "windows_fake_fs_root does not have a drive letter specified."),
+        ([r"C:\Testing "], "windows_fake_fs_root cannot end with a space."),
+        ([r"C:\Testing."], "windows_fake_fs_root cannot end with a fullstop."),
+        ([r"Testing"], "windows_fake_fs_root does not have a drive letter specified."),
     ],
 )
 def test_windows_fake_fs_token_validator(
@@ -130,7 +130,7 @@ def test_windows_fake_fs_token_validator(
     run_or_skip(version, runv2=runv2, runv3=runv3)
 
     memo = "Testing"
-    file_structure = "home_network"
+    file_structure = "testing"
 
     for root_dir in directories:
         with pytest.raises(ValueError, match=expected_error_message):
