@@ -1730,9 +1730,7 @@ def _(
 
     return WindowsFakeFSTokenResponse(
         email=canarydrop.alert_email_recipient or "",
-        webhook_url=canarydrop.alert_webhook_url
-        if canarydrop.alert_webhook_url
-        else "",
+        webhook_url=canarydrop.alert_webhook_url or "",
         token=canarydrop.canarytoken.value(),
         token_url=canarydrop.get_url([canary_http_channel]),
         auth_token=canarydrop.auth,

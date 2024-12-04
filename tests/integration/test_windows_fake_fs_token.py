@@ -15,7 +15,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     v3,
 )
 
@@ -39,7 +38,6 @@ def test_windows_fake_fs_token_fires(
     """
     Tests the Windows Fake FS token.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
     expected_hits = 1
 
     # Create a Windows Fake File System token request
@@ -127,8 +125,6 @@ def test_windows_fake_fs_token_validator(
     """
     Tests the Windows Fake FS token.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
-
     memo = "Testing"
     file_structure = "testing"
 
