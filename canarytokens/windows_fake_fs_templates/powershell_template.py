@@ -41,7 +41,7 @@ function Install-ProjFS {
     }
 
     try {
-        Enable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart
+        Enable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart | Out-Null
         Write-Host "Successfully enabled Projected File System." -ForegroundColor Green
         return
     }
@@ -54,15 +54,15 @@ function Install-ProjFS {
 function New-ScheduledTask {
     Write-Host "Creating Windows Fake File System Token scheduled task..." -ForegroundColor Yellow
 
-    $scriptsDir = "$env:USERPROFILE\Scripts"
-    if (-not (Test-Path $scriptsDir)) {
-        New-Item -ItemType Directory -Path $scriptsDir
-    }
-
     if ((Test-Path -Path $RootPath -PathType Container) -and
         ($null -ne (Get-ChildItem -Path $RootPath -Force))) {
         Write-Host "Warning: Target folder '$RootPath' is not empty. Deployment cancelled." -ForegroundColor Red
         exit
+    }
+
+    $scriptsDir = "$env:USERPROFILE\Scripts"
+    if (-not (Test-Path $scriptsDir)) {
+        New-Item -ItemType Directory -Path $scriptsDir | Out-Null
     }
 
     try {
@@ -841,7 +841,7 @@ Invoke-WindowsFakeFileSystem
         $xmlPath = "$env:TEMP\task.xml"
         $taskXml | Out-File -FilePath $xmlPath -Encoding Unicode
 
-        schtasks /create /tn $TaskName /xml $xmlPath /f
+        schtasks /create /tn $TaskName /xml $xmlPath /f | Out-Null
 
         if ($LastExitCode -eq 0) {
             Write-Host "Successfully deployed Windows Fake File System Token" -ForegroundColor Green
@@ -921,7 +921,7 @@ function Remove-ProjFS {
     }
 
     Invoke-Step "Removing Projected File System feature" {
-        Disable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart
+        Disable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart | Out-Null
     }
 
     Invoke-Step "Removing folder" {
