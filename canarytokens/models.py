@@ -527,28 +527,25 @@ class WindowsFakeFSTokenRequest(TokenRequest):
 
     @validator("windows_fake_fs_root")
     def check_process_name(value: str):
+        _value = value.strip()
         invalid_chars = r'[<>:"/\\|?*]'
         drive_pattern = r"^[A-Za-z]:[\\/]"
 
-        if not re.match(drive_pattern, value):
+        if not re.match(drive_pattern, _value):
             raise ValueError(
-                f"windows_fake_fs_root does not have a drive letter specified. Given: {value}"
+                f"windows_fake_fs_root does not have a drive letter specified. Given: {_value}"
             )
-
-        folder_path = re.sub(drive_pattern, "", value, 1)
+        folder_path = re.sub(drive_pattern, "", _value, 1)
         if re.search(invalid_chars, folder_path):
             raise ValueError(
-                f"windows_fake_fs_root contains invalid Windows Path Characters. Given: {value}"
+                f"windows_fake_fs_root contains invalid Windows Path Characters. Given: {_value}"
             )
-        if value.endswith(" "):
+        if _value.endswith("."):
             raise ValueError(
-                f"windows_fake_fs_root cannot end with a space. Given: {value}"
+                f"windows_fake_fs_root cannot end with a fullstop. Given: {_value}"
             )
-        if value.endswith("."):
-            raise ValueError(
-                f"windows_fake_fs_root cannot end with a fullstop. Given: {value}"
-            )
-        return value
+
+        return _value
 
 
 class CCTokenRequest(TokenRequest):

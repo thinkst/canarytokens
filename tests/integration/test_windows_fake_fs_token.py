@@ -76,11 +76,11 @@ def test_windows_fake_fs_token_fires(
     )
 
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
-    if stats is not None:
-        # Check that what was sent to the webhook is consistent.
-        assert len(stats) == expected_hits
-        assert stats[0]["memo"] == memo
-        _ = TokenAlertDetailGeneric(**stats[0])
+    assert stats is not None
+    # Check that what was sent to the webhook is consistent.
+    assert len(stats) == expected_hits
+    assert stats[0]["memo"] == memo
+    _ = TokenAlertDetailGeneric(**stats[0])
 
     # Check that the returned history has a single hit.
     resp = get_token_history(token_info=token_info, version=version)
@@ -109,7 +109,6 @@ def test_windows_fake_fs_token_fires(
             ],
             "windows_fake_fs_root contains invalid Windows Path Characters.",
         ),
-        ([r"C:\Testing "], "windows_fake_fs_root cannot end with a space."),
         ([r"C:\Testing."], "windows_fake_fs_root cannot end with a fullstop."),
         ([r"Testing"], "windows_fake_fs_root does not have a drive letter specified."),
     ],
