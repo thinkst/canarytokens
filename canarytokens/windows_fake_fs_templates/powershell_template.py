@@ -1,15 +1,4 @@
 POWERSHELL_TEMPLATE = r"""
-# CanaryFS-Wrapper.ps1
-
-<#
-Sample Invocation.
-.\CanaryFS.ps1 -TaskName "CanaryFS" -TaskDescription "Create Fake Files" -ScriptPath "C:\users\Thinkst\data-script.ps1" -RootPath "C:\CanaryFs"
-
-Sample exe invocation
-.\CanaryFS.exe C:\vfstest $(Get-Content .\csharp\test_file.csv -Raw) example.canarytokens.com true
-
-#>
-
 param(
     [string]$TaskName = "Microsoft_DataProcessor",
     [string]$ScriptPath = "$env:USERPROFILE\Scripts\Process-Data.ps1",
@@ -18,7 +7,6 @@ param(
     [switch]$Remove = $false
 )
 
-# Function Definitions
 function Test-Administrator {
     $currentUser = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     return $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -35,37 +23,37 @@ function Test-ProjFSEnabled {
 }
 
 function Install-ProjFS {
-    Write-Host "`nInstalling Projected File System..." -ForegroundColor Yellow
+    Write-Host "Installing Projected File System..." -ForegroundColor Yellow
 
     if (-not (Test-Administrator)) {
-        Write-Host "Administrator privileges required for ProjFS installation." -ForegroundColor Yellow
-        return $false
+        Write-Host "Administrator privileges required for Projected File System installation." -ForegroundColor Yellow
+        exit
     }
 
     if (-not (Test-ProjFSSupport)) {
         Write-Host "Your Windows version does not support Projected File System. Minimum requirement is Windows 10 version 1809 (build 17763)." -ForegroundColor Yellow
-        return $false
+        exit
     }
 
     if (Test-ProjFSEnabled) {
         Write-Host "Projected File System is already enabled." -ForegroundColor Green
-        return $true
+        return
     }
 
     try {
         Enable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart
-        return $true
+        Write-Host "Successfully enabled Projected File System." -ForegroundColor Green
+        return
     }
     catch {
-        Write-Error "Failed to install ProjFS: $_"
-        return $false
+        Write-Error "Failed to install Projected File System: $_"
+        exit
     }
 }
 
-function Create-ScheduledTask {
-    Write-Host "`nCreating Scheduled Task..." -ForegroundColor Yellow
+function New-ScheduledTask {
+    Write-Host "Creating Windows Fake File System Token scheduled task..." -ForegroundColor Yellow
 
-    # Verify Scripts directory and root path
     $scriptsDir = "$env:USERPROFILE\Scripts"
     if (-not (Test-Path $scriptsDir)) {
         New-Item -ItemType Directory -Path $scriptsDir
@@ -73,13 +61,13 @@ function Create-ScheduledTask {
 
     if ((Test-Path -Path $RootPath -PathType Container) -and
         ($null -ne (Get-ChildItem -Path $RootPath -Force))) {
-        Write-Host "Warning: Target folder '$RootPath' is not empty. Task creation cancelled." -ForegroundColor Red
-        return $false
+        Write-Host "Warning: Target folder '$RootPath' is not empty. Deployment cancelled." -ForegroundColor Red
+        exit
     }
 
     try {
         $processScript = @'
-        function Invoke-CanaryFS {
+        function Invoke-WindowsFakeFileSystem {
             [CmdletBinding()]
             param (
                 [Parameter(Mandatory = $true)]
@@ -105,8 +93,6 @@ namespace ProjectedFileSystemProvider
     {
         public static void Main(string[] args)
         {
-
-            // Expecting parameters in the format: rootPath debugMode csvFileName
             if (args.Length != 4)
             {
                 Console.WriteLine("Usage: CanaryFS.exe <rootPath> <fileCsv> <alertDomain> <debugMode>");
@@ -124,19 +110,16 @@ namespace ProjectedFileSystemProvider
 
             try
             {
-                // Check if the root directory exists, create it if it doesn't
-                if (!Directory.Exists(rootPath) )
+                if (!Directory.Exists(rootPath))
                 {
                     Directory.CreateDirectory(rootPath);
                     Console.WriteLine("Created directory: " + rootPath);
                 }
 
-                // Check available disk space
                 DriveInfo drive = new DriveInfo(Path.GetPathRoot(rootPath));
                 Console.WriteLine("Available free space: " + drive.AvailableFreeSpace + " bytes");
 
                 var provider = new ProjFSProvider(rootPath, csvStr, alertDomain, enableDebug);
-
                 int result = ProjFSNative.PrjMarkDirectoryAsPlaceholder(rootPath, null, IntPtr.Zero, ref _guid);
 
                 provider.StartVirtualizing();
@@ -163,13 +146,16 @@ namespace ProjectedFileSystemProvider
         private readonly Dictionary<string, List<FileEntry>> fileSystem = new Dictionary<string, List<FileEntry>>();
         private IntPtr instanceHandle;
         private readonly bool enableDebug;
-
         private readonly string alertDomain;
 
-        private static string BytesToBase32(byte[] bytes) {
+        private static string BytesToBase32(byte[] bytes)
+        {
+            // Encode bytes to base32 without padding,
+            // the padding is fixed server side before decoding
             const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
             string output = "";
-            for (int bitIndex = 0; bitIndex < bytes.Length * 8; bitIndex += 5) {
+            for (int bitIndex = 0; bitIndex < bytes.Length * 8; bitIndex += 5)
+            {
                 int dualbyte = bytes[bitIndex / 8] << 8;
                 if (bitIndex / 8 + 1 < bytes.Length)
                     dualbyte |= bytes[bitIndex / 8 + 1];
@@ -190,11 +176,12 @@ namespace ProjectedFileSystemProvider
             Random rnd = new Random();
             string uniqueval = "u" + rnd.Next(1000, 10000).ToString() + ".";
 
-            try {
-                // Resolve the DNS
-                DebugWrite(string.Format("Resolving the following hostname: {0}", uniqueval + "f" + fnb32 + ".i" + inb32 + "." + alertDomain));
+            try
+            {
                 Task.Run(() => Dns.GetHostEntry(uniqueval + "f" + fnb32 + ".i" + inb32 + "." + alertDomain));
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine("Error: " + ex.Message);
             }
         }
@@ -220,7 +207,6 @@ namespace ProjectedFileSystemProvider
                 bool isDirectory = bool.Parse(parts[1]);
                 long fileSize = long.Parse(parts[2]);
 
-                // Parse Unix timestamp
                 long unixTimestamp = long.Parse(parts[3]);
                 DateTime lastWriteTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTimestamp);
 
@@ -286,7 +272,6 @@ namespace ProjectedFileSystemProvider
                 ProjFSNative.PrjStopVirtualizing(instanceHandle);
                 instanceHandle = IntPtr.Zero;
 
-                // This is ugly to remove any hydrated files/folders.
                 DirectoryInfo di = new DirectoryInfo(rootPath);
                 foreach (FileInfo file in di.GetFiles())
                 {
@@ -311,7 +296,7 @@ namespace ProjectedFileSystemProvider
         private int NotificationCB(ProjFSNative.PrjCallbackData callbackData, bool isDirectory, ProjFSNative.PrjNotification notification, string destinationFileName, ref ProjFSNative.PrjNotificationParameters operationParameters)
         {
             if (notification != ProjFSNative.PrjNotification.FileOpened || isDirectory)
-                return 0;
+                return ProjFSNative.S_OK;
 
             string parentPath = Path.GetDirectoryName(callbackData.FilePathName);
             if (string.IsNullOrEmpty(parentPath))
@@ -323,38 +308,36 @@ namespace ProjectedFileSystemProvider
             List<FileEntry> entries;
             if (!fileSystem.TryGetValue(parentPath, out entries))
             {
-                return 0; // FILE_NOT_FOUND
+                return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
 
             var entry = entries.Find(e => string.Equals(e.Name, fileName, StringComparison.OrdinalIgnoreCase));
             if (entry == null || entry.IsDirectory)
             {
-                DebugWrite("File is a dir?!");
-                return 0; // ERROR_FILE_NOT_FOUND
+                return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
+
             if (entry.Opened && (GetUnixTimeStamp() - entry.LastAlert) > 5)
             {
                 entry.LastAlert = GetUnixTimeStamp();
                 AlertOnFileAccess(callbackData.FilePathName.ToLower(), callbackData.TriggeringProcessImageFileName);
             }
 
-            //DebugWrite(string.Format("Got {0} as a notification for {1}!", notification, callbackData.FilePathName.ToLower()));
-            return 0;
+            return ProjFSNative.S_OK;
         }
 
         private int StartDirectoryEnumeration(ProjFSNative.PrjCallbackData callbackData, ref Guid enumerationId)
         {
-            DebugWrite(string.Format("StartDirectoryEnumeration: {0}", callbackData.FilePathName ?? "\\"));
-            return 0;
+            return ProjFSNative.S_OK;
         }
 
         private int EndDirectoryEnumeration(ProjFSNative.PrjCallbackData callbackData, ref Guid enumerationId)
         {
-            DebugWrite("EndDirectoryEnumeration");
-            if (enumerationIndices.ContainsKey(enumerationId)) {
+            if (enumerationIndices.ContainsKey(enumerationId))
+            {
                 enumerationIndices.Remove(enumerationId);
             }
-            return 0;
+            return ProjFSNative.S_OK;
         }
 
         private Dictionary<Guid, int> enumerationIndices = new Dictionary<Guid, int>();
@@ -363,7 +346,6 @@ namespace ProjectedFileSystemProvider
         {
             string directoryPath = callbackData.FilePathName ?? "";
             bool single = false;
-            DebugWrite(string.Format("GetDirectoryEnumeration: {0}, {1}, EnumerationId: {2}", directoryPath, searchExpression, enumerationId));
 
             // Handle root directory
             if (string.IsNullOrEmpty(directoryPath))
@@ -374,7 +356,6 @@ namespace ProjectedFileSystemProvider
             List<FileEntry> entries;
             if (!fileSystem.TryGetValue(directoryPath, out entries))
             {
-                DebugWrite(string.Format("Directory not found: {0}", directoryPath));
                 return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
 
@@ -385,25 +366,26 @@ namespace ProjectedFileSystemProvider
                 enumerationIndices[enumerationId] = currentIndex;
             }
 
-            if (callbackData.Flags == ProjFSNative.PrjCallbackDataFlags.RestartScan) {
+            if (callbackData.Flags == ProjFSNative.PrjCallbackDataFlags.RestartScan)
+            {
                 currentIndex = 0;
                 enumerationIndices[enumerationId] = 0;
-            } else if (callbackData.Flags == ProjFSNative.PrjCallbackDataFlags.ReturnSingleEntry) {
+            }
+            else if (callbackData.Flags == ProjFSNative.PrjCallbackDataFlags.ReturnSingleEntry)
+            {
                 single = true;
             }
 
-            entries.Sort(delegate(FileEntry a, FileEntry b) { return ProjFSNative.PrjFileNameCompare(a.Name, b.Name); });
+            entries.Sort(delegate (FileEntry a, FileEntry b) { return ProjFSNative.PrjFileNameCompare(a.Name, b.Name); });
 
             for (; currentIndex < entries.Count; currentIndex++)
             {
                 if (currentIndex >= entries.Count)
                 {
-                    DebugWrite(string.Format("Enumeration complete for session: {0}", enumerationId));
                     return ProjFSNative.S_OK;
                 }
 
                 var entry = entries[currentIndex];
-                DebugWrite(string.Format("Processing entry: {0}", entry.Name));
 
                 if (!ProjFSNative.PrjFileNameMatch(entry.Name, searchExpression)) // Skip if any don't match
                 {
@@ -425,7 +407,6 @@ namespace ProjectedFileSystemProvider
                 int result = ProjFSNative.PrjFillDirEntryBuffer(entry.Name, ref fileInfo, dirEntryBufferHandle);
                 if (result != ProjFSNative.S_OK)
                 {
-                    DebugWrite(string.Format("PrjFillDirEntryBuffer failed for {0}. Result: {1}", entry.Name, result));
                     return ProjFSNative.S_OK;
                 }
 
@@ -441,7 +422,6 @@ namespace ProjectedFileSystemProvider
         {
 
             string filePath = callbackData.FilePathName ?? "";
-            DebugWrite(string.Format("GetPlaceholderInfo: {0}", filePath));
 
             if (string.IsNullOrEmpty(filePath))
             {
@@ -459,7 +439,6 @@ namespace ProjectedFileSystemProvider
             List<FileEntry> entries;
             if (!fileSystem.TryGetValue(parentPath, out entries))
             {
-                DebugWrite(string.Format("Parent directory not found: {0}", parentPath));
                 return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
 
@@ -475,11 +454,10 @@ namespace ProjectedFileSystemProvider
 
             if (entry == null)
             {
-                DebugWrite(string.Format("File not found: {0}", filePath));
                 return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
 
-            entries.Sort(delegate(FileEntry a, FileEntry b) { return ProjFSNative.PrjFileNameCompare(a.Name, b.Name); });
+            entries.Sort(delegate (FileEntry a, FileEntry b) { return ProjFSNative.PrjFileNameCompare(a.Name, b.Name); });
 
             ProjFSNative.PrjPlaceholderInfo placeholderInfo = new ProjFSNative.PrjPlaceholderInfo
             {
@@ -501,18 +479,11 @@ namespace ProjectedFileSystemProvider
                 ref placeholderInfo,
                 (uint)Marshal.SizeOf(placeholderInfo));
 
-            if (result != ProjFSNative.S_OK)
-            {
-                DebugWrite(string.Format("PrjWritePlaceholderInfo failed for {0}. Result: {1}", filePath, result));
-            }
-
             return result;
         }
 
         private int GetFileData(ProjFSNative.PrjCallbackData callbackData, ulong byteOffset, uint length)
         {
-            DebugWrite(string.Format("GetFileData: {0}, {1}, {2}", callbackData.FilePathName, byteOffset, length));
-
             string parentPath = Path.GetDirectoryName(callbackData.FilePathName);
             if (string.IsNullOrEmpty(parentPath))
             {
@@ -525,21 +496,19 @@ namespace ProjectedFileSystemProvider
             List<FileEntry> entries;
             if (!fileSystem.TryGetValue(parentPath, out entries))
             {
-                DebugWrite("File not found!");
-                return 2; // ERROR_FILE_NOT_FOUND
+                return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
 
             var entry = entries.Find(e => string.Equals(e.Name, fileName, StringComparison.OrdinalIgnoreCase));
             if (entry == null || entry.IsDirectory)
             {
-                DebugWrite("File is a dir?!");
-                return 2; // ERROR_FILE_NOT_FOUND
+                return ProjFSNative.ERROR_FILE_NOT_FOUND;
             }
 
             entry.Opened = true;
             entry.LastAlert = GetUnixTimeStamp();
 
-            byte[] bom = {0xEF, 0xBB, 0xBF}; // UTF-8 Byte order mark
+            byte[] bom = { 0xEF, 0xBB, 0xBF }; // UTF-8 Byte order mark
             byte[] textBytes = Encoding.UTF8.GetBytes(string.Format("This is the content of {0}", fileName));
             byte[] fileContent = new byte[bom.Length + textBytes.Length];
             System.Buffer.BlockCopy(bom, 0, fileContent, 0, bom.Length);
@@ -547,7 +516,7 @@ namespace ProjectedFileSystemProvider
 
             if (byteOffset >= (ulong)fileContent.Length)
             {
-                return 0;
+                return ProjFSNative.S_OK;
             }
 
             uint bytesToWrite = Math.Min(length, (uint)(fileContent.Length - (int)byteOffset));
@@ -560,14 +529,6 @@ namespace ProjectedFileSystemProvider
             finally
             {
                 ProjFSNative.PrjFreeAlignedBuffer(buffer);
-            }
-        }
-
-        private void DebugWrite(string message)
-        {
-            if (enableDebug)
-            {
-                Console.WriteLine("[DEBUG] " + message);
             }
         }
     }
@@ -629,7 +590,6 @@ namespace ProjectedFileSystemProvider
         public static extern int PrjWritePlaceholderInfo(IntPtr namespaceVirtualizationContext,
             string destinationFileName, ref PrjPlaceholderInfo placeholderInfo, uint placeholderInfoSize);
 
-        // Structs and enums as provided
         [StructLayout(LayoutKind.Sequential)]
         public struct PrjFileEntry
         {
@@ -813,30 +773,23 @@ namespace ProjectedFileSystemProvider
 "@
 
     try {
-        # Check if the type is already loaded
         if (-not ([System.Management.Automation.PSTypeName]'ProjectedFileSystemProvider.Program').Type) {
             Add-Type -TypeDefinition $csharpCode -Language CSharp
         }
 
-        # Create args array for Main method
         $args = @($RootPath, $filecsv, $alertDomain, $DebugMode.ToString())
-
-        # Call the Main method
         [ProjectedFileSystemProvider.Program]::Main($args)
     }
     catch {
-        Write-Error "Error in Invoke-CanaryFS: $_"
+        Write-Error "Error in Invoke-WindowsFakeFileSystem: $_"
         throw
     }
 }
 
-Invoke-CanaryFS
+Invoke-WindowsFakeFileSystem
 '@
-        #Append Root Path
-        $processScript =  $processScript + " -RootPath $RootPath"
-        # Save the process script (using the existing $processScript variable)
+        $processScript = $processScript + " -RootPath $RootPath"
         $processScript | Out-File -FilePath $ScriptPath -Force
-        # Create task XML
         $FullUsername = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
         $taskXml = @"
 <?xml version="1.0" encoding="UTF-16"?>
@@ -879,7 +832,7 @@ Invoke-CanaryFS
     <Actions Context="Author">
         <Exec>
             <Command>cmd.exe</Command>
-            <Arguments>/c start /min powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File "$ScriptPath" -RootFolder "$RootPath" </Arguments>
+            <Arguments>/c start /min powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File "$ScriptPath" </Arguments>
         </Exec>
     </Actions>
 </Task>
@@ -888,20 +841,20 @@ Invoke-CanaryFS
         $xmlPath = "$env:TEMP\task.xml"
         $taskXml | Out-File -FilePath $xmlPath -Encoding Unicode
 
-        $result = schtasks /create /tn $TaskName /xml $xmlPath /f
+        schtasks /create /tn $TaskName /xml $xmlPath /f
 
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "Task '$TaskName' created successfully." -ForegroundColor Green
-            Write-Host "Process script saved to: $ScriptPath" -ForegroundColor Green
-            return $true
-        } else {
-            Write-Error "Failed to create task. Error code: $LASTEXITCODE"
-            return $false
+        if ($LastExitCode -eq 0) {
+            Write-Host "Successfully deployed Windows Fake File System Token" -ForegroundColor Green
+            return
+        }
+        else {
+            Write-Error "Failed to deploy Windows Fake File System Token. Error code: $LastExitCode"
+            exit
         }
     }
     catch {
-        Write-Error "Error creating scheduled task: $_"
-        return $false
+        Write-Error "Failed to deploy Windows Fake File System Token: $_"
+        exit
     }
     finally {
         if (Test-Path $xmlPath) {
@@ -910,52 +863,41 @@ Invoke-CanaryFS
     }
 }
 
-function Write-StatusMessage {
-    param(
-        [string]$Message,
-        [bool]$Success = $true
-    )
-    if ($Success) {
-        Write-Host "** $Message" -ForegroundColor Green
-    } else {
-        Write-Host "-- $Message" -ForegroundColor Red
+function Invoke-Step {
+    param($Message, [scriptblock]$Action)
+    try {
+        & $Action
+        Write-Host "++ $Message" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "-- $Message - Error: $_" -ForegroundColor Red
     }
 }
 
 function Remove-ProjFS {
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$RootPath,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$ScriptPath,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$TaskName
     )
     $ErrorActionPreference = "Stop"
 
-    function Invoke-Step {
-        param($Message, [scriptblock]$Action)
-        try {
-            & $Action
-            Write-Host "++ $Message" -ForegroundColor Green
-        } catch {
-            Write-Host "-- $Message - Error: $_" -ForegroundColor Red
-        }
-    }
-
     if (-not (Test-Administrator)) {
-        Write-Host "Administrator privileges required for ProjFS installation." -ForegroundColor Yellow
+        Write-Host "Administrator privileges required to disable Projected File System." -ForegroundColor Yellow
         return $false
     }
-    # Step 1: Stop Provider Process
+
     $projFSProcesses = Get-Process -Name powershell* | Where-Object {
         $_.Modules | Where-Object { $_.ModuleName -eq "ProjectedFSLib.dll" }
     }
     if ($projFSProcesses) {
-        Write-Host "`nFound PowerShell processes using Projected File System Providers:"
+        Write-Host "Found PowerShell processes using Projected File System Providers:"
         $projFSProcesses | ForEach-Object { Write-Host "PID: $($_.Id) - Path: $($_.Path)" }
         if ((Read-Host "Kill these processes? (Y/N)").ToUpper() -eq "Y") {
-            Invoke-Step "Terminating ProjFS processes" {
+            Invoke-Step "Terminating Projected File System processes" {
                 $projFSProcesses | Stop-Process -Force
             }
         }
@@ -971,73 +913,39 @@ function Remove-ProjFS {
             if ($null -eq $FolderContents) {
                 Remove-Item -Path $ParentFolder -Force
                 Write-Host "Empty folder removed: $ParentFolder"
-            } else {
+            }
+            else {
                 Write-Host "Warning: Folder '$ParentFolder' is not empty. Leaving in place." -ForegroundColor Yellow
             }
         }
     }
 
-    Invoke-Step "Deleting script file" {
-        if (Test-Path $ScriptPath) { Remove-Item $ScriptPath -Force }
-    }
-
-    Invoke-Step "Removing ProjFS feature" {
+    Invoke-Step "Removing Projected File System feature" {
         Disable-WindowsOptionalFeature -Online -FeatureName "Client-ProjFS" -NoRestart
     }
 
-    # Execute remaining steps
     Invoke-Step "Removing folder" {
         Remove-Item "$RootPath" -Force -Recurse
     }
 
-    Write-Host "`nNOTE: System reboot required to complete ProjFS removal." -ForegroundColor Yellow
+    Write-Host "NOTE: System reboot required to complete Projected File System removal." -ForegroundColor Yellow
+    Write-Host "Successfully remove Windows Fake File System Token" -ForegroundColor Green
 }
 
-# Main execution
-if($Remove )
-{
-    if ((Read-Host "Preparing to Remove Canary ProjFS. Do you want to continue? (Y/N)") -notmatch '^[Yy]$') { exit }
-    else
-    {
-        Remove-ProjFS -RootPath $RootPath -ScriptPath $ScriptPath -TaskName $TaskName
+if ($Remove) {
+    if ((Read-Host "Remove Windows Fake File System Token? (Y/N)") -notmatch '^[Yy]$') {
         exit
     }
+
+    Remove-ProjFS -RootPath $RootPath -ScriptPath $ScriptPath -TaskName $TaskName
+    exit
 }
 
-if ((Read-Host "Preparing to Install Canary ProjFS. Do you want to continue? (Y/N)") -notmatch '^[Yy]$') { exit }
-
-$projfsResult = Install-ProjFS
-
-if ($projfsResult) {
-    $taskResult = Create-ScheduledTask
-
-    # Final results
-    if ($taskResult) {
-        Start-ScheduledTask -TaskName $TaskName
-
-        Write-Host "`nParameter Values:" -ForegroundColor Cyan
-        Write-Host "=================" -ForegroundColor Cyan
-
-        # Print each parameter directly in green
-        Write-Host "TaskName        : " -NoNewline
-        Write-Host $TaskName -ForegroundColor Green
-
-        Write-Host "ScriptPath      : " -NoNewline
-        Write-Host $ScriptPath -ForegroundColor Green
-
-        Write-Host "TaskDescription : " -NoNewline
-        Write-Host $TaskDescription -ForegroundColor Green
-
-        Write-Host "RootPath        : " -NoNewline
-        Write-Host $RootPath -ForegroundColor Green
-
-        Write-Host " IMPORTANT: Scheduled task has started and will launch on future logons" -ForegroundColor Yellow
-    }
-    else {
-        Write-Host "`nScheduled task creation failed." -ForegroundColor Yellow
-    }
+if ((Read-Host "Deploy Windows Fake File System Token? (Y/N)") -notmatch '^[Yy]$') {
+    exit
 }
-else {
-    Write-Host "`nOperation Failed." -ForegroundColor Yellow
-}
+
+Install-ProjFS
+New-ScheduledTask
+Start-ScheduledTask -TaskName $TaskName
 """
