@@ -3,7 +3,7 @@
     <BaseFormTextField
       id="redirect_url"
       type="text"
-      placeholder="Redirect URL"
+      placeholder="https://www.example.com"
       label="Redirect URL"
       full-width
       required

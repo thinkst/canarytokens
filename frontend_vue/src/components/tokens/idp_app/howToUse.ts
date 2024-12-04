@@ -1,6 +1,6 @@
 export const howToUse = [
-  'Create a new SAML2 app in your Identity Provider (e.g. Okta).',
-  'Create a new token and use the login URL and entity ID provided.',
-  'Give it the name of a common service you don\'t use (e.g. Salesforce).',
-  'Optionally, upload a realistic icon for the service.',
+  'Create a fake CRM app like Salesforce.',
+  'If you use Azure, add AWS or GCloud to your dashboard.',
+  'Add a fake password manager to your dashboard.',
+  'Make it look like a fake email provider.',
 ];

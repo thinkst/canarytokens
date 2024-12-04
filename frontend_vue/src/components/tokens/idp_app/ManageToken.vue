@@ -1,7 +1,5 @@
 <template>
-  <div v-if="!tokenUrl || !entityId || !appType">Error loading</div>
   <TokenDisplay
-    v-else
     :token-url="tokenUrl"
     :entity-id="entityId"
     :app-type="appType"
@@ -17,7 +15,7 @@ const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
 }>();
 
-const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_url);
-const entityId = ref(props.tokenBackendResponse.canarydrop?.idp_app_entity_id);
-const appType = ref(props.tokenBackendResponse.canarydrop?.idp_app_type);
+const tokenUrl = ref(props.tokenBackendResponse.canarydrop?.generated_url || '');
+const entityId = ref(props.tokenBackendResponse.canarydrop?.idp_app_entity_id || '');
+const appType = ref(props.tokenBackendResponse.canarydrop?.idp_app_type || '');
 </script>

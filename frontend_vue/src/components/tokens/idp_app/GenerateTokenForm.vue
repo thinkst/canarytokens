@@ -3,8 +3,9 @@
     <div class="flex flex-col gap-8 mb-8">
       <BaseFormSelect
         id="app_type"
-        label="Select App"
+        label="The App I want my Canarytoken to look like"
         placeholder="Select an app"
+        required
         :options="IDP_OPTIONS"
         :searchable="true"
         @select-option="handleSelectedApp"
@@ -14,7 +15,7 @@
             <div
               alt="icon"
               :style="{ backgroundImage: `url(${getImageUrl('idp_icons/'+option.value+'.png')})` }"
-              class="bg-cover w-[2rem] h-[2rem] rounded-2xl duration-100"
+              class="bg-cover w-[2rem] h-[2rem] duration-100"
             ></div>
             {{ option.label }}
           </div>
@@ -25,7 +26,7 @@
             <div
               alt="icon"
               :style="{ backgroundImage: `url(${getImageUrl('idp_icons/'+option.value+'.png')})` }"
-              class="bg-cover w-[1.5rem] h-[1.5rem] rounded-2xl duration-100"
+              class="bg-cover w-[1.5rem] h-[1.5rem] duration-100"
             ></div>
             {{ option.label }}
           </div>
@@ -35,8 +36,8 @@
     <BaseFormTextField
       id="redirect_url"
       type="text"
-      placeholder="Redirect URL"
-      label="Optional Redirect URL"
+      label="Send the user to this URL on login (Optional)"
+      placeholder="https://www.example.com"
       full-width
     />
   </BaseGenerateTokenSettings>

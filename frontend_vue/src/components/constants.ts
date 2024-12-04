@@ -159,7 +159,8 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   cc: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
   pwa: ['#1AABEE', '#026696', '#9CE5FD'],
   credit_card_v2: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
-  windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F']
+  windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F'],
+  idp_app: ['#1AABEE', '#026696', '#9CE5FD'],
 };
 
 

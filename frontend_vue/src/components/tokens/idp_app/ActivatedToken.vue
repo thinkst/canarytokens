@@ -1,7 +1,5 @@
 <template>
-  <div v-if="!tokenUrl || !entityId || !appType">Error loading</div>
   <TokenDisplay
-    v-else
     :token-url="tokenUrl"
     :entity-id="entityId"
     :app-type="appType"
@@ -24,7 +22,7 @@ const props = defineProps<{
 
 defineEmits(['howToUse']);
 
-const tokenUrl = ref(props.tokenData.token_url);
-const entityId = ref(props.tokenData.entity_id);
-const appType = ref(props.tokenData.app_type);
+const tokenUrl = ref(props.tokenData.token_url || '');
+const entityId = ref(props.tokenData.entity_id || '');
+const appType = ref(props.tokenData.app_type || '');
 </script>
