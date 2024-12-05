@@ -14,7 +14,7 @@ namespace ProjectedFileSystemProvider
         {
             if (args.Length != 4)
             {
-                Console.WriteLine("Usage: CanaryFS.exe <rootPath> <fileCsv> <alertDomain> <debugMode>");
+                Console.WriteLine("Usage: WindowsFakeFS.exe <rootPath> <fileCsv> <alertDomain> <debugMode>");
                 return;
             }
 
