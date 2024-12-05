@@ -20,8 +20,8 @@ REPLACE_CSV_DIR_STRUCTURE
             Add-Type -TypeDefinition $csharpCode -Language CSharp
         }
 
-        $args = @($RootPath, $filecsv, $alertDomain, $DebugMode.ToString())
-        [ProjectedFileSystemProvider.Program]::Main($args)
+        $arguments = @($RootPath, $fileCSV, $alertDomain, $DebugMode.ToString())
+        [ProjectedFileSystemProvider.Program]::Main($arguments)
     }
     catch {
         Write-Error "Error in Invoke-WindowsFakeFileSystem: $_"
