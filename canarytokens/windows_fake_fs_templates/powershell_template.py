@@ -925,11 +925,16 @@ function Remove-ProjFS {
     }
 
     Invoke-Step "Removing folder" {
-        Remove-Item "$RootPath" -Force -Recurse
+        cmd /c rmdir /s /q "$RootPath"
+    }
+
+    if ((Test-Path -Path $RootPath -PathType Container) -and
+        ($null -ne (Get-ChildItem -Path $RootPath -Force))) {
+        Write-Host "The target folder '$RootPath' could not be emptied as a file was still open. Please remove it manually" -ForegroundColor Yellow
     }
 
     Write-Host "NOTE: System reboot required to complete Projected File System removal." -ForegroundColor Yellow
-    Write-Host "Successfully remove Windows Fake File System Token" -ForegroundColor Green
+    Write-Host "Windows Fake File System Token remove completed." -ForegroundColor Green
 }
 
 if ($Remove) {
