@@ -5,7 +5,7 @@
         id="app_icon"
         class="inline-block mb-8 text-grey-500"
         for="app_name"
-        >App</label
+        >App Details</label
       >
       <div class="flex flex-row justify-center gap-16">
         <BaseDownloadIconButton

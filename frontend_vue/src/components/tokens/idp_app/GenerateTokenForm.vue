@@ -1,7 +1,6 @@
 <template>
   <BaseGenerateTokenSettings setting-type="Canarytoken">
     <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-8 mb-8">
       <BaseFormSelect
         id="app_type"
         label="The App I want my Canarytoken to look like"
@@ -34,14 +33,13 @@
           </div>
         </template>
       </BaseFormSelect>
-    </div>
-    <BaseFormTextField
-      id="redirect_url"
-      type="text"
-      label="Send the user to this URL on login (Optional)"
-      placeholder="https://www.example.com"
-      full-width
-    />
+      <BaseFormTextField
+        id="redirect_url"
+        type="text"
+        label="Send the user to this URL on login (Optional)"
+        placeholder="https://www.example.com"
+        full-width
+      />
     </div>
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
