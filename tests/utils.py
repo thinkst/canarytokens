@@ -613,6 +613,8 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         expected_referrer="testreferrer.com",
         windows_fake_fs_root=r"C:\Secrets",
         windows_fake_fs_file_structure="home_network",
+        app_type="aws",
+        webdav_fs_type="testing",
     )
 
 

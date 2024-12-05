@@ -829,71 +829,71 @@ class CreditCardV2TokenRequest(TokenRequest):
 
 
 class IdPAppType(enum.Enum):
-    aws = "aws"
-    azure = "azure"
-    bitwarden = "bitwarden"
-    dropbox = "dropbox"
-    duo = "duo"
-    elasticsearch = "elasticsearch"
-    freshbooks = "freshbooks"
-    gcloud = "gcloud"
-    gdrive = "gdrive"
-    github = "github"
-    gitlab = "gitlab"
-    gmail = "gmail"
-    intune = "intune"
-    jamf = "jamf"
-    jira = "jira"
-    kibana = "kibana"
-    lastpass = "lastpass"
-    ms365 = "ms365"
-    msteams = "msteams"
-    onedrive = "onedrive"
-    onepassword = "onepassword"
-    outlook = "outlook"
-    pagerduty = "pagerduty"
-    sage = "sage"
-    salesforce = "salesforce"
-    sap = "sap"
-    slack = "slack"
-    virtru = "virtru"
-    zendesk = "zendesk"
-    zoho = "zoho"
-    zoom = "zoom"
+    AWS = "aws"
+    AZURE = "azure"
+    BITWARDEN = "bitwarden"
+    DROPBOX = "dropbox"
+    DUO = "duo"
+    ELASTICSEARCH = "elasticsearch"
+    FRESHBOOKS = "freshbooks"
+    GCLOUD = "gcloud"
+    GDRIVE = "gdrive"
+    GITHUB = "github"
+    GITLAB = "gitlab"
+    GMAIL = "gmail"
+    INTUNE = "intune"
+    JAMF = "jamf"
+    JIRA = "jira"
+    KIBANA = "kibana"
+    LASTPASS = "lastpass"
+    MS365 = "ms365"
+    MSTEAMS = "msteams"
+    ONEDRIVE = "onedrive"
+    ONEPASSWORD = "onepassword"
+    OUTLOOK = "outlook"
+    PAGERDUTY = "pagerduty"
+    SAGE = "sage"
+    SALESFORCE = "salesforce"
+    SAP = "sap"
+    SLACK = "slack"
+    VIRTRU = "virtru"
+    ZENDESK = "zendesk"
+    ZOHO = "zoho"
+    ZOOM = "zoom"
 
 
 IDP_APP_TITLES = {
-    IdPAppType.aws: "AWS",
-    IdPAppType.azure: "Azure",
-    IdPAppType.bitwarden: "Bitwarden",
-    IdPAppType.dropbox: "Dropbox",
-    IdPAppType.duo: "Duo",
-    IdPAppType.elasticsearch: "Elasticsearch",
-    IdPAppType.freshbooks: "Freshbooks",
-    IdPAppType.gcloud: "Google Cloud",
-    IdPAppType.gdrive: "Google Drive",
-    IdPAppType.github: "GitHub",
-    IdPAppType.gitlab: "GitLab",
-    IdPAppType.gmail: "Gmail",
-    IdPAppType.intune: "Intune",
-    IdPAppType.jamf: "JAMF",
-    IdPAppType.jira: "Jira",
-    IdPAppType.kibana: "Kibana",
-    IdPAppType.lastpass: "LastPass",
-    IdPAppType.ms365: "Microsoft 365",
-    IdPAppType.msteams: "MS Teams",
-    IdPAppType.onedrive: "OneDrive",
-    IdPAppType.onepassword: "1Password",
-    IdPAppType.outlook: "Outlook",
-    IdPAppType.pagerduty: "PagerDuty",
-    IdPAppType.sage: "Sage",
-    IdPAppType.salesforce: "Salesforce",
-    IdPAppType.sap: "SAP",
-    IdPAppType.slack: "Slack",
-    IdPAppType.virtru: "Virtru",
-    IdPAppType.zendesk: "Zendesk",
-    IdPAppType.zoho: "Zoho",
-    IdPAppType.zoom: "Zoom",
+    IdPAppType.AWS: "AWS",
+    IdPAppType.AZURE: "Azure",
+    IdPAppType.BITWARDEN: "Bitwarden",
+    IdPAppType.DROPBOX: "Dropbox",
+    IdPAppType.DUO: "Duo",
+    IdPAppType.ELASTICSEARCH: "Elasticsearch",
+    IdPAppType.FRESHBOOKS: "Freshbooks",
+    IdPAppType.GCLOUD: "Google Cloud",
+    IdPAppType.GDRIVE: "Google Drive",
+    IdPAppType.GITHUB: "GitHub",
+    IdPAppType.GITLAB: "GitLab",
+    IdPAppType.GMAIL: "Gmail",
+    IdPAppType.INTUNE: "Intune",
+    IdPAppType.JAMF: "JAMF",
+    IdPAppType.JIRA: "Jira",
+    IdPAppType.KIBANA: "Kibana",
+    IdPAppType.LASTPASS: "LastPass",
+    IdPAppType.MS365: "Microsoft 365",
+    IdPAppType.MSTEAMS: "MS Teams",
+    IdPAppType.ONEDRIVE: "OneDrive",
+    IdPAppType.ONEPASSWORD: "1Password",
+    IdPAppType.OUTLOOK: "Outlook",
+    IdPAppType.PAGERDUTY: "PagerDuty",
+    IdPAppType.SAGE: "Sage",
+    IdPAppType.SALESFORCE: "Salesforce",
+    IdPAppType.SAP: "SAP",
+    IdPAppType.SLACK: "Slack",
+    IdPAppType.VIRTRU: "Virtru",
+    IdPAppType.ZENDESK: "Zendesk",
+    IdPAppType.ZOHO: "Zoho",
+    IdPAppType.ZOOM: "Zoom",
 }
 
 

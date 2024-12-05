@@ -5,6 +5,7 @@ from http.client import OK
 from canarytokens.models import (
     Memo,
     TokenTypes,
+    IdPAppType,
     IdPAppTokenHistory,
     IdPAppTokenRequest,
     IdPAppTokenResponse,
@@ -29,6 +30,7 @@ def test_saml_token(redirect_url, webhook_receiver, version=v3):
         webhook_url=webhook_receiver,
         memo=Memo(memo),
         redirect_url=redirect_url,
+        app_type=IdPAppType.AWS,
     )
     resp = create_token(token_request=token_request, version=version)
     token_info = IdPAppTokenResponse(**resp)
