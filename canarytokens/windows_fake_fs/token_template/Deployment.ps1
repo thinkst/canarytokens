@@ -65,11 +65,15 @@ function New-ScheduledTask {
     }
 
     try {
-        $processScript = @'REPLACE_SCHEDULED_TASK'@
+        $processScript = @'
+REPLACE_SCHEDULED_TASK
+'@
         $processScript = $processScript + " -RootPath $RootPath"
         $processScript | Out-File -FilePath $ScriptPath -Force
         $FullUsername = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-        $taskXml = @"REPLACE_SCHEDULED_TASK_XML"@
+        $taskXml = @"
+REPLACE_SCHEDULED_TASK_XML
+"@
 
         $xmlPath = "$env:TEMP\task.xml"
         $taskXml | Out-File -FilePath $xmlPath -Encoding Unicode

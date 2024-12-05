@@ -8,8 +8,12 @@ function Invoke-WindowsFakeFileSystem {
         [bool]$DebugMode = $false
     )
     $alertDomain = "REPLACE_TOKEN_DOMAIN"
-    $csharpCode = @"REPLACE_CSHARP_PROVIDER_CODE"@
-    $filecsv = @"REPLACE_CSV_DIR_STRUCTURE"@
+    $csharpCode = @"
+REPLACE_CSHARP_PROVIDER_CODE
+"@
+    $fileCSV = @"
+REPLACE_CSV_DIR_STRUCTURE
+"@
 
     try {
         if (-not ([System.Management.Automation.PSTypeName]'ProjectedFileSystemProvider.Program').Type) {
