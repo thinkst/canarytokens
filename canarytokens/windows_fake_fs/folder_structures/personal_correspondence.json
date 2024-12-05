@@ -1,4 +1,4 @@
-PERSONAL_CORRESPONDENCE_STRUCTURE = [
+[
     {
         "name": "PersonalCorrespondence",
         "type": "folder",
@@ -9,8 +9,8 @@ PERSONAL_CORRESPONDENCE_STRUCTURE = [
                 "children": [
                     {"name": "Letters.docx", "type": "docx"},
                     {"name": "Photos.pdf", "type": "pdf"},
-                    {"name": "Birthdays.xlsx", "type": "xls"},
-                ],
+                    {"name": "Birthdays.xlsx", "type": "xls"}
+                ]
             },
             {
                 "name": "Friends",
@@ -18,8 +18,8 @@ PERSONAL_CORRESPONDENCE_STRUCTURE = [
                 "children": [
                     {"name": "Emails.docx", "type": "docx"},
                     {"name": "GroupPhotos.pdf", "type": "pdf"},
-                    {"name": "EventInvites.xlsx", "type": "xls"},
-                ],
+                    {"name": "EventInvites.xlsx", "type": "xls"}
+                ]
             },
             {
                 "name": "WorkAcquaintances",
@@ -27,8 +27,8 @@ PERSONAL_CORRESPONDENCE_STRUCTURE = [
                 "children": [
                     {"name": "LinkedInContacts.xlsx", "type": "xls"},
                     {"name": "ThankYouNotes.docx", "type": "docx"},
-                    {"name": "NetworkingEvents.pdf", "type": "pdf"},
-                ],
+                    {"name": "NetworkingEvents.pdf", "type": "pdf"}
+                ]
             },
             {
                 "name": "Miscellaneous",
@@ -36,9 +36,9 @@ PERSONAL_CORRESPONDENCE_STRUCTURE = [
                 "children": [
                     {"name": "HolidayCards.pdf", "type": "pdf"},
                     {"name": "PenPals.docx", "type": "docx"},
-                    {"name": "CorrespondenceTracker.xlsx", "type": "xls"},
-                ],
-            },
-        ],
+                    {"name": "CorrespondenceTracker.xlsx", "type": "xls"}
+                ]
+            }
+        ]
     }
 ]

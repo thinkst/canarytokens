@@ -34,7 +34,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 import canarytokens
 import canarytokens.credit_card_v2 as credit_card_infra
-from canarytokens import extendtoken, kubeconfig, msreg, queries, windows_fake_fs
+from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens.awskeys import get_aws_key
@@ -178,6 +178,7 @@ from canarytokens.redismanager import DB
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from canarytokens.utils import get_deployed_commit_sha
+from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
 
 frontend_settings = FrontendSettings()
@@ -1024,19 +1025,13 @@ def _(
     download_request_details: DownloadWindowsFakeFSRequest, canarydrop: Canarydrop
 ) -> DownloadWindowsFakeFSResponse:
     """"""
-    fake_file_structure = windows_fake_fs.FOLDER_MAP.get(
-        canarydrop.windows_fake_fs_file_structure
-    )
-    if not fake_file_structure:
-        return JSONResponse({"message": "Something went wrong!"}, status_code=500)
-
     return DownloadWindowsFakeFSResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
         content=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
             root_dir=canarydrop.windows_fake_fs_root,
-            fake_file_structure=fake_file_structure,
+            fake_file_structure=canarydrop.windows_fake_fs_file_structure,
         ),
         filename=f"{canarydrop.canarytoken.value()}.ps1",
     )
@@ -1722,12 +1717,6 @@ def _(
     )
     queries.save_canarydrop(canarydrop=canarydrop)
 
-    fake_file_structure = windows_fake_fs.FOLDER_MAP.get(
-        canarydrop.windows_fake_fs_file_structure
-    )
-    if not fake_file_structure:
-        return response_error(1, "Invalid fake file structure selected.")
-
     return WindowsFakeFSTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
@@ -1739,7 +1728,7 @@ def _(
         powershell_file=windows_fake_fs.make_windows_fake_fs(
             token_hostname=canarydrop.get_hostname(),
             root_dir=canarydrop.windows_fake_fs_root,
-            fake_file_structure=fake_file_structure,
+            fake_file_structure=canarydrop.windows_fake_fs_file_structure,
         ),
     )
 

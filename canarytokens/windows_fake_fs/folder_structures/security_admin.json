@@ -1,12 +1,12 @@
-SECURITY_ADMIN_STRUCTURE = [
+[
     {
         "name": "Network",
         "type": "folder",
         "children": [
             {"name": "Network Diagram.pdf", "type": "pdf"},
             {"name": "Router Configuration.xml", "type": "xml"},
-            {"name": "Switch Configuration.doc", "type": "doc"},
-        ],
+            {"name": "Switch Configuration.doc", "type": "doc"}
+        ]
     },
     {
         "name": "Server",
@@ -15,8 +15,8 @@ SECURITY_ADMIN_STRUCTURE = [
             {"name": "Server Inventory.xlsx", "type": "xlsx"},
             {"name": "Server Configurations.doc", "type": "doc"},
             {"name": "Server Manual.pdf", "type": "pdf"},
-            {"name": "Server Room Access Log.pdf", "type": "pdf"},
-        ],
+            {"name": "Server Room Access Log.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "Firewall",
@@ -24,8 +24,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "Firewall Configuration.doc", "type": "doc"},
             {"name": "Firewall Rules.pdf", "type": "pdf"},
-            {"name": "Firewall Logs.xlsx", "type": "xlsx"},
-        ],
+            {"name": "Firewall Logs.xlsx", "type": "xlsx"}
+        ]
     },
     {
         "name": "VPN",
@@ -33,8 +33,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "VPN Configuration.doc", "type": "doc"},
             {"name": "VPN Access Logs.pdf", "type": "pdf"},
-            {"name": "VPN User List.xlsx", "type": "xlsx"},
-        ],
+            {"name": "VPN User List.xlsx", "type": "xlsx"}
+        ]
     },
     {
         "name": "Wireless Network",
@@ -42,8 +42,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "Wireless Network Configuration.doc", "type": "doc"},
             {"name": "Wireless Network Access Log.pdf", "type": "pdf"},
-            {"name": "Wireless Network Security.pdf", "type": "pdf"},
-        ],
+            {"name": "Wireless Network Security.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "CCTV",
@@ -51,8 +51,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "CCTV Configuration.doc", "type": "doc"},
             {"name": "CCTV Footage Backup.xlsx", "type": "xlsx"},
-            {"name": "CCTV Incident Report.pdf", "type": "pdf"},
-        ],
+            {"name": "CCTV Incident Report.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "Access Control",
@@ -60,8 +60,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "Access Control Configuration.doc", "type": "doc"},
             {"name": "Access Control Audit Log.xlsx", "type": "xlsx"},
-            {"name": "Access Control Policy.pdf", "type": "pdf"},
-        ],
+            {"name": "Access Control Policy.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "Incident Response",
@@ -70,8 +70,8 @@ SECURITY_ADMIN_STRUCTURE = [
             {"name": "Incident Response Plan.doc", "type": "doc"},
             {"name": "Incident Report Form.doc", "type": "doc"},
             {"name": "Incident Investigation Report.pdf", "type": "pdf"},
-            {"name": "Incident Response Team Contact List.xlsx", "type": "xlsx"},
-        ],
+            {"name": "Incident Response Team Contact List.xlsx", "type": "xlsx"}
+        ]
     },
     {
         "name": "Antivirus",
@@ -79,8 +79,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "Antivirus Configuration.doc", "type": "doc"},
             {"name": "Antivirus Reports.pdf", "type": "pdf"},
-            {"name": "Antivirus User Manual.doc", "type": "doc"},
-        ],
+            {"name": "Antivirus User Manual.doc", "type": "doc"}
+        ]
     },
     {
         "name": "Security Policies",
@@ -88,8 +88,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "IT Security Policy.pdf", "type": "pdf"},
             {"name": "Password Policy.doc", "type": "doc"},
-            {"name": "Information Security Awareness Training.pptx", "type": "pptx"},
-        ],
+            {"name": "Information Security Awareness Training.pptx", "type": "pptx"}
+        ]
     },
     {
         "name": "Disaster Recovery",
@@ -98,8 +98,8 @@ SECURITY_ADMIN_STRUCTURE = [
             {"name": "Disaster Recovery Plan.doc", "type": "doc"},
             {"name": "Disaster Recovery Test Results.xlsx", "type": "xlsx"},
             {"name": "Backup Details.doc", "type": "doc"},
-            {"name": "Recovery Procedures.pdf", "type": "pdf"},
-        ],
+            {"name": "Recovery Procedures.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "IT Infrastructure",
@@ -107,8 +107,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "IT Infrastructure Diagram.pdf", "type": "pdf"},
             {"name": "IT Asset Register.xlsx", "type": "xlsx"},
-            {"name": "IT Maintenance Schedule.xlsx", "type": "xlsx"},
-        ],
+            {"name": "IT Maintenance Schedule.xlsx", "type": "xlsx"}
+        ]
     },
     {
         "name": "User Management",
@@ -117,8 +117,8 @@ SECURITY_ADMIN_STRUCTURE = [
             {"name": "User Access Management.doc", "type": "doc"},
             {"name": "User Account Request Form.doc", "type": "doc"},
             {"name": "User Account Suspension Notification.pdf", "type": "pdf"},
-            {"name": "User Account Termination Notification.pdf", "type": "pdf"},
-        ],
+            {"name": "User Account Termination Notification.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "Vulnerability Management",
@@ -126,8 +126,8 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "Vulnerability Assessment Report.doc", "type": "doc"},
             {"name": "Vulnerability Scan Results.xlsx", "type": "xlsx"},
-            {"name": "Vulnerability Remediation Procedure.pdf", "type": "pdf"},
-        ],
+            {"name": "Vulnerability Remediation Procedure.pdf", "type": "pdf"}
+        ]
     },
     {
         "name": "Training and Education",
@@ -135,7 +135,7 @@ SECURITY_ADMIN_STRUCTURE = [
         "children": [
             {"name": "IT Security Training Schedule.xlsx", "type": "xlsx"},
             {"name": "IT Security Training Material.pdf", "type": "pdf"},
-            {"name": "IT Security Quiz.doc", "type": "doc"},
-        ],
-    },
+            {"name": "IT Security Quiz.doc", "type": "doc"}
+        ]
+    }
 ]
