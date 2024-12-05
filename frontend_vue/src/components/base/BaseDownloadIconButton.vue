@@ -5,7 +5,7 @@
   >
     <a
       v-bind="$attrs"
-      class="bg-cover min-w-[4rem] min-h-[4rem] rounded-2xl duration-100"
+      class="bg-cover min-w-[2.5rem] min-h-[2.2rem] duration-100"
       :class="{ 'bg-grey-200 cursor-default': props.disabled }"
       :style="
         !props.disabled && props.url
