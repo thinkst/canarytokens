@@ -69,7 +69,6 @@ function New-ScheduledTask {
 REPLACE_SCHEDULED_TASK
 '@
         $processScript | Out-File -FilePath $ScriptPath -Force
-        $FullUsername = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
         $taskXml = @"
 REPLACE_SCHEDULED_TASK_XML
 "@
