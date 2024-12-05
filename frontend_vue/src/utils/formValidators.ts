@@ -230,6 +230,7 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
       redirect_url: Yup.string(),
+      app_type: Yup.string().required('App type is required'),
     }),
   },
 };
