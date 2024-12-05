@@ -5,14 +5,8 @@
       shown: isTriggered,
       triggers: tooltipTriggers,
     }"
-    :class="
-      props.disabled
-        ? 'cursor-not-allowed bg-grey-200 hover:bg-grey-200'
-        : 'cursor-pointer  bg-green hover:bg-green-300 '
-    "
-    class="h-[2rem] w-[2rem] font-semibold text-white rounded-full transition duration-100"
+    class="h-[2rem] w-[2rem] font-semibold text-white rounded-full bg-green hover:bg-green-300 transition duration-100"
     aria-label="Copy to clipboard"
-    :disabled="props.disabled || !isSupported"
     @click="copyContent"
   >
     <Transition
@@ -45,7 +39,6 @@ import { useClipboard } from '@vueuse/core';
 const props = withDefaults(
   defineProps<{
     content: string;
-    disabled?: boolean;
   }>(),
   {
     content: '',
