@@ -29,4 +29,4 @@ REPLACE_CSV_DIR_STRUCTURE
     }
 }
 
-Invoke-WindowsFakeFileSystem
+Invoke-WindowsFakeFileSystem -RootPath "REPLACE_ROOT_DIR"

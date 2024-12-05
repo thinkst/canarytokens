@@ -116,6 +116,7 @@ def make_windows_fake_fs(
     scheduled_task = scheduled_task.replace(
         "REPLACE_CSV_DIR_STRUCTURE", folder_structure_csv
     )
+    scheduled_task = scheduled_task.replace("REPLACE_ROOT_DIR", root_dir)
 
     # .format does not work because of certain characters in the template
     # that cause and escape issue so we use replace
