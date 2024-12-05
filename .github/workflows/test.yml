@@ -110,6 +110,10 @@ jobs:
           export CANARY_MAILGUN_API_KEY=${{ secrets.TESTING_MAILGUN_API_KEY }}
           export CANARY_SENTRY_ENVIRONMENT=ci
           export CANARY_WEB_IMAGE_UPLOAD_PATH=../uploads
+          export CANARY_WEBDAV_SERVER=test
+          export CANARY_CLOUDFLARE_ACCOUNT_ID=test
+          export CANARY_CLOUDFLARE_API_TOKEN=test
+          export CANARY_CLOUDFLARE_NAMESPACE=test
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
 
