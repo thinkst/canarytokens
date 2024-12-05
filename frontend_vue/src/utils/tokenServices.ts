@@ -182,7 +182,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.WINDOWS_FAKE_FS]: {
     label: 'Windows Fake File System',
-    description: 'Get an alert when a attacker accesses a file in the fake file system.',
+    description: 'Get an alert when an attacker accesses a file in the fake file system.',
     documentationLink:
       'https://docs.canarytokens.org/guide/TBD.html',
     icon: `${TOKENS_TYPE.WINDOWS_FAKE_FS}.png`,
