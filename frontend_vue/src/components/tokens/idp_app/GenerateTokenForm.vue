@@ -15,7 +15,9 @@
           <div class="flex flex-row items-center gap-16">
             <div
               alt="icon"
-              :style="{ backgroundImage: `url(${getImageUrl('idp_icons/'+option.value+'.png')})` }"
+              :style="{
+                backgroundImage: `url(${getImageUrl('idp_icons/' + option.value + '.png')})`,
+              }"
               class="bg-cover w-[2rem] h-[2rem] duration-100"
             ></div>
             {{ option.label }}
@@ -23,10 +25,12 @@
         </template>
 
         <template #selected-option="{ option }">
-          <div class="flex flex-row items-center gap-16">
+          <div class="flex flex-row items-center gap-8">
             <div
               alt="icon"
-              :style="{ backgroundImage: `url(${getImageUrl('idp_icons/'+option.value+'.png')})` }"
+              :style="{
+                backgroundImage: `url(${getImageUrl('idp_icons/' + option.value + '.png')})`,
+              }"
               class="bg-cover w-[1.5rem] h-[1.5rem] duration-100"
             ></div>
             {{ option.label }}
@@ -61,6 +65,6 @@ type SelectedAppType = {
 const selectedApp = ref<SelectedAppType>();
 
 function handleSelectedApp(selected: string) {
-  selectedApp.value = IDP_OPTIONS.find(o => o.value === selected);
+  selectedApp.value = IDP_OPTIONS.find((o) => o.value === selected);
 }
 </script>
