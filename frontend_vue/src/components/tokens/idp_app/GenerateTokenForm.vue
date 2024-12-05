@@ -1,5 +1,6 @@
 <template>
   <BaseGenerateTokenSettings setting-type="Canarytoken">
+    <div class="flex flex-col gap-8">
     <div class="flex flex-col gap-8 mb-8">
       <BaseFormSelect
         id="app_type"
@@ -8,6 +9,7 @@
         required
         :options="IDP_OPTIONS"
         :searchable="true"
+        height="220px"
         @select-option="handleSelectedApp"
       >
         <template #option="{ option }">
@@ -40,6 +42,7 @@
       placeholder="https://www.example.com"
       full-width
     />
+    </div>
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
     memo-helper-example="Fake Salesforce app in Okta"

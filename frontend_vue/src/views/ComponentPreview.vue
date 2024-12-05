@@ -239,7 +239,10 @@
     <hr class="my-24" />
     <h1 class="pb-16">Incident details</h1>
     <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
-      <IncidentDetails :hit-alert="alertSample" :showingMap="true" />
+      <IncidentDetails
+        :hit-alert="alertSample"
+        :showingMap="true"
+      />
     </div>
     <div class="flex flex-col gap-16 mb-32">
       <h1>Upload File</h1>
