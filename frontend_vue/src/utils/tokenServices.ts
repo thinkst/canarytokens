@@ -464,7 +464,10 @@ export const tokenServices: TokenServicesType = {
       'You install it in your Identity Provider as an app.',
       'We send you an alert if an attacker tries to log into that app.',
     ],
-    category: TOKEN_CATEGORY.OTHER,
+    category: [
+      TOKEN_CATEGORY.CLOUD,
+      TOKEN_CATEGORY.PHISHING
+    ],
     keywords: []
   },
 };
