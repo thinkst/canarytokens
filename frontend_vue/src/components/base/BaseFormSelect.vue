@@ -1,20 +1,17 @@
 <template>
   <label
     :for="id"
-    class="mt-8 ml-4 mb-8 font-semibold leading-3"
+    class="mt-8 ml-4 font-semibold"
     >{{ label }}</label
   >
-  <p
-    v-if="errorMessage"
-    class="text-xs text-red ml-[4px] leading-[0px]"
-  >
-    {{ errorMessage }}
-  </p>
+
   <v-select
     :id="id"
     class="v-select"
+    :class="{ invalid: errorMessage }"
+    :style="`--vs-dropdown-height: ${props.height}`"
     :options="options"
-    :searchable="false"
+    :searchable="searchable"
     :placeholder="placeholder"
     @input="handleSelectOption"
     @blur="handleBlur"
@@ -27,26 +24,51 @@
           class="w-6 h-6 hover:text-grey-400"
       /></span>
     </template>
+    <template #option="option">
+      <slot
+        name="option"
+        :option="option"
+        :value="option.value"
+      >
+      </slot>
+    </template>
+    <template #selected-option="option">
+      <slot
+        name="selected-option"
+        :option="option"
+        :value="option.value"
+      ></slot>
+    </template>
   </v-select>
+  <div class="h-8 mt-4 ml-16">
+    <p
+      v-if="errorMessage"
+      class="text-xs text-red leading-[0px]"
+    >
+      {{ errorMessage }}
+    </p>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { toRef, onMounted } from 'vue';
 import { useField } from 'vee-validate';
 
-export type SelectOption = { label: string, value: string };
+export type SelectOption = { label: string; value: string };
 
 const props = defineProps<{
   id: string;
   label: string;
   options: string[] | SelectOption[];
   placeholder?: string;
+  searchable?: boolean;
+  height?: string;
 }>();
 
 const id = toRef(props, 'id');
 const emits = defineEmits(['selectOption']);
 
-const { value, errorMessage, handleChange, handleBlur } = useField(id);
+const { errorMessage, handleChange, handleBlur } = useField(id);
 
 onMounted(() => {
   // When selecting the v-select, focus is set on the inner search input
@@ -63,14 +85,14 @@ onMounted(() => {
 
 function handleSelectOption(value: string | SelectOption) {
   if (typeof value === 'object') {
-    value = value.value
-  };
+    value = value.value;
+  }
   handleChange(value);
   emits('selectOption', value);
 }
 </script>
 
-<style>
+<style lang="scss">
 .focus-visible {
   outline: 2px solid;
   outline-color: hsl(191, 96%, 36%);
@@ -80,11 +102,13 @@ function handleSelectOption(value: string | SelectOption) {
   @apply text-grey-400;
 }
 .v-select .vs__dropdown-toggle {
-  @apply px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-xl border-grey-400 bg-white outline-offset-1;
+  @apply px-16 py-[0.4rem] border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 bg-white outline-offset-1;
 }
 
 .v-select .vs__dropdown-menu {
-  @apply mt-[8px] bg-white shadow-none border-grey-100 rounded-b-xl;
+  @apply mt-[8px] bg-white shadow-none border-grey-300 rounded-xl;
+  height: var(--vs-dropdown-height);
+  border-top-style: solid;
 }
 
 .v-select .vs__clear {
@@ -98,7 +122,23 @@ function handleSelectOption(value: string | SelectOption) {
   @apply text-grey-500;
 }
 
+.v-select .vs__dropdown-option:first-child {
+  @apply mt-[0.5rem];
+}
+
+.v-select .vs__dropdown-option:last-child {
+  @apply mb-[0.5rem];
+}
+
 .v-select .vs__dropdown-option--highlight {
   @apply bg-green-500 text-white;
+}
+
+.v-select.invalid > .vs__dropdown-toggle {
+  @apply border border-red;
+}
+
+.vs__selected {
+  @apply m-0;
 }
 </style>
