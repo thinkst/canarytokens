@@ -170,6 +170,7 @@ export function buildIncidentDetails(
           (hitAlert.location &&
             locationValue(hitAlert.token_type, hitAlert.location)) ||
           null,
+        request_args: hitAlert?.request_args || null,
       },
       time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
       src_ip: hitAlert.src_ip,
