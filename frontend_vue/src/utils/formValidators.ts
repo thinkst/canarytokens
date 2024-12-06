@@ -214,4 +214,16 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.WEBDAV]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },
+  [TOKENS_TYPE.WINDOWS_FAKE_FS]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      windows_fake_fs_root: Yup.string()
+        .required('A file path is required')
+        .matches(
+          /^[a-zA-Z]:(\\[a-zA-Z0-9_.-]+)+\\?$/,
+          "Invalid file path"
+        ),
+      windows_fake_fs_file_structure: Yup.string().required('A file structure is required'),
+    }),
+  },
 };
