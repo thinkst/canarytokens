@@ -26,7 +26,7 @@
           triggers: tooltipTriggers,
         }"
         :class="{ hidden: props.disabled }"
-        class="absolute w-[2rem] rounded-full h-[2rem] bg-green top-[-.5rem] right-[-.5rem] flex items-center justify-center text-white"
+        class="absolute w-[1.5rem] rounded-full h-[1.5rem] bg-green top-[-.5rem] right-[-.5rem] flex items-center justify-center text-white"
       >
         <Transition
           name="fade"
