@@ -848,7 +848,10 @@ async def api_generate(  # noqa: C901  # gen is large
         page=page,
         use_path_elements=(token_request_details.token_type != TokenTypes.IDP_APP),
     )
-    if token_request_details.token_type == TokenTypes.PWA:
+    if token_request_details.token_type in [
+        TokenTypes.IDP_APP,
+        TokenTypes.PWA,
+    ]:
         canarydrop.generated_url = canarydrop.generated_url.replace(
             "http://", "https://"
         )
