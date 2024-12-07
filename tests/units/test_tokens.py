@@ -1,6 +1,8 @@
 from typing import Optional
 
 import pytest
+import random
+import base64
 
 from canarytokens import tokens as t
 from canarytokens.models import TokenTypes
@@ -86,6 +88,63 @@ def test_cmd_process_pattern(
     assert data["src_data"]["cmd_computer_name"] == cmd_computer_name
     assert data["src_data"]["cmd_user_name"] == cmd_user_name
     assert data["src_data"].get("cmd_invocation_id") == cmd_invocation_id
+
+
+@pytest.mark.parametrize(
+    "query, invocation_id, file_name, process_name, ",
+    [
+        (
+            "u7595.fMRXWGIDCFZSG6Y3Y.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
+            "7595",
+            "doc b.docx",
+            "explorer.exe",
+        ),
+        (
+            "u7595.f.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
+            "7595",
+            "(not obtained)",
+            "explorer.exe",
+        ),
+        (
+            "u7595.fMRXWGIDCFZSG6Y3Y.i.someid.sometoken.com",
+            "7595",
+            "doc b.docx",
+            "(not obtained)",
+        ),
+        (
+            "u7595.f.i.someid.sometoken.com",
+            "7595",
+            "(not obtained)",
+            "(not obtained)",
+        ),
+    ],
+)
+def test_windows_fake_fs_pattern(query, invocation_id, file_name, process_name):
+    m = t.windows_fake_fs_pattern.match(query)
+    data = t.Canarytoken._windows_fake_fs(m)
+    assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id.lower()
+    assert data["src_data"]["windows_fake_fs_file_name"] == file_name.lower()
+    assert data["src_data"]["windows_fake_fs_process_name"] == process_name.lower()
+
+
+def test_windows_fake_fs_base32_padding():
+    invocation_id = f"{random.randint(1000, 10000)}"
+    for counter in range(1, 20):
+        test_data = "a" * counter
+        base32_data = base64.b32encode(test_data.encode("utf-8")).decode()
+        base32_data_no_padding = base32_data.replace("=", "")
+        query = "u{invocation_id}.f{file_name}.i{process_name}.{domain}".format(
+            invocation_id=invocation_id,
+            file_name=base32_data_no_padding,
+            process_name=base32_data_no_padding,
+            domain="someid.sometoken.com",
+        )
+
+        m = t.windows_fake_fs_pattern.match(query)
+        data = t.Canarytoken._windows_fake_fs(m)
+        assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id
+        assert data["src_data"]["windows_fake_fs_file_name"] == test_data
+        assert data["src_data"]["windows_fake_fs_process_name"] == test_data
 
 
 def test_canarytoken_create_and_fetch():

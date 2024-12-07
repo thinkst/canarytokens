@@ -235,7 +235,12 @@ class ChannelDNS(InputChannel):
         #     d = deferLater(...)
         if (
             canarydrop.type
-            in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR, TokenTypes.CMD]
+            in [
+                TokenTypes.LOG4SHELL,
+                TokenTypes.WINDOWS_DIR,
+                TokenTypes.CMD,
+                TokenTypes.WINDOWS_FAKE_FS,
+            ]
             and src_data == {}
         ):
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
@@ -244,6 +249,17 @@ class ChannelDNS(InputChannel):
             invocation_id = src_data["src_data"].get("cmd_invocation_id")
             if (invocation_id is not None) and any(
                 hit.src_data.get("cmd_invocation_id") == invocation_id
+                for hit in canarydrop.triggered_details.hits
+            ):
+                log.info(
+                    f"Ignoring hit on token {canarydrop.canarytoken.value()}; {invocation_id=} already seen."
+                )
+                return defer.succeed(self._do_dynamic_response(name=query.name.name))
+
+        if canarydrop.type == TokenTypes.WINDOWS_FAKE_FS:
+            invocation_id = src_data["src_data"].get("windows_fake_fs_invocation_id")
+            if (invocation_id is not None) and any(
+                hit.src_data.get("windows_fake_fs_invocation_id") == invocation_id
                 for hit in canarydrop.triggered_details.hits
             ):
                 log.info(

@@ -83,6 +83,12 @@ class InputChannel(Channel):
         additional_data = hit.get_additional_data_for_notification()
         if canarydrop.cmd_process:
             additional_data["cmd_process"] = canarydrop.cmd_process
+        if canarydrop.windows_fake_fs_root:
+            additional_data["windows_fake_fs_root"] = canarydrop.windows_fake_fs_root
+        if canarydrop.windows_fake_fs_file_structure:
+            additional_data[
+                "windows_fake_fs_file_structure"
+            ] = canarydrop.windows_fake_fs_file_structure
 
         return TokenAlertDetails(
             channel=cls.CHANNEL,

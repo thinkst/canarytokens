@@ -140,6 +140,9 @@ class Canarydrop(BaseModel):
     wg_key: Optional[str]
     # cmd specific stuff
     cmd_process: Optional[str]
+    # windows_fake_fs specific stuff
+    windows_fake_fs_root: Optional[str]
+    windows_fake_fs_file_structure: Optional[str]
     # slack_api specific stuff
     slack_api_key: Optional[str]
     # CC specific stuff

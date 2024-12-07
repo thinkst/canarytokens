@@ -3,7 +3,6 @@ from abc import ABCMeta, abstractmethod
 import csv
 
 import enum
-import json
 import os
 import re
 import socket
@@ -50,8 +49,6 @@ from canarytokens.constants import (
 )
 from canarytokens.utils import (
     json_safe_dict,
-    prettify_snake_case,
-    dict_to_csv,
     get_src_ip_continent,
 )
 
@@ -304,6 +301,7 @@ class TokenTypes(str, enum.Enum):
     KUBECONFIG = "kubeconfig"
     LOG4SHELL = "log4shell"
     CMD = "cmd"
+    WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
     PWA = "pwa"
     SLACK_API = "slack_api"
@@ -348,6 +346,7 @@ readable_token_type_names = {
     TokenTypes.KUBECONFIG: "Kubeconfig",
     TokenTypes.LOG4SHELL: "Log4Shell",
     TokenTypes.CMD: "Sensitive command",
+    TokenTypes.WINDOWS_FAKE_FS: "Windows Fake File System",
     TokenTypes.CC: "Credit card",
     TokenTypes.CREDIT_CARD_V2: "Credit card",
     TokenTypes.PWA: "Fake app",
@@ -519,6 +518,34 @@ class CMDTokenRequest(TokenRequest):
         if not value.endswith(".exe"):
             raise ValueError(f"cmd_process must end in .exe. Given: {value}")
         return value
+
+
+class WindowsFakeFSTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    windows_fake_fs_root: str
+    windows_fake_fs_file_structure: str
+
+    @validator("windows_fake_fs_root")
+    def check_process_name(value: str):
+        _value = value.strip()
+        invalid_chars = r'[<>:"/\\|?*]'
+        drive_pattern = r"^[A-Za-z]:[\\/]"
+
+        if not re.match(drive_pattern, _value):
+            raise ValueError(
+                f"windows_fake_fs_root does not have a drive letter specified. Given: {_value}"
+            )
+        folder_path = re.sub(drive_pattern, "", _value, 1)
+        if re.search(invalid_chars, folder_path):
+            raise ValueError(
+                f"windows_fake_fs_root contains invalid Windows Path Characters. Given: {_value}"
+            )
+        if _value.endswith("."):
+            raise ValueError(
+                f"windows_fake_fs_root cannot end with a fullstop. Given: {_value}"
+            )
+
+        return _value
 
 
 class CCTokenRequest(TokenRequest):
@@ -804,6 +831,7 @@ AnyTokenRequest = Annotated[
         CCTokenRequest,
         PWATokenRequest,
         CMDTokenRequest,
+        WindowsFakeFSTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
@@ -901,6 +929,11 @@ class PDFTokenResponse(TokenResponse):
 class CMDTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     reg_file: str
+
+
+class WindowsFakeFSTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    powershell_file: str
 
 
 class CCTokenResponse(TokenResponse):
@@ -1132,6 +1165,7 @@ AnyTokenResponse = Annotated[
         CCTokenResponse,
         PWATokenResponse,
         CMDTokenResponse,
+        WindowsFakeFSTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
         SvnTokenResponse,
@@ -1665,6 +1699,10 @@ class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
 
 
+class WindowsFakeFSTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+
+
 class SMTPTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
     mail: Optional[SMTPMailField]
@@ -1820,6 +1858,7 @@ AnyTokenHit = Annotated[
         CCTokenHit,
         PWATokenHit,
         CMDTokenHit,
+        WindowsFakeFSTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
         AzureIDTokenHit,
@@ -1962,6 +2001,11 @@ class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     hits: List[CMDTokenHit]
 
 
+class WindowsFakeFSTokenHistory(TokenHistory[WindowsFakeFSTokenHit]):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    hits: List[WindowsFakeFSTokenHit]
+
+
 class SlowRedirectTokenHistory(TokenHistory[SlowRedirectTokenHit]):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
     hits: List[SlowRedirectTokenHit]
@@ -2075,6 +2119,7 @@ AnyTokenHistory = Annotated[
         CCTokenHistory,
         PWATokenHistory,
         CMDTokenHistory,
+        WindowsFakeFSTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
         AzureIDTokenHistory,
@@ -2185,7 +2230,6 @@ class TokenExposedDetails(BaseModel):
         }
 
 
-
 class UserName(ConstrainedStr):
     max_lengthint: int = 30
     strip_whitespace: bool = True
@@ -2230,6 +2274,7 @@ class DownloadFmtTypes(str, enum.Enum):
     MYSQL = "my_sql"
     QRCODE = "qr_code"
     CMD = "cmd"
+    WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
     CSSCLONEDSITE = "cssclonedsite"
     CREDIT_CARD_V2 = "credit_card_v2"
@@ -2311,6 +2356,10 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
+class DownloadWindowsFakeFSRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.WINDOWS_FAKE_FS] = DownloadFmtTypes.WINDOWS_FAKE_FS
+
+
 class DownloadCSSClonedWebRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
 
@@ -2338,6 +2387,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
+        DownloadWindowsFakeFSRequest,
         DownloadCSSClonedWebRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
@@ -2447,6 +2497,15 @@ class DownloadCCResponse(TokenDownloadResponse):
 
 
 class DownloadCMDResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
     contenttype: Literal[
         DownloadContentTypes.TEXTPLAIN
     ] = DownloadContentTypes.TEXTPLAIN
