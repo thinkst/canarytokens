@@ -10,7 +10,10 @@
           { value: 'image1', url: `${getImageUrl('pwa_icons/pwa_fnb.png')}` },
           { value: 'image2', url: `${getImageUrl('pwa_icons/pwa_axis.png')}` },
           { value: 'image3', url: `${getImageUrl('pwa_icons/pwa_rbc.png')}` },
-          { value: 'image4', url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}` },
+          {
+            value: 'image4',
+            url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}`,
+          },
         ]"
       />
       <BaseFormImageSelect
@@ -18,10 +21,22 @@
         label="Select an image"
         image-class="w-[100px] h-[100px]"
         :options="[
-          { value: 'image5', url: `${getImageUrl('pwa_icons/pwa_snapchat.png')}` },
-          { value: 'image6', url: `${getImageUrl('pwa_icons/pwa_paypal.png')}` },
-          { value: 'image7', url: `${getImageUrl('pwa_icons/pwa_messenger.png')}` },
-          { value: 'image8', url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}` },
+          {
+            value: 'image5',
+            url: `${getImageUrl('pwa_icons/pwa_snapchat.png')}`,
+          },
+          {
+            value: 'image6',
+            url: `${getImageUrl('pwa_icons/pwa_paypal.png')}`,
+          },
+          {
+            value: 'image7',
+            url: `${getImageUrl('pwa_icons/pwa_messenger.png')}`,
+          },
+          {
+            value: 'image8',
+            url: `${getImageUrl('pwa_icons/pwa_tiktok.png')}`,
+          },
         ]"
       />
     </div>
@@ -68,6 +83,10 @@
   <div class="flex flex-col max-w-[200px] gap-16">
     <h1>Copy button</h1>
     <BaseCopyButton content="Content to copy is here" />
+    <BaseCopyButton
+      content="Content to copy is here"
+      disabled
+    />
   </div>
   <hr class="my-24" />
   <div class="flex flex-col max-w-[300px] gap-16">
@@ -220,7 +239,10 @@
     <hr class="my-24" />
     <h1 class="pb-16">Incident details</h1>
     <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
-      <IncidentDetails :hit-alert="alertSample" :showingMap="true" />
+      <IncidentDetails
+        :hit-alert="alertSample"
+        :showingMap="true"
+      />
     </div>
     <div class="flex flex-col gap-16 mb-32">
       <h1>Upload File</h1>

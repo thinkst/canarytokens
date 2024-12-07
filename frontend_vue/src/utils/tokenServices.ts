@@ -419,7 +419,7 @@ export const tokenServices: TokenServicesType = {
     label: 'Azure Entra ID login',
     description:
       'Get an alert when an attacker phishes your Azure Entra ID login.',
-    documentationLink: '',
+    documentationLink: 'https://docs.canarytokens.org/guide/entraid-token.html',
     icon: `${TOKENS_TYPE.AZURE_ENTRA_CONFIG}.png`,
     instruction:
       "This token can be deployed automatically or manually. It inserts CSS into your Azure tenant's Entra ID login page to detect when the page has been cloned.",
@@ -450,5 +450,24 @@ export const tokenServices: TokenServicesType = {
       'We send you an alert if an attacker browses that folder.',
     ],
     category: TOKEN_CATEGORY.OTHER,
+  },
+  [TOKENS_TYPE.IDP_APP]: {
+    label: 'SAML IdP App',
+    description:
+      'Get an alert when an attacker opens a fake app from your Identity Provider dashboard.',
+    documentationLink: 'https://docs.canarytokens.org/guide/idp-app-token.html',
+    icon: `${TOKENS_TYPE.IDP_APP}.png`,
+    instruction:
+      'Use these details to create an app in your Identity Provider.',
+    howItWorksInstructions: [
+      'We give you a “fake” SAML2 app endpoint.',
+      'You install it in your Identity Provider as an app.',
+      'We send you an alert if an attacker tries to log into that app.',
+    ],
+    category: [
+      TOKEN_CATEGORY.CLOUD,
+      TOKEN_CATEGORY.PHISHING
+    ],
+    keywords: []
   },
 };

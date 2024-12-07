@@ -39,6 +39,7 @@ export const TOKENS_TYPE = {
   PWA: 'pwa',
   CREDIT_CARD_V2: 'credit_card_v2',
   WEBDAV: 'webdav',
+  IDP_APP: 'idp_app',
 };
 
 // unique keys to use in the frontend
@@ -158,5 +159,134 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   cc: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
   pwa: ['#1AABEE', '#026696', '#9CE5FD'],
   credit_card_v2: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
-  windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F']
+  windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F'],
+  idp_app: ['#1AABEE', '#026696', '#9CE5FD'],
 };
+
+
+export const IDP_OPTIONS: { value: string; label: string }[]= [
+  {
+    value: 'gmail',
+    label: 'Gmail'
+  },
+  {
+    value: 'outlook',
+    label: 'Outlook'
+  },
+  {
+    value: 'gdrive',
+    label: 'Google Drive'
+  },
+  {
+    value: 'onedrive',
+    label: 'OneDrive'
+  },
+  {
+    value: 'aws',
+    label: 'AWS'
+  },
+  {
+    value: 'azure',
+    label: 'Azure'
+  },
+  {
+    value: 'gcloud',
+    label: 'Google Cloud'
+  },
+  {
+    value: 'zoho',
+    label: 'Zoho'
+  },
+  {
+    value: 'salesforce',
+    label: 'Salesforce'
+  },
+  {
+    value: 'zendesk',
+    label: 'Zendesk'
+  },
+  {
+    value: 'freshbooks',
+    label: 'Freshbooks'
+  },
+  {
+    value: 'elasticsearch',
+    label: 'Elasticsearch'
+  },
+  {
+    value: 'kibana',
+    label: 'Kibana'
+  },
+  {
+    value: 'onepassword',
+    label: '1Password'
+  },
+  {
+    value: 'lastpass',
+    label: 'LastPass'
+  },
+  {
+    value: 'bitwarden',
+    label: 'Bitwarden'
+  },
+  {
+    value: 'sap',
+    label: 'SAP'
+  },
+  {
+    value: 'jira',
+    label: 'Jira'
+  },
+  {
+    value: 'jamf',
+    label: 'JAMF'
+  },
+  {
+    value: 'duo',
+    label: 'Duo'
+  },
+  {
+    value: 'intune',
+    label: 'Intune'
+  },
+  {
+    value: 'zoom',
+    label: 'Zoom'
+  },
+  {
+    value: 'dropbox',
+    label: 'Dropbox'
+  },
+  {
+    value: 'github',
+    label: 'GitHub'
+  },
+  {
+    value: 'slack',
+    label: 'Slack'
+  },
+  {
+    value: 'msteams',
+    label: 'MS Teams'
+  },
+  {
+    value: 'ms365',
+    label: 'Microsoft 365'
+  },
+  {
+    value: 'gitlab',
+    label: 'GitLab'
+  },
+  {
+    value: 'pagerduty',
+    label: 'PagerDuty'
+  },
+  {
+    value: 'sage',
+    label: 'Sage'
+  },
+  {
+    value: 'virtru',
+    label: 'Virtru'
+  },
+];
