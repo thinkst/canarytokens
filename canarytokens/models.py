@@ -304,6 +304,7 @@ class TokenTypes(str, enum.Enum):
     WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
     PWA = "pwa"
+    IDP_APP = "idp_app"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
 
@@ -352,6 +353,7 @@ readable_token_type_names = {
     TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
+    TokenTypes.IDP_APP: "SAML2 IdP App",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -826,6 +828,91 @@ class CreditCardV2TokenRequest(TokenRequest):
     cf_turnstile_response: Optional[str]
 
 
+class IdPAppType(enum.Enum):
+    AWS = "aws"
+    AZURE = "azure"
+    BITWARDEN = "bitwarden"
+    DROPBOX = "dropbox"
+    DUO = "duo"
+    ELASTICSEARCH = "elasticsearch"
+    FRESHBOOKS = "freshbooks"
+    GCLOUD = "gcloud"
+    GDRIVE = "gdrive"
+    GITHUB = "github"
+    GITLAB = "gitlab"
+    GMAIL = "gmail"
+    INTUNE = "intune"
+    JAMF = "jamf"
+    JIRA = "jira"
+    KIBANA = "kibana"
+    LASTPASS = "lastpass"
+    MS365 = "ms365"
+    MSTEAMS = "msteams"
+    ONEDRIVE = "onedrive"
+    ONEPASSWORD = "onepassword"
+    OUTLOOK = "outlook"
+    PAGERDUTY = "pagerduty"
+    SAGE = "sage"
+    SALESFORCE = "salesforce"
+    SAP = "sap"
+    SLACK = "slack"
+    VIRTRU = "virtru"
+    ZENDESK = "zendesk"
+    ZOHO = "zoho"
+    ZOOM = "zoom"
+
+
+IDP_APP_TITLES = {
+    IdPAppType.AWS: "AWS",
+    IdPAppType.AZURE: "Azure",
+    IdPAppType.BITWARDEN: "Bitwarden",
+    IdPAppType.DROPBOX: "Dropbox",
+    IdPAppType.DUO: "Duo",
+    IdPAppType.ELASTICSEARCH: "Elasticsearch",
+    IdPAppType.FRESHBOOKS: "Freshbooks",
+    IdPAppType.GCLOUD: "Google Cloud",
+    IdPAppType.GDRIVE: "Google Drive",
+    IdPAppType.GITHUB: "GitHub",
+    IdPAppType.GITLAB: "GitLab",
+    IdPAppType.GMAIL: "Gmail",
+    IdPAppType.INTUNE: "Intune",
+    IdPAppType.JAMF: "JAMF",
+    IdPAppType.JIRA: "Jira",
+    IdPAppType.KIBANA: "Kibana",
+    IdPAppType.LASTPASS: "LastPass",
+    IdPAppType.MS365: "Microsoft 365",
+    IdPAppType.MSTEAMS: "MS Teams",
+    IdPAppType.ONEDRIVE: "OneDrive",
+    IdPAppType.ONEPASSWORD: "1Password",
+    IdPAppType.OUTLOOK: "Outlook",
+    IdPAppType.PAGERDUTY: "PagerDuty",
+    IdPAppType.SAGE: "Sage",
+    IdPAppType.SALESFORCE: "Salesforce",
+    IdPAppType.SAP: "SAP",
+    IdPAppType.SLACK: "Slack",
+    IdPAppType.VIRTRU: "Virtru",
+    IdPAppType.ZENDESK: "Zendesk",
+    IdPAppType.ZOHO: "Zoho",
+    IdPAppType.ZOOM: "Zoom",
+}
+
+
+class IdPAppTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    app_type: IdPAppType
+    redirect_url: Optional[str] = None
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "token_type": TokenTypes.IDP_APP,
+                "memo": "Reminder note when this token is triggered",
+                "email": "username@domain.com",
+                "redirect_url": "https://youtube.com",
+            },
+        }
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
@@ -856,6 +943,7 @@ AnyTokenRequest = Annotated[
         SQLServerTokenRequest,
         KubeconfigTokenRequest,
         CreditCardV2TokenRequest,
+        IdPAppTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1160,6 +1248,12 @@ class CreditCardV2TokenResponse(TokenResponse):
     expiry_year: int
 
 
+class IdPAppTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    entity_id: str
+    app_type: IdPAppType
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
@@ -1200,6 +1294,7 @@ AnyTokenResponse = Annotated[
         MsExcelDocumentTokenResponse,
         KubeconfigTokenResponse,
         CreditCardV2TokenResponse,
+        IdPAppTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1853,6 +1948,11 @@ class LegacyTokenHit(TokenHit):
     mail: Optional[SMTPMailField]
 
 
+class IdPAppTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    additional_info: AdditionalInfo = AdditionalInfo()
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
@@ -1886,6 +1986,7 @@ AnyTokenHit = Annotated[
         KubeconfigTokenHit,
         LegacyTokenHit,
         CreditCardV2TokenHit,
+        IdPAppTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2110,6 +2211,11 @@ class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
     hits: List[LegacyTokenHit] = []
 
 
+class IdPAppTokenHistory(TokenHistory[IdPAppTokenHit]):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    hits: List[IdPAppTokenHit] = []
+
+
 # AnyTokenHistory is used to type annotate functions that
 # handle any token history. It makes use of an annotated type
 # that discriminates on `token_type` so pydantic can parse
@@ -2147,6 +2253,7 @@ AnyTokenHistory = Annotated[
         KubeconfigTokenHistory,
         LegacyTokenHistory,
         CreditCardV2TokenHistory,
+        IdPAppTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
