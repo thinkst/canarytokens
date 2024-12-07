@@ -458,7 +458,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink: 'https://docs.canarytokens.org/guide/idp-app-token.html',
     icon: `${TOKENS_TYPE.IDP_APP}.png`,
     instruction:
-      'Use this login URL and entity ID to create a SAML2 app in your Identity Provider.',
+      'Use these details to create an app in your Identity Provider.',
     howItWorksInstructions: [
       'We give you a “fake” SAML2 app endpoint.',
       'You install it in your Identity Provider as an app.',

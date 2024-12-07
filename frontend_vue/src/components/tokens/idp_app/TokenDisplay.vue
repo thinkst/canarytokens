@@ -1,5 +1,35 @@
 <template>
+  <BaseMessageBox
+    variant="info"
+    class="mt-6 mb-16"
+    >We have custom instructions for
+    <a style="text-decoration: underline" target="_blank"
+      href="https://docs.canarytokens.org/guide/idp-app-token.html#deploying-to-azure"
+    >
+      Entra ID</a> and
+    <a style="text-decoration: underline" target="_blank"
+      href="https://docs.canarytokens.org/guide/idp-app-token.html#deploying-to-okta"
+    >
+      Okta</a>, in our
+    <a style="text-decoration: underline" target="_blank"
+      href="https://docs.canarytokens.org/guide/idp-app-token.html"
+    >
+      docs</a>.
+  </BaseMessageBox>
   <div class="flex flex-col gap-16">
+    <BaseCodeSnippet
+      lang="javascript"
+      label="ACS / Relay State URL"
+      is-single-line
+      :code="tokenUrl"
+    ></BaseCodeSnippet>
+    <BaseCodeSnippet
+      lang="javascript"
+      label="Entity ID"
+      is-single-line
+      :code="entityId"
+    ></BaseCodeSnippet>
+
     <div class="flex flex-col">
       <label
         id="app_icon"
@@ -21,32 +51,7 @@
         ></BaseCodeSnippet>
       </div>
     </div>
-
-    <BaseCodeSnippet
-      lang="javascript"
-      label="ACS / Relay State URL"
-      is-single-line
-      :code="tokenUrl"
-    ></BaseCodeSnippet>
-    <BaseCodeSnippet
-      lang="javascript"
-      label="Entity ID"
-      is-single-line
-      :code="entityId"
-    ></BaseCodeSnippet>
   </div>
-  <BaseMessageBox
-    variant="info"
-    class="mt-32"
-    >For setup instructions for Entra ID and Okta, head over to our
-    <a
-      style="text-decoration: underline"
-      href="https://docs.canarytokens.org/guide/idp-app-token.html"
-      target="_blank"
-    >
-      docs</a
-    >.
-  </BaseMessageBox>
 </template>
 
 <script setup lang="ts">
