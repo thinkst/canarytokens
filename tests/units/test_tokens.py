@@ -100,6 +100,13 @@ def test_cmd_process_pattern(
             "explorer.exe",
         ),
         (
+            # ensure lowercase also works
+            "u7595.fmrxwgidcfzsg6y3y.imv4ha3dpojsxeltfpbsq.someid.sometoken.com",
+            "7595",
+            "doc b.docx",
+            "explorer.exe",
+        ),
+        (
             "u7595.f.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
             "7595",
             "(not obtained)",

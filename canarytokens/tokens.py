@@ -272,10 +272,10 @@ class Canarytoken(object):
             return b32_data
 
         if file_name and file_name != "f":
-            b32_data = correct_base32_padding(file_name[0:])
+            b32_data = correct_base32_padding(file_name[0:].upper())
             data["windows_fake_fs_file_name"] = base64.b32decode(b32_data).decode()
         if process_name and process_name != "i":
-            b32_data = correct_base32_padding(process_name[0:])
+            b32_data = correct_base32_padding(process_name[0:].upper())
             data["windows_fake_fs_process_name"] = base64.b32decode(b32_data).decode()
 
         return {"src_data": data}
@@ -570,8 +570,8 @@ class Canarytoken(object):
         hit_time = datetime.utcnow().strftime("%s.%f")
         hit_info = {
             "additional_info": WebDavAdditionalInfo(
-                 file_path=request.getHeader("X-Alert-Path"),
-                 useragent=http_general_info["useragent"],
+                file_path=request.getHeader("X-Alert-Path"),
+                useragent=http_general_info["useragent"],
             ),
             "geo_info": queries.get_geoinfo(ip=client_ip),
             "input_channel": INPUT_CHANNEL_HTTP,
