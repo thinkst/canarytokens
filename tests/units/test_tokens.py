@@ -90,48 +90,113 @@ def test_cmd_process_pattern(
     assert data["src_data"].get("cmd_invocation_id") == cmd_invocation_id
 
 
+# string was chosen so it would use each of the 32 characters used by base 32
+ALL_BASE_32_CHARS_BYTES = b"WP*BHy@Sa9`M:6'F?u0G':~?\\7<7o`[mQ~?"
+ALL_BASE_32_CHARS_STRING = base64.b32encode(ALL_BASE_32_CHARS_BYTES).decode()
+
+
 @pytest.mark.parametrize(
-    "query, invocation_id, file_name, process_name, ",
+    "query, invocation_id, file_name, process_name, pass_regex",
     [
-        (
+        pytest.param(
             "u7595.fMRXWGIDCFZSG6Y3Y.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
             "7595",
             "doc b.docx",
             "explorer.exe",
+            True,
+            id="Valid Token",
         ),
-        (
+        pytest.param(
             # ensure lowercase also works
             "u7595.fmrxwgidcfzsg6y3y.imv4ha3dpojsxeltfpbsq.someid.sometoken.com",
             "7595",
             "doc b.docx",
             "explorer.exe",
+            True,
+            id="Valid Token Lowercase",
         ),
-        (
+        pytest.param(
             "u7595.f.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
             "7595",
             "(not obtained)",
             "explorer.exe",
+            True,
+            id="Valid Token No File",
         ),
-        (
+        pytest.param(
             "u7595.fMRXWGIDCFZSG6Y3Y.i.someid.sometoken.com",
             "7595",
             "doc b.docx",
             "(not obtained)",
+            True,
+            id="Valid Token No Process",
         ),
-        (
+        pytest.param(
             "u7595.f.i.someid.sometoken.com",
             "7595",
             "(not obtained)",
             "(not obtained)",
+            True,
+            id="Valid Token No File or Process",
+        ),
+        pytest.param(
+            # Test invalid base32 char 0 is ignored
+            "u.f0.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 0",
+        ),
+        pytest.param(
+            # Test invalid base32 char 1 is ignored
+            "u.f1.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 1",
+        ),
+        pytest.param(
+            # Test invalid base32 char 8 is ignored
+            "u.f8.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 8",
+        ),
+        pytest.param(
+            # Test invalid base32 char 9 is ignored
+            "u.f9.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 9",
+        ),
+        pytest.param(
+            # Test all the valid base32 chars
+            f"u1.f{ALL_BASE_32_CHARS_STRING}.i{ALL_BASE_32_CHARS_STRING}.someid.sometoken.com",
+            "1",
+            ALL_BASE_32_CHARS_BYTES.decode(),
+            ALL_BASE_32_CHARS_BYTES.decode(),
+            True,
+            id="All valid Base32 Chars",
         ),
     ],
 )
-def test_windows_fake_fs_pattern(query, invocation_id, file_name, process_name):
-    m = t.windows_fake_fs_pattern.match(query)
-    data = t.Canarytoken._windows_fake_fs(m)
-    assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id.lower()
-    assert data["src_data"]["windows_fake_fs_file_name"] == file_name.lower()
-    assert data["src_data"]["windows_fake_fs_process_name"] == process_name.lower()
+def test_windows_fake_fs_pattern(
+    query, invocation_id, file_name, process_name, pass_regex
+):
+    matches = t.windows_fake_fs_pattern.match(query)
+    assert (matches is not None) == pass_regex
+
+    if pass_regex:
+        data = t.Canarytoken._windows_fake_fs(matches)
+        assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id
+        assert data["src_data"]["windows_fake_fs_file_name"] == file_name
+        assert data["src_data"]["windows_fake_fs_process_name"] == process_name
 
 
 def test_windows_fake_fs_base32_padding():
