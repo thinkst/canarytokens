@@ -60,7 +60,7 @@ cmd_process_pattern = re.compile(
     re.IGNORECASE,
 )
 windows_fake_fs_pattern = re.compile(
-    r"u([0-9]*)\.f([A-Za-z0-9]*)\.i([A-Za-z0-9]*)\.", re.IGNORECASE
+    r"u([0-9]*)\.f([A-Z2-7]*=*)\.i([A-Z2-7]*=*)\.", re.IGNORECASE
 )
 
 # to validate decoded sql username, not a data extractor:
