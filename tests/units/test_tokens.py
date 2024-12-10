@@ -90,7 +90,8 @@ def test_cmd_process_pattern(
     assert data["src_data"].get("cmd_invocation_id") == cmd_invocation_id
 
 
-ALL_BASE_32_CHARS_BYTES = bytes([i for i in range(32)])
+# string was chosen so it would use each of the 32 characters used by base 32
+ALL_BASE_32_CHARS_BYTES = b"WP*BHy@Sa9`M:6'F?u0G':~?\\7<7o`[mQ~?"
 ALL_BASE_32_CHARS_STRING = base64.b32encode(ALL_BASE_32_CHARS_BYTES).decode()
 
 
@@ -193,11 +194,9 @@ def test_windows_fake_fs_pattern(
 
     if pass_regex:
         data = t.Canarytoken._windows_fake_fs(matches)
-        assert (
-            data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id.lower()
-        )
-        assert data["src_data"]["windows_fake_fs_file_name"] == file_name.lower()
-        assert data["src_data"]["windows_fake_fs_process_name"] == process_name.lower()
+        assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id
+        assert data["src_data"]["windows_fake_fs_file_name"] == file_name
+        assert data["src_data"]["windows_fake_fs_process_name"] == process_name
 
 
 def test_windows_fake_fs_base32_padding():
