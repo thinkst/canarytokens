@@ -133,6 +133,7 @@ function locationValue(
 }
 
 function parseGeoInfo(hitAlert: Record<string, any>) {
+  if (hitAlert.geo_info == null) return null;
   if (isCreditCardtoken(hitAlert.token_type)) return null;
 
   if (!hitAlert.geo_info.bogon) {
