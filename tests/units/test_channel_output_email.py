@@ -22,6 +22,7 @@ from canarytokens.models import (
     DNSTokenHit,
     Memo,
     TokenAlertDetails,
+    TokenExposedDetails,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -132,6 +133,33 @@ def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
+
+
+def test_aws_key_exposed_rendered_html(settings: SwitchboardSettings):
+    memo = "This is a test Memo"
+    manage_url = "https://some.link/manage/here"
+    public_location = "http://example.com/exposed/key"
+    key_id = "ABCDEFG"
+
+    details = TokenExposedDetails(
+        token_type=TokenTypes.AWS_KEYS,
+        token=Canarytoken().value(),
+        memo=memo,
+        manage_url=manage_url,
+        key_id=key_id,
+        public_location=public_location,
+        exposed_time=datetime.datetime(2030, 12, 21, 12, 0, 0),
+    )
+    email_template = EmailOutputChannel.format_token_exposed_html(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TOKEN_EXPOSED}"),
+    )
+    assert memo in email_template
+    assert manage_url in email_template
+    assert public_location in email_template
+    assert key_id in email_template
+    assert "2030/12/21" in email_template
+    assert "12:00" in email_template
 
 
 def _get_send_token_details() -> TokenAlertDetails:
