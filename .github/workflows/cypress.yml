@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - dev
+      - dev2
 
 jobs:
   chrome:
@@ -12,16 +13,29 @@ jobs:
     steps:
       - name: Checkout 🔖
         uses: actions/checkout@v4.2.0
+
       - name: Setup Node.js 🔨
         uses: actions/setup-node@v4.0.4
         with:
           node-version: 20
 
+      - name: Set Test Domain Environment Variable
+        run: |
+          if [ "${{ github.ref_name }}" == "master" ]; then
+            echo "TEST_DOMAIN=ssl-secure-srv.org" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" == "dev" ]; then
+            echo "TEST_DOMAIN=honeypdfs.com" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" == "dev2" ]; then
+            echo "TEST_DOMAIN=syruppdfs.com" >> $GITHUB_ENV
+          else
+            echo "No matching branch for domain testing. Exiting." && exit 1
+          fi
+
       - name: Execute Cypress Tests 🌡️
         uses: cypress-io/github-action@v6.7.6
         with:
           working-directory: ./cypress-tests
-          command: npx cypress run --headless --browser chrome
+          command: npx cypress run --headless --browser chrome --env domain=${{ env.TEST_DOMAIN }}
 
       - name: Upload screenshots of tests failed 📷
         uses: actions/upload-artifact@v4.4.0
