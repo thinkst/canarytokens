@@ -4,6 +4,9 @@ on:
     workflows: ["Build Docker Image"]
     types:
       - completed
+    branches:
+      - master
+      - dev
 
 jobs:
   chrome:
