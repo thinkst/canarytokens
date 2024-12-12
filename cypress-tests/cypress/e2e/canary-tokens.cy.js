@@ -38,8 +38,9 @@ describe('Token Tests', () => {
 
   items.forEach(item => {
     it(`should execute the test for ${item.name}`, () => {
-      cy.visit('https://honeypdfs.com/')
-
+      const domain = Cypress.env('TEST_DOMAIN')
+      cy.visit(`https://${domain}/`)
+ 
       cy.contains(item.name).click()
 
       cy.get('#email').type('sara@thinkst.com')
