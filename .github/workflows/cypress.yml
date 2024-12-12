@@ -5,6 +5,7 @@ on:
       - master
       - dev
       - dev2
+      - sara/update-ci
 
 jobs:
   chrome:
@@ -23,7 +24,7 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" == "master" ]; then
             echo "TEST_DOMAIN=ssl-secure-srv.org" >> $GITHUB_ENV
-          elif [ "${{ github.ref_name }}" == "dev" ]; then
+          elif [ "${{ github.ref_name }}" == "sara/update-ci" ]; then
             echo "TEST_DOMAIN=honeypdfs.com" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" == "dev2" ]; then
             echo "TEST_DOMAIN=syruppdfs.com" >> $GITHUB_ENV
