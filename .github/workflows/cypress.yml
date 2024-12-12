@@ -32,11 +32,14 @@ jobs:
             echo "No matching branch for domain testing. Exiting." && exit 1
           fi
 
+      - name: Debug Test Domain
+        run: echo "TEST_DOMAIN=${{ env.TEST_DOMAIN }}"
+
       - name: Execute Cypress Tests 🌡️
         uses: cypress-io/github-action@v6.7.6
         with:
           working-directory: ./cypress-tests
-          command: npx cypress run --headless --browser chrome --env domain=${{ env.TEST_DOMAIN }}
+          command: npx cypress run --headless --browser chrome --env TEST_DOMAIN=${{ env.TEST_DOMAIN }}
 
       - name: Upload screenshots of tests failed 📷
         uses: actions/upload-artifact@v4.4.0
