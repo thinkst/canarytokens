@@ -82,7 +82,7 @@ const props = defineProps<{
 const isLoading = ref(true);
 const openedMarkerID = ref();
 const mapRef = ref();
-const center = ref({ lat: 0, lng: 0 });
+const center = ref({ lat: -33.9221, lng: 18.4231 }); // Default to Cape Town
 
 function parseGeoInfoLocation(info: string) {
   const locationArray = info.split(',');
