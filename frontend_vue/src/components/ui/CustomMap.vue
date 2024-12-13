@@ -67,7 +67,7 @@ import getImageUrl from '@/utils/getImageUrl';
 
 type MarkerType = {
   id: number;
-  ip: string;
+  ip?: string;
   hostname?: string;
   city?: string;
   country?: string;
@@ -92,21 +92,10 @@ function parseGeoInfoLocation(info: string) {
   };
 }
 
-onMounted(() => {
-  if (props.hitsList.length === 0) {
-    return;
-  }
-  if (props.hitsList.length > 1) {
-    return fitMarkerBounds();
-  } else if (props.hitsList.length === 1) {
-    center.value = parseGeoInfoLocation(
-      props.hitsList[0].geo_info.loc as string
-    );
-  }
-});
-
 const markers: ComputedRef<MarkerType[]> = computed(() => {
-  return props.hitsList.map((marker) => {
+  return props.hitsList.filter(function(marker) {
+    return (marker.geo_info != null);
+  }).map((marker) => {
     return {
       id: marker.time_of_hit,
       ip: marker.geo_info.ip,
@@ -119,6 +108,17 @@ const markers: ComputedRef<MarkerType[]> = computed(() => {
         : undefined,
     };
   });
+});
+
+onMounted(() => {
+  if (markers.value.length === 0) {
+    return;
+  }
+  if (markers.value.length > 1) {
+    return fitMarkerBounds();
+  } else if (markers.value.length === 1) {
+    if (markers.value[0].position != null) center.value = markers.value[0].position
+  }
 });
 
 function handleOpenMarker(id: number | null) {
