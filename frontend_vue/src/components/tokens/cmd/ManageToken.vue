@@ -1,12 +1,8 @@
 <template>
-  <div v-if="!tokenData">Error loading</div>
-  <TokenDisplay
-    v-else
-    :token-data="tokenData"
-  />
+  <TokenDisplay :token-data="tokenData" :displayInfoBox="false"/>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import TokenDisplay from './TokenDisplay.vue';
 import type { ManageTokenBackendType } from '@/components/tokens/types.ts';
