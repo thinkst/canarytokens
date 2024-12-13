@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "dev"
+      - "dev2"
 
   workflow_dispatch:
     inputs:
