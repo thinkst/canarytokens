@@ -111,4 +111,8 @@ class WebhookOutputChannel(OutputChannel):
             log.debug(
                 f"Failed connecting to webhook {alert_webhook_url}.",
             )
+        except requests.exceptions.ChunkedEncodingError:
+            log.debug(
+                f"Broken connection when sending to webhook {alert_webhook_url}.",
+            )
         return False
