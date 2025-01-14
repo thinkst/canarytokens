@@ -4,7 +4,7 @@
     :class="boxClasses"
   >
     <div
-      class="flex flex-col lg:flex-row items-center self-start flex-grow gap-16 md:gap-16 md:self-center"
+      class="flex flex-col items-center self-start flex-grow gap-16 lg:flex-row md:gap-16 md:self-center"
     >
       <AlertShieldIcon
         v-if="variant !== 'info'"
@@ -20,8 +20,9 @@
       />
       <div v-if="messages">
         <p
-          v-for="msg in messages"
-          class="text-pretty mb-4"
+          v-for="(msg, index) in messages"
+          :key="index"
+          class="mb-4 text-pretty"
         >
           {{ msg }}
         </p>

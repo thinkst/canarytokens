@@ -79,9 +79,16 @@
         <span v-else>
           This Canarytoken has been triggered
           <span class="font-bold">{{ hasAlerts }}</span>
-          time{{ hasAlerts > 1 ? 's' : '' }}</span
-        >
+          time{{ hasAlerts > 1 ? 's' : '' }}
+        </span>
       </BaseMessageBox>
+      <p
+        v-if="hasAlerts === MAX_ALERTS"
+        class="text-xs leading-4 text-grey-500 pr-[3rem] mt-8"
+      >
+        We store only the most recent <b>{{ MAX_ALERTS }}</b> alerts.
+      </p>
+
       <BaseMessageBox
         v-if="keyExposedHit"
         class="mt-32"
@@ -90,7 +97,12 @@
         @click="handleGoToExposedToken"
       >
         This Canarytoken has been found
-        <a class="font-bold" :href="keyExposedHit.public_location" target="_blank">here</a>
+        <a
+          class="font-bold"
+          :href="keyExposedHit.public_location"
+          target="_blank"
+          >here</a
+        >
         on the internet. Please replace it with a new Canarytoken.
       </BaseMessageBox>
       <DeleteTokenButton
@@ -118,6 +130,8 @@ import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import DeleteTokenButton from '@/components/ui/DeleteTokenButton.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
+
+const MAX_ALERTS = 11
 
 const route = useRoute();
 const router = useRouter();
@@ -155,7 +169,6 @@ function handleGoToExposedToken() {
   window.open(keyExposedHit.value.public_location, '_blank');
 }
 
-
 async function fetchTokenData() {
   isLoading.value = true;
 
@@ -171,7 +184,8 @@ async function fetchTokenData() {
     tokenLogoUrl.value = `token_icons/${tokenServices[getTokenType.value].icon}`;
     hasAlerts.value =
       manageTokenResponse.value.canarydrop.triggered_details.hits.length;
-    keyExposedHit.value = manageTokenResponse.value.canarydrop.key_exposed_details;
+    keyExposedHit.value =
+      manageTokenResponse.value.canarydrop.key_exposed_details;
     loadComponent();
   } catch (err: any) {
     console.log(err, 'err!');
