@@ -83,10 +83,10 @@
         </span>
       </BaseMessageBox>
       <p
-        v-if="hasAlerts === 11"
+        v-if="hasAlerts === MAX_ALERTS"
         class="text-xs leading-4 text-grey-500 pr-[3rem] mt-8"
       >
-        We store only the most recent <b>11 alerts</b>.
+        We store only the most recent <b>{{ MAX_ALERTS }}</b> alerts.
       </p>
 
       <BaseMessageBox
@@ -130,6 +130,8 @@ import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import DeleteTokenButton from '@/components/ui/DeleteTokenButton.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
+
+const MAX_ALERTS = 11
 
 const route = useRoute();
 const router = useRouter();
