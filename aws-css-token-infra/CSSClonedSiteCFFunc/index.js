@@ -15,7 +15,8 @@ const matching_ref_response = {
     statusDescription: 'OK',
     headers: {
         'content-type': { value: 'image/gif' },
-        'cache-control': { value: 'no-store' }
+        'cache-control': { value: 'no-store' },
+        'cross-origin-resource-policy': { value: 'cross-origin' }
     },
     body: "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff"
     + "\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00"
