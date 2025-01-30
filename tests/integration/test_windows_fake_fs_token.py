@@ -95,17 +95,16 @@ def test_windows_fake_fs_token_fires(
     [
         (
             [
-                r"C:\Testing["
-                r"C:\Testing<"
-                r"C:\Testing>"
-                r"C:\Testing:"
-                r'C:\Testing"'
-                r"C:\Testing/"
-                r"C:\Testing\\"
-                r"C:\Testing|"
-                r"C:\Testing?"
-                r"C:\Testing*"
-                r"C:\Testing]"
+                r"C:\Testing[",
+                r"C:\Testing<",
+                r"C:\Testing>",
+                r"C:\Testing:",
+                r'C:\Testing"',
+                r"C:\Testing/",
+                r"C:\Testing|",
+                r"C:\Testing?",
+                r"C:\Testing*",
+                r"C:\Testing]",
             ],
             "windows_fake_fs_root contains invalid Windows Path Characters.",
         ),
@@ -126,7 +125,6 @@ def test_windows_fake_fs_token_validator(
     """
     memo = "Testing"
     file_structure = "testing"
-
     for root_dir in directories:
         with pytest.raises(ValueError, match=expected_error_message):
             WindowsFakeFSTokenRequest(

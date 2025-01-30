@@ -530,7 +530,7 @@ class WindowsFakeFSTokenRequest(TokenRequest):
     @validator("windows_fake_fs_root")
     def check_process_name(value: str):
         _value = value.strip()
-        invalid_chars = r'[<>:"/\\|?*]'
+        invalid_chars = r'[<>:"/|?*[\]]'
         drive_pattern = r"^[A-Za-z]:[\\/]"
 
         if not re.match(drive_pattern, _value):
