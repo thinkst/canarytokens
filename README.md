@@ -90,8 +90,6 @@ When configuring outgoing SMTP please consider the following:
 
 Restrictions:
 * no other provider like Mailgun or Sendgrid must be configured for this to work
-* only supports StartTLS right now (you have to use the corresponding port)
-* no anonymous SMTP is supported right now (you have to use a username/password to authenticate)
 * For AWS SES `CANARY_ALERT_EMAIL_FROM_DISPLAY` should be in the format: `CANARY_ALERT_EMAIL_FROM_DISPLAY=CanaryAlert <canaryalert@my-email-domain.here>`
 
 The following settings have to be configured in `switchboard.env` for SMTP to work:
