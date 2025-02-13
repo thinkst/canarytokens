@@ -1567,6 +1567,7 @@ class TokenHit(BaseModel):
     # token_type: GeneralHistoryTokenType
     time_of_hit: float
     src_ip: Optional[str]
+    src_port: Optional[str]
     geo_info: Union[GeoIPInfo, GeoIPBogonInfo, None, Literal[""]]
     is_tor_relay: Optional[bool]
     input_channel: str

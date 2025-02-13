@@ -317,6 +317,10 @@ class Canarytoken(object):
             request.getHeader(switchboard_settings.REAL_IP_HEADER)
             or request.client.host
         )
+        src_port = (
+            request.getHeader(switchboard_settings.REAL_PORT_HEADER)
+            or request.client.port
+        )
         # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
         #              and have default.
         is_tor_relay = queries.is_tor_relay(src_ip)
@@ -342,6 +346,7 @@ class Canarytoken(object):
             "useragent": useragent,
             "x_forwarded_for": src_ip_chain,
             "src_ip": src_ip,
+            "src_port": src_port,
             "time_of_hit": hit_time,
             "is_tor_relay": is_tor_relay,
             "request_headers": request_headers,
