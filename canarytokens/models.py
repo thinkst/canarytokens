@@ -2266,7 +2266,6 @@ class TokenAlertDetails(BaseModel):
     channel: str = "DNS"
     token_type: TokenTypes = TokenTypes.DNS
     src_ip: Optional[str] = "127.0.0.1"
-    src_port: Optional[int] = 1
     src_data: Optional[dict[str, Any]] = None
     token: str = "default_token_for_v2"
 
