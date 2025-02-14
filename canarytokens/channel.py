@@ -25,7 +25,6 @@ from canarytokens.models import (
 log = Logger()
 
 
-
 class Channel(object):
     CHANNEL = "Base"
 
@@ -94,6 +93,7 @@ class InputChannel(Channel):
             channel=cls.CHANNEL,
             token_type=canarydrop.type,
             src_ip=hit.src_ip,
+            src_port=hit.src_port,
             time=datetime.datetime.utcnow(),
             memo=Memo(canarydrop.memo),
             token=canarydrop.canarytoken.value(),
