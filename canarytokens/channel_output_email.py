@@ -445,7 +445,9 @@ class EmailOutputChannel(OutputChannel):
             intro = f"{article} {readable_type} Canarytoken has been triggered."
 
         if "src_port" in details.additional_data:
-            intro = dedent(f"from Source Port {details.additional_data['src_port']}")
+            intro = dedent(
+                f"{intro} from Source Port {details.additional_data['src_port']}"
+            )
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
