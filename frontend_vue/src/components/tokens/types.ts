@@ -235,7 +235,7 @@ type BasicInfoType = {
 export type HitsType = {
   time_of_hit: number;
   src_ip: string;
-  src_port?: null | number;
+  src_port?: number | null;
   geo_info: GeoInfo;
   is_tor_relay: boolean;
   input_channel: string;
