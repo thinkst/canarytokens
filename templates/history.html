@@ -222,13 +222,6 @@
           field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
       {% if field not in ['src_ip','input_channel'] %}
               <tr class="info_row">
-        {% if field == 'src_port'}
-                <td>
-                  Source Port
-                </td>
-                <td>
-                  {{ canarydrop[item][field] }}
-                </td>
         {% if canarydrop['type'] == 'aws_keys' %}
                 <td>
                   AWS Access Key ID
