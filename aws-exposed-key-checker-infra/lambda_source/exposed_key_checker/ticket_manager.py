@@ -1,4 +1,3 @@
-import json
 from typing import Generator
 from dataclasses import dataclass
 from datetime import datetime
@@ -67,9 +66,7 @@ class ZendeskTicketManager:
             }
         }
 
-        data = json.dumps(payload)
-
-        response = requests.put(url, headers=headers, data=data, auth=self._auth)
+        response = requests.put(url, headers=headers, json=payload, auth=self._auth)
         if response.status_code == 200:
             print("Ticket successfully updated to solved and tag added.")
         else:
