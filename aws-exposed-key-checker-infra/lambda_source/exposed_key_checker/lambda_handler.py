@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime, timedelta
-
 import requests
 import boto3
 from botocore.config import Config
