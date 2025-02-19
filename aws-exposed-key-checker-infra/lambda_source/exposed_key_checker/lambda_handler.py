@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-# import requests
+import requests
 import boto3
 from botocore.config import Config
 
@@ -11,7 +11,7 @@ from exposed_key_checker.exposed_keys import ExposedKeyData, parse_tickets
 from exposed_key_checker import support_ticketer
 
 DB_TABLE_NAME = "ExposedKeyCheckerProcessed"
-MAX_PROCESS_AGE_DAYS = 2  # was 7
+MAX_PROCESS_AGE_DAYS = 7
 ZENDESK_EXPOSED_TICKET_TAG = os.environ["ZENDESK_EXPOSED_TICKET_TAG"]
 ZENDESK_AUTH_SECRET_ID = os.environ["ZENDESK_AUTH_SECRET_ID"]
 TOKENS_SERVERS_ALLOW_LIST = [
@@ -111,16 +111,16 @@ def send_to_tokens_server(data: "ExposedKeyData"):
         post_url_base = f"https://{post_url_base}"
 
     post_url = f"{post_url_base}/{data.token}"
-    print(f"DEV: (not) Sending key exposed event to {post_url} for token {data.token}")
+    print(f"Sending key exposed event to {post_url} for token {data.token}")
 
-    # post_data = {
-    #     "token_exposed": True,
-    #     "exposed_time": int(data.ticket.created_dt.strftime("%s")),
-    #     "public_location": data.public_location,
-    # }
+    post_data = {
+        "token_exposed": True,
+        "exposed_time": int(data.ticket.created_dt.strftime("%s")),
+        "public_location": data.public_location,
+    }
 
-    # res = requests.post(post_url, data=post_data)
-    # res.raise_for_status()
+    res = requests.post(post_url, data=post_data)
+    res.raise_for_status()
 
 
 def get_zendesk_auth():
