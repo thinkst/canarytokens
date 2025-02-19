@@ -7,15 +7,19 @@ def parse_tickets(
     tickets: "list[TicketData]",
 ) -> "tuple[list[ExposedKeyData], list[int]]":
     exposed_data: list[ExposedKeyData] = []
+    ignorable_tickets: list[int] = []
     parse_error_ids: list[int] = []
     for ticket in tickets:
         data = ExposedKeyData.from_ticket(ticket)
-        if data is None and not _should_ignore_ticket_parse_failure(ticket):
+        ignorable = _should_ignore_ticket_parse_failure(ticket)
+        if ignorable:
+            ignorable_tickets.append(ticket.id)
+        elif data is None:
             parse_error_ids.append(ticket.id)
-        elif data is not None:
+        else:
             exposed_data.append(data)
 
-    return exposed_data, parse_error_ids
+    return exposed_data, ignorable_tickets, parse_error_ids
 
 
 def _should_ignore_ticket_parse_failure(ticket: TicketData) -> bool:

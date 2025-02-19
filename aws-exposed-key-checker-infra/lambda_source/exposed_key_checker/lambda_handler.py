@@ -24,7 +24,7 @@ BOTO_CONFIG = Config(region_name="us-east-2")
 def lambda_handler(_event, _context):
     try:
         ticket_manager = ZendeskTicketManager(*get_zendesk_auth())
-        key_data, failed_ids = gather_data(ticket_manager)
+        key_data, ignorable_ids, failed_ids = gather_data(ticket_manager)
     except Exception as e:
         text = f"The key checker could not query the Zendesk API for tickets.\nThe exception was {e}."
         support_ticketer.create_ticket(
@@ -35,6 +35,9 @@ def lambda_handler(_event, _context):
         return
 
     process_data(key_data, ticket_manager)
+
+    for ticket_id in ignorable_ids:
+        ticket_manager.set_ticket_as_solved(ticket_id)
 
     if failed_ids:
         text = f"The key checker could not parse the following Zendesk ticket IDs: {failed_ids}"
@@ -76,6 +79,7 @@ def gather_data(
     ticket_manager: "ZendeskTicketManager",
 ) -> "tuple[list[ExposedKeyData], list[int]]":
     data: list[ExposedKeyData] = []
+    ignorable_ids: list[int] = []
     error_ids: list[int] = []
 
     num_tickets = 0
@@ -90,8 +94,9 @@ def gather_data(
         ]
 
         num_tickets += len(tickets_in_window)
-        key_data, eids = parse_tickets(tickets_in_window)
+        key_data, ignorable_tickets, eids = parse_tickets(tickets_in_window)
         data.extend(key_data)
+        ignorable_ids.extend(ignorable_tickets)
         error_ids.extend(eids)
 
         age = datetime.now() - last_ticket.created_dt
@@ -100,7 +105,7 @@ def gather_data(
             break
     print(f"Got {len(data)} exposed keys from {num_tickets} tickets.")
 
-    return data, error_ids
+    return data, ignorable_ids, error_ids
 
 
 def send_to_tokens_server(data: "ExposedKeyData"):
