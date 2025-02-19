@@ -47,12 +47,8 @@ def lambda_handler(_event, _context):
 
 
 def process_data(data: "list[ExposedKeyData]", ticket_manager: "ZendeskTicketManager"):
-    unprocessed_items = [d for d in data]
-    processed_count = len(data) - len(unprocessed_items)
-    print(f"Skipping {processed_count} items that were already processed.")
-
     items_to_process = []
-    for item in unprocessed_items:
+    for item in data:
         if item.tokens_server not in TOKENS_SERVERS_ALLOW_LIST:
             print(
                 f"Ignoring the following item because its server is not in the allow list: {item}"
@@ -91,7 +87,7 @@ def gather_data(
             for ticket in tickets
             if (datetime.now() - ticket.created_dt)
             <= timedelta(days=MAX_PROCESS_AGE_DAYS)
-            # and (ticket.status != "solved" or ticket.status != "closed") # re-enable after dev work
+            and ticket.status not in ["solved", "closed"]
         ]
 
         num_tickets += len(tickets_in_window)
