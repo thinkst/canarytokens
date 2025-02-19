@@ -164,7 +164,7 @@ resource "aws_secretsmanager_secret" "zendesk_auth_data_secret" {
 
 # TF state
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "aws-exposed-key-checker-infra-tfstate-dev"
+  bucket = "aws-exposed-key-checker-infra-tfstate"
   tags = {
     Name = "Terraform State Bucket for aws-exposed-key-checker"
   }
