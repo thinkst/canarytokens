@@ -1,17 +1,17 @@
 import json
 import os
 from datetime import datetime, timedelta
-import requests
+
+# import requests
 import boto3
 from botocore.config import Config
 
-from exposed_key_checker.database import Database
 from exposed_key_checker.ticket_manager import ZendeskTicketManager
 from exposed_key_checker.exposed_keys import ExposedKeyData, parse_tickets
 from exposed_key_checker import support_ticketer
 
 DB_TABLE_NAME = "ExposedKeyCheckerProcessed"
-MAX_PROCESS_AGE_DAYS = 7
+MAX_PROCESS_AGE_DAYS = 2  # was 7
 ZENDESK_EXPOSED_TICKET_TAG = os.environ["ZENDESK_EXPOSED_TICKET_TAG"]
 ZENDESK_AUTH_SECRET_ID = os.environ["ZENDESK_AUTH_SECRET_ID"]
 TOKENS_SERVERS_ALLOW_LIST = [
@@ -23,8 +23,6 @@ BOTO_CONFIG = Config(region_name="us-east-2")
 
 
 def lambda_handler(_event, _context):
-    db = Database()
-
     try:
         ticket_manager = ZendeskTicketManager(*get_zendesk_auth())
         key_data, failed_ids = gather_data(ticket_manager)
@@ -37,7 +35,7 @@ def lambda_handler(_event, _context):
         )
         return
 
-    process_data(db, key_data)
+    process_data(key_data, ticket_manager)
 
     if failed_ids:
         text = f"The key checker could not parse the following Zendesk ticket IDs: {failed_ids}"
@@ -48,8 +46,8 @@ def lambda_handler(_event, _context):
         )
 
 
-def process_data(db: Database, data: "list[ExposedKeyData]"):
-    unprocessed_items = [d for d in data if not db.has_key_been_processed(d)]
+def process_data(data: "list[ExposedKeyData]", ticket_manager: "ZendeskTicketManager"):
+    unprocessed_items = [d for d in data]
     processed_count = len(data) - len(unprocessed_items)
     print(f"Skipping {processed_count} items that were already processed.")
 
@@ -76,7 +74,7 @@ def process_data(db: Database, data: "list[ExposedKeyData]"):
                 "exposed-aws-key-checker-post-error",
             )
         else:
-            db.mark_key_as_processed(item)
+            ticket_manager.set_ticket_as_solved(item.ticket)
 
 
 def gather_data(
@@ -87,16 +85,24 @@ def gather_data(
 
     num_tickets = 0
     for tickets in ticket_manager.read_all_tickets_in_batches():
-        num_tickets += len(tickets)
-        key_data, eids = parse_tickets(tickets)
+        last_ticket = tickets[-1]
+        tickets_in_window = [
+            ticket
+            for ticket in tickets
+            if (datetime.now() - ticket.created_dt)
+            <= timedelta(days=MAX_PROCESS_AGE_DAYS)
+            # and (ticket.status != "solved" or ticket.status != "closed") # re-enable after dev work
+        ]
+
+        num_tickets += len(tickets_in_window)
+        key_data, eids = parse_tickets(tickets_in_window)
         data.extend(key_data)
         error_ids.extend(eids)
 
-        age = datetime.now() - key_data[-1].ticket.created_dt
+        age = datetime.now() - last_ticket.created_dt
         if age > timedelta(days=MAX_PROCESS_AGE_DAYS):
             # Only check the last week's data
             break
-
     print(f"Got {len(data)} exposed keys from {num_tickets} tickets.")
 
     return data, error_ids
@@ -109,20 +115,20 @@ def send_to_tokens_server(data: "ExposedKeyData"):
         post_url_base = f"https://{post_url_base}"
 
     post_url = f"{post_url_base}/{data.token}"
-    print(f"Sending key exposed event to {post_url} for token {data.token}")
+    print(f"DEV: (not) Sending key exposed event to {post_url} for token {data.token}")
 
-    post_data = {
-        "token_exposed": True,
-        "exposed_time": int(data.ticket.created_dt.strftime("%s")),
-        "public_location": data.public_location,
-    }
+    # post_data = {
+    #     "token_exposed": True,
+    #     "exposed_time": int(data.ticket.created_dt.strftime("%s")),
+    #     "public_location": data.public_location,
+    # }
 
-    res = requests.post(post_url, data=post_data)
-    res.raise_for_status()
+    # res = requests.post(post_url, data=post_data)
+    # res.raise_for_status()
 
 
 def get_zendesk_auth():
     client = boto3.client("secretsmanager", config=BOTO_CONFIG)
     res = client.get_secret_value(SecretId=ZENDESK_AUTH_SECRET_ID)
     data = json.loads(res.get("SecretString"))
-    return data["api_token"], data["user"], data["search_endpoint"]
+    return data["api_token"], data["user"], data["api_base_url"]

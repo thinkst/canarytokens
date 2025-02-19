@@ -10,6 +10,14 @@ variable "zendesk_exposed_ticket_tag" {
   type = string
 }
 
+variable "zendesk_closed_ticket_tag" {
+  type = string
+}
+
+variable "zendesk_assignee" {
+  type = string
+}
+
 variable "zendesk_auth_secret_id" {
   type = string
 }

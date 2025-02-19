@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 import re
 from exposed_key_checker.ticket_manager import TicketData
 
@@ -41,8 +40,7 @@ def _should_ignore_ticket_parse_failure(ticket: TicketData) -> bool:
     for match_str in ignore_strs:
         if match_str in text:
             return True
-    else:
-        return False
+    return False
 
 
 @dataclass
@@ -60,16 +58,6 @@ class ExposedKeyData:
     @property
     def token(self) -> str:
         return self.iam_user.split("@@")[1]
-
-    def to_db_item(self) -> dict:
-        return {
-            "IamUser": {"S": self.iam_user.lower()},
-            "AccessKey": {"S": self.access_key.lower()},
-            "PublicLocation": {"S": self.public_location},
-            "ProcessedAt": {"N": f"{datetime.now().timestamp():.0f}"},
-            "ZendeskTicketId": {"N": str(self.ticket.id)},
-            "TicketCreatedAt": {"N": f"{self.ticket.created_dt.timestamp():.0f}"},
-        }
 
     @classmethod
     def from_ticket(cls, ticket: TicketData) -> "ExposedKeyData | None":
