@@ -7,6 +7,8 @@ import sys
 
 sys.path.insert(0, "lambda_source")
 os.environ["ZENDESK_EXPOSED_TICKET_TAG"] = "test_tag"
+os.environ["ZENDESK_CLOSED_TICKET_TAG"] = "test_close_tag"
+os.environ["ZENDESK_ASSIGNEE"] = "0000"
 os.environ[
     "TOKENS_SERVERS_ALLOW_LIST"
 ] = "example.com,example.net,example-test.org,example2.com,example2.net,example-test-domain.org"
@@ -19,7 +21,7 @@ def test_parsing(all_tickets: list[TicketData]):
     """
     Tickets should be successfully parsed
     """
-    data, error_ids = parse_tickets(all_tickets)
+    data, _, error_ids = parse_tickets(all_tickets)
 
     assert error_ids == []
     assert len(data) == 6
@@ -70,7 +72,7 @@ def test_ignore_keywords(ignore_tickets: list[TicketData]):
     """
     The ignored tickets should not be parsed, but shouldn't error either (this is for emails like AWS following up on a case.)
     """
-    data, error_ids = parse_tickets(ignore_tickets)
+    data, _, error_ids = parse_tickets(ignore_tickets)
     assert data == []
     assert error_ids == []
 
@@ -85,11 +87,12 @@ def test_parse_failure():
             id=512,
             created_at="2024-07-11T11:06:04Z",
             updated_at="2024-07-11T11:06:04Z",
+            status="open",
             subject="invalid",
             description="invalid",
         )
     ]
-    data, error_ids = parse_tickets(tickets)
+    data, _, error_ids = parse_tickets(tickets)
 
     assert data == []
     assert error_ids == [512]
@@ -99,7 +102,7 @@ def test_url_parsing(all_tickets: list[TicketData]):
     """
     Each URL should be at least 10 chars long and have a TLD
     """
-    data, _ = parse_tickets(all_tickets)
+    data, _, _ = parse_tickets(all_tickets)
     tickets_with_short_locations = {
         d.ticket.id for d in data if len(d.public_location) <= 20
     }

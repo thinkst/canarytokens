@@ -29,7 +29,7 @@ class ZendeskTicketManager:
 
     def get_tickets_from_api(
         self,
-        url: str | None = None,
+        url: str,
     ) -> "tuple[list[TicketData], str | None]":
         r = requests.get(
             url or f"{self._api_base_url}/api/v2/search.json",
