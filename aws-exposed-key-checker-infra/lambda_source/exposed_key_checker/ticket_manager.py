@@ -47,10 +47,10 @@ class ZendeskTicketManager:
         tickets = [TicketData.from_dict(t) for t in res["results"]]
         return tickets, res["next_page"]
 
-    def set_ticket_as_solved(self, ticket: "TicketData", comment: str):
-        print(f"Ticket to set to solved: {ticket.id}")
+    def set_ticket_as_solved(self, ticket_id: "TicketData", comment: str):
+        print(f"Ticket to set to solved: {ticket_id}")
 
-        url = f"{self._api_base_url}/api/v2/tickets/update_many.json?ids={ticket.id}"
+        url = f"{self._api_base_url}/api/v2/tickets/update_many.json?ids={ticket_id}"
 
         headers = {"Content-Type": "application/json"}
 

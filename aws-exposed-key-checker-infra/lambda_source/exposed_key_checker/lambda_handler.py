@@ -40,6 +40,7 @@ def lambda_handler(_event, _context):
     process_data(key_data, ticket_manager)
 
     for ticket_id in ignorable_ids:
+        print(f"Ignoring follow-up ticket: {ticket_id}")
         ticket_manager.set_ticket_as_solved(
             ticket_id, comment="Ignored by AWS key checker."
         )
@@ -78,7 +79,7 @@ def process_data(data: "list[ExposedKeyData]", ticket_manager: "ZendeskTicketMan
             )
         else:
             ticket_manager.set_ticket_as_solved(
-                item.ticket, comment="Resolved by AWS key checker."
+                item.ticket.id, comment="Resolved by AWS key checker."
             )
 
 
