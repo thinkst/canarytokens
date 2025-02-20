@@ -5,6 +5,8 @@ import os
 import requests
 
 ZENDESK_EXPOSED_TICKET_TAG = os.environ["ZENDESK_EXPOSED_TICKET_TAG"]
+ZENDESK_CLOSED_TICKET_TAG = os.environ["ZENDESK_CLOSED_TICKET_TAG"]
+ZENDESK_ASSIGNEE = os.environ["ZENDESK_ASSIGNEE"]
 
 
 class ZendeskTicketManager:
@@ -12,12 +14,12 @@ class ZendeskTicketManager:
         10  # the search endpoint has a maximum number of pages that it allows
     )
 
-    def __init__(self, api_token: str, user: str, search_endpoint: str):
+    def __init__(self, api_token: str, user: str, api_base_url: str):
         self._auth = (user, api_token)
-        self._search_endpoint = search_endpoint
+        self._api_base_url = api_base_url
 
     def read_all_tickets_in_batches(self) -> "Generator[list[TicketData], None, None]":
-        next_url = self._search_endpoint
+        next_url = f"{self._api_base_url}/api/v2/search.json"
         for _ in range(self.ZENDESK_SEARCH_LAST_PAGE):
             if next_url is None:
                 break
@@ -27,10 +29,10 @@ class ZendeskTicketManager:
 
     def get_tickets_from_api(
         self,
-        url: str | None = None,
+        url: str,
     ) -> "tuple[list[TicketData], str | None]":
         r = requests.get(
-            url or self._search_endpoint,
+            url or f"{self._api_base_url}/api/v2/search.json",
             auth=self._auth,
             data={
                 "query": f'tags:"{ZENDESK_EXPOSED_TICKET_TAG}"',
@@ -45,6 +47,32 @@ class ZendeskTicketManager:
         tickets = [TicketData.from_dict(t) for t in res["results"]]
         return tickets, res["next_page"]
 
+    def set_ticket_as_solved(self, ticket_id: "TicketData", comment: str):
+        print(f"Ticket to set to solved: {ticket_id}")
+
+        url = f"{self._api_base_url}/api/v2/tickets/update_many.json?ids={ticket_id}"
+
+        headers = {"Content-Type": "application/json"}
+
+        payload = {
+            "ticket": {
+                "status": "solved",
+                "assignee_id": ZENDESK_ASSIGNEE,
+                "comment": {
+                    "body": comment,
+                    "public": True,
+                },
+                "additional_tags": ["closed-by-aws-exposed-key-checker"],
+            }
+        }
+
+        response = requests.put(url, headers=headers, json=payload, auth=self._auth)
+        if response.status_code == 200:
+            print("Ticket successfully updated to solved and tag added.")
+        else:
+            print(f"Failed to update ticket. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+
 
 @dataclass
 class TicketData:
@@ -52,6 +80,7 @@ class TicketData:
     id: int
     created_at: str
     updated_at: str
+    status: str
     subject: str
     description: str
 
@@ -62,6 +91,7 @@ class TicketData:
             data["id"],
             data["created_at"],
             data["updated_at"],
+            data["status"],
             data["subject"],
             "".join(data["description"].splitlines()),
         )

@@ -1,3 +1,4 @@
+import datetime
 import os
 import pytest
 import json
@@ -7,19 +8,24 @@ import sys
 
 sys.path.insert(0, "lambda_source")
 os.environ["ZENDESK_EXPOSED_TICKET_TAG"] = "test_tag"
+os.environ["ZENDESK_CLOSED_TICKET_TAG"] = "test_close_tag"
+os.environ["ZENDESK_ASSIGNEE"] = "0000"
 os.environ[
     "TOKENS_SERVERS_ALLOW_LIST"
 ] = "example.com,example.net,example-test.org,example2.com,example2.net,example-test-domain.org"
 
 from exposed_key_checker.ticket_manager import TicketData  # noqa: E402
-from exposed_key_checker.exposed_keys import parse_tickets  # noqa: E402
+from exposed_key_checker.exposed_keys import (  # noqa: E402
+    parse_tickets,
+    get_recent_open_tickets,
+)
 
 
 def test_parsing(all_tickets: list[TicketData]):
     """
     Tickets should be successfully parsed
     """
-    data, error_ids = parse_tickets(all_tickets)
+    data, _, error_ids = parse_tickets(all_tickets)
 
     assert error_ids == []
     assert len(data) == 6
@@ -66,11 +72,75 @@ def test_parsing(all_tickets: list[TicketData]):
     ]
 
 
+def test_get_recent_open_tickets():
+    """
+    Only tickets that are recent (7 days old or less) and not "closed" or "solved" should be parsed
+    """
+    tickets = [
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            updated_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            status="open",
+            subject="some text",
+            description="a ticket we expect to include",
+        ),
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            updated_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            status="closed",
+            subject="some text",
+            description="A closed ticket",
+        ),
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            updated_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            status="solved",
+            subject="some text",
+            description="A solved ticket",
+        ),
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=(
+                datetime.datetime.now(datetime.timezone.utc)
+                - datetime.timedelta(days=8)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            updated_at=(
+                datetime.datetime.now(datetime.timezone.utc)
+                - datetime.timedelta(days=8)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            status="open",
+            subject="some text",
+            description="a ticket that's too old to be considered",
+        ),
+    ]
+    tickets_in_window = get_recent_open_tickets(tickets)
+    assert len(tickets_in_window) == 1
+
+
 def test_ignore_keywords(ignore_tickets: list[TicketData]):
     """
     The ignored tickets should not be parsed, but shouldn't error either (this is for emails like AWS following up on a case.)
     """
-    data, error_ids = parse_tickets(ignore_tickets)
+    data, _, error_ids = parse_tickets(ignore_tickets)
     assert data == []
     assert error_ids == []
 
@@ -85,11 +155,12 @@ def test_parse_failure():
             id=512,
             created_at="2024-07-11T11:06:04Z",
             updated_at="2024-07-11T11:06:04Z",
+            status="open",
             subject="invalid",
             description="invalid",
         )
     ]
-    data, error_ids = parse_tickets(tickets)
+    data, _, error_ids = parse_tickets(tickets)
 
     assert data == []
     assert error_ids == [512]
@@ -99,7 +170,7 @@ def test_url_parsing(all_tickets: list[TicketData]):
     """
     Each URL should be at least 10 chars long and have a TLD
     """
-    data, _ = parse_tickets(all_tickets)
+    data, _, _ = parse_tickets(all_tickets)
     tickets_with_short_locations = {
         d.ticket.id for d in data if len(d.public_location) <= 20
     }

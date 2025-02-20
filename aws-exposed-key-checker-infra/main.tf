@@ -26,19 +26,6 @@ provider "aws" {
   region = "us-east-2"
 }
 
-# DB
-resource "aws_dynamodb_table" "processed_table" {
-  name                        = "ExposedKeyCheckerProcessed"
-  billing_mode                = "PAY_PER_REQUEST"
-  hash_key                    = "IamUser"
-  deletion_protection_enabled = true
-
-  attribute {
-    name = "IamUser"
-    type = "S"
-  }
-}
-
 # Lambda
 resource "null_resource" "pip_install" {
   triggers = {
@@ -89,6 +76,8 @@ resource "aws_lambda_function" "key_checker_lambda" {
         TICKET_SERVICE_URL         = "${var.ticket_service_url}"
         TICKET_SERVICE_RECIPIENT   = "${var.ticket_service_recipient}"
         ZENDESK_EXPOSED_TICKET_TAG = "${var.zendesk_exposed_ticket_tag}"
+        ZENDESK_CLOSED_TICKET_TAG  = "${var.zendesk_closed_ticket_tag}"
+        ZENDESK_ASSIGNEE           = "${var.zendesk_assignee}"
         ZENDESK_AUTH_SECRET_ID     = "${var.zendesk_auth_secret_id}"
         TOKENS_SERVERS_ALLOW_LIST  = "${var.tokens_servers_allow_list}"
       },
@@ -137,16 +126,6 @@ resource "aws_iam_policy" "key_checker_lambda_exec_policy" {
           "${aws_secretsmanager_secret.zendesk_auth_data_secret.id}"
         ]
       },
-      {
-        "Effect" : "Allow",
-        "Action" : [
-          "dynamodb:PutItem",
-          "dynamodb:Query",
-        ],
-        "Resource" : [
-          "${aws_dynamodb_table.processed_table.arn}"
-        ]
-      }
     ]
   })
 }
