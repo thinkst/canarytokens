@@ -6,11 +6,14 @@ import boto3
 from botocore.config import Config
 
 from exposed_key_checker.ticket_manager import ZendeskTicketManager
-from exposed_key_checker.exposed_keys import ExposedKeyData, parse_tickets
+from exposed_key_checker.exposed_keys import (
+    ExposedKeyData,
+    parse_tickets,
+    get_recent_open_tickets,
+    MAX_PROCESS_AGE_DAYS,
+)
 from exposed_key_checker import support_ticketer
 
-DB_TABLE_NAME = "ExposedKeyCheckerProcessed"
-MAX_PROCESS_AGE_DAYS = 7
 ZENDESK_EXPOSED_TICKET_TAG = os.environ["ZENDESK_EXPOSED_TICKET_TAG"]
 ZENDESK_AUTH_SECRET_ID = os.environ["ZENDESK_AUTH_SECRET_ID"]
 TOKENS_SERVERS_ALLOW_LIST = [
@@ -37,7 +40,9 @@ def lambda_handler(_event, _context):
     process_data(key_data, ticket_manager)
 
     for ticket_id in ignorable_ids:
-        ticket_manager.set_ticket_as_solved(ticket_id)
+        ticket_manager.set_ticket_as_solved(
+            ticket_id, comment="Ignored by AWS key checker."
+        )
 
     if failed_ids:
         text = f"The key checker could not parse the following Zendesk ticket IDs: {failed_ids}"
@@ -72,7 +77,9 @@ def process_data(data: "list[ExposedKeyData]", ticket_manager: "ZendeskTicketMan
                 "exposed-aws-key-checker-post-error",
             )
         else:
-            ticket_manager.set_ticket_as_solved(item.ticket)
+            ticket_manager.set_ticket_as_solved(
+                item.ticket, comment="Resolved by AWS key checker."
+            )
 
 
 def gather_data(
@@ -85,13 +92,7 @@ def gather_data(
     num_tickets = 0
     for tickets in ticket_manager.read_all_tickets_in_batches():
         last_ticket = tickets[-1]
-        tickets_in_window = [
-            ticket
-            for ticket in tickets
-            if (datetime.now() - ticket.created_dt)
-            <= timedelta(days=MAX_PROCESS_AGE_DAYS)
-            and ticket.status not in ["solved", "closed"]
-        ]
+        tickets_in_window = get_recent_open_tickets(tickets)
 
         num_tickets += len(tickets_in_window)
         key_data, ignorable_tickets, eids = parse_tickets(tickets_in_window)

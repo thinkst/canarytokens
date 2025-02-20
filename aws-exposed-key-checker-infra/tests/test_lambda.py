@@ -1,3 +1,4 @@
+import datetime
 import os
 import pytest
 import json
@@ -14,7 +15,10 @@ os.environ[
 ] = "example.com,example.net,example-test.org,example2.com,example2.net,example-test-domain.org"
 
 from exposed_key_checker.ticket_manager import TicketData  # noqa: E402
-from exposed_key_checker.exposed_keys import parse_tickets  # noqa: E402
+from exposed_key_checker.exposed_keys import (  # noqa: E402
+    parse_tickets,
+    get_recent_open_tickets,
+)  # noqa: E402
 
 
 def test_parsing(all_tickets: list[TicketData]):
@@ -66,6 +70,70 @@ def test_parsing(all_tickets: list[TicketData]):
         "555555555555555",
         "666666666666666",
     ]
+
+
+def test_get_recent_open_tickets():
+    """
+    Only tickets that are recent (7 days old or less) and not "closed" or "solved" should be parsed
+    """
+    tickets = [
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            updated_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            status="open",
+            subject="some text",
+            description="a ticket we expect to include",
+        ),
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            updated_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            status="closed",
+            subject="some text",
+            description="A closed ticket",
+        ),
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            updated_at=datetime.datetime.now(datetime.timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            status="solved",
+            subject="some text",
+            description="A solved ticket",
+        ),
+        TicketData(
+            url="http://example.com",
+            id=512,
+            created_at=(
+                datetime.datetime.now(datetime.timezone.utc)
+                - datetime.timedelta(days=8)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            updated_at=(
+                datetime.datetime.now(datetime.timezone.utc)
+                - datetime.timedelta(days=8)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            status="open",
+            subject="some text",
+            description="a ticket that's too old to be considered",
+        ),
+    ]
+    tickets_in_window = get_recent_open_tickets(tickets)
+    assert len(tickets_in_window) == 1
 
 
 def test_ignore_keywords(ignore_tickets: list[TicketData]):

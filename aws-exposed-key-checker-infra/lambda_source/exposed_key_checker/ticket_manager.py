@@ -47,7 +47,7 @@ class ZendeskTicketManager:
         tickets = [TicketData.from_dict(t) for t in res["results"]]
         return tickets, res["next_page"]
 
-    def set_ticket_as_solved(self, ticket: "TicketData"):
+    def set_ticket_as_solved(self, ticket: "TicketData", comment: str):
         print(f"Ticket to set to solved: {ticket.id}")
 
         url = f"{self._api_base_url}/api/v2/tickets/update_many.json?ids={ticket.id}"
@@ -59,7 +59,7 @@ class ZendeskTicketManager:
                 "status": "solved",
                 "assignee_id": ZENDESK_ASSIGNEE,
                 "comment": {
-                    "body": "Resolved by AWS key checker lambda.",
+                    "body": comment,
                     "public": True,
                 },
                 "additional_tags": ["closed-by-aws-exposed-key-checker"],

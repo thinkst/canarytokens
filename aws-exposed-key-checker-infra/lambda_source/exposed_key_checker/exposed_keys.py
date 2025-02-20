@@ -1,6 +1,18 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 import re
 from exposed_key_checker.ticket_manager import TicketData
+
+MAX_PROCESS_AGE_DAYS = 7
+
+
+def get_recent_open_tickets(tickets):
+    return [
+        ticket
+        for ticket in tickets
+        if (datetime.now() - ticket.created_dt) <= timedelta(days=MAX_PROCESS_AGE_DAYS)
+        and ticket.status not in ["solved", "closed"]
+    ]
 
 
 def parse_tickets(
