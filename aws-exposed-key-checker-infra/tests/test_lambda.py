@@ -18,7 +18,7 @@ from exposed_key_checker.ticket_manager import TicketData  # noqa: E402
 from exposed_key_checker.exposed_keys import (  # noqa: E402
     parse_tickets,
     get_recent_open_tickets,
-)  # noqa: E402
+)
 
 
 def test_parsing(all_tickets: list[TicketData]):
