@@ -6,6 +6,10 @@ variable "ticket_service_recipient" {
   type = string
 }
 
+variable "wiki_reference" {
+  type = string
+}
+
 variable "zendesk_exposed_ticket_tag" {
   type = string
 }

@@ -75,6 +75,7 @@ resource "aws_lambda_function" "key_checker_lambda" {
       {
         TICKET_SERVICE_URL         = "${var.ticket_service_url}"
         TICKET_SERVICE_RECIPIENT   = "${var.ticket_service_recipient}"
+        WIKI_REFERENCE             = "${var.wiki_reference}"
         ZENDESK_EXPOSED_TICKET_TAG = "${var.zendesk_exposed_ticket_tag}"
         ZENDESK_CLOSED_TICKET_TAG  = "${var.zendesk_closed_ticket_tag}"
         ZENDESK_ASSIGNEE           = "${var.zendesk_assignee}"
@@ -138,7 +139,8 @@ resource "aws_iam_role_policy_attachment" "console_event_dispatcher_lambda_basic
 # Schedule lambda run
 resource "aws_cloudwatch_event_rule" "periodic_run" {
   name                = "run_exposed_key_checker_periodically"
-  schedule_expression = "rate(4 hours)"
+  description         = "Triggers every hour on the hour"
+  schedule_expression = "cron(0 * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {

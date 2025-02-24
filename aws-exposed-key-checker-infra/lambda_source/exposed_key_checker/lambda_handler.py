@@ -14,6 +14,7 @@ from exposed_key_checker.exposed_keys import (
 )
 from exposed_key_checker import support_ticketer
 
+WIKI_REFERENCE = os.environ["WIKI_REFERENCE"]
 ZENDESK_EXPOSED_TICKET_TAG = os.environ["ZENDESK_EXPOSED_TICKET_TAG"]
 ZENDESK_AUTH_SECRET_ID = os.environ["ZENDESK_AUTH_SECRET_ID"]
 TOKENS_SERVERS_ALLOW_LIST = [
@@ -29,7 +30,7 @@ def lambda_handler(_event, _context):
         ticket_manager = ZendeskTicketManager(*get_zendesk_auth())
         key_data, ignorable_ids, failed_ids = gather_data(ticket_manager)
     except Exception as e:
-        text = f"The key checker could not query the Zendesk API for tickets.\nThe exception was {e}."
+        text = f"The key checker could not query the Zendesk API for tickets.\nThe exception was {e}. See wiki for guidance: {WIKI_REFERENCE}"
         support_ticketer.create_ticket(
             "Exposed AWS Key Checker could not query the Zendesk API",
             text,
@@ -46,7 +47,7 @@ def lambda_handler(_event, _context):
         )
 
     if failed_ids:
-        text = f"The key checker could not parse the following Zendesk ticket IDs: {failed_ids}"
+        text = f"The key checker could not parse the following Zendesk ticket IDs: {failed_ids} \n See wiki for guidance: {WIKI_REFERENCE}"
         support_ticketer.create_ticket(
             "Exposed AWS Key Checker could not parse Zendesk tickets",
             text,
@@ -71,7 +72,7 @@ def process_data(data: "list[ExposedKeyData]", ticket_manager: "ZendeskTicketMan
         try:
             send_to_tokens_server(item)
         except Exception as e:
-            text = f"The key checker could not post the exposed event to the tokens server for the following item: {item}\nThe exception was: {e}.\n\nThis post will be retried automatically on the next run of the lambda. This only needs to be investigated if the failures continue."
+            text = f"The key checker could not post the exposed event to the tokens server for the following item: {item}\nThe exception was: {e}.\n\nThis post will be retried automatically on the next run of the lambda. This only needs to be investigated if the failures continue: {WIKI_REFERENCE}."
             support_ticketer.create_ticket(
                 "Exposed AWS Key Checker could not post to tokens server",
                 text,
