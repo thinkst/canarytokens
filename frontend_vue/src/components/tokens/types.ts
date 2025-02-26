@@ -249,6 +249,7 @@ export type HitsType = {
   merchant?: string | null;
   mail?: string | null;
   referer?: string | null;
+  referrer?: string | null;
   location?: string | GeolocationPosition | CoordsType | null;
 };
 
