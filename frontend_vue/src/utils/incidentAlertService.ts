@@ -166,7 +166,7 @@ export function buildIncidentDetails(
         amount: hitAlert.amount || null,
         merchant: hitAlert.merchant || null,
         mail: hitAlert.mail || null,
-        referer: hitAlert.referer || null,
+        referer: hitAlert.referer || hitAlert.referrer || null,
         location:
           (hitAlert.location &&
             locationValue(hitAlert.token_type, hitAlert.location)) ||
