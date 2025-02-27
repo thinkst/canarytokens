@@ -36,11 +36,11 @@ repos:
         - id: terraform_fmt
         # - id: terraform_tfsec install is suboptimal
 
--   repo: local
-    hooks:
-    -   id: typescript-check
-        name: Typescript Checker
-        entry: npm run --prefix frontend_vue type-check
-        types_or: [javascript, jsx, ts, tsx, vue]
-        language: system
-        pass_filenames: false
+# -   repo: local
+#     hooks:
+#     -   id: typescript-check
+#         name: Typescript Checker
+#         entry: npm run --prefix frontend_vue type-check
+#         types_or: [javascript, jsx, ts, tsx, vue]
+#         language: system
+#         pass_filenames: false

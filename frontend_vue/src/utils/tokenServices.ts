@@ -49,7 +49,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker attempt to use your credit card.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.CREDIT_CARD_V2}.png`,
-    instruction: 'Place it on your computer and get notified when your\'e breached:',
+    instruction: 'Place it on your computer and get notified when you\'re breached:',
     howItWorksInstructions: [
       'We give you unique Credit Card details',
       'You place it somewhere.',
