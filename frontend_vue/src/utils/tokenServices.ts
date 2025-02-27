@@ -46,7 +46,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.CREDIT_CARD_V2]: {
     label: 'Credit Card',
-    description: 'Get an alert when an attacker attempt to use your credit card.',
+    description: 'Get an alert when an attacker attempts to use your credit card.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.CREDIT_CARD_V2}.png`,
     instruction: 'Place it on your computer and get notified when you\'re breached:',
@@ -305,7 +305,7 @@ export const tokenServices: TokenServicesType = {
   },
   [TOKENS_TYPE.CUSTOM_EXE]: {
     label: 'Custom EXE / binary',
-    description: 'Get an alert when an attacker execute an EXE or DLL file.',
+    description: 'Get an alert when an attacker executes an EXE or DLL file.',
     documentationLink:
       'https://docs.canarytokens.org/guide/custom-exe-token.html',
     icon: `${TOKENS_TYPE.CUSTOM_EXE}.png`,
