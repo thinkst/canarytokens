@@ -25,7 +25,6 @@ from canarytokens.models import (
 log = Logger()
 
 
-
 class Channel(object):
     CHANNEL = "Base"
 
