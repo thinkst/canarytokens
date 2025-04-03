@@ -26,6 +26,7 @@ from canarytokens.constants import (
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
     AnyTokenHit,
+    AWSInfraTokenHit,
     AWSKeyTokenHit,
     AWSKeyTokenExposedHit,
     AzureIDTokenHit,
@@ -836,6 +837,14 @@ class Canarytoken(object):
 
         request.setHeader("Content-Type", "image/gif")
         return GIF
+
+    @staticmethod
+    def _parse_aws_infra_trigger(request: Request) -> AWSInfraTokenHit:
+        hit_info = {
+            "time_of_hit": datetime.utcnow().strftime("%s.%f"),
+            "input_channel": INPUT_CHANNEL_HTTP,
+        }
+        return AWSInfraTokenHit(**hit_info)
 
     @staticmethod
     def _get_info_for_legacy(request):
