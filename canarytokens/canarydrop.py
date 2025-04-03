@@ -124,9 +124,19 @@ class Canarydrop(BaseModel):
     # AWS key specific stuff
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]
-    aws_account_id: Optional[str]
     aws_output: Optional[str] = Field(alias="output")
+
+    # AWS key and AWS infra stuff
+    aws_account_id: Optional[str]
     aws_region: Optional[str] = Field(alias="region")
+
+    # AWS  infra specific stuff
+    aws_customer_iam_access_external_id: Optional[str]
+    aws_deployed_assets: Optional[list]
+    aws_current_assets: Optional[list]
+    aws_saved_plan: Optional[dict]
+    aws_tf_module_prefix: Optional[str]
+    aws_infra_ingesting: Optional[bool]
 
     # Azure key specific stuff
     app_id: Optional[str]
