@@ -264,6 +264,11 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 )
                 # TODO: These returns are not really needed
                 return b"failed"
+        elif canarydrop.type == TokenTypes.AWS_INFRA:
+            token_hit = Canarytoken._parse_aws_infra_trigger(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
         return self.render_GET(request)
 
 
