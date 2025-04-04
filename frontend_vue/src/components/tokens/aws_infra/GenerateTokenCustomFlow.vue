@@ -14,15 +14,19 @@ import { ref, computed } from 'vue';
 import { defineAsyncComponent } from 'vue';
 
 const GenerateAwsSnippet = defineAsyncComponent(
-  () => import('./GenerateAwsSnippet.vue')
+  () => import('./generate_token_steps/GenerateAwsSnippet.vue')
 );
-const CheckAwsRole = defineAsyncComponent(() => import('./CheckAwsRole.vue'));
+const CheckAwsRole = defineAsyncComponent(
+  () => import('./generate_token_steps/CheckAwsRole.vue')
+);
 const InventoryAwsAccount = defineAsyncComponent(
-  () => import('./InventoryAwsAccount.vue')
+  () => import('./generate_token_steps/InventoryAwsAccount.vue')
 );
-const GeneratePlan = defineAsyncComponent(() => import('./GeneratePlan.vue'));
+const GeneratePlan = defineAsyncComponent(
+  () => import('./generate_token_steps/GeneratePlan.vue')
+);
 const GenerateTerraformSnippet = defineAsyncComponent(
-  () => import('./GenerateTerraformSnippet.vue')
+  () => import('./generate_token_steps/GenerateTerraformSnippet.vue')
 );
 
 const currentStep = ref(1);
