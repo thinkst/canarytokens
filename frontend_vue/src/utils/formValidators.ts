@@ -233,4 +233,11 @@ export const formValidators: ValidateSchemaType = {
       app_type: Yup.string().required('App type is required'),
     }),
   },
+  [TOKENS_TYPE.AWS_INFRA]: {
+    schema: Yup.object().shape({
+      // ...validationNotificationSettings,
+      // aws_region: Yup.string().required('AWS region is required'),
+      // aws_account_number: Yup.number().required('AWS account number is required'),
+    }),
+  },
 };
