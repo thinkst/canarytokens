@@ -10,13 +10,21 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'Create New Canarytoken',
+        title: 'Canarytokens.org',
       },
     },
     {
       path: '/generate',
       name: 'generate',
       component: HomeView,
+      meta: {
+        title: 'Create New Canarytoken',
+      },
+    },
+    {
+      path: '/generate-token/:token',
+      name: 'generate-token',
+      component: () => import('../views/GenerateCustomView.vue'),
       meta: {
         title: 'Create New Canarytoken',
       },
