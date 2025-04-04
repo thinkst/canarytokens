@@ -8,7 +8,8 @@ export type TokenServiceType = {
   instruction: string;
   howItWorksInstructions?: string[];
   category?: string | string[];
-  keywords?: string[];
+  keywords?: string[]; // used by Search
+  isCustomGenerateFlow?: boolean;
 };
 
 export type TokenServicesType = {
@@ -16,6 +17,24 @@ export type TokenServicesType = {
 };
 
 export const tokenServices: TokenServicesType = {
+  [TOKENS_TYPE.AWS_INFRA]: {
+    label: 'AWS Infra',
+    description:
+      'Get an alert an attacker interact with your infrastructure',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/#',
+    icon: `${TOKENS_TYPE.AWS_INFRA}.png`,
+    instruction:
+      'Here goes the instruction for this token',
+    howItWorksInstructions: [
+      'Oh, baby, baby, How was I supposed to know',
+      'That somethin\' was\'t right here?',
+      'Oh, baby, baby, I shouldn\'t have let you go',
+    ],
+    category: TOKEN_CATEGORY.OTHER,
+    keywords: ['aws', 'infra', 'bucket'],
+    isCustomGenerateFlow: true,
+  },
   [TOKENS_TYPE.WEB_BUG]: {
     label: 'Web bug',
     description: 'Get an alert when an attacker visits your URL.',
@@ -470,4 +489,5 @@ export const tokenServices: TokenServicesType = {
     ],
     keywords: []
   },
+
 };

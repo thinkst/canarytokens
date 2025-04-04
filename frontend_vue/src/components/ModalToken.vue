@@ -78,12 +78,24 @@
         />
       </template>
       <template v-else>
-        <template v-if="modalType === ModalType.AddToken">
+        <template
+          v-if="modalType === ModalType.AddToken
+            && !tokenServices[props.selectedToken].isCustomGenerateFlow">
           <BaseButton
             variant="primary"
             :loading="isLoadngSubmit"
             @click.stop="handleAddTokenButton"
             >Create Canarytoken</BaseButton
+          >
+        </template>
+        <template
+          v-if="modalType === ModalType.AddToken
+            && tokenServices[props.selectedToken].isCustomGenerateFlow">
+          <BaseButton
+            variant="primary"
+            :loading="isLoadngSubmit"
+            @click.stop="handleAddTokenButton"
+            >Start creating Canarytoken</BaseButton
           >
         </template>
 
@@ -136,6 +148,7 @@ import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
 import { addViewTransition } from '@/utils/utils';
+import { setTokenData } from '@/utils/dataService.ts'
 
 enum ModalType {
   AddToken = 'addToken',
@@ -267,10 +280,26 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     isLoadngSubmit.value = false;
     triggerSubmit.value = false;
 
+    // if Token type has Custom Generate flow, go to custom page
+    if(tokenServices[props.selectedToken].isCustomGenerateFlow){
+
+        setTokenData({ data: res.data })
+        router.push({
+          name: 'generate-token',
+          params: {
+            'token': props.selectedToken,
+          },
+        })
+        props.closeModal();
+
+        return
+    }
+
     await addViewTransition(
       () => (modalType.value = ModalType.NewToken)
       // Keep track of loaded components
     ).then(() => componentStack.value.push(modalType.value));
+
   } catch (err: any) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
