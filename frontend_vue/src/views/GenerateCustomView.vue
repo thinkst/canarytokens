@@ -1,8 +1,12 @@
 <template>
   <AppLayoutOneColumn>
     <div v-if="isLoading">Loading...</div>
-    <div v-if="isError">Oh no, an Error! :( </div>
-    <component :is="GenerateTokenCustomFlow" v-else :token-data="tokenData"/>
+    <div v-if="isError">Oh no, an Error! :(</div>
+    <component
+      :is="GenerateTokenCustomFlow"
+      v-else
+      :token-data="tokenData"
+    />
   </AppLayoutOneColumn>
 </template>
 
@@ -10,41 +14,37 @@
 import { defineAsyncComponent, ref, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 import AppLayoutOneColumn from '@/layout/AppLayoutOneColumn.vue';
-import { getTokenData } from '@/utils/dataService.ts'
+import { getTokenData } from '@/utils/dataService.ts';
 
 const route = useRoute();
 const GenerateTokenCustomFlow = shallowRef();
-const isLoading = ref(false)
-const isError = ref(false)
-const selectedToken =  ref(route.params['token'] || '');
-const tokenData = ref({})
+const isLoading = ref(false);
+const isError = ref(false);
+const selectedToken = ref(route.params['token'] || '');
+const tokenData = ref({});
 
 const loadComponent = async () => {
-  isLoading.value = true
-  tokenData.value = getTokenData()
-
-  if(!selectedToken.value) {
-    isError.value = true
-    return
-  }
-
   try {
+    isLoading.value = true;
+
+    if (!selectedToken.value) {
+      throw new Error('Invalid token');
+    }
+    tokenData.value = getTokenData();
+
     GenerateTokenCustomFlow.value = defineAsyncComponent(
       () =>
         import(
           `@/components/tokens/${selectedToken.value}/GenerateTokenCustomFlow.vue`
         )
     );
-    await GenerateTokenCustomFlow.value.__asyncLoader();
-
-   isLoading.value = false
   } catch (error) {
-    isLoading.value = false
-    isError.value = true
-    console.error(error);
+    console.error('Error loading component:', error);
+    isError.value = true;
+  } finally {
+    isLoading.value = false;
   }
 };
 
 loadComponent();
-
 </script>

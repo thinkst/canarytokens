@@ -3,7 +3,7 @@
     <li
       v-for="(step, index) in props.steps"
       :key="step"
-      class="rounded-full w-[3rem] h-[3rem] mx-24 flex justify-center items-center"
+      class="rounded-full w-[2rem] h-[2rem] mx-24 flex justify-center items-center"
       :class="isActiveStep(index)"
     >
       <span class="text-white font-bold">{{ index + 1 }}</span>
