@@ -2896,8 +2896,7 @@ class AWSInfraGenerateDataChoiceResponse(BaseModel):
 class AWSInfraSavePlanRequest(BaseModel):
     canarytoken: str
     auth_token: str
-    plan: AWSInfraAssetType
-    asset_field: str
+    plan: Any
 
 
 class DefaultResponse(BaseModel):

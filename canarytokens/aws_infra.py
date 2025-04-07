@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import shutil
 import string
 import secrets
 import json
@@ -29,10 +30,6 @@ def get_sqs_client():
     if MANAGEMENT_REQUEST_SQS_CLIENT is None:
         MANAGEMENT_REQUEST_SQS_CLIENT = boto3.client(
             "sqs",
-            region_name="eu-west-1",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            aws_session_token=settings.AWS_SESSION_TOKEN,
         )
 
     return MANAGEMENT_REQUEST_SQS_CLIENT
@@ -45,8 +42,27 @@ def generate_external_id():
 
 
 ROLE_SETUP_COMMNANDS_TEMPLATE = [
-    'aws iam create-role --role-name $role_name --assume-role-policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Principal": {"AWS": "arn:aws:iam::$aws_account:role/lambda-Canarytokens-Inventory-Manager"},"Action": "sts:AssumeRole","Condition": {"StringEquals": {"sts:ExternalId": "$external_id"}}}]}\'',
-    'aws iam create-policy --policy-nameCanarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'',
+    """
+    aws iam create-role --role-name $role_name --assume-role-policy-document
+    \'{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:sts::$aws_account:assumed-role/InventoryManagerRole/$external_id"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "$external_id"
+                }
+            }
+        }
+    ]
+    }\'
+    """,
+    'aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'',
     "aws iam attach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy",
 ]
 
@@ -84,36 +100,36 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
         "operation": operation.value,
     }
 
-    if (
-        operation == AWSInfraOperationType.CHECK_ROLE
-        or operation == AWSInfraOperationType.INVENTORY
-    ):
+    if operation == AWSInfraOperationType.CHECK_ROLE:
         payload["params"] = {
             "aws_account": canarydrop.aws_account_id,
             "customer_iam_access_external_id": canarydrop.aws_customer_iam_access_external_id,
             "role_name": INVENTORY_ROLE_NAME,
         }
-    if operation == AWSInfraOperationType.INVENTORY:
+    elif operation == AWSInfraOperationType.INVENTORY:
         payload["params"] = {
+            "aws_account": canarydrop.aws_account_id,
+            "customer_iam_access_external_id": canarydrop.aws_customer_iam_access_external_id,
+            "role_name": INVENTORY_ROLE_NAME,
             "region": canarydrop.aws_region,
-            "asset_types": [asset_type.value for asset_type in AWSInfraAssetType],
+            "assets_types": [asset_type.value for asset_type in AWSInfraAssetType],
         }
 
-    if (
-        operation == AWSInfraOperationType.SETUP_INGESTION
-        or operation == AWSInfraOperationType.TEARDOWN
-    ):
+    elif operation == AWSInfraOperationType.SETUP_INGESTION:
         payload["params"] = {
             "canarytoken_id": canarydrop.canarytoken.value(),
-            "customer_cloudtrail_arn": None,
-            "alert_ingestion_bucket": None,
-        }
-
-    if operation == AWSInfraOperationType.SETUP_INGESTION or operation:
-        payload["params"] = {
+            "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
+            "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
             "callback_domain": settings.AWS_INFRA_CALLBACK_DOMAIN,
         }
 
+    elif operation == AWSInfraOperationType.TEARDOWN:
+        payload["params"] = {
+            "canarytoken_id": canarydrop.canarytoken.value(),
+            "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
+            "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+        }
+    print(payload)
     response = get_sqs_client().send_message(
         QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
     )
@@ -143,3 +159,51 @@ def get_handle_operation(handle_id):
 
 def add_handle_response(handle_id, response):
     queries.update_aws_management_lambda_handle(handle_id, json.dumps(response))
+
+
+def save_plan(canarydrop: Canarydrop, plan: str):
+    # TODO: validate plan
+    canarydrop.aws_saved_plan = plan
+    #  queries.save_canarydrop(canarydrop)
+    variables = generate_tf_variables(canarydrop, json.loads(plan))
+    upload_zip(
+        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
+    )
+
+
+def generate_tf_variables(canarydrop: Canarydrop, plan):
+    tf_variables = {
+        "s3_bucket_names": [],
+        "s3_objects": [],
+        "canarytoken_id": canarydrop.canarytoken.value(),
+        "cloudtrail_name": canarydrop.canarytoken.aws_infra_cloud_trail_name,
+        "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+    }
+    for bucket in plan["assets"]["S3Bucket"]:
+        tf_variables["s3_bucket_names"].append(bucket["bucket_name"])
+        for s3_object in bucket["objects"]:
+            tf_variables["s3_objects"].append(
+                {
+                    "bucket": bucket["bucket_name"],
+                    "key": s3_object["object_path"],
+                    "content": s3_object["content"],
+                }
+            )
+    return tf_variables
+
+
+def upload_zip(canarytoken_id, prefix, variables):
+    new_dir = shutil.copytree("../aws_ct_tf", f"aws_ct_tf_{canarytoken_id}")
+    with open(f"{new_dir}/decoy_vars.json", "w") as f:
+        f.write(json.dumps(variables))
+
+    archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
+    s3 = boto3.resource("s3")
+    s3.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
+        archive, f"{prefix}/{canarytoken_id}/tf.zip"
+    )
+    shutil.rmtree(new_dir)
+
+
+def generate_cloudtrail_name():
+    return f"trail-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
