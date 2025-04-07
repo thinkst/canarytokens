@@ -132,6 +132,7 @@ class FrontendSettings(BaseSettings):
     CREDIT_CARD_INFRA_REGION: Optional[str]
     CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
     CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
+
     AWS_INFRA_AWS_ACCOUNT: Optional[str]
     AWS_INFRA_SHARED_SECRET: Optional[str]
     AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str]
