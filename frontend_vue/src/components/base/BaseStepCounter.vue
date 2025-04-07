@@ -17,7 +17,7 @@ const props = defineProps<{
   currentStep: number;
 }>();
 
-function isActiveStep(index) {
+function isActiveStep(index: number) {
   return index + 1 <= props.currentStep ? 'bg-green-700' : 'bg-grey-200';
 }
 </script>

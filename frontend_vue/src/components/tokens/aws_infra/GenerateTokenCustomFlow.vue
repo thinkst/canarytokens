@@ -40,7 +40,7 @@ const props = defineProps<{
   tokenData: any;
 }>();
 
-const currentStep = ref(1);
+const currentStep = ref(4);
 const sharedData = ref(Array(5).fill({}));
 
 const stepComponents = ref({

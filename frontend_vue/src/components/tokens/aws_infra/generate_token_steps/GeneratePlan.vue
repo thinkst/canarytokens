@@ -2,21 +2,13 @@
   <h2 class="step-title">Proposed Plan</h2>
   <div v-if="isLoading">Loading...</div>
 
-  <div>
-    <!-- content -->
-  </div>
-
-  <BaseButton
-    v-if="!isLoading"
-    class="mt-40"
-    @click="emits('updateStep')"
-  >
-    Save</BaseButton
-  >
+  <PlanCreator v-if="!isLoading" />
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
+import { Form } from 'vee-validate';
+import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
 
 const emits = defineEmits('updateStep', 'storeFetchedData');
 

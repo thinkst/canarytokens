@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-const emits = defineEmits('updateStep', 'storeFetchedData');
+const emits = defineEmits(['updateStep', 'storeFetchedData']);
 
 const props = defineProps<{
   stepData: any;
