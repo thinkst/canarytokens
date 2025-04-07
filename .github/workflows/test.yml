@@ -84,7 +84,7 @@ jobs:
           sudo apt-get install -y osslsigncode
           sudo apt install redis-tools
       - name: Set up cache
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}

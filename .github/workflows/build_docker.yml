@@ -32,7 +32,7 @@ jobs:
         echo "Committer: ${{ github.event.head_commit.committer.name }} (${{ github.event.head_commit.committer.email }})" >> $GITHUB_STEP_SUMMARY
 
     - name: Restore Frontend Dist from Cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.2.0
       id: cache-frontend-dist
       with:
         path: dist
