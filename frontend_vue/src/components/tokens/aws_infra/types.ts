@@ -37,4 +37,4 @@ type Assets = {
 };
 
 
-export { S3Bucket, S3Object, SQSQueue, SSMParameter, SecretsManagerSecret, DynamoDBTable, Assets };
+export type { S3Bucket, S3Object, SQSQueue, SSMParameter, SecretsManagerSecret, DynamoDBTable, Assets };

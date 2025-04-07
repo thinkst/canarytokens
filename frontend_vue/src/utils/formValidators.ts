@@ -7,9 +7,28 @@ import {
 import { isValidFileType, validFileExtensions } from './utils';
 
 type FieldsType = {
-  email: string | undefined;
-  memo: string;
-  webhook_url: string | undefined;
+  email?: string;
+  memo?: string;
+  webhook_url?: string;
+  redirect_url?: string;
+  cmd_process?: string;
+  azure_id_cert_file_name?: string;
+  web_image?: File;
+  signed_exe?: File;
+  sql_server_sql_action?: string;
+  sql_server_table_name?: string;
+  sql_server_view_name?: string;
+  clonedsite?: string;
+  expected_referrer?: string;
+  windows_fake_fs_root?: string;
+  windows_fake_fs_file_structure?: string;
+  icon?: string;
+  app_name?: string;
+  cf_turnstile_response?: string;
+  app_type?: string;
+  aws_region?: string;
+  aws_account_number?: number;
+  [key: string]: any;
 };
 
 type ValidateSchemaType = {
@@ -235,9 +254,9 @@ export const formValidators: ValidateSchemaType = {
   },
   [TOKENS_TYPE.AWS_INFRA]: {
     schema: Yup.object().shape({
-      // ...validationNotificationSettings,
-      // aws_region: Yup.string().required('AWS region is required'),
-      // aws_account_number: Yup.number().required('AWS account number is required'),
+      ...validationNotificationSettings,
+      aws_region: Yup.string().required('AWS region is required'),
+      aws_account_number: Yup.number().required('AWS account number is required'),
     }),
   },
 };

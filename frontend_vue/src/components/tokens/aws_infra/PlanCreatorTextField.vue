@@ -16,7 +16,7 @@ It exists only for the AWS Infra Token POC.
         { 'border-grey-200 bg-grey-100 shadow-none text-grey-300': disabled },
       ]"
       :placeholder="placeholder"
-      :aria-invalid="errorMessage"
+      :aria-invalid="!!errorMessage"
       aria-describedby="helper error"
       :required="required"
       :disabled="disabled"
@@ -74,7 +74,7 @@ It exists only for the AWS Infra Token POC.
 </template>
 
 <script setup lang="ts">
-import { toRef, watch } from 'vue';
+import { toRef } from 'vue';
 import { useField } from 'vee-validate';
 
 const props = defineProps<{

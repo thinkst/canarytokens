@@ -10,10 +10,9 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { Form } from 'vee-validate';
 import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
 
-const emits = defineEmits('updateStep', 'storeFetchedData');
+const emits = defineEmits(['updateStep', 'storeFetchedData']);
 
 const props = defineProps<{
   stepData: any;
@@ -23,5 +22,6 @@ const isLoading = ref(false);
 
 function handleSubmit() {
   emits('updateStep');
+  emits('storeFetchedData');
 }
 </script>

@@ -113,10 +113,23 @@ import {
 import getImageUrl from '@/utils/getImageUrl';
 import PlanCreatorTextField from '@/components/tokens/aws_infra/PlanCreatorTextField.vue';
 
+type S3ObjectType = {
+  object_path: string;
+};
+
+type S3BucketType = {
+  bucket_name: string;
+  objects: S3ObjectType[];
+};
+
+type ProcessedPlanType = {
+  S3Bucket: S3BucketType[];
+};
+
 const isLoading = ref();
 const emits = defineEmits(['updateStep']);
 
-const initialValues = {
+const initialValues: ProcessedPlanType = {
   S3Bucket: [
     {
       bucket_name: 'decoy-bucket-1',
@@ -161,8 +174,8 @@ function handleRemoveInstance(
 }
 
 function handleAddInstance(
-  callback: (instanceType: typeof INSTANCE_DATA) => void,
-  instanceType: typeof INSTANCE_DATA
+  callback: (instance: S3BucketType | S3ObjectType) => void,
+  instanceType: S3BucketType | S3ObjectType
 ) {
   callback(instanceType);
 }

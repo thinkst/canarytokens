@@ -30,7 +30,7 @@ const loadComponent = async () => {
     if (!selectedToken.value) {
       throw new Error('Invalid token');
     }
-    tokenData.value = getTokenData();
+    tokenData.value = getTokenData() || {};
 
     GenerateTokenCustomFlow.value = defineAsyncComponent(
       () =>

@@ -36,6 +36,10 @@ const GenerateTerraformSnippet = defineAsyncComponent(
   () => import('./generate_token_steps/GenerateTerraformSnippet.vue')
 );
 
+type GenericFetchedDataType = {
+  [key: string]: string;
+};
+
 const props = defineProps<{
   tokenData: any;
 }>();
@@ -43,7 +47,9 @@ const props = defineProps<{
 const currentStep = ref(1);
 const sharedData = ref(Array(5).fill({}));
 
-const stepComponents = ref({
+const stepComponents = ref<
+  Record<number, ReturnType<typeof defineAsyncComponent>>
+>({
   1: GenerateAwsSnippet,
   2: CheckAwsRole,
   3: InventoryAwsAccount,
@@ -59,7 +65,7 @@ function handleUpdateStep() {
   currentStep.value++;
 }
 
-function handleStoreFetchedData(data) {
+function handleStoreFetchedData(data: GenericFetchedDataType) {
   sharedData.value[currentStep.value - 1] = data;
 }
 </script>

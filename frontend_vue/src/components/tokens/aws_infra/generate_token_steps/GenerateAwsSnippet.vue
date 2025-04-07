@@ -27,9 +27,9 @@ import { ref } from 'vue';
 
 const emits = defineEmits(['updateStep', 'storeFetchedData']);
 
-const props = defineProps<{
-  stepData: any;
-}>();
+// const props = defineProps<{
+//   stepData: any;
+// }>();
 
 const isLoading = ref(false);
 const placeholderCode = 'echo "This is a placeholder command "';

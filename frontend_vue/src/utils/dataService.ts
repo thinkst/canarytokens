@@ -1,4 +1,4 @@
-type tokenDataType = {
+export type tokenDataType = {
   token: string;
   hostname: string;
   token_url: string;
@@ -16,7 +16,7 @@ type tokenDataType = {
   ingesting: boolean;
 }
 
-let tokenData: tokenDataType = null;
+let tokenData: tokenDataType | null = null;
 
 export function setTokenData(data: tokenDataType) {
   tokenData = data;

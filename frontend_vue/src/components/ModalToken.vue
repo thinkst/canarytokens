@@ -47,7 +47,7 @@
     <Suspense v-if="modalType === ModalType.NewToken">
       <ModalContentActivatedToken
         :new-token-response="newTokenResponse"
-        :shoot-confetti=shootConfetti
+        :shoot-confetti="shootConfetti"
         @how-to-use="handleHowToUseButton"
       />
       <template #fallback>
@@ -79,8 +79,11 @@
       </template>
       <template v-else>
         <template
-          v-if="modalType === ModalType.AddToken
-            && !tokenServices[props.selectedToken].isCustomGenerateFlow">
+          v-if="
+            modalType === ModalType.AddToken &&
+            !tokenServices[props.selectedToken].isCustomGenerateFlow
+          "
+        >
           <BaseButton
             variant="primary"
             :loading="isLoadngSubmit"
@@ -89,8 +92,11 @@
           >
         </template>
         <template
-          v-if="modalType === ModalType.AddToken
-            && tokenServices[props.selectedToken].isCustomGenerateFlow">
+          v-if="
+            modalType === ModalType.AddToken &&
+            tokenServices[props.selectedToken].isCustomGenerateFlow
+          "
+        >
           <BaseButton
             variant="primary"
             :loading="isLoadngSubmit"
@@ -148,7 +154,8 @@ import { generateToken } from '@/api/main';
 import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
 import { addViewTransition } from '@/utils/utils';
-import { setTokenData } from '@/utils/dataService.ts'
+import { setTokenData } from '@/utils/dataService.ts';
+import type { tokenDataType } from '@/utils/dataService.ts';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -253,6 +260,32 @@ async function handleBackButton() {
   }
 }
 
+// function handleGenerateToken(formValues: BaseFormValuesType) {
+//   // remove errors & loading
+//   isGenerateTokenError.value = false;
+//   errorMessage.value = '';
+//   isLoadngSubmit.value = false;
+//   triggerSubmit.value = false;
+
+//   const res = {
+//     data: {},
+//   };
+
+//   // if Token type has Custom Generate flow, go to custom page
+//   if (tokenServices[props.selectedToken].isCustomGenerateFlow) {
+//     setTokenData({ data: res.data });
+//     router.push({
+//       name: 'generate-token',
+//       params: {
+//         token: props.selectedToken,
+//       },
+//     });
+//     props.closeModal();
+
+//     return;
+//   }
+// }
+
 async function handleGenerateToken(formValues: BaseFormValuesType) {
   try {
     isLoadngSubmit.value = true;
@@ -281,25 +314,23 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     triggerSubmit.value = false;
 
     // if Token type has Custom Generate flow, go to custom page
-    if(tokenServices[props.selectedToken].isCustomGenerateFlow){
+    if (tokenServices[props.selectedToken].isCustomGenerateFlow) {
+      setTokenData(res.data as tokenDataType);
+      router.push({
+        name: 'generate-token',
+        params: {
+          token: props.selectedToken,
+        },
+      });
+      props.closeModal();
 
-        setTokenData({ data: res.data })
-        router.push({
-          name: 'generate-token',
-          params: {
-            'token': props.selectedToken,
-          },
-        })
-        props.closeModal();
-
-        return
+      return;
     }
 
     await addViewTransition(
       () => (modalType.value = ModalType.NewToken)
       // Keep track of loaded components
     ).then(() => componentStack.value.push(modalType.value));
-
   } catch (err: any) {
     triggerSubmit.value = false;
     isGenerateTokenError.value = true;
@@ -345,9 +376,9 @@ watch(isLoading, () => {
 // Only shoot confetti after generating a new token
 watch(modalType, (newVal, oldVal) => {
   if (oldVal === ModalType.AddToken && newVal === ModalType.NewToken) {
-    shootConfetti.value =  true;
+    shootConfetti.value = true;
   } else {
-    shootConfetti.value =  false;
+    shootConfetti.value = false;
   }
 });
 </script>
