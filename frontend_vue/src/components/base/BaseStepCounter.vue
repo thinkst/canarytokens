@@ -2,8 +2,9 @@
   <ol class="flex flex-row justify-center step-wrapper">
     <li
       v-for="(step, index) in props.steps"
-      :key="step.label"
-      class="flex"
+      :key="step"
+      class="rounded-full w-[2rem] h-[2rem] mx-24 flex justify-center items-center"
+      :class="isActiveStep(index)"
     >
       <button
         type="button"
