@@ -22,6 +22,7 @@ const router = createRouter({
       },
     },
     {
+      // TODO: add a guard to check if user is coming from the token modal
       path: '/generate-token/:token',
       name: 'generate-token',
       component: () => import('../views/GenerateCustomView.vue'),

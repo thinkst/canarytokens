@@ -33,6 +33,7 @@ import {
   faLock,
   faCalendarDay,
   faIdCard,
+  faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -75,6 +76,7 @@ library.add(
   faLock,
   faCalendarDay,
   faIdCard,
+  faCircleCheck
 );
 
 const vfm = createVfm();
