@@ -29,10 +29,9 @@ It exists only for the AWS Infra Token POC.
         v-tooltip="{
           content: 'Regenerate content',
         }"
-        type="button"
         class="h-[2rem] w-[2rem] rounded-full bg-white hover:bg-green-50 hover:text-green-500 focus:text-green-500 disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none active:top-[0.15rem] focus-visible:outline-0 focus:bg-green-100 focus:border-green-200 focus:outline-0 text-green-600 border border-green-200;"
         aria-label="Regenerate input content"
-        @click="emit('handleRegenerateInstance', $event, props.name)"
+        @click="emit('handleRegenerateInstance')"
       >
         <font-awesome-icon
           aria-hidden="true"
@@ -45,10 +44,9 @@ It exists only for the AWS Infra Token POC.
         v-tooltip="{
           content: 'Remove input',
         }"
-        type="button"
         class="h-[2rem] w-[2rem] rounded-full bg-white hover:bg-red-300 hover:text-white active:shadow-none active:top-[0.15rem] active:text-white focus-visible:outline-0 focus:bg-red-300 focus:text-white focus:border-red focus:outline-0 text-red border border-red;"
         aria-label="Remove input"
-        @click="emit('handleRemoveInstance', $event)"
+        @click="emit('handleRemoveInstance')"
       >
         <font-awesome-icon
           aria-hidden="true"
@@ -104,6 +102,15 @@ const { value, handleChange, errorMessage } = useField(name);
 function validateIfErrorExists(e: Event) {
   if (errorMessage && errorMessage.value) handleChange(e);
 }
+
+// watch(
+//   () => props.modelValue,
+//   (newValue) => {
+//     if (inputValue.value !== newValue) {
+//       inputValue.value = newValue;
+//     }
+//   }
+// );
 </script>
 <style>
 .hide-scrollbar {
