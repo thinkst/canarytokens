@@ -4,6 +4,7 @@ import shutil
 import string
 import secrets
 import json
+from typing import Union
 import boto3
 import os
 
@@ -23,7 +24,7 @@ MANAGEMENT_REQUEST_SQS_CLIENT = None
 @dataclass
 class Handle:
     response_received: bool
-    response: bool | str | dict
+    response: Union[bool, str, dict]
 
 
 def get_sqs_client():

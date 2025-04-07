@@ -15,7 +15,7 @@ import textwrap
 from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from urllib.parse import unquote
 
 import requests
@@ -1039,11 +1039,11 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
 
 @api.post(
     "/awsinfra/config-start",
-    response_model=AWSInfraConfigStartResponse | DefaultResponse,
+    response_model=Union[AWSInfraConfigStartResponse, DefaultResponse],
 )
 async def api_awsinfra_config_start(
     request: AWSInfraConfigStartRequest,
-) -> AWSInfraConfigStartResponse | DefaultResponse:
+) -> Union[AWSInfraConfigStartResponse, DefaultResponse]:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
@@ -1065,8 +1065,8 @@ async def api_awsinfra_config_start(
 
 @api.post("/awsinfra/check-role")
 def api_awsinfra_check_role(
-    request: AWSInfraTriggerOperationRequest | AWSInfraHandleRequest,
-) -> AWSInfraCheckRoleReceivedResponse | AWSInfaHandleResponse:
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraCheckRoleReceivedResponse, AWSInfaHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
@@ -1094,8 +1094,8 @@ def api_awsinfra_check_role(
 
 @api.post("/awsinfra/inventory-customer-account")
 def api_awsinfra_inventory_customer_account(
-    request: AWSInfraTriggerOperationRequest | AWSInfraHandleRequest,
-) -> AWSInfraInventoryCustomerAccountReceivedResponse | AWSInfaHandleResponse:
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfaHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
@@ -1132,8 +1132,8 @@ def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
 
 @api.post("/awsinfra/setup-ingestion")
 def api_awsinfra_setup_ingestion(
-    request: AWSInfraTriggerOperationRequest | AWSInfraHandleRequest,
-) -> AWSInfraSetupIngestionReceivedResponse | AWSInfaHandleResponse:
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraSetupIngestionReceivedResponse, AWSInfaHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
@@ -1159,8 +1159,8 @@ def api_awsinfra_setup_ingestion(
 
 @api.post("/awsinfra/teardown")
 def api_awsinfra_teardown(
-    request: AWSInfraTriggerOperationRequest | AWSInfraHandleRequest,
-) -> AWSInfraTeardownReceivedResponse | AWSInfaHandleResponse:
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraTeardownReceivedResponse, AWSInfaHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
