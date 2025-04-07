@@ -5,6 +5,7 @@ import string
 import secrets
 import json
 import boto3
+import os
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
@@ -30,6 +31,9 @@ def get_sqs_client():
     if MANAGEMENT_REQUEST_SQS_CLIENT is None:
         MANAGEMENT_REQUEST_SQS_CLIENT = boto3.client(
             "sqs",
+            # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            # aws_session_token=settings.AWS_SESSION_TOKEN,
         )
 
     return MANAGEMENT_REQUEST_SQS_CLIENT
@@ -165,10 +169,11 @@ def save_plan(canarydrop: Canarydrop, plan: str):
     # TODO: validate plan
     canarydrop.aws_saved_plan = plan
     #  queries.save_canarydrop(canarydrop)
-    variables = generate_tf_variables(canarydrop, json.loads(plan))
+    variables = generate_tf_variables(canarydrop, plan)
     upload_zip(
         canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
     )
+    return f"s3::https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip"
 
 
 def generate_tf_variables(canarydrop: Canarydrop, plan):
@@ -176,7 +181,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
         "s3_bucket_names": [],
         "s3_objects": [],
         "canarytoken_id": canarydrop.canarytoken.value(),
-        "cloudtrail_name": canarydrop.canarytoken.aws_infra_cloud_trail_name,
+        "cloudtrail_name": canarydrop.aws_infra_cloudtrail_name,
         "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
     }
     for bucket in plan["assets"]["S3Bucket"]:
@@ -198,11 +203,17 @@ def upload_zip(canarytoken_id, prefix, variables):
         f.write(json.dumps(variables))
 
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource(
+        "s3",
+        # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        # aws_session_token=settings.AWS_SESSION_TOKEN,
+    )
     s3.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
         archive, f"{prefix}/{canarytoken_id}/tf.zip"
     )
     shutil.rmtree(new_dir)
+    os.remove(archive)
 
 
 def generate_cloudtrail_name():
