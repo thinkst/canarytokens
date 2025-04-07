@@ -1,6 +1,6 @@
 <template>
   <Form
-    class="w-[80%] flex flex-col"
+    class="w-[80%] flex flex-col mt-24"
     :initial-values="initialValues"
     :validation-schema="schema"
     @submit="onSubmit"
@@ -10,76 +10,87 @@
       name="S3Bucket"
     >
       <div class="flex justify-between items-center mb-16">
-        <h3 class="font-bold">S3 Buckets</h3>
+        <h3 class="font-semibold text-grey-400 text-xl">S3 Buckets</h3>
         <BaseButton
           icon="plus"
           @click="
             handleAddInstance(pushBucket, INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET])
           "
-          >New Bucket</BaseButton
+          >Add Bucket</BaseButton
         >
       </div>
-      <fieldset
-        v-for="(bucket, index) in buckets"
-        :key="bucket.key"
-        class="border bg-white rounded-2xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out justify-between token-card items-center p-24 mb-24"
-      >
-        <div class="flex justify-between items-center mb-24">
-          <legend class="text-md font-semibold text-grey-400">
-            S3Bucket #{{ index + 1 }}
-          </legend>
-          <BaseButton
-            icon="xmark"
-            variant="danger"
-            @click="handleRemoveInstance(removeBucket, index)"
-            >Remove Bucket</BaseButton
-          >
-        </div>
-        <PlanCreatorTextField
-          :id="`bucket_name_${index}`"
-          v-model="buckets[index].value.bucket_name"
-          :name="`S3Bucket[${index}].bucket_name`"
-          label="S3Bucket Name"
-          :has-remove="false"
-        />
-        <FieldArray
-          v-slot="{ fields: objects, push: pushObj, remove: removeObj }"
-          :name="`S3Bucket[${index}].objects`"
+      <div class="grid md:grid-cols-1 xl:grid-cols-2 gap-24">
+        <fieldset
+          v-for="(bucket, index) in buckets"
+          :key="bucket.key"
+          class="border bg-white rounded-2xl top-[0px] shadow-solid-shadow-grey border-grey-200 justify-between items-center p-24 mb-24"
         >
-          <ul
-            class="border-grey-300 border border-solid rounded-3xl p-16 mt-16"
-          >
-            <li class="flex justify-between items-center mb-16">
-              <h4 class="text-md font-semibold text-grey-400">Objects</h4>
-              <BaseButton
-                icon="plus"
-                @click="
-                  handleAddInstance(
-                    pushObj,
-                    INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET_OBJECT]
-                  )
+          <div class="flex justify-between items-center mb-24">
+            <div class="flex flex-row gap-16 justify-between items-center">
+              <img
+                :src="
+                  getImageUrl(`aws_infra_icons/${INSTANCE_TYPE.S3BUCKET}.svg`)
                 "
-                >Add Object</BaseButton
-              >
-            </li>
-            <fieldset
-              v-for="(object, indexObj) in objects"
-              :key="object.object_path"
-            >
-              <PlanCreatorTextField
-                :id="`${index}_objects_path_${indexObj}`"
-                v-model="buckets[index].value.objects[indexObj].object_path"
-                :name="`S3Bucket[${index}].objects[${indexObj}].object_path`"
-                label="Object Path"
-                :has-remove="true"
-                @handle-remove-instance="
-                  handleRemoveInstance(removeObj, indexObj)
-                "
+                alt="logo-s3-bucket"
+                class="rounded-full h-[2.5rem] w-[2.5rem]"
               />
-            </fieldset>
-          </ul>
-        </FieldArray>
-      </fieldset>
+              <legend class="text-md font-semibold text-grey-400">
+                S3Bucket #{{ index + 1 }}
+              </legend>
+            </div>
+            <BaseButton
+              icon="xmark"
+              variant="danger"
+              @click="handleRemoveInstance(removeBucket, index)"
+              >Remove Bucket</BaseButton
+            >
+          </div>
+          <PlanCreatorTextField
+            :id="`bucket_name_${index}`"
+            v-model="buckets[index].value.bucket_name"
+            :name="`S3Bucket[${index}].bucket_name`"
+            label="S3Bucket Name"
+            :has-remove="false"
+          />
+          <FieldArray
+            v-slot="{ fields: objects, push: pushObj, remove: removeObj }"
+            :name="`S3Bucket[${index}].objects`"
+          >
+            <ul
+              class="border-grey-300 border border-solid rounded-3xl p-16 mt-16"
+            >
+              <li class="flex justify-between items-center mb-16">
+                <h4 class="text-md font-semibold text-grey-400">Objects</h4>
+                <BaseButton
+                  icon="plus"
+                  @click="
+                    handleAddInstance(
+                      pushObj,
+                      INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET_OBJECT]
+                    )
+                  "
+                  >Add Object</BaseButton
+                >
+              </li>
+              <fieldset
+                v-for="(object, indexObj) in objects"
+                :key="object.indexObj"
+              >
+                <PlanCreatorTextField
+                  :id="`${index}_objects_path_${indexObj}`"
+                  v-model="buckets[index].value.objects[indexObj].object_path"
+                  :name="`S3Bucket[${index}].objects[${indexObj}].object_path`"
+                  label="Object Path"
+                  :has-remove="true"
+                  @handle-remove-instance="
+                    handleRemoveInstance(removeObj, indexObj)
+                  "
+                />
+              </fieldset>
+            </ul>
+          </FieldArray>
+        </fieldset>
+      </div>
     </FieldArray>
     <BaseButton
       v-if="!isLoading"
@@ -92,45 +103,18 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
-import PlanCreatorTextField from '@/components/tokens/aws_infra/PlanCreatorTextField.vue';
 import * as yup from 'yup';
+import {
+  INSTANCE_TYPE,
+  INSTANCE_DATA,
+} from '@/components/tokens/aws_infra/constants.ts';
+import getImageUrl from '@/utils/getImageUrl';
+import PlanCreatorTextField from '@/components/tokens/aws_infra/PlanCreatorTextField.vue';
 
-const INSTANCE_TYPE = {
-  S3BUCKET: 'S3Bucket',
-  S3BUCKET_OBJECT: 'object_path',
-  //   SQSQUEUE: 'SQSQueue',
-  //   SSMPARAMETER: 'SSMParameter',
-  //   SECRETMANAGERSECRET: 'SecretsManagerSecret',
-  //   DYNAMODBTABLE: 'DynamoDBTable',
-} as const;
-
-const INSTANCE_DATA = {
-  [INSTANCE_TYPE.S3BUCKET]: {
-    bucket_name: '',
-    objects: [],
-  },
-  [INSTANCE_TYPE.S3BUCKET_OBJECT]: {
-    object_path: '',
-  },
-  //   [INSTANCE_TYPE.SQSQUEUE]: {
-  //     queue_name: '',
-  //     message_count: null,
-  //   },
-  //   [INSTANCE_TYPE.SSMPARAMETER]: {
-  //     ssm_parameter_name: '',
-  //     ssm_parameter_value: '',
-  //   },
-  //   [INSTANCE_TYPE.SECRETMANAGERSECRET]: {
-  //     secretsmanager_secret_name: '',
-  //     secretsmanager_secret_value: '',
-  //   },
-  //   [INSTANCE_TYPE.DYNAMODBTABLE]: {
-  //     dynamodb_name: '',
-  //     dynamodb_partition_key: '',
-  //     dynamodb_row_count: '',
-  //   },
-};
+const isLoading = ref();
+const emits = defineEmits(['updateStep']);
 
 const initialValues = {
   S3Bucket: [
@@ -169,18 +153,22 @@ const schema = yup.object().shape({
     .strict(),
 });
 
-function handleRemoveInstance(callback: () => void, index: number) {
+function handleRemoveInstance(
+  callback: (index: number) => void,
+  index: number
+) {
   callback(index);
 }
 
 function handleAddInstance(
-  callback: () => void,
+  callback: (instanceType: typeof INSTANCE_DATA) => void,
   instanceType: typeof INSTANCE_DATA
 ) {
   callback(instanceType);
 }
 
-function onSubmit(values) {
+function onSubmit(values: any) {
+  emits('updateStep');
   console.log(JSON.stringify(values, null, 2));
 }
 </script>

@@ -40,7 +40,7 @@ const props = defineProps<{
   tokenData: any;
 }>();
 
-const currentStep = ref(4);
+const currentStep = ref(1);
 const sharedData = ref(Array(5).fill({}));
 
 const stepComponents = ref({
@@ -66,8 +66,9 @@ function handleStoreFetchedData(data) {
 
 <style>
 .step-title {
-  font-size: 1.3rem;
+  font-size: 2rem;
   margin-bottom: 1.5rem;
+  margin-top: 1rem;
   text-align: center;
 }
 </style>

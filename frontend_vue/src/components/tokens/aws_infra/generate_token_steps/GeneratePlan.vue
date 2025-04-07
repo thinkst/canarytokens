@@ -2,7 +2,10 @@
   <h2 class="step-title">Proposed Plan</h2>
   <div v-if="isLoading">Loading...</div>
 
-  <PlanCreator v-if="!isLoading" />
+  <PlanCreator
+    v-if="!isLoading"
+    @update-step="handleSubmit"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -17,4 +20,8 @@ const props = defineProps<{
 }>();
 
 const isLoading = ref(false);
+
+function handleSubmit() {
+  emits('updateStep');
+}
 </script>

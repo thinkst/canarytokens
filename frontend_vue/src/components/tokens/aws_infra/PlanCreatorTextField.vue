@@ -29,7 +29,7 @@ It exists only for the AWS Infra Token POC.
         v-tooltip="{
           content: 'Regenerate content',
         }"
-        class="h-[2rem] w-[2rem] font-semibold text-white rounded-full bg-green hover:bg-green-300"
+        class="h-[2rem] w-[2rem] rounded-full bg-white hover:bg-green-50 hover:text-green-500 focus:text-green-500 disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none active:top-[0.15rem] focus-visible:outline-0 focus:bg-green-100 focus:border-green-200 focus:outline-0 text-green-600 border border-green-200;"
         aria-label="Regenerate input content"
         @click="emit('handleRegenerateInstance')"
       >
