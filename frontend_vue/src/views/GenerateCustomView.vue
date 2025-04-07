@@ -24,28 +24,25 @@ const selectedToken = ref(route.params['token'] || '');
 const tokenData = ref({});
 
 const loadComponent = async () => {
-  isLoading.value = true;
-  tokenData.value = getTokenData();
-
-  if (!selectedToken.value) {
-    isError.value = true;
-    return;
-  }
-
   try {
+    isLoading.value = true;
+
+    if (!selectedToken.value) {
+      throw new Error('Invalid token');
+    }
+    tokenData.value = getTokenData() || {};
+
     GenerateTokenCustomFlow.value = defineAsyncComponent(
       () =>
         import(
           `@/components/tokens/${selectedToken.value}/GenerateTokenCustomFlow.vue`
         )
     );
-    await GenerateTokenCustomFlow.value.__asyncLoader();
-
-    isLoading.value = false;
   } catch (error) {
-    isLoading.value = false;
+    console.error('Error loading component:', error);
     isError.value = true;
-    console.error(error);
+  } finally {
+    isLoading.value = false;
   }
 };
 

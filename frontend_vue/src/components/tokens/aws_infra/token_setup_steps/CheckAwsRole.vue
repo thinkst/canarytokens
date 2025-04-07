@@ -1,18 +1,6 @@
 <template>
-  <section class="w-full flex text-center flex-col items-center">
-    <div class="infra-token__title-wrapper">
-      <h2>
-        {{ isLoading || isError ? 'Checking Role...' : 'Role Checked!' }}
-      </h2>
-    </div>
-    <StepState
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are checking the role, hold on"
-      :error-message="errorMessage"
-      :is-success="isSuccess"
-      success-message="All set!"
-    />
+  <h2 class="step-title">Role checked!</h2>
+  <div v-if="isLoading">Loading...</div>
 
     <p v-if="isSuccess">
       Great, you’re set! <br />
@@ -39,11 +27,7 @@ import { requestAWSInfraRoleCheck } from '@/api/awsInfra.ts';
 import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';
 
-const emits = defineEmits([
-  'updateStep',
-  'storeCurrentStepData',
-  'isSettingError',
-]);
+const emits = defineEmits(['updateStep', 'storeFetchedData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;

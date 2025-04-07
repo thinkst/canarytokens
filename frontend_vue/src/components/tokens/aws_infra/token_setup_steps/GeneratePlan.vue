@@ -32,7 +32,7 @@ import StepState from '../StepState.vue';
 import type { TokenDataType } from '@/utils/dataService';
 import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
 
-const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
+const emits = defineEmits(['updateStep', 'storeFetchedData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
