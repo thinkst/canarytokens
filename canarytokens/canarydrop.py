@@ -138,6 +138,7 @@ class Canarydrop(BaseModel):
     aws_saved_plan: Optional[dict]
     aws_tf_module_prefix: Optional[str]
     aws_infra_ingesting: Optional[bool]
+    aws_infra_cloudtrail_name: Optional[str]
 
     # Azure key specific stuff
     app_id: Optional[str]
