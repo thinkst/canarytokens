@@ -120,7 +120,7 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
             "canarytoken_id": canarydrop.canarytoken.value(),
             "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
             "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
-            "callback_domain": settings.AWS_INFRA_CALLBACK_DOMAIN,
+            "callback_domain": settings.DOMAINS[0],
         }
 
     elif operation == AWSInfraOperationType.TEARDOWN:
