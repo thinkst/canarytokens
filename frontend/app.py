@@ -51,6 +51,7 @@ from canarytokens.models import (
     AWSInfraInventoryCustomerAccountReceivedResponse,
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
+    AWSInfraSavePlanRequest,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraTeardownReceivedResponse,
     AWSInfraTriggerOperationRequest,
@@ -862,7 +863,6 @@ async def api_generate(  # noqa: C901  # gen is large
         if token_request_details.token_type == TokenTypes.WIREGUARD
         else None,
     )
-
     page = None
     if token_request_details.token_type == TokenTypes.PWA:
         page = "index.html"
@@ -1048,8 +1048,9 @@ async def api_awsinfra_config_start(
         request.canarytoken, request.auth_token
     )
     if (
-        canarydrop.aws_current_assets is not None
-        or canarydrop.aws_customer_iam_access_external_id is not None
+        canarydrop.aws_current_assets
+        is not None
+        # or canarydrop.aws_customer_iam_access_external_id is not None
     ):
         return DefaultResponse(
             result=False, message="Configuration has already started for this token."
@@ -1121,8 +1122,12 @@ def api_awsinfra_generate_data_choices():
 
 
 @api.post("/awsinfra/save-plan")
-def api_awsinfra_save_plan():
-    pass
+def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
+    canarydrop = get_canarydrop_and_authenticate(
+        request.canarytoken, request.auth_token
+    )
+    aws_infra.save_plan(canarydrop, request.plan)
+    return DefaultResponse(result=True, message="")
 
 
 @api.post("/awsinfra/setup-ingestion")
@@ -2319,6 +2324,7 @@ def _(
         [random.choice(string.ascii_letters + string.digits) for _ in range(27)]
     )
     canarydrop.aws_infra_ingesting = False
+    canarydrop.aws_infra_cloudtrail_name = aws_infra.generate_cloudtrail_name()
 
     save_canarydrop(canarydrop)
 
