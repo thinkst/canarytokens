@@ -1126,8 +1126,8 @@ def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
-    aws_infra.save_plan(canarydrop, request.plan)
-    return DefaultResponse(result=True, message="")
+    plan = aws_infra.save_plan(canarydrop, request.plan)
+    return DefaultResponse(result=True, message=plan)
 
 
 @api.post("/awsinfra/setup-ingestion")
