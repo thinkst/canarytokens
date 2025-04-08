@@ -7,6 +7,7 @@
   <Suspense>
     <component
       :is="currentComponent"
+      v-if="!isError"
       :step-data="sharedData[currentStep - 1]"
       @update-step="handleUpdateStep"
       @store-fetched-data="handleStoreFetchedData"
@@ -15,11 +16,13 @@
       <p>Loading next step...</p>
     </template>
   </Suspense>
+  <template v-if="isError"></template>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
+import { getTokenData } from '@/utils/dataService';
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./generate_token_steps/GenerateAwsSnippet.vue')
 );
@@ -40,13 +43,8 @@ type GenericFetchedDataType = {
   [key: string]: string;
 };
 
-const props = defineProps<{
-  tokenData: any;
-}>();
-
 const currentStep = ref(1);
 const sharedData = ref(Array(5).fill({}));
-
 const stepComponents = ref<
   Record<number, ReturnType<typeof defineAsyncComponent>>
 >({
@@ -55,6 +53,16 @@ const stepComponents = ref<
   3: InventoryAwsAccount,
   4: GeneratePlan,
   5: GenerateTerraformSnippet,
+});
+const isError = ref(false);
+
+onMounted(() => {
+  sharedData.value[0] = getTokenData();
+  if (sharedData.value[0] === null) {
+    isError.value = true;
+    // TODO: if there's no data here, user came from a wrong entry point
+    // Add here force push to HP
+  }
 });
 
 const currentComponent = computed(

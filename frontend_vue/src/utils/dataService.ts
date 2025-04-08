@@ -24,6 +24,5 @@ export function setTokenData(data: tokenDataType) {
 
 export function getTokenData() {
   const data = tokenData;
-  tokenData = null; // cleanup
   return data;
 }
