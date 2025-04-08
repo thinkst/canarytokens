@@ -88,14 +88,14 @@ export function triggerDemoCreditCardAlert(card_id: string, card_number: string)
     .then((response) => response);
 }
 
-export function getAWSinfraRoleSetupCommands(canarytoken: string, auth_token: string, region: string){
+export function requestAWSInfraRoleSetupCommands(canarytoken: string, auth_token: string, region: string){
     const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/config-start';
   return axios
     .post(url, { canarytoken, auth_token, region })
     .then((response) => response);
 }
 
-export function getAWSinfraCheckRole(canarytoken: string, auth_token: string, handle: string | null){
+export function requestAWSInfraRoleCheck(canarytoken: string, auth_token: string, handle: string | null){
       const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/check-role';
   return axios
     .post(url, { canarytoken, auth_token, handle })

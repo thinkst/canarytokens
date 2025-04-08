@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import type { tokenDataType } from '@/utils/dataService';
-import { getAWSinfraCheckRole } from '@/api/main.ts';
+import { requestAWSInfraRoleCheck } from '@/api/main.ts';
 import StepState from '../StepState.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
@@ -50,7 +50,7 @@ async function handleCheckRole() {
   isSuccess.value = false;
 
   try {
-    const res = await getAWSinfraCheckRole(token, auth_token, null);
+    const res = await requestAWSInfraRoleCheck(token, auth_token, null);
     if (res.status !== 200) {
       isLoading.value = false;
       isError.value = true;
@@ -60,7 +60,11 @@ async function handleCheckRole() {
 
     const handle = res.data.handle;
 
-    const resWithHandle = await getAWSinfraCheckRole(token, auth_token, handle);
+    const resWithHandle = await requestAWSInfraRoleCheck(
+      token,
+      auth_token,
+      handle
+    );
     if (resWithHandle.status !== 200) {
       isLoading.value = false;
       isError.value = true;

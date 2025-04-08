@@ -51,7 +51,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { getAWSinfraRoleSetupCommands } from '@/api/main.ts';
+import { requestAWSInfraRoleSetupCommands } from '@/api/main.ts';
 import type { tokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
 
@@ -75,7 +75,7 @@ async function handleGetAwsSnippet() {
   isLoading.value = true;
   isError.value = false;
   try {
-    const res = await getAWSinfraRoleSetupCommands(
+    const res = await requestAWSInfraRoleSetupCommands(
       token,
       auth_token,
       aws_region
