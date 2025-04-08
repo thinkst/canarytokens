@@ -8,14 +8,13 @@
       full-width
       required
     />
-    <!-- TODO: Add region dropdown values -->
-    <BaseFormTextField
+    <BaseFormSelect
       id="aws_region"
-      type="text"
-      placeholder="e.g. mordor-west-1"
       label="AWS Region"
-      full-width
+      :options="AWS_REGIONS"
+      placeholder="Select AWS region"
       required
+      searchable
     />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
@@ -25,4 +24,5 @@
 
 <script setup lang="ts">
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
+import { AWS_REGIONS } from './constants';
 </script>
