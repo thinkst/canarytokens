@@ -1,9 +1,12 @@
 <template>
-  <div class="mt-24 flex flex-col items-center">
+  <div class="my-16 flex flex-col items-center">
     <template v-if="isLoading">
       <p>{{ loadingMessage }}</p>
-      <BaseSpinner height="5rem" />
-      <p class="mt-24">Please don't close the window</p>
+      <BaseSpinner
+        height="5rem"
+        class="mt-24"
+      />
+      <p class="mt-24">Please don't close this window</p>
       <div
         v-if="isLongLoading"
         class="mt-24"
@@ -15,13 +18,6 @@
       <h2 class="text-red font-semibold">
         Oh no! Something didn't work as expected
       </h2>
-      <div class="bg-red rounded-full w-[5rem] h-[5rem] mt-16 text-center">
-        <font-awesome-icon
-          icon="xmark"
-          aria-hidden="true"
-          class="text-white p-16 text-[3rem] font-semibold"
-        />
-      </div>
       <BaseMessageBox
         v-if="errorMessage"
         :message="errorMessage"
@@ -30,11 +26,10 @@
       />
     </template>
     <template v-if="isSuccess">
-      <p>{{ successMessage }}</p>
       <font-awesome-icon
         icon="circle-check"
         aria-hidden="true"
-        class="text-green w-[6rem] h-[6rem] mt-24"
+        class="text-green w-[6rem] h-[6rem] mb-24"
       />
     </template>
   </div>

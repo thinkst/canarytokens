@@ -10,7 +10,9 @@
       v-if="!isError"
       :step-data="sharedData[currentStep - 1]"
       @update-step="handleUpdateStep"
-      @store-fetched-data="handleStoreFetchedData"
+      @store-current-step-data="
+        (data: GenericDataType) => handleStoreCurrentStepData(data)
+      "
     />
     <template #fallblack>
       <p>Loading next step...</p>
@@ -45,7 +47,7 @@ const GenerateTerraformSnippet = defineAsyncComponent(
   () => import('./generate_token_steps/GenerateTerraformSnippet.vue')
 );
 
-type GenericFetchedDataType = {
+type GenericDataType = {
   [key: string]: string;
 };
 
@@ -81,8 +83,8 @@ function handleUpdateStep() {
   currentStep.value++;
 }
 
-function handleStoreFetchedData(data: GenericFetchedDataType) {
-  sharedData.value[currentStep.value - 1] = data;
+function handleStoreCurrentStepData(data: GenericDataType) {
+  sharedData.value[currentStep.value] = data;
 }
 </script>
 
