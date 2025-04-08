@@ -3,13 +3,15 @@
     <h2 class="step-title">
       {{ isLoading ? 'Generating Snippet...' : 'Generate Snippet' }}
     </h2>
-    <h3
-      v-if="!isLoading || !isError"
-      class="text-gray-700"
-    >
-      To inventory your resources and suggest an optimal plan, we need you to
-      create a role in your account.
-    </h3>
+    <div v-if="!isLoading || !isError">
+      <p class="text-gray-700">
+        To inventory your resources and suggest an optimal plan, we need you to
+        create a role in your account.
+      </p>
+      <p class="text-gray-700">
+        This is a placeholder paragraph where we specify the account permission.
+      </p>
+    </div>
     <StepState
       v-if="isLoading || isError"
       :is-loading="isLoading"
@@ -107,11 +109,9 @@ function formatSnippet(snippet: string) {
 </script>
 
 <style scoped>
-
 .wrap-code {
   :deep(pre) > code {
     white-space: pre-wrap;
   }
 }
-
 </style>

@@ -69,17 +69,18 @@ async function handleCheckRole() {
       isError.value = true;
       errorMessage.value = res.data.error_message;
     }
-    console.log(res.data, 'res one!');
 
     const handle = res.data.handle;
-
     const resWithHandle = await requestAWSInfraRoleCheck({
       handle,
     });
-    if (resWithHandle.status !== 200) {
+    if (
+      !resWithHandle.data.result &&
+      !resWithHandle.data.session_credentials_retrieved
+    ) {
       isLoading.value = false;
       isError.value = true;
-      errorMessage.value = resWithHandle.data.error_message;
+      errorMessage.value = resWithHandle.data.error;
     }
     // console.log(JSON.parse(resWithHandle.data), 'json!');
     console.log(resWithHandle.data, 'resWithHandle!');
@@ -92,4 +93,5 @@ async function handleCheckRole() {
     isLoading.value = false;
   }
 }
+
 </script>

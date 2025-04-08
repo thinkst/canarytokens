@@ -6,7 +6,7 @@
         height="5rem"
         class="mt-24"
       />
-      <p class="mt-24">Please don't close the window</p>
+      <p class="mt-24">Please don't close this window</p>
       <div
         v-if="isLongLoading"
         class="mt-24"
