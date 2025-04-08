@@ -29,7 +29,7 @@
         :label="`Command #${index + 1}`"
         :code="formatSnippet(command)"
         custom-height="100px"
-        class="md:max-w-[60%] mt-16"
+        class="md:max-w-[600px] max-w-[350px] mt-16"
       />
       <BaseButton
         class="mt-40"
@@ -97,6 +97,9 @@ async function handleGetAwsSnippet() {
 }
 
 function formatSnippet(snippet: string) {
-  return snippet.replace(/ --/g, '\n--');
+  return snippet
+    .replace(/{/g, '{\n')
+    .replace(/\s+/g, ' ')
+    .replace(/ --/g, '\n--');
 }
 </script>
