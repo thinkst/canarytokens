@@ -3,18 +3,20 @@
     <h2 class="step-title">
       {{ isLoading ? 'Generating Snippet...' : 'Generate Snippet' }}
     </h2>
-    <h3
-      v-if="!isLoading"
-      class="text-gray-700"
-    >
-      To inventory your resources and suggest an optimal plan, we need you to
-      create a role in your account.
-    </h3>
+    <div v-if="!isLoading || !isError">
+      <p class="text-gray-700">
+        To inventory your resources and suggest an optimal plan, we need you to
+        create a role in your account.
+      </p>
+      <p class="text-gray-700">
+        This is a placeholder paragraph where we specify the account permission.
+      </p>
+    </div>
     <StepState
       v-if="isLoading || isError"
       :is-loading="isLoading"
       :is-error="isError"
-      loading-message="We are checking the role, hold on..."
+      loading-message="We are generating the snippet, hold on"
       :error-message="errorMessage"
     />
     <div
@@ -29,7 +31,7 @@
         :label="`Command #${index + 1}`"
         :code="formatSnippet(command)"
         custom-height="100px"
-        class="md:max-w-[600px] max-w-[350px] mt-16"
+        class="md:max-w-[600px] max-w-[350px] mt-16 wrap-code"
       />
       <BaseButton
         class="mt-40"
@@ -51,11 +53,11 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { getAWSinfraRoleSetupCommands } from '@/api/main.ts';
+import { requestAWSInfraRoleSetupCommands } from '@/api/main.ts';
 import type { tokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
 
-const emits = defineEmits(['updateStep', 'storeFetchedData']);
+const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
   stepData: tokenDataType;
@@ -75,7 +77,7 @@ async function handleGetAwsSnippet() {
   isLoading.value = true;
   isError.value = false;
   try {
-    const res = await getAWSinfraRoleSetupCommands(
+    const res = await requestAWSInfraRoleSetupCommands(
       token,
       auth_token,
       aws_region
@@ -87,6 +89,7 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
+    emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
     isLoading.value = false;
@@ -97,9 +100,18 @@ async function handleGetAwsSnippet() {
 }
 
 function formatSnippet(snippet: string) {
-  return snippet
-    .replace(/{/g, '{\n')
-    .replace(/\s+/g, ' ')
-    .replace(/ --/g, '\n--');
+  // return snippet
+  //   .replace(/{/g, '{\n')
+  //   .replace(/\s+/g, ' ')
+  //   .replace(/ --/g, '\n--');
+  return snippet;
 }
 </script>
+
+<style scoped>
+.wrap-code {
+  :deep(pre) > code {
+    white-space: pre-wrap;
+  }
+}
+</style>

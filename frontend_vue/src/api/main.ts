@@ -27,6 +27,18 @@ export type SettingsTokenType = {
   setting: EnableSettingsOptionType;
 };
 
+type AWSInfraRoleCheckType = {
+  canarytoken?: string;
+  auth_token?: string;
+  handle?: string;
+};
+
+type AWSInventoryType = {
+  canarytoken?: string;
+  auth_token?: string;
+  handle?: string;
+};
+
 export function generateToken(form: any) {
   const formData = new FormData();
   Object.entries(form).forEach(([key, val]) => {
@@ -34,44 +46,32 @@ export function generateToken(form: any) {
   });
 
   const url = '/d3aece8093b71007b5ccfedad91ebb11/generate';
-  return axios
-    .post(url, formData)
-    .then((response) => response);
+  return axios.post(url, formData).then((response) => response);
 }
 
 export function manageToken(params: TokenAuthType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/manage';
-  return axios
-    .get(url, { params })
-    .then((response) => response);
+  return axios.get(url, { params }).then((response) => response);
 }
 
 export function downloadAsset(params: DownloadAssetType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/download';
-  return axios
-    .get(url, { params })
-    .then((response) => response);
+  return axios.get(url, { params }).then((response) => response);
 }
 
 export function settingsToken(params: SettingsTokenType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/settings';
-  return axios
-    .post(url, params)
-    .then((response) => response);
+  return axios.post(url, params).then((response) => response);
 }
 
 export function historyToken(params: TokenAuthType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/history';
-  return axios
-    .get(url, { params })
-    .then((response) => response);
+  return axios.get(url, { params }).then((response) => response);
 }
 
 export function deleteToken(params: TokenAuthType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/delete';
-  return axios
-    .post(url, params)
-    .then((response) => response);
+  return axios.post(url, params).then((response) => response);
 }
 
 export function getCreditCardDetails(cf_turnstile_response: string) {
@@ -81,16 +81,50 @@ export function getCreditCardDetails(cf_turnstile_response: string) {
     .then((response) => response);
 }
 
-export function triggerDemoCreditCardAlert(card_id: string, card_number: string) {
+export function triggerDemoCreditCardAlert(
+  card_id: string,
+  card_number: string
+) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/credit_card/demo/trigger';
-  return axios
-    .post(url, { card_id, card_number })
-    .then((response) => response);
+  return axios.post(url, { card_id, card_number }).then((response) => response);
 }
 
-export function getAWSinfraRoleSetupCommands(canarytoken: string, auth_token: string, region: string){
-    const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/config-start';
+export function requestAWSInfraRoleSetupCommands(
+  canarytoken: string,
+  auth_token: string,
+  region: string
+) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/config-start';
   return axios
     .post(url, { canarytoken, auth_token, region })
     .then((response) => response);
+}
+
+export function requestAWSInfraRoleCheck({
+  canarytoken,
+  auth_token,
+  handle,
+}: AWSInfraRoleCheckType) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/check-role';
+  const params = {
+    canarytoken,
+    auth_token,
+    handle,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
+}
+
+export function requestInventoryCustomerAccount({
+  canarytoken,
+  auth_token,
+  handle,
+}: AWSInventoryType) {
+  const url =
+    '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/inventory-customer-account';
+  const params = {
+    canarytoken,
+    auth_token,
+    handle,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
 }
