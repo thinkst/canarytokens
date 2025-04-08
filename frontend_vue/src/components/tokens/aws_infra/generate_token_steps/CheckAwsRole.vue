@@ -20,6 +20,14 @@
     >
       Continue to inventory</BaseButton
     >
+    <BaseButton
+      v-if="isError"
+      class="mt-40"
+      variant="secondary"
+      @click="handleCheckRole"
+    >
+      Try again
+    </BaseButton>
   </section>
 </template>
 
@@ -52,7 +60,10 @@ async function handleCheckRole() {
   isSuccess.value = false;
 
   try {
-    const res = await requestAWSInfraRoleCheck(token, auth_token, null);
+    const res = await requestAWSInfraRoleCheck({
+      canarytoken: token,
+      auth_token,
+    });
     if (res.status !== 200) {
       isLoading.value = false;
       isError.value = true;
@@ -62,11 +73,9 @@ async function handleCheckRole() {
 
     const handle = res.data.handle;
 
-    const resWithHandle = await requestAWSInfraRoleCheck(
-      token,
-      auth_token,
-      handle
-    );
+    const resWithHandle = await requestAWSInfraRoleCheck({
+      handle,
+    });
     if (resWithHandle.status !== 200) {
       isLoading.value = false;
       isError.value = true;
@@ -77,10 +86,10 @@ async function handleCheckRole() {
     emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
-    errorMessage.value = err;
+    errorMessage.value = err.message;
+    isSuccess.value = false;
   } finally {
     isLoading.value = false;
-    isSuccess.value = true;
   }
 }
 </script>

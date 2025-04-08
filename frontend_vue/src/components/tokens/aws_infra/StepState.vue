@@ -18,13 +18,6 @@
       <h2 class="text-red font-semibold">
         Oh no! Something didn't work as expected
       </h2>
-      <div class="bg-red rounded-full w-[5rem] h-[5rem] mt-16 text-center">
-        <font-awesome-icon
-          icon="xmark"
-          aria-hidden="true"
-          class="text-white p-16 text-[3rem] font-semibold"
-        />
-      </div>
       <BaseMessageBox
         v-if="errorMessage"
         :message="errorMessage"

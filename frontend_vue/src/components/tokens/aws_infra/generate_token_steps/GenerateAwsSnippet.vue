@@ -4,7 +4,7 @@
       {{ isLoading ? 'Generating Snippet...' : 'Generate Snippet' }}
     </h2>
     <h3
-      v-if="!isLoading"
+      v-if="!isLoading || !isError"
       class="text-gray-700"
     >
       To inventory your resources and suggest an optimal plan, we need you to
@@ -29,7 +29,7 @@
         :label="`Command #${index + 1}`"
         :code="formatSnippet(command)"
         custom-height="100px"
-        class="md:max-w-[600px] max-w-[350px] mt-16"
+        class="md:max-w-[600px] max-w-[350px] mt-16 wrap-code"
       />
       <BaseButton
         class="mt-40"
@@ -105,3 +105,13 @@ function formatSnippet(snippet: string) {
   return snippet;
 }
 </script>
+
+<style scoped>
+
+.wrap-code {
+  :deep(pre) > code {
+    white-space: pre-wrap;
+  }
+}
+
+</style>
