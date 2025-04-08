@@ -15,7 +15,7 @@
       <h2 class="text-red font-semibold">
         Oh no! Something didn't work as expected
       </h2>
-      <div class="bg-red rounded-full w-[5rem] h-[5rem] mt-16">
+      <div class="bg-red rounded-full w-[5rem] h-[5rem] mt-16 text-center">
         <font-awesome-icon
           icon="xmark"
           aria-hidden="true"
@@ -26,7 +26,7 @@
         v-if="errorMessage"
         :message="errorMessage"
         variant="danger"
-        class="max-w-[50%]"
+        class="min-w-[350px] mt-24"
       />
     </template>
     <template v-if="isSuccess">
@@ -44,9 +44,9 @@
 import { ref, watch } from 'vue';
 
 const props = defineProps<{
-  isLoading: boolean;
+  isLoading?: boolean;
   loadingMessage?: string;
-  isError: boolean;
+  isError?: boolean;
   errorMessage?: string;
   isSuccess?: boolean;
   successMessage?: string;

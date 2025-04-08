@@ -19,14 +19,17 @@
     />
     <div
       v-else
-      class="mt-16 flex items-center flex-col mt-40"
+      class="mt-16 flex items-center flex-col mt-40 text-left"
     >
+      <h2 class="font-semibold">Run these commands in your terminal:</h2>
       <BaseCodeSnippet
+        v-for="(command, index) in codeSnippetCommands"
+        :key="command"
         lang="bash"
-        label="Run this command in your terminal"
-        :code="codeSnippet"
+        :label="`Command #${index + 1}`"
+        :code="formatSnippet(command)"
         custom-height="100px"
-        class="md:max-w-[60%]"
+        class="md:max-w-[60%] mt-16"
       />
       <BaseButton
         class="mt-40"
@@ -47,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { getAWSinfraRoleSetupCommands } from '@/api/main.ts';
 import type { tokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
@@ -63,10 +66,6 @@ const isError = ref(false);
 const errorMessage = ref('');
 const codeSnippetCommands = ref<string[]>([]);
 const { token, auth_token, aws_region } = props.stepData;
-
-const codeSnippet = computed(() => {
-  return codeSnippetCommands.value.join('\n');
-});
 
 onMounted(async () => {
   await handleGetAwsSnippet();
@@ -87,13 +86,7 @@ async function handleGetAwsSnippet() {
       res.data.error_message = errorMessage;
     }
     isLoading.value = false;
-    // codeSnippetCommands.value = res.data.role_setup_commands as string[];
-    // Mocked value: remove when backend is aligned
-    codeSnippetCommands.value = [
-      'aws iam create-role --role-name something something',
-      'aws iam create-role --role-name something something',
-      'aws iam create-role --role-name something something',
-    ];
+    codeSnippetCommands.value = res.data.role_setup_commands as string[];
   } catch (err: any) {
     isError.value = true;
     isLoading.value = false;
@@ -101,5 +94,9 @@ async function handleGetAwsSnippet() {
   } finally {
     isLoading.value = false;
   }
+}
+
+function formatSnippet(snippet: string) {
+  return snippet.replace(/ --/g, '\n--');
 }
 </script>

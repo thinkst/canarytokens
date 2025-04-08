@@ -16,13 +16,19 @@
       <p>Loading next step...</p>
     </template>
   </Suspense>
-  <template v-if="isError"></template>
+  <StepState
+    v-if="isError"
+    :is-error="isError"
+    error-message="We couldn't start the process. You'll be redirected to the Home Page."
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
+import { useRouter } from 'vue-router';
 import { getTokenData } from '@/utils/dataService';
+import StepState from './StepState.vue';
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./generate_token_steps/GenerateAwsSnippet.vue')
 );
@@ -43,6 +49,7 @@ type GenericFetchedDataType = {
   [key: string]: string;
 };
 
+const router = useRouter();
 const currentStep = ref(1);
 const sharedData = ref(Array(5).fill({}));
 const stepComponents = ref<
@@ -60,8 +67,9 @@ onMounted(() => {
   sharedData.value[0] = getTokenData();
   if (sharedData.value[0] === null) {
     isError.value = true;
-    // TODO: if there's no data here, user came from a wrong entry point
-    // Add here force push to HP
+    setTimeout(() => {
+      router.push('/');
+    }, 5000);
   }
 });
 
