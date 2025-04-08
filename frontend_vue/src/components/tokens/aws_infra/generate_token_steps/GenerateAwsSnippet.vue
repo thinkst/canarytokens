@@ -14,7 +14,7 @@
       v-if="isLoading || isError"
       :is-loading="isLoading"
       :is-error="isError"
-      loading-message="We are checking the role, hold on..."
+      loading-message="We are generating the snippet, hold on"
       :error-message="errorMessage"
     />
     <div
@@ -55,7 +55,7 @@ import { getAWSinfraRoleSetupCommands } from '@/api/main.ts';
 import type { tokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
 
-const emits = defineEmits(['updateStep', 'storeFetchedData']);
+const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
   stepData: tokenDataType;
@@ -87,6 +87,7 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
+    emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
     isLoading.value = false;
@@ -97,9 +98,10 @@ async function handleGetAwsSnippet() {
 }
 
 function formatSnippet(snippet: string) {
-  return snippet
-    .replace(/{/g, '{\n')
-    .replace(/\s+/g, ' ')
-    .replace(/ --/g, '\n--');
+  // return snippet
+  //   .replace(/{/g, '{\n')
+  //   .replace(/\s+/g, ' ')
+  //   .replace(/ --/g, '\n--');
+  return snippet;
 }
 </script>

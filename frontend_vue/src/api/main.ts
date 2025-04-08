@@ -94,3 +94,10 @@ export function getAWSinfraRoleSetupCommands(canarytoken: string, auth_token: st
     .post(url, { canarytoken, auth_token, region })
     .then((response) => response);
 }
+
+export function getAWSinfraCheckRole(canarytoken: string, auth_token: string, handle: string | null){
+      const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/check-role';
+  return axios
+    .post(url, { canarytoken, auth_token, handle })
+    .then((response) => response);
+}

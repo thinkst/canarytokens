@@ -1,8 +1,11 @@
 <template>
-  <div class="mt-24 flex flex-col items-center">
+  <div class="my-16 flex flex-col items-center">
     <template v-if="isLoading">
       <p>{{ loadingMessage }}</p>
-      <BaseSpinner height="5rem" />
+      <BaseSpinner
+        height="5rem"
+        class="mt-24"
+      />
       <p class="mt-24">Please don't close the window</p>
       <div
         v-if="isLongLoading"
@@ -30,11 +33,10 @@
       />
     </template>
     <template v-if="isSuccess">
-      <p>{{ successMessage }}</p>
       <font-awesome-icon
         icon="circle-check"
         aria-hidden="true"
-        class="text-green w-[6rem] h-[6rem] mt-24"
+        class="text-green w-[6rem] h-[6rem] mb-24"
       />
     </template>
   </div>
