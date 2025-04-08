@@ -71,9 +71,19 @@ async function handleCheckRole() {
     }
 
     const handle = res.data.handle;
-    const resWithHandle = await requestAWSInfraRoleCheck({
-      handle,
-    });
+
+    // mocked result
+    const resWithHandle = {
+      data: {
+        result: true,
+        session_credentials_retrieved: true,
+        error: ''
+      }
+    }
+    // const resWithHandle = await requestAWSInfraRoleCheck({
+    //   handle,
+    // });
+
     if (
       !resWithHandle.data.result &&
       !resWithHandle.data.session_credentials_retrieved
@@ -82,8 +92,8 @@ async function handleCheckRole() {
       isError.value = true;
       errorMessage.value = resWithHandle.data.error;
     }
-    // console.log(JSON.parse(resWithHandle.data), 'json!');
-    console.log(resWithHandle.data, 'resWithHandle!');
+
+    isSuccess.value = true;
     emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
