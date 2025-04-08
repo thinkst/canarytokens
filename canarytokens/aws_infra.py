@@ -18,7 +18,7 @@ settings = FrontendSettings()
 
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
-MANAGEMENT_REQUEST_SQS_CLIENT = None
+AWS_SESSION = None
 
 
 @dataclass
@@ -27,15 +27,24 @@ class Handle:
     response: Union[bool, str, dict]
 
 
+def get_session():
+    global AWS_SESSION
+    if AWS_SESSION is None:
+        os.environ["AWS_CONFIG_FILE"] = "/dev/null"
+        os.environ["AWS_SHARED_CREDENTIALS_FILE"] = "/dev/null"
+        AWS_SESSION = boto3.Session()
+    return AWS_SESSION
+
+
 def get_sqs_client():
     global MANAGEMENT_REQUEST_SQS_CLIENT
     if MANAGEMENT_REQUEST_SQS_CLIENT is None:
-        MANAGEMENT_REQUEST_SQS_CLIENT = boto3.client(
+        MANAGEMENT_REQUEST_SQS_CLIENT = get_session().client(
             "sqs",
             region_name="eu-west-1",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            aws_session_token=settings.AWS_SESSION_TOKEN,
+            # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            # aws_session_token=settings.AWS_SESSION_TOKEN,
         )
 
     return MANAGEMENT_REQUEST_SQS_CLIENT
@@ -205,12 +214,12 @@ def upload_zip(canarytoken_id, prefix, variables):
         f.write(json.dumps(variables))
 
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
-    s3 = boto3.resource(
+    s3 = get_session().resource(
         "s3",
         region_name="eu-west-1",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        aws_session_token=settings.AWS_SESSION_TOKEN,
+        # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        # aws_session_token=settings.AWS_SESSION_TOKEN,
     )
     s3.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
         archive, f"{prefix}/{canarytoken_id}/tf.zip"
