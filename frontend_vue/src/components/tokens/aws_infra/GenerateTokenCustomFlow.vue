@@ -7,6 +7,7 @@
   <Suspense>
     <component
       :is="currentComponent"
+      v-if="!isError"
       :step-data="sharedData[currentStep - 1]"
       @update-step="handleUpdateStep"
       @store-fetched-data="handleStoreFetchedData"
@@ -15,11 +16,19 @@
       <p>Loading next step...</p>
     </template>
   </Suspense>
+  <StepState
+    v-if="isError"
+    :is-error="isError"
+    error-message="We couldn't start the process. You'll be redirected to the Home Page."
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
+import { useRouter } from 'vue-router';
+import { getTokenData } from '@/utils/dataService';
+import StepState from './StepState.vue';
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./generate_token_steps/GenerateAwsSnippet.vue')
 );
@@ -40,13 +49,9 @@ type GenericFetchedDataType = {
   [key: string]: string;
 };
 
-const props = defineProps<{
-  tokenData: any;
-}>();
-
+const router = useRouter();
 const currentStep = ref(1);
 const sharedData = ref(Array(5).fill({}));
-
 const stepComponents = ref<
   Record<number, ReturnType<typeof defineAsyncComponent>>
 >({
@@ -55,6 +60,17 @@ const stepComponents = ref<
   3: InventoryAwsAccount,
   4: GeneratePlan,
   5: GenerateTerraformSnippet,
+});
+const isError = ref(false);
+
+onMounted(() => {
+  sharedData.value[0] = getTokenData();
+  if (sharedData.value[0] === null) {
+    isError.value = true;
+    setTimeout(() => {
+      router.push('/');
+    }, 5000);
+  }
 });
 
 const currentComponent = computed(

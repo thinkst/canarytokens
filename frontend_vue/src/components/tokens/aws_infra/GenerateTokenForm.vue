@@ -13,7 +13,7 @@
       id="aws_region"
       type="text"
       placeholder="e.g. mordor-west-1"
-      label="Region"
+      label="AWS Region"
       full-width
       required
     />
