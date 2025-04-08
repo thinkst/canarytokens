@@ -32,6 +32,7 @@ def get_sqs_client():
     if MANAGEMENT_REQUEST_SQS_CLIENT is None:
         MANAGEMENT_REQUEST_SQS_CLIENT = boto3.client(
             "sqs",
+            region_name="eu-west-1",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             aws_session_token=settings.AWS_SESSION_TOKEN,
@@ -206,6 +207,7 @@ def upload_zip(canarytoken_id, prefix, variables):
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
     s3 = boto3.resource(
         "s3",
+        region_name="eu-west-1",
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         aws_session_token=settings.AWS_SESSION_TOKEN,
