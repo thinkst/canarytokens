@@ -1,24 +1,26 @@
 <template>
-  <h2 class="step-title">
-    {{ isLoading || isError ? 'Checking Role...' : 'Role Checked!' }}
-  </h2>
-  <StepState
-    :is-loading="isLoading"
-    :is-error="isError"
-    loading-message="We are checking the role, hold on"
-    :error-message="errorMessage"
-    :is-success="isSuccess"
-    success-message="All set!"
-  />
+  <section class="w-full flex text-center flex-col items-center">
+    <h2 class="step-title">
+      {{ isLoading || isError ? 'Checking Role...' : 'Role Checked!' }}
+    </h2>
+    <StepState
+      :is-loading="isLoading"
+      :is-error="isError"
+      loading-message="We are checking the role, hold on"
+      :error-message="errorMessage"
+      :is-success="isSuccess"
+      success-message="All set!"
+    />
 
-  <p v-if="isSuccess">On the next step you'll be inventoring your account</p>
-  <BaseButton
-    v-if="isSuccess"
-    class="mt-40"
-    @click="emits('updateStep')"
-  >
-    Continue to inventory</BaseButton
-  >
+    <p v-if="isSuccess">On the next step you'll be inventoring your account</p>
+    <BaseButton
+      v-if="isSuccess"
+      class="mt-40"
+      @click="emits('updateStep')"
+    >
+      Continue to inventory</BaseButton
+    >
+  </section>
 </template>
 
 <script lang="ts" setup>

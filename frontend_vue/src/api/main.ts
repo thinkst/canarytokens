@@ -101,3 +101,10 @@ export function requestAWSInfraRoleCheck(canarytoken: string, auth_token: string
     .post(url, { canarytoken, auth_token, handle })
     .then((response) => response);
 }
+
+export function requestInventoryCustomerAccount(canarytoken: string, auth_token: string, handle: string | null){
+        const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/inventory-customer-account';
+  return axios
+    .post(url, { canarytoken, auth_token, handle })
+    .then((response) => response);
+}
