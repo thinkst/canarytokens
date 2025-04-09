@@ -1,7 +1,8 @@
 <template>
   <Form
+    v-slot="{ values, setFieldValue }"
     class="w-[80%] flex flex-col mt-24"
-    :initial-values="initialValues"
+    :initial-values="initialValues.assets"
     :validation-schema="schema"
     @submit="onSubmit"
   >
@@ -13,7 +14,9 @@
         <h3 class="font-semibold text-grey-400 text-xl">S3 Buckets</h3>
         <BaseButton
           icon="plus"
-          @click="
+          type="button"
+          :disabled="isMaxBuckets(values as AssetsTypes)"
+          @click.stop="
             handleAddInstance(pushBucket, INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET])
           "
           >Add Bucket</BaseButton
@@ -41,6 +44,7 @@
             <BaseButton
               icon="xmark"
               variant="danger"
+              type="button"
               @click="handleRemoveInstance(removeBucket, index)"
               >Remove Bucket</BaseButton
             >
@@ -51,6 +55,14 @@
             :name="`S3Bucket[${index}].bucket_name`"
             label="S3Bucket Name"
             :has-remove="false"
+            @handle-regenerate-instance.stop="
+              async (event, name) =>
+                await handleRegenerateInstancetName(
+                  INSTANCE_TYPE.S3BUCKET_OBJECT,
+                  name,
+                  setFieldValue
+                )
+            "
           />
           <FieldArray
             v-slot="{ fields: objects, push: pushObj, remove: removeObj }"
@@ -63,7 +75,7 @@
                 <h4 class="text-md font-semibold text-grey-400">Objects</h4>
                 <BaseButton
                   icon="plus"
-                  @click="
+                  @click.stop="
                     handleAddInstance(
                       pushObj,
                       INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET_OBJECT]
@@ -74,7 +86,7 @@
               </li>
               <fieldset
                 v-for="(object, indexObj) in objects"
-                :key="object.indexObj"
+                :key="object.object_path"
               >
                 <PlanCreatorTextField
                   :id="`${index}_objects_path_${indexObj}`"
@@ -82,8 +94,16 @@
                   :name="`S3Bucket[${index}].objects[${indexObj}].object_path`"
                   label="Object Path"
                   :has-remove="true"
-                  @handle-remove-instance="
+                  @handle-remove-instance.stop="
                     handleRemoveInstance(removeObj, indexObj)
+                  "
+                  @handle-regenerate-instance.stop="
+                    async (event, name) =>
+                      await handleRegenerateInstancetName(
+                        INSTANCE_TYPE.S3BUCKET_OBJECT,
+                        name,
+                        setFieldValue
+                      )
                   "
                 />
               </fieldset>
@@ -103,52 +123,88 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import * as yup from 'yup';
 import {
   INSTANCE_TYPE,
   INSTANCE_DATA,
 } from '@/components/tokens/aws_infra/constants.ts';
+import { generateDataChoice } from '@/api/main.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import PlanCreatorTextField from '@/components/tokens/aws_infra/PlanCreatorTextField.vue';
+import type {
+  PlanValueTypes,
+  S3ObjectType,
+  S3BucketType,
+  AssetsTypes,
+} from './types';
 
-type S3ObjectType = {
-  object_path: string;
-};
+const props = defineProps<{
+  proposedPlan: PlanValueTypes;
+  token: string;
+  authToken: string;
+}>();
 
-type S3BucketType = {
-  bucket_name: string;
-  objects: S3ObjectType[];
-};
-
-type ProcessedPlanType = {
-  S3Bucket: S3BucketType[];
-};
-
+const emits = defineEmits(['submitPlan']);
 const isLoading = ref();
-const emits = defineEmits(['updateStep']);
+const initialValues = ref<PlanValueTypes>({ assets: { S3Bucket: [] } });
 
-const initialValues: ProcessedPlanType = {
-  S3Bucket: [
-    {
-      bucket_name: 'decoy-bucket-1',
-      objects: [
-        {
-          object_path: 'foo/bar/object1',
-        },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-2',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/bar/object2' },
-        { object_path: 'moo/bar/object3' },
-      ],
-    },
-  ],
-};
+function isMaxBuckets(formValues: AssetsTypes) {
+  return formValues.S3Bucket.length >= 10;
+}
+
+function handleRemoveInstance(
+  callback: (index: number) => void,
+  index: number
+) {
+  callback(index);
+  console.log('event', event);
+}
+
+function handleAddInstance(
+  callback: (instance: S3BucketType | S3ObjectType) => void,
+  instanceType: S3BucketType | S3ObjectType
+) {
+  callback(instanceType);
+}
+
+async function handleRegenerateInstancetName(
+  fieldType: string,
+  name: string,
+  setFieldValue: (field: string, value: any) => void
+) {
+  return setFieldValue(name, 'test placeholder!');
+
+  // try {
+  //   const res = await generateDataChoice(
+  //     props.token,
+  //     props.authToken,
+  //     fieldType,
+  //     'somethingsomething'
+  //   );
+  //   if (res.status !== 200) {
+  //     // something
+  //   }
+  // } catch (err) {
+  // } finally {
+  //   // replace existing value
+  //   console.log('done!');
+  // }
+}
+
+function onSubmit(values: any) {
+  emits('submitPlan', { assets: values });
+  // console.log(JSON.stringify(values, null, 2));
+}
+
+watch(
+  () => props.proposedPlan,
+  (newPlan) => {
+    initialValues.value = newPlan;
+  },
+  { immediate: true }
+);
 
 const schema = yup.object().shape({
   S3Bucket: yup
@@ -165,23 +221,4 @@ const schema = yup.object().shape({
     )
     .strict(),
 });
-
-function handleRemoveInstance(
-  callback: (index: number) => void,
-  index: number
-) {
-  callback(index);
-}
-
-function handleAddInstance(
-  callback: (instance: S3BucketType | S3ObjectType) => void,
-  instanceType: S3BucketType | S3ObjectType
-) {
-  callback(instanceType);
-}
-
-function onSubmit(values: any) {
-  emits('updateStep');
-  console.log(JSON.stringify(values, null, 2));
-}
 </script>

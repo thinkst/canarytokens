@@ -4,6 +4,12 @@
     :steps="5"
     :current-step="currentStep"
   />
+  <!-- <button
+    type="button"
+    @click="currentStep--"
+  >
+    Back
+  </button> -->
   <Suspense>
     <component
       :is="currentComponent"

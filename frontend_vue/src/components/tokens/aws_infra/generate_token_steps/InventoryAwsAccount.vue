@@ -93,6 +93,7 @@ async function handleInventory() {
 
         // timeout
         if (Date.now() - startTime >= timeout) {
+          isLoading.value = false;
           isError.value = true;
           errorMessage.value = 'The operation took too long. Try again.';
           clearInterval(pollingInventoringInterval);
