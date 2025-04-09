@@ -2876,7 +2876,7 @@ class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
-    proposed_plan: dict[AWSInfraAssetType, AWSInfraAsset]
+    proposed_plan: dict
     error: str = ""
 
 
