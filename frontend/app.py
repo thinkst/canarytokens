@@ -52,6 +52,7 @@ from canarytokens.models import (
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
+    AWSInfraSavePlanResponse,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraTeardownReceivedResponse,
     AWSInfraTriggerOperationRequest,
@@ -1127,12 +1128,16 @@ def api_awsinfra_generate_data_choices():
 
 
 @api.post("/awsinfra/save-plan")
-def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
+def api_awsinfra_save_plan(
+    request: AWSInfraSavePlanRequest,
+) -> AWSInfraSavePlanResponse:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
     plan = aws_infra.save_plan(canarydrop, request.plan)
-    return DefaultResponse(result=True, message=plan)
+    return AWSInfraSavePlanResponse(
+        result=True, message="", terraform_module_source=plan
+    )
 
 
 @api.post("/awsinfra/setup-ingestion")
