@@ -2899,6 +2899,12 @@ class AWSInfraSavePlanRequest(BaseModel):
     plan: Any
 
 
+class AWSInfraSavePlanResponse(BaseModel):
+    result: bool
+    message: str = ""
+    terraform_module_source: str = ""
+
+
 class DefaultResponse(BaseModel):
     result: bool
     message: str = ""
