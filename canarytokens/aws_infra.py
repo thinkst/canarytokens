@@ -249,4 +249,4 @@ def generate_proposed_plan():
             ]
         }
     }
-    return json.dumps(plan)
+    return plan
