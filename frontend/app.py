@@ -1106,13 +1106,16 @@ def api_awsinfra_inventory_customer_account(
         return AWSInfaHandleResponse(handle=handle_id)
     handle_response = aws_infra.get_handle_response(request.handle)
     if handle_response.response_received:
+
         return AWSInfraInventoryCustomerAccountReceivedResponse(
             result=handle_response.response != "",
             message=""
             if handle_response.response != ""
             else "Handle lookup has timedout.",
             handle=request.handle,
-            proposed_plan=handle_response.response.get("proposed_plan"),
+            proposed_plan=""
+            if handle_response.response != ""
+            else aws_infra.generate_proposed_plan(canarydrop),
             error=handle_response.response.get("error"),
         )
     return AWSInfaHandleResponse(handle=request.handle)
