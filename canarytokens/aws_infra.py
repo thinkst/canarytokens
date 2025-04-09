@@ -10,7 +10,7 @@ import os
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType, AWSInfraOperationType
+from canarytokens.models import AWSInfraAssetType, AWSInfraOperationType, Canarytoken
 from canarytokens.settings import FrontendSettings
 
 
@@ -254,6 +254,6 @@ def generate_proposed_plan():
 
 def get_module_snippet(handle: str):
     canarydrop = queries.get_canarydrop(
-        queries.get_aws_management_lambda_handle(handle).get("canarytoken")
+        Canarytoken(queries.get_aws_management_lambda_handle(handle).get("canarytoken"))
     )
     return f' module "aws_ct" {{ source = https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip }}'
