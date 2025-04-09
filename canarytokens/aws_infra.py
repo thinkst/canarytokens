@@ -10,8 +10,9 @@ import os
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType, AWSInfraOperationType, Canarytoken
+from canarytokens.models import AWSInfraAssetType, AWSInfraOperationType
 from canarytokens.settings import FrontendSettings
+from canarytokens.tokens import Canarytoken
 
 
 settings = FrontendSettings()
