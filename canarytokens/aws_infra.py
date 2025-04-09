@@ -84,7 +84,7 @@ def get_role_commands(canarydrop: Canarydrop):
                 external_id=canarydrop.aws_customer_iam_access_external_id,
                 customer_aws_account=canarydrop.aws_account_id,
             )
-            .split("")
+            .split()
         )
         for role_command in ROLE_SETUP_COMMANDS_TEMPLATE
     ]
