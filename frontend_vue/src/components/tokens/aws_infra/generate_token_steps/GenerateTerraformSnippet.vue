@@ -3,7 +3,7 @@
     <h2 class="step-title">
       {{
         isLoading || isError
-          ? 'Loading Terraform module...'
+          ? 'Preparing the Terraform module...'
           : 'Terraform Module'
       }}
     </h2>
@@ -18,7 +18,7 @@
     />
     <div v-if="isSuccess">
       <h3 class="min-w-[350px]">
-        Add this module to your code and run ``terraform in it``
+        Add this module to your code and run ``terraform init``
       </h3>
       <BaseCodeSnippet
         lang="bash"
