@@ -128,3 +128,37 @@ export function requestInventoryCustomerAccount({
   };
   return axios.post(url, { ...params }).then((response) => response);
 }
+
+export function savePlan(canarytoken: string, auth_token: string, plan: any) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/save-plan';
+  return axios
+    .post(url, { canarytoken, auth_token, plan })
+    .then((response) => response);
+}
+
+export function generateDataChoice(
+  canarytoken: string,
+  auth_token: string,
+  asset_type: string,
+  asset_field: string
+) {
+  const url =
+    '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-data-choices';
+  return axios
+    .post(url, { canarytoken, auth_token, asset_type, asset_field })
+    .then((response) => response);
+}
+
+export function requestTerraformSnippet({
+  canarytoken,
+  auth_token,
+  handle,
+}: AWSInventoryType) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/setup-ingestion';
+  const params = {
+    canarytoken,
+    auth_token,
+    handle,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
+}
