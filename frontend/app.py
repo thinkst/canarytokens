@@ -1147,17 +1147,15 @@ def api_awsinfra_setup_ingestion(
         return AWSInfaHandleResponse(handle=handle_id)
     handle_response = aws_infra.get_handle_response(request.handle)
     if handle_response.response_received:
-        return (
-            AWSInfraSetupIngestionReceivedResponse(
-                result=handle_response.response != "",
-                message=""
-                if handle_response.response != ""
-                else "Handle lookup has timedout.",
-                handle=request.handle,
-                terraform_module_snippet=""
-                if handle_response.response == ""
-                else aws_infra.get_module_snippet(request.handle),
-            ),
+        return AWSInfraSetupIngestionReceivedResponse(
+            result=handle_response.response != "",
+            message=""
+            if handle_response.response != ""
+            else "Handle lookup has timedout.",
+            handle=request.handle,
+            terraform_module_snippet=""
+            if handle_response.response == ""
+            else aws_infra.get_module_snippet(request.handle),
         )
 
     return AWSInfaHandleResponse(handle=request.handle)
