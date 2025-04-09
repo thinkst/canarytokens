@@ -268,7 +268,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         elif canarydrop.type == TokenTypes.AWS_INFRA:
             content = json.load(request.content)
             log.debug(content)
-            token_hit = Canarytoken._parse_aws_infra_trigger(request)
+            token_hit = Canarytoken._parse_aws_infra_trigger(content)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
