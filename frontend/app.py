@@ -52,7 +52,6 @@ from canarytokens.models import (
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
-    AWSInfraSavePlanResponse,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraTeardownReceivedResponse,
     AWSInfraTriggerOperationRequest,
@@ -1128,16 +1127,12 @@ def api_awsinfra_generate_data_choices():
 
 
 @api.post("/awsinfra/save-plan")
-def api_awsinfra_save_plan(
-    request: AWSInfraSavePlanRequest,
-) -> AWSInfraSavePlanResponse:
+def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
-    plan = aws_infra.save_plan(canarydrop, request.plan)
-    return AWSInfraSavePlanResponse(
-        result=True, message="", terraform_module_source=plan
-    )
+    aws_infra.save_plan(canarydrop, request.plan)
+    return DefaultResponse(result=True, message="")
 
 
 @api.post("/awsinfra/setup-ingestion")
@@ -1154,16 +1149,19 @@ def api_awsinfra_setup_ingestion(
         return AWSInfaHandleResponse(handle=handle_id)
     handle_response = aws_infra.get_handle_response(request.handle)
     if handle_response.response_received:
-        return AWSInfraSetupIngestionReceivedResponse(
-            result=handle_response.response != "",
-            message=""
-            if handle_response.response != ""
-            else "Handle lookup has timedout.",
-            handle=request.handle,
-            terraform_module_snippet=handle_response.response.get(
-                "terraform_module_snippet"
+        return (
+            AWSInfraSetupIngestionReceivedResponse(
+                result=handle_response.response != "",
+                message=""
+                if handle_response.response != ""
+                else "Handle lookup has timedout.",
+                handle=request.handle,
+                terraform_module_snippet=""
+                if handle_response.response == ""
+                else aws_infra.get_module_snippet(request.handle),
             ),
         )
+
     return AWSInfaHandleResponse(handle=request.handle)
 
 
@@ -1177,7 +1175,9 @@ def api_awsinfra_teardown(
         )
         handle_id = aws_infra.create_handle(AWSInfraOperationType.TEARDOWN, canarydrop)
         return AWSInfaHandleResponse(handle=handle_id)
+
     handle_response = aws_infra.get_handle_response(request.handle)
+
     if handle_response.response_received:
         return AWSInfraTeardownReceivedResponse(
             result=handle_response.response != "",
