@@ -18,8 +18,6 @@ settings = FrontendSettings()
 
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
-AWS_SESSION = None
-MANAGEMENT_REQUEST_SQS_CLIENT = None
 
 
 @dataclass
@@ -29,26 +27,19 @@ class Handle:
 
 
 def get_session():
-    global AWS_SESSION
-    if AWS_SESSION is None:
-        os.environ["AWS_CONFIG_FILE"] = "/dev/null"
-        os.environ["AWS_SHARED_CREDENTIALS_FILE"] = "/dev/null"
-        AWS_SESSION = boto3.Session()
-    return AWS_SESSION
+    os.environ["AWS_CONFIG_FILE"] = "/dev/null"
+    os.environ["AWS_SHARED_CREDENTIALS_FILE"] = "/dev/null"
+    return boto3.Session()
 
 
 def get_sqs_client():
-    global MANAGEMENT_REQUEST_SQS_CLIENT
-    if MANAGEMENT_REQUEST_SQS_CLIENT is None:
-        MANAGEMENT_REQUEST_SQS_CLIENT = get_session().client(
-            "sqs",
-            region_name="eu-west-1",
-            # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            # aws_session_token=settings.AWS_SESSION_TOKEN,
-        )
-
-    return MANAGEMENT_REQUEST_SQS_CLIENT
+    return get_session().client(
+        "sqs",
+        region_name="eu-west-1",
+        # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        # aws_session_token=settings.AWS_SESSION_TOKEN,
+    )
 
 
 def generate_external_id():
@@ -57,7 +48,7 @@ def generate_external_id():
     )
 
 
-ROLE_SETUP_COMMNANDS_TEMPLATE = [
+ROLE_SETUP_COMMANDS_TEMPLATE = [
     """
     aws iam create-role --role-name $role_name --assume-role-policy-document
     \'{
@@ -85,15 +76,17 @@ ROLE_SETUP_COMMNANDS_TEMPLATE = [
 
 def get_role_commands(canarydrop: Canarydrop):
     return [
-        string.Template(role_command)
-        .safe_substitute(
-            role_name=settings.AWS_INFRA_INVENTORY_ROLE,
-            aws_account=settings.AWS_INFRA_AWS_ACCOUNT,
-            external_id=canarydrop.aws_customer_iam_access_external_id,
-            customer_aws_account=canarydrop.aws_account_id,
+        " ".join(
+            string.Template(role_command)
+            .safe_substitute(
+                role_name=settings.AWS_INFRA_INVENTORY_ROLE,
+                aws_account=settings.AWS_INFRA_AWS_ACCOUNT,
+                external_id=canarydrop.aws_customer_iam_access_external_id,
+                customer_aws_account=canarydrop.aws_account_id,
+            )
+            .split("")
         )
-        .replace("\n", "")
-        for role_command in ROLE_SETUP_COMMNANDS_TEMPLATE
+        for role_command in ROLE_SETUP_COMMANDS_TEMPLATE
     ]
 
 
@@ -154,8 +147,8 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
 
 def get_handle_response(handle_id):
     handle = queries.get_aws_management_lambda_handle(handle_id)
-    response = json.loads(handle.get("response_content"))
     if handle.get("response_received") == "True":
+        response = json.loads(handle.get("response_content"))
         return Handle(response_received=True, response=response)
     requested_time = datetime.strptime(
         handle.get("requested_timestamp"), "%Y-%m-%d %H:%M:%S"
