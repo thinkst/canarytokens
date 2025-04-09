@@ -7,7 +7,15 @@
     @submit="onSubmit"
   >
     <FieldArray
-      v-slot="{ fields: buckets, push: pushBucket, remove: removeBucket }"
+      v-slot="{
+        fields: buckets,
+        push: pushBucket,
+        remove: removeBucket,
+      }: {
+        fields: FieldEntry<S3BucketType | unknown>[];
+        push: (value: unknown) => void;
+        remove: (index: number) => void;
+      }"
       name="S3Bucket"
     >
       <div class="flex justify-between items-center mb-16">
@@ -51,7 +59,7 @@
           </div>
           <PlanCreatorTextField
             :id="`bucket_name_${index}`"
-            v-model="buckets[index].value.bucket_name"
+            v-model="(buckets[index].value as S3BucketType).bucket_name"
             :name="`S3Bucket[${index}].bucket_name`"
             label="S3Bucket Name"
             :has-remove="false"
@@ -86,11 +94,14 @@
               </li>
               <fieldset
                 v-for="(object, indexObj) in objects"
-                :key="object.object_path"
+                :key="(object.value as S3ObjectType).object_path"
               >
                 <PlanCreatorTextField
                   :id="`${index}_objects_path_${indexObj}`"
-                  v-model="buckets[index].value.objects[indexObj].object_path"
+                  v-model="
+                    (buckets[index].value as S3BucketType).objects[indexObj]
+                      .object_path
+                  "
                   :name="`S3Bucket[${index}].objects[${indexObj}].object_path`"
                   label="Object Path"
                   :has-remove="true"
@@ -125,12 +136,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
+import type { FieldEntry } from 'vee-validate';
 import * as yup from 'yup';
 import {
   INSTANCE_TYPE,
   INSTANCE_DATA,
 } from '@/components/tokens/aws_infra/constants.ts';
-import { generateDataChoice } from '@/api/main.ts';
+// import { generateDataChoice } from '@/api/main.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import PlanCreatorTextField from '@/components/tokens/aws_infra/PlanCreatorTextField.vue';
 import type {
