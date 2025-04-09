@@ -55,6 +55,8 @@ onMounted(async () => {
 });
 
 async function handleCheckRole() {
+  const POLL_INTERVAL = 5000;
+
   isLoading.value = true;
   isError.value = false;
   isSuccess.value = false;
@@ -67,41 +69,66 @@ async function handleCheckRole() {
     if (res.status !== 200) {
       isLoading.value = false;
       isError.value = true;
-      errorMessage.value = res.data.error_message;
+      errorMessage.value = res.data.message;
     }
 
     const handle = res.data.handle;
 
-    // mocked result
-    const resWithHandle = {
-      data: {
-        result: true,
-        session_credentials_retrieved: true,
-        error: ''
+    const startTime = Date.now();
+    const timeout = 5 * 60 * 1000; // 5 minutes
+
+    const pollInfraRoleCheck = async () => {
+      try {
+        const resWithHandle = await requestAWSInfraRoleCheck({ handle });
+
+        if (resWithHandle.status !== 200) {
+          isLoading.value = false;
+          isError.value = true;
+          errorMessage.value = resWithHandle.data.error;
+          clearInterval(pollingRoleInterval);
+          return;
+        }
+
+        if (resWithHandle.data.error) {
+          isLoading.value = false;
+          isError.value = true;
+          errorMessage.value = resWithHandle.data.error;
+          clearInterval(pollingRoleInterval);
+          return;
+        }
+
+        // timeout
+        if (Date.now() - startTime >= timeout) {
+          isError.value = true;
+          errorMessage.value = 'The operation took too long. Try again.';
+          clearInterval(pollingRoleInterval);
+          return;
+        }
+
+        // success
+        if (resWithHandle.data.session_credentials_retrieved) {
+          isLoading.value = false;
+          isSuccess.value = true;
+          emits('storeCurrentStepData', { token, auth_token });
+          clearInterval(pollingRoleInterval);
+          return;
+        }
+      } catch (err: any) {
+        isError.value = true;
+        errorMessage.value =
+          err.message || 'An error occurred while checking the Role. Try again';
+        clearInterval(pollingRoleInterval);
+        return;
+      } finally {
+        isLoading.value = false;
       }
-    }
-    // const resWithHandle = await requestAWSInfraRoleCheck({
-    //   handle,
-    // });
+    };
 
-    if (
-      !resWithHandle.data.result &&
-      !resWithHandle.data.session_credentials_retrieved
-    ) {
-      isLoading.value = false;
-      isError.value = true;
-      errorMessage.value = resWithHandle.data.error;
-    }
-
-    isSuccess.value = true;
-    emits('storeCurrentStepData', { token, auth_token });
+    const pollingRoleInterval = setInterval(pollInfraRoleCheck, POLL_INTERVAL);
   } catch (err: any) {
     isError.value = true;
     errorMessage.value = err.message;
     isSuccess.value = false;
-  } finally {
-    isLoading.value = false;
   }
 }
-
 </script>
