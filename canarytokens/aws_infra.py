@@ -204,7 +204,8 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
 
 
 def upload_zip(canarytoken_id, prefix, variables):
-    new_dir = shutil.copytree("../aws_ct_tf", f"aws_ct_tf_{canarytoken_id}")
+    # TODO: upload from /tmp
+    new_dir = shutil.copytree("../aws_ct_tf", f"/tmp/aws_ct_tf_{canarytoken_id}")
     with open(f"{new_dir}/decoy_vars.json", "w") as f:
         f.write(json.dumps(variables))
 
