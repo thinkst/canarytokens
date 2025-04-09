@@ -259,4 +259,4 @@ def get_module_snippet(handle: str):
             value=queries.get_aws_management_lambda_handle(handle).get("canarytoken")
         )
     )
-    return f' module "aws_ct" {{ source = https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip }}'
+    return f' module "aws_ct" {{ source = "https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip" }}'
