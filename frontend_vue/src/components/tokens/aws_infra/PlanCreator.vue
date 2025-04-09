@@ -1,7 +1,7 @@
 <template>
   <Form
     v-slot="{ values, setFieldValue }"
-    class="w-[80%] flex flex-col mt-24"
+    class="w-[80%] flex flex-col"
     :initial-values="initialValues.assets"
     :validation-schema="schema"
     @submit="onSubmit"
