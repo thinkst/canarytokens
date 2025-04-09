@@ -9,11 +9,19 @@
     success-message="All set!"
   />
   <PlanCreator
-    v-if="!isLoading"
+    v-if="!isLoading || !isSavingPlan"
     :proposed-plan="proposed_plan"
     :token="token"
     :auth-token="auth_token"
     @submit-plan="handleSubmit"
+  />
+  <StepState
+    :is-loading="isSavingPlan"
+    :is-error="isSaveError"
+    loading-message="Saving the plan..."
+    :error-message="errorMessage"
+    :is-success="isSaveSuccess"
+    success-message="Plan Saved!"
   />
 </template>
 
@@ -34,31 +42,35 @@ const isLoading = ref(true);
 const isError = ref(false);
 const isSuccess = ref(false);
 const errorMessage = ref('');
+const isSavingPlan = ref(false);
+const isSaveError = ref(false);
+const isSaveSuccess = ref(false);
 
 const { token, auth_token, proposed_plan } = props.stepData;
 
 isLoading.value = false;
 
 async function handleSavePlan(formValues: PlanValueTypes) {
-  isLoading.value = true;
-  isError.value = false;
-  isSuccess.value = false;
+  isSavingPlan.value = true;
+  isSaveError.value = false;
+  isSaveSuccess.value = false;
 
   try {
     const res = await savePlan(token, auth_token, formValues);
     if (res.status !== 200) {
-      isLoading.value = false;
-      isError.value = true;
+      isSavingPlan.value = false;
+      isSaveError.value = true;
       errorMessage.value = res.data.message;
     }
     emits('storeCurrentStepData', { token, auth_token });
     emits('updateStep');
   } catch (err: any) {
-    isError.value = true;
+    isSaveError.value = true;
     errorMessage.value = err.message;
-    isSuccess.value = false;
+    isSaveSuccess.value = false;
   } finally {
-    isLoading.value = false;
+    isSavingPlan.value = false;
+    isSaveSuccess.value = true;
   }
 }
 
