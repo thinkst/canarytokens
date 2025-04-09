@@ -106,6 +106,7 @@ def gather_data(
         if age > timedelta(days=MAX_PROCESS_AGE_DAYS):
             # Only check the last week's data
             break
+    print(f"Got {len(ignorable_tickets)} ignorable tickets from {num_tickets} tickets.")
     print(f"Got {len(data)} exposed keys from {num_tickets} tickets.")
 
     return data, ignorable_ids, error_ids
