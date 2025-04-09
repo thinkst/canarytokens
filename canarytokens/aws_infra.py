@@ -84,6 +84,7 @@ def get_role_commands(canarydrop: Canarydrop):
                 external_id=canarydrop.aws_customer_iam_access_external_id,
                 customer_aws_account=canarydrop.aws_account_id,
             )
+            .replace("\n", "")
             .split()
         )
         for role_command in ROLE_SETUP_COMMANDS_TEMPLATE
@@ -196,7 +197,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
                 {
                     "bucket": bucket["bucket_name"],
                     "key": s3_object["object_path"],
-                    "content": s3_object["content"],
+                    "content": "blah",
                 }
             )
     return tf_variables
@@ -224,3 +225,28 @@ def upload_zip(canarytoken_id, prefix, variables):
 
 def generate_cloudtrail_name():
     return f"trail-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
+
+
+def generate_proposed_plan(canarydrop: Canarydrop):
+    # TODO: generate
+    plan = {
+        "assets": {
+            "S3Bucket": [
+                {
+                    "bucket_name": "decoy-bucket-1",
+                    "objects": [
+                        {"object_path": "foo/bar/object1"},
+                        {"object_path": "foo/baz/object2"},
+                    ],
+                },
+                {
+                    "bucket_name": "decoy-bucket-2",
+                    "objects": [
+                        {"object_path": "moo/bar/object1"},
+                        {"object_path": "moo/baz/object2"},
+                    ],
+                },
+            ]
+        }
+    }
+    return json.dumps(plan)
