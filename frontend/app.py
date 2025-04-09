@@ -1113,7 +1113,7 @@ def api_awsinfra_inventory_customer_account(
             handle=request.handle,
             proposed_plan=""
             if handle_response.response == ""
-            else aws_infra.generate_proposed_plan(canarydrop),
+            else aws_infra.generate_proposed_plan(),
             error=handle_response.response.get("error"),
         )
     return AWSInfaHandleResponse(handle=request.handle)
