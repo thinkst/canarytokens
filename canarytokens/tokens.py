@@ -834,7 +834,7 @@ class Canarytoken(object):
     @staticmethod
     def _parse_aws_infra_trigger(request: Request) -> AWSInfraTokenHit:
 
-        event_details = json.loads(request.content.read().decode())
+        event_details = request.content.read().decode()
         hit_info = {
             "time_of_hit": datetime.utcnow().strftime("%s.%f"),
             "input_channel": INPUT_CHANNEL_HTTP,
