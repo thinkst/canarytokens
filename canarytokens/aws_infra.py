@@ -227,7 +227,7 @@ def generate_cloudtrail_name():
     return f"trail-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
 
 
-def generate_proposed_plan(canarydrop: Canarydrop):
+def generate_proposed_plan():
     # TODO: generate
     plan = {
         "assets": {
