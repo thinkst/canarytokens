@@ -838,7 +838,7 @@ class Canarytoken(object):
         hit_info = {
             "time_of_hit": datetime.utcnow().strftime("%s.%f"),
             "input_channel": INPUT_CHANNEL_HTTP,
-            "additional_info": {"details": body},
+            "additional_data": {"details": body},
         }
         return AWSInfraTokenHit(**hit_info)
 
