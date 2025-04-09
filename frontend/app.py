@@ -1112,7 +1112,7 @@ def api_awsinfra_inventory_customer_account(
             else "Handle lookup has timedout.",
             handle=request.handle,
             proposed_plan=""
-            if handle_response.response != ""
+            if handle_response.response == ""
             else aws_infra.generate_proposed_plan(canarydrop),
             error=handle_response.response.get("error"),
         )
