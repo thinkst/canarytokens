@@ -179,7 +179,6 @@ def save_plan(canarydrop: Canarydrop, plan: str):
     upload_zip(
         canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
     )
-    return f"s3::https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip"
 
 
 def generate_tf_variables(canarydrop: Canarydrop, plan):
@@ -251,3 +250,10 @@ def generate_proposed_plan():
         }
     }
     return plan
+
+
+def get_module_snippet(handle: str):
+    canarydrop = queries.get_canarydrop(
+        queries.get_aws_management_lambda_handle(handle).get("canarytoken")
+    )
+    return f' module "aws_ct" {{ source = https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip }}'
