@@ -1,0 +1,1 @@
+import{_ as n}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-BR9ORpqm.js";import{d as s,o as a,c as p}from"./index-J02tC-VD.js";const l=s({__name:"TokenDisplay",props:{tokenUrl:{}},setup(t){return(e,r)=>{const o=n;return a(),p(o,{lang:"php",label:"Canarytoken hostname","is-single-line":"",code:e.tokenUrl},null,8,["code"])}}});export{l as _};

@@ -1,0 +1,1 @@
+import{_ as n}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-BR9ORpqm.js";import{d as p,o as s,c as t}from"./index-J02tC-VD.js";const i=p({__name:"TokenDisplay",props:{tokenSnippet:{}},setup(c){return(e,_)=>{const o=n;return s(),t(o,{lang:"css",label:"CSS token",code:e.tokenSnippet},null,8,["code"])}}});export{i as _};

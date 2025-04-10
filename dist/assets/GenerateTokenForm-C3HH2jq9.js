@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-DAM8ia2_.js";import{d as o,o as r,c as n}from"./index-J02tC-VD.js";import"./BaseLabel.vue_vue_type_script_setup_true_lang-Dxm4nl72.js";const s=o({__name:"GenerateTokenForm",setup(a){return(m,t)=>(r(),n(e,{"memo-helper-example":"SVN token on REPO01/ourmainrepo"}))}});export{s as default};

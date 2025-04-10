@@ -1,0 +1,1 @@
+import{d as o,o as s,a,I as r}from"./index-J02tC-VD.js";const t=["for"],p=o({__name:"BaseLabel",props:{id:{}},setup(n){return(e,l)=>(s(),a("label",{for:e.id,class:"mb-4 ml-4 font-semibold"},[r(e.$slots,"default")],8,t))}});export{p as _};
