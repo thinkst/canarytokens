@@ -76,7 +76,6 @@
             v-slot="{ fields: objects, push: pushObj, remove: removeObj }"
             :name="`S3Bucket[${index}].objects`"
           >
-            {{ objects }}
             <ul
               class="border-grey-300 border border-solid rounded-3xl p-16 mt-16"
             >
