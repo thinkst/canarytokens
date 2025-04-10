@@ -155,7 +155,7 @@ import { TOKENS_TYPE } from './constants';
 import { tokenServices } from '@/utils/tokenServices';
 import { addViewTransition } from '@/utils/utils';
 import { setTokenData } from '@/utils/dataService.ts';
-import type { tokenDataType } from '@/utils/dataService.ts';
+import type { TokenDataType } from '@/utils/dataService.ts';
 
 enum ModalType {
   AddToken = 'addToken',
@@ -315,7 +315,8 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
 
     // if Token type has Custom Generate flow, go to custom page
     if (tokenServices[props.selectedToken].isCustomGenerateFlow) {
-      setTokenData(res.data as tokenDataType);
+      setTokenData({ ...res.data, ...formValues } as TokenDataType &
+        BaseFormValuesType);
       router.push({
         name: 'generate-token',
         params: {

@@ -1,6 +1,7 @@
 export type BaseFormValuesType = {
   email: string;
   memo: string;
+  [key: string]: string | number | undefined;
 };
 
 export interface QRCodeTokenBackendType extends NewTokenBackendType {
