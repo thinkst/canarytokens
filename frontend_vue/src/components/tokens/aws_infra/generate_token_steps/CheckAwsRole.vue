@@ -37,7 +37,11 @@ import type { tokenDataType } from '@/utils/dataService';
 import { requestAWSInfraRoleCheck } from '@/api/main.ts';
 import StepState from '../StepState.vue';
 
-const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
+const emits = defineEmits([
+  'updateStep',
+  'storeCurrentStepData',
+  'isSettingError',
+]);
 
 const props = defineProps<{
   stepData: tokenDataType;
@@ -51,6 +55,7 @@ const errorMessage = ref('');
 const { token, auth_token } = props.stepData;
 
 onMounted(async () => {
+  emits('isSettingError', false);
   await handleCheckRole();
 });
 
@@ -70,6 +75,7 @@ async function handleCheckRole() {
       isLoading.value = false;
       isError.value = true;
       errorMessage.value = res.data.message;
+      emits('isSettingError', true);
     }
 
     const handle = res.data.handle;
@@ -85,6 +91,7 @@ async function handleCheckRole() {
           isLoading.value = false;
           isError.value = true;
           errorMessage.value = resWithHandle.data.error;
+          emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
           return;
         }
@@ -93,6 +100,7 @@ async function handleCheckRole() {
           isLoading.value = false;
           isError.value = true;
           errorMessage.value = resWithHandle.data.error;
+          emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
           return;
         }
@@ -101,6 +109,7 @@ async function handleCheckRole() {
         if (Date.now() - startTime >= timeout) {
           isError.value = true;
           errorMessage.value = 'The operation took too long. Try again.';
+          emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
           return;
         }
@@ -117,6 +126,7 @@ async function handleCheckRole() {
         isError.value = true;
         errorMessage.value =
           err.message || 'An error occurred while checking the Role. Try again';
+        emits('isSettingError', true);
         clearInterval(pollingRoleInterval);
         return;
       } finally {
@@ -129,6 +139,7 @@ async function handleCheckRole() {
     isError.value = true;
     errorMessage.value = err.message;
     isSuccess.value = false;
+    emits('isSettingError', true);
   }
 }
 </script>
