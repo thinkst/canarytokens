@@ -12,7 +12,7 @@
       success-message="All set!"
     />
 
-    <p v-if="!isLoading || isError">
+    <p v-if="!isLoading && !isError">
       Next step will be to choose the resources to deploy on your AWS account
     </p>
     <BaseButton
