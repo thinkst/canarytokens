@@ -1,5 +1,7 @@
 <template>
-  <h2 class="step-title">Proposed Plan</h2>
+  <div class="infra-token__title-wrapper">
+    <h2>Proposed Plan</h2>
+  </div>
   <StepState
     :is-loading="isLoading"
     :is-error="isError"
@@ -30,12 +32,13 @@ import { ref } from 'vue';
 import { savePlan } from '@/api/main.ts';
 import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
 import StepState from '../StepState.vue';
+import type { TokenDataType } from '@/utils/dataService';
 import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: any;
+  stepData: TokenDataType;
 }>();
 
 const isLoading = ref(true);
