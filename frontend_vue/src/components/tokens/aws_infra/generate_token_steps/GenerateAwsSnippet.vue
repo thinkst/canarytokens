@@ -8,8 +8,10 @@
         To inventory your resources and suggest an optimal plan, we need you to
         create a role in your account.
       </p>
-      <p class="text-gray-700">
-        This is a placeholder paragraph where we specify the account permission.
+      <p class="text-gray-700 mt-16">
+        The following snippet will to create a <b>IAM role</b> and <br />attach
+        to it a policy granting <b>read-only access</b> to SQS queues and S3
+        buckets.
       </p>
     </div>
     <StepState
@@ -23,15 +25,14 @@
       v-else
       class="mt-16 flex items-center flex-col mt-40 text-left"
     >
-      <h2 class="font-semibold">Run these commands in your terminal:</h2>
       <BaseCodeSnippet
         v-for="(command, index) in codeSnippetCommands"
         :key="command"
         lang="bash"
-        :label="`Command #${index + 1}`"
-        :code="formatSnippet(command)"
+        :label="showSnippetLabel(index)"
+        :code="command"
         custom-height="100px"
-        class="md:max-w-[600px] max-w-[350px] mt-16 wrap-code"
+        class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
       />
       <BaseButton
         class="mt-40"
@@ -63,11 +64,25 @@ const props = defineProps<{
   stepData: tokenDataType;
 }>();
 
+const { token, auth_token, aws_region } = props.stepData;
+
 const isLoading = ref(true);
 const isError = ref(false);
 const errorMessage = ref('');
 const codeSnippetCommands = ref<string[]>([]);
-const { token, auth_token, aws_region } = props.stepData;
+
+function showSnippetLabel(snippetNumber: number) {
+  switch (snippetNumber) {
+    case 0:
+      return 'Label a new IAM role with trust permissions:';
+    case 1:
+      return 'Define new policy granting permissions to list SQS queues and S3 buckets:';
+    case 2:
+      return 'Attach the new policy to then new role:';
+    default:
+      return '';
+  }
+}
 
 onMounted(async () => {
   await handleGetAwsSnippet();
@@ -89,6 +104,7 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
+
     emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
@@ -99,13 +115,12 @@ async function handleGetAwsSnippet() {
   }
 }
 
-function formatSnippet(snippet: string) {
-  // return snippet
-  //   .replace(/{/g, '{\n')
-  //   .replace(/\s+/g, ' ')
-  //   .replace(/ --/g, '\n--');
-  return snippet;
-}
+// function formatSnippet(snippet: string) {
+// return snippet
+//   .replace(/{/g, '{\n')
+//   .replace(/\s+/g, ' ')
+//   .replace(/ --/g, '\n--');
+// }
 </script>
 
 <style scoped>
