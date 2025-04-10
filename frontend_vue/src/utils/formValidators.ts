@@ -60,6 +60,7 @@ const validationNotificationSettings = {
   webhook_url: Yup.string().url(validationMessages.validURL),
 };
 
+//@ts-expect-error comment out for POC
 export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.WEB_BUG]: {
     schema: Yup.object().shape(validationNotificationSettings),
