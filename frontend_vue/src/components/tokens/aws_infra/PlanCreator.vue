@@ -76,6 +76,7 @@
             v-slot="{ fields: objects, push: pushObj, remove: removeObj }"
             :name="`S3Bucket[${index}].objects`"
           >
+            {{ objects }}
             <ul
               class="border-grey-300 border border-solid rounded-3xl p-16 mt-16"
             >
@@ -94,7 +95,7 @@
               </li>
               <fieldset
                 v-for="(object, indexObj) in objects"
-                :key="(object.value as S3ObjectType).object_path"
+                :key="(object as unknown as S3ObjectType).object_path"
               >
                 <PlanCreatorTextField
                   :id="`${index}_objects_path_${indexObj}`"
@@ -226,7 +227,7 @@ const schema = yup.object().shape({
         bucket_name: yup.string().required().label('Bucket Name'),
         objects: yup.array().of(
           yup.object().shape({
-            object_path: yup.string().required().label('Obj Path'),
+            object_path: yup.string().required().label('Object Path'),
           })
         ),
       })
