@@ -104,7 +104,7 @@ const showBackButton = computed(() => {
 });
 
 const stepDescription = [
-  'Generate AWS snipper',
+  'Generate AWS snippet',
   'Check AWS role',
   'Inventory AWS account',
   'Generate Plan',
@@ -129,11 +129,14 @@ function handleSettingError(isError: boolean) {
 </script>
 
 <style>
-.step-title {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+.infra-token__title-wrapper {
   margin-top: 1rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
 }
 
 .header {
