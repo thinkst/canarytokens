@@ -1,13 +1,14 @@
 <template>
   <section class="w-full flex text-center flex-col items-center">
-    <h2 class="step-title">
-      {{
-        isLoading || isError
-          ? 'Preparing the Terraform module...'
-          : 'Terraform Module'
-      }}
-    </h2>
-
+    <div class="infra-token__title-wrapper">
+      <h2>
+        {{
+          isLoading || isError
+            ? 'Preparing the Terraform module...'
+            : 'Terraform Module'
+        }}
+      </h2>
+    </div>
     <StepState
       :is-loading="isLoading"
       :is-error="isError"
@@ -59,14 +60,14 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import type { tokenDataType } from '@/utils/dataService';
+import type { TokenDataType } from '@/utils/dataService';
 import { requestTerraformSnippet } from '@/api/main.ts';
 import StepState from '../StepState.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: tokenDataType;
+  stepData: TokenDataType;
 }>();
 
 const router = useRouter();

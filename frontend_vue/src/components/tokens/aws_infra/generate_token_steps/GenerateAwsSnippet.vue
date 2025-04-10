@@ -1,8 +1,14 @@
 <template>
   <section class="w-full flex text-center flex-col items-center">
-    <h2 class="step-title">
-      {{ isLoading ? 'Generating Snippet...' : 'Generate Snippet' }}
-    </h2>
+    <div class="infra-token__title-wrapper">
+      <h2>
+        {{ isLoading ? 'Generating AWS Snippet...' : `Generate AWS Snippet` }}
+      </h2>
+      <h3 class="text-md mb-16 text-grey-400">
+        AWS account:
+        <span class="text-grey font-semibold">{{ accountNumber }}</span>
+      </h3>
+    </div>
     <div v-if="!isLoading || !isError">
       <p class="text-gray-700">
         To inventory your resources and suggest an optimal plan, we need you to
@@ -22,7 +28,7 @@
       :error-message="errorMessage"
     />
     <div
-      v-else
+      v-if="!isLoading || !isError"
       class="mt-16 flex items-center flex-col mt-40 text-left"
     >
       <BaseCodeSnippet
@@ -55,13 +61,13 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { requestAWSInfraRoleSetupCommands } from '@/api/main.ts';
-import type { tokenDataType } from '@/utils/dataService';
+import type { TokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: tokenDataType;
+  stepData: TokenDataType;
 }>();
 
 const { token, auth_token, aws_region } = props.stepData;
@@ -70,6 +76,7 @@ const isLoading = ref(true);
 const isError = ref(false);
 const errorMessage = ref('');
 const codeSnippetCommands = ref<string[]>([]);
+const accountNumber = ref('');
 
 function showSnippetLabel(snippetNumber: number) {
   switch (snippetNumber) {
@@ -85,6 +92,7 @@ function showSnippetLabel(snippetNumber: number) {
 }
 
 onMounted(async () => {
+  accountNumber.value = props.stepData.aws_account_number;
   await handleGetAwsSnippet();
 });
 
@@ -104,7 +112,6 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
-
     emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
