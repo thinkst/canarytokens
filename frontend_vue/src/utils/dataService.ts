@@ -1,4 +1,6 @@
-export type tokenDataType = {
+import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
+
+export type TokenDataType = {
   token: string;
   hostname: string;
   token_url: string;
@@ -14,11 +16,12 @@ export type tokenDataType = {
   aws_account_number: string;
   tf_module_prefix: string;
   ingesting: boolean;
-}
+  proposed_plan: PlanValueTypes;
+};
 
-let tokenData: tokenDataType | null = null;
+let tokenData: TokenDataType | null = null;
 
-export function setTokenData(data: tokenDataType) {
+export function setTokenData(data: TokenDataType) {
   tokenData = data;
 }
 
