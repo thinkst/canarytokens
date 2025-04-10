@@ -5,6 +5,9 @@ import os
 import requests
 
 ZENDESK_EXPOSED_TICKET_TAG = os.environ["ZENDESK_EXPOSED_TICKET_TAG"]
+ZENDESK_IRREGULAR_ACTIVITY_TICKET_TAG = os.environ[
+    "ZENDESK_IRREGULAR_ACTIVITY_TICKET_TAG"
+]
 ZENDESK_CLOSED_TICKET_TAG = os.environ["ZENDESK_CLOSED_TICKET_TAG"]
 ZENDESK_ASSIGNEE = os.environ["ZENDESK_ASSIGNEE"]
 
@@ -35,7 +38,7 @@ class ZendeskTicketManager:
             url or f"{self._api_base_url}/api/v2/search.json",
             auth=self._auth,
             data={
-                "query": f'tags:"{ZENDESK_EXPOSED_TICKET_TAG}"',
+                "query": f'tags:"{ZENDESK_EXPOSED_TICKET_TAG}" OR tags:"{ZENDESK_IRREGULAR_ACTIVITY_TICKET_TAG}"',
                 "sort_by": "created_at",
                 "sort_order": "desc",
             },

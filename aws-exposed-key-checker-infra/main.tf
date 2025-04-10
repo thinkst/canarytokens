@@ -73,14 +73,15 @@ resource "aws_lambda_function" "key_checker_lambda" {
   environment {
     variables = merge(
       {
-        TICKET_SERVICE_URL         = "${var.ticket_service_url}"
-        TICKET_SERVICE_RECIPIENT   = "${var.ticket_service_recipient}"
-        WIKI_REFERENCE             = "${var.wiki_reference}"
-        ZENDESK_EXPOSED_TICKET_TAG = "${var.zendesk_exposed_ticket_tag}"
-        ZENDESK_CLOSED_TICKET_TAG  = "${var.zendesk_closed_ticket_tag}"
-        ZENDESK_ASSIGNEE           = "${var.zendesk_assignee}"
-        ZENDESK_AUTH_SECRET_ID     = "${var.zendesk_auth_secret_id}"
-        TOKENS_SERVERS_ALLOW_LIST  = "${var.tokens_servers_allow_list}"
+        TICKET_SERVICE_URL                    = "${var.ticket_service_url}"
+        TICKET_SERVICE_RECIPIENT              = "${var.ticket_service_recipient}"
+        WIKI_REFERENCE                        = "${var.wiki_reference}"
+        ZENDESK_EXPOSED_TICKET_TAG            = "${var.zendesk_exposed_ticket_tag}"
+        ZENDESK_IRREGULAR_ACTIVITY_TICKET_TAG = "${var.zendesk_irregular_activity_ticket_tag}"
+        ZENDESK_CLOSED_TICKET_TAG             = "${var.zendesk_closed_ticket_tag}"
+        ZENDESK_ASSIGNEE                      = "${var.zendesk_assignee}"
+        ZENDESK_AUTH_SECRET_ID                = "${var.zendesk_auth_secret_id}"
+        TOKENS_SERVERS_ALLOW_LIST             = "${var.tokens_servers_allow_list}"
       },
       var.tokens_post_url_override != null ? { TOKENS_POST_URL_OVERRIDE = var.tokens_post_url_override } : {}
     )

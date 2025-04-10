@@ -50,6 +50,7 @@ def _should_ignore_ticket_parse_failure(ticket: TicketData) -> bool:
         "we have not heard back from you",
         "duplicate of case",
         "case has been resolved",
+        "observed anomalous activity in your aws account",
     ]
 
     text = ticket.description.lower()
