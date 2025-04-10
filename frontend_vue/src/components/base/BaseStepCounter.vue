@@ -3,8 +3,13 @@
     <li
       v-for="(step, index) in props.steps"
       :key="step"
-      class="rounded-full w-[2rem] h-[2rem] mx-24 flex justify-center items-center"
-      :class="isActiveStep(index)"
+      v-tooltip="
+        stepDescription
+          ? {
+              content: stepDescription[index],
+            }
+          : {}
+      "
     >
       <button
         type="button"
@@ -61,6 +66,7 @@ type StepType = {
 const props = defineProps<{
   steps: StepType[];
   currentStep: number;
+  stepDescription?: string[];
 }>();
 
 const emits = defineEmits(['handleStepClick']);
