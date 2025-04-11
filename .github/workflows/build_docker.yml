@@ -16,7 +16,7 @@ on:
 
 jobs:
   build-and-commit-frontend-dist:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       NODE_VERSION: '18'
     permissions:
@@ -93,7 +93,7 @@ jobs:
 
   build:
     needs: build-and-commit-frontend-dist
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       COPYFILE_DISABLE: 1
 
