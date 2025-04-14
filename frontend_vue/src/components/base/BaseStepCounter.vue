@@ -65,7 +65,7 @@ const handleResize = debounce(() => {
   const listRightBars = document.querySelectorAll(`.step-bar__right`);
   const firstElWidth = listRightBars[0].clientWidth;
   stepBarWidth.value = firstElWidth;
-}, 100);
+}, 300);
 
 window.addEventListener('resize', handleResize);
 
