@@ -46,8 +46,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-const emits = defineEmits(['handleStepClick']);
+import { ref, onUnmounted } from 'vue';
+import { debounce } from '@/utils/utils';
 
 type StepType = {
   label: string;
@@ -58,14 +58,19 @@ const props = defineProps<{
   currentStep: number;
 }>();
 
-const stepBarWidth = ref(30);
+const emits = defineEmits(['handleStepClick']);
+const stepBarWidth = ref(50);
 
-onMounted(() => {
-  addEventListener('resize', () => {
-    const listRightBars = document.querySelectorAll(`.step-bar__right`);
-    const firstElWidth = listRightBars[0].clientWidth;
-    stepBarWidth.value = firstElWidth;
-  });
+const handleResize = debounce(() => {
+  const listRightBars = document.querySelectorAll(`.step-bar__right`);
+  const firstElWidth = listRightBars[0].clientWidth;
+  stepBarWidth.value = firstElWidth;
+}, 100);
+
+window.addEventListener('resize', handleResize);
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
 });
 
 function isActiveStep(index: number) {

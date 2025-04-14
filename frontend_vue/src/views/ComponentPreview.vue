@@ -12,8 +12,10 @@
           { label: 'Example 5' },
         ]"
         :current-step="currentStep"
+        @handle-step-click="(e) => (currentStep = e)"
       />
       <div class="flex gap-24 mt-16">
+        Current step: {{ currentStep }}
         <button @click="currentStep--">Prev Step</button>
         <button @click="currentStep++">Next Step</button>
       </div>
