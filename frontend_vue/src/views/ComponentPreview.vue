@@ -1,52 +1,12 @@
 <template>
   <div>
     <hr class="my-24" />
-    <h1>Checkbox input</h1>
-    <div class="flex flex-col gap-16 mt-24 mb-32">
-      <BaseInputCheckbox
-        id="pizza"
-        v-model="checkBoxValue"
-        label="Confirming my love for pizza 🍕 "
-        class="text-sm"
-      />
-      <div class="mt-8">Checkbox value: {{ checkBoxValue }}</div>
-      <BaseInputCheckbox
-        id="tooltip-checkbox"
-        v-model="checkBoxTooltipValue"
-        label="I have a tooltip "
-        class="text-sm"
-        tooltip-content="Boo!"
-      />
-      <BaseInputCheckbox
-        id="disabled"
-        v-model="checkBoxDisabledValue"
-        :disabled="true"
-        label="Disabled checkbox"
-        class="text-sm"
-      />
-    </div>
+    <h1>Asset Cards</h1>
+    <h2>Grid View</h2>
+    <AssetCard />
+    <h2>List View</h2>
   </div>
   <div>
-    <hr class="my-24" />
-    <h1>Step Counter</h1>
-    <div class="flex flex-col gap-16 mt-24 mb-32">
-      <BaseStepCounter
-        :steps="[
-          { label: 'Very long name' },
-          { label: 'Example 2' },
-          { label: 'Example 3' },
-          { label: 'Example long name' },
-          { label: 'Example 5' },
-        ]"
-        :current-step="currentStep"
-        @handle-step-click="(e) => (currentStep = e)"
-      />
-      <div class="flex gap-24 mt-16">
-        Current step: {{ currentStep }}
-        <button @click="currentStep--">Prev Step</button>
-        <button @click="currentStep++">Next Step</button>
-      </div>
-    </div>
     <hr class="my-24" />
     <h1>Image Select</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
@@ -425,6 +385,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
+import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 
 const { open } = useModal({
   component: ModalToken,
