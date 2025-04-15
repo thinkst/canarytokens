@@ -25,7 +25,7 @@
           type="button"
           :disabled="isMaxBuckets(values as AssetsTypes)"
           @click.stop="
-            handleAddInstance(pushBucket, INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET])
+            handleAddInstance(pushBucket, ASSET_DATA[ASSET_TYPE.S3BUCKET])
           "
           >Add Bucket</BaseButton
         >
@@ -39,9 +39,7 @@
           <div class="flex justify-between items-center mb-24">
             <div class="flex flex-row gap-16 justify-between items-center">
               <img
-                :src="
-                  getImageUrl(`aws_infra_icons/${INSTANCE_TYPE.S3BUCKET}.svg`)
-                "
+                :src="getImageUrl(`aws_infra_icons/${ASSET_TYPE.S3BUCKET}.svg`)"
                 alt="logo-s3-bucket"
                 class="rounded-full h-[2.5rem] w-[2.5rem]"
               />
@@ -66,7 +64,7 @@
             @handle-regenerate-instance.stop="
               async (event, name) =>
                 await handleRegenerateInstancetName(
-                  INSTANCE_TYPE.S3BUCKET_OBJECT,
+                  ASSET_TYPE.S3BUCKET_OBJECT,
                   name,
                   setFieldValue
                 )
@@ -86,7 +84,7 @@
                   @click.stop="
                     handleAddInstance(
                       pushObj,
-                      INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET_OBJECT]
+                      ASSET_DATA[ASSET_TYPE.S3BUCKET_OBJECT]
                     )
                   "
                   >Add Object</BaseButton
@@ -111,7 +109,7 @@
                   @handle-regenerate-instance.stop="
                     async (event, name) =>
                       await handleRegenerateInstancetName(
-                        INSTANCE_TYPE.S3BUCKET_OBJECT,
+                        ASSET_TYPE.S3BUCKET_OBJECT,
                         name,
                         setFieldValue
                       )
@@ -139,8 +137,8 @@ import { Form, FieldArray } from 'vee-validate';
 import type { FieldEntry } from 'vee-validate';
 import * as yup from 'yup';
 import {
-  INSTANCE_TYPE,
-  INSTANCE_DATA,
+  ASSET_TYPE,
+  ASSET_DATA,
 } from '@/components/tokens/aws_infra/constants.ts';
 // import { generateDataChoice } from '@/api/main.ts';
 import getImageUrl from '@/utils/getImageUrl';

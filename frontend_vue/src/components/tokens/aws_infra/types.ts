@@ -30,10 +30,10 @@ type DynamoDBTableType = {
 
 type AssetsTypes = {
   S3Bucket: S3BucketType[];
-  // SQSQueue: SQSQueue[];
-  // SSMParameter: SSMParameter[];
-  // SecretsManagerSecret: SecretsManagerSecret[];
-  // DynamoDBTable: DynamoDBTable[];
+  SQSQueue: SQSQueueType[];
+  SSMParameter: SSMParameterType[];
+  SecretsManagerSecret: SecretsManagerSecretType[];
+  DynamoDBTable: DynamoDBTableType[];
 };
 
 type PlanValueTypes = {
