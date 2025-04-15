@@ -1,6 +1,13 @@
 <template>
   <div>
     <hr class="my-24" />
+    <h1>Asset Cards</h1>
+    <h2>Grid View</h2>
+    <AssetCard />
+    <h2>List View</h2>
+  </div>
+  <div>
+    <hr class="my-24" />
     <h1>Image Select</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <BaseFormImageSelect
@@ -378,6 +385,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
+import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 
 const { open } = useModal({
   component: ModalToken,
