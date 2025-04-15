@@ -53,6 +53,7 @@ import SearchBar from '@/components/ui/SearchBar.vue';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import { TOKEN_CATEGORY } from '@/components/constants.ts';
 import { sqlInjectionPattern } from '@/utils/utils';
+import { debounce } from '@/utils/utils';
 
 const emits = defineEmits([
   'filtered-list',
@@ -63,14 +64,6 @@ const emits = defineEmits([
 
 const filterValue = ref('');
 const searchValue = ref('');
-
-function debounce(fn: () => void, delay: number) {
-  let timeoutId: ReturnType<typeof setTimeout>;
-  return () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(fn, delay);
-  };
-}
 
 const filteredList: ComputedRef<
   TokenServicesType | [string, TokenServiceType]
