@@ -13,8 +13,10 @@
         <h3 class="font-semibold text-grey-400 text-xl">S3 Buckets</h3>
         <BaseButton
           icon="plus"
-          @click="
-            handleAddInstance(pushBucket, INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET])
+          type="button"
+          :disabled="isMaxBuckets(values as AssetsTypes)"
+          @click.stop="
+            handleAddInstance(pushBucket, ASSET_DATA[ASSET_TYPE.S3BUCKET])
           "
           >Add Bucket</BaseButton
         >
@@ -28,9 +30,7 @@
           <div class="flex justify-between items-center mb-24">
             <div class="flex flex-row gap-16 justify-between items-center">
               <img
-                :src="
-                  getImageUrl(`aws_infra_icons/${INSTANCE_TYPE.S3BUCKET}.svg`)
-                "
+                :src="getImageUrl(`aws_infra_icons/${ASSET_TYPE.S3BUCKET}.svg`)"
                 alt="logo-s3-bucket"
                 class="rounded-full h-[2.5rem] w-[2.5rem]"
               />
@@ -51,6 +51,14 @@
             :name="`S3Bucket[${index}].bucket_name`"
             label="S3Bucket Name"
             :has-remove="false"
+            @handle-regenerate-instance.stop="
+              async (event, name) =>
+                await handleRegenerateInstancetName(
+                  ASSET_TYPE.S3BUCKET_OBJECT,
+                  name,
+                  setFieldValue
+                )
+            "
           />
           <FieldArray
             v-slot="{ fields: objects, push: pushObj, remove: removeObj }"
@@ -66,7 +74,7 @@
                   @click="
                     handleAddInstance(
                       pushObj,
-                      INSTANCE_DATA[INSTANCE_TYPE.S3BUCKET_OBJECT]
+                      ASSET_DATA[ASSET_TYPE.S3BUCKET_OBJECT]
                     )
                   "
                   >Add Object</BaseButton
@@ -107,8 +115,8 @@ import { ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import * as yup from 'yup';
 import {
-  INSTANCE_TYPE,
-  INSTANCE_DATA,
+  ASSET_TYPE,
+  ASSET_DATA,
 } from '@/components/tokens/aws_infra/constants.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import PlanCreatorTextField from '@/components/tokens/aws_infra/PlanCreatorTextField.vue';

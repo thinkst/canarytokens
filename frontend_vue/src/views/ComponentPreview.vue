@@ -3,7 +3,28 @@
     <hr class="my-24" />
     <h1>Asset Cards</h1>
     <h2>Grid View</h2>
-    <AssetCard />
+    <div class="grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <AssetCard
+        :asset-type="ASSET_TYPE.S3BUCKET"
+        :asset-data="assetSamples.S3Bucket[0]"
+      />
+      <AssetCard
+        :asset-type="ASSET_TYPE.S3BUCKET"
+        :asset-data="assetSamples.S3Bucket[1]"
+      />
+      <AssetCard
+        :asset-type="ASSET_TYPE.DYNAMODBTABLE"
+        :asset-data="assetSamples.DynamoDBTable[0]"
+      />
+      <AssetCard
+        :asset-type="ASSET_TYPE.DYNAMODBTABLE"
+        :asset-data="assetSamples.DynamoDBTable[1]"
+      />
+      <AssetCard
+        :asset-type="ASSET_TYPE.SECRETMANAGERSECRET"
+        :asset-data="assetSamples.SecretsManagerSecret[0]"
+      />
+    </div>
     <h2>List View</h2>
   </div>
   <div>
@@ -380,12 +401,13 @@ import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import SearchBar from '@/components/ui/SearchBar.vue';
-import { ref } from 'vue';
+import { ref, provide } from 'vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
+import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
 
 const { open } = useModal({
   component: ModalToken,
@@ -488,6 +510,59 @@ const alertSample = {
     file_path: '/blah/foo/moo.txt',
   },
   location: null,
+};
+
+//   viewType: 'gridView' | 'listView';
+const viewType = ref('gridView');
+provide('viewType', viewType);
+
+const assetSamples = {
+  S3Bucket: [
+    {
+      bucket_name: 'decoy-bucket-1',
+      objects: [
+        { object_path: 'foo/bar/object1' },
+        { object_path: 'foo/baz/object2' },
+      ],
+    },
+    {
+      bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+    },
+  ],
+  SQSQueue: [
+    {
+      queue_name: 'decoy-queue-1',
+      message_count: 5,
+    },
+  ],
+  SSMParameter: [
+    {
+      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_value: 'some_fake_looking_api_key',
+    },
+  ],
+  SecretsManagerSecret: [
+    {
+      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
+      secretsmanager_secret_value: 'some_fake_looking_api_key',
+    },
+  ],
+  DynamoDBTable: [
+    {
+      dynamodb_name: 'decoy-ssm-param-1',
+      dynamodb_partition_key: 'username but very long',
+      dynamodb_row_count: 10,
+    },
+    {
+      dynamodb_name: 'decoy-ssm-param-1-very-long-name',
+      dynamodb_partition_key: 'username',
+      dynamodb_row_count: 10,
+    },
+  ],
 };
 </script>
 
