@@ -1,9 +1,9 @@
 <template>
-  <ol class="flex flex-row place-content-around step-wrapper">
+  <ol class="flex flex-row justify-center step-wrapper">
     <li
       v-for="(step, index) in props.steps"
       :key="step.label"
-      class="flex flex-1"
+      class="flex"
     >
       <button
         type="button"
