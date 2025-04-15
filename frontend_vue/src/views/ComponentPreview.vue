@@ -5,10 +5,10 @@
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <BaseStepCounter
         :steps="[
-          { label: 'Example' },
+          { label: 'Very long name' },
           { label: 'Example 2' },
           { label: 'Example 3' },
-          { label: 'Example 4' },
+          { label: 'Example long name' },
           { label: 'Example 5' },
         ]"
         :current-step="currentStep"
