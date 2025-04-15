@@ -1,12 +1,13 @@
 <template>
-  <ol class="flex flex-row place-content-evenly step-wrapper">
+  <ol class="flex flex-row place-content-around step-wrapper">
     <li
       v-for="(step, index) in props.steps"
       :key="step.label"
+      class="flex flex-1"
     >
       <button
         type="button"
-        class="flex-1 grid grid-cols-3 group gap-y-8 md:gap-x-16 sm:gap-x-24 focus:outline-none focus-within:outline-none"
+        class="grid grid-cols-3 group gap-y-8 md:gap-x-16 sm:gap-x-24 focus:outline-none focus-within:outline-none"
         :disabled="props.currentStep <= index"
         @click="emits('handleStepClick', index + 1)"
       >
