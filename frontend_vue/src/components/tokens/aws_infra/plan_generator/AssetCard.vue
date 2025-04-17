@@ -6,7 +6,8 @@
     <button
       ref="assetCardRef"
       class="asset-card group border group bg-white rounded-2xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out"
-      @click.stop="handleClickAsset"
+      :class="{ active: isSelected }"
+      @click.stop="handleAssetClick"
       @mouseover="handleMouseOver"
       @focus="handleMouseOver"
       @mouseleave="handleMouseLeave"
@@ -17,7 +18,7 @@
         <img
           :src="getImageUrl(`aws_infra_icons/${props.assetType}.svg`)"
           alt="logo-s3-bucket"
-          class="rounded-full h-[2.5rem] w-[2.5rem]"
+          class="rounded-full"
         />
         <p class="text-sm text-grey-400 text-pretty">
           {{ assetName }}
@@ -29,38 +30,41 @@
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400">{{ showDataLabel(key) }}:</span>
+          <span class="label text-grey-400">{{ showDataLabel(key) }}: </span>
           <span class="value text-grey-700">{{ value }}</span>
         </li>
       </ul>
       <!--- Btn Edit --->
       <div
-        class="asset-card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 hover-card shadow-solid-shadow-grey"
+        class="asset-card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
       >
         {{ isHoverCard ? 'Edit' : assetLabel }}
       </div>
     </button>
     <!-- Select and Btn Delete -->
     <div class="asset-card__options">
-      <input
+      <BaseInputCheckbox
         id="select-asset"
-        v-tooltip="{
-          content: 'Select asset',
-        }"
-        type="checkbox"
-        class="rounded-full w-[1.5rem]"
+        label="Select asset"
+        class="input-select text-sm text-grey-500"
+        tooltip-content="Select asset"
+        :hide-label="true"
+        :model-value="isSelected"
+        @update:model-value="(value) => handleSelectAsset(value)"
       />
-      <label
-        for="select-asset"
-        class="sr-only"
-        >Select asset</label
+      <button
+        type="button"
+        class="list-btn-edit text-sm text-grey-400"
+        @click.stop="handleAssetClick"
       >
+        Edit
+      </button>
       <button
         v-tooltip="{
           content: 'Delete asset',
         }"
         type="button"
-        class="w-[1.5rem] text-grey-300 rounded-full hover:text-green-500"
+        class="btn-delete w-[1.5rem] text-grey-300 rounded-full hover:text-green-500"
         aria-label="Delete asset"
         @click="emit('deleteAsset')"
       >
@@ -101,16 +105,17 @@ type AssetType =
   | SecretsManagerSecretType
   | DynamoDBTableType;
 
-const emit = defineEmits(['saveAsset', 'deleteAsset']);
+const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
-  assetData: AssetType;
   assetType: AssetConstValuesType;
+  assetData: AssetType;
 }>();
 
 const viewType = inject('viewType');
 const isHoverCard = ref(false);
 const assetCardRef = ref();
+const isSelected = ref(false);
 
 const assetName = computed(
   () =>
@@ -142,8 +147,9 @@ function showDataLabel(key: keyof typeof ASSET_DATA_LABEL) {
   return ASSET_DATA_LABEL[key];
 }
 
-function handleClickAsset() {
+function handleAssetClick() {
   // Open Modal
+  emit('openAsset');
   // remove focus from selected card
   if (assetCardRef.value) {
     assetCardRef.value.blur();
@@ -157,9 +163,15 @@ function handleMouseOver() {
 function handleMouseLeave() {
   isHoverCard.value = false;
 }
+
+function handleSelectAsset(value: boolean) {
+  isSelected.value = value;
+  emit('selectAsset', isSelected.value);
+}
 </script>
 
 <style>
+.asset-card.active,
 .asset-card:hover,
 .asset-card:focus,
 .asset-card:focus-within {
@@ -189,11 +201,17 @@ function handleMouseLeave() {
       flex-direction: column;
       align-items: center;
       gap: 8;
-      padding-inline: 1rem;
+      padding-inline: 0.5rem;
       padding-top: 0.5rem;
 
+      img {
+        height: 2rem;
+        width: 2rem;
+        border-radius: 2rem;
+      }
+
       p {
-        padding-block: 0.5rem;
+        padding-block: 0.3rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -203,12 +221,14 @@ function handleMouseLeave() {
 
     &__list-data {
       padding-bottom: 0.5rem;
+      padding-inline: 0.5rem;
 
       li {
         display: flex;
         flex-direction: row;
         gap: 0.5rem;
         justify-content: space-between;
+        text-align: left;
 
         span.value {
           white-space: nowrap;
@@ -226,13 +246,29 @@ function handleMouseLeave() {
 
     &__options {
       display: none;
-      position: absolute;
-      //   display: flex;
-      justify-content: space-between;
       align-items: center;
-      left: 0.5rem;
-      right: 0.5rem;
-      top: 0.5rem;
+
+      .list-btn-edit {
+        display: none;
+      }
+
+      .input-select {
+        position: absolute;
+        left: 0.8rem;
+        top: 0.7rem;
+      }
+
+      .list-btn-edit {
+        position: absolute;
+        right: 3em;
+        top: 0.6rem;
+      }
+
+      .btn-delete {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.5rem;
+      }
     }
   }
 
@@ -247,15 +283,123 @@ function handleMouseLeave() {
 }
 
 .asset-card__wrapper.listView {
+  display: flex;
+  position: relative;
+
   .asset-card {
+    display: flex;
+    flex-grow: 1;
+    gap: 0.5rem;
+    padding-block: 0.5rem;
+    padding-inline: 0.5rem;
+
+    @media (max-width: 1024px) {
+      flex-direction: column;
+    }
+
     &__content {
-      &__list-data {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      flex-shrink: 0;
+      align-items: center;
+      padding-left: 2rem;
+
+      p {
+        width: 30ch;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 1rem;
+
+        @media (max-width: 1024px) {
+          width: auto;
+        }
+
+        @media (max-width: 768px) {
+          width: 20ch;
+        }
+      }
+
+      img {
+        height: 1.5rem;
+        width: 1.5rem;
+        border-radius: 2rem;
       }
     }
-    &__btn-edit {
+
+    &__list-data {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding-right: 5rem;
+      padding-left: 1rem;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      li {
+        padding-inline: 1rem;
+        text-align: left;
+      }
+
+      li:not(:last-child) {
+        border-right: 1px solid hsl(153, 9%, 81%);
+
+        @media (max-width: 768px) {
+          border: none;
+        }
+      }
     }
+
+    &__btn-edit {
+      display: none;
+    }
+
     &__options {
+      display: none;
+      align-items: center;
+
+      .input-select {
+        position: absolute;
+        left: 0.8rem;
+        top: 0.7rem;
+      }
+
+      .list-btn-edit {
+        position: absolute;
+        right: 3em;
+        top: 0.6rem;
+      }
+
+      .btn-delete {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.5rem;
+      }
     }
   }
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
+    .asset-card__options {
+      display: flex;
+    }
+  }
+
+  &:hover,
+  &:active {
+    .list-btn-edit {
+      @apply text-green-500;
+    }
+  }
+}
+
+.asset-card.active + .asset-card__options {
+  display: flex;
 }
 </style>
