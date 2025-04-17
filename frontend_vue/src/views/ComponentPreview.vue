@@ -54,8 +54,8 @@
         :asset-type="ASSET_TYPE.SECRETMANAGERSECRET"
         :asset-data="assetSamples.SecretsManagerSecret[0]"
       />
+      <div class="mt-8">Checkbox value: {{ checkBoxValue }}</div>
     </div>
-    <h2>List View</h2>
   </div>
   <div>
     <hr class="my-24" />
@@ -103,11 +103,11 @@
     <hr class="my-24" />
     <h1>Search bar</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
-      <SearchBar
+      <!-- <SearchBar
         label="Search"
         placeholder="A nice placeholder"
         value=""
-      />
+      /> -->
     </div>
   </div>
   <div class="flex flex-col max-w-[200px] gap-16">
@@ -431,7 +431,7 @@ import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import SearchBar from '@/components/ui/SearchBar.vue';
-import { ref, provide } from 'vue';
+import { ref } from 'vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
@@ -449,10 +449,7 @@ const { open } = useModal({
 const checked = ref(false);
 const checkedDisabled = ref(false);
 const fileSelected = ref();
-const currentStep = ref(1);
 const checkBoxValue = ref(false);
-const checkBoxDisabledValue = ref(false);
-const checkBoxTooltipValue = ref(false);
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
@@ -539,59 +536,6 @@ const alertSample = {
     file_path: '/blah/foo/moo.txt',
   },
   location: null,
-};
-
-//   viewType: 'gridView' | 'listView';
-const viewType = ref('gridView');
-provide('viewType', viewType);
-
-const assetSamples = {
-  S3Bucket: [
-    {
-      bucket_name: 'decoy-bucket-1',
-      objects: [
-        { object_path: 'foo/bar/object1' },
-        { object_path: 'foo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-  ],
-  SQSQueue: [
-    {
-      queue_name: 'decoy-queue-1',
-      message_count: 5,
-    },
-  ],
-  SSMParameter: [
-    {
-      ssm_parameter_name: 'decoy-ssm-param-1',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-  ],
-  SecretsManagerSecret: [
-    {
-      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
-      secretsmanager_secret_value: 'some_fake_looking_api_key',
-    },
-  ],
-  DynamoDBTable: [
-    {
-      dynamodb_name: 'decoy-ssm-param-1',
-      dynamodb_partition_key: 'username but very long',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-1-very-long-name',
-      dynamodb_partition_key: 'username',
-      dynamodb_row_count: 10,
-    },
-  ],
 };
 </script>
 
