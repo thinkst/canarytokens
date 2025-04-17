@@ -15,6 +15,12 @@
     >
       Grid
     </button>
+    <div
+      v-if="selectedAssets.length"
+      class="ml-24"
+    >
+      Selected assets: {{ selectedAssets.length }}
+    </div>
   </div>
 
   <h1 class="mb-8">S3 Buckets</h1>
@@ -59,7 +65,9 @@
         :asset-type="ASSET_TYPE.DYNAMODBTABLE"
         :asset-data="asset"
         @open-asset="handleOpenAsset(asset, ASSET_TYPE.DYNAMODBTABLE)"
-        @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
+        @select-asset="
+          (isSelected) => handleSelectAsset(isSelected, list, asset, index)
+        "
         @delete-asset="
           handleRemoveAsset(
             ASSET_TYPE.DYNAMODBTABLE,
@@ -180,8 +188,14 @@ function selectViewType(value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]) {
   viewType.value = value;
 }
 
-function handleSelectAsset(isSelected: boolean, asset: any) {
+function handleSelectAsset(
+  isSelected: boolean,
+  list: any,
+  asset: any,
+  index: number
+) {
   console.log(isSelected, asset);
+  selectedAssets.value = [...selectedAssets.value, asset];
 }
 
 function handleRemoveAsset(assetType: any, list: any, index: number) {
