@@ -43,6 +43,8 @@ export const ASSET_DATA = {
   },
 };
 
+export const ASSET_WITH_ICON = ['objects'];
+
 export const ASSET_DATA_LABEL = {
   dynamodb_row_count: 'Row Count',
   dynamodb_partition_key: 'Partition Key',
