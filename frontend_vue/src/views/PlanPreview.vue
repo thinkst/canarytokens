@@ -23,144 +23,35 @@
     </div>
   </div>
 
-  <h1 class="mb-8">S3 Buckets</h1>
-  <div
-    :class="[
-      { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
-      {
-        'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
-          viewType === VIEW_TYPE.GRID,
-      },
-    ]"
+  <template
+    v-for="(assetValues, assetKey) in assetSamples"
+    :key="assetKey"
   >
-    <TransitionGroup name="list">
-      <AssetCard
-        v-for="(asset, index) of assetSamples.S3Bucket"
-        :key="asset"
-        :asset-type="ASSET_TYPE.S3BUCKET"
-        :asset-data="asset"
-        @open-asset="handleOpenAsset(asset, ASSET_TYPE.S3BUCKET)"
-        @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
-        @delete-asset="
-          handleRemoveAsset(ASSET_TYPE.S3BUCKET, assetSamples.S3Bucket, index)
-        "
-      />
-    </TransitionGroup>
-  </div>
-
-  <h1 class="mt-24 mb-16">DynamoDBTable</h1>
-  <div
-    :class="[
-      { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
-      {
-        'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
-          viewType === VIEW_TYPE.GRID,
-      },
-    ]"
-  >
-    <TransitionGroup name="list">
-      <AssetCard
-        v-for="(asset, index) of assetSamples.DynamoDBTable"
-        :key="asset"
-        :asset-type="ASSET_TYPE.DYNAMODBTABLE"
-        :asset-data="asset"
-        @open-asset="handleOpenAsset(asset, ASSET_TYPE.DYNAMODBTABLE)"
-        @select-asset="
-          (isSelected) => handleSelectAsset(isSelected, list, asset, index)
-        "
-        @delete-asset="
-          handleRemoveAsset(
-            ASSET_TYPE.DYNAMODBTABLE,
-            assetSamples.DynamoDBTable,
-            index
-          )
-        "
-      />
-    </TransitionGroup>
-  </div>
-
-  <h1 class="mt-24 mb-16">Secrets Manager Secret</h1>
-  <div
-    :class="[
-      { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
-      {
-        'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
-          viewType === VIEW_TYPE.GRID,
-      },
-    ]"
-  >
-    <TransitionGroup name="list">
-      <AssetCard
-        v-for="(asset, index) of assetSamples.SecretsManagerSecret"
-        :key="asset"
-        :asset-type="ASSET_TYPE.SECRETMANAGERSECRET"
-        :asset-data="asset"
-        @open-asset="handleOpenAsset(asset, ASSET_TYPE.SECRETMANAGERSECRET)"
-        @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
-        @delete-asset="
-          handleRemoveAsset(
-            ASSET_TYPE.SECRETMANAGERSECRET,
-            assetSamples.SecretsManagerSecret,
-            index
-          )
-        "
-      />
-    </TransitionGroup>
-  </div>
-
-  <h1 class="mt-24 mb-16">SQSQueue</h1>
-  <div
-    :class="[
-      { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
-      {
-        'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
-          viewType === VIEW_TYPE.GRID,
-      },
-    ]"
-  >
-    <TransitionGroup name="list">
-      <AssetCard
-        v-for="(asset, index) of assetSamples.SQSQueue"
-        :key="asset"
-        :asset-type="ASSET_TYPE.SQSQUEUE"
-        :asset-data="asset"
-        @open-asset="handleOpenAsset(asset, ASSET_TYPE.SQSQUEUE)"
-        @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
-        @delete-asset="
-          handleRemoveAsset(ASSET_TYPE.SQSQUEUE, assetSamples.SQSQueue, index)
-        "
-      />
-    </TransitionGroup>
-  </div>
-
-  <h1 class="mt-24 mb-16">SSMParameter</h1>
-  <div
-    :class="[
-      { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
-      {
-        'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
-          viewType === VIEW_TYPE.GRID,
-      },
-    ]"
-  >
-    <TransitionGroup name="list">
-      <AssetCard
-        v-for="(asset, index) of assetSamples.SSMParameter"
-        :key="asset"
-        :asset-type="ASSET_TYPE.SSMPARAMETER"
-        :asset-data="asset"
-        @open-asset="handleOpenAsset(asset, ASSET_TYPE.SSMPARAMETER)"
-        @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
-        @delete-asset="
-          handleRemoveAsset(
-            ASSET_TYPE.SSMPARAMETER,
-            assetSamples.SSMParameter,
-            index
-          )
-        "
-      />
-    </TransitionGroup>
-  </div>
+    <h1 class="mb-8 mt-16">{{ ASSET_TYPE_LABEL[assetKey] }}</h1>
+    <div
+      :class="[
+        { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
+        {
+          'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
+            viewType === VIEW_TYPE.GRID,
+        },
+      ]"
+    >
+      <TransitionGroup name="list">
+        <AssetCard
+          v-for="(asset, index) of assetValues"
+          :key="asset"
+          :asset-type="assetKey"
+          :asset-data="asset"
+          @open-asset="handleOpenAsset(asset, assetKey)"
+          @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
+          @delete-asset="
+            handleRemoveAsset(assetKey, assetSamples.S3Bucket, index)
+          "
+        />
+      </TransitionGroup>
+    </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -168,7 +59,10 @@ import { ref, provide } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
-import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
+import {
+  ASSET_TYPE,
+  ASSET_TYPE_LABEL,
+} from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDelete.vue';
 
