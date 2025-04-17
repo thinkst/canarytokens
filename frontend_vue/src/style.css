@@ -10,6 +10,15 @@
   types: slide, forwards;
 }
 
+:root {
+  --color-green-300: hsl(147, 71%, 63%);
+  --color-green-500: hsl(157, 77%, 45%);
+  --color-green-700: hsl(166, 86%, 30%);
+  --color-grey-500: hsl(157, 9%, 40%);
+  --color-grey-300: hsl(154, 9%, 64%);
+  --color-grey-200: hsl(153, 9%, 81%);
+}
+
 /* gracefully copied from https://www.joshwcomeau.com/css/custom-css-reset/ */
 
 *,
