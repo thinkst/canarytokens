@@ -17,7 +17,7 @@
       <div class="asset-card__content">
         <img
           :src="getImageUrl(`aws_infra_icons/${props.assetType}.svg`)"
-          alt="logo-s3-bucket"
+          :alt="`logo-${assetType}`"
           class="rounded-full"
         />
         <p class="text-sm text-grey-400 text-pretty">
@@ -30,7 +30,14 @@
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400">{{ showDataLabel(key) }}: </span>
+          <span class="label text-grey-400">
+            <img
+              v-if="showDataIcon(key)"
+              :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
+              :alt="`${key} icon`"
+              class="w-[1.5rem] h-[1.3rem]"
+            />{{ showDataLabel(key) }}:
+          </span>
           <span class="value text-grey-700">{{ value }}</span>
         </li>
       </ul>
@@ -93,6 +100,7 @@ import {
   ASSET_DATA_NAME,
   ASSET_TYPE_LABEL,
   ASSET_DATA_LABEL,
+  ASSET_WITH_ICON,
 } from '@/components/tokens/aws_infra/constants.ts';
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
@@ -145,6 +153,11 @@ const assetLabel = computed(() => {
 
 function showDataLabel(key: keyof typeof ASSET_DATA_LABEL) {
   return ASSET_DATA_LABEL[key];
+}
+
+function showDataIcon(key: string) {
+  console.log(key, 'key');
+  return ASSET_WITH_ICON.includes(key);
 }
 
 function handleAssetClick() {
@@ -230,6 +243,12 @@ function handleSelectAsset(value: boolean) {
         justify-content: space-between;
         text-align: left;
 
+        span.label {
+          display: flex;
+          flex-direction: row;
+          gap: 0.3rem;
+        }
+
         span.value {
           white-space: nowrap;
           overflow: hidden;
@@ -300,7 +319,7 @@ function handleSelectAsset(value: boolean) {
     &__content {
       display: flex;
       flex-direction: row;
-      gap: 1rem;
+      gap: 0.5rem;
       flex-shrink: 0;
       align-items: center;
       padding-left: 2rem;
@@ -344,6 +363,15 @@ function handleSelectAsset(value: boolean) {
       li {
         padding-inline: 1rem;
         text-align: left;
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+
+        span.label {
+          gap: 0.3rem;
+          display: flex;
+          flex-direction: row;
+        }
       }
 
       li:not(:last-child) {
