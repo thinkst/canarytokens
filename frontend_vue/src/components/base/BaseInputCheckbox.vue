@@ -13,7 +13,6 @@
       "
       type="checkbox"
       :disabled="disabled"
-      :required="required"
       :checked="modelValue"
       @change="handleChange"
     />
@@ -29,7 +28,6 @@ const props = defineProps<{
   hideLabel?: boolean;
   tooltipContent?: string;
   disabled?: boolean;
-  required?: boolean;
 }>();
 
 const emits = defineEmits(['update:modelValue']);

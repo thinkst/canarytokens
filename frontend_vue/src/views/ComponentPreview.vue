@@ -9,6 +9,14 @@
         label="Confirming my love for pizza 🍕 "
         class="text-sm"
       />
+      <div class="mt-8">Checkbox value: {{ checkBoxValue }}</div>
+      <BaseInputCheckbox
+        id="tooltip-checkbox"
+        v-model="checkBoxTooltipValue"
+        label="I have a tooltip "
+        class="text-sm"
+        tooltip-content="Boo!"
+      />
       <BaseInputCheckbox
         id="disabled"
         v-model="checkBoxDisabledValue"
@@ -16,7 +24,6 @@
         label="Disabled checkbox"
         class="text-sm"
       />
-      <div class="mt-8">Checkbox value: {{ checkBoxValue }}</div>
     </div>
   </div>
   <div>
@@ -433,6 +440,7 @@ const fileSelected = ref();
 const currentStep = ref(1);
 const checkBoxValue = ref(false);
 const checkBoxDisabledValue = ref(false);
+const checkBoxTooltipValue = ref(false);
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
