@@ -1,10 +1,10 @@
-<!-- eslint-disable vue/no-unused-vars -->
 <template>
   <BaseModal
     :title="modalTitle"
     :has-close-button="true"
   >
-    <FormEditAsset
+    <!-- @vue-expect-error: TS breaks for no reason on props.assetData even when type casted -->
+    <FormAsset
       :asset-type="props.assetType"
       :asset-data="props.assetData"
       :close-modal="props.closeModal"
@@ -12,6 +12,7 @@
       :trigger-submit="triggerSubmit"
       @update-asset="handleUpdateAsset"
     />
+
     <template #footer>
       <BaseButton
         variant="grey"
@@ -42,7 +43,7 @@ import type {
 import {
   ASSET_TYPE,
   ASSET_DATA,
-  ASSET_DATA_LABEL,
+  ASSET_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import {
@@ -53,7 +54,7 @@ import {
   DynamoDBTable_schema,
   Default_schema,
 } from './assetValidators';
-import FormEditAsset from './FormEditAsset.vue';
+import FormAsset from './FormAsset.vue';
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
@@ -67,7 +68,7 @@ type AssetType =
 
 const props = defineProps<{
   assetType: AssetConstValuesType;
-  assetData: AssetType;
+  assetData: AssetType | null;
   closeModal: () => void;
 }>();
 
@@ -75,7 +76,7 @@ const emits = defineEmits(['update-asset']);
 const triggerSubmit = ref(false);
 
 const isExistingAsset = computed(() => {
-  return Object.keys(props.assetData).length > 0;
+  return props.assetData && Object.keys(props.assetData).length > 0;
 });
 
 const modalTitle = computed(() => {
@@ -83,15 +84,6 @@ const modalTitle = computed(() => {
     ? `Edit ${props.assetType}`
     : `Add new ${props.assetType}`;
 });
-
-// const newAsset = computed(() => {
-//   switch (props.assetType) {
-//     case ASSET_TYPE.S3BUCKET:
-//       return ASSET_DATA[ASSET_TYPE.S3BUCKET_OBJECT];
-//     default:
-//       return { newKey: '' };
-//   }
-// });
 
 function handleUpdateAsset(values: any) {
   console.log(values, 'values');
@@ -102,10 +94,6 @@ function handleUpdateAsset(values: any) {
 function handleSubmit() {
   triggerSubmit.value = true;
 }
-
-// function handleInvalidSubmit() {
-//   console.log('invalid biaaatch');
-// }
 
 function handleCancel() {
   props.closeModal();

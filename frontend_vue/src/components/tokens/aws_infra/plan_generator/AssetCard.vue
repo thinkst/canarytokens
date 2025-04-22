@@ -98,8 +98,7 @@ import getImageUrl from '@/utils/getImageUrl';
 import {
   ASSET_TYPE,
   ASSET_DATA_NAME,
-  ASSET_TYPE_LABEL,
-  ASSET_DATA_LABEL,
+  ASSET_LABEL,
   ASSET_WITH_ICON,
 } from '@/components/tokens/aws_infra/constants.ts';
 
@@ -125,14 +124,11 @@ const isHoverCard = ref(false);
 const assetCardRef = ref();
 const isSelected = ref(false);
 
-const assetName = computed(
-  () =>
-    props.assetData[
-      ASSET_DATA_NAME[
-        props.assetType as keyof typeof ASSET_DATA_NAME
-      ] as keyof AssetType
-    ]
-);
+const assetName = computed(() => {
+  const nameKey =
+    ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
+  return props.assetData[nameKey as keyof AssetType];
+});
 
 const assetDataDisplay = computed(() => {
   const nameKey =
@@ -148,11 +144,11 @@ const assetDataDisplay = computed(() => {
 });
 
 const assetLabel = computed(() => {
-  return ASSET_TYPE_LABEL[props.assetType as keyof typeof ASSET_TYPE_LABEL];
+  return ASSET_LABEL[props.assetType];
 });
 
-function showDataLabel(key: keyof typeof ASSET_DATA_LABEL) {
-  return ASSET_DATA_LABEL[key];
+function showDataLabel(key: keyof typeof ASSET_LABEL) {
+  return ASSET_LABEL[key];
 }
 
 function showDataIcon(key: string) {
