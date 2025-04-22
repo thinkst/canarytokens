@@ -84,7 +84,6 @@ function selectViewType(value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]) {
 }
 
 function handleSelectAsset(isSelected: boolean, asset: any) {
-  console.log(isSelected, asset);
   selectedAssets.value = [...selectedAssets.value, asset];
 }
 
@@ -113,7 +112,7 @@ function handleOpenAsset(assetData: any, assetType: any, index: number) {
       closeModal: () => {
         close();
       },
-      onUpdateAsset: (newValues) => {
+      'onUpdate-asset': (newValues) => {
         handleUpdateAsset(newValues, assetType, index);
       },
     },
@@ -126,11 +125,7 @@ function handleUpdateAsset(
   assetType: keyof typeof assetSamples.value,
   index: number
 ) {
-  console.log(assetType, 'assetType');
-  console.log(index, 'index');
-  console.log(newValues, 'newValues');
   assetSamples.value[assetType][index] = newValues;
-  // console.log(assetSamples.value[assetType][index], 'iiii');
 }
 
 const assetSamples = ref<{

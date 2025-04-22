@@ -15,7 +15,7 @@
     <template #footer>
       <BaseButton
         variant="grey"
-        @click="handleCancel()"
+        @click="handleCancel"
         >Cancel</BaseButton
       >
       <BaseButton
@@ -45,7 +45,14 @@ import {
   ASSET_DATA_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import { S3Bucket_schema, Default_schema } from './assetValidators';
+import {
+  S3Bucket_schema,
+  SQSQueue_schema,
+  SSMParameter_schema,
+  SecretsManagerSecret_schema,
+  DynamoDBTable_schema,
+  Default_schema,
+} from './assetValidators';
 import FormEditAsset from './FormEditAsset.vue';
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
@@ -108,6 +115,14 @@ const validationSchema = computed(() => {
   switch (props.assetType) {
     case ASSET_TYPE.S3BUCKET:
       return S3Bucket_schema;
+    case ASSET_TYPE.SQSQUEUE:
+      return SQSQueue_schema;
+    case ASSET_TYPE.SSMPARAMETER:
+      return SSMParameter_schema;
+    case ASSET_TYPE.SECRETMANAGERSECRET:
+      return SecretsManagerSecret_schema;
+    case ASSET_TYPE.DYNAMODBTABLE:
+      return DynamoDBTable_schema;
     default:
       return Default_schema;
   }
