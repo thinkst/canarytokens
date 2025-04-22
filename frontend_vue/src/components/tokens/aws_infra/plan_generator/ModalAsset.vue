@@ -4,73 +4,27 @@
     :title="modalTitle"
     :has-close-button="true"
   >
-    <Form
-      class="w-full"
-      :initial-values="initialValues"
+    <FormEditAsset
+      :asset-type="props.assetType"
+      :asset-data="props.assetData"
+      :close-modal="props.closeModal"
       :validation-schema="validationSchema"
-      @submit="handleUpdateAsset"
-      @invalid-submit="handleInvalidSubmit"
-    >
-      <div
-        v-for="(value, key, index) in initialValues"
-        :key="key"
+      :trigger-submit="triggerSubmit"
+      @update-asset="handleUpdateAsset"
+    />
+    <template #footer>
+      <BaseButton
+        variant="grey"
+        @click="handleCancel()"
+        >Cancel</BaseButton
       >
-        <template v-if="Array.isArray(value)">
-          <FieldArray
-            v-slot="{ fields, push, remove }"
-            name="objects"
-          >
-            <button
-              type="button"
-              @click="push(newAsset)"
-            >
-              Add
-            </button>
-            <fieldset
-              v-for="(field, fieldIndex) in fields"
-              :key="fieldIndex"
-            >
-              <template
-                v-for="(_propertyValue, propertyKey) in field.value"
-                :key="propertyKey"
-              >
-                <AssetTextField
-                  :id="`${key}.${fieldIndex}.${propertyKey}`"
-                  v-model="field.value[propertyKey]"
-                  :label="ASSET_DATA_LABEL[propertyKey]"
-                />
-              </template>
-              <button
-                type="button"
-                @click="remove(fieldIndex)"
-              >
-                Remove
-              </button>
-            </fieldset>
-          </FieldArray>
-        </template>
-        <template v-else>
-          <AssetTextField
-            :id="key"
-            v-model="initialValues[key]"
-            :label="ASSET_DATA_LABEL[key]"
-          />
-        </template>
-      </div>
-
-      <div class="flex flex-16 gap-16">
-        <BaseButton
-          variant="grey"
-          @click="handleCancel()"
-          >Cancel</BaseButton
-        >
-        <BaseButton
-          variant="primary"
-          type="submit"
-          >Save</BaseButton
-        >
-      </div>
-    </Form>
+      <BaseButton
+        variant="primary"
+        type="submit"
+        @click="handleSubmit"
+        >Save</BaseButton
+      >
+    </template>
   </BaseModal>
 </template>
 
@@ -92,6 +46,7 @@ import {
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { S3Bucket_schema, Default_schema } from './assetValidators';
+import FormEditAsset from './FormEditAsset.vue';
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
@@ -109,12 +64,8 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
-const emits = defineEmits(['updateAsset']);
-const initialValues = ref({});
-
-onMounted(() => {
-  initialValues.value = { ...props.assetData };
-});
+const emits = defineEmits(['update-asset']);
+const triggerSubmit = ref(false);
 
 const isExistingAsset = computed(() => {
   return Object.keys(props.assetData).length > 0;
@@ -126,24 +77,28 @@ const modalTitle = computed(() => {
     : `Add new ${props.assetType}`;
 });
 
-const newAsset = computed(() => {
-  switch (props.assetType) {
-    case ASSET_TYPE.S3BUCKET:
-      return ASSET_DATA[ASSET_TYPE.S3BUCKET_OBJECT];
-    default:
-      return { newKey: '' };
-  }
-});
+// const newAsset = computed(() => {
+//   switch (props.assetType) {
+//     case ASSET_TYPE.S3BUCKET:
+//       return ASSET_DATA[ASSET_TYPE.S3BUCKET_OBJECT];
+//     default:
+//       return { newKey: '' };
+//   }
+// });
 
 function handleUpdateAsset(values: any) {
   console.log(values, 'values');
-  // initialValues.value;
-  emits('updateAsset', values);
+  // // initialValues.value;
+  emits('update-asset', values);
 }
 
-function handleInvalidSubmit() {
-  console.log('invalid biaaatch');
+function handleSubmit() {
+  triggerSubmit.value = true;
 }
+
+// function handleInvalidSubmit() {
+//   console.log('invalid biaaatch');
+// }
 
 function handleCancel() {
   props.closeModal();
