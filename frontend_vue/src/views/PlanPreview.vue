@@ -40,13 +40,14 @@
       <TransitionGroup name="list">
         <AssetCard
           v-for="(asset, index) of assetValues"
-          :key="asset"
+          :key="`${assetKey}-${index}`"
           :asset-type="assetKey"
           :asset-data="asset"
-          @open-asset="handleOpenAsset(asset, assetKey)"
+          @open-asset="handleOpenAsset(asset, assetKey, index)"
+          @save-asset="() => console.log('clicked save')"
           @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
           @delete-asset="
-            handleRemoveAsset(assetKey, assetSamples.S3Bucket, index)
+            handleRemoveAsset(assetKey, assetSamples[assetKey], index)
           "
         />
       </TransitionGroup>
@@ -64,7 +65,7 @@ import {
   ASSET_TYPE_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
-import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDelete.vue';
+import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
 
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
 
@@ -82,12 +83,7 @@ function selectViewType(value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]) {
   viewType.value = value;
 }
 
-function handleSelectAsset(
-  isSelected: boolean,
-  list: any,
-  asset: any,
-  index: number
-) {
+function handleSelectAsset(isSelected: boolean, asset: any) {
   console.log(isSelected, asset);
   selectedAssets.value = [...selectedAssets.value, asset];
 }
@@ -108,19 +104,49 @@ function handleRemoveAsset(assetType: any, list: any, index: number) {
   open();
 }
 
-function handleOpenAsset(assetData: any, assetType: any) {
+function handleOpenAsset(assetData: any, assetType: any, index: number) {
   const { open } = useModal({
     component: ModalAsset,
     attrs: {
       assetType: assetType,
       assetData: assetData,
-      closeModal: () => close(),
+      closeModal: () => {
+        close();
+      },
+      onUpdateAsset: (newValues) => {
+        handleUpdateAsset(newValues, assetType, index);
+      },
     },
   });
   open();
 }
 
-const assetSamples = ref({
+function handleUpdateAsset(
+  newValues: any,
+  assetType: keyof typeof assetSamples.value,
+  index: number
+) {
+  console.log(assetType, 'assetType');
+  console.log(index, 'index');
+  console.log(newValues, 'newValues');
+  assetSamples.value[assetType][index] = newValues;
+  // console.log(assetSamples.value[assetType][index], 'iiii');
+}
+
+const assetSamples = ref<{
+  S3Bucket: { bucket_name: string; objects: { object_path: string }[] }[];
+  SQSQueue: { queue_name: string; message_count: number }[];
+  SSMParameter: { ssm_parameter_name: string; ssm_parameter_value: string }[];
+  SecretsManagerSecret: {
+    secretsmanager_secret_name: string;
+    secretsmanager_secret_value: string;
+  }[];
+  DynamoDBTable: {
+    dynamodb_name: string;
+    dynamodb_partition_key: string;
+    dynamodb_row_count: number;
+  }[];
+}>({
   S3Bucket: [
     {
       bucket_name: 'decoy-bucket-1',

@@ -30,15 +30,15 @@
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400">
+          <span class="label text-grey-400"> {{ showDataLabel(key) }}: </span>
+          <span class="value text-grey-700">
             <img
               v-if="showDataIcon(key)"
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
               :alt="`${key} icon`"
               class="w-[1.5rem] h-[1.3rem]"
-            />{{ showDataLabel(key) }}:
-          </span>
-          <span class="value text-grey-700">{{ value }}</span>
+            />{{ value }}</span
+          >
         </li>
       </ul>
       <!--- Btn Edit --->
@@ -156,7 +156,6 @@ function showDataLabel(key: keyof typeof ASSET_DATA_LABEL) {
 }
 
 function showDataIcon(key: string) {
-  console.log(key, 'key');
   return ASSET_WITH_ICON.includes(key);
 }
 
@@ -207,7 +206,7 @@ function handleSelectAsset(value: boolean) {
     flex-direction: column;
     flex-grow: 1;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
 
     &__content {
       display: flex;
@@ -243,17 +242,14 @@ function handleSelectAsset(value: boolean) {
         justify-content: space-between;
         text-align: left;
 
-        span.label {
-          display: flex;
-          flex-direction: row;
-          gap: 0.3rem;
-        }
-
         span.value {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           max-width: 10ch;
+          display: flex;
+          flex-direction: row;
+          gap: 0.3rem;
         }
       }
     }
@@ -367,7 +363,7 @@ function handleSelectAsset(value: boolean) {
         flex-direction: row;
         gap: 0.5rem;
 
-        span.label {
+        span.value {
           gap: 0.3rem;
           display: flex;
           flex-direction: row;
