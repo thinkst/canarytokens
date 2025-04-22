@@ -27,7 +27,10 @@
     v-for="(assetValues, assetKey) in assetSamples"
     :key="assetKey"
   >
-    <h1 class="mb-8 mt-16">{{ ASSET_TYPE_LABEL[assetKey] }}</h1>
+    <h1 class="mb-8 mt-16">{{ ASSET_LABEL[assetKey] }}</h1>
+    <button @click="handleOpenAssetModal(null, assetKey, -1)">
+      Add new {{ ASSET_LABEL[assetKey] }}
+    </button>
     <div
       :class="[
         { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
@@ -43,7 +46,7 @@
           :key="`${assetKey}-${index}`"
           :asset-type="assetKey"
           :asset-data="asset"
-          @open-asset="handleOpenAsset(asset, assetKey, index)"
+          @open-asset="handleOpenAssetModal(asset, assetKey, index)"
           @save-asset="() => console.log('clicked save')"
           @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
           @delete-asset="
@@ -62,7 +65,7 @@ import { useModal } from 'vue-final-modal';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import {
   ASSET_TYPE,
-  ASSET_TYPE_LABEL,
+  ASSET_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
@@ -103,7 +106,7 @@ function handleRemoveAsset(assetType: any, list: any, index: number) {
   open();
 }
 
-function handleOpenAsset(assetData: any, assetType: any, index: number) {
+function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
   const { open } = useModal({
     component: ModalAsset,
     attrs: {
@@ -113,19 +116,23 @@ function handleOpenAsset(assetData: any, assetType: any, index: number) {
         close();
       },
       'onUpdate-asset': (newValues) => {
-        handleUpdateAsset(newValues, assetType, index);
+        handleSaveAsset(newValues, assetType, index);
       },
     },
   });
   open();
 }
 
-function handleUpdateAsset(
+function handleSaveAsset(
   newValues: any,
   assetType: keyof typeof assetSamples.value,
   index: number
 ) {
-  assetSamples.value[assetType][index] = newValues;
+  if (index === -1) {
+    assetSamples.value[assetType].push(newValues);
+  } else {
+    assetSamples.value[assetType][index] = newValues;
+  }
 }
 
 const assetSamples = ref<{

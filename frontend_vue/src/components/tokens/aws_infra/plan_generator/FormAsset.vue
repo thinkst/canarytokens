@@ -1,6 +1,6 @@
 <template>
   <Form
-    ref="editAssetForm"
+    ref="formAssetRef"
     class="w-full"
     :initial-values="initialValues"
     :validation-schema="props.validationSchema"
@@ -18,7 +18,7 @@
         >
           <button
             type="button"
-            @click="push(newAsset)"
+            @click="push({ object_path: '' })"
           >
             Add
           </button>
@@ -33,7 +33,7 @@
               <AssetTextField
                 :id="`${key}.${fieldIndex}.${propertyKey}`"
                 v-model="field.value[propertyKey]"
-                :label="ASSET_DATA_LABEL[propertyKey]"
+                :label="ASSET_LABEL[propertyKey]"
               />
             </template>
             <button
@@ -49,7 +49,7 @@
         <AssetTextField
           :id="key"
           v-model="initialValues[key]"
-          :label="ASSET_DATA_LABEL[key]"
+          :label="ASSET_LABEL[key]"
         />
       </template>
     </div>
@@ -60,6 +60,7 @@
 import { computed, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
+import type { GenericObject } from 'vee-validate';
 import type {
   S3BucketType,
   S3ObjectType,
@@ -71,7 +72,7 @@ import type {
 import {
   ASSET_TYPE,
   ASSET_DATA,
-  ASSET_DATA_LABEL,
+  ASSET_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 
@@ -94,27 +95,34 @@ const props = defineProps<{
 
 const emits = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
-const editAssetForm: Ref<HTMLFormElement | null> = ref(null);
+const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
 
-function onSubmit(values: AssetType) {
+function onSubmit(values: GenericObject) {
   emits('update-asset', values);
 }
 
 function onInvalidSubmit(values: any) {
-  console.log('onInvalidSubmit');
   emits('invalid-submit', values);
 }
 
 function programaticSubmit() {
-  if (editAssetForm.value) {
-    editAssetForm.value.$el.requestSubmit();
+  if (formAssetRef.value) {
+    formAssetRef.value.$el.requestSubmit();
   }
 }
 
-const newAsset = computed(() => {
+const newAssetValues = computed(() => {
   switch (props.assetType) {
     case ASSET_TYPE.S3BUCKET:
-      return ASSET_DATA[ASSET_TYPE.S3BUCKET_OBJECT];
+      return ASSET_DATA[ASSET_TYPE.S3BUCKET];
+    case ASSET_TYPE.SQSQUEUE:
+      return ASSET_DATA[ASSET_TYPE.SQSQUEUE];
+    case ASSET_TYPE.SSMPARAMETER:
+      return ASSET_DATA[ASSET_TYPE.SSMPARAMETER];
+    case ASSET_TYPE.SECRETMANAGERSECRET:
+      return ASSET_DATA[ASSET_TYPE.SECRETMANAGERSECRET];
+    case ASSET_TYPE.DYNAMODBTABLE:
+      return ASSET_DATA[ASSET_TYPE.DYNAMODBTABLE];
     default:
       return { newKey: '' };
   }
@@ -123,7 +131,11 @@ const newAsset = computed(() => {
 watch(
   () => props.assetData,
   (newAssetData) => {
-    initialValues.value = { ...newAssetData };
+    if (newAssetData && Object.keys(newAssetData).length > 0) {
+      initialValues.value = { ...newAssetData };
+    } else {
+      initialValues.value = newAssetValues.value;
+    }
   },
   { immediate: true }
 );
