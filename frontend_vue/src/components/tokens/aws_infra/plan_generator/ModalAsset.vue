@@ -30,8 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
-import { Form, FieldArray } from 'vee-validate';
+import { computed, ref } from 'vue';
 import type {
   S3BucketType,
   S3ObjectType,
@@ -40,12 +39,7 @@ import type {
   SecretsManagerSecretType,
   DynamoDBTableType,
 } from '../types';
-import {
-  ASSET_TYPE,
-  ASSET_DATA,
-  ASSET_LABEL,
-} from '@/components/tokens/aws_infra/constants.ts';
-import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
+import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
 import {
   S3Bucket_schema,
   SQSQueue_schema,
@@ -87,7 +81,6 @@ const modalTitle = computed(() => {
 
 function handleUpdateAsset(values: any) {
   console.log(values, 'values');
-  // // initialValues.value;
   emits('update-asset', values);
 }
 
