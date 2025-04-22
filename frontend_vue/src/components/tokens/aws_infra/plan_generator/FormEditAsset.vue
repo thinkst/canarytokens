@@ -57,7 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type {
   S3BucketType,
@@ -95,7 +96,7 @@ const emits = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
 const editAssetForm: Ref<HTMLFormElement | null> = ref(null);
 
-function onSubmit(values: any) {
+function onSubmit(values: AssetType) {
   emits('update-asset', values);
 }
 
