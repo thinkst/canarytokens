@@ -28,9 +28,6 @@
     :key="assetKey"
   >
     <h1 class="mb-8 mt-16">{{ ASSET_LABEL[assetKey] }}</h1>
-    <button @click="handleOpenAssetModal(null, assetKey, -1)">
-      Add new {{ ASSET_LABEL[assetKey] }}
-    </button>
     <div
       :class="[
         { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
@@ -54,6 +51,11 @@
           "
         />
       </TransitionGroup>
+      <ButtonAddAsset
+        v-if="viewType === VIEW_TYPE.GRID"
+        :asset-type="ASSET_LABEL[assetKey]"
+        @add-asset="handleOpenAssetModal(null, assetKey, -1)"
+      />
     </div>
   </template>
 </template>
@@ -63,12 +65,10 @@ import { ref, provide } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
-import {
-  ASSET_TYPE,
-  ASSET_LABEL,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
+import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonAddAsset.vue';
 
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
 
