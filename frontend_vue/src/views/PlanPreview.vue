@@ -25,7 +25,6 @@
   <SelectAddAsset
     @select-option="(assetKey) => handleOpenAssetModal(null, assetKey, -1)"
   />
-
   <template
     v-for="(assetValues, assetKey) in assetSamples"
     :key="assetKey"
@@ -33,7 +32,7 @@
     <h1 class="mb-8 mt-16">{{ ASSET_LABEL[assetKey] }}</h1>
     <div
       :class="[
-        { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
+        { 'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST },
         {
           'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 auto-rows-fr':
             viewType === VIEW_TYPE.GRID,
@@ -54,7 +53,6 @@
         />
       </TransitionGroup>
       <ButtonAddAsset
-        v-if="viewType === VIEW_TYPE.GRID"
         :asset-type="ASSET_LABEL[assetKey]"
         @add-asset="handleOpenAssetModal(null, assetKey, -1)"
       />
@@ -110,7 +108,7 @@ function handleRemoveAsset(assetType: any, list: any, index: number) {
 }
 
 function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
-  const { open } = useModal({
+  const { open, close } = useModal({
     component: ModalAsset,
     attrs: {
       assetType: assetType,

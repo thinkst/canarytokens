@@ -2,16 +2,22 @@
   <BaseModal
     :title="modalTitle"
     :has-close-button="true"
+    class="flex flex-row items-stretch"
   >
-    <!-- @vue-expect-error: TS breaks for no reason on props.assetData even when type casted -->
-    <FormAsset
-      :asset-type="props.assetType"
-      :asset-data="props.assetData"
-      :close-modal="props.closeModal"
-      :validation-schema="validationSchema"
-      :trigger-submit="triggerSubmit"
-      @update-asset="handleUpdateAsset"
-    />
+    <div
+      class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16"
+    >
+      <!-- @vue-expect-error: TS breaks for no reason on props.assetData even when type casted -->
+      <FormAsset
+        :asset-type="props.assetType"
+        :asset-data="props.assetData"
+        :close-modal="props.closeModal"
+        :validation-schema="validationSchema"
+        :trigger-submit="triggerSubmit"
+        @update-asset="handleUpdateAsset"
+        @invalid-submit="handleInvalidSubmit"
+      />
+    </div>
 
     <template #footer>
       <BaseButton
@@ -68,6 +74,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['update-asset']);
 const triggerSubmit = ref(false);
+const triggerCancel = ref(false);
 
 const isExistingAsset = computed(() => {
   return props.assetData && Object.keys(props.assetData).length > 0;
@@ -80,7 +87,6 @@ const modalTitle = computed(() => {
 });
 
 function handleUpdateAsset(values: any) {
-  console.log(values, 'values');
   emits('update-asset', values);
 }
 
@@ -88,7 +94,12 @@ function handleSubmit() {
   triggerSubmit.value = true;
 }
 
+function handleInvalidSubmit() {
+  triggerSubmit.value = false;
+}
+
 function handleCancel() {
+  triggerCancel.value = true;
   props.closeModal();
 }
 
