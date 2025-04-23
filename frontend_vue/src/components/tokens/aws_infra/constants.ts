@@ -13,9 +13,9 @@ export const ASSET_DATA = {
     bucket_name: '',
     objects: [],
   },
-  // [ASSET_TYPE.S3BUCKET_OBJECT]: {
-  //   object_path: '',
-  // },
+  object_path: {
+    object_path: '',
+  },
   [ASSET_TYPE.SQSQUEUE]: {
     queue_name: '',
     message_count: null,
@@ -52,7 +52,7 @@ export const ASSET_LABEL = {
   queue_name: 'Queue Name',
   object_path: 'Object Path',
   bucket_name: 'S3 Bucket Name',
-  objects: 'Objects',
+  objects: 'S3 Bucket Objects',
 };
 
 // Main keys for the Asset Card
