@@ -1,7 +1,7 @@
 export const ASSET_TYPE = {
   S3BUCKET: 'S3Bucket',
-  S3BUCKET_NAME: 'bucket_name',
-  S3BUCKET_OBJECT: 'object_path',
+  // S3BUCKET_NAME: 'bucket_name',
+  // S3BUCKET_OBJECT: 'object_path',
   SQSQUEUE: 'SQSQueue',
   SSMPARAMETER: 'SSMParameter',
   SECRETMANAGERSECRET: 'SecretsManagerSecret',
@@ -13,9 +13,9 @@ export const ASSET_DATA = {
     bucket_name: '',
     objects: [],
   },
-  [ASSET_TYPE.S3BUCKET_OBJECT]: {
-    object_path: '',
-  },
+  // [ASSET_TYPE.S3BUCKET_OBJECT]: {
+  //   object_path: '',
+  // },
   [ASSET_TYPE.SQSQUEUE]: {
     queue_name: '',
     message_count: null,
@@ -34,8 +34,6 @@ export const ASSET_DATA = {
     dynamodb_row_count: '',
   },
 };
-
-export const ASSET_WITH_ICON = ['objects'];
 
 export const ASSET_LABEL = {
   [ASSET_TYPE.S3BUCKET]: 'S3 Bucket',
@@ -66,6 +64,9 @@ export const ASSET_DATA_NAME = {
   [ASSET_TYPE.SQSQUEUE]: 'queue_name',
   [ASSET_TYPE.S3BUCKET]: 'bucket_name',
 };
+
+// Display icon in Asset Card
+export const ASSET_WITH_ICON = ['objects'];
 
 export const AWS_REGIONS = [
   { value: 'us-east-1', label: 'US East (N. Virginia)' },

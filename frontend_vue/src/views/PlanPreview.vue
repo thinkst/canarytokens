@@ -22,6 +22,9 @@
       Selected assets: {{ selectedAssets.length }}
     </div>
   </div>
+  <SelectAddAsset
+    @select-option="(assetKey) => handleOpenAssetModal(null, assetKey, -1)"
+  />
 
   <template
     v-for="(assetValues, assetKey) in assetSamples"
@@ -32,7 +35,7 @@
       :class="[
         { 'grid grid-col-1 gap-8': viewType === VIEW_TYPE.LIST },
         {
-          'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
+          'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 auto-rows-fr':
             viewType === VIEW_TYPE.GRID,
         },
       ]"
@@ -44,7 +47,6 @@
           :asset-type="assetKey"
           :asset-data="asset"
           @open-asset="handleOpenAssetModal(asset, assetKey, index)"
-          @save-asset="() => console.log('clicked save')"
           @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
           @delete-asset="
             handleRemoveAsset(assetKey, assetSamples[assetKey], index)
@@ -69,6 +71,7 @@ import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
 import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonAddAsset.vue';
+import SelectAddAsset from '@/components/tokens/aws_infra/plan_generator/SelectAddAsset.vue';
 
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
 
