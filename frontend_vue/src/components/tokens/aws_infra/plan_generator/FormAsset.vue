@@ -63,7 +63,7 @@ import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import type {
   S3BucketType,
-  S3ObjectType,
+  // S3ObjectType,
   SQSQueueType,
   SSMParameterType,
   SecretsManagerSecretType,
@@ -80,7 +80,7 @@ type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
 type AssetType =
   | S3BucketType
-  | S3ObjectType
+  // | S3ObjectType
   | SQSQueueType
   | SSMParameterType
   | SecretsManagerSecretType
