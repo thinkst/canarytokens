@@ -13,43 +13,23 @@
     >
       <template v-if="Array.isArray(value)">
         <FieldArray
-          v-slot="{ fields, push, remove }"
+          v-slot="{ fields, prepend, remove }"
           name="objects"
         >
-          <button
-            type="button"
-            @click="push({ object_path: '' })"
-          >
-            Add
-          </button>
-          <fieldset
-            v-for="(field, fieldIndex) in fields"
-            :key="fieldIndex"
-          >
-            <template
-              v-for="(_propertyValue, propertyKey) in field.value"
-              :key="propertyKey"
-            >
-              <AssetTextField
-                :id="`${key}.${fieldIndex}.${propertyKey}`"
-                v-model="field.value[propertyKey]"
-                :label="ASSET_LABEL[propertyKey]"
-              />
-            </template>
-            <button
-              type="button"
-              @click="remove(fieldIndex)"
-            >
-              Remove
-            </button>
-          </fieldset>
+          <FormObjects
+            :asset-key="key"
+            object-key="object_path"
+            :fields="fields"
+            :prepend="prepend"
+            :remove="remove"
+          />
         </FieldArray>
       </template>
       <template v-else>
         <AssetTextField
           :id="key"
           v-model="initialValues[key]"
-          :label="ASSET_LABEL[key]"
+          :label="getLabel(key)"
         />
       </template>
     </div>
@@ -57,10 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
+
 import type {
   S3BucketType,
   // S3ObjectType,
@@ -75,6 +56,7 @@ import {
   ASSET_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
+import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObjects.vue';
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
@@ -91,24 +73,36 @@ const props = defineProps<{
   assetData: AssetType;
   validationSchema: any;
   triggerSubmit: boolean;
+  triggerCancel: boolean;
+  closeModal: () => void;
 }>();
 
 const emits = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
 const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
+const tempFields: Ref<AssetType | []> = ref([]);
+
+onMounted(() => {
+  tempFields.value = { ...props.assetData };
+});
 
 function onSubmit(values: GenericObject) {
   emits('update-asset', values);
+  props.closeModal();
 }
 
 function onInvalidSubmit(values: any) {
   emits('invalid-submit', values);
 }
 
-function programaticSubmit() {
+function handleProgramaticSubmit() {
   if (formAssetRef.value) {
     formAssetRef.value.$el.requestSubmit();
   }
+}
+
+function handleRestoreFields() {
+  emits('update-asset', tempFields);
 }
 
 const newAssetValues = computed(() => {
@@ -128,6 +122,10 @@ const newAssetValues = computed(() => {
   }
 });
 
+function getLabel(key: keyof typeof ASSET_LABEL) {
+  return ASSET_LABEL[key];
+}
+
 watch(
   () => props.assetData,
   (newAssetData) => {
@@ -143,7 +141,15 @@ watch(
 watch(
   () => props.triggerSubmit,
   (newVal) => {
-    if (newVal === true) return programaticSubmit();
+    if (newVal === true) return handleProgramaticSubmit();
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.triggerCancel,
+  (newVal) => {
+    if (newVal === true) return handleRestoreFields();
   },
   { immediate: true }
 );
