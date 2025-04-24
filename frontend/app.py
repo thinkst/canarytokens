@@ -57,6 +57,7 @@ from canarytokens.models import (
     AWSInfraTriggerOperationRequest,
     AnyDownloadRequest,
     AnySettingsRequest,
+    AnyTokenEditRequest,
     AnyTokenRequest,
     AnyTokenResponse,
     AWSInfraConfigStartRequest,
@@ -79,6 +80,7 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    EditResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -973,6 +975,14 @@ async def api_settings_post(
         return SettingsResponse(**{"message": "failure"})
 
 
+@api.post("/edit")
+async def api_edit(request: AnyTokenEditRequest) -> EditResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
+    if canarydrop.edit():
+        return EditResponse(message="success")
+    return EditResponse(message="failure")
+
+
 @api.get(
     "/download",
     tags=["Canarytokens Downloads"],
@@ -1196,7 +1206,7 @@ def api_awsinfra_management_response(
 
 
 @api.get("/edit")
-def api_edit():
+def api_get_edit():
     pass
 
 
