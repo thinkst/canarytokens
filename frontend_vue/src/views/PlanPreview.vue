@@ -88,6 +88,9 @@
       </div>
     </template>
   </div>
+  <div class="flex justify-center mt-24">
+    <BaseButton @click="handleSavePlan">Save Plan</BaseButton>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -244,6 +247,10 @@ function handleSaveAsset(
   } else {
     assetSamples.value[assetType][index] = newValues;
   }
+}
+
+function handleSavePlan() {
+  alert(JSON.stringify(assetSamples.value));
 }
 
 const assetSamples = ref<{
