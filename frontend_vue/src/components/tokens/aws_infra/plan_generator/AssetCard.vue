@@ -37,7 +37,10 @@
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
               :alt="`${key} icon`"
               class="w-[1.5rem] h-[1.3rem]"
-            />{{ value }}</span
+            />
+            <span :class="{ 'cropped-data': assetDataDisplay.length > 1 }">
+              {{ value }}</span
+            ></span
           >
         </li>
       </ul>
@@ -358,6 +361,14 @@ function handleSelectAsset(value: boolean) {
         display: flex;
         flex-direction: row;
         gap: 0.5rem;
+
+        .cropped-data {
+          width: 15ch;
+          text-align: left;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
         span.value {
           gap: 0.3rem;
