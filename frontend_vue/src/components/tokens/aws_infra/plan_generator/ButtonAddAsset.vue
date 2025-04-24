@@ -1,6 +1,6 @@
 <template>
   <button
-    class="border group bg-white rounded-2xl top-[0px] border-grey-200 duration-100 ease-in-out hover:border-green-600 focus:border-green-600"
+    class="border group rounded-2xl top-[0px] border-grey-200 duration-100 ease-in-out hover:border-green-600 focus:border-green-600"
     @click="emits('add-asset')"
   >
     <font-awesome-icon

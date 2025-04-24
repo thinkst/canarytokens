@@ -1,52 +1,54 @@
 <template>
-  <label
-    for="Add-new-instance"
-    class="mt-8 ml-4 font-semibold"
-    >Add New Instance</label
-  >
-  <v-select
-    id="Add-new-instance"
-    class="v-select"
-    :options="options"
-    :searchable="false"
-    placeholder="Select"
-    @input="handleSelectOption"
-    @option:selected="
-      (option: SelectOption) => handleSelectOption(option.value)
-    "
-  >
-    <template #open-indicator="{ attributes }">
-      <span v-bind="attributes">
-        <font-awesome-icon
-          icon="chevron-up"
-          class="w-6 h-6 hover:text-grey-400"
-      /></span>
-    </template>
-    <template #option="{ label, value }">
-      <div class="flex flex-row items-center gap-16">
-        <div
-          alt="icon"
-          :style="{
-            backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
-          }"
-          class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full"
-        ></div>
-        {{ label }}
-      </div>
-    </template>
-    <template #selected-option="{ label, value }">
-      <div class="flex flex-row items-center gap-8">
-        <div
-          alt="icon"
-          :style="{
-            backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
-          }"
-          class="bg-cover w-[1.5rem] h-[1.5rem] duration-100 rounded-full"
-        ></div>
-        {{ label }}
-      </div>
-    </template>
-  </v-select>
+  <div class="flex flex-row gap-16">
+    <label
+      for="Add-new-instance"
+      class="mt-8 ml-4 font-semibold"
+      >Add
+    </label>
+    <v-select
+      id="Add-new-instance"
+      class="v-select min-w-[20rem]"
+      :options="options"
+      :searchable="false"
+      placeholder="Select"
+      @input="handleSelectOption"
+      @option:selected="
+        (option: SelectOption) => handleSelectOption(option.value)
+      "
+    >
+      <template #open-indicator="{ attributes }">
+        <span v-bind="attributes">
+          <font-awesome-icon
+            icon="chevron-up"
+            class="w-6 h-6 hover:text-grey-400"
+        /></span>
+      </template>
+      <template #option="{ label, value }">
+        <div class="flex flex-row items-center gap-16">
+          <div
+            alt="icon"
+            :style="{
+              backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
+            }"
+            class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full"
+          ></div>
+          {{ label }}
+        </div>
+      </template>
+      <template #selected-option="{ label, value }">
+        <div class="flex flex-row items-center gap-8">
+          <div
+            alt="icon"
+            :style="{
+              backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
+            }"
+            class="bg-cover w-[1.5rem] h-[1.5rem] duration-100 rounded-full"
+          ></div>
+          {{ label }}
+        </div>
+      </template>
+    </v-select>
+  </div>
 </template>
 
 <script setup lang="ts">
