@@ -1,7 +1,6 @@
 <template>
   <Form
     ref="formAssetRef"
-    class="w-full"
     :initial-values="initialValues"
     :validation-schema="props.validationSchema"
     @submit="onSubmit"

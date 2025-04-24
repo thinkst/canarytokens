@@ -12,6 +12,8 @@ import {
   faAngleLeft,
   faArrowRight,
   faCheck,
+  faChevronLeft,
+  faChevronRight,
   faCopy,
   faCloudArrowUp,
   faRotateRight,
@@ -78,7 +80,9 @@ library.add(
   faCalendarDay,
   faIdCard,
   faCircleCheck,
-  faTrash
+  faTrash,
+  faChevronLeft,
+  faChevronRight
 );
 
 const vfm = createVfm();
