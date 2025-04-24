@@ -91,7 +91,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, watch } from 'vue';
 import type {
   S3BucketType,
   S3ObjectType,
@@ -123,6 +123,7 @@ const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 const props = defineProps<{
   assetType: AssetConstValuesType;
   assetData: AssetType;
+  isActiveSelected: boolean;
 }>();
 
 const viewType = inject('viewType');
@@ -182,6 +183,13 @@ function handleSelectAsset(value: boolean) {
   isSelected.value = value;
   emit('selectAsset', isSelected.value);
 }
+
+watch(
+  () => props.isActiveSelected,
+  (newVal) => {
+    newVal === false ? (isSelected.value = newVal) : null;
+  }
+);
 </script>
 
 <style>

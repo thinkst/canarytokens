@@ -27,6 +27,29 @@
         </button>
       </div>
     </div>
+    <div
+      v-if="numberSelectedAssets"
+      class="min-h-[3rem]"
+    >
+      <!-- Add Filter!! -->
+      <div class="bg-grey-100 rounded-xl px-24 py-8 flex flex-row w-fit gap-8">
+        <span>{{ numberSelectedAssets }} assets selected: </span>
+        <button
+          type="button"
+          class="font-semibold hover:text-red"
+          @click="handleRemoveAsset(null, null, 0, true)"
+        >
+          Delete All
+        </button>
+        <button
+          type="button"
+          class="ml-8 font-semibold hover:text-green-500"
+          @click="resetSelectedAssetObj"
+        >
+          Unselect All
+        </button>
+      </div>
+    </div>
 
     <template
       v-for="(assetValues, assetKey) in assetSamples"
@@ -37,24 +60,27 @@
         :class="[
           { 'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST },
           {
-            'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 auto-rows-fr':
+            'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
               viewType === VIEW_TYPE.GRID,
           },
         ]"
       >
-        <TransitionGroup name="list">
-          <AssetCard
-            v-for="(asset, index) of assetValues"
-            :key="`${assetKey}-${index}`"
-            :asset-type="assetKey"
-            :asset-data="asset"
-            @open-asset="handleOpenAssetModal(asset, assetKey, index)"
-            @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
-            @delete-asset="
-              handleRemoveAsset(assetKey, assetSamples[assetKey], index)
-            "
-          />
-        </TransitionGroup>
+        <!-- <TransitionGroup name="list"> -->
+        <AssetCard
+          v-for="(asset, index) of assetValues"
+          :key="`${assetKey}-${index}`"
+          :asset-type="assetKey"
+          :asset-data="asset"
+          :is-active-selected="isActiveSelected"
+          @open-asset="handleOpenAssetModal(asset, assetKey, index)"
+          @select-asset="
+            (isSelected) => handleSelectAsset(isSelected, assetKey, index)
+          "
+          @delete-asset="
+            handleRemoveAsset(assetKey, assetSamples[assetKey], index, false)
+          "
+        />
+        <!-- </TransitionGroup> -->
         <ButtonAddAsset
           :asset-type="ASSET_LABEL[assetKey]"
           @add-asset="handleOpenAssetModal(null, assetKey, -1)"
@@ -65,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
@@ -84,27 +110,107 @@ const VIEW_TYPE = {
 
 const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
 const selectedAssets: Ref<any[]> = ref([]);
+const isActiveSelected = ref(false);
 
 provide('viewType', viewType);
+
+onMounted(() => {
+  resetSelectedAssetObj();
+});
+
+const numberSelectedAssets = computed(() => {
+  let selectedItems = 0;
+
+  selectedAssets.value.forEach((obj) => {
+    const indexArray = Object.values(obj)[0];
+
+    if (Array.isArray(indexArray)) {
+      selectedItems += indexArray.length;
+    }
+  });
+
+  return selectedItems;
+});
+
+function resetSelectedAssetObj() {
+  isActiveSelected.value = false;
+  selectedAssets.value = Object.keys(assetSamples.value).map((key) => {
+    return { [key]: [] };
+  });
+}
 
 function selectViewType(value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]) {
   viewType.value = value;
 }
+function handleSelectAsset(
+  isSelected: boolean,
+  assetKey: string,
+  index: number
+) {
+  const assetObject = selectedAssets.value.find((item) => assetKey in item);
 
-function handleSelectAsset(isSelected: boolean, asset: any) {
-  selectedAssets.value = [...selectedAssets.value, asset];
+  if (isSelected) {
+    isActiveSelected.value = true;
+    if (
+      assetObject &&
+      Array.isArray(assetObject[assetKey]) &&
+      !assetObject[assetKey].includes(index)
+    ) {
+      assetObject[assetKey].push(index);
+    }
+  }
+
+  if (!isSelected) {
+    if (assetObject && Array.isArray(assetObject[assetKey])) {
+      assetObject[assetKey] = assetObject[assetKey].filter(
+        (item) => item !== index
+      );
+    }
+  }
 }
 
-function handleRemoveAsset(assetType: any, list: any, index: number) {
+function handleRemoveAllSelected() {
+  const updatedAssets = { ...assetSamples.value };
+
+  selectedAssets.value.forEach((assetGroup) => {
+    const assetKey = Object.keys(assetGroup)[0];
+    const indicesToRemove = assetGroup[assetKey];
+    // Order indexes in descending order
+    // To avoid weird shifting in index order during the loop
+    const sortedIndicesToRemove = [...indicesToRemove].sort((a, b) => b - a);
+
+    if (
+      updatedAssets[assetKey as keyof typeof assetSamples.value] &&
+      Array.isArray(indicesToRemove)
+    ) {
+      sortedIndicesToRemove.forEach((index) => {
+        if (index >= 0 && index < updatedAssets[assetKey].length) {
+          updatedAssets[assetKey].splice(index, 1);
+        }
+      });
+    }
+  });
+
+  assetSamples.value = updatedAssets;
+  resetSelectedAssetObj();
+}
+
+function handleRemoveAsset(
+  assetType: any,
+  list: any,
+  index: number,
+  isBulkDelete: boolean
+) {
   const { open, close } = useModal({
     component: ModalDelete,
     attrs: {
       assetType: assetType,
+      isBulkDelete: isBulkDelete,
       closeModal: () => {
         close();
       },
       onDeleteConfirmed: () => {
-        list.splice(index, 1);
+        !isBulkDelete ? list.splice(index, 1) : handleRemoveAllSelected();
       },
     },
   });

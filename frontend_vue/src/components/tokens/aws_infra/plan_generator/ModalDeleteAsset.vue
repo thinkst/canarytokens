@@ -1,15 +1,18 @@
 <template>
   <BaseModal
-    :title="`Delete ${props.assetType}`"
+    :title="`Delete ${props.assetType ? props.assetType : ''}`"
     :has-close-button="true"
   >
-    Are you sure you want to delete this {{ assetType }}?
+    Are you sure you want to delete
+    <span v-if="assetType">this {{ assetType }}?</span>
+    <span v-if="isBulkDelete">all selected assets?</span>
     <template #footer>
       <div class="flex flex-16 gap-16">
         <BaseButton
           variant="secondary"
           @click="props.closeModal"
-          >No, keep it</BaseButton
+          >No, keep <span v-if="assetType">it</span>
+          <span v-if="isBulkDelete">them</span></BaseButton
         >
         <BaseButton
           variant="danger"
@@ -29,6 +32,7 @@ type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
 
 const props = defineProps<{
   assetType: AssetConstValuesType;
+  isBulkDelete: boolean;
   closeModal: () => void;
   onDeleteConfirmed: () => void;
 }>();
