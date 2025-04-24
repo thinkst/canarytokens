@@ -168,7 +168,7 @@ const iconURL = computed(() => {
   @apply flex flex-col relative text-grey-800;
 
   input {
-    @apply text-sm px-8 py-8 pr-[4.5rem] border-b resize-none border-grey-400 hover:bg-grey-50 focus:bg-grey-50 focus-visible:bg-grey-50 focus:border-b  focus:border-green-500 focus-visible:outline-0;
+    @apply text-sm px-16 py-8 pl-16 pr-[4.5rem] border-b resize-none border-grey-400 hover:bg-grey-50 focus:bg-grey-50 focus-visible:bg-grey-50 focus:border-b  focus:border-green-500 focus-visible:outline-0;
   }
 
   .icon {
@@ -192,6 +192,9 @@ const iconURL = computed(() => {
     .textfield__cta__remove {
       @apply h-[2rem] w-[2rem] rounded-full hover:bg-green-50 hover:text-green-500 focus:text-green-500 disabled:bg-grey-200 disabled:shadow-solid-shadow-grey disabled:border-grey-300 disabled:text-grey-400 active:shadow-none active:top-[0.15rem] focus-visible:outline-0 focus:outline-0 text-grey-300;
     }
+  }
+  .error-message {
+    @apply h-[1rem];
   }
 }
 
