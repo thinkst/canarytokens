@@ -118,10 +118,8 @@ const props = defineProps<{
 const MAX_PER_PAGE = 10;
 const currentPageNumber = ref(1);
 const containerWidth = ref(0);
-const rowsPerPage = ref(0);
 
 const totalPagesNumber = computed(() => {
-  console.log(props.fields.length, 'props.fields.length');
   return Math.ceil(props.fields.length / MAX_PER_PAGE);
 });
 
