@@ -14,6 +14,7 @@
         :close-modal="props.closeModal"
         :validation-schema="validationSchema"
         :trigger-submit="triggerSubmit"
+        :trigger-cancel="triggerCancel"
         @update-asset="handleUpdateAsset"
         @invalid-submit="handleInvalidSubmit"
       />
