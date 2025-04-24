@@ -34,12 +34,33 @@ def get_session():
 
 
 def get_sqs_client():
+
+    if settings.DOMAINS[0] == "127.0.0.1":
+        return get_session().client(
+            "sqs",
+            region_name="eu-west-1",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN,
+        )
     return get_session().client(
         "sqs",
         region_name="eu-west-1",
-        # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        # aws_session_token=settings.AWS_SESSION_TOKEN,
+    )
+
+
+def get_s3_client():
+    if settings.DOMAINS[0] == "127.0.0.1":
+        return get_session().resource(
+            "sqs",
+            region_name="eu-west-1",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN,
+        )
+    return get_session().resource(
+        "s3",
+        region_name="eu-west-1",
     )
 
 
@@ -210,13 +231,7 @@ def upload_zip(canarytoken_id, prefix, variables):
         f.write(json.dumps(variables))
 
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
-    s3 = get_session().resource(
-        "s3",
-        region_name="eu-west-1",
-        # aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        # aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        # aws_session_token=settings.AWS_SESSION_TOKEN,
-    )
+    s3 = get_s3_client()
     s3.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
         archive, f"{prefix}/{canarytoken_id}/tf.zip"
     )
