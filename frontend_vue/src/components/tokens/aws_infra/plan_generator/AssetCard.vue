@@ -31,7 +31,10 @@
           class="text-sm"
         >
           <span class="label text-grey-400"> {{ showDataLabel(key) }}: </span>
-          <span class="value text-grey-700">
+          <span
+            class="value text-grey-700"
+            :class="{ 'with-icon': showDataIcon(key) }"
+          >
             <img
               v-if="showDataIcon(key)"
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
@@ -246,6 +249,9 @@ function handleSelectAsset(value: boolean) {
           overflow: hidden;
           text-overflow: ellipsis;
           max-width: 10ch;
+        }
+
+        span.value.with-icon {
           display: flex;
           flex-direction: row;
           gap: 0.3rem;
