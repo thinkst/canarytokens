@@ -1,63 +1,67 @@
 <template>
-  <div class="flex gap-8 mb-24">
-    Select view:
-    <button
-      type="button"
-      :class="{ 'text-green-500': viewType === VIEW_TYPE.LIST }"
-      @click="selectViewType(VIEW_TYPE.LIST)"
-    >
-      List
-    </button>
-    <button
-      type="button"
-      :class="{ 'text-green-500': viewType === VIEW_TYPE.GRID }"
-      @click="selectViewType(VIEW_TYPE.GRID)"
-    >
-      Grid
-    </button>
-    <div
-      v-if="selectedAssets.length"
-      class="ml-24"
-    >
-      Selected assets: {{ selectedAssets.length }}
-    </div>
-  </div>
-  <SelectAddAsset
-    @select-option="(assetKey) => handleOpenAssetModal(null, assetKey, -1)"
-  />
-  <template
-    v-for="(assetValues, assetKey) in assetSamples"
-    :key="assetKey"
-  >
-    <h1 class="mb-8 mt-16">{{ ASSET_LABEL[assetKey] }}</h1>
-    <div
-      :class="[
-        { 'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST },
-        {
-          'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 auto-rows-fr':
-            viewType === VIEW_TYPE.GRID,
-        },
-      ]"
-    >
-      <TransitionGroup name="list">
-        <AssetCard
-          v-for="(asset, index) of assetValues"
-          :key="`${assetKey}-${index}`"
-          :asset-type="assetKey"
-          :asset-data="asset"
-          @open-asset="handleOpenAssetModal(asset, assetKey, index)"
-          @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
-          @delete-asset="
-            handleRemoveAsset(assetKey, assetSamples[assetKey], index)
+  <div class="p-40 bg-grey-50 rounded-xl">
+    <div class="flex justify-between mb-24">
+      <div>
+        <SelectAddAsset
+          @select-option="
+            (assetKey) => handleOpenAssetModal(null, assetKey, -1)
           "
         />
-      </TransitionGroup>
-      <ButtonAddAsset
-        :asset-type="ASSET_LABEL[assetKey]"
-        @add-asset="handleOpenAssetModal(null, assetKey, -1)"
-      />
+      </div>
+      <div class="flex items-center gap-8 text-grey-500">
+        View:
+        <button
+          type="button"
+          :class="{ 'text-green-500': viewType === VIEW_TYPE.LIST }"
+          @click="selectViewType(VIEW_TYPE.LIST)"
+        >
+          List
+        </button>
+        |
+        <button
+          type="button"
+          :class="{ 'text-green-500': viewType === VIEW_TYPE.GRID }"
+          @click="selectViewType(VIEW_TYPE.GRID)"
+        >
+          Grid
+        </button>
+      </div>
     </div>
-  </template>
+
+    <template
+      v-for="(assetValues, assetKey) in assetSamples"
+      :key="assetKey"
+    >
+      <h1 class="mb-16 mt-40 uppercase">{{ ASSET_LABEL[assetKey] }}</h1>
+      <div
+        :class="[
+          { 'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST },
+          {
+            'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 auto-rows-fr':
+              viewType === VIEW_TYPE.GRID,
+          },
+        ]"
+      >
+        <TransitionGroup name="list">
+          <AssetCard
+            v-for="(asset, index) of assetValues"
+            :key="`${assetKey}-${index}`"
+            :asset-type="assetKey"
+            :asset-data="asset"
+            @open-asset="handleOpenAssetModal(asset, assetKey, index)"
+            @select-asset="(isSelected) => handleSelectAsset(isSelected, asset)"
+            @delete-asset="
+              handleRemoveAsset(assetKey, assetSamples[assetKey], index)
+            "
+          />
+        </TransitionGroup>
+        <ButtonAddAsset
+          :asset-type="ASSET_LABEL[assetKey]"
+          @add-asset="handleOpenAssetModal(null, assetKey, -1)"
+        />
+      </div>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
