@@ -3,9 +3,7 @@
     <div class="flex justify-between mb-24">
       <div>
         <SelectAddAsset
-          @select-option="
-            (assetKey) => handleOpenAssetModal(null, assetKey, -1)
-          "
+          @select-option="(assetKey) => handleAddNewAsset(assetKey)"
         />
       </div>
       <div class="flex items-center gap-8 text-grey-500">
@@ -97,8 +95,13 @@
 import { ref, provide, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
+import { generateDataChoice } from '@/api/main';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
-import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
+import {
+  ASSET_LABEL,
+  ASSET_TYPE,
+  ASSET_DATA,
+} from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
 import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonAddAsset.vue';
@@ -114,6 +117,8 @@ const VIEW_TYPE = {
 const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
 const selectedAssets: Ref<any[]> = ref([]);
 const isActiveSelected = ref(false);
+const isLoading = ref(false);
+const isErrorMessage = ref('');
 
 provide('viewType', viewType);
 
@@ -235,6 +240,58 @@ function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
     },
   });
   open();
+}
+
+async function handleAddNewAsset(assetType: any) {
+  const newAssetFields = () => {
+    switch (assetType) {
+      case ASSET_TYPE.S3BUCKET:
+        return ASSET_DATA[ASSET_TYPE.S3BUCKET];
+      case ASSET_TYPE.SQSQUEUE:
+        return ASSET_DATA[ASSET_TYPE.SQSQUEUE];
+      case ASSET_TYPE.SSMPARAMETER:
+        return ASSET_DATA[ASSET_TYPE.SSMPARAMETER];
+      case ASSET_TYPE.SECRETMANAGERSECRET:
+        return ASSET_DATA[ASSET_TYPE.SECRETMANAGERSECRET];
+      case ASSET_TYPE.DYNAMODBTABLE:
+        return ASSET_DATA[ASSET_TYPE.DYNAMODBTABLE];
+      default:
+        return {};
+    }
+  };
+
+  const newAssetValues = { ...newAssetFields() };
+
+  async function getAssetRandomData() {
+    isLoading.value = true;
+
+    try {
+      const results = await Promise.all(
+        Object.keys(newAssetFields()).map(async (key) => {
+          if (Array.isArray(newAssetValues[key])) return null;
+
+          const res = await generateDataChoice(assetType);
+          if (!res.result) {
+            throw new Error(res.message);
+          }
+          return { key, value: res.proposed_data };
+        })
+      );
+
+      results.forEach((result) => {
+        if (result) {
+          newAssetValues[result.key] = result.value;
+        }
+      });
+    } catch (err: any) {
+      isErrorMessage.value = err.message || 'An error occurred';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  await getAssetRandomData();
+  handleSaveAsset(newAssetValues, assetType, -1);
 }
 
 function handleSaveAsset(

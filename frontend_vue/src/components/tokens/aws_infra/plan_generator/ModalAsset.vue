@@ -1,8 +1,9 @@
 <template>
   <BaseModal
-    :title="modalTitle"
+    :title="`Edit ${props.assetType}`"
     :has-close-button="true"
     class="flex flex-row items-stretch"
+    @keydown.enter="handleSubmit"
   >
     <div
       class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16"
@@ -30,7 +31,7 @@
         variant="primary"
         type="submit"
         @click="handleSubmit"
-        >Save</BaseButton
+        >Add to plan</BaseButton
       >
     </template>
   </BaseModal>
@@ -69,23 +70,13 @@ type AssetType =
 
 const props = defineProps<{
   assetType: AssetConstValuesType;
-  assetData: AssetType | null;
+  assetData: AssetType;
   closeModal: () => void;
 }>();
 
 const emits = defineEmits(['update-asset']);
 const triggerSubmit = ref(false);
 const triggerCancel = ref(false);
-
-const isExistingAsset = computed(() => {
-  return props.assetData && Object.keys(props.assetData).length > 0;
-});
-
-const modalTitle = computed(() => {
-  return isExistingAsset.value
-    ? `Edit ${props.assetType}`
-    : `Add new ${props.assetType}`;
-});
 
 function handleUpdateAsset(values: any) {
   emits('update-asset', values);
