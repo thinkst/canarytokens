@@ -53,37 +53,49 @@
       v-for="(assetValues, assetKey) in assetSamples"
       :key="assetKey"
     >
-      <h1 class="mb-16 mt-40 uppercase">{{ ASSET_LABEL[assetKey] }}</h1>
-      <div
-        :class="[
-          { 'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST },
-          {
-            'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
-              viewType === VIEW_TYPE.GRID,
-          },
-        ]"
+      <section
+        :id="`section-${assetKey}`"
+        class="asset-section"
       >
-        <!-- <TransitionGroup name="list"> -->
-        <AssetCard
-          v-for="(asset, index) of assetValues"
-          :key="`${assetKey}-${index}`"
-          :asset-type="assetKey"
-          :asset-data="asset"
-          :is-active-selected="isActiveSelected"
-          @open-asset="handleOpenAssetModal(asset, assetKey, index)"
-          @select-asset="
-            (isSelected) => handleSelectAsset(isSelected, assetKey, index)
-          "
-          @delete-asset="
-            handleRemoveAsset(assetKey, assetSamples[assetKey], index, false)
-          "
-        />
-        <!-- </TransitionGroup> -->
-        <ButtonAddAsset
-          :asset-type="ASSET_LABEL[assetKey]"
-          @add-asset="handleOpenAssetModal(null, assetKey, -1)"
-        />
-      </div>
+        <h1 class="mb-16 mt-40 uppercase">{{ ASSET_LABEL[assetKey] }}</h1>
+        <div
+          :class="[
+            {
+              'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST,
+            },
+            {
+              'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
+                viewType === VIEW_TYPE.GRID,
+            },
+          ]"
+        >
+          <TransitionGroup name="list">
+            <AssetCard
+              v-for="(asset, index) of assetValues"
+              :key="`${assetKey}-${index}`"
+              :asset-type="assetKey"
+              :asset-data="asset"
+              :is-active-selected="isActiveSelected"
+              @open-asset="handleOpenAssetModal(asset, assetKey, index)"
+              @select-asset="
+                (isSelected) => handleSelectAsset(isSelected, assetKey, index)
+              "
+              @delete-asset="
+                handleRemoveAsset(
+                  assetKey,
+                  assetSamples[assetKey],
+                  index,
+                  false
+                )
+              "
+            />
+          </TransitionGroup>
+          <ButtonAddAsset
+            :asset-type="ASSET_LABEL[assetKey]"
+            @add-asset="handleAddNewAsset(assetKey)"
+          />
+        </div>
+      </section>
     </template>
   </div>
   <div class="flex justify-center mt-24">
@@ -292,6 +304,9 @@ async function handleAddNewAsset(assetType: any) {
 
   await getAssetRandomData();
   handleSaveAsset(newAssetValues, assetType, -1);
+  // scroll to section
+  location.href = `#section-${assetType}`;
+  // const section = document.getElementById(`section-${assetType}`);
 }
 
 function handleSaveAsset(
