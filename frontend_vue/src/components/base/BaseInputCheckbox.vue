@@ -59,7 +59,6 @@ label {
 }
 
 input[type='checkbox'] {
-  -webkit-appearance: none;
   appearance: none;
   /* For iOS < 15 */
   background-color: white;
