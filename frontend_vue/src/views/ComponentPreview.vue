@@ -1,6 +1,33 @@
 <template>
   <div>
     <hr class="my-24" />
+    <h1>Checkbox input</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <BaseInputCheckbox
+        id="pizza"
+        v-model="checkBoxValue"
+        label="Confirming my love for pizza 🍕 "
+        class="text-sm"
+      />
+      <div class="mt-8">Checkbox value: {{ checkBoxValue }}</div>
+      <BaseInputCheckbox
+        id="tooltip-checkbox"
+        v-model="checkBoxTooltipValue"
+        label="I have a tooltip "
+        class="text-sm"
+        tooltip-content="Boo!"
+      />
+      <BaseInputCheckbox
+        id="disabled"
+        v-model="checkBoxDisabledValue"
+        :disabled="true"
+        label="Disabled checkbox"
+        class="text-sm"
+      />
+    </div>
+  </div>
+  <div>
+    <hr class="my-24" />
     <h1>Step Counter</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <BaseStepCounter
@@ -411,6 +438,9 @@ const checked = ref(false);
 const checkedDisabled = ref(false);
 const fileSelected = ref();
 const currentStep = ref(1);
+const checkBoxValue = ref(false);
+const checkBoxDisabledValue = ref(false);
+const checkBoxTooltipValue = ref(false);
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
