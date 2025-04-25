@@ -7,10 +7,11 @@
     </label>
     <v-select
       id="Add-new-instance"
+      v-model="selectedValue"
       class="v-select min-w-[20rem]"
       :options="options"
       :searchable="false"
-      placeholder="Select"
+      @open="handleResetSelect"
       @input="handleSelectOption"
       @option:selected="
         (option: SelectOption) => handleSelectOption(option.value)
@@ -24,8 +25,9 @@
         /></span>
       </template>
       <template #option="{ label, value }">
-        <div class="flex flex-row items-center gap-16">
+        <div class="flex flex-row items-center gap-16 h-[2rem]">
           <div
+            v-if="value"
             alt="icon"
             :style="{
               backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
@@ -36,8 +38,9 @@
         </div>
       </template>
       <template #selected-option="{ label, value }">
-        <div class="flex flex-row items-center gap-8">
+        <div class="flex flex-row items-center gap-8 h-[1.5rem]">
           <div
+            v-if="value"
             alt="icon"
             :style="{
               backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
@@ -52,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import {
   ASSET_TYPE,
@@ -62,13 +66,21 @@ type SelectOption = { label: string; value: string };
 
 const emits = defineEmits(['selectOption']);
 
+const EMPTY_VALUE = { label: 'Choose asset', value: '' };
+
+const selectedValue = ref(EMPTY_VALUE);
+
 const options = Object.values(ASSET_TYPE).map((val) => {
   return { label: ASSET_LABEL[val], value: val };
 });
 
+function handleResetSelect() {
+  selectedValue.value = EMPTY_VALUE;
+}
+
 function handleSelectOption(value: string | SelectOption) {
-  console.log(value);
   emits('selectOption', value);
+  //
 }
 </script>
 

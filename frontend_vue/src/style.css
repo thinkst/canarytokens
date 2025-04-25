@@ -70,6 +70,7 @@ p {
 html,
 body {
   overscroll-behavior: none;
+  scroll-behavior: smooth;
 }
 
 :root,
@@ -100,6 +101,7 @@ body {
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+    scroll-behavior: auto !important;
   }
   * {
     animation: none !important;
