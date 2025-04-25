@@ -2,14 +2,8 @@
   <ol class="flex flex-row justify-center step-wrapper">
     <li
       v-for="(step, index) in props.steps"
-      :key="step"
-      v-tooltip="
-        stepDescription
-          ? {
-              content: stepDescription[index],
-            }
-          : {}
-      "
+      :key="step.label"
+      class="flex"
     >
       <button
         type="button"
@@ -66,7 +60,6 @@ type StepType = {
 const props = defineProps<{
   steps: StepType[];
   currentStep: number;
-  stepDescription?: string[];
 }>();
 
 const emits = defineEmits(['handleStepClick']);
