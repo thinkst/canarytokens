@@ -11,7 +11,7 @@
         <button
           type="button"
           :class="{ 'text-green-500': viewType === VIEW_TYPE.LIST }"
-          @click="selectViewType(VIEW_TYPE.LIST)"
+          @click="handleSelectViewType(VIEW_TYPE.LIST)"
         >
           List
         </button>
@@ -19,18 +19,46 @@
         <button
           type="button"
           :class="{ 'text-green-500': viewType === VIEW_TYPE.GRID }"
-          @click="selectViewType(VIEW_TYPE.GRID)"
+          @click="handleSelectViewType(VIEW_TYPE.GRID)"
         >
           Grid
         </button>
       </div>
     </div>
-    <div
-      v-if="numberSelectedAssets"
-      class="min-h-[3rem]"
-    >
-      <!-- Add Filter!! -->
-      <div class="bg-grey-100 rounded-xl px-24 py-8 flex flex-row w-fit gap-8">
+    <div class="min-h-[3rem]">
+      <!-- Filters -->
+      <div
+        v-if="!numberSelectedAssets"
+        class="flex flex-col items-center justify-between w-full gap-24 md:flex-row"
+      >
+        <ul class="flex flex-row flex-wrap gap-8 list-none justify-left">
+          <FilterButton
+            id="filterAll"
+            category="All"
+            category-type="Assets"
+            :selected="!filterValue"
+            :high-contrast="true"
+            @click="filterValue = ''"
+          />
+          <li
+            v-for="(_assetValues, assetKey) in assetSamples"
+            :key="assetKey"
+          >
+            <FilterButton
+              :category="ASSET_LABEL[assetKey]"
+              category-type="Assets"
+              :high-contrast="true"
+              :selected="filterValue === assetKey"
+              @click="handleFilterList(assetKey as keyof typeof ASSET_TYPE)"
+            />
+          </li>
+        </ul>
+      </div>
+      <!-- Bulk select actions -->
+      <div
+        v-if="numberSelectedAssets"
+        class="bg-grey-100 rounded-xl px-24 py-8 flex flex-row w-fit gap-8"
+      >
         <span>{{ numberSelectedAssets }} assets selected: </span>
         <button
           type="button"
@@ -54,6 +82,7 @@
       :key="assetKey"
     >
       <section
+        v-if="showSection(assetKey as keyof typeof ASSET_TYPE)"
         :id="`section-${assetKey}`"
         class="asset-section"
       >
@@ -104,10 +133,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, onMounted, computed } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { generateDataChoice } from '@/api/main';
+// import type {
+//   S3BucketType,
+//   S3ObjectType,
+//   SQSQueueType,
+//   SSMParameterType,
+//   SecretsManagerSecretType,
+//   DynamoDBTableType,
+// } from '@/components/tokens/aws_infra/types';
+import FilterButton from '@/components/ui/FilterButton.vue';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import {
   ASSET_LABEL,
@@ -118,6 +156,7 @@ import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
 import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonAddAsset.vue';
 import SelectAddAsset from '@/components/tokens/aws_infra/plan_generator/SelectAddAsset.vue';
+import useMultiselectAssets from '@/components/tokens/aws_infra/plan_generator/useMultiselectAssets.ts';
 
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
 
@@ -125,205 +164,6 @@ const VIEW_TYPE = {
   GRID: 'gridView',
   LIST: 'listView',
 } as const;
-
-const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
-const selectedAssets: Ref<any[]> = ref([]);
-const isActiveSelected = ref(false);
-const isLoading = ref(false);
-const isErrorMessage = ref('');
-
-provide('viewType', viewType);
-
-onMounted(() => {
-  resetSelectedAssetObj();
-});
-
-const numberSelectedAssets = computed(() => {
-  let selectedItems = 0;
-
-  selectedAssets.value.forEach((obj) => {
-    const indexArray = Object.values(obj)[0];
-
-    if (Array.isArray(indexArray)) {
-      selectedItems += indexArray.length;
-    }
-  });
-
-  return selectedItems;
-});
-
-function resetSelectedAssetObj() {
-  isActiveSelected.value = false;
-  selectedAssets.value = Object.keys(assetSamples.value).map((key) => {
-    return { [key]: [] };
-  });
-}
-
-function selectViewType(value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]) {
-  viewType.value = value;
-}
-function handleSelectAsset(
-  isSelected: boolean,
-  assetKey: string,
-  index: number
-) {
-  const assetObject = selectedAssets.value.find((item) => assetKey in item);
-
-  if (isSelected) {
-    isActiveSelected.value = true;
-    if (
-      assetObject &&
-      Array.isArray(assetObject[assetKey]) &&
-      !assetObject[assetKey].includes(index)
-    ) {
-      assetObject[assetKey].push(index);
-    }
-  }
-
-  if (!isSelected) {
-    if (assetObject && Array.isArray(assetObject[assetKey])) {
-      assetObject[assetKey] = assetObject[assetKey].filter(
-        (item) => item !== index
-      );
-    }
-  }
-}
-
-function handleRemoveAllSelected() {
-  const updatedAssets = { ...assetSamples.value };
-
-  selectedAssets.value.forEach((assetGroup) => {
-    const assetKey = Object.keys(assetGroup)[0];
-    const indicesToRemove = assetGroup[assetKey];
-    // Order indexes in descending order
-    // To avoid weird shifting in index order during the loop
-    const sortedIndicesToRemove = [...indicesToRemove].sort((a, b) => b - a);
-
-    if (
-      updatedAssets[assetKey as keyof typeof assetSamples.value] &&
-      Array.isArray(indicesToRemove)
-    ) {
-      sortedIndicesToRemove.forEach((index) => {
-        if (index >= 0 && index < updatedAssets[assetKey].length) {
-          updatedAssets[assetKey].splice(index, 1);
-        }
-      });
-    }
-  });
-
-  assetSamples.value = updatedAssets;
-  resetSelectedAssetObj();
-}
-
-function handleRemoveAsset(
-  assetType: any,
-  list: any,
-  index: number,
-  isBulkDelete: boolean
-) {
-  const { open, close } = useModal({
-    component: ModalDelete,
-    attrs: {
-      assetType: assetType,
-      isBulkDelete: isBulkDelete,
-      closeModal: () => {
-        close();
-      },
-      onDeleteConfirmed: () => {
-        !isBulkDelete ? list.splice(index, 1) : handleRemoveAllSelected();
-      },
-    },
-  });
-  open();
-}
-
-function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
-  const { open, close } = useModal({
-    component: ModalAsset,
-    attrs: {
-      assetType: assetType,
-      assetData: assetData,
-      closeModal: () => {
-        close();
-      },
-      'onUpdate-asset': (newValues) => {
-        handleSaveAsset(newValues, assetType, index);
-      },
-    },
-  });
-  open();
-}
-
-async function handleAddNewAsset(assetType: any) {
-  const newAssetFields = () => {
-    switch (assetType) {
-      case ASSET_TYPE.S3BUCKET:
-        return ASSET_DATA[ASSET_TYPE.S3BUCKET];
-      case ASSET_TYPE.SQSQUEUE:
-        return ASSET_DATA[ASSET_TYPE.SQSQUEUE];
-      case ASSET_TYPE.SSMPARAMETER:
-        return ASSET_DATA[ASSET_TYPE.SSMPARAMETER];
-      case ASSET_TYPE.SECRETMANAGERSECRET:
-        return ASSET_DATA[ASSET_TYPE.SECRETMANAGERSECRET];
-      case ASSET_TYPE.DYNAMODBTABLE:
-        return ASSET_DATA[ASSET_TYPE.DYNAMODBTABLE];
-      default:
-        return {};
-    }
-  };
-
-  const newAssetValues = { ...newAssetFields() };
-
-  async function getAssetRandomData() {
-    isLoading.value = true;
-
-    try {
-      const results = await Promise.all(
-        Object.keys(newAssetFields()).map(async (key) => {
-          if (Array.isArray(newAssetValues[key])) return null;
-
-          const res = await generateDataChoice(assetType);
-          if (!res.result) {
-            throw new Error(res.message);
-          }
-          return { key, value: res.proposed_data };
-        })
-      );
-
-      results.forEach((result) => {
-        if (result) {
-          newAssetValues[result.key] = result.value;
-        }
-      });
-    } catch (err: any) {
-      isErrorMessage.value = err.message || 'An error occurred';
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  await getAssetRandomData();
-  handleSaveAsset(newAssetValues, assetType, -1);
-  // scroll to section
-  location.href = `#section-${assetType}`;
-  // const section = document.getElementById(`section-${assetType}`);
-}
-
-function handleSaveAsset(
-  newValues: any,
-  assetType: keyof typeof assetSamples.value,
-  index: number
-) {
-  if (index === -1) {
-    assetSamples.value[assetType].push(newValues);
-  } else {
-    assetSamples.value[assetType][index] = newValues;
-  }
-}
-
-function handleSavePlan() {
-  alert(JSON.stringify(assetSamples.value));
-}
 
 const assetSamples = ref<{
   S3Bucket: { bucket_name: string; objects: { object_path: string }[] }[];
@@ -545,6 +385,148 @@ const assetSamples = ref<{
     },
   ],
 });
+
+const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
+const isLoading = ref(false);
+const isErrorMessage = ref('');
+const filterValue = ref('');
+const {
+  isActiveSelected,
+  numberSelectedAssets,
+  handleRemoveAllSelected,
+  handleSelectAsset,
+  resetSelectedAssetObj,
+} = useMultiselectAssets(assetSamples);
+
+provide('viewType', viewType);
+
+onMounted(() => {
+  resetSelectedAssetObj();
+});
+
+function handleSelectViewType(
+  value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]
+) {
+  viewType.value = value;
+}
+
+function handleFilterList(assetType: keyof typeof ASSET_TYPE) {
+  filterValue.value = assetType;
+}
+
+function showSection(assetType: keyof typeof ASSET_TYPE) {
+  return filterValue.value === assetType || filterValue.value === '';
+}
+
+function handleRemoveAsset(
+  assetType: any,
+  list: any,
+  index: number,
+  isBulkDelete: boolean
+) {
+  const { open, close } = useModal({
+    component: ModalDelete,
+    attrs: {
+      assetType: assetType,
+      isBulkDelete: isBulkDelete,
+      closeModal: () => {
+        close();
+      },
+      onDeleteConfirmed: () => {
+        !isBulkDelete ? list.splice(index, 1) : handleRemoveAllSelected();
+      },
+    },
+  });
+  open();
+}
+
+function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
+  const { open, close } = useModal({
+    component: ModalAsset,
+    attrs: {
+      assetType: assetType,
+      assetData: assetData,
+      closeModal: () => {
+        close();
+      },
+      'onUpdate-asset': (newValues) => {
+        handleSaveAsset(newValues, assetType, index);
+      },
+    },
+  });
+  open();
+}
+
+async function handleAddNewAsset(assetType: any) {
+  const newAssetFields = () => {
+    switch (assetType) {
+      case ASSET_TYPE.S3BUCKET:
+        return ASSET_DATA[ASSET_TYPE.S3BUCKET];
+      case ASSET_TYPE.SQSQUEUE:
+        return ASSET_DATA[ASSET_TYPE.SQSQUEUE];
+      case ASSET_TYPE.SSMPARAMETER:
+        return ASSET_DATA[ASSET_TYPE.SSMPARAMETER];
+      case ASSET_TYPE.SECRETMANAGERSECRET:
+        return ASSET_DATA[ASSET_TYPE.SECRETMANAGERSECRET];
+      case ASSET_TYPE.DYNAMODBTABLE:
+        return ASSET_DATA[ASSET_TYPE.DYNAMODBTABLE];
+      default:
+        return {};
+    }
+  };
+
+  const newAssetValues = { ...newAssetFields() };
+
+  async function getAssetRandomData() {
+    isLoading.value = true;
+
+    try {
+      const results = await Promise.all(
+        Object.keys(newAssetFields()).map(async (key) => {
+          if (Array.isArray(newAssetValues[key])) return null;
+
+          const res = await generateDataChoice(assetType);
+          if (!res.result) {
+            throw new Error(res.message);
+          }
+          return { key, value: res.proposed_data };
+        })
+      );
+
+      results.forEach((result) => {
+        if (result) {
+          newAssetValues[result.key] = result.value;
+        }
+      });
+    } catch (err: any) {
+      isErrorMessage.value = err.message || 'An error occurred';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  await getAssetRandomData();
+  handleSaveAsset(newAssetValues, assetType, -1);
+  // scroll to section
+  location.href = `#section-${assetType}`;
+  // const section = document.getElementById(`section-${assetType}`);
+}
+
+function handleSaveAsset(
+  newValues: any,
+  assetType: keyof typeof assetSamples.value,
+  index: number
+) {
+  if (index === -1) {
+    assetSamples.value[assetType].push(newValues);
+  } else {
+    assetSamples.value[assetType][index] = newValues;
+  }
+}
+
+function handleSavePlan() {
+  alert(JSON.stringify(assetSamples.value));
+}
 </script>
 
 <style>
