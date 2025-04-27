@@ -98,7 +98,7 @@
             },
           ]"
         >
-          <TransitionGroup name="list">
+          <TransitionGroup :name="animationName">
             <AssetCard
               v-for="(asset, index) of assetValues"
               :key="`${assetKey}-${Object.values(asset)[0]}`"
@@ -382,6 +382,7 @@ const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 const filterValue = ref('');
+const animationName = ref('list');
 const {
   isActiveSelected,
   numberSelectedAssets,
@@ -467,7 +468,7 @@ async function handleAddNewAsset(assetType: any) {
     }
   };
 
-  const newAssetValues = { ...newAssetFields() };
+  const newAssetValues: Record<string, any> = { ...newAssetFields() };
 
   async function getAssetRandomData() {
     isLoading.value = true;
@@ -501,7 +502,6 @@ async function handleAddNewAsset(assetType: any) {
   handleSaveAsset(newAssetValues, assetType, -1);
   // scroll to section
   location.href = `#section-${assetType}`;
-  // const section = document.getElementById(`section-${assetType}`);
 }
 
 function handleSaveAsset(
@@ -512,7 +512,11 @@ function handleSaveAsset(
   if (index === -1) {
     assetSamples.value[assetType].push(newValues);
   } else {
+    animationName.value = '';
     assetSamples.value[assetType][index] = newValues;
+    setTimeout(() => {
+      animationName.value = 'list';
+    }, 0);
   }
 }
 
