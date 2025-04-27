@@ -25,7 +25,7 @@
         </button>
       </div>
     </div>
-    <div class="min-h-[3rem]">
+    <div class="min-h-[3rem] flex items-center">
       <!-- Filters -->
       <div
         v-if="!numberSelectedAssets"
@@ -101,7 +101,7 @@
           <TransitionGroup name="list">
             <AssetCard
               v-for="(asset, index) of assetValues"
-              :key="`${assetKey}-${index}`"
+              :key="`${assetKey}-${Object.values(asset)[0]}`"
               :asset-type="assetKey"
               :asset-data="asset"
               :is-active-selected="isActiveSelected"
@@ -137,14 +137,6 @@ import { ref, provide, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { generateDataChoice } from '@/api/main';
-// import type {
-//   S3BucketType,
-//   S3ObjectType,
-//   SQSQueueType,
-//   SSMParameterType,
-//   SecretsManagerSecretType,
-//   DynamoDBTableType,
-// } from '@/components/tokens/aws_infra/types';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import {
@@ -208,42 +200,42 @@ const assetSamples = ref<{
       ],
     },
     {
-      bucket_name: 'decoy-bucket-3',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-3',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-3',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-3',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-3',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
       bucket_name: 'decoy-bucket-4',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+    },
+    {
+      bucket_name: 'decoy-bucket-5',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+    },
+    {
+      bucket_name: 'decoy-bucket-5',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+    },
+    {
+      bucket_name: 'decoy-bucket-7',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+    },
+    {
+      bucket_name: 'decoy-bucket-8',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+    },
+    {
+      bucket_name: 'decoy-bucket-9',
       objects: [
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
@@ -266,31 +258,31 @@ const assetSamples = ref<{
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-2',
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-3',
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-4',
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-5',
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-6',
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-7',
       message_count: 5,
     },
     {
-      queue_name: 'decoy-queue-1',
+      queue_name: 'decoy-queue-8',
       message_count: 5,
     },
   ],
@@ -300,31 +292,31 @@ const assetSamples = ref<{
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-2',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-3',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-4',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-5',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-6',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-7',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
     {
-      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_name: 'decoy-ssm-param-8',
       ssm_parameter_value: 'some_fake_looking_api_key',
     },
   ],
@@ -334,11 +326,11 @@ const assetSamples = ref<{
       secretsmanager_secret_value: 'some_fake_looking_api_key',
     },
     {
-      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
+      secretsmanager_secret_name: 'decoy-secretsmanager-secret-2',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
     },
     {
-      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
+      secretsmanager_secret_name: 'decoy-secretsmanager-secret-3',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
     },
   ],
@@ -354,32 +346,32 @@ const assetSamples = ref<{
       dynamodb_row_count: 10,
     },
     {
-      dynamodb_name: 'decoy-ssm-param-1',
+      dynamodb_name: 'decoy-ssm-param-22',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
     },
     {
-      dynamodb_name: 'decoy-ssm-param-1-very-long-name',
+      dynamodb_name: 'decoy-ssm-param-3-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
     },
     {
-      dynamodb_name: 'decoy-ssm-param-1',
+      dynamodb_name: 'decoy-ssm-param-2',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
     },
     {
-      dynamodb_name: 'decoy-ssm-param-1-very-long-name',
+      dynamodb_name: 'decoy-ssm-param-2-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
     },
     {
-      dynamodb_name: 'decoy-ssm-param-1',
+      dynamodb_name: 'decoy-ssm-param-5',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
     },
     {
-      dynamodb_name: 'decoy-ssm-param-1-very-long-name',
+      dynamodb_name: 'decoy-ssm-param-55-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
     },
@@ -530,14 +522,38 @@ function handleSavePlan() {
 </script>
 
 <style>
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-10px);
+  }
+  40% {
+    transform: translateY(10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+  80% {
+    transform: translateY(5px);
+  }
+}
+
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.2s ease;
+  transition: all 0.4s ease;
   transition-delay: 0.2s;
 }
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
   transform: translateY(-30px);
+}
+
+.list-enter-active {
+  animation: bounce 1.2s ease infinite;
+  animation-delay: 0.8s;
 }
 </style>
