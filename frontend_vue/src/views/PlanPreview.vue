@@ -75,6 +75,11 @@
           Unselect All
         </button>
       </div>
+      <BaseMessageBox
+        v-if="isErrorMessage"
+        variant="danger"
+        >{{ isErrorMessage }}</BaseMessageBox
+      >
     </div>
 
     <template
@@ -480,7 +485,7 @@ async function handleAddNewAsset(assetType: any) {
 
           const res = await generateDataChoice(assetType);
           if (!res.result) {
-            throw new Error(res.message);
+            isErrorMessage.value = res.message;
           }
           return { key, value: res.proposed_data };
         })

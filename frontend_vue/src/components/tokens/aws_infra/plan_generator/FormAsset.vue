@@ -29,6 +29,7 @@
           :id="key"
           v-model="initialValues[key]"
           :label="getLabel(key)"
+          :asset-type="key"
         />
       </template>
     </div>
