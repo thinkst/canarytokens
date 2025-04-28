@@ -3,7 +3,7 @@
     <BaseFormTextField
       id="aws_account_number"
       type="text"
-      placeholder="e.g. 123456"
+      placeholder="e.g. 012345678901"
       label="AWS account number"
       full-width
       required

@@ -1,23 +1,37 @@
 <template>
-  <section class="w-full flex text-center flex-col items-center">
-    <div class="infra-token__title-wrapper">
+  <section class="flex text-center flex-col">
+    <div class="infra-token__title-wrapper flex flex-col items-center">
       <h2>
-        {{ isLoading ? 'Generating AWS Snippet...' : `Generate AWS Snippet` }}
+        {{
+          isLoading ? 'Generating AWS Snippet...' : `Setup AWS role and policy`
+        }}
       </h2>
-      <h3 class="text-md mb-16 text-grey-400">
-        AWS account:
-        <span class="text-grey font-semibold">{{ accountNumber }}</span>
-      </h3>
+      <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
+        <img
+          :src="getImageUrl('token_icons/aws_infra.png')"
+          alt="asw-token-icon"
+          class="w-[4rem] h-[4rem]"
+        />
+        <p class="text-md text-grey-400">
+          AWS account:
+          <span class="text-grey font-semibold">{{ accountNumber }}</span>
+        </p>
+        <p class="text-md text-grey-400">
+          AWS region:
+          <span class="text-grey font-semibold">{{ accountRegion }}</span>
+        </p>
+      </BaseCard>
+      <BaseButton
+        variant="text"
+        @click="hadnleChangeAccountValues"
+        >Incorrect information? Edit</BaseButton
+      >
     </div>
     <div v-if="!isLoading || !isError">
       <p class="text-gray-700">
-        To inventory your resources and suggest an optimal plan, we need you to
-        create a role in your account.
-      </p>
-      <p class="text-gray-700 mt-16">
-        The following snippet will to create a <b>IAM role</b> and <br />attach
-        to it a policy granting <b>read-only access</b> to SQS queues and S3
-        buckets.
+        With CLI credentials for the
+        <span class="text-grey font-bold">{{ accountNumber }}</span> AWS
+        account, run the AWS CLI snippet below:
       </p>
     </div>
     <StepState
@@ -29,23 +43,47 @@
     />
     <div
       v-if="!isLoading || !isError"
-      class="mt-16 flex items-center flex-col mt-40 text-left"
+      class="flex items-center flex-col text-left"
     >
       <BaseCodeSnippet
-        v-for="(command, index) in codeSnippetCommands"
-        :key="command"
+        v-if="codeSnippetCommands.length > 0"
         lang="bash"
-        :label="showSnippetLabel(index)"
-        :code="command"
+        label="AWS CLI snippet"
+        :code="codeSnippetCommands[0]"
         custom-height="100px"
         class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
+        :check-scroll="true"
+        @copy-content="handleSnippetChecked"
+        @snippet-scrolled="handleSnippetChecked"
       />
-      <BaseButton
-        class="mt-40"
-        @click="emits('updateStep')"
-      >
-        Done, proceed
-      </BaseButton>
+      <BaseBulletList
+        :list="infoList"
+        class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
+      />
+      <div>
+        <div class="mt-24 flex flex-col items-center">
+          <BaseMessageBox
+            v-if="showWarningSnipeptCheck"
+            variant="warning"
+            class="mb-16"
+          >
+            Make sure to run the command above. Otherwise, the next step will
+            lead to an error, preventing you from continuing.
+          </BaseMessageBox>
+          <BaseButton
+            v-if="!showWarningSnipeptCheck"
+            @click="handleGoToNextStep"
+          >
+            Continue
+          </BaseButton>
+          <BaseButton
+            v-if="showWarningSnipeptCheck"
+            @click="emits('updateStep')"
+          >
+            I Ran the Command, Continue
+          </BaseButton>
+        </div>
+      </div>
     </div>
     <BaseButton
       v-if="isError"
@@ -63,6 +101,7 @@ import { ref, onMounted } from 'vue';
 import { requestAWSInfraRoleSetupCommands } from '@/api/main.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
+import getImageUrl from '@/utils/getImageUrl.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -77,22 +116,13 @@ const isError = ref(false);
 const errorMessage = ref('');
 const codeSnippetCommands = ref<string[]>([]);
 const accountNumber = ref('');
-
-function showSnippetLabel(snippetNumber: number) {
-  switch (snippetNumber) {
-    case 0:
-      return 'Label a new IAM role with trust permissions:';
-    case 1:
-      return 'Define new policy granting permissions to list SQS queues and S3 buckets:';
-    case 2:
-      return 'Attach the new policy to then new role:';
-    default:
-      return '';
-  }
-}
+const accountRegion = ref('');
+const isSnippedChecked = ref(false);
+const showWarningSnipeptCheck = ref(false);
 
 onMounted(async () => {
   accountNumber.value = props.stepData.aws_account_number;
+  accountRegion.value = props.stepData.aws_region;
   await handleGetAwsSnippet();
 });
 
@@ -112,6 +142,7 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
+    console.log(codeSnippetCommands.value, 'codeSnippetCommands.value ');
     emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
@@ -122,12 +153,28 @@ async function handleGetAwsSnippet() {
   }
 }
 
-// function formatSnippet(snippet: string) {
-// return snippet
-//   .replace(/{/g, '{\n')
-//   .replace(/\s+/g, ' ')
-//   .replace(/ --/g, '\n--');
-// }
+function hadnleChangeAccountValues() {
+  console.log('change!');
+}
+
+function handleSnippetChecked() {
+  isSnippedChecked.value = true;
+}
+
+function handleGoToNextStep() {
+  if (!isSnippedChecked.value) {
+    showWarningSnipeptCheck.value = true;
+  } else {
+    showWarningSnipeptCheck.value = false;
+    emits('updateStep');
+  }
+}
+
+const infoList = [
+  'This step grants Canarytokens.org temporary, read-only access to list names of various AWS resources (S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles) to create a customized infrastructure plan',
+  'This access is automatically revoked by Canarytokens.org after plan creation.',
+  'You will be provided with cleanup instructions at the end of the wizard to remove the associated AWS policy, attachment, and role.',
+];
 </script>
 
 <style scoped>
