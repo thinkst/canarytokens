@@ -43,6 +43,7 @@
             :id="`${props.assetKey}.${fieldIndex}.${propertyKey}`"
             v-model="field.value[propertyKey]"
             :label="getLabel(propertyKey)"
+            :asset-type="objectKey"
             variant="small"
             icon="aws_infra_icons/objects.svg"
             :hide-label="true"

@@ -30,19 +30,25 @@
       @blur="handleChange"
       @input="(e) => validateIfErrorExists(e)"
     />
+    <BaseSpinner
+      v-if="isGenerateValueLoading"
+      height="1.5rem"
+      class="textfield__loading"
+    />
     <div
       class="textfield__cta"
       :class="{ 'top-[2rem]': !hideLabel }"
     >
       <!-- Regenerate content btn -->
       <button
+        v-if="!isGenerateValueLoading"
         v-tooltip="{
           content: 'Regenerate content',
         }"
         type="button"
         class="textfield__cta__regenerate"
         aria-label="Regenerate input content"
-        @click="emit('handleRegenerateInstance', $event, props.id)"
+        @click="handleGenerateValue"
       >
         <font-awesome-icon
           aria-hidden="true"
@@ -68,26 +74,33 @@
     </div>
     <div class="error-message">
       <p
-        v-show="errorMessage"
+        v-if="errorMessage"
         id="error"
         class="text-xs leading-4 text-red"
       >
         {{ errorMessage }}
+      </p>
+      <p
+        v-if="isGenerateValueError"
+        id="error"
+        class="text-xs leading-4 text-red"
+      >
+        {{ isGenerateValueError }}
       </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { toRef, computed } from 'vue';
+import { toRef, computed, ref } from 'vue';
 import { useField } from 'vee-validate';
 import getImageUrl from '@/utils/getImageUrl';
+import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 type VariantType = 'small' | 'large';
 
 const props = defineProps<{
   id: string;
-  // name: string;
   label: string;
   placeholder?: string;
   required?: boolean;
@@ -97,6 +110,7 @@ const props = defineProps<{
   icon?: string;
   hasRemove?: boolean;
   hideLabel?: boolean;
+  assetType: string;
 }>();
 
 const { variant = 'large', hasRemove = false, hideLabel = false } = props;
@@ -108,10 +122,28 @@ const emit = defineEmits([
 ]);
 const id = toRef(props, 'id');
 
-const { value, handleChange, errorMessage } = useField(id);
+const { value, handleChange, errorMessage, resetField } = useField(id);
+const isGenerateValueError = ref('');
+const isGenerateValueLoading = ref(false);
 
 function validateIfErrorExists(e: Event) {
   if (errorMessage && errorMessage.value) handleChange(e);
+}
+
+async function handleGenerateValue() {
+  isGenerateValueError.value = '';
+  const {
+    handleGenerateName,
+    isGenerateNameError,
+    isGenerateNameLoading,
+    generatedName,
+  } = useGenerateAssetName(props.assetType);
+
+  isGenerateValueLoading.value = isGenerateNameLoading.value;
+  await handleGenerateName();
+  isGenerateValueError.value = isGenerateNameError.value;
+  resetField({ value: generatedName.value });
+  isGenerateValueLoading.value = false;
 }
 
 const iconURL = computed(() => {
@@ -148,6 +180,10 @@ const iconURL = computed(() => {
     @apply border-grey-200 bg-grey-100 shadow-none text-grey-300;
   }
 
+  .textfield__loading {
+    @apply absolute top-[2.2rem] right-[1rem];
+  }
+
   .textfield__cta {
     @apply absolute top-[2rem] right-[0.5rem] flex gap-8;
 
@@ -181,6 +217,10 @@ const iconURL = computed(() => {
 
   .input__with-icon {
     @apply pl-40;
+  }
+
+  .textfield__loading {
+    @apply absolute top-[0.5rem] right-[3rem];
   }
 
   .textfield__cta {
