@@ -24,6 +24,7 @@ class SwitchboardSettings(BaseSettings):
     REDIS_DB: str = "0"
 
     REAL_IP_HEADER: str = "x-real-ip"
+    REAL_PORT_HEADER: str = "x-real-port"
 
     WG_PRIVATE_KEY_SEED: str
     WG_PRIVATE_KEY_N: str = "1000"
