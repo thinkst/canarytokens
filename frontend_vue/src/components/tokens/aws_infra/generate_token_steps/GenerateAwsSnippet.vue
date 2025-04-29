@@ -10,13 +10,13 @@
         <img
           :src="getImageUrl('token_icons/aws_infra.png')"
           alt="asw-token-icon"
-          class="w-[4rem] h-[4rem]"
+          class="w-[4.5rem] h-[4.5rem]"
         />
-        <p class="text-md text-grey-400">
+        <p class="text-md text-grey-400 leading-4">
           AWS account:
           <span class="text-grey font-semibold">{{ accountNumber }}</span>
         </p>
-        <p class="text-md text-grey-400">
+        <p class="text-md text-grey-400 leading-4">
           AWS region:
           <span class="text-grey font-semibold">{{ accountRegion }}</span>
         </p>
@@ -29,9 +29,9 @@
     </div>
     <div v-if="!isLoading || !isError">
       <p class="text-gray-700">
-        With CLI credentials for the
-        <span class="text-grey font-bold">{{ accountNumber }}</span> AWS
-        account, run the AWS CLI snippet below:
+        Ensure your environment is configured to access the AWS account
+        <span class="text-grey font-bold">{{ accountNumber }}</span> <br />
+        Then run the AWS CLI snippet below
       </p>
     </div>
     <StepState
@@ -49,7 +49,7 @@
         v-if="codeSnippetCommands.length > 0"
         lang="bash"
         label="AWS CLI snippet"
-        :code="codeSnippetCommands[0]"
+        :code="handleFormatSnippet(codeSnippetCommands)"
         custom-height="100px"
         class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
         :check-scroll="true"
@@ -84,6 +84,7 @@
           </BaseButton>
         </div>
       </div>
+      {{ codeSnippetCommands.value }}
     </div>
     <BaseButton
       v-if="isError"
@@ -97,11 +98,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineAsyncComponent } from 'vue';
 import { requestAWSInfraRoleSetupCommands } from '@/api/main.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
+import { useModal } from 'vue-final-modal';
+import ModalEditAWSInfo from '@/components/tokens/aws_infra/generate_token_steps/ModalEditAWSInfo.vue';
+
+// const ModalEditAWSInfo = defineAsyncComponent(
+//   () => import('./ModalEditAWSInfo.vue')
+// );
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -109,7 +116,7 @@ const props = defineProps<{
   stepData: TokenDataType;
 }>();
 
-const { token, auth_token, aws_region } = props.stepData;
+const { token, auth_token, aws_region, aws_account_number } = props.stepData;
 
 const isLoading = ref(true);
 const isError = ref(false);
@@ -142,7 +149,7 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
-    console.log(codeSnippetCommands.value, 'codeSnippetCommands.value ');
+    // console.log(codeSnippetCommands.value, 'codeSnippetCommands.value ');
     emits('storeCurrentStepData', { token, auth_token });
   } catch (err: any) {
     isError.value = true;
@@ -154,7 +161,15 @@ async function handleGetAwsSnippet() {
 }
 
 function hadnleChangeAccountValues() {
-  console.log('change!');
+  const { open, close } = useModal({
+    component: ModalEditAWSInfo,
+    attrs: {
+      closeModal: () => close(),
+      accountNumber: aws_account_number,
+      accountRegion: aws_region,
+    },
+  });
+  open();
 }
 
 function handleSnippetChecked() {
@@ -168,6 +183,10 @@ function handleGoToNextStep() {
     showWarningSnipeptCheck.value = false;
     emits('updateStep');
   }
+}
+
+function handleFormatSnippet(commands: array[]) {
+  return commands.join(' ');
 }
 
 const infoList = [

@@ -15,15 +15,12 @@
     />
 
     <p v-if="!isLoading && !isError">
-      Next step will be to choose the resources to deploy on your AWS account
+      We have completed the inventory of your account. <br />We will proceed to
+      generate the plan for you in
+      <span class="font-semibold">{{ countdownSeconds }}</span> second{{
+        countdownSeconds > 1 ? 's' : ''
+      }}.
     </p>
-    <BaseButton
-      v-if="!isLoading"
-      class="mt-40"
-      @click="emits('updateStep')"
-    >
-      Generate Plan</BaseButton
-    >
   </section>
 </template>
 
@@ -31,6 +28,7 @@
 import { ref, onMounted } from 'vue';
 import { requestInventoryCustomerAccount } from '@/api/main.ts';
 import type { TokenDataType } from '@/utils/dataService';
+import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
@@ -45,6 +43,8 @@ const isSuccess = ref(false);
 const errorMessage = ref('');
 
 const { token, auth_token } = props.stepData;
+
+const { countdownSeconds, triggerCountdown } = useCountdown(5);
 
 onMounted(async () => {
   await handleInventory();
@@ -110,6 +110,9 @@ async function handleInventory() {
           const proposed_plan = resWithHandle.data.proposed_plan;
           emits('storeCurrentStepData', { token, auth_token, proposed_plan });
           clearInterval(pollingInventoringInterval);
+          await triggerCountdown().then(() => {
+            emits('updateStep');
+          });
           return;
         }
       } catch (err: any) {

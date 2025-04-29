@@ -1,5 +1,5 @@
 <template>
-  <section class="w-full flex text-center flex-col items-center">
+  <section class="flex text-center flex-col items-center">
     <div class="infra-token__title-wrapper">
       <h2>
         {{
@@ -10,17 +10,14 @@
       </h2>
     </div>
     <StepState
+      v-if="isLoading | isError"
       :is-loading="isLoading"
       :is-error="isError"
       loading-message="We are generating the terraform module, hold on"
       :error-message="errorMessage"
-      :is-success="isSuccess"
-      success-message="All set!"
     />
     <div v-if="isSuccess">
-      <h3 class="min-w-[350px]">
-        Add this module to your code and run ``terraform init``
-      </h3>
+      <h3>Add this module to your code and run ``terraform init``</h3>
       <BaseCodeSnippet
         lang="bash"
         label="Terraform module"
@@ -28,8 +25,28 @@
         class="mt-40 md:max-w-[600px] max-w-[350px] wrap-code"
         custom-height="150px"
       ></BaseCodeSnippet>
+      <div class="flex flex-col items-center pt-16">
+        <div class="relative">
+          <!-- <img
+            alt="aws infra token"
+            :src="getImageUrl('token_icons/aws_infra.png')"
+            class="w-[6rem]"
+          /> -->
+          <TokenIcon
+            title="aws infra token"
+            logo-img-url="aws_infra.png"
+            :has-shadow="true"
+          />
+          <img
+            alt="active token"
+            :src="getImageUrl('icons/active_token_badge.png')"
+            class="absolute top-[4.5rem] left-[4rem] w-[1.5rem]"
+          />
+        </div>
+      </div>
       <h2 class="text-xl mt-24">That's all folks!</h2>
-      <div class="flex flex-col items-center">
+    </div>
+    <!-- <div class="flex flex-col items-center">
         <BaseButton
           v-if="!isLoading"
           class="mt-40"
@@ -45,7 +62,7 @@
           Generate new Canarytoken</BaseButton
         >
       </div>
-    </div>
+    </div> -->
     <BaseButton
       v-if="isError"
       class="mt-40"
@@ -63,6 +80,8 @@ import { useRouter } from 'vue-router';
 import type { TokenDataType } from '@/utils/dataService';
 import { requestTerraformSnippet } from '@/api/main.ts';
 import StepState from '../StepState.vue';
+import getImageUrl from '@/utils/getImageUrl';
+import { TokenIcon } from '@/components/icons/TokenIcon.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 

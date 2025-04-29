@@ -14,14 +14,13 @@
       success-message="All set!"
     />
 
-    <p v-if="isSuccess">On the next step you'll be inventoring your account</p>
-    <BaseButton
-      v-if="isSuccess"
-      class="mt-40"
-      @click="emits('updateStep')"
-    >
-      Continue to inventory</BaseButton
-    >
+    <p v-if="isSuccess">
+      Great, you’re set! <br />
+      We’ll inventory your account in
+      <span class="font-semibold">{{ countdownSeconds }}</span> second{{
+        countdownSeconds > 1 ? 's' : ''
+      }}.
+    </p>
     <BaseButton
       v-if="isError"
       class="mt-40"
@@ -37,6 +36,7 @@
 import { ref, onMounted } from 'vue';
 import type { TokenDataType } from '@/utils/dataService';
 import { requestAWSInfraRoleCheck } from '@/api/main.ts';
+import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';
 
 const emits = defineEmits([
@@ -55,6 +55,8 @@ const isSuccess = ref(false);
 const errorMessage = ref('');
 
 const { token, auth_token } = props.stepData;
+
+const { countdownSeconds, triggerCountdown } = useCountdown(5);
 
 onMounted(async () => {
   emits('isSettingError', false);
@@ -122,6 +124,9 @@ async function handleCheckRole() {
           isSuccess.value = true;
           emits('storeCurrentStepData', { token, auth_token });
           clearInterval(pollingRoleInterval);
+          await triggerCountdown().then(() => {
+            emits('updateStep');
+          });
           return;
         }
       } catch (err: any) {

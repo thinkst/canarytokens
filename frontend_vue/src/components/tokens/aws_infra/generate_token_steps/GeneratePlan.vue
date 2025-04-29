@@ -2,35 +2,40 @@
   <div class="infra-token__title-wrapper">
     <h2>Proposed Plan</h2>
   </div>
-  <StepState
-    :is-loading="isLoading"
-    :is-error="isError"
-    loading-message="Loading your plan..."
-    :error-message="errorMessage"
-    :is-success="isSuccess"
-    success-message="All set!"
-  />
-  <PlanCreator
+  <div class="flex items-center flex-col">
+    <StepState
+      :is-loading="isLoading"
+      :is-error="isError"
+      loading-message="Loading your plan..."
+      :error-message="errorMessage"
+    />
+    <!-- <PlanCreator
     v-if="!isLoading || !isSavingPlan"
     :proposed-plan="proposed_plan"
     :token="token"
     :auth-token="auth_token"
     @submit-plan="handleSubmit"
-  />
-  <StepState
-    :is-loading="isSavingPlan"
-    :is-error="isSaveError"
-    loading-message="Saving the plan..."
-    :error-message="errorMessage"
-    :is-success="isSaveSuccess"
-    success-message="Plan Saved!"
-  />
+  /> -->
+    <p>This is a placeholder for the plan</p>
+    <p>The Plan editor is WIP on another branch</p>
+    <p>Just hit save to check the next step</p>
+    <br />
+    <BaseButton @click="handleSubmit(proposed_plan)">Save Plan</BaseButton>
+    <StepState
+      :is-loading="isSavingPlan"
+      :is-error="isSaveError"
+      loading-message="Saving the plan..."
+      :error-message="errorMessage"
+      :is-success="isSaveSuccess"
+      success-message="Plan Saved!"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { savePlan } from '@/api/main.ts';
-import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
+// import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
 import StepState from '../StepState.vue';
 import type { TokenDataType } from '@/utils/dataService';
 import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
