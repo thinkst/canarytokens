@@ -1075,8 +1075,15 @@ def api_awsinfra_config_start(
         return DefaultResponse(
             result=False, message="Configuration has already started for this token."
         )
-    canarydrop.aws_customer_iam_access_external_id = aws_infra.generate_external_id()
-    save_canarydrop(canarydrop)
+    if (
+        canarydrop.aws_infra_stage == AWSInfraStage.INITIAL
+        and canarydrop.aws_customer_iam_access_external_id is None
+    ):
+        canarydrop.aws_customer_iam_access_external_id = (
+            aws_infra.generate_external_id()
+        )
+        canarydrop.aws_infra_stage = AWSInfraStage.ROLE_CHECKING
+        save_canarydrop(canarydrop)
 
     return AWSInfraConfigStartResponse(
         result=True, role_setup_commands=aws_infra.get_role_commands(canarydrop)

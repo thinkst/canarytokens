@@ -21,7 +21,7 @@ MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
 ROLE_SETUP_COMMANDS_TEMPLATE = """aws iam create-role --role-name $role_name --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::$aws_account:assumed-role/InventoryManagerRole/$external_id"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "$external_id"}}}]}\'
     aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'
-    aws iam attach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy"
+    aws iam attach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy
     """
 
 
