@@ -1143,6 +1143,7 @@ def api_awsinfra_inventory_customer_account(
         )
 
     if handle_response.response_received and handle_response.response != "":
+        canarydrop = aws_infra.get_canarydrop_form_handle(handle_id)
         aws_infra.save_current_assets(
             canarydrop, handle_response.response.get("assets")
         )
@@ -1209,7 +1210,9 @@ def api_awsinfra_setup_ingestion(
             handle=request.handle,
             terraform_module_snippet=""
             if handle_response.response == ""
-            else aws_infra.get_module_snippet(request.handle),
+            else aws_infra.get_module_snippet(
+                aws_infra.get_canarydrop_form_handle(handle_id)
+            ),
         )
 
     return AWSInfaHandleResponse(handle=request.handle)
