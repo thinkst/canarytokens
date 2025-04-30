@@ -18,6 +18,7 @@
     <div class="flex justify-between mb-24">
       <div>
         <SelectAddAsset
+          :is-type-missing-permission="isMissingPermissionAssetType"
           @select-option="(assetKey) => handleAddNewAsset(assetKey)"
         />
       </div>
@@ -107,7 +108,7 @@
         class="asset-section"
       >
         <h1 class="mb-16 mt-40 uppercase">{{ ASSET_LABEL[assetKey] }}</h1>
-        <div v-if="assetValues === null">
+        <div v-if="isMissingPermissionAssetType.includes(assetKey)">
           <BaseMessageBox variant="warning"
             >We couldn't inventory your {{ ASSET_LABEL[assetKey] }}. Please
             check the permissions and run the inventory again.</BaseMessageBox
@@ -160,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, onMounted } from 'vue';
+import { ref, provide, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { generateDataChoice } from '@/api/main';
@@ -217,6 +218,12 @@ provide('viewType', viewType);
 onMounted(() => {
   assetSamples.value = assetsWithEmptySQSQueue.value;
   resetSelectedAssetObj();
+});
+
+const isMissingPermissionAssetType = computed(() => {
+  return Object.entries(assetSamples.value)
+    .filter(([, v]) => v === null)
+    .map(([k]) => k);
 });
 
 function handleSelectViewType(
