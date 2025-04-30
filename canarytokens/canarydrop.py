@@ -29,6 +29,7 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
+    AWSInfraStage,
     Anonymous,
     AnySettingsRequest,
     AnyTokenEditRequest,
@@ -133,12 +134,13 @@ class Canarydrop(BaseModel):
 
     # AWS  infra specific stuff
     aws_customer_iam_access_external_id: Optional[str]
-    aws_deployed_assets: Optional[list]
-    aws_current_assets: Optional[list]
+    aws_deployed_assets: Optional[dict]
+    aws_current_assets: Optional[dict]
     aws_saved_plan: Optional[dict]
     aws_tf_module_prefix: Optional[str]
     aws_infra_ingesting: Optional[bool]
     aws_infra_cloudtrail_name: Optional[str]
+    aws_infra_stage: AWSInfraStage = AWSInfraStage.INITIAL
 
     # Azure key specific stuff
     app_id: Optional[str]
