@@ -43,18 +43,18 @@ import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: TokenDataType;
+  initialStepData: TokenDataType;
 }>();
 
 const isLoading = ref(true);
 const isError = ref(false);
-const isSuccess = ref(false);
+// const isSuccess = ref(false);
 const errorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveSuccess = ref(false);
 
-const { token, auth_token, proposed_plan } = props.stepData;
+const { token, auth_token, proposed_plan } = props.initialStepData;
 
 isLoading.value = false;
 

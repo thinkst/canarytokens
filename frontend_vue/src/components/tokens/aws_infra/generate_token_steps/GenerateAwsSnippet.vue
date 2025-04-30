@@ -6,28 +6,30 @@
           isLoading ? 'Generating AWS Snippet...' : `Setup AWS role and policy`
         }}
       </h2>
-      <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
-        <img
-          :src="getImageUrl('token_icons/aws_infra.png')"
-          alt="asw-token-icon"
-          class="w-[4.5rem] h-[4.5rem]"
-        />
-        <p class="text-md text-grey-400 leading-4">
-          AWS account:
-          <span class="text-grey font-semibold">{{ accountNumber }}</span>
-        </p>
-        <p class="text-md text-grey-400 leading-4">
-          AWS region:
-          <span class="text-grey font-semibold">{{ accountRegion }}</span>
-        </p>
-      </BaseCard>
-      <BaseButton
-        variant="text"
-        @click="hadnleChangeAccountValues"
-        >Incorrect information? Edit</BaseButton
-      >
+      <div v-if="!isLoading && !isError">
+        <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
+          <img
+            :src="getImageUrl('token_icons/aws_infra.png')"
+            alt="asw-token-icon"
+            class="w-[4.5rem] h-[4.5rem]"
+          />
+          <p class="text-md text-grey-400 leading-4">
+            AWS account:
+            <span class="text-grey font-semibold">{{ accountNumber }}</span>
+          </p>
+          <p class="text-md text-grey-400 leading-4">
+            AWS region:
+            <span class="text-grey font-semibold">{{ accountRegion }}</span>
+          </p>
+        </BaseCard>
+        <BaseButton
+          variant="text"
+          @click="hadnleChangeAccountValues"
+          >Incorrect information? Edit</BaseButton
+        >
+      </div>
     </div>
-    <div v-if="!isLoading || !isError">
+    <div v-if="!isLoading && !isError">
       <p class="text-gray-700">
         Ensure your environment is configured to access the AWS account
         <span class="text-grey font-bold">{{ accountNumber }}</span> <br />
@@ -42,7 +44,7 @@
       :error-message="errorMessage"
     />
     <div
-      v-if="!isLoading || !isError"
+      v-if="!isLoading && !isError"
       class="flex items-center flex-col text-left"
     >
       <BaseCodeSnippet
@@ -57,10 +59,11 @@
         @snippet-scrolled="handleSnippetChecked"
       />
       <BaseBulletList
+        v-if="!isLoading && !isError"
         :list="infoList"
         class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
       />
-      <div>
+      <div v-if="!isLoading && !isError">
         <div class="mt-24 flex flex-col items-center">
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
@@ -84,16 +87,17 @@
           </BaseButton>
         </div>
       </div>
-      {{ codeSnippetCommands.value }}
     </div>
-    <BaseButton
-      v-if="isError"
-      class="mt-40"
-      variant="secondary"
-      @click="handleGetAwsSnippet"
-    >
-      Try again
-    </BaseButton>
+    <div class="flex justify-center">
+      <BaseButton
+        v-if="isError"
+        class="mt-40"
+        variant="secondary"
+        @click="handleGetAwsSnippet"
+      >
+        Try again
+      </BaseButton>
+    </div>
   </section>
 </template>
 
@@ -104,19 +108,20 @@ import type { TokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
-import ModalEditAWSInfo from '@/components/tokens/aws_infra/generate_token_steps/ModalEditAWSInfo.vue';
 
-// const ModalEditAWSInfo = defineAsyncComponent(
-//   () => import('./ModalEditAWSInfo.vue')
-// );
+const ModalEditAWSInfo = defineAsyncComponent(
+  () => import('./ModalEditAWSInfo.vue')
+);
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: TokenDataType;
+  initialStepData: TokenDataType;
+  currentStepData: TokenDataType;
 }>();
 
-const { token, auth_token, aws_region, aws_account_number } = props.stepData;
+const { token, auth_token, aws_region, aws_account_number } =
+  props.initialStepData;
 
 const isLoading = ref(true);
 const isError = ref(false);
@@ -128,9 +133,18 @@ const isSnippedChecked = ref(false);
 const showWarningSnipeptCheck = ref(false);
 
 onMounted(async () => {
-  accountNumber.value = props.stepData.aws_account_number;
-  accountRegion.value = props.stepData.aws_region;
-  await handleGetAwsSnippet();
+  accountNumber.value = props.initialStepData.aws_account_number;
+  accountRegion.value = props.initialStepData.aws_region;
+
+  const isExistingSnippet = props.currentStepData.codeSnippetCommands;
+
+  if (isExistingSnippet) {
+    isError.value = false;
+    isLoading.value = false;
+    codeSnippetCommands.value = isExistingSnippet;
+  } else {
+    await handleGetAwsSnippet();
+  }
 });
 
 async function handleGetAwsSnippet() {
@@ -149,8 +163,11 @@ async function handleGetAwsSnippet() {
     }
     isLoading.value = false;
     codeSnippetCommands.value = res.data.role_setup_commands as string[];
-    // console.log(codeSnippetCommands.value, 'codeSnippetCommands.value ');
-    emits('storeCurrentStepData', { token, auth_token });
+    emits('storeCurrentStepData', {
+      token,
+      auth_token,
+      codeSnippetCommands: codeSnippetCommands.value,
+    });
   } catch (err: any) {
     isError.value = true;
     isLoading.value = false;

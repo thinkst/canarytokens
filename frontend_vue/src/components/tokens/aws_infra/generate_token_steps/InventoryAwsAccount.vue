@@ -34,7 +34,7 @@ import StepState from '../StepState.vue';
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: TokenDataType;
+  initialStepData: TokenDataType;
 }>();
 
 const isLoading = ref(true);
@@ -42,7 +42,7 @@ const isError = ref(false);
 const isSuccess = ref(false);
 const errorMessage = ref('');
 
-const { token, auth_token } = props.stepData;
+const { token, auth_token } = props.initialStepData;
 
 const { countdownSeconds, triggerCountdown } = useCountdown(5);
 

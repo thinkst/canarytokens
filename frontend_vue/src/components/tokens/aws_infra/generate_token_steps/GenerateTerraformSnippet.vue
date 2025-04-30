@@ -1,6 +1,6 @@
 <template>
-  <section class="flex text-center flex-col items-center">
-    <div class="infra-token__title-wrapper">
+  <section class="section-terraform-snippet flex flex-col items-center">
+    <div class="infra-token__title-wrapper text-center">
       <h2>
         {{
           isLoading || isError
@@ -17,7 +17,9 @@
       :error-message="errorMessage"
     />
     <div v-if="isSuccess">
-      <h3>Add this module to your code and run ``terraform init``</h3>
+      <h3 class="text-center">
+        Add this module to your code and run ``terraform init``
+      </h3>
       <BaseCodeSnippet
         lang="bash"
         label="Terraform module"
@@ -36,6 +38,7 @@
             title="aws infra token"
             logo-img-url="aws_infra.png"
             :has-shadow="true"
+            class="w-[6rem]"
           />
           <img
             alt="active token"
@@ -44,25 +47,25 @@
           />
         </div>
       </div>
-      <h2 class="text-xl mt-24">That's all folks!</h2>
+      <h2 class="mt-24 text-center">
+        That’s it! If someone will access your AWS account you’ll get notified.
+      </h2>
     </div>
-    <!-- <div class="flex flex-col items-center">
-        <BaseButton
-          v-if="!isLoading"
-          class="mt-40"
-        >
-          Manage Token</BaseButton
-        >
-        <BaseButton
-          v-if="!isLoading"
-          class="mt-16"
-          variant="secondary"
-          @click="router.push('/')"
-        >
-          Generate new Canarytoken</BaseButton
-        >
-      </div>
-    </div> -->
+    <div class="flex flex-row mt-40 gap-16">
+      <BaseButton
+        v-if="!isLoading"
+        variant="secondary"
+        @click="router.push('/')"
+      >
+        Back Home</BaseButton
+      >
+      <BaseButton
+        v-if="!isLoading"
+        variant="secondary"
+      >
+        Manage Token</BaseButton
+      >
+    </div>
     <BaseButton
       v-if="isError"
       class="mt-40"
@@ -75,18 +78,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import type { TokenDataType } from '@/utils/dataService';
-import { requestTerraformSnippet } from '@/api/main.ts';
-import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl';
-import { TokenIcon } from '@/components/icons/TokenIcon.vue';
+import type { TokenDataType } from '@/utils/dataService';
+import { TOKENS_TYPE } from '@/components/constants.ts';
+import { requestTerraformSnippet } from '@/api/main.ts';
+import { launchConfetti } from '@/utils/confettiEffect';
+import StepState from '../StepState.vue';
+import TokenIcon from '@/components/icons/TokenIcon.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: TokenDataType;
+  initialStepData: TokenDataType;
 }>();
 
 const router = useRouter();
@@ -97,7 +102,7 @@ const errorMessage = ref('');
 
 const terraformSnippet = ref('');
 
-const { token, auth_token } = props.stepData;
+const { token, auth_token } = props.initialStepData;
 
 onMounted(async () => {
   await handleRequestTerraformSnippet();
@@ -164,8 +169,6 @@ async function handleRequestTerraformSnippet() {
           const terraform_module_snippet =
             resWithHandle.data.terraform_module_snippet;
 
-          console.log(terraform_module_snippet, 'terraform_module_snippet');
-
           terraformSnippet.value = terraform_module_snippet;
           emits('storeCurrentStepData', {
             token,
@@ -196,6 +199,12 @@ async function handleRequestTerraformSnippet() {
     isSuccess.value = false;
   }
 }
+
+watch(isSuccess, (newVal) => {
+  if (newVal === true) {
+    launchConfetti(TOKENS_TYPE.AWS_INFRA, '.section-terraform-snippet');
+  }
+});
 </script>
 
 <style scoped>
