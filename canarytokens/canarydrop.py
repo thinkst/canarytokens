@@ -29,8 +29,10 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
+    AWSInfraStage,
     Anonymous,
     AnySettingsRequest,
+    AnyTokenEditRequest,
     AnyTokenHistory,
     AnyTokenHit,
     AnyTokenExposedHit,
@@ -124,9 +126,21 @@ class Canarydrop(BaseModel):
     # AWS key specific stuff
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]
-    aws_account_id: Optional[str]
     aws_output: Optional[str] = Field(alias="output")
+
+    # AWS key and AWS infra stuff
+    aws_account_id: Optional[str]
     aws_region: Optional[str] = Field(alias="region")
+
+    # AWS  infra specific stuff
+    aws_customer_iam_access_external_id: Optional[str]
+    aws_deployed_assets: Optional[dict]
+    aws_current_assets: Optional[dict]
+    aws_saved_plan: Optional[dict]
+    aws_tf_module_prefix: Optional[str]
+    aws_infra_ingesting: Optional[bool]
+    aws_infra_cloudtrail_name: Optional[str]
+    aws_infra_stage: AWSInfraStage = AWSInfraStage.INITIAL
 
     # Azure key specific stuff
     app_id: Optional[str]
@@ -299,6 +313,15 @@ class Canarydrop(BaseModel):
             return False
         queries.save_canarydrop(self)
         return True
+
+    def edit(self, edit_request: AnyTokenEditRequest) -> bool:
+        """
+        Change one or more canarydrop fields to a new value.
+        """
+        for field in edit_request:
+            if field in ["token", "auth"]:
+                continue
+            self[field[0]] = field[1]
 
     def get_url_components(
         self,
