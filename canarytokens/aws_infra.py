@@ -329,13 +329,17 @@ def save_current_assets(canarydrop: Canarydrop, assets: dict):
     queries.save_canarydrop(canarydrop)
 
 
-def get_module_snippet(handle: str):
+def get_canarydrop_form_handle(handle_id: str):
+    return queries.get_canarydrop(
+        Canarytoken(
+            value=queries.get_aws_management_lambda_handle(handle_id).get("canarytoken")
+        )
+    )
+
+
+def get_module_snippet(canarydrop: Canarydrop):
     """
     Return the snippet that can be pasted in the customer's terraform.
     """
-    canarydrop = queries.get_canarydrop(
-        Canarytoken(
-            value=queries.get_aws_management_lambda_handle(handle).get("canarytoken")
-        )
-    )
+
     return f' module "canarytoken_infra" {{ source = "https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip" }}'
