@@ -48,10 +48,10 @@
       class="flex items-center flex-col text-left"
     >
       <BaseCodeSnippet
-        v-if="codeSnippetCommands.length > 0"
+        v-if="codeSnippetCommands"
         lang="bash"
         label="AWS CLI snippet"
-        :code="handleFormatSnippet(codeSnippetCommands)"
+        :code="codeSnippetCommands"
         custom-height="100px"
         class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
         :check-scroll="true"
@@ -162,7 +162,7 @@ async function handleGetAwsSnippet() {
       res.data.error_message = errorMessage;
     }
     isLoading.value = false;
-    codeSnippetCommands.value = res.data.role_setup_commands as string[];
+    codeSnippetCommands.value = res.data.role_setup_commands as string;
     emits('storeCurrentStepData', {
       token,
       auth_token,
@@ -200,10 +200,6 @@ function handleGoToNextStep() {
     showWarningSnipeptCheck.value = false;
     emits('updateStep');
   }
-}
-
-function handleFormatSnippet(commands: array[]) {
-  return commands.join(' ');
 }
 
 const infoList = [
