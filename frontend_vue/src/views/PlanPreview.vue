@@ -1,4 +1,19 @@
 <template>
+  <div class="flex mb-24 items-center gap-24">
+    <p>Choose the sample type of data to populate the Plan:</p>
+    <BaseButton
+      variant="text"
+      icon="arrow-right"
+      @click.stop="handleChangePlanSampleData('regular')"
+      >Show Regular plan (default)</BaseButton
+    >
+    <BaseButton
+      variant="text"
+      icon="arrow-right"
+      @click.stop="handleChangePlanSampleData('missingPermission')"
+      >Show Missing SQS Queue permission plan</BaseButton
+    >
+  </div>
   <div class="p-40 bg-grey-50 rounded-xl">
     <div class="flex justify-between mb-24">
       <div>
@@ -92,7 +107,14 @@
         class="asset-section"
       >
         <h1 class="mb-16 mt-40 uppercase">{{ ASSET_LABEL[assetKey] }}</h1>
+        <div v-if="assetValues === null">
+          <BaseMessageBox variant="warning"
+            >We couldn't inventory your {{ ASSET_LABEL[assetKey] }}. Please
+            check the permissions and run the inventory again.</BaseMessageBox
+          >
+        </div>
         <div
+          v-else
           :class="[
             {
               'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST,
@@ -155,6 +177,19 @@ import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonA
 import SelectAddAsset from '@/components/tokens/aws_infra/plan_generator/SelectAddAsset.vue';
 import useMultiselectAssets from '@/components/tokens/aws_infra/plan_generator/useMultiselectAssets.ts';
 
+// Start handle Samples plan
+import { assetsExample, assetsWithEmptySQSQueue } from './planPreviewUtils.ts';
+
+function handleChangePlanSampleData(type: string) {
+  if (type === 'regular') {
+    assetSamples.value = assetsExample.value;
+  }
+  if (type === 'missingPermission') {
+    assetSamples.value = assetsWithEmptySQSQueue.value;
+  }
+}
+// End handle Sample plan
+
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
 
 const VIEW_TYPE = {
@@ -162,226 +197,7 @@ const VIEW_TYPE = {
   LIST: 'listView',
 } as const;
 
-const assetSamples = ref<{
-  S3Bucket: { bucket_name: string; objects: { object_path: string }[] }[];
-  SQSQueue: { queue_name: string; message_count: number }[];
-  SSMParameter: { ssm_parameter_name: string; ssm_parameter_value: string }[];
-  SecretsManagerSecret: {
-    secretsmanager_secret_name: string;
-    secretsmanager_secret_value: string;
-  }[];
-  DynamoDBTable: {
-    dynamodb_name: string;
-    dynamodb_partition_key: string;
-    dynamodb_row_count: number;
-  }[];
-}>({
-  S3Bucket: [
-    {
-      bucket_name: 'decoy-bucket-1',
-      objects: [
-        { object_path: 'foo/bar/object1' },
-        { object_path: 'foo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-3',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-4',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-5',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-5',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-7',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-8',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-    {
-      bucket_name: 'decoy-bucket-9',
-      objects: [
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-        { object_path: 'moo/bar/object1' },
-        { object_path: 'moo/baz/object2' },
-      ],
-    },
-  ],
-  SQSQueue: [
-    {
-      queue_name: 'decoy-queue-1',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-2',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-3',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-4',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-5',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-6',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-7',
-      message_count: 5,
-    },
-    {
-      queue_name: 'decoy-queue-8',
-      message_count: 5,
-    },
-  ],
-  SSMParameter: [
-    {
-      ssm_parameter_name: 'decoy-ssm-param-1',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-2',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-3',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-4',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-5',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-6',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-7',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-    {
-      ssm_parameter_name: 'decoy-ssm-param-8',
-      ssm_parameter_value: 'some_fake_looking_api_key',
-    },
-  ],
-  SecretsManagerSecret: [
-    {
-      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
-      secretsmanager_secret_value: 'some_fake_looking_api_key',
-    },
-    {
-      secretsmanager_secret_name: 'decoy-secretsmanager-secret-2',
-      secretsmanager_secret_value: 'some_fake_looking_api_key',
-    },
-    {
-      secretsmanager_secret_name: 'decoy-secretsmanager-secret-3',
-      secretsmanager_secret_value: 'some_fake_looking_api_key',
-    },
-  ],
-  DynamoDBTable: [
-    {
-      dynamodb_name: 'decoy-ssm-param-1',
-      dynamodb_partition_key: 'username but very long',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-1-very-long-name',
-      dynamodb_partition_key: 'username',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-22',
-      dynamodb_partition_key: 'username but very long',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-3-very-long-name',
-      dynamodb_partition_key: 'username',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-2',
-      dynamodb_partition_key: 'username but very long',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-2-very-long-name',
-      dynamodb_partition_key: 'username',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-5',
-      dynamodb_partition_key: 'username but very long',
-      dynamodb_row_count: 10,
-    },
-    {
-      dynamodb_name: 'decoy-ssm-param-55-very-long-name',
-      dynamodb_partition_key: 'username',
-      dynamodb_row_count: 10,
-    },
-  ],
-});
+const assetSamples = ref({});
 
 const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
 const isLoading = ref(false);
@@ -399,6 +215,7 @@ const {
 provide('viewType', viewType);
 
 onMounted(() => {
+  assetSamples.value = assetsWithEmptySQSQueue.value;
   resetSelectedAssetObj();
 });
 
