@@ -967,83 +967,8 @@ class TokenEditRequest(BaseModel):
     memo: Optional[Memo]
 
 
-# class WebBugTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
-
-# class DNSTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
-
-# class CustomImageTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.WEB_IMAGE] = TokenTypes.WEB_IMAGE
-
-# class MsWordDocumentTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
-
-# class MsExcelDocumentTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
-
-# class PDFTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
-
-# class WireguardTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.WIREGUARD] = TokenTypes.WIREGUARD
-
-# class WindowsDirectoryTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
-
-
-# class WebDavTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
-
-# class ClonedWebTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
-
-
-# class CCSSClonedWebTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
-
-
-# class CreditCardV2TokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
-
-
-# class QRCodeTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.QR_CODE] = TokenTypes.QR_CODE
-
-# class SvnTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.SVN] = TokenTypes.SVN
-
-# class SMTPTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-
-# class SQLServerTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.SQL_SERVER] = TokenTypes.SQL_SERVER
-
-# class MySQLTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.MY_SQL] = TokenTypes.MY_SQL
-
-# class AWSKeyTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
-
-# class AzureIDTokenEditRequest(TokenEditRequest):
-#     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
-
-#     SIGNED_EXE = "signed_exe"
-#     FAST_REDIRECT = "fast_redirect"
-#     SLOW_REDIRECT = "slow_redirect"
-#     KUBECONFIG = "kubeconfig"
-#     LOG4SHELL = "log4shell"
-#     CMD = "cmd"
-#     WINDOWS_FAKE_FS = "windows_fake_fs"
-#     CC = "cc"
-#     PWA = "pwa"
-#     IDP_APP = "idp_app"
-#     SLACK_API = "slack_api"
-#     LEGACY = "legacy"
-
-
 class AWSInfraTokenEditRequest(TokenEditRequest):
-    token_type = Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
     aws_account_number: Optional[str]
     aws_region: Optional[str]
 
@@ -2923,6 +2848,7 @@ class HistoryResponse(BaseModel):
 
 class AWSInfraAssetType(str, enum.Enum):
     S3_BUCKET = "S3Bucket"
+    S3_OBJECT = "S3Object"
     SQS_QUEUE = "SQSQueue"
     SSM_PARAMETER = "SSMParameter"
     SECRETS_MANAGE_SECRET = "SecretsManagerSecret"
@@ -2947,7 +2873,7 @@ class AWSInfraConfigStartRequest(BaseModel):
 class AWSInfraConfigStartResponse(BaseModel):
     result: bool
     message: str = ""
-    role_setup_commands: list[str]
+    role_setup_commands: str
 
 
 class AWSInfraTriggerOperationRequest(BaseModel):  # before handle id created
@@ -2975,7 +2901,7 @@ class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
-    proposed_plan: dict
+    proposed_plan: dict = {}
     error: str = ""
 
 
@@ -2983,13 +2909,13 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
     canarytoken: str
     auth_token: str
     asset_type: AWSInfraAssetType
-    asset_field: str
+    asset_field: str = None
 
 
 class AWSInfraGenerateDataChoiceResponse(BaseModel):
     result: bool
     message: str = ""
-    proposed_data: list[str]
+    proposed_data: str = None
 
 
 class AWSInfraSavePlanRequest(BaseModel):
@@ -3034,3 +2960,10 @@ class AWSInfraManagementResponseRequest(BaseModel):
     handle: str
     operation: AWSInfraOperationType
     result: dict
+
+
+class AWSInfraStage(enum.Enum):
+    INITIAL = "init"
+    ROLE_CHECKING = "role_checking"  # after token created
+    PLANNING = "planning"  # after check-role
+    INGESTING = "ingesting"  # final

@@ -46,13 +46,17 @@ from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
     PWA_APP_TITLES,
     AWSInfaHandleResponse,
+    AWSInfraAssetType,
     AWSInfraCheckRoleReceivedResponse,
+    AWSInfraGenerateDataChoiceRequest,
+    AWSInfraGenerateDataChoiceResponse,
     AWSInfraHandleRequest,
     AWSInfraInventoryCustomerAccountReceivedResponse,
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
     AWSInfraSetupIngestionReceivedResponse,
+    AWSInfraStage,
     AWSInfraTeardownReceivedResponse,
     AWSInfraTriggerOperationRequest,
     AnyDownloadRequest,
@@ -375,6 +379,15 @@ def validate_handle(request: AWSInfraManagementResponseRequest):
         raise HTTPException(
             status_code=400, detail="Operation does not match that of stored handle."
         )
+
+
+def validate_exclusive_handle(request: Request):
+    if isinstance(request, AWSInfraHandleRequest) and len(vars(request)) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail="A handle request should only contain handle and no other keys.",
+        )
+    return request
 
 
 @app.on_event("startup")
@@ -1043,24 +1056,19 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
     return JSONResponse({"message": "Success"}, status_code=200)
 
 
-# TODO: response model vs return type ?
 # TODO: security scheme for token?
 
 
-@api.post(
-    "/awsinfra/config-start",
-    response_model=Union[AWSInfraConfigStartResponse, DefaultResponse],
-)
-async def api_awsinfra_config_start(
+@api.post("/awsinfra/config-start")
+def api_awsinfra_config_start(
     request: AWSInfraConfigStartRequest,
 ) -> Union[AWSInfraConfigStartResponse, DefaultResponse]:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
-    if (
-        canarydrop.aws_current_assets
-        is not None
-        # or canarydrop.aws_customer_iam_access_external_id is not None
+    if not (
+        canarydrop.aws_infra_stage == AWSInfraStage.INITIAL
+        or canarydrop.aws_infra_stage == AWSInfraStage.ROLE_CHECKING
     ):
         return DefaultResponse(
             result=False, message="Configuration has already started for this token."
@@ -1073,7 +1081,7 @@ async def api_awsinfra_config_start(
     )
 
 
-@api.post("/awsinfra/check-role")
+@api.post("/awsinfra/check-role", dependencies=[Depends(validate_exclusive_handle)])
 def api_awsinfra_check_role(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
 ) -> Union[AWSInfraCheckRoleReceivedResponse, AWSInfaHandleResponse]:
@@ -1102,36 +1110,63 @@ def api_awsinfra_check_role(
     return AWSInfaHandleResponse(handle=request.handle)
 
 
-@api.post("/awsinfra/inventory-customer-account")
+@api.post(
+    "/awsinfra/inventory-customer-account",
+    dependencies=[Depends(validate_exclusive_handle)],
+)
 def api_awsinfra_inventory_customer_account(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
 ) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfaHandleResponse]:
+
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
         handle_id = aws_infra.create_handle(AWSInfraOperationType.INVENTORY, canarydrop)
         return AWSInfaHandleResponse(handle=handle_id)
-    handle_response = aws_infra.get_handle_response(request.handle)
-    if handle_response.response_received:
 
+    handle_response = aws_infra.get_handle_response(request.handle)
+
+    if handle_response.response_received and handle_response.response == "":
         return AWSInfraInventoryCustomerAccountReceivedResponse(
-            result=handle_response.response != "",
-            message=""
-            if handle_response.response != ""
-            else "Handle lookup has timedout.",
+            result=False,
+            message="Handle lookup has timed out.",
             handle=request.handle,
-            proposed_plan={}
-            if handle_response.response == ""
-            else aws_infra.generate_proposed_plan(),
             error=handle_response.response.get("error"),
         )
+
+    if handle_response.response_received and handle_response.response != "":
+        aws_infra.save_current_assets(
+            canarydrop, handle_response.response.get("assets")
+        )
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            result=True,
+            handle=request.handle,
+            proposed_plan=aws_infra.generate_proposed_plan(canarydrop),
+        )
+
     return AWSInfaHandleResponse(handle=request.handle)
 
 
 @api.post("/awsinfra/generate-data-choices")
-def api_awsinfra_generate_data_choices():
-    pass
+def api_awsinfra_generate_data_choices(
+    request: AWSInfraGenerateDataChoiceRequest, response: Response
+) -> AWSInfraGenerateDataChoiceResponse:
+    get_canarydrop_and_authenticate(request.canarytoken, request.auth_token)
+    if request.asset_type == AWSInfraAssetType.S3_BUCKET:
+        return AWSInfraGenerateDataChoiceResponse(
+            result=True, proposed_data=aws_infra.generate_s3_bucket()
+        )
+
+    if request.asset_type == AWSInfraAssetType.S3_OBJECT:
+        return AWSInfraGenerateDataChoiceResponse(
+            result=True, proposed_data=aws_infra.generate_s3_object()
+        )
+
+    response.status_code = status.HTTP_400_BAD_REQUEST
+    return AWSInfraGenerateDataChoiceResponse(
+        result=False, message="Asset type not supported."
+    )
 
 
 @api.post("/awsinfra/save-plan")
@@ -1143,7 +1178,9 @@ def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
     return DefaultResponse(result=True, message="")
 
 
-@api.post("/awsinfra/setup-ingestion")
+@api.post(
+    "/awsinfra/setup-ingestion", dependencies=[Depends(validate_exclusive_handle)]
+)
 def api_awsinfra_setup_ingestion(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
 ) -> Union[AWSInfraSetupIngestionReceivedResponse, AWSInfaHandleResponse]:
@@ -1171,7 +1208,7 @@ def api_awsinfra_setup_ingestion(
     return AWSInfaHandleResponse(handle=request.handle)
 
 
-@api.post("/awsinfra/teardown")
+@api.post("/awsinfra/teardown", dependencies=[Depends(validate_exclusive_handle)])
 def api_awsinfra_teardown(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
 ) -> Union[AWSInfraTeardownReceivedResponse, AWSInfaHandleResponse]:
@@ -1203,7 +1240,7 @@ def api_awsinfra_management_response(
     return JSONResponse({"message": "Success"})
 
 
-@api.get("/edit")
+@api.get("/edit")  # link to edit page
 def api_get_edit():
     pass
 
