@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import {
   ASSET_TYPE,
@@ -64,14 +64,25 @@ import {
 
 type SelectOption = { label: string; value: string };
 
+const props = defineProps<{
+  isTypeMissingPermission: string[];
+}>();
+
 const emits = defineEmits(['selectOption']);
 
 const EMPTY_VALUE = { label: 'Choose asset', value: '' };
 
 const selectedValue = ref(EMPTY_VALUE);
 
-const options = Object.values(ASSET_TYPE).map((val) => {
-  return { label: ASSET_LABEL[val], value: val };
+const options = computed(() => {
+  return Object.values(ASSET_TYPE)
+    .map((val) => {
+      if (props.isTypeMissingPermission.includes(val)) {
+        return null;
+      }
+      return { label: ASSET_LABEL[val], value: val };
+    })
+    .filter((option) => option !== null);
 });
 
 function handleResetSelect() {
@@ -80,7 +91,6 @@ function handleResetSelect() {
 
 function handleSelectOption(value: string | SelectOption) {
   emits('selectOption', value);
-  //
 }
 </script>
 
