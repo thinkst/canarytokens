@@ -121,7 +121,7 @@
               'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST,
             },
             {
-              'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
+              'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
                 viewType === VIEW_TYPE.GRID,
             },
           ]"
