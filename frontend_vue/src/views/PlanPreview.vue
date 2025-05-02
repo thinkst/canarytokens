@@ -91,12 +91,12 @@
           Unselect All
         </button>
       </div>
-      <BaseMessageBox
-        v-if="isErrorMessage"
-        variant="danger"
-        >{{ isErrorMessage }}</BaseMessageBox
-      >
     </div>
+    <BaseMessageBox
+      v-if="isErrorMessage"
+      variant="danger"
+      >{{ isErrorMessage }}</BaseMessageBox
+    >
 
     <template
       v-for="(assetValues, assetKey) in assetSamples"
