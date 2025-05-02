@@ -1,7 +1,7 @@
 <template>
   <BaseModal
-    title="Edit Account informations"
-    :has-close-button="hasCloseButton"
+    title="Edit account informations"
+    :has-close-button="true"
     :hide-footer="true"
     :content-class="`items-stretch`"
   >
@@ -55,15 +55,16 @@
 import { ref, onMounted } from 'vue';
 import * as Yup from 'yup';
 import { Form } from 'vee-validate';
+import type { GenericObject } from 'vee-validate';
 import { AWS_REGIONS } from '@/components/tokens/aws_infra/constants.ts';
 
 const props = defineProps<{
-  accountNumber: Record<string, any>;
-  accountRegion: Record<string, any>;
+  accountNumber: string;
+  accountRegion: string;
   closeModal: () => void;
 }>();
 
-const selectedRegion = ref('');
+const selectedRegion = ref<{ value: string; label: string }[]>([]);
 const selectedAWSaccount = ref('');
 
 const schema = Yup.object().shape({
@@ -85,7 +86,7 @@ onMounted(() => {
   selectedAWSaccount.value = props.accountNumber;
 });
 
-function onSubmit(values) {
+function onSubmit(values: GenericObject) {
   console.log('values', values);
 }
 

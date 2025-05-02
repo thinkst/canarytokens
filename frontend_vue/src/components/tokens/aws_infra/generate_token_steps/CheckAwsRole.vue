@@ -35,7 +35,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import type { TokenDataType } from '@/utils/dataService';
-import { requestAWSInfraRoleCheck } from '@/api/main.ts';
+import { requestAWSInfraRoleCheck } from '@/api/awsInfra.ts';
 import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';
 

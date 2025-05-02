@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 
-export function useCountdown(initialValue) {
+export function useCountdown(initialValue: number) {
   const countdownSeconds = ref(initialValue);
 
   async function triggerCountdown() {

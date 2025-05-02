@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { requestInventoryCustomerAccount } from '@/api/main.ts';
+import { requestInventoryCustomerAccount } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';

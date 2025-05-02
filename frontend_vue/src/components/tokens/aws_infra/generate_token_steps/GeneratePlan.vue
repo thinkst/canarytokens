@@ -9,13 +9,6 @@
       loading-message="Loading your plan..."
       :error-message="errorMessage"
     />
-    <!-- <PlanCreator
-    v-if="!isLoading || !isSavingPlan"
-    :proposed-plan="proposed_plan"
-    :token="token"
-    :auth-token="auth_token"
-    @submit-plan="handleSubmit"
-  /> -->
     <p>This is a placeholder for the plan</p>
     <p>The Plan editor is WIP on another branch</p>
     <p>Just hit save to check the next step</p>
@@ -34,8 +27,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { savePlan } from '@/api/main.ts';
-// import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
+import { savePlan } from '@/api/awsInfra.ts';
 import StepState from '../StepState.vue';
 import type { TokenDataType } from '@/utils/dataService';
 import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';

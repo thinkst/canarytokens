@@ -10,7 +10,7 @@
       </h2>
     </div>
     <StepState
-      v-if="isLoading | isError"
+      v-if="isLoading || isError"
       :is-loading="isLoading"
       :is-error="isError"
       loading-message="We are generating the terraform module, hold on"
@@ -29,11 +29,6 @@
       ></BaseCodeSnippet>
       <div class="flex flex-col items-center pt-16">
         <div class="relative">
-          <!-- <img
-            alt="aws infra token"
-            :src="getImageUrl('token_icons/aws_infra.png')"
-            class="w-[6rem]"
-          /> -->
           <TokenIcon
             title="aws infra token"
             logo-img-url="aws_infra.png"
@@ -62,6 +57,7 @@
       <BaseButton
         v-if="!isLoading"
         variant="secondary"
+        @click="handleManageTokenButton"
       >
         Manage Token</BaseButton
       >
@@ -83,7 +79,7 @@ import { useRouter } from 'vue-router';
 import getImageUrl from '@/utils/getImageUrl';
 import type { TokenDataType } from '@/utils/dataService';
 import { TOKENS_TYPE } from '@/components/constants.ts';
-import { requestTerraformSnippet } from '@/api/main.ts';
+import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
 import StepState from '../StepState.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
@@ -198,6 +194,10 @@ async function handleRequestTerraformSnippet() {
     errorMessage.value = err.message;
     isSuccess.value = false;
   }
+}
+
+function handleManageTokenButton() {
+  router.push({ name: 'manage', params: { auth: auth_token, token } });
 }
 
 watch(isSuccess, (newVal) => {

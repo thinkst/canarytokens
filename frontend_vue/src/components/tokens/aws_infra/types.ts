@@ -40,6 +40,13 @@ type PlanValueTypes = {
   assets: AssetsTypes;
 };
 
+type CurrentTokenDataType = {
+  token: string;
+  auth_token: string;
+  proposed_plan: PlanValueTypes;
+  codeSnippetCommands?: string;
+};
+
 export type {
   AssetsTypes,
   S3BucketType,
@@ -49,4 +56,5 @@ export type {
   SecretsManagerSecretType,
   DynamoDBTableType,
   PlanValueTypes,
+  CurrentTokenDataType,
 };

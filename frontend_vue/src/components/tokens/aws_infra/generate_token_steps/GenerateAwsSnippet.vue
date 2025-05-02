@@ -103,8 +103,9 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, defineAsyncComponent } from 'vue';
-import { requestAWSInfraRoleSetupCommands } from '@/api/main.ts';
+import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
+import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
@@ -117,7 +118,7 @@ const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
-  currentStepData: TokenDataType;
+  currentStepData: CurrentTokenDataType;
 }>();
 
 const { token, auth_token, aws_region, aws_account_number } =
@@ -126,7 +127,7 @@ const { token, auth_token, aws_region, aws_account_number } =
 const isLoading = ref(true);
 const isError = ref(false);
 const errorMessage = ref('');
-const codeSnippetCommands = ref<string[]>([]);
+const codeSnippetCommands = ref<string>('');
 const accountNumber = ref('');
 const accountRegion = ref('');
 const isSnippedChecked = ref(false);
