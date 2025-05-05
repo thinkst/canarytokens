@@ -52,7 +52,7 @@
               v-if="showDataIcon(key)"
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
               :alt="`${key} icon`"
-              class="w-[1.5rem] h-[1.3rem]"
+              class="w-[1.5rem] h-[1.5rem]"
             />
             <span :class="{ 'cropped-data': assetDataDisplay.length > 1 }">
               {{ value }}</span
@@ -345,8 +345,13 @@ watch(
     display: flex;
     flex-grow: 1;
     gap: 0.5rem;
-    padding-block: 0.5rem;
+    padding-block: 0.8rem;
     padding-inline: 0.5rem;
+
+    &__badge {
+      top: -6px;
+      right: 0.4rem;
+    }
 
     @media (max-width: 1024px) {
       flex-direction: column;
@@ -402,6 +407,7 @@ watch(
         display: flex;
         flex-direction: row;
         gap: 0.5rem;
+        line-height: 1.5rem;
 
         .cropped-data {
           width: 15ch;
@@ -438,19 +444,19 @@ watch(
       .input-select {
         position: absolute;
         left: 0.8rem;
-        top: 0.7rem;
+        top: 1rem;
       }
 
       .list-btn-edit {
         position: absolute;
         right: 3em;
-        top: 0.6rem;
+        top: 1rem;
       }
 
       .btn-delete {
         position: absolute;
         right: 0.5rem;
-        top: 0.5rem;
+        top: 0.8rem;
       }
     }
   }
