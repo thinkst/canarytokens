@@ -4,7 +4,7 @@ import { ref } from 'vue';
 
 export const assetsExample = ref<{
   S3Bucket: { bucket_name: string; objects: { object_path: string }[] }[];
-  SQSQueue: { queue_name: string; message_count: number }[];
+  SQSQueue: { queue_name: string; message_count: number }[] | null;
   SSMParameter: { ssm_parameter_name: string; ssm_parameter_value: string }[];
   SecretsManagerSecret: {
     secretsmanager_secret_name: string;
@@ -407,6 +407,88 @@ export const assetsWithEmptySQSQueue = ref<{
       dynamodb_name: 'decoy-ssm-param-55-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
+    },
+  ],
+});
+
+export const assetsManageExample = ref<{
+  S3Bucket: {
+    bucket_name: string;
+    objects: { object_path: string }[];
+    offInventory: boolean;
+  }[];
+  SQSQueue: {
+    queue_name: string;
+    message_count: number;
+    offInventory: boolean;
+  }[];
+  SSMParameter: {
+    ssm_parameter_name: string;
+    ssm_parameter_value: string;
+    offInventory: boolean;
+  }[];
+  SecretsManagerSecret: {
+    secretsmanager_secret_name: string;
+    secretsmanager_secret_value: string;
+    offInventory: boolean;
+  }[];
+  DynamoDBTable: {
+    dynamodb_name: string;
+    dynamodb_partition_key: string;
+    dynamodb_row_count: number;
+    offInventory: boolean;
+  }[];
+}>({
+  S3Bucket: [
+    {
+      bucket_name: 'decoy-bucket-1',
+      objects: [
+        { object_path: 'foo/bar/object1' },
+        { object_path: 'foo/baz/object2' },
+      ],
+      offInventory: false,
+    },
+    {
+      bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+      offInventory: true,
+    },
+  ],
+  SQSQueue: [
+    {
+      queue_name: 'decoy-queue-1',
+      message_count: 5,
+      offInventory: false,
+    },
+    {
+      queue_name: 'decoy-queue-2',
+      message_count: 5,
+      offInventory: false,
+    },
+  ],
+  SSMParameter: [
+    {
+      ssm_parameter_name: 'decoy-ssm-param-1',
+      ssm_parameter_value: 'some_fake_looking_api_key',
+      offInventory: false,
+    },
+  ],
+  SecretsManagerSecret: [
+    {
+      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
+      secretsmanager_secret_value: 'some_fake_looking_api_key',
+      offInventory: true,
+    },
+  ],
+  DynamoDBTable: [
+    {
+      dynamodb_name: 'decoy-ssm-param-2-very-long-name',
+      dynamodb_partition_key: 'username',
+      dynamodb_row_count: 10,
+      offInventory: false,
     },
   ],
 });
