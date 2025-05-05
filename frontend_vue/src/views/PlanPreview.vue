@@ -13,6 +13,12 @@
       @click.stop="handleChangePlanSampleData('missingPermission')"
       >Show Missing SQS Queue permission plan</BaseButton
     >
+    <BaseButton
+      variant="text"
+      icon="arrow-right"
+      @click.stop="handleChangePlanSampleData('manage')"
+      >Show Manage Token plan</BaseButton
+    >
   </div>
   <div class="p-40 bg-grey-50 rounded-xl">
     <div class="flex justify-between mb-24">
@@ -179,7 +185,11 @@ import SelectAddAsset from '@/components/tokens/aws_infra/plan_generator/SelectA
 import useMultiselectAssets from '@/components/tokens/aws_infra/plan_generator/useMultiselectAssets.ts';
 
 // Start handle Samples plan
-import { assetsExample, assetsWithEmptySQSQueue } from './planPreviewUtils.ts';
+import {
+  assetsExample,
+  assetsWithEmptySQSQueue,
+  assetsManageExample,
+} from './planPreviewUtils.ts';
 
 function handleChangePlanSampleData(type: string) {
   if (type === 'regular') {
@@ -187,6 +197,9 @@ function handleChangePlanSampleData(type: string) {
   }
   if (type === 'missingPermission') {
     assetSamples.value = assetsWithEmptySQSQueue.value;
+  }
+  if (type === 'manage') {
+    assetSamples.value = assetsManageExample.value;
   }
 }
 // End handle Sample plan
@@ -225,6 +238,12 @@ const isMissingPermissionAssetType = computed(() => {
     .filter(([, v]) => v === null)
     .map(([k]) => k);
 });
+
+function handleRemoveManageInfo(assetData) {
+  const { offInventory, ...rest } = assetData;
+  console.log(rest);
+  return rest;
+}
 
 function handleSelectViewType(
   value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]
@@ -267,7 +286,7 @@ function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
     component: ModalAsset,
     attrs: {
       assetType: assetType,
-      assetData: assetData,
+      assetData: handleRemoveManageInfo(assetData),
       closeModal: () => {
         close();
       },

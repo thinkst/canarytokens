@@ -3,10 +3,23 @@
     class="asset-card__wrapper"
     :class="viewType"
   >
+    <span
+      v-if="isOffInventory"
+      v-tooltip="{
+        html: true,
+        content:
+          'We couldn`t find this resource in your inventory.<br/>If you wish to remove it permanently, delete it from the list.',
+      }"
+      class="asset-card__badge text-xs text-white bg-yellow rounded-lg px-4 py-[2px] absolute"
+      >Not found</span
+    >
     <button
       ref="assetCardRef"
-      class="asset-card group border group bg-white rounded-2xl top-[0px] shadow-solid-shadow-grey border-grey-200 duration-100 ease-in-out"
-      :class="{ active: isSelected }"
+      class="asset-card group border group bg-white rounded-2xl top-[0px] border-grey-200 duration-100 ease-in-out"
+      :class="{
+        active: isSelected,
+        'border-yellow': isOffInventory,
+      }"
       @click.stop="handleAssetClick"
       @mouseover="handleMouseOver"
       @focus="handleMouseOver"
@@ -49,6 +62,9 @@
       </ul>
       <!--- Btn Edit --->
       <div
+        :class="{
+          'shadow-solid-shadow-yellow': isOffInventory,
+        }"
         class="asset-card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
       >
         {{ isHoverCard ? 'Edit' : assetLabel }}
@@ -112,7 +128,6 @@ type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
 type AssetType =
   | S3BucketType
-  | S3ObjectType
   | SQSQueueType
   | SSMParameterType
   | SecretsManagerSecretType
@@ -144,6 +159,8 @@ const assetDataDisplay = computed(() => {
   return Object.entries(props.assetData)
     .map(([key, value]) => {
       if (key.includes(nameKey)) return null;
+      // For Edit mode
+      if (key.includes('offInventory')) return null;
       if (Array.isArray(value)) return [key, value.length];
       return [key, value];
     })
@@ -152,6 +169,10 @@ const assetDataDisplay = computed(() => {
 
 const assetLabel = computed(() => {
   return ASSET_LABEL[props.assetType];
+});
+
+const isOffInventory = computed(() => {
+  return props.assetData.offInventory;
 });
 
 function showDataLabel(key: keyof typeof ASSET_LABEL) {
@@ -218,13 +239,19 @@ watch(
     justify-content: space-between;
     align-items: stretch;
 
+    &__badge {
+      top: -10px;
+      left: 50%;
+      transform: translate(-50%);
+    }
+
     &__content {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8;
       padding-inline: 0.5rem;
-      padding-top: 0.5rem;
+      padding-top: 0.8rem;
 
       img {
         height: 2rem;
