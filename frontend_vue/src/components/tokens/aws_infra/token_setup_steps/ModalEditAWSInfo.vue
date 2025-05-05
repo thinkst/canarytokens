@@ -13,25 +13,27 @@
           @submit="onSubmit"
           @invalid-submit="onInvalidSubmit"
         >
-          <BaseFormTextField
-            id="aws_account_number"
-            type="text"
-            placeholder="e.g. 012345678901"
-            label="AWS account number"
-            full-width
-            required
-            :value="selectedAWSaccount"
-          />
-          <div>
-            <BaseFormSelect
-              id="aws_region"
-              label="AWS Region"
-              :options="AWS_REGIONS"
-              placeholder="Select AWS region"
+          <div class="lg:basis-6/12">
+            <BaseFormTextField
+              id="aws_account_number"
+              type="text"
+              placeholder="e.g. 012345678901"
+              label="AWS account number"
+              full-width
               required
-              searchable
-              :value="selectedRegion[0]"
+              :value="selectedAWSaccount"
             />
+            <div>
+              <BaseFormSelect
+                id="aws_region"
+                label="AWS Region"
+                :options="AWS_REGIONS"
+                placeholder="Select AWS region"
+                required
+                searchable
+                :value="selectedRegion[0]"
+              />
+            </div>
           </div>
           <div class="flex flex col justify-center gap-8 mt-24">
             <BaseButton
