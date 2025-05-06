@@ -110,7 +110,7 @@
 import { ref, computed, inject, watch } from 'vue';
 import type {
   S3BucketType,
-  S3ObjectType,
+  // S3ObjectType,
   SQSQueueType,
   SSMParameterType,
   SecretsManagerSecretType,

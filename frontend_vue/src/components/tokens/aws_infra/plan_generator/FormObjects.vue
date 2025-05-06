@@ -15,7 +15,8 @@
       type="button"
       variant="text"
       icon="plus"
-      @click="prepend(ASSET_DATA[objectKey])"
+      :loading="isLoading"
+      @click="handleAddObject"
     >
       Add object
     </BaseButton>
@@ -105,6 +106,7 @@ import {
   ASSET_LABEL,
   ASSET_DATA,
 } from '@/components/tokens/aws_infra/constants.ts';
+import { generateDataChoice } from '@/api/main';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 
@@ -119,10 +121,14 @@ const props = defineProps<{
 const MAX_PER_PAGE = 10;
 const currentPageNumber = ref(1);
 const containerWidth = ref(0);
+const isLoading = ref(false);
+const isErrorMessage = ref('');
 
 const totalPagesNumber = computed(() => {
   return Math.ceil(props.fields.length / MAX_PER_PAGE);
 });
+
+const objectKey = computed(() => props.objectKey);
 
 onMounted(() => {
   checkContainerWidth();
@@ -156,6 +162,24 @@ function handlePreviousPage() {
 function handleNextPage() {
   if (currentPageNumber.value < totalPagesNumber.value) {
     currentPageNumber.value++;
+  }
+}
+
+async function handleAddObject() {
+  isLoading.value = true;
+
+  try {
+    const res = await generateDataChoice(objectKey);
+
+    if (!res.result) {
+      isErrorMessage.value = res.message;
+    }
+    props.prepend({ objectKey: res.proposed_data });
+  } catch (err: any) {
+    isErrorMessage.value =
+      err.message || 'An error occurred when creating a new object';
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>

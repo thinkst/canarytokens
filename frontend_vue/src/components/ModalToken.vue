@@ -260,32 +260,6 @@ async function handleBackButton() {
   }
 }
 
-// function handleGenerateToken(formValues: BaseFormValuesType) {
-//   // remove errors & loading
-//   isGenerateTokenError.value = false;
-//   errorMessage.value = '';
-//   isLoadngSubmit.value = false;
-//   triggerSubmit.value = false;
-
-//   const res = {
-//     data: {},
-//   };
-
-//   // if Token type has Custom Generate flow, go to custom page
-//   if (tokenServices[props.selectedToken].isCustomGenerateFlow) {
-//     setTokenData({ data: res.data });
-//     router.push({
-//       name: 'generate-token',
-//       params: {
-//         token: props.selectedToken,
-//       },
-//     });
-//     props.closeModal();
-
-//     return;
-//   }
-// }
-
 async function handleGenerateToken(formValues: BaseFormValuesType) {
   try {
     isLoadngSubmit.value = true;
