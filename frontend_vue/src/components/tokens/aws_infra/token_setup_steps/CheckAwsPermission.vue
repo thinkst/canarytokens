@@ -2,11 +2,7 @@
   <section class="flex text-center flex-col">
     <div class="infra-token__title-wrapper flex flex-col items-center">
       <h2>
-        {{
-          isLoading
-            ? 'Loading Manage Token Wizard...'
-            : `Check your AWS permission`
-        }}
+        {{ isLoading ? 'Checking permission...' : `Check your AWS permission` }}
       </h2>
       <div v-if="!isLoading && !isError">
         <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
@@ -33,13 +29,6 @@
         Run the AWS CLI command below to find the External ID
       </p>
     </div>
-    <StepState
-      v-if="isLoading || isError"
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are checking the permissions, hold on"
-      :error-message="errorMessage"
-    />
     <div
       v-if="!isLoading && !isError"
       class="flex flex-col text-left items-center"
@@ -52,7 +41,6 @@
         class="mt-24 wrap-code lg:max-w-[50vw]"
         :check-scroll="true"
       />
-
       <div
         v-if="!isLoading && !isError"
         class="flex flex-col items-stretch sm:min-w-[40vw] md:min-w-[30vw] min-w-full"
@@ -61,7 +49,6 @@
           class="mt-24 flex flex-col gap-16 items-center"
           :validation-schema="schema"
           @submit="onSubmit"
-          @invalid-submit="onInvalidSubmit"
         >
           <BaseFormTextField
             id="external_id"
@@ -73,11 +60,18 @@
           <BaseButton
             type="submit"
             variant="primary"
-            >Proceed</BaseButton
+            >Check permissions</BaseButton
           >
         </Form>
       </div>
     </div>
+    <StepState
+      v-if="isLoading || isError"
+      :is-loading="isLoading"
+      :is-error="isError"
+      loading-message="We are checking the permissions, hold on"
+      :error-message="errorMessage"
+    />
     <div class="flex justify-center">
       <BaseButton
         v-if="isError"
@@ -110,14 +104,13 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
-const isLoading = ref(true);
+const isLoading = ref(false);
 const isError = ref(false);
 const errorMessage = ref('');
 const accountNumber = ref('');
 const accountRegion = ref('');
 
 onMounted(async () => {
-  isLoading.value = false;
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 });
@@ -129,10 +122,10 @@ const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
 });
 
-async function handleCheckPermission() {}
-
-function onInvalidSubmit() {
-  console.log('error!');
+async function handleCheckPermission() {
+  errorMessage.value = '';
+  isLoading.value = true;
+  // here goes the API call to manage endpoint
 }
 
 async function onSubmit() {
