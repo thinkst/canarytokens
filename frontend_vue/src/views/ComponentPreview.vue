@@ -1,4 +1,152 @@
 <template>
+  <!-- Start plan generator preview -->
+  <!-- Remove these previews after plan generator merged -->
+  <div>
+    <hr class="my-24" />
+    <h1>Asset Card</h1>
+    <div class="flex items-center gap-8 text-grey-500">
+      View:
+      <button
+        type="button"
+        :class="{ 'text-green-500': viewType === VIEW_TYPE.LIST }"
+        @click="handleSelectViewType(VIEW_TYPE.LIST)"
+      >
+        List
+      </button>
+      |
+      <button
+        type="button"
+        :class="{ 'text-green-500': viewType === VIEW_TYPE.GRID }"
+        @click="handleSelectViewType(VIEW_TYPE.GRID)"
+      >
+        Grid
+      </button>
+    </div>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <div
+        :class="[
+          {
+            'grid grid-col-1 gap-8 auto-rows-fr': viewType === VIEW_TYPE.LIST,
+          },
+          {
+            'grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
+              viewType === VIEW_TYPE.GRID,
+          },
+        ]"
+      >
+        <AssetCard
+          asset-type="S3Bucket"
+          :asset-data="{
+            bucket_name: 'decoy-bucket-3',
+            objects: [
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+            ],
+            offInventory: false,
+          }"
+          :is-active-selected="false"
+        />
+        <AssetCard
+          asset-type="SQSQueue"
+          :asset-data="{
+            queue_name: 'decoy-queue-1',
+            message_count: 5,
+            offInventory: false,
+          }"
+          :is-active-selected="false"
+        />
+        <AssetCard
+          asset-type="SSMParameter"
+          :asset-data="{
+            ssm_parameter_name: 'decoy-ssm-param-1',
+            ssm_parameter_value: 'some_fake_looking_api_key',
+            offInventory: false,
+          }"
+          :is-active-selected="false"
+        />
+        <AssetCard
+          asset-type="SecretsManagerSecret"
+          :asset-data="{
+            secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
+            secretsmanager_secret_value: 'some_fake_looking_api_key',
+            offInventory: false,
+          }"
+          :is-active-selected="false"
+        />
+        <AssetCard
+          asset-type="DynamoDBTable"
+          :asset-data="{
+            dynamodb_name: 'decoy-ssm-param-1',
+            dynamodb_partition_key: 'username but very long',
+            dynamodb_row_count: 10,
+            offInventory: false,
+          }"
+          :is-active-selected="false"
+        />
+        <AssetCard
+          asset-type="S3Bucket"
+          :asset-data="{
+            bucket_name: 'decoy-bucket-3',
+            objects: [
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+              { object_path: 'moo/bar/object1' },
+              { object_path: 'moo/baz/object2' },
+            ],
+            offInventory: true,
+          }"
+          :is-active-selected="false"
+        />
+      </div>
+    </div>
+  </div>
+  <div>
+    <hr class="my-24" />
+    <h1>Asset Text Field</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <p>Large Input</p>
+      <AssetTextField
+        id="sample"
+        v-model="assetInputValue"
+        label="Example"
+        asset-type="exampleType"
+      />
+
+      <p>Small Input</p>
+      <AssetTextField
+        id="sample"
+        v-model="assetInputValue"
+        label="Example"
+        :has-remove="true"
+        variant="small"
+        asset-type="exampleType"
+        :hide-label="true"
+      />
+      <p>Small Input with icon</p>
+      <AssetTextField
+        id="sample"
+        v-model="assetInputValue"
+        label="Example"
+        :has-remove="true"
+        variant="small"
+        asset-type="exampleType"
+        icon="aws_infra_icons/objects.svg"
+        :hide-label="true"
+      />
+    </div>
+  </div>
+  <!-- End plan generator preview -->
+
   <div>
     <hr class="my-24" />
     <h1>Checkbox input</h1>
@@ -414,17 +562,20 @@
 <script setup lang="ts">
 // For internal use only
 // TODO: show this component only for DEV env or behind VPN
+import { ref, provide } from 'vue';
+import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import ModalToken from '@/components/ModalToken.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
 import CustomMap from '@/components/ui/CustomMap.vue';
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import SearchBar from '@/components/ui/SearchBar.vue';
-import { ref } from 'vue';
 import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue';
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
+import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
+import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 
 const { open } = useModal({
   component: ModalToken,
@@ -434,6 +585,16 @@ const { open } = useModal({
   },
 });
 
+type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
+
+const VIEW_TYPE = {
+  GRID: 'gridView',
+  LIST: 'listView',
+} as const;
+
+const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
+provide('viewType', viewType);
+
 const checked = ref(false);
 const checkedDisabled = ref(false);
 const fileSelected = ref();
@@ -441,9 +602,16 @@ const currentStep = ref(1);
 const checkBoxValue = ref(false);
 const checkBoxDisabledValue = ref(false);
 const checkBoxTooltipValue = ref(false);
+const assetInputValue = ref('test value');
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
+}
+
+function handleSelectViewType(
+  value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]
+) {
+  viewType.value = value;
 }
 
 const codeSnippet = ref(`const tooltipText = ref('Copy to clipboard');
