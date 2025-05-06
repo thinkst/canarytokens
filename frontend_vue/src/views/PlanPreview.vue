@@ -239,9 +239,9 @@ const isMissingPermissionAssetType = computed(() => {
     .map(([k]) => k);
 });
 
-function handleRemoveManageInfo(assetData) {
+function handleRemoveManageInfo(assetData: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { offInventory, ...rest } = assetData;
-  console.log(rest);
   return rest;
 }
 
