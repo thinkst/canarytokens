@@ -31,7 +31,7 @@
         variant="primary"
         type="submit"
         @click="handleSubmit"
-        >Add to plan</BaseButton
+        >Save</BaseButton
       >
     </template>
   </BaseModal>
