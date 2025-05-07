@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { generateDataChoice } from '@/api/main';
+import { generateDataChoice } from '@/api/awsInfra';
 
 export function useGenerateAssetName(assetType: string) {
   const isGenerateNameError = ref('');

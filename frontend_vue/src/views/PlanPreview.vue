@@ -170,7 +170,7 @@
 import { ref, provide, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
-import { generateDataChoice } from '@/api/main';
+import { generateDataChoice } from '@/api/awsInfra.ts';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import {

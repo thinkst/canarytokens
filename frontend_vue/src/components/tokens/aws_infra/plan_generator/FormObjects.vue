@@ -106,7 +106,7 @@ import {
   ASSET_LABEL,
   ASSET_DATA,
 } from '@/components/tokens/aws_infra/constants.ts';
-import { generateDataChoice } from '@/api/main';
+import { generateDataChoice } from '@/api/awsInfra.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 
