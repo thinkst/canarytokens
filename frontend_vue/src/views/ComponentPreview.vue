@@ -117,7 +117,7 @@
       <p>Large Input</p>
       <AssetTextField
         id="sample"
-        v-model="assetInputValue"
+        :value="assetInputValue"
         label="Example"
         asset-type="exampleType"
       />
@@ -125,7 +125,7 @@
       <p>Small Input</p>
       <AssetTextField
         id="sample"
-        v-model="assetInputValue"
+        :value="assetInputValue"
         label="Example"
         :has-remove="true"
         variant="small"
@@ -135,7 +135,7 @@
       <p>Small Input with icon</p>
       <AssetTextField
         id="sample"
-        v-model="assetInputValue"
+        :value="assetInputValue"
         label="Example"
         :has-remove="true"
         variant="small"
