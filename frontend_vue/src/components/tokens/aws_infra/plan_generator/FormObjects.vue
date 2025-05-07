@@ -42,7 +42,7 @@
         >
           <AssetTextField
             :id="`${props.assetKey}.${fieldIndex}.${propertyKey}`"
-            v-model="field.value[propertyKey]"
+            :value="field.value[propertyKey]"
             :label="getLabel(propertyKey)"
             :asset-type="objectKey"
             variant="small"
