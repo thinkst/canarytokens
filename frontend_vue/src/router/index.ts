@@ -10,7 +10,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'Canarytokens.org',
+        title: 'Canarytokens',
       },
     },
     {
@@ -23,9 +23,9 @@ const router = createRouter({
     },
     {
       // TODO: add a guard to check if user is coming from the token modal
-      path: '/generate-token/:token',
-      name: 'generate-token',
-      component: () => import('../views/GenerateCustomView.vue'),
+      path: '/generate/:tokentype',
+      name: 'generate-custom',
+      component: () => import('../views/CustomFlowView.vue'),
       meta: {
         title: 'Create New Canarytoken',
       },
@@ -37,6 +37,14 @@ const router = createRouter({
         import('../views/ManageView.vue').catch(() => {
           router.push({ name: 'error' });
         }),
+      meta: {
+        title: 'Manage Canarytoken',
+      },
+    },
+    {
+      path: '/manage/:tokentype',
+      name: 'manage-custom',
+      component: () => import('../views/CustomFlowView.vue'),
       meta: {
         title: 'Manage Canarytoken',
       },
