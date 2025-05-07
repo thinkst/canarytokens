@@ -174,7 +174,7 @@ async function handleAddObject() {
     if (!res.result) {
       isErrorMessage.value = res.message;
     }
-    props.prepend({ objectKey: res.proposed_data });
+    props.prepend({ [objectKey.value]: res.proposed_data });
   } catch (err: any) {
     isErrorMessage.value =
       err.message || 'An error occurred when creating a new object';
