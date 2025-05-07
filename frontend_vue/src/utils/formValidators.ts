@@ -256,9 +256,7 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
       aws_region: Yup.string().required('AWS region is required'),
-      aws_account_number: Yup.number()
-        .typeError('AWS account must be a number')
-        .required('AWS account number is required'),
+      aws_account_number: Yup.number().required('AWS account number is required'),
     }),
   },
 };

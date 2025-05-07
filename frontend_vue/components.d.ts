@@ -27,7 +27,7 @@ declare module 'vue' {
     BaseRefreshButton: typeof import('./src/components/base/BaseRefreshButton.vue')['default']
     BaseSkeletonLoader: typeof import('./src/components/base/BaseSkeletonLoader.vue')['default']
     BaseSpinner: typeof import('./src/components/base/BaseSpinner.vue')['default']
-    BaseStepCounter: typeof import('./src/components/base/BaseStepCounter.vue')['default']
+    BaseStepCounter: typeof import('src/components/base/BaseStepCounter.vue')['default']
     BaseSwitch: typeof import('./src/components/base/BaseSwitch.vue')['default']
     BaseUploadFile: typeof import('./src/components/base/BaseUploadFile.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
