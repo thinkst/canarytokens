@@ -27,7 +27,7 @@
       <template v-else>
         <AssetTextField
           :id="key"
-          v-model="initialValues[key]"
+          :value="initialValues[key]"
           :label="getLabel(key)"
           :asset-type="key"
         />

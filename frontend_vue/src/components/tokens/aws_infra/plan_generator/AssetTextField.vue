@@ -16,7 +16,7 @@
     ></span>
     <input
       :id="id"
-      v-model="value"
+      :value="value"
       :class="[
         { input__error: errorMessage },
         { input__disabled: disabled },
@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRef, computed, ref } from 'vue';
+import { toRef, computed, ref, watch } from 'vue';
 import { useField } from 'vee-validate';
 import getImageUrl from '@/utils/getImageUrl';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
@@ -111,6 +111,7 @@ const props = defineProps<{
   hasRemove?: boolean;
   hideLabel?: boolean;
   assetType: string;
+  value?: string;
 }>();
 
 const { variant = 'large', hasRemove = false, hideLabel = false } = props;
@@ -122,7 +123,13 @@ const emit = defineEmits([
 ]);
 const id = toRef(props, 'id');
 
-const { value, handleChange, errorMessage, resetField } = useField(id);
+const { value, handleChange, errorMessage, resetField } = useField(
+  id,
+  undefined,
+  {
+    initialValue: props.value,
+  }
+);
 const isGenerateValueError = ref('');
 const isGenerateValueLoading = ref(false);
 
@@ -149,6 +156,13 @@ async function handleGenerateValue() {
 const iconURL = computed(() => {
   return props.icon ? getImageUrl(props.icon) : '';
 });
+
+watch(
+  () => props.value,
+  (newValue) => {
+    handleChange(newValue);
+  }
+);
 </script>
 
 <style scoped>
