@@ -53,18 +53,18 @@ export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
     const updatedAssets = { ...assetsData.value };
 
     selectedAssets.value.forEach((assetGroup) => {
-      const assetKey = Object.keys(assetGroup)[0];
+      const assetKey = Object.keys(assetGroup)[0] as AssetTypesEnum;
       const indicesToRemove = assetGroup[assetKey];
       // Order indexes in descending order
       // To avoid weird shifting in index order during the loop
       const sortedIndicesToRemove = [...indicesToRemove].sort((a, b) => b - a);
 
       if (
-        updatedAssets[assetKey as keyof typeof assetsData.value] &&
+        updatedAssets[assetKey as AssetTypesEnum] &&
         Array.isArray(indicesToRemove)
       ) {
         sortedIndicesToRemove.forEach((index) => {
-          if (index >= 0 && index < updatedAssets[assetKey].length) {
+          if (index >= 0 && index < (updatedAssets[assetKey]?.length ?? 0)) {
             updatedAssets[assetKey]?.splice(index, 1);
           }
         });
