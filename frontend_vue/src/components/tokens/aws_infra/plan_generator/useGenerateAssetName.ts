@@ -10,7 +10,6 @@ export function useGenerateAssetName(assetType: string) {
   isGenerateNameError.value = '';
 
   async function handleGenerateName() {
-    console.log('click');
     try {
       const res = await generateDataChoice(assetType);
       if (!res.result) {

@@ -8,7 +8,6 @@
     <div
       class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16"
     >
-      <!-- @vue-expect-error: TS breaks for no reason on props.assetData even when type casted -->
       <FormAsset
         :asset-type="props.assetType"
         :asset-data="props.assetData"
@@ -39,14 +38,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type {
-  S3BucketType,
-  S3ObjectType,
-  SQSQueueType,
-  SSMParameterType,
-  SecretsManagerSecretType,
-  DynamoDBTableType,
-} from '../types';
+import type { AssetDataType } from '../types';
 import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
 import {
   S3Bucket_schema,
@@ -60,17 +52,10 @@ import FormAsset from './FormAsset.vue';
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
-type AssetType =
-  | S3BucketType
-  | S3ObjectType
-  | SQSQueueType
-  | SSMParameterType
-  | SecretsManagerSecretType
-  | DynamoDBTableType;
 
 const props = defineProps<{
   assetType: AssetConstValuesType;
-  assetData: AssetType;
+  assetData: AssetDataType;
   closeModal: () => void;
 }>();
 

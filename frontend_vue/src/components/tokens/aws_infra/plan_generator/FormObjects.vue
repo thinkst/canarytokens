@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-row justify-between my-16">
     <div class="flex flex-row gap-8 items-center">
+      {{ props.assetKey }}
       <img
         :src="iconURL()"
         :alt="`icon ${getLabel(props.assetKey)}`"
@@ -44,7 +45,7 @@
             :id="`${props.assetKey}.${fieldIndex}.${propertyKey}`"
             :value="field.value[propertyKey]"
             :label="getLabel(propertyKey)"
-            :asset-type="objectKey"
+            :field-type="objectKey"
             variant="small"
             icon="aws_infra_icons/objects.svg"
             :hide-label="true"
@@ -102,17 +103,15 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
-import {
-  ASSET_LABEL,
-  ASSET_DATA,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
+import type { AssetDataType, S3ObjectType } from '../types';
 import { generateDataChoice } from '@/api/awsInfra.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 
 const props = defineProps<{
-  assetKey: keyof typeof ASSET_LABEL;
-  objectKey: keyof typeof ASSET_DATA;
+  assetKey: keyof AssetDataType;
+  objectKey: keyof S3ObjectType;
   fields: any;
   prepend: (value: any) => void;
   remove: (value: number) => void;

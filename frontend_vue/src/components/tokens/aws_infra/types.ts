@@ -1,52 +1,66 @@
-type S3Object = {
+type S3ObjectType = {
   object_path: string;
 };
 
-type S3Bucket = {
+type S3BucketType = {
   bucket_name: string;
-  objects: S3ObjectType[];
+  objects: S3ObjectType[] | [];
   offInventory: boolean;
 };
 
-type SQSQueue = {
+type SQSQueueType = {
   queue_name: string;
-  message_count: number;
+  message_count: number | null;
   offInventory: boolean;
 };
 
-type SSMParameter = {
+type SSMParameterType = {
   ssm_parameter_name: string;
   ssm_parameter_value: string;
   offInventory: boolean;
 };
 
-type SecretsManagerSecret = {
+type SecretsManagerSecretType = {
   secretsmanager_secret_name: string;
   secretsmanager_secret_value: string;
   offInventory: boolean;
 };
 
-type DynamoDBTable = {
+type DynamoDBTableType = {
   dynamodb_name: string;
   dynamodb_partition_key: string;
-  dynamodb_row_count: number;
+  dynamodb_row_count: number | null;
   offInventory: boolean;
 };
 
-type Assets = {
-  S3Bucket: S3Bucket[];
-  SQSQueue: SQSQueue[];
-  SSMParameter: SSMParameter[];
-  SecretsManagerSecret: SecretsManagerSecret[];
-  DynamoDBTable: DynamoDBTable[];
+type AssetsTypes = {
+  S3Bucket: S3BucketType[] | null;
+  SQSQueue: SQSQueueType[] | null;
+  SSMParameter: SSMParameterType[] | null;
+  SecretsManagerSecret: SecretsManagerSecretType[] | null;
+  DynamoDBTable: DynamoDBTableType[] | null;
+};
+
+type AssetDataType =
+  | DynamoDBTableType
+  | SecretsManagerSecretType
+  | SSMParameterType
+  | SQSQueueType
+  | S3BucketType
+  | S3ObjectType;
+
+type PlanValueTypes = {
+  assets: AssetsTypes;
 };
 
 export type {
-  S3Bucket,
-  S3Object,
-  SQSQueue,
-  SSMParameter,
-  SecretsManagerSecret,
-  DynamoDBTable,
-  Assets,
+  AssetDataType,
+  AssetsTypes,
+  S3BucketType,
+  S3ObjectType,
+  SQSQueueType,
+  SSMParameterType,
+  SecretsManagerSecretType,
+  DynamoDBTableType,
+  PlanValueTypes,
 };

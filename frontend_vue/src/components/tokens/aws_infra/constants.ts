@@ -1,17 +1,32 @@
+import type {
+  S3BucketType,
+  S3ObjectType,
+  SQSQueueType,
+  SSMParameterType,
+  SecretsManagerSecretType,
+  DynamoDBTableType,
+} from '@/components/tokens/aws_infra/types.ts';
+
 export const ASSET_TYPE = {
   S3BUCKET: 'S3Bucket',
-  // S3BUCKET_NAME: 'bucket_name',
-  // S3BUCKET_OBJECT: 'object_path',
   SQSQUEUE: 'SQSQueue',
   SSMPARAMETER: 'SSMParameter',
   SECRETMANAGERSECRET: 'SecretsManagerSecret',
   DYNAMODBTABLE: 'DynamoDBTable',
 } as const;
 
-export const ASSET_DATA = {
+export const ASSET_DATA: {
+  [ASSET_TYPE.S3BUCKET]: S3BucketType;
+  object_path: S3ObjectType;
+  [ASSET_TYPE.SQSQUEUE]: SQSQueueType;
+  [ASSET_TYPE.SSMPARAMETER]: SSMParameterType;
+  [ASSET_TYPE.SECRETMANAGERSECRET]: SecretsManagerSecretType;
+  [ASSET_TYPE.DYNAMODBTABLE]: DynamoDBTableType;
+} = {
   [ASSET_TYPE.S3BUCKET]: {
     bucket_name: '',
     objects: [],
+    offInventory: false,
   },
   object_path: {
     object_path: '',
@@ -19,19 +34,23 @@ export const ASSET_DATA = {
   [ASSET_TYPE.SQSQUEUE]: {
     queue_name: '',
     message_count: null,
+    offInventory: false,
   },
   [ASSET_TYPE.SSMPARAMETER]: {
     ssm_parameter_name: '',
     ssm_parameter_value: '',
+    offInventory: false,
   },
   [ASSET_TYPE.SECRETMANAGERSECRET]: {
     secretsmanager_secret_name: '',
     secretsmanager_secret_value: '',
+    offInventory: false,
   },
   [ASSET_TYPE.DYNAMODBTABLE]: {
     dynamodb_name: '',
     dynamodb_partition_key: '',
-    dynamodb_row_count: '',
+    dynamodb_row_count: null,
+    offInventory: false,
   },
 };
 

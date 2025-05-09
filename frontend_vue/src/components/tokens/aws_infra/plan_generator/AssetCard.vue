@@ -108,14 +108,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, inject, watch } from 'vue';
-import type {
-  S3BucketType,
-  // S3ObjectType,
-  SQSQueueType,
-  SSMParameterType,
-  SecretsManagerSecretType,
-  DynamoDBTableType,
-} from '../types';
+import type { AssetDataType, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import {
   ASSET_TYPE,
@@ -126,18 +119,13 @@ import {
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
-type AssetType =
-  | S3BucketType
-  | SQSQueueType
-  | SSMParameterType
-  | SecretsManagerSecretType
-  | DynamoDBTableType;
+type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
 
 const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetConstValuesType;
-  assetData: AssetType;
+  assetData: AssetDataTypeWithoutS3Object;
   isActiveSelected: boolean;
 }>();
 
@@ -149,7 +137,7 @@ const isSelected = ref(false);
 const assetName = computed(() => {
   const nameKey =
     ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
-  return props.assetData[nameKey as keyof AssetType];
+  return props.assetData[nameKey as keyof AssetDataType];
 });
 
 const assetDataDisplay = computed(() => {

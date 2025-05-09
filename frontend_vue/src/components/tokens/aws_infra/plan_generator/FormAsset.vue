@@ -29,7 +29,7 @@
           :id="key"
           :value="initialValues[key]"
           :label="getLabel(key)"
-          :asset-type="key"
+          :field-type="key"
         />
       </template>
     </div>
@@ -41,14 +41,7 @@ import { ref, watch, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
-
-import type {
-  S3BucketType,
-  SQSQueueType,
-  SSMParameterType,
-  SecretsManagerSecretType,
-  DynamoDBTableType,
-} from '../types';
+import type { AssetDataType } from '../types';
 import {
   ASSET_TYPE,
   ASSET_LABEL,
@@ -58,16 +51,10 @@ import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObject
 
 type AssetConstKeyType = keyof typeof ASSET_TYPE;
 type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
-type AssetType =
-  | S3BucketType
-  | SQSQueueType
-  | SSMParameterType
-  | SecretsManagerSecretType
-  | DynamoDBTableType;
 
 const props = defineProps<{
   assetType: AssetConstValuesType;
-  assetData: AssetType;
+  assetData: AssetDataType;
   validationSchema: any;
   triggerSubmit: boolean;
   triggerCancel: boolean;
@@ -77,7 +64,7 @@ const props = defineProps<{
 const emits = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
 const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
-const tempFields: Ref<AssetType | []> = ref([]);
+const tempFields: Ref<AssetDataType | []> = ref([]);
 
 onMounted(() => {
   tempFields.value = { ...props.assetData };

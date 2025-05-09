@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import type { Ref } from 'vue';
 import type { AssetsTypes } from '@/components/tokens/aws_infra/types';
+import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
 
 export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
   const selectedAssets: Ref<any[]> = ref([]);
@@ -29,24 +30,18 @@ export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
 
   function handleSelectAsset(
     isSelected: boolean,
-    assetKey: string,
+    assetKey: keyof typeof ASSET_TYPE,
     index: number
   ) {
     const assetObject = selectedAssets.value.find((item) => assetKey in item);
 
-    if (isSelected) {
-      isActiveSelected.value = true;
-      if (
-        assetObject &&
-        Array.isArray(assetObject[assetKey]) &&
-        !assetObject[assetKey].includes(index)
-      ) {
+    if (assetObject && Array.isArray(assetObject[assetKey])) {
+      if (isSelected && !assetObject[assetKey].includes(index)) {
+        isActiveSelected.value = true;
         assetObject[assetKey].push(index);
       }
-    }
 
-    if (!isSelected) {
-      if (assetObject && Array.isArray(assetObject[assetKey])) {
+      if (!isSelected) {
         assetObject[assetKey] = assetObject[assetKey].filter(
           (item) => item !== index
         );
