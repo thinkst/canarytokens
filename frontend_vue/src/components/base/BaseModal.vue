@@ -55,6 +55,7 @@
         <!-- Content -->
         <div
           class="flex flex-col items-center justify-center px-16 py-16 sm:px-32 bg-grey-50 text-grey-800"
+          :class="[{ 'pb-24 rounded-b-3xl': hideFooter }, contentSlotClasses]"
         >
           <!-- Default slot -->
           <slot></slot>
@@ -64,6 +65,7 @@
         </div>
         <!-- Footer -->
         <div
+          v-if="!hideFooter"
           class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-3xl mb-16text-center"
         >
           <slot name="footer"></slot>
@@ -74,17 +76,24 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { VueFinalModal } from 'vue-final-modal';
 
-defineProps<{
+const props = defineProps<{
   hasCloseButton: boolean;
   title: string;
+  hideFooter?: boolean;
+  contentClass?: string;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'handleBackButton', value: false): void;
 }>();
+
+const contentSlotClasses = computed(() => {
+  return props.contentClass ? props.contentClass : '';
+});
 
 const modalCustomTransition = {
   'enter-active-class': 'ease-out duration-300',
