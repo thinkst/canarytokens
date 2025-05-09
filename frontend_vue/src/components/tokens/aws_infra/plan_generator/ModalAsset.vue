@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import type { AssetDataType } from '../types';
-import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import {
   S3Bucket_schema,
   SQSQueue_schema,
@@ -50,11 +50,8 @@ import {
 } from './assetValidators';
 import FormAsset from './FormAsset.vue';
 
-type AssetConstKeyType = keyof typeof ASSET_TYPE;
-type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
-
 const props = defineProps<{
-  assetType: AssetConstValuesType;
+  assetType: AssetTypesEnum;
   assetData: AssetDataType;
   closeModal: () => void;
 }>();
@@ -82,15 +79,15 @@ function handleCancel() {
 
 const validationSchema = computed(() => {
   switch (props.assetType) {
-    case ASSET_TYPE.S3BUCKET:
+    case AssetTypesEnum.S3BUCKET:
       return S3Bucket_schema;
-    case ASSET_TYPE.SQSQUEUE:
+    case AssetTypesEnum.SQSQUEUE:
       return SQSQueue_schema;
-    case ASSET_TYPE.SSMPARAMETER:
+    case AssetTypesEnum.SSMPARAMETER:
       return SSMParameter_schema;
-    case ASSET_TYPE.SECRETMANAGERSECRET:
+    case AssetTypesEnum.SECRETMANAGERSECRET:
       return SecretsManagerSecret_schema;
-    case ASSET_TYPE.DYNAMODBTABLE:
+    case AssetTypesEnum.DYNAMODBTABLE:
       return DynamoDBTable_schema;
     default:
       return Default_schema;

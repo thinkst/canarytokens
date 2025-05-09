@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import type { Ref } from 'vue';
 import type { AssetsTypes } from '@/components/tokens/aws_infra/types';
-import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
 export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
   const selectedAssets: Ref<any[]> = ref([]);
@@ -30,7 +30,7 @@ export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
 
   function handleSelectAsset(
     isSelected: boolean,
-    assetKey: keyof typeof ASSET_TYPE,
+    assetKey: AssetTypesEnum,
     index: number
   ) {
     const assetObject = selectedAssets.value.find((item) => assetKey in item);
@@ -64,8 +64,11 @@ export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
         Array.isArray(indicesToRemove)
       ) {
         sortedIndicesToRemove.forEach((index) => {
-          if (index >= 0 && index < updatedAssets[assetKey].length) {
-            updatedAssets[assetKey].splice(index, 1);
+          if (
+            index >= 0 &&
+            index < updatedAssets[assetKey as keyof AssetTypesEnum].length
+          ) {
+            updatedAssets[assetKey]?.splice(index, 1);
           }
         });
       }

@@ -43,17 +43,14 @@ import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import type { AssetDataType } from '../types';
 import {
-  ASSET_TYPE,
   ASSET_LABEL,
+  AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObjects.vue';
 
-type AssetConstKeyType = keyof typeof ASSET_TYPE;
-type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
-
 const props = defineProps<{
-  assetType: AssetConstValuesType;
+  assetType: AssetTypesEnum;
   assetData: AssetDataType;
   validationSchema: any;
   triggerSubmit: boolean;

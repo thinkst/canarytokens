@@ -111,20 +111,18 @@ import { ref, computed, inject, watch } from 'vue';
 import type { AssetDataType, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import {
-  ASSET_TYPE,
   ASSET_DATA_NAME,
   ASSET_LABEL,
   ASSET_WITH_ICON,
+  AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 
-type AssetConstKeyType = keyof typeof ASSET_TYPE;
-type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
 type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
 
 const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
-  assetType: AssetConstValuesType;
+  assetType: AssetTypesEnum;
   assetData: AssetDataTypeWithoutS3Object;
   isActiveSelected: boolean;
 }>();
