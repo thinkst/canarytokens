@@ -15,16 +15,16 @@
           View:
           <button
             type="button"
-            :class="{ 'text-green-500': viewType === VIEW_TYPE.LIST }"
-            @click="handleSelectViewType(VIEW_TYPE.LIST)"
+            :class="{ 'text-green-500': viewType === ViewTypeEnum.LIST }"
+            @click="handleSelectViewType(ViewTypeEnum.LIST)"
           >
             List
           </button>
           |
           <button
             type="button"
-            :class="{ 'text-green-500': viewType === VIEW_TYPE.GRID }"
-            @click="handleSelectViewType(VIEW_TYPE.GRID)"
+            :class="{ 'text-green-500': viewType === ViewTypeEnum.GRID }"
+            @click="handleSelectViewType(ViewTypeEnum.GRID)"
           >
             Grid
           </button>
@@ -108,11 +108,11 @@
             :class="[
               {
                 'grid grid-col-1 gap-8 auto-rows-fr':
-                  viewType === VIEW_TYPE.LIST,
+                  viewType === ViewTypeEnum.LIST,
               },
               {
                 'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
-                  viewType === VIEW_TYPE.GRID,
+                  viewType === ViewTypeEnum.GRID,
               },
             ]"
           >
@@ -170,7 +170,6 @@
 
 <script lang="ts" setup>
 import { ref, provide, onMounted, computed } from 'vue';
-import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
@@ -179,7 +178,6 @@ import type {
   AssetDataType,
 } from '@/components/tokens/aws_infra/types.ts';
 import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
-import StepState from '../StepState.vue';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 import FilterButton from '@/components/ui/FilterButton.vue';
@@ -195,7 +193,15 @@ import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonA
 import SelectAddAsset from '@/components/tokens/aws_infra/plan_generator/SelectAddAsset.vue';
 import useMultiselectAssets from '@/components/tokens/aws_infra/plan_generator/useMultiselectAssets.ts';
 
-type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
+enum ViewTypeEnum {
+  GRID = 'gridView',
+  LIST = 'listView',
+}
+
+enum AnimationTypeEnum {
+  LOADING = 'loading',
+  DEFAULT = 'list',
+}
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -203,10 +209,13 @@ const props = defineProps<{
   initialStepData: TokenDataType;
 }>();
 
+const { token, auth_token, proposed_plan } = props.initialStepData;
+
+const viewType = ref(ViewTypeEnum.GRID);
+provide('viewType', viewType);
+
 const isLoading = ref(true);
-const isError = ref(false);
 const isErrorMessage = ref('');
-const errorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveErrorMessage = ref('');
@@ -220,17 +229,8 @@ const assetSamples = ref<AssetsTypes>({
   DynamoDBTable: [],
 });
 
-const { token, auth_token, proposed_plan } = props.initialStepData;
-
-const VIEW_TYPE = {
-  GRID: 'gridView',
-  LIST: 'listView',
-} as const;
-
-const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
-
 const filterValue = ref('');
-const animationName = ref('list');
+const animationName = ref(AnimationTypeEnum.LOADING);
 const {
   isActiveSelected,
   numberSelectedAssets,
@@ -238,8 +238,6 @@ const {
   handleSelectAsset,
   resetSelectedAssetObj,
 } = useMultiselectAssets(assetSamples);
-
-provide('viewType', viewType);
 
 onMounted(() => {
   assetSamples.value = proposed_plan.assets;
@@ -258,9 +256,7 @@ function handleRemoveManageInfo(assetData: any) {
   return rest;
 }
 
-function handleSelectViewType(
-  value: (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE]
-) {
+function handleSelectViewType(value: ViewTypeEnum) {
   viewType.value = value;
 }
 
@@ -316,6 +312,8 @@ function handleOpenAssetModal(
 }
 
 async function handleAddNewAsset(assetType: AssetTypesEnum) {
+  animationName.value = AnimationTypeEnum.DEFAULT;
+
   const newAssetFields = () => {
     switch (assetType) {
       case AssetTypesEnum.S3BUCKET:
@@ -387,10 +385,9 @@ function handleSaveAsset(
   if (index === -1) {
     assetSamples.value[assetType]!.push(newValues);
   } else {
-    animationName.value = '';
     assetSamples.value[assetType][index] = newValues;
     setTimeout(() => {
-      animationName.value = 'list';
+      AnimationTypeEnum.DEFAULT;
     }, 0);
   }
 }
@@ -461,6 +458,21 @@ async function handleSubmit(formValues: PlanValueTypes) {
 
 .list-enter-active {
   animation: bounce 1.2s ease infinite;
+  animation-delay: 0.8s;
+}
+
+.loading-enter-active,
+.loading-leave-active {
+  transition: all 0.4s ease;
+  transition-delay: 0.2s;
+}
+.loading-enter-from,
+.loading-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.loading-enter-active {
   animation-delay: 0.8s;
 }
 </style>
