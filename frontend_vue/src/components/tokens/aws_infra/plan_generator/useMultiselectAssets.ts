@@ -64,10 +64,7 @@ export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
         Array.isArray(indicesToRemove)
       ) {
         sortedIndicesToRemove.forEach((index) => {
-          if (
-            index >= 0 &&
-            index < updatedAssets[assetKey as keyof AssetTypesEnum].length
-          ) {
+          if (index >= 0 && index < updatedAssets[assetKey].length) {
             updatedAssets[assetKey]?.splice(index, 1);
           }
         });
