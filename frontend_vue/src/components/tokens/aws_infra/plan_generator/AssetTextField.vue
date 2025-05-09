@@ -110,7 +110,7 @@ const props = defineProps<{
   icon?: string;
   hasRemove?: boolean;
   hideLabel?: boolean;
-  assetType: string;
+  fieldType: string;
   value?: string;
 }>();
 
@@ -144,7 +144,7 @@ async function handleGenerateValue() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.assetType);
+  } = useGenerateAssetName(props.fieldType);
 
   isGenerateValueLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();

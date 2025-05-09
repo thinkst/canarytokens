@@ -171,6 +171,10 @@ import { ref, provide, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { generateDataChoice } from '@/api/awsInfra.ts';
+import type {
+  AssetsTypes,
+  AssetDataType,
+} from '@/components/tokens/aws_infra/types.ts';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import {
@@ -205,13 +209,21 @@ function handleChangePlanSampleData(type: string) {
 // End handle Sample plan
 
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
+type AssetConstKeyType = keyof typeof ASSET_TYPE;
+type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
 
 const VIEW_TYPE = {
   GRID: 'gridView',
   LIST: 'listView',
 } as const;
 
-const assetSamples = ref({});
+const assetSamples = ref<AssetsTypes>({
+  [ASSET_TYPE.S3BUCKET]: null,
+  [ASSET_TYPE.SQSQUEUE]: null,
+  [ASSET_TYPE.SSMPARAMETER]: null,
+  [ASSET_TYPE.SECRETMANAGERSECRET]: null,
+  [ASSET_TYPE.DYNAMODBTABLE]: null,
+});
 
 const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
 const isLoading = ref(false);
@@ -281,7 +293,11 @@ function handleRemoveAsset(
   open();
 }
 
-function handleOpenAssetModal(assetData: any, assetType: any, index: number) {
+function handleOpenAssetModal(
+  assetData: AssetDataType,
+  assetType: AssetConstValuesType,
+  index: number
+) {
   const { open, close } = useModal({
     component: ModalAsset,
     attrs: {
@@ -354,11 +370,14 @@ async function handleAddNewAsset(assetType: any) {
 
 function handleSaveAsset(
   newValues: any,
-  assetType: keyof typeof assetSamples.value,
+  assetType: AssetConstValuesType,
   index: number
 ) {
+  if (!assetSamples.value[assetType]) {
+    assetSamples.value[assetType] = [];
+  }
   if (index === -1) {
-    assetSamples.value[assetType].push(newValues);
+    assetSamples.value[assetType]!.push(newValues);
   } else {
     animationName.value = '';
     assetSamples.value[assetType][index] = newValues;

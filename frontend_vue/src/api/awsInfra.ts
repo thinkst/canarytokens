@@ -67,11 +67,7 @@ export function savePlan(canarytoken: string, auth_token: string, plan: any) {
 // }
 
 // fake call
-export function generateDataChoice(
-  canarytoken: string,
-  auth_token: string,
-  asset_type: string
-) {
+export function generateDataChoice() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
