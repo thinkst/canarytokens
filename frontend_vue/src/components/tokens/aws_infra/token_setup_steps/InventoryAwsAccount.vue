@@ -20,8 +20,12 @@
 import { ref, onMounted } from 'vue';
 import { requestInventoryCustomerAccount } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
+import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';
-import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
+import {
+  StepStateEnum,
+  useStepState,
+} from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -38,7 +42,6 @@ const { token, auth_token } = props.initialStepData;
 onMounted(async () => {
   await handleInventory();
 });
-
 
 async function handleInventory() {
   const POLL_INTERVAL = 2000;

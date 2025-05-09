@@ -110,13 +110,20 @@ import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
 import type { GenericObject } from 'vee-validate';
-import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
+import {
+  StepStateEnum,
+  useStepState,
+} from '@/components/tokens/aws_infra/useStepState.ts';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
 );
 
-const emits = defineEmits(['updateStep', 'storeCurrentStepData', 'storePreviousStepData']);
+const emits = defineEmits([
+  'updateStep',
+  'storeCurrentStepData',
+  'storePreviousStepData',
+]);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
@@ -136,8 +143,7 @@ const accountRegion = ref('');
 const isSnippedChecked = ref(false);
 const showWarningSnipeptCheck = ref(false);
 
-const policyDocument =
-`{
+const policyDocument = `{
     "Version": "2012-10-17",
     "Statement": [
         {
@@ -177,7 +183,7 @@ const policyDocument =
             "Resource": "*"
         }
     ]
-}`
+}`;
 
 onMounted(async () => {
   accountNumber.value = props.initialStepData.aws_account_number;
@@ -246,14 +252,14 @@ function hadndleChangeAccountValues() {
     attrs: {
       closeModal: () => close(),
       saveData: (data: GenericObject) => handleSaveEditData(data),
-      initialStepData: props.initialStepData
+      initialStepData: props.initialStepData,
     },
   });
   open();
 }
 
 function handleSaveEditData(data: GenericObject) {
-  emits('storePreviousStepData', data)
+  emits('storePreviousStepData', data);
   accountNumber.value = data.aws_account_number;
   accountRegion.value = data.aws_region;
 }

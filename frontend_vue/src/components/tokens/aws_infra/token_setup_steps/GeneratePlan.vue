@@ -386,10 +386,10 @@ function handleSaveAsset(
   if (index === -1) {
     assetSamples.value[assetType]!.push(newValues);
   } else {
-        assetSamples.value[assetType]![index] = newValues;
-        setTimeout(() => {
-          AnimationTypeEnum.DEFAULT;
-        }, 0);
+    assetSamples.value[assetType]![index] = newValues;
+    setTimeout(() => {
+      AnimationTypeEnum.DEFAULT;
+    }, 0);
   }
 }
 

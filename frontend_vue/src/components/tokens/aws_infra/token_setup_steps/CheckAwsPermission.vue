@@ -93,7 +93,10 @@ import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
-import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
+import {
+  StepStateEnum,
+  useStepState,
+} from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 

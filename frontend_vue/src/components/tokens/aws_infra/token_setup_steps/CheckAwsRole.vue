@@ -29,7 +29,10 @@ import { ref, onMounted } from 'vue';
 import type { TokenDataType } from '@/utils/dataService';
 import { requestAWSInfraRoleCheck } from '@/api/awsInfra.ts';
 import StepState from '../StepState.vue';
-import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
+import {
+  StepStateEnum,
+  useStepState,
+} from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits([
   'updateStep',
