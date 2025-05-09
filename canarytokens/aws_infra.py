@@ -55,7 +55,7 @@ def _get_sqs_client():
 def _get_s3_client():
     if settings.DOMAINS[0] == "127.0.0.1":
         return _get_session().resource(
-            "sqs",
+            "s3",
             region_name="eu-west-1",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
@@ -181,7 +181,7 @@ def save_plan(canarydrop: Canarydrop, plan: str):
     Save an AWS Infra plan and upload it to the tf modules S3 bucket.
     """
     # TODO: validate plan
-    canarydrop.aws_saved_plan = plan
+    canarydrop.aws_saved_plan = json.dumps(plan)
     # TODO: add other asset types
     canarydrop.aws_deployed_assets = json.dumps(
         {
@@ -216,7 +216,12 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
                 {
                     "bucket": bucket["bucket_name"],
                     "key": s3_object["object_path"],
-                    "content": random.randbytes(random.randint(10, 1000)),
+                    "content": "".join(
+                        [
+                            random.choice(string.ascii_letters + string.digits)
+                            for _ in range(random.randint(5, 1000))
+                        ]
+                    ),
                 }
             )
     return tf_variables
@@ -226,9 +231,11 @@ def _upload_zip(canarytoken_id, prefix, variables):
     """
     Upload a new terraform module to the terraform module bucket.
     """
+    print("*****")
+    print(variables)
     new_dir = shutil.copytree(
-        "../canarytoken_infra_tf",
-        f"/tmp/canarytoken_infra_tf_{canarytoken_id}",
+        "../aws_infra_token_tf",
+        f"/tmp/canarytoken_infra{canarytoken_id}",
         dirs_exist_ok=True,
     )
     with open(f"{new_dir}/decoy_vars.json", "w") as f:
