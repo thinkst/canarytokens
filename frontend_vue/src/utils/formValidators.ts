@@ -258,7 +258,12 @@ export const formValidators: ValidateSchemaType = {
       aws_region: Yup.string().required('AWS region is required'),
       aws_account_number: Yup.number()
         .typeError('AWS account must be a number')
-        .required('AWS account number is required'),
+        .required('AWS account number is required')
+        .test(
+          'len',
+          'AWS account number must have 12 digits',
+          (val) => val.toString().length === 12
+        ),
     }),
   },
 };

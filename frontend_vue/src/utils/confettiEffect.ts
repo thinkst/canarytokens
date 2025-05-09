@@ -2,7 +2,10 @@
 import confetti from 'canvas-confetti';
 import { TOKEN_COLOR_PALETTES } from '@/components/constants';
 
-export function launchConfetti(token_type: string) {
+export function launchConfetti(
+  token_type: string,
+  targetElement: string = '.vfm__content'
+) {
   const prefersReducedMotionQuery = window.matchMedia(
     '(prefers-reduced-motion: reduce)'
   );
@@ -13,7 +16,7 @@ export function launchConfetti(token_type: string) {
   }
 
   const confettiCanvas = document.createElement('canvas');
-  const modal = document.querySelector('.vfm__content');
+  const modal = document.querySelector(targetElement);
   modal?.appendChild(confettiCanvas);
 
   Object.assign(confettiCanvas.style, {
