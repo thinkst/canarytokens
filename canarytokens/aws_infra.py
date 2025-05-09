@@ -139,11 +139,14 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
     )
 
 
+# TODO: add handle exist for token validation
 def get_handle_response(handle_id):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
     """
     handle = queries.get_aws_management_lambda_handle(handle_id)
+    if not handle:
+        raise Exception("Handle does not exist")
     if handle.get("response_received") == "True":
         response = json.loads(handle.get("response_content"))
         return Handle(response_received=True, response=response)
@@ -282,8 +285,8 @@ def generate_proposed_plan(canarydrop: Canarydrop):
     Return a proposed plan for decoy assets containing new and current assets.
     """
 
-    aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets)
-    aws_saved_plan = json.loads(canarydrop.aws_saved_plan)
+    aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
+    aws_saved_plan = json.loads(canarydrop.aws_saved_plan or "{}")
     plan = {
         "assets": {
             AWSInfraAssetType.S3_BUCKET.value: []
