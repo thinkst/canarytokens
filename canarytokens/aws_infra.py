@@ -299,7 +299,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
         random.randint(
             1,
             MAX_S3_BUCKETS
-            - len(aws_deployed_assets[AWSInfraAssetType.S3_BUCKET.value]),
+            - len(aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, [])),
         )
     ):
         plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
@@ -315,7 +315,9 @@ def generate_proposed_plan(canarydrop: Canarydrop):
         objects = list(
             filter(
                 lambda bucket: bucket["bucket_name"] == bucket_name,
-                aws_saved_plan.get("assets").get(AWSInfraAssetType.S3_BUCKET.value),
+                aws_saved_plan.get("assets", {}).get(
+                    AWSInfraAssetType.S3_BUCKET.value, []
+                ),
             )
         )[0].get("objects", [])
         plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
