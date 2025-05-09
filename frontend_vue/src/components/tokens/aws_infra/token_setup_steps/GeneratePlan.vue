@@ -2,35 +2,32 @@
   <div class="infra-token__title-wrapper">
     <h2>Proposed Plan</h2>
   </div>
-  <StepState
-    :is-loading="isLoading"
-    :is-error="isError"
-    loading-message="Loading your plan..."
-    :error-message="errorMessage"
-    :is-success="isSuccess"
-    success-message="All set!"
-  />
-  <PlanCreator
-    v-if="!isLoading || !isSavingPlan"
-    :proposed-plan="proposed_plan"
-    :token="token"
-    :auth-token="auth_token"
-    @submit-plan="handleSubmit"
-  />
-  <StepState
-    :is-loading="isSavingPlan"
-    :is-error="isSaveError"
-    loading-message="Saving the plan..."
-    :error-message="errorMessage"
-    :is-success="isSaveSuccess"
-    success-message="Plan Saved!"
-  />
+  <div class="flex items-center flex-col">
+    <StepState
+      :is-loading="isLoading"
+      :is-error="isError"
+      loading-message="Loading your plan..."
+      :error-message="errorMessage"
+    />
+    <p>This is a placeholder for the plan</p>
+    <p>The Plan editor is WIP on another branch</p>
+    <p>Just hit save to check the next step</p>
+    <br />
+    <BaseButton @click="handleSubmit(proposed_plan)">Save Plan</BaseButton>
+    <StepState
+      :is-loading="isSavingPlan"
+      :is-error="isSaveError"
+      loading-message="Saving the plan..."
+      :error-message="errorMessage"
+      :is-success="isSaveSuccess"
+      success-message="Plan Saved!"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { savePlan } from '@/api/main.ts';
-import PlanCreator from '@/components/tokens/aws_infra/PlanCreator.vue';
+import { savePlan } from '@/api/awsInfra.ts';
 import StepState from '../StepState.vue';
 import type { TokenDataType } from '@/utils/dataService';
 import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
@@ -38,18 +35,17 @@ import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
-  stepData: TokenDataType;
+  initialStepData: TokenDataType;
 }>();
 
 const isLoading = ref(true);
 const isError = ref(false);
-const isSuccess = ref(false);
 const errorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveSuccess = ref(false);
 
-const { token, auth_token, proposed_plan } = props.stepData;
+const { token, auth_token, proposed_plan } = props.initialStepData;
 
 isLoading.value = false;
 
@@ -65,6 +61,7 @@ async function handleSavePlan(formValues: PlanValueTypes) {
       isSaveError.value = true;
       errorMessage.value = res.data.message;
     }
+    isSaveSuccess.value = true;
     emits('storeCurrentStepData', { token, auth_token });
     emits('updateStep');
   } catch (err: any) {
@@ -73,7 +70,6 @@ async function handleSavePlan(formValues: PlanValueTypes) {
     isSaveSuccess.value = false;
   } finally {
     isSavingPlan.value = false;
-    isSaveSuccess.value = true;
   }
 }
 
