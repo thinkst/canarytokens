@@ -27,18 +27,6 @@ export type SettingsTokenType = {
   setting: EnableSettingsOptionType;
 };
 
-type AWSInfraRoleCheckType = {
-  canarytoken?: string;
-  auth_token?: string;
-  handle?: string;
-};
-
-type AWSInventoryType = {
-  canarytoken?: string;
-  auth_token?: string;
-  handle?: string;
-};
-
 export function generateToken(form: any) {
   const formData = new FormData();
   Object.entries(form).forEach(([key, val]) => {
