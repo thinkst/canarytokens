@@ -20,9 +20,8 @@ settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
 ROLE_SETUP_COMMANDS_TEMPLATE = """aws iam create-role --role-name $role_name --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::$aws_account:assumed-role/InventoryManagerRole/$external_id"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "$external_id"}}}]}\'
-    aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'
-    aws iam attach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy
-    """
+aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'
+aws iam attach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy"""
 
 
 @dataclass
@@ -118,9 +117,7 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
             "customer_iam_access_external_id": canarydrop.aws_customer_iam_access_external_id,
             "role_name": INVENTORY_ROLE_NAME,
             "region": canarydrop.aws_region,
-            "assets_types": [
-                asset_type.value for asset_type in AWSInfraAssetType
-            ].remove(AWSInfraAssetType.S3_OBJECT),
+            "assets_types": [asset_type.value for asset_type in AWSInfraAssetType],
         }
 
     elif operation == AWSInfraOperationType.SETUP_INGESTION:
@@ -298,7 +295,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
         )
     ):
         plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
-            {"bucket_name": generate_s3_bucket(), "objects": []}
+            {"bucket_name": generate_s3_bucket(), "objects": [], "off_inventory": False}
         )
         for _ in range(random.randint(1, MAX_S3_OBJECTS)):
             plan["assets"][AWSInfraAssetType.S3_BUCKET.value][i]["objects"].append(
@@ -318,7 +315,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
             )
         )[0].get("objects", [])
         plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
-            {"bucket_name": bucket_name, "objects": objects}
+            {"bucket_name": bucket_name, "objects": objects, "off_inventory": False}
         )
 
     return plan

@@ -2848,11 +2848,24 @@ class HistoryResponse(BaseModel):
 
 class AWSInfraAssetType(str, enum.Enum):
     S3_BUCKET = "S3Bucket"
-    S3_OBJECT = "S3Object"
     SQS_QUEUE = "SQSQueue"
     SSM_PARAMETER = "SSMParameter"
     SECRETS_MANAGE_SECRET = "SecretsManagerSecret"
     DYNAMO_DB_TABLE = "DynamoDBTable"
+
+
+class AWSInfraAssetField(str, enum.Enum):
+    QUEUE_NAME = "queue_name"
+    MESSAGE_COUNT = "message_count"
+    SSM_PARAMETER_NAME = "ssm_parameter_name"
+    SSM_PARAMETER_VALUE = "ssm_parameter_value"
+    SECRETSMANAGER_SECRET_NAME = "secretsmanager_secret_name"
+    SECRETSMANAGER_SECRET_VALUE = "secretsmanager_secret_value"
+    DYNAMODB_NAME = "dynamodb_name"
+    DYNAMODB_PARTITION_KEY = "dynamodb_partition_key"
+    DYNAMODB_ROW_COUNT = "dynamodb_row_count"
+    BUCKET_NAME = "bucket_name"
+    OBJECT_PATH = "object_path"
 
 
 class AWSInfraAsset(BaseModel):
@@ -2909,7 +2922,7 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
     canarytoken: str
     auth_token: str
     asset_type: AWSInfraAssetType
-    asset_field: str = None
+    asset_field: AWSInfraAssetField
 
 
 class AWSInfraGenerateDataChoiceResponse(BaseModel):
