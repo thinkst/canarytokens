@@ -93,6 +93,7 @@
 import { toRef, computed, ref, watch } from 'vue';
 import { useField } from 'vee-validate';
 import getImageUrl from '@/utils/getImageUrl';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 type VariantType = 'small' | 'large';
@@ -108,6 +109,7 @@ const props = defineProps<{
   icon?: string;
   hasRemove?: boolean;
   hideLabel?: boolean;
+  assetType: AssetTypesEnum;
   fieldType: string;
   value?: string;
 }>();
@@ -120,7 +122,6 @@ const emit = defineEmits([
   'handleRegenerateInstance',
 ]);
 const id = toRef(props, 'id');
-
 const { value, handleChange, errorMessage, resetField } = useField(
   id,
   undefined,
@@ -142,7 +143,7 @@ async function handleGenerateValue() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.fieldType);
+  } = useGenerateAssetName(props.assetType, props.fieldType);
 
   isGenerateValueLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();

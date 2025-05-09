@@ -3,6 +3,18 @@
 import { ref } from 'vue';
 import type { AssetsTypes } from '@/components/tokens/aws_infra/types.ts';
 
+export function generateDataChoice() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        result: 'true',
+        message: '',
+        proposed_data: 'Lorem ipsum data',
+      });
+    }, 200);
+  });
+}
+
 export const assetsExample = ref<AssetsTypes>({
   S3Bucket: [
     {
@@ -11,7 +23,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'foo/bar/object1' },
         { object_path: 'foo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
@@ -19,7 +31,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-3',
@@ -33,7 +45,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-4',
@@ -41,7 +53,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-5',
@@ -49,7 +61,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-5',
@@ -57,7 +69,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-7',
@@ -65,7 +77,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-8',
@@ -73,7 +85,7 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-9',
@@ -91,108 +103,108 @@ export const assetsExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SQSQueue: [
     {
       queue_name: 'decoy-queue-1',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-2',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-3',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-4',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-5',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-6',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-7',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-8',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SSMParameter: [
     {
       ssm_parameter_name: 'decoy-ssm-param-1',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-2',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-3',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-4',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-5',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-6',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-7',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-8',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SecretsManagerSecret: [
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-2',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-3',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   DynamoDBTable: [
@@ -200,49 +212,49 @@ export const assetsExample = ref<AssetsTypes>({
       dynamodb_name: 'decoy-ssm-param-1',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-1-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-22',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-3-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-2',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-2-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-5',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-55-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
   ],
 });
@@ -255,7 +267,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'foo/bar/object1' },
         { object_path: 'foo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
@@ -263,7 +275,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-3',
@@ -277,7 +289,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-4',
@@ -285,7 +297,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-5',
@@ -293,7 +305,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-5',
@@ -301,7 +313,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-7',
@@ -309,7 +321,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-8',
@@ -317,7 +329,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-9',
@@ -335,7 +347,7 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SQSQueue: null,
@@ -343,59 +355,59 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
     {
       ssm_parameter_name: 'decoy-ssm-param-1',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-2',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-3',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-4',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-5',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-6',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-7',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       ssm_parameter_name: 'decoy-ssm-param-8',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SecretsManagerSecret: [
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-2',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-3',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   DynamoDBTable: [
@@ -403,49 +415,49 @@ export const assetsWithEmptySQSQueue = ref<AssetsTypes>({
       dynamodb_name: 'decoy-ssm-param-1',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-1-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-22',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-3-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-2',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-2-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-5',
       dynamodb_partition_key: 'username but very long',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       dynamodb_name: 'decoy-ssm-param-55-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
   ],
 });
@@ -458,7 +470,7 @@ export const assetsManageExample = ref<AssetsTypes>({
         { object_path: 'foo/bar/object1' },
         { object_path: 'foo/baz/object2' },
       ],
-      offInventory: false,
+      off_inventory: false,
     },
     {
       bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
@@ -466,33 +478,33 @@ export const assetsManageExample = ref<AssetsTypes>({
         { object_path: 'moo/bar/object1' },
         { object_path: 'moo/baz/object2' },
       ],
-      offInventory: true,
+      off_inventory: true,
     },
   ],
   SQSQueue: [
     {
       queue_name: 'decoy-queue-1',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
     {
       queue_name: 'decoy-queue-2',
       message_count: 5,
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SSMParameter: [
     {
       ssm_parameter_name: 'decoy-ssm-param-1',
       ssm_parameter_value: 'some_fake_looking_api_key',
-      offInventory: false,
+      off_inventory: false,
     },
   ],
   SecretsManagerSecret: [
     {
       secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
       secretsmanager_secret_value: 'some_fake_looking_api_key',
-      offInventory: true,
+      off_inventory: true,
     },
   ],
   DynamoDBTable: [
@@ -500,7 +512,7 @@ export const assetsManageExample = ref<AssetsTypes>({
       dynamodb_name: 'decoy-ssm-param-2-very-long-name',
       dynamodb_partition_key: 'username',
       dynamodb_row_count: 10,
-      offInventory: false,
+      off_inventory: false,
     },
   ],
 });

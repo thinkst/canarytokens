@@ -16,6 +16,7 @@
           name="objects"
         >
           <FormObjects
+            :asset-type="props.assetType"
             :asset-key="key"
             object-key="object_path"
             :fields="fields"
@@ -30,6 +31,7 @@
           :value="initialValues[key]"
           :label="getLabel(key)"
           :field-type="key"
+          :asset-type="props.assetType"
         />
       </template>
     </div>

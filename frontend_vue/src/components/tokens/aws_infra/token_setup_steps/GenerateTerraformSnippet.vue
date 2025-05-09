@@ -66,23 +66,12 @@
     <BaseButton
       v-if="isError"
       class="mt-40"
-    ></BaseCodeSnippet>
-  </div>
-  <h2 class="step-title mt-24">That's all folks!</h2>
-  <BaseButton
-    v-if="!isLoading"
-    class="mt-40"
-  >
-    Manage Token</BaseButton
-  >
-  <BaseButton
-    v-if="!isLoading"
-    class="mt-16"
-    variant="secondary"
-    @click="router.push('/')"
-  >
-    Generate new Canarytoken</BaseButton
-  >
+      variant="secondary"
+      @click="handleRequestTerraformSnippet"
+    >
+      Try again
+    </BaseButton>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -219,4 +208,11 @@ watch(isSuccess, (newVal) => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.wrap-code {
+  :deep(pre) > code {
+    white-space: pre-wrap;
+    text-align: left;
+  }
+}
+</style>

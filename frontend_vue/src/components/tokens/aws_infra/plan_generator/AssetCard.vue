@@ -146,7 +146,7 @@ const assetDataDisplay = computed(() => {
     .map(([key, value]) => {
       if (key.includes(nameKey)) return null;
       // For Edit mode
-      if (key.includes('offInventory')) return null;
+      if (key.includes('off_inventory')) return null;
       if (Array.isArray(value)) return [key, value.length];
       return [key, value];
     })
@@ -158,7 +158,7 @@ const assetLabel = computed(() => {
 });
 
 const isOffInventory = computed(() => {
-  return props.assetData.offInventory;
+  return props.assetData.off_inventory;
 });
 
 function showDataLabel(key: keyof typeof ASSET_LABEL) {

@@ -1,10 +1,10 @@
 <template>
-  <div class="w-full mb-40 items-center header min-h-[45px]">
-    <div>
+  <div class="mb-40 items-center header min-h-[45px] items-stretch">
+    <div class="flex mb-[3rem]">
       <BaseButton
         v-if="showBackButton"
         type="button"
-        variant="secondary"
+        variant="text"
         icon="angle-left"
         @click="currentStep--"
       >
@@ -12,37 +12,43 @@
       </BaseButton>
     </div>
     <BaseStepCounter
-      :steps="5"
+      :steps="stepsValues"
       :current-step="currentStep"
-      :step-description="stepDescription"
-      @handle-step-click="(index) => handleChangeStep(index)"
+      @handle-step-click="(index: number) => handleChangeStep(index)"
     />
   </div>
-  <Suspense>
-    <component
-      :is="currentComponent"
-      v-if="!isInitialError"
-      :step-data="sharedData[currentStep - 1]"
-      @update-step="handleUpdateStep"
-      @store-current-step-data="
-        (data: GenericDataType) => handleStoreCurrentStepData(data)
-      "
-      @is-setting-error="(isError: boolean) => handleSettingError(isError)"
+  <div class="bg-grey-50 flex flex-col rounded-xl p-16 grow min-h-[40vh]">
+    <Suspense>
+      <component
+        :is="currentComponent"
+        v-if="!isInitialError"
+        :initial-step-data="sharedData[currentStep - 1]"
+        :current-step-data="sharedData[currentStep]"
+        @update-step="handleUpdateStep"
+        @store-current-step-data="
+          (data: GenericDataType) => handleStoreCurrentStepData(data)
+        "
+        @is-setting-error="(isError: boolean) => handleSettingError(isError)"
+      />
+      <template #fallblack>
+        <p>Loading next step...</p>
+      </template>
+    </Suspense>
+    <StepState
+      v-if="isInitialError"
+      :is-error="isInitialError"
+      error-message="We couldn't start the process. You'll be redirected to the Home Page."
     />
-    <template #fallblack>
-      <p>Loading next step...</p>
-    </template>
-  </Suspense>
-  <StepState
-    v-if="isInitialError"
-    :is-error="isInitialError"
-    error-message="We couldn't start the process. You'll be redirected to the Home Page."
-  />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
+import { useRouter } from 'vue-router';
+import { getTokenData } from '@/utils/dataService';
+import StepState from './StepState.vue';
+
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./token_setup_steps/GenerateAwsSnippet.vue')
 );
@@ -62,21 +68,21 @@ const GenerateTerraformSnippet = defineAsyncComponent(
   () => import('./token_setup_steps/GenerateTerraformSnippet.vue')
 );
 
-type GenericFetchedDataType = {
+type GenericDataType = {
   [key: string]: string;
 };
 
 const props = defineProps<{
-  tokenData: any;
+  isManageToken?: boolean;
 }>();
 
+const router = useRouter();
 const currentStep = ref(1);
 const sharedData = ref(Array(5).fill({}));
-
 const stepComponents = ref<
   Record<number, ReturnType<typeof defineAsyncComponent>>
 >({
-  1: GenerateAwsSnippet,
+  1: props.isManageToken ? CheckAwsPermission : GenerateAwsSnippet,
   2: CheckAwsRole,
   3: InventoryAwsAccount,
   4: GeneratePlan,
@@ -99,28 +105,24 @@ const currentComponent = computed(
   () => stepComponents.value[currentStep.value] || null
 );
 
-// TODO: check if we can or want user to go back to initial snippets
-// Because to re-check the role they might need to manually remove the existing role/user
 const showBackButton = computed(() => {
-  return (
-    currentStep.value > 2 || (currentStep.value === 2 && isSettingError.value)
-  );
+  return currentStep.value > 1;
 });
 
-const stepDescription = [
-  'Generate AWS snipper',
-  'Check AWS role',
-  'Inventory AWS account',
-  'Generate Plan',
-  'Terraform Snippet',
+const stepsValues = [
+  { label: 'AWS Setup' },
+  { label: 'Check Role' },
+  { label: 'Inventory' },
+  { label: 'Plan' },
+  { label: 'Terraform snippet' },
 ];
 
 function handleUpdateStep() {
   currentStep.value++;
 }
 
-function handleStoreFetchedData(data: GenericFetchedDataType) {
-  sharedData.value[currentStep.value - 1] = data;
+function handleStoreCurrentStepData(data: GenericDataType) {
+  sharedData.value[currentStep.value] = data;
 }
 
 function handleChangeStep(index: number) {
@@ -133,11 +135,14 @@ function handleSettingError(isError: boolean) {
 </script>
 
 <style>
-.step-title {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+.infra-token__title-wrapper {
   margin-top: 1rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
 }
 
 .header {

@@ -10,7 +10,7 @@ export const ASSET_DATA = {
   [AssetTypesEnum.S3BUCKET]: {
     bucket_name: '',
     objects: [],
-    offInventory: false,
+    off_inventory: false,
   },
   object_path: {
     object_path: '',
@@ -18,23 +18,23 @@ export const ASSET_DATA = {
   [AssetTypesEnum.SQSQUEUE]: {
     queue_name: '',
     message_count: null,
-    offInventory: false,
+    off_inventory: false,
   },
   [AssetTypesEnum.SSMPARAMETER]: {
     ssm_parameter_name: '',
     ssm_parameter_value: '',
-    offInventory: false,
+    off_inventory: false,
   },
   [AssetTypesEnum.SECRETMANAGERSECRET]: {
     secretsmanager_secret_name: '',
     secretsmanager_secret_value: '',
-    offInventory: false,
+    off_inventory: false,
   },
   [AssetTypesEnum.DYNAMODBTABLE]: {
     dynamodb_name: '',
     dynamodb_partition_key: '',
     dynamodb_row_count: null,
-    offInventory: false,
+    off_inventory: false,
   },
 };
 

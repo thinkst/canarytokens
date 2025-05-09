@@ -49,6 +49,7 @@
             icon="aws_infra_icons/objects.svg"
             :hide-label="true"
             :has-remove="true"
+            :asset-type="props.assetType"
             @handle-remove-instance="remove(fieldIndex)"
           />
         </div>
@@ -102,13 +103,17 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
-import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
+import {
+  ASSET_LABEL,
+  AssetTypesEnum,
+} from '@/components/tokens/aws_infra/constants.ts';
 import type { AssetDataType, S3ObjectType } from '../types';
-import { generateDataChoice } from '@/api/awsInfra.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
+import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 const props = defineProps<{
+  assetType: AssetTypesEnum;
   assetKey: keyof AssetDataType;
   objectKey: keyof S3ObjectType;
   fields: any;
@@ -166,19 +171,18 @@ function handleNextPage() {
 async function handleAddObject() {
   isLoading.value = true;
 
-  try {
-    const res = await generateDataChoice(objectKey);
+  const {
+    handleGenerateName,
+    isGenerateNameError,
+    isGenerateNameLoading,
+    generatedName,
+  } = useGenerateAssetName(props.assetType, props.objectKey);
 
-    if (!res.result) {
-      isErrorMessage.value = res.message;
-    }
-    props.prepend({ [objectKey.value]: res.proposed_data });
-  } catch (err: any) {
-    isErrorMessage.value =
-      err.message || 'An error occurred when creating a new object';
-  } finally {
-    isLoading.value = false;
-  }
+  isLoading.value = isGenerateNameLoading.value;
+  await handleGenerateName();
+  isErrorMessage.value = isGenerateNameError.value;
+  props.prepend({ [objectKey.value]: generatedName.value });
+  isLoading.value = false;
 }
 </script>
 

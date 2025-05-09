@@ -53,30 +53,21 @@ export function savePlan(canarytoken: string, auth_token: string, plan: any) {
     .then((response) => response);
 }
 
-// export function generateDataChoice(
-//   canarytoken: string,
-//   auth_token: string,
-//   asset_type: string,
-//   asset_field: string
-// ) {
-//   const url =
-//     '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-data-choices';
-//   return axios
-//     .post(url, { canarytoken, auth_token, asset_type, asset_field })
-//     .then((response) => response);
-// }
-
-// fake call
-export function generateDataChoice() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        result: 'true',
-        message: '',
-        proposed_data: 'Lorem ipsum data',
-      });
-    }, 200);
-  });
+export function generateDataChoice(
+  canarytoken: string,
+  auth_token: string,
+  asset_type: string,
+  asset_field: string
+) {
+  const url =
+    '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-data-choices';
+  const params = {
+    canarytoken,
+    auth_token,
+    asset_type,
+    asset_field,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
 }
 
 export function requestTerraformSnippet({

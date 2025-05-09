@@ -31,33 +31,52 @@
   </div>
   <div>
     <hr class="my-24" />
-    <h1>Asset Cards</h1>
-    <h2>Grid View</h2>
-    <div class="grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      <AssetCard
-        :asset-type="ASSET_TYPE.S3BUCKET"
-        :asset-data="assetSamples.S3Bucket[0]"
-      />
-      <AssetCard
-        :asset-type="ASSET_TYPE.S3BUCKET"
-        :asset-data="assetSamples.S3Bucket[1]"
-      />
-      <AssetCard
-        :asset-type="ASSET_TYPE.DYNAMODBTABLE"
-        :asset-data="assetSamples.DynamoDBTable[0]"
-      />
-      <AssetCard
-        :asset-type="ASSET_TYPE.DYNAMODBTABLE"
-        :asset-data="assetSamples.DynamoDBTable[1]"
-      />
-      <AssetCard
-        :asset-type="ASSET_TYPE.SECRETMANAGERSECRET"
-        :asset-data="assetSamples.SecretsManagerSecret[0]"
+    <h1>Checkbox input</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <BaseInputCheckbox
+        id="pizza"
+        v-model="checkBoxValue"
+        label="Confirming my love for pizza 🍕 "
+        class="text-sm"
       />
       <div class="mt-8">Checkbox value: {{ checkBoxValue }}</div>
+      <BaseInputCheckbox
+        id="tooltip-checkbox"
+        v-model="checkBoxTooltipValue"
+        label="I have a tooltip "
+        class="text-sm"
+        tooltip-content="Boo!"
+      />
+      <BaseInputCheckbox
+        id="disabled"
+        v-model="checkBoxDisabledValue"
+        :disabled="true"
+        label="Disabled checkbox"
+        class="text-sm"
+      />
     </div>
   </div>
   <div>
+    <hr class="my-24" />
+    <h1>Step Counter</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <BaseStepCounter
+        :steps="[
+          { label: 'Very long name' },
+          { label: 'Example 2' },
+          { label: 'Example 3' },
+          { label: 'Example long name' },
+          { label: 'Example 5' },
+        ]"
+        :current-step="currentStep"
+        @handle-step-click="(e) => (currentStep = e)"
+      />
+      <div class="flex gap-24 mt-16">
+        Current step: {{ currentStep }}
+        <button @click="currentStep--">Prev Step</button>
+        <button @click="currentStep++">Next Step</button>
+      </div>
+    </div>
     <hr class="my-24" />
     <h1>Image Select</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
@@ -103,11 +122,11 @@
     <hr class="my-24" />
     <h1>Search bar</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
-      <!-- <SearchBar
+      <SearchBar
         label="Search"
         placeholder="A nice placeholder"
         value=""
-      /> -->
+      />
     </div>
   </div>
   <div class="flex flex-col max-w-[200px] gap-16">
@@ -449,7 +468,10 @@ const { open } = useModal({
 const checked = ref(false);
 const checkedDisabled = ref(false);
 const fileSelected = ref();
+const currentStep = ref(1);
 const checkBoxValue = ref(false);
+const checkBoxDisabledValue = ref(false);
+const checkBoxTooltipValue = ref(false);
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;

@@ -5,32 +5,32 @@ type S3ObjectType = {
 type S3BucketType = {
   bucket_name: string;
   objects: S3ObjectType[] | [];
-  offInventory: boolean;
+  off_inventory: boolean;
 };
 
 type SQSQueueType = {
   queue_name: string;
   message_count: number | null;
-  offInventory: boolean;
+  off_inventory: boolean;
 };
 
 type SSMParameterType = {
   ssm_parameter_name: string;
   ssm_parameter_value: string;
-  offInventory: boolean;
+  off_inventory: boolean;
 };
 
 type SecretsManagerSecretType = {
   secretsmanager_secret_name: string;
   secretsmanager_secret_value: string;
-  offInventory: boolean;
+  off_inventory: boolean;
 };
 
 type DynamoDBTableType = {
   dynamodb_name: string;
   dynamodb_partition_key: string;
   dynamodb_row_count: number | null;
-  offInventory: boolean;
+  off_inventory: boolean;
 };
 
 type AssetsTypes = {
@@ -70,4 +70,5 @@ export type {
   SecretsManagerSecretType,
   DynamoDBTableType,
   PlanValueTypes,
+  CurrentTokenDataType,
 };

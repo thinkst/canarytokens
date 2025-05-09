@@ -177,7 +177,6 @@
 import { ref, provide, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { useModal } from 'vue-final-modal';
-import { generateDataChoice } from '@/api/awsInfra.ts';
 import type {
   AssetsTypes,
   AssetDataType,
@@ -200,6 +199,7 @@ import {
   assetsExample,
   assetsWithEmptySQSQueue,
   assetsManageExample,
+  generateDataChoice,
 } from './planPreviewUtils.ts';
 
 function handleChangePlanSampleData(type: string) {
@@ -258,7 +258,7 @@ const isMissingPermissionAssetType = computed(() => {
 
 function handleRemoveManageInfo(assetData: any) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { offInventory, ...rest } = assetData;
+  const { off_inventory, ...rest } = assetData;
   return rest;
 }
 
@@ -273,6 +273,7 @@ function handleFilterList(assetType: AssetTypesEnum) {
 }
 
 function showSection(assetType: AssetTypesEnum) {
+  console.log(assetType, 'assetType');
   return filterValue.value === assetType || filterValue.value === '';
 }
 
@@ -346,7 +347,7 @@ async function handleAddNewAsset(assetType: AssetTypesEnum) {
       const results = await Promise.all(
         Object.keys(newAssetFields()).map(async (key) => {
           if (Array.isArray(newAssetValues[key])) return null;
-          if (key === 'offInventory') return { key, value: false };
+          if (key === 'off_inventory') return { key, value: false };
 
           const res = await generateDataChoice(assetType);
           if (!res.result) {
