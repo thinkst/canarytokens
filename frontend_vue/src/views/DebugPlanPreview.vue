@@ -71,7 +71,7 @@
               category-type="Assets"
               :high-contrast="true"
               :selected="filterValue === assetKey"
-              @click="handleFilterList(assetKey as keyof typeof ASSET_TYPE)"
+              @click="handleFilterList(assetKey as AssetTypesEnum)"
             />
           </li>
         </ul>
@@ -109,7 +109,7 @@
       :key="assetKey"
     >
       <section
-        v-if="showSection(assetKey as keyof typeof ASSET_TYPE)"
+        v-if="showSection(assetKey as AssetTypesEnum)"
         :id="`section-${assetKey}`"
         class="asset-section"
       >
@@ -136,12 +136,19 @@
             <AssetCard
               v-for="(asset, index) of assetValues"
               :key="`${assetKey}-${Object.values(asset)[0]}`"
-              :asset-type="assetKey"
+              :asset-type="assetKey as AssetTypesEnum"
               :asset-data="asset"
               :is-active-selected="isActiveSelected"
-              @open-asset="handleOpenAssetModal(asset, assetKey, index)"
+              @open-asset="
+                handleOpenAssetModal(asset, assetKey as AssetTypesEnum, index)
+              "
               @select-asset="
-                (isSelected) => handleSelectAsset(isSelected, assetKey, index)
+                (isSelected) =>
+                  handleSelectAsset(
+                    isSelected,
+                    assetKey as AssetTypesEnum,
+                    index
+                  )
               "
               @delete-asset="
                 handleRemoveAsset(
@@ -154,8 +161,8 @@
             />
           </TransitionGroup>
           <ButtonAddAsset
-            :asset-type="ASSET_LABEL[assetKey]"
-            @add-asset="handleAddNewAsset(assetKey)"
+            :asset-type="assetKey as AssetTypesEnum"
+            @add-asset="handleAddNewAsset(assetKey as AssetTypesEnum)"
           />
         </div>
       </section>
@@ -179,8 +186,8 @@ import FilterButton from '@/components/ui/FilterButton.vue';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import {
   ASSET_LABEL,
-  ASSET_TYPE,
   ASSET_DATA,
+  AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
@@ -209,8 +216,6 @@ function handleChangePlanSampleData(type: string) {
 // End handle Sample plan
 
 type ViewTypeValue = (typeof VIEW_TYPE)[keyof typeof VIEW_TYPE];
-type AssetConstKeyType = keyof typeof ASSET_TYPE;
-type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
 
 const VIEW_TYPE = {
   GRID: 'gridView',
@@ -218,11 +223,11 @@ const VIEW_TYPE = {
 } as const;
 
 const assetSamples = ref<AssetsTypes>({
-  [ASSET_TYPE.S3BUCKET]: null,
-  [ASSET_TYPE.SQSQUEUE]: null,
-  [ASSET_TYPE.SSMPARAMETER]: null,
-  [ASSET_TYPE.SECRETMANAGERSECRET]: null,
-  [ASSET_TYPE.DYNAMODBTABLE]: null,
+  S3Bucket: [],
+  SQSQueue: [],
+  SSMParameter: [],
+  SecretsManagerSecret: [],
+  DynamoDBTable: [],
 });
 
 const viewType: Ref<ViewTypeValue> = ref(VIEW_TYPE.GRID);
@@ -263,11 +268,12 @@ function handleSelectViewType(
   viewType.value = value;
 }
 
-function handleFilterList(assetType: keyof typeof ASSET_TYPE) {
+function handleFilterList(assetType: AssetTypesEnum) {
   filterValue.value = assetType;
 }
 
-function showSection(assetType: keyof typeof ASSET_TYPE) {
+function showSection(assetType: AssetTypesEnum) {
+  console.log(assetType, 'assetType');
   return filterValue.value === assetType || filterValue.value === '';
 }
 
@@ -295,7 +301,7 @@ function handleRemoveAsset(
 
 function handleOpenAssetModal(
   assetData: AssetDataType,
-  assetType: AssetConstValuesType,
+  assetType: AssetTypesEnum,
   index: number
 ) {
   const { open, close } = useModal({
@@ -314,19 +320,19 @@ function handleOpenAssetModal(
   open();
 }
 
-async function handleAddNewAsset(assetType: any) {
+async function handleAddNewAsset(assetType: AssetTypesEnum) {
   const newAssetFields = () => {
     switch (assetType) {
-      case ASSET_TYPE.S3BUCKET:
-        return ASSET_DATA[ASSET_TYPE.S3BUCKET];
-      case ASSET_TYPE.SQSQUEUE:
-        return ASSET_DATA[ASSET_TYPE.SQSQUEUE];
-      case ASSET_TYPE.SSMPARAMETER:
-        return ASSET_DATA[ASSET_TYPE.SSMPARAMETER];
-      case ASSET_TYPE.SECRETMANAGERSECRET:
-        return ASSET_DATA[ASSET_TYPE.SECRETMANAGERSECRET];
-      case ASSET_TYPE.DYNAMODBTABLE:
-        return ASSET_DATA[ASSET_TYPE.DYNAMODBTABLE];
+      case AssetTypesEnum.S3BUCKET:
+        return ASSET_DATA[AssetTypesEnum.S3BUCKET];
+      case AssetTypesEnum.SQSQUEUE:
+        return ASSET_DATA[AssetTypesEnum.SQSQUEUE];
+      case AssetTypesEnum.SSMPARAMETER:
+        return ASSET_DATA[AssetTypesEnum.SSMPARAMETER];
+      case AssetTypesEnum.SECRETMANAGERSECRET:
+        return ASSET_DATA[AssetTypesEnum.SECRETMANAGERSECRET];
+      case AssetTypesEnum.DYNAMODBTABLE:
+        return ASSET_DATA[AssetTypesEnum.DYNAMODBTABLE];
       default:
         return {};
     }
@@ -341,6 +347,7 @@ async function handleAddNewAsset(assetType: any) {
       const results = await Promise.all(
         Object.keys(newAssetFields()).map(async (key) => {
           if (Array.isArray(newAssetValues[key])) return null;
+          if (key === 'offInventory') return { key, value: false };
 
           const res = await generateDataChoice(assetType);
           if (!res.result) {
@@ -352,6 +359,7 @@ async function handleAddNewAsset(assetType: any) {
 
       results.forEach((result) => {
         if (result) {
+          console.log(result);
           newAssetValues[result.key] = result.value;
         }
       });
@@ -370,7 +378,7 @@ async function handleAddNewAsset(assetType: any) {
 
 function handleSaveAsset(
   newValues: any,
-  assetType: AssetConstValuesType,
+  assetType: AssetTypesEnum,
   index: number
 ) {
   if (!assetSamples.value[assetType]) {

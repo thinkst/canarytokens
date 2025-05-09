@@ -58,7 +58,7 @@
 import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import {
-  ASSET_TYPE,
+  AssetTypesEnum,
   ASSET_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 
@@ -75,7 +75,7 @@ const EMPTY_VALUE = { label: 'Choose asset', value: '' };
 const selectedValue = ref(EMPTY_VALUE);
 
 const options = computed(() => {
-  return Object.values(ASSET_TYPE)
+  return Object.values(AssetTypesEnum)
     .map((val) => {
       if (props.isTypeMissingPermission.includes(val)) {
         return null;

@@ -25,13 +25,10 @@
 </template>
 
 <script setup lang="ts">
-import { ASSET_TYPE } from '@/components/tokens/aws_infra/constants.ts';
-
-type AssetConstKeyType = keyof typeof ASSET_TYPE;
-type AssetConstValuesType = (typeof ASSET_TYPE)[AssetConstKeyType];
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
 const props = defineProps<{
-  assetType: AssetConstValuesType;
+  assetType: AssetTypesEnum;
   isBulkDelete: boolean;
   closeModal: () => void;
   onDeleteConfirmed: () => void;

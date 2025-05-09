@@ -43,7 +43,7 @@
           <AssetTextField
             :id="`${props.assetKey}.${fieldIndex}.${propertyKey}`"
             :value="field.value[propertyKey]"
-            :label="getLabel(propertyKey)"
+            :label="getLabel(propertyKey as any)"
             :field-type="objectKey"
             variant="small"
             icon="aws_infra_icons/objects.svg"

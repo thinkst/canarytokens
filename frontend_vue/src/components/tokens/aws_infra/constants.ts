@@ -7,23 +7,23 @@ import type {
   DynamoDBTableType,
 } from '@/components/tokens/aws_infra/types.ts';
 
-export const ASSET_TYPE = {
-  S3BUCKET: 'S3Bucket',
-  SQSQUEUE: 'SQSQueue',
-  SSMPARAMETER: 'SSMParameter',
-  SECRETMANAGERSECRET: 'SecretsManagerSecret',
-  DYNAMODBTABLE: 'DynamoDBTable',
-} as const;
+export enum AssetTypesEnum {
+  S3BUCKET = 'S3Bucket',
+  SQSQUEUE = 'SQSQueue',
+  SSMPARAMETER = 'SSMParameter',
+  SECRETMANAGERSECRET = 'SecretsManagerSecret',
+  DYNAMODBTABLE = 'DynamoDBTable',
+}
 
 export const ASSET_DATA: {
-  [ASSET_TYPE.S3BUCKET]: S3BucketType;
+  [AssetTypesEnum.S3BUCKET]: S3BucketType;
   object_path: S3ObjectType;
-  [ASSET_TYPE.SQSQUEUE]: SQSQueueType;
-  [ASSET_TYPE.SSMPARAMETER]: SSMParameterType;
-  [ASSET_TYPE.SECRETMANAGERSECRET]: SecretsManagerSecretType;
-  [ASSET_TYPE.DYNAMODBTABLE]: DynamoDBTableType;
+  [AssetTypesEnum.SQSQUEUE]: SQSQueueType;
+  [AssetTypesEnum.SSMPARAMETER]: SSMParameterType;
+  [AssetTypesEnum.SECRETMANAGERSECRET]: SecretsManagerSecretType;
+  [AssetTypesEnum.DYNAMODBTABLE]: DynamoDBTableType;
 } = {
-  [ASSET_TYPE.S3BUCKET]: {
+  [AssetTypesEnum.S3BUCKET]: {
     bucket_name: '',
     objects: [],
     offInventory: false,
@@ -31,22 +31,22 @@ export const ASSET_DATA: {
   object_path: {
     object_path: '',
   },
-  [ASSET_TYPE.SQSQUEUE]: {
+  [AssetTypesEnum.SQSQUEUE]: {
     queue_name: '',
     message_count: null,
     offInventory: false,
   },
-  [ASSET_TYPE.SSMPARAMETER]: {
+  [AssetTypesEnum.SSMPARAMETER]: {
     ssm_parameter_name: '',
     ssm_parameter_value: '',
     offInventory: false,
   },
-  [ASSET_TYPE.SECRETMANAGERSECRET]: {
+  [AssetTypesEnum.SECRETMANAGERSECRET]: {
     secretsmanager_secret_name: '',
     secretsmanager_secret_value: '',
     offInventory: false,
   },
-  [ASSET_TYPE.DYNAMODBTABLE]: {
+  [AssetTypesEnum.DYNAMODBTABLE]: {
     dynamodb_name: '',
     dynamodb_partition_key: '',
     dynamodb_row_count: null,
@@ -55,11 +55,11 @@ export const ASSET_DATA: {
 };
 
 export const ASSET_LABEL = {
-  [ASSET_TYPE.S3BUCKET]: 'S3 Bucket',
-  [ASSET_TYPE.SQSQUEUE]: 'SQS Queue',
-  [ASSET_TYPE.SSMPARAMETER]: 'SSM Parameter',
-  [ASSET_TYPE.SECRETMANAGERSECRET]: 'Secrets Manager Secret',
-  [ASSET_TYPE.DYNAMODBTABLE]: 'Dynamo DB Table',
+  [AssetTypesEnum.S3BUCKET]: 'S3 Bucket',
+  [AssetTypesEnum.SQSQUEUE]: 'SQS Queue',
+  [AssetTypesEnum.SSMPARAMETER]: 'SSM Parameter',
+  [AssetTypesEnum.SECRETMANAGERSECRET]: 'Secrets Manager Secret',
+  [AssetTypesEnum.DYNAMODBTABLE]: 'Dynamo DB Table',
   dynamodb_row_count: 'Row Count',
   dynamodb_partition_key: 'Partition Key',
   dynamodb_name: 'Table Name',
@@ -77,11 +77,11 @@ export const ASSET_LABEL = {
 // Main keys for the Asset Card
 // to display close to the asset icon
 export const ASSET_DATA_NAME = {
-  [ASSET_TYPE.DYNAMODBTABLE]: 'dynamodb_name',
-  [ASSET_TYPE.SECRETMANAGERSECRET]: 'secretsmanager_secret_name',
-  [ASSET_TYPE.SSMPARAMETER]: 'ssm_parameter_name',
-  [ASSET_TYPE.SQSQUEUE]: 'queue_name',
-  [ASSET_TYPE.S3BUCKET]: 'bucket_name',
+  [AssetTypesEnum.DYNAMODBTABLE]: 'dynamodb_name',
+  [AssetTypesEnum.SECRETMANAGERSECRET]: 'secretsmanager_secret_name',
+  [AssetTypesEnum.SSMPARAMETER]: 'ssm_parameter_name',
+  [AssetTypesEnum.SQSQUEUE]: 'queue_name',
+  [AssetTypesEnum.S3BUCKET]: 'bucket_name',
 };
 
 // Display icon in Asset Card

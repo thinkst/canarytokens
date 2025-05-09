@@ -13,9 +13,11 @@
 </template>
 
 <script lang="ts" setup>
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
+
 const emits = defineEmits(['add-asset']);
 
 defineProps<{
-  assetType: string;
+  assetType: AssetTypesEnum;
 }>();
 </script>
