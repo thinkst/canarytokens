@@ -6,7 +6,7 @@
     @keydown.enter="handleSubmit"
   >
     <div
-      class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16"
+      class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16 2xl:mx-[8vw] xl:mx-[3vw]"
     >
       <FormAsset
         :asset-type="props.assetType"
