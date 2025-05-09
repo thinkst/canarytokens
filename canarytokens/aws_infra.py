@@ -180,12 +180,14 @@ def save_plan(canarydrop: Canarydrop, plan: str):
     # TODO: validate plan
     canarydrop.aws_saved_plan = plan
     # TODO: add other asset types
-    canarydrop.aws_deployed_assets = {
-        AWSInfraAssetType.S3_BUCKET.value: [
-            bucket["bucket_name"]
-            for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
-        ]
-    }
+    canarydrop.aws_deployed_assets = json.dumps(
+        {
+            AWSInfraAssetType.S3_BUCKET.value: [
+                bucket["bucket_name"]
+                for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
+            ]
+        }
+    )
     queries.save_canarydrop(canarydrop)
     variables = generate_tf_variables(canarydrop, plan)
     _upload_zip(
@@ -279,6 +281,9 @@ def generate_proposed_plan(canarydrop: Canarydrop):
     """
     Return a proposed plan for decoy assets containing new and current assets.
     """
+
+    aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets)
+    aws_saved_plan = json.loads(canarydrop.aws_saved_plan)
     plan = {
         "assets": {
             AWSInfraAssetType.S3_BUCKET.value: []
@@ -291,7 +296,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
         random.randint(
             1,
             MAX_S3_BUCKETS
-            - len(canarydrop.aws_deployed_assets[AWSInfraAssetType.S3_BUCKET.value]),
+            - len(aws_deployed_assets[AWSInfraAssetType.S3_BUCKET.value]),
         )
     ):
         plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
@@ -303,15 +308,11 @@ def generate_proposed_plan(canarydrop: Canarydrop):
             )
 
     # add current assets
-    for bucket_name in canarydrop.aws_deployed_assets[
-        AWSInfraAssetType.S3_BUCKET.value
-    ]:
+    for bucket_name in aws_deployed_assets[AWSInfraAssetType.S3_BUCKET.value]:
         objects = list(
             filter(
                 lambda bucket: bucket["bucket_name"] == bucket_name,
-                canarydrop.aws_saved_plan.get("assets").get(
-                    AWSInfraAssetType.S3_BUCKET.value
-                ),
+                aws_saved_plan.get("assets").get(AWSInfraAssetType.S3_BUCKET.value),
             )
         )[0].get("objects", [])
         plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
@@ -322,7 +323,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
 
 
 def save_current_assets(canarydrop: Canarydrop, assets: dict):
-    canarydrop.aws_current_assets = assets
+    canarydrop.aws_current_assets = json.dumps(assets)
     queries.save_canarydrop(canarydrop)
 
 

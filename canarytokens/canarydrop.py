@@ -135,9 +135,9 @@ class Canarydrop(BaseModel):
 
     # AWS  infra specific stuff
     aws_customer_iam_access_external_id: Optional[str]
-    aws_deployed_assets: Optional[dict]
-    aws_current_assets: Optional[dict]
-    aws_saved_plan: Optional[dict]
+    aws_deployed_assets: Optional[str]
+    aws_current_assets: Optional[str]
+    aws_saved_plan: Optional[str]
     aws_tf_module_prefix: Optional[str]
     aws_infra_ingesting: Optional[bool]
     aws_infra_cloudtrail_name: Optional[str]
