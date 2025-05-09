@@ -41,7 +41,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/manage/:tokentype',
+      path: '/token-config/:tokentype',
       name: 'manage-custom',
       component: () => import('../views/CustomFlowView.vue'),
       meta: {
