@@ -157,9 +157,9 @@ const router = createRouter({
           {
             path: '/plan-preview',
             name: 'plan-preview',
-            component: () => import('../views/PlanPreview.vue'),
+            component: () => import('../views/DebugPlanPreview.vue'),
             meta: {
-              title: 'Plan Preview',
+              title: 'Debug Plan Preview',
             },
           },
         ]
