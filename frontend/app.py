@@ -46,6 +46,7 @@ from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
     PWA_APP_TITLES,
     AWSInfaHandleResponse,
+    AWSInfraAssetField,
     AWSInfraAssetType,
     AWSInfraCheckRoleReceivedResponse,
     AWSInfraGenerateDataChoiceRequest,
@@ -388,6 +389,10 @@ def validate_exclusive_handle(request: Request):
             detail="A handle request should only contain handle and no other keys.",
         )
     return request
+
+
+def authenticate_aws_infra(request):
+    pass
 
 
 @app.on_event("startup")
@@ -1143,7 +1148,7 @@ def api_awsinfra_inventory_customer_account(
         )
 
     if handle_response.response_received and handle_response.response != "":
-        canarydrop = aws_infra.get_canarydrop_form_handle(handle_id)
+        canarydrop = aws_infra.get_canarydrop_form_handle(request.handle)
         aws_infra.save_current_assets(
             canarydrop, handle_response.response.get("assets")
         )
@@ -1156,24 +1161,35 @@ def api_awsinfra_inventory_customer_account(
     return AWSInfaHandleResponse(handle=request.handle)
 
 
+# TODO: add validate for type and field
 @api.post("/awsinfra/generate-data-choices")
 def api_awsinfra_generate_data_choices(
     request: AWSInfraGenerateDataChoiceRequest, response: Response
 ) -> AWSInfraGenerateDataChoiceResponse:
     get_canarydrop_and_authenticate(request.canarytoken, request.auth_token)
     if request.asset_type == AWSInfraAssetType.S3_BUCKET:
+        if request.asset_field == AWSInfraAssetField.BUCKET_NAME:
+            return AWSInfraGenerateDataChoiceResponse(
+                result=True, proposed_data=aws_infra.generate_s3_bucket()
+            )
+    if request.asset_field == AWSInfraAssetField.MESSAGE_COUNT:
         return AWSInfraGenerateDataChoiceResponse(
-            result=True, proposed_data=aws_infra.generate_s3_bucket()
+            result=True, proposed_data=str(random.randint(0, 10))
         )
 
-    if request.asset_type == AWSInfraAssetType.S3_OBJECT:
+    if request.asset_field == AWSInfraAssetField.DYNAMODB_ROW_COUNT:
         return AWSInfraGenerateDataChoiceResponse(
-            result=True, proposed_data=aws_infra.generate_s3_object()
+            result=True, proposed_data=str(random.randint(0, 100))
         )
 
-    response.status_code = status.HTTP_400_BAD_REQUEST
     return AWSInfraGenerateDataChoiceResponse(
-        result=False, message="Asset type not supported."
+        result=True,
+        proposed_data="".join(
+            [
+                random.choice(string.ascii_letters + string.digits)
+                for _ in range(random.randint(5, 20))
+            ]
+        ),
     )
 
 
@@ -1248,11 +1264,6 @@ def api_awsinfra_management_response(
 ) -> JSONResponse:
     aws_infra.add_handle_response(request.handle, request.result)
     return JSONResponse({"message": "Success"})
-
-
-@api.get("/edit")  # link to edit page
-def api_get_edit():
-    pass
 
 
 @singledispatch
