@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-row justify-between my-16">
     <div class="flex flex-row gap-8 items-center">
-      {{ props.assetKey }}
       <img
         :src="iconURL()"
         :alt="`icon ${getLabel(props.assetKey)}`"
