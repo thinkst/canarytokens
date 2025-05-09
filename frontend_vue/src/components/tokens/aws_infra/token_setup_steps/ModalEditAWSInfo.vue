@@ -11,7 +11,6 @@
           class="flex flex-col"
           :validation-schema="schema"
           @submit="onSubmit"
-          @invalid-submit="onInvalidSubmit"
         >
           <div class="lg:basis-6/12">
             <BaseFormTextField
@@ -35,6 +34,11 @@
               />
             </div>
           </div>
+          <BaseMessageBox
+            v-if="isError"
+            variant="danger"
+            >{{ isErrorMessage }}</BaseMessageBox
+          >
           <div class="flex flex col justify-center gap-8 mt-24">
             <BaseButton
               variant="grey"
@@ -44,6 +48,7 @@
             <BaseButton
               variant="primary"
               type="submit"
+              :loading="isLoading"
               >Save</BaseButton
             >
           </div>
@@ -68,6 +73,9 @@ const props = defineProps<{
 
 const selectedRegion = ref<{ value: string; label: string }[]>([]);
 const selectedAWSaccount = ref('');
+const isLoading = ref(false);
+const isError = ref(false);
+const isErrorMessage = ref(false);
 
 const schema = Yup.object().shape({
   aws_region: Yup.string().required('AWS region is required'),
@@ -89,10 +97,11 @@ onMounted(() => {
 });
 
 function onSubmit(values: GenericObject) {
+  isLoading.value = true;
   console.log('values', values);
-}
-
-function onInvalidSubmit(values: GenericObject) {
-  console.log('values', values.values);
+  // ...here goes the API call to manage endpoint...
+  isError.value = true;
+  isErrorMessage.value = 'Oh no, this endpoint is not available yet!';
+  isLoading.value = false;
 }
 </script>

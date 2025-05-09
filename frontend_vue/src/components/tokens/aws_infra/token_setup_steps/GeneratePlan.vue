@@ -40,7 +40,6 @@ const props = defineProps<{
 
 const isLoading = ref(true);
 const isError = ref(false);
-// const isSuccess = ref(false);
 const errorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);

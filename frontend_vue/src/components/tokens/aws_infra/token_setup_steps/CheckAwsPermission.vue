@@ -125,12 +125,12 @@ const schema = Yup.object().shape({
 async function handleCheckPermission() {
   errorMessage.value = '';
   isLoading.value = true;
-  // here goes the API call to manage endpoint
+  // ...here goes the API call to manage endpoint...
+  emits('updateStep');
 }
 
 async function onSubmit() {
   await handleCheckPermission();
-  emits('updateStep');
 }
 </script>
 

@@ -105,8 +105,6 @@ const currentComponent = computed(
   () => stepComponents.value[currentStep.value] || null
 );
 
-// TODO: check if we can or want user to go back to initial snippets
-// Because to re-check the role they might need to manually remove the existing role/user
 const showBackButton = computed(() => {
   return (
     currentStep.value > 2 || (currentStep.value === 2 && isSettingError.value)
