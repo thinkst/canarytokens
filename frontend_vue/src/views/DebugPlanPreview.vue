@@ -273,7 +273,6 @@ function handleFilterList(assetType: AssetTypesEnum) {
 }
 
 function showSection(assetType: AssetTypesEnum) {
-  console.log(assetType, 'assetType');
   return filterValue.value === assetType || filterValue.value === '';
 }
 
