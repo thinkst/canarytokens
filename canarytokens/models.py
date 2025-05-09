@@ -2886,7 +2886,7 @@ class AWSInfraConfigStartRequest(BaseModel):
 class AWSInfraConfigStartResponse(BaseModel):
     result: bool
     message: str = ""
-    role_setup_commands: str
+    role_setup_commands: dict
 
 
 class AWSInfraTriggerOperationRequest(BaseModel):  # before handle id created
@@ -2959,6 +2959,7 @@ class AWSInfraTeardownReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
+    role_cleanup_commands: dict = None
 
 
 class AWSInfraOperationType(str, enum.Enum):

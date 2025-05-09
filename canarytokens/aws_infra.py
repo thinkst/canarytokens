@@ -20,8 +20,15 @@ settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
 ROLE_SETUP_COMMANDS_TEMPLATE = """aws iam create-role --role-name $role_name --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::$aws_account:assumed-role/InventoryManagerRole/$external_id"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "$external_id"}}}]}\'
+
 aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'
+
 aws iam attach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy"""
+ROLE_REMOVAL_COMMANDS_TEMPLATE = """aws iam detach-role-policy --role-name $role_name --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+aws iam delete-policy --policy-arn arn:aws:iam::$customer_aws_account:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+aws iam delete-role --role-name  $role_name"""
 
 
 @dataclass
@@ -81,12 +88,22 @@ def get_role_commands(canarydrop: Canarydrop):
     """
     Return the aws-cli commands needed to setup the inventory role in the customer's account
     """
-    return string.Template(ROLE_SETUP_COMMANDS_TEMPLATE).safe_substitute(
-        role_name=settings.AWS_INFRA_INVENTORY_ROLE,
-        aws_account=settings.AWS_INFRA_AWS_ACCOUNT,
-        external_id=canarydrop.aws_customer_iam_access_external_id,
-        customer_aws_account=canarydrop.aws_account_id,
-    )
+    return {
+        "role_name": settings.AWS_INFRA_INVENTORY_ROLE,
+        "aws_account": settings.AWS_INFRA_AWS_ACCOUNT,
+        "external_id": canarydrop.aws_customer_iam_access_external_id,
+        "customer_aws_account": canarydrop.aws_account_id,
+    }
+
+
+def get_role_cleanup_commands(canarydrop: Canarydrop):
+    """
+    Return the aws-cli commands needed to detach and delete the inventory policy and role in the customer's account
+    """
+    return {
+        "role_name": settings.AWS_INFRA_INVENTORY_ROLE,
+        "customer_aws_account": canarydrop.aws_account_id,
+    }
 
 
 def create_handle(operation: AWSInfraOperationType, canarydrop: Canarydrop):
@@ -339,7 +356,7 @@ def save_current_assets(canarydrop: Canarydrop, assets: dict):
     queries.save_canarydrop(canarydrop)
 
 
-def get_canarydrop_form_handle(handle_id: str):
+def get_canarydrop_from_handle(handle_id: str):
     return queries.get_canarydrop(
         Canarytoken(
             value=queries.get_aws_management_lambda_handle(handle_id).get("canarytoken")
