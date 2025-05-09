@@ -1,6 +1,28 @@
 <template>
   <div>
     <hr class="my-24" />
+    <h1>Step State</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <p>Loading State</p>
+      <StepState
+      loading-message="Hold on, we are doing things"
+        :is-loading="true"
+      />
+     <p>Success State</p>
+      <StepState
+        :is-success="true"
+        success-message="Yay! this worked!"
+      />
+      <p>Error State</p>
+      <StepState
+        :is-error="true"
+        error-message="Oh snap, an error :("
+      />
+    </div>
+
+  </div>
+  <div>
+    <hr class="my-24" />
     <h1>Checkbox input</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <BaseInputCheckbox
@@ -288,7 +310,7 @@
     <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
       <IncidentDetails
         :hit-alert="alertSample"
-        :showingMap="true"
+        :showing-map="true"
       />
     </div>
     <div class="flex flex-col gap-16 mb-32">
@@ -425,6 +447,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
+import StepState from '@/components/tokens/aws_infra/StepState.vue'
 
 const { open } = useModal({
   component: ModalToken,
