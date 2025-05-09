@@ -39,7 +39,6 @@
       class="textfield__cta"
       :class="{ 'top-[2rem]': !hideLabel }"
     >
-      <!-- Regenerate content btn -->
       <button
         v-if="!isGenerateValueLoading"
         v-tooltip="{
@@ -55,7 +54,6 @@
           icon="rotate-right"
         ></font-awesome-icon>
       </button>
-      <!-- Remove instance -->
       <button
         v-if="hasRemove"
         v-tooltip="{
