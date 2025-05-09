@@ -23,7 +23,7 @@
       <p class="text-xl font-semibold leading-normal text-grey-800">
         Are you sure you want to delete this Canarytoken?
       </p>
-      <p class="mt-8 leading-normal text-normal text-grey-300">
+      <p class="mt-8 leading-normal text-normal text-grey-500">
         All associated alerts will be permanently lost
       </p>
     </div>
@@ -59,14 +59,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { TOKENS_TYPE } from '@/components/constants.ts';
 import { useRouter } from 'vue-router';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
 import { deleteToken as deleteTokenFnc } from '@/api/main';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
+// import { useDeleteToken } from '@/components/tokens/aws_infra/useDeleteToken.ts';
 
 const router = useRouter();
-
 const isLoading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
@@ -78,6 +79,8 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
+const hasCustomDeleteFunction = props.type === TOKENS_TYPE.AWS_INFRA;
+
 const deleteToken = async () => {
   isLoading.value = true;
   errorMessage.value = '';
@@ -86,26 +89,52 @@ const deleteToken = async () => {
     token: props.token,
   };
 
-  try {
-    const res = await deleteTokenFnc(params);
-    if (res.status === 200) {
-      successMessage.value =
-        'Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.';
-      setTimeout(() => {
-        props.closeModal();
-        router.push({ name: 'home' });
-      }, 3000);
-    } else if (res.status === 404) {
+  if (hasCustomDeleteFunction) {
+    const useDeleteTokenModule = await import(
+      `@/components/tokens/${props.type}/useDeleteToken.ts`
+    );
+
+    const { useDeleteToken } = useDeleteTokenModule;
+
+    const { deleteTokenFnc, isErrorMessage, isLoading, isSuccess } =
+      useDeleteToken(props.auth, props.token);
+
+    isLoading.value = isLoading;
+    await deleteTokenFnc();
+
+    if (isErrorMessage.value) {
+      isLoading.value = isLoading;
+      errorMessage.value = isErrorMessage.value;
+      return;
+    }
+
+    if (isSuccess.value === true) {
+      isLoading.value = isLoading;
       props.closeModal();
-      router.push({ name: 'error' });
-    } else
-      errorMessage.value =
-        'Oh no! Something went wrong when deleting your Canarytoken.';
-  } catch (err: any) {
-    console.log(err, 'err!');
-    errorMessage.value = err.toString();
-  } finally {
-    isLoading.value = false;
+      router.push({ name: 'home' });
+    }
+  } else {
+    try {
+      const res = await deleteTokenFnc(params);
+      if (res.status === 200) {
+        successMessage.value =
+          'Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.';
+        setTimeout(() => {
+          props.closeModal();
+          router.push({ name: 'home' });
+        }, 3000);
+      } else if (res.status === 404) {
+        props.closeModal();
+        router.push({ name: 'error' });
+      } else
+        errorMessage.value =
+          'Oh no! Something went wrong when deleting your Canarytoken.';
+    } catch (err: any) {
+      console.log(err, 'err!');
+      errorMessage.value = err.toString();
+    } finally {
+      isLoading.value = false;
+    }
   }
 };
 </script>
