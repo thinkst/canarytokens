@@ -48,12 +48,12 @@ const router = useRouter();
 const logoURL = ref('token_icons/azure_id_config.png');
 
 onMounted(async () => {
-  // if (
-  //   !Object.values(ENTRA_ID_FEEDBACK_TYPES).includes(
-  //     route.params.result as string
-  //   )
-  // )
-  //   router.push({ name: 'error' });
+  if (
+    !Object.values(ENTRA_ID_FEEDBACK_TYPES).includes(
+      route.params.result as string
+    )
+  )
+    router.push({ name: 'error' });
 });
 
 const alertsMessage = computed(() => {
