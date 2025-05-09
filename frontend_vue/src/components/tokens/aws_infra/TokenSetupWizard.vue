@@ -14,7 +14,7 @@
     <BaseStepCounter
       :steps="stepsValues"
       :current-step="currentStep"
-      @handle-step-click="(index) => handleChangeStep(index)"
+      @handle-step-click="(index: number) => handleChangeStep(index)"
     />
   </div>
   <div class="bg-grey-50 flex flex-col rounded-xl p-16 grow min-h-[40vh]">

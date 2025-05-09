@@ -163,7 +163,22 @@ async function handleGetAwsSnippet() {
       res.data.error_message = errorMessage;
     }
     isLoading.value = false;
-    codeSnippetCommands.value = res.data.role_setup_commands as string;
+
+    if (!res.data.role_setup_commands) {
+      isLoading.value = false;
+      isError.value = true;
+      errorMessage.value =
+        'Something went wrong when we tried to generate your snippet. Please try again.';
+    }
+
+    const awsAccount = res.data.role_setup_commands.aws_account;
+    const externalId = res.data.role_setup_commands.external_id;
+    const roleName = res.data.role_setup_commands.role_name;
+
+    const codeSnippet = generateCodeSnippet(awsAccount, externalId, roleName);
+
+    codeSnippetCommands.value = codeSnippet as string;
+
     emits('storeCurrentStepData', {
       token,
       auth_token,
@@ -208,6 +223,16 @@ const infoList = [
   'This access is automatically revoked by Canarytokens.org after plan creation.',
   'You will be provided with cleanup instructions at the end of the wizard to remove the associated AWS policy, attachment, and role.',
 ];
+
+function generateCodeSnippet(
+  awsAccount: number,
+  externalId: string,
+  roleName: string
+) {
+  return `aws iam create-role --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
+
+aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'`;
+}
 </script>
 
 <style scoped>
