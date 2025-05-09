@@ -62,6 +62,7 @@ async function handleSavePlan(formValues: PlanValueTypes) {
       isSaveError.value = true;
       errorMessage.value = res.data.message;
     }
+    isSaveSuccess.value = true;
     emits('storeCurrentStepData', { token, auth_token });
     emits('updateStep');
   } catch (err: any) {
@@ -70,7 +71,6 @@ async function handleSavePlan(formValues: PlanValueTypes) {
     isSaveSuccess.value = false;
   } finally {
     isSavingPlan.value = false;
-    isSaveSuccess.value = true;
   }
 }
 
