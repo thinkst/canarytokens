@@ -172,10 +172,17 @@ async function handleGetAwsSnippet() {
     }
 
     const awsAccount = res.data.role_setup_commands.aws_account;
+    const customerAwsAccount =
+      res.data.role_setup_commands.customer_aws_account;
     const externalId = res.data.role_setup_commands.external_id;
     const roleName = res.data.role_setup_commands.role_name;
 
-    const codeSnippet = generateCodeSnippet(awsAccount, externalId, roleName);
+    const codeSnippet = generateCodeSnippet(
+      awsAccount,
+      customerAwsAccount,
+      externalId,
+      roleName
+    );
 
     codeSnippetCommands.value = codeSnippet as string;
 
@@ -226,12 +233,16 @@ const infoList = [
 
 function generateCodeSnippet(
   awsAccount: number,
+  customerAwsAccount: number,
   externalId: string,
   roleName: string
 ) {
   return `aws iam create-role --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
 
-aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'`;
+aws iam create-policy --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Action": ["sqs:ListQueues","sqs:GetQueueAttributes"],"Resource": "*"},{"Effect": "Allow","Action": ["s3:ListAllMyBuckets"],"Resource": "*"}]}\'
+
+aws iam attach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+`;
 }
 </script>
 
