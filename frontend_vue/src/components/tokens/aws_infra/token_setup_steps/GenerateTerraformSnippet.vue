@@ -43,7 +43,8 @@
         </div>
       </div>
       <h2 class="mt-24 text-center">
-        That’s it! If someone will access your AWS account you’ll get notified.
+        That’s it! Any attempts to interact with the decoy assets will generate
+        an alert.
       </h2>
     </div>
     <div class="flex flex-row mt-40 gap-16">

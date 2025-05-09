@@ -24,7 +24,7 @@
         </BaseCard>
         <BaseButton
           variant="text"
-          @click="hadnleChangeAccountValues"
+          @click="hadndleChangeAccountValues"
           >Incorrect information? Edit</BaseButton
         >
       </div>
@@ -178,7 +178,7 @@ async function handleGetAwsSnippet() {
   }
 }
 
-function hadnleChangeAccountValues() {
+function hadndleChangeAccountValues() {
   const { open, close } = useModal({
     component: ModalEditAWSInfo,
     attrs: {
@@ -204,7 +204,7 @@ function handleGoToNextStep() {
 }
 
 const infoList = [
-  'This step grants Canarytokens.org temporary, read-only access to list names of various AWS resources (S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles) to create a customized infrastructure plan',
+  'This step grants Canarytokens.org temporary, read-only access to list names of various AWS resources (S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles) to create a customized infrastructure plan.',
   'This access is automatically revoked by Canarytokens.org after plan creation.',
   'You will be provided with cleanup instructions at the end of the wizard to remove the associated AWS policy, attachment, and role.',
 ];
