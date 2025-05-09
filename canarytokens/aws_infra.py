@@ -311,7 +311,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
             )
 
     # add current assets
-    for bucket_name in aws_deployed_assets[AWSInfraAssetType.S3_BUCKET.value]:
+    for bucket_name in aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, []):
         objects = list(
             filter(
                 lambda bucket: bucket["bucket_name"] == bucket_name,
