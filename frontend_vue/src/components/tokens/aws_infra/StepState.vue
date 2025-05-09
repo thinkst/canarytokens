@@ -18,6 +18,11 @@
       <h2 class="text-red font-semibold">
         Oh no! Something didn't work as expected
       </h2>
+      <img
+        :src="getImageUrl('icons/errorIcon.svg')"
+        alt="success-icon"
+        class="w-[15rem] h-[15rem]"
+      />
       <BaseMessageBox
         v-if="errorMessage"
         :message="errorMessage"
@@ -26,10 +31,10 @@
       />
     </template>
     <template v-if="isSuccess">
-      <font-awesome-icon
-        icon="circle-check"
-        aria-hidden="true"
-        class="text-green w-[6rem] h-[6rem] mb-24"
+      <img
+        :src="getImageUrl('icons/successIcon.svg')"
+        alt="success-icon"
+        class="w-[15rem] h-[15rem]"
       />
     </template>
   </div>
@@ -37,6 +42,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import getImageUrl from '@/utils/getImageUrl';
 
 const props = defineProps<{
   isLoading?: boolean;
