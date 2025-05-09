@@ -27,8 +27,8 @@ export const SSMParameter_schema = yup.object().shape({
 });
 
 export const SecretsManagerSecret_schema = yup.object().shape({
-  ssm_parameter_value: requiredString('ssm_parameter_value'),
-  ssm_parameter_name: requiredString('ssm_parameter_name'),
+  secretsmanager_secret_name: requiredString('secretsmanager_secret_name'),
+  secretsmanager_secret_value: requiredString('secretsmanager_secret_value'),
 });
 
 export const DynamoDBTable_schema = yup.object().shape({

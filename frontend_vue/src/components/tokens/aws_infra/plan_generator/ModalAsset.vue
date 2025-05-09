@@ -19,7 +19,6 @@
         @invalid-submit="handleInvalidSubmit"
       />
     </div>
-
     <template #footer>
       <BaseButton
         variant="grey"
