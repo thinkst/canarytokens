@@ -107,7 +107,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, inject, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type { AssetDataType, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import {
@@ -125,9 +125,9 @@ const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: AssetDataTypeWithoutS3Object;
   isActiveSelected: boolean;
+  viewType: 'gridView' | 'listView';
 }>();
 
-const viewType = inject('viewType');
 const isHoverCard = ref(false);
 const assetCardRef = ref();
 const isSelected = ref(false);

@@ -121,6 +121,7 @@
                 v-for="(asset, index) of assetValues"
                 :key="`${assetKey}-${Object.values(asset)[0]}`"
                 :asset-type="assetKey as AssetTypesEnum"
+                :view-type="viewType"
                 :asset-data="asset"
                 :is-active-selected="isActiveSelected"
                 @open-asset="
@@ -145,7 +146,7 @@
               />
             </TransitionGroup>
             <ButtonAddAsset
-              :asset-type="assetKey"
+              :asset-type="assetKey as AssetTypesEnum"
               @add-asset="handleAddNewAsset(assetKey as AssetTypesEnum)"
             />
           </div>
@@ -169,7 +170,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, provide, onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
@@ -212,8 +213,6 @@ const props = defineProps<{
 const { token, auth_token, proposed_plan } = props.initialStepData;
 
 const viewType = ref(ViewTypeEnum.GRID);
-provide('viewType', viewType);
-
 const isLoading = ref(true);
 const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
