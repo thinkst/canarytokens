@@ -61,9 +61,13 @@ export function generateDataChoice(
 ) {
   const url =
     '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-data-choices';
-  return axios
-    .post(url, { canarytoken, auth_token, asset_type, asset_field })
-    .then((response) => response);
+  const params = {
+    canarytoken,
+    auth_token,
+    asset_type,
+    asset_field,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
 }
 
 export function requestTerraformSnippet({
