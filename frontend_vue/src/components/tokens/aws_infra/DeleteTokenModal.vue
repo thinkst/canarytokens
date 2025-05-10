@@ -51,7 +51,7 @@
       <BaseSpinner height="3rem" />
     </div>
     <BaseMessageBox
-      v-if="isError"
+      v-if="isError && !isSuccess"
       variant="danger"
       class="mt-16"
       :message="isErrorMessage"
