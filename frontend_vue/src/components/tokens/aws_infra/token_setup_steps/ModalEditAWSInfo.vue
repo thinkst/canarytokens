@@ -75,7 +75,7 @@ const selectedRegion = ref<{ value: string; label: string }[]>([]);
 const selectedAWSaccount = ref('');
 const isLoading = ref(false);
 const isError = ref(false);
-const isErrorMessage = ref(false);
+const isErrorMessage = ref('');
 
 const schema = Yup.object().shape({
   aws_region: Yup.string().required('AWS region is required'),

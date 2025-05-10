@@ -1,9 +1,11 @@
 <template>
-    <div>
+  <div>
     <hr class="my-24" />
     <h1>Bullet List</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
-      <BaseBulletList :list="['element number 1', 'element number 2', 'element number 3']" />
+      <BaseBulletList
+        :list="['element number 1', 'element number 2', 'element number 3']"
+      />
     </div>
   </div>
   <div>
@@ -12,10 +14,10 @@
     <div class="flex flex-col gap-16 mt-24 mb-32">
       <p>Loading State</p>
       <StepState
-      loading-message="Hold on, we are doing things"
+        loading-message="Hold on, we are doing things"
         :is-loading="true"
       />
-     <p>Success State</p>
+      <p>Success State</p>
       <StepState
         :is-success="true"
         success-message="Yay! this worked!"
@@ -26,7 +28,6 @@
         error-message="Oh snap, an error :("
       />
     </div>
-
   </div>
   <div>
     <hr class="my-24" />
@@ -454,7 +455,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
-import StepState from '@/components/tokens/aws_infra/StepState.vue'
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 
 const { open } = useModal({
   component: ModalToken,
