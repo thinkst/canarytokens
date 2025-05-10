@@ -189,6 +189,17 @@ async function handleAddObject() {
 <style lang="scss">
 .paginated_object_list__wrapper {
   overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .paginated_object_list {
