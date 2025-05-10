@@ -113,7 +113,6 @@ async function deleteTokenFnc() {
         const resWithHandle = await deleteToken({ handle });
 
         if (resWithHandle.status !== 200) {
-          console.log('resWithHandle.status');
           isLoading.value = false;
           isError.value = true;
           isErrorMessage.value =
@@ -124,8 +123,6 @@ async function deleteTokenFnc() {
         }
 
         if (resWithHandle.data.message) {
-          console.log('resWithHandle.message');
-
           isLoading.value = false;
           isError.value = true;
           isErrorMessage.value = resWithHandle.data.message;
@@ -135,8 +132,6 @@ async function deleteTokenFnc() {
 
         // timeout
         if (Date.now() - startTime >= timeout) {
-          console.log('resWithHandle.timeout');
-
           isLoading.value = false;
           isError.value = true;
           isErrorMessage.value = 'The operation took too long. Try again.';
@@ -146,8 +141,6 @@ async function deleteTokenFnc() {
 
         // success
         if (resWithHandle.data.result === true) {
-          console.log('succeeesss');
-
           isLoading.value = false;
           isSuccess.value = true;
           isError.value = false;
@@ -159,14 +152,11 @@ async function deleteTokenFnc() {
           const codeSnippet = generateCodeSnippet(customerAwsAccount, roleName);
           codeSnippetCommands.value = codeSnippet as string;
 
-          console.log(codeSnippetCommands, 'codeSnippetCommands');
-
           clearInterval(pollingDeleteTokenInterval);
           emits('tokenDeleted');
           return;
         }
       } catch (err: any) {
-        console.log(err, 'catch 2 err!');
         isError.value = true;
         isErrorMessage.value =
           'Error on requesting to delete the token. Try again';
@@ -180,7 +170,6 @@ async function deleteTokenFnc() {
       POLL_INTERVAL
     );
   } catch (err: any) {
-    console.log(err, 'catch 1 err!');
     isLoading.value = false;
     isError.value = true;
     isErrorMessage.value = 'Error on requesting to delete the token. Try again';
