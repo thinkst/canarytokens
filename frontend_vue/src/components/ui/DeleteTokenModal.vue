@@ -65,7 +65,7 @@
       :auth="props.auth"
       :token="props.token"
       :type="props.type"
-      @redirect-to-home="handleRedirectToHome()"
+      @redirect-user="(path: string) => handleRedirectUser(path)"
       @close-modal="closeModal()"
       @token-deleted="handleTokenDeleted()"
     />
@@ -87,7 +87,7 @@
       <div v-else>
         <BaseButton
           :loading="isLoading"
-          @click="handleRedirectToHome()"
+          @click="handleRedirectUser()"
           >Done</BaseButton
         >
       </div>
@@ -180,12 +180,15 @@ function handleTriggerDeleteTokenCustomModal() {
   triggerDeleteTokenCustomModal.value = true;
 }
 
+// This can be used when we don't want to close the modal right away
+// and want to show a content before redirecting
 function handleTokenDeleted() {
   showDoneButton.value = true;
 }
 
-function handleRedirectToHome() {
+function handleRedirectUser(path?: string) {
   props.closeModal();
-  router.push({ name: 'home' });
+  const customPath = path || 'home';
+  router.push({ name: customPath });
 }
 </script>
