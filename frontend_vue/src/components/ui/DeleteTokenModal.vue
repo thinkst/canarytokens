@@ -1,7 +1,6 @@
 <template>
   <BaseModal
-    documentation-link=""
-    :has-back-button="false"
+    v-if="!hasCustomDeleteModal"
     :title="`Delete token`"
     :has-close-button="true"
   >
@@ -55,22 +54,55 @@
       </div>
     </template>
   </BaseModal>
+  <BaseModal
+    v-else
+    :title="`Delete token`"
+    :has-close-button="false"
+  >
+    <component
+      :is="customDeleteModal"
+      :trigger-delete-token="triggerDeleteTokenCustomModal"
+      :auth="props.auth"
+      :token="props.token"
+      :type="props.type"
+      @redirect-to-home="handleRedirectToHome()"
+      @close-modal="closeModal()"
+      @token-deleted="handleTokenDeleted()"
+    />
+    <template #footer>
+      <div v-if="!showDoneButton">
+        <BaseButton
+          variant="grey"
+          class="mr-8"
+          @click="closeModal()"
+          >No, keep it</BaseButton
+        >
+        <BaseButton
+          variant="danger"
+          :loading="isLoading"
+          @click="handleTriggerDeleteTokenCustomModal()"
+          >Yes, delete</BaseButton
+        >
+      </div>
+      <div v-else>
+        <BaseButton
+          :loading="isLoading"
+          @click="handleRedirectToHome()"
+          >Done</BaseButton
+        >
+      </div>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, defineAsyncComponent, onMounted } from 'vue';
 import { TOKENS_TYPE } from '@/components/constants.ts';
 import { useRouter } from 'vue-router';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
 import { deleteToken as deleteTokenFnc } from '@/api/main';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
-// import { useDeleteToken } from '@/components/tokens/aws_infra/useDeleteToken.ts';
-
-const router = useRouter();
-const isLoading = ref(false);
-const errorMessage = ref('');
-const successMessage = ref('');
 
 const props = defineProps<{
   auth: string;
@@ -79,7 +111,40 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
-const hasCustomDeleteFunction = props.type === TOKENS_TYPE.AWS_INFRA;
+const router = useRouter();
+const isLoading = ref(false);
+const isError = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+const customDeleteModal = ref('');
+const showDoneButton = ref(false);
+const triggerDeleteTokenCustomModal = ref(false);
+
+const hasCustomDeleteModal = props.type === TOKENS_TYPE.AWS_INFRA;
+
+const loadComponent = async () => {
+  try {
+    isLoading.value = true;
+
+    if (!props.type) {
+      throw new Error('Invalid token');
+    }
+    customDeleteModal.value = defineAsyncComponent(
+      () => import(`@/components/tokens/${props.type}/DeleteTokenModal.vue`)
+    );
+  } catch (error) {
+    console.error('Error loading component:', error);
+    isError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  if (hasCustomDeleteModal) {
+    loadComponent();
+  }
+});
 
 const deleteToken = async () => {
   isLoading.value = true;
@@ -88,53 +153,39 @@ const deleteToken = async () => {
     auth: props.auth,
     token: props.token,
   };
-
-  if (hasCustomDeleteFunction) {
-    const useDeleteTokenModule = await import(
-      `@/components/tokens/${props.type}/useDeleteToken.ts`
-    );
-
-    const { useDeleteToken } = useDeleteTokenModule;
-
-    const { deleteTokenFnc, isErrorMessage, isLoading, isSuccess } =
-      useDeleteToken(props.auth, props.token);
-
-    isLoading.value = isLoading;
-    await deleteTokenFnc();
-
-    if (isErrorMessage.value) {
-      isLoading.value = isLoading;
-      errorMessage.value = isErrorMessage.value;
-      return;
-    }
-
-    if (isSuccess.value === true) {
-      isLoading.value = isLoading;
-      props.closeModal();
-      router.push({ name: 'home' });
-    }
-  } else {
-    try {
-      const res = await deleteTokenFnc(params);
-      if (res.status === 200) {
-        successMessage.value =
-          'Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.';
-        setTimeout(() => {
-          props.closeModal();
-          router.push({ name: 'home' });
-        }, 3000);
-      } else if (res.status === 404) {
+  try {
+    const res = await deleteTokenFnc(params);
+    if (res.status === 200) {
+      successMessage.value =
+        'Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.';
+      setTimeout(() => {
         props.closeModal();
-        router.push({ name: 'error' });
-      } else
-        errorMessage.value =
-          'Oh no! Something went wrong when deleting your Canarytoken.';
-    } catch (err: any) {
-      console.log(err, 'err!');
-      errorMessage.value = err.toString();
-    } finally {
-      isLoading.value = false;
-    }
+        router.push({ name: 'home' });
+      }, 3000);
+    } else if (res.status === 404) {
+      props.closeModal();
+      router.push({ name: 'error' });
+    } else
+      errorMessage.value =
+        'Oh no! Something went wrong when deleting your Canarytoken.';
+  } catch (err: any) {
+    console.log(err, 'err!');
+    errorMessage.value = err.toString();
+  } finally {
+    isLoading.value = false;
   }
 };
+
+function handleTriggerDeleteTokenCustomModal() {
+  triggerDeleteTokenCustomModal.value = true;
+}
+
+function handleTokenDeleted() {
+  showDoneButton.value = true;
+}
+
+function handleRedirectToHome() {
+  props.closeModal();
+  router.push({ name: 'home' });
+}
 </script>
