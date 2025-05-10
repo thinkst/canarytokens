@@ -202,6 +202,7 @@ enum ViewTypeEnum {
 enum AnimationTypeEnum {
   LOADING = 'loading',
   DEFAULT = 'list',
+  NONE = 'none',
 }
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
@@ -303,6 +304,7 @@ function handleOpenAssetModal(
         close();
       },
       'onUpdate-asset': (newValues) => {
+        animationName.value = AnimationTypeEnum.NONE;
         handleSaveAsset(newValues, assetType, index);
       },
     },
