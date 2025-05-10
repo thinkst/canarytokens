@@ -1,9 +1,11 @@
 <template>
-    <div>
+  <div>
     <hr class="my-24" />
     <h1>Bullet List</h1>
     <div class="flex flex-col gap-16 mt-24 mb-32">
-      <BaseBulletList :list="['element number 1', 'element number 2', 'element number 3']" />
+      <BaseBulletList
+        :list="['element number 1', 'element number 2', 'element number 3']"
+      />
     </div>
   </div>
   <div>

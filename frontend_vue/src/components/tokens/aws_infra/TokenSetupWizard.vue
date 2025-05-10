@@ -106,9 +106,7 @@ const currentComponent = computed(
 );
 
 const showBackButton = computed(() => {
-  return (
-    currentStep.value > 2 || (currentStep.value === 2 && isSettingError.value)
-  );
+  return currentStep.value > 1;
 });
 
 const stepsValues = [
