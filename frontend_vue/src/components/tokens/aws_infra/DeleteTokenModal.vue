@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { deleteToken } from '@/api/awsInfra';
 import { tokenServices } from '@/utils/tokenServices';
 import getImageUrl from '@/utils/getImageUrl';
@@ -81,8 +81,6 @@ const isErrorMessage = ref('');
 const isLoading = ref(false);
 const isSuccess = ref(false);
 const codeSnippetCommands = ref<string>('');
-
-onMounted(() => {});
 
 async function deleteTokenFnc() {
   const POLL_INTERVAL = 5000;
