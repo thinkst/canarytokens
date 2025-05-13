@@ -1278,10 +1278,9 @@ def api_awsinfra_teardown(
 
 @api.post("/awsinfra/management-response", dependencies=[Depends(authorize_aws_infra)])
 def api_awsinfra_management_response(
-    authorisation: Annotated[str, Header()],
+    authorization: Annotated[str, Header()],
     request: AWSInfraManagementResponseRequest = Depends(validate_handle),
 ) -> JSONResponse:
-    print(authorisation)
     aws_infra.add_handle_response(request.handle, request.result)
     return JSONResponse({"message": "Success"})
 
