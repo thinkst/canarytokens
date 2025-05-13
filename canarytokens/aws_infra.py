@@ -95,7 +95,7 @@ def get_shared_secret():
 
     try:
         get_secret_value_response = client.get_secret_value(
-            SecretId="arn:aws:secretsmanager:eu-west-1:194722410205:secret:com.thinkst.awsic.canarytokensorg"
+            SecretId="arn:aws:secretsmanager:eu-west-1:194722410205:secret:com.thinkst.awsic.canarytokensorg_auth"
         )
     except ClientError as e:
         raise e
