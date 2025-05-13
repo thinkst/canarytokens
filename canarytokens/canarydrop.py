@@ -319,10 +319,20 @@ class Canarydrop(BaseModel):
         """
         Change one or more canarydrop fields to a new value.
         """
-        for field in edit_request:
-            if field in ["token", "auth"]:
-                continue
-            self[field[0]] = field[1]
+        if (
+            edit_request.token_type == TokenTypes.AWS_INFRA
+            and self.aws_infra_stage
+            in AWSInfraStage.ROLE_CHECKING | AWSInfraStage.INITIAL
+        ):
+            for field in edit_request:
+                if field in ["token", "auth"]:
+                    continue
+            setattr(self, field[0], field[1])
+            queries.save_canarydrop(self)
+            return True
+        else:
+            # Other token edits can go here
+            return False
 
     def get_url_components(
         self,

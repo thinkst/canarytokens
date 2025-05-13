@@ -94,7 +94,6 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
-    EditResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -1009,11 +1008,11 @@ async def api_settings_post(
 
 
 @api.post("/edit")
-async def api_edit(request: AnyTokenEditRequest) -> EditResponse:
+async def api_edit(request: AnyTokenEditRequest) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
-    if canarydrop.edit():
-        return EditResponse(message="success")
-    return EditResponse(message="failure")
+    if canarydrop.edit(request):
+        return JSONResponse({"message": "success"})
+    return JSONResponse({"message": "failure"}, status_code=400)
 
 
 @api.get(
@@ -1280,10 +1279,9 @@ def api_awsinfra_teardown(
 
 @api.post("/awsinfra/management-response", dependencies=[Depends(authorize_aws_infra)])
 def api_awsinfra_management_response(
-    authorisation: Annotated[str, Header()],
+    authorization: Annotated[str, Header()],
     request: AWSInfraManagementResponseRequest = Depends(validate_handle),
 ) -> JSONResponse:
-    print(authorisation)
     aws_infra.add_handle_response(request.handle, request.result)
     return JSONResponse({"message": "Success"})
 
