@@ -2976,8 +2976,9 @@ class AWSInfraManagementResponseRequest(BaseModel):
     result: dict
 
 
-class AWSInfraStage(enum.Enum):
-    INITIAL = "init"
-    ROLE_CHECKING = "role_checking"  # after token created
-    PLANNING = "planning"  # after check-role
-    INGESTING = "ingesting"  # final
+class AWSInfraStage(enum.Flag):
+    INITIAL = enum.auto()
+    ROLE_CHECKING = enum.auto()  # after token created
+    PLANNING = enum.auto()  # after check-role
+    INGESTING = enum.auto()  # final
+    EDITING = enum.auto()  # editing existing token
