@@ -15,13 +15,22 @@ import textwrap
 from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Annotated, Any, Optional, Union
 from urllib.parse import unquote
 
 import requests
 import segno
 import sentry_sdk
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, Security, status
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+    Header,
+)
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import APIKeyQuery
@@ -380,6 +389,7 @@ def validate_handle(request: AWSInfraManagementResponseRequest):
         raise HTTPException(
             status_code=400, detail="Operation does not match that of stored handle."
         )
+    return request
 
 
 def validate_exclusive_handle(request: Request):
@@ -391,8 +401,13 @@ def validate_exclusive_handle(request: Request):
     return request
 
 
-def authenticate_aws_infra(request):
-    pass
+def authorize_aws_infra(authorization: Annotated[str, Header()]):
+    print("authorising")
+    if not f"Bearer {aws_infra.get_shared_secret()}" == authorization:
+        print(authorization)
+        raise HTTPException(
+            status_code=401, detail="Invalid authorization token provided."
+        )
 
 
 @app.on_event("startup")
@@ -1261,10 +1276,12 @@ def api_awsinfra_teardown(
     return AWSInfaHandleResponse(handle=request.handle)
 
 
-@api.post("/awsinfra/management-response", dependencies=[Depends(validate_handle)])
+@api.post("/awsinfra/management-response", dependencies=[Depends(authorize_aws_infra)])
 def api_awsinfra_management_response(
-    request: AWSInfraManagementResponseRequest,
+    authorisation: Annotated[str, Header()],
+    request: AWSInfraManagementResponseRequest = Depends(validate_handle),
 ) -> JSONResponse:
+    print(authorisation)
     aws_infra.add_handle_response(request.handle, request.result)
     return JSONResponse({"message": "Success"})
 

@@ -7,6 +7,7 @@ import secrets
 import json
 from typing import Union
 import boto3
+from botocore.exceptions import ClientError
 import os
 
 from canarytokens import queries
@@ -72,6 +73,36 @@ def _get_s3_client():
         "s3",
         region_name="eu-west-1",
     )
+
+
+def get_shared_secret():
+
+    # secret_name = "com.thinkst.awsic.canarytokensorg_auth"
+    region_name = "eu-west-1"
+
+    if settings.DOMAINS[0] == "127.0.0.1":
+        client = _get_session().client(
+            "secretsmanager",
+            region_name="eu-west-1",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN,
+        )
+    else:
+        client = _get_session().client(
+            service_name="secretsmanager", region_name=region_name
+        )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId="arn:aws:secretsmanager:eu-west-1:194722410205:secret:com.thinkst.awsic.canarytokensorg_auth-OwsxwTs"
+        )
+    except ClientError as e:
+        raise e
+
+    shared_secret = get_secret_value_response["SecretString"]
+
+    return json.loads(shared_secret).get("auth_key")
 
 
 def generate_external_id():
