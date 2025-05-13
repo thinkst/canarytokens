@@ -77,7 +77,7 @@ def _get_s3_client():
 
 def get_shared_secret():
 
-    secret_name = "com.thinkst.awsic.canarytokensorg_auth"
+    # secret_name = "com.thinkst.awsic.canarytokensorg_auth"
     region_name = "eu-west-1"
 
     if settings.DOMAINS[0] == "127.0.0.1":
@@ -94,7 +94,9 @@ def get_shared_secret():
         )
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        get_secret_value_response = client.get_secret_value(
+            SecretId="arn:aws:secretsmanager:eu-west-1:194722410205:secret:com.thinkst.awsic.canarytokensorg"
+        )
     except ClientError as e:
         raise e
 
