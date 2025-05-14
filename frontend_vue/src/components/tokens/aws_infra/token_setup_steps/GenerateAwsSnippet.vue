@@ -109,12 +109,14 @@ import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.t
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
+import type { GenericObject } from 'vee-validate';
+import { log } from 'console';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
 );
 
-const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
+const emits = defineEmits(['updateStep', 'storeCurrentStepData', 'storePreviousStepData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
@@ -205,11 +207,17 @@ function hadndleChangeAccountValues() {
     component: ModalEditAWSInfo,
     attrs: {
       closeModal: () => close(),
-      accountNumber: aws_account_number,
-      accountRegion: aws_region,
+      saveData: (data: GenericObject) => handleSaveEditData(data),
+      initialStepData: props.initialStepData
     },
   });
   open();
+}
+
+function handleSaveEditData(data: GenericObject) {
+  emits('storePreviousStepData', data)
+  accountNumber.value = data.aws_account_number;
+  accountRegion.value = data.aws_region;
 }
 
 function handleSnippetChecked() {
