@@ -10,7 +10,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'Create New Canarytoken',
+        title: 'Canarytokens',
       },
     },
     {
@@ -22,12 +22,28 @@ const router = createRouter({
       },
     },
     {
+      path: '/generate/:tokentype',
+      name: 'generate-custom',
+      component: () => import('../views/CustomFlowView.vue'),
+      meta: {
+        title: 'Create New Canarytoken',
+      },
+    },
+    {
       path: '/manage/:auth/:token',
       name: 'manage',
       component: () =>
         import('../views/ManageView.vue').catch(() => {
           router.push({ name: 'error' });
         }),
+      meta: {
+        title: 'Manage Canarytoken',
+      },
+    },
+    {
+      path: '/token-config/:tokentype',
+      name: 'manage-custom',
+      component: () => import('../views/CustomFlowView.vue'),
       meta: {
         title: 'Manage Canarytoken',
       },
@@ -138,7 +154,19 @@ const router = createRouter({
             name: 'components',
             component: () => import('../views/ComponentPreview.vue'),
             meta: {
-              title: 'ComponentPreview',
+              title: 'Component Preview',
+            },
+          },
+        ]
+      : []),
+    ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
+      ? [
+          {
+            path: '/plan-preview',
+            name: 'plan-preview',
+            component: () => import('../views/DebugPlanPreview.vue'),
+            meta: {
+              title: 'Debug Plan Preview',
             },
           },
         ]

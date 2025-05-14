@@ -1,6 +1,7 @@
 export type BaseFormValuesType = {
   email: string;
   memo: string;
+  [key: string]: string | number | undefined;
 };
 
 export interface QRCodeTokenBackendType extends NewTokenBackendType {
@@ -115,6 +116,8 @@ export type ManageTokenBackendType = {
   cc_v2_expiry_month: string;
   cc_v2_expiry_year: string;
   cc_v2_name_on_card: string;
+  aws_region: string;
+  aws_account_id: string;
 };
 
 export type NewTokenBackendType = {

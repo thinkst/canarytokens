@@ -7,6 +7,7 @@
 
   <v-select
     :id="id"
+    v-model="selectedOption"
     class="v-select"
     :class="{ invalid: errorMessage }"
     :style="`--vs-dropdown-height: ${props.height}`"
@@ -40,7 +41,7 @@
       ></slot>
     </template>
   </v-select>
-  <div class="h-8 mt-4 ml-16">
+  <div class="h-8 mt-8 ml-16">
     <p
       v-if="errorMessage"
       class="text-xs text-red leading-[0px]"
@@ -51,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRef, onMounted } from 'vue';
+import { toRef, onMounted, ref, computed } from 'vue';
 import { useField } from 'vee-validate';
 
 export type SelectOption = { label: string; value: string };
@@ -63,14 +64,25 @@ const props = defineProps<{
   placeholder?: string;
   searchable?: boolean;
   height?: string;
+  value?: string | SelectOption;
 }>();
 
 const id = toRef(props, 'id');
 const emits = defineEmits(['selectOption']);
+const selectedOption = ref();
 
-const { errorMessage, handleChange, handleBlur } = useField(id);
+const initialValueFormatted = computed(() => {
+  if (props.value && typeof props.value === 'object') {
+    return props.value.value;
+  }
+  return '';
+});
 
-onMounted(() => {
+const { errorMessage, handleChange, handleBlur } = useField(id, undefined, {
+  initialValue: initialValueFormatted,
+});
+
+onMounted(async () => {
   // When selecting the v-select, focus is set on the inner search input
   // This function toggle the 'focus-visible' class on the parent wrapper
   const innerEl = document.querySelector('.vs__search');
@@ -80,6 +92,10 @@ onMounted(() => {
   function setParentFocus() {
     const parentEl = document.querySelector('.vs__dropdown-toggle');
     parentEl?.classList.toggle('focus-visible');
+  }
+
+  if (props.value) {
+    selectedOption.value = props.value;
   }
 });
 
@@ -93,11 +109,6 @@ function handleSelectOption(value: string | SelectOption) {
 </script>
 
 <style lang="scss">
-.focus-visible {
-  outline: 2px solid;
-  outline-color: hsl(191, 96%, 36%);
-}
-
 .v-select .vs__search::placeholder {
   @apply text-grey-400;
 }
@@ -120,6 +131,9 @@ function handleSelectOption(value: string | SelectOption) {
 
 .v-select .vs__dropdown-option {
   @apply text-grey-500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .v-select .vs__dropdown-option:first-child {
@@ -138,7 +152,18 @@ function handleSelectOption(value: string | SelectOption) {
   @apply border border-red;
 }
 
+.vs__selected-options {
+  overflow: hidden;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
 .vs__selected {
   @apply m-0;
+}
+
+.focus-visible {
+  outline: 2px solid;
+  outline-color: hsl(191, 96%, 36%);
 }
 </style>
