@@ -138,11 +138,11 @@ const assetName = computed(() => {
   return props.assetData[nameKey as keyof AssetDataType];
 });
 
-const assetDataDisplay = computed(() => {
+const assetDataDisplay = computed<any[][]>((): any[][] => {
   const nameKey =
     ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
 
-  return Object.entries(props.assetData)
+  const assets = Object.entries(props.assetData)
     .map(([key, value]) => {
       if (key.includes(nameKey)) return null;
       // For Edit mode
@@ -151,6 +151,7 @@ const assetDataDisplay = computed(() => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
+    return assets as any[][];
 });
 
 const assetLabel = computed(() => {

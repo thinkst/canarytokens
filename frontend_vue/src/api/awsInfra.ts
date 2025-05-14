@@ -97,3 +97,17 @@ export function deleteToken({
   };
   return axios.post(url, { ...params }).then((response) => response);
 }
+
+export function editAccountInfo({
+  canarytoken,
+  auth_token,
+  handle,
+}: AWSInfraRequestPayload) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/edit';
+  const params = {
+    canarytoken,
+    auth_token,
+    handle,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
+}
