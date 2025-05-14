@@ -64,10 +64,11 @@ import * as Yup from 'yup';
 import { Form } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import { AWS_REGIONS } from '@/components/tokens/aws_infra/constants.ts';
+import { editAccountInfo } from '@/api/awsInfra';
+import type { TokenDataType } from '@/utils/dataService';
 
 const props = defineProps<{
-  accountNumber: string;
-  accountRegion: string;
+  initialStepData: TokenDataType;
   closeModal: () => void;
 }>();
 
@@ -91,17 +92,28 @@ const schema = Yup.object().shape({
 
 onMounted(() => {
   selectedRegion.value = AWS_REGIONS.filter((region) => {
-    return region.value === props.accountRegion;
+    return region.value === props.initialStepData.aws_region;
   });
-  selectedAWSaccount.value = props.accountNumber;
+  selectedAWSaccount.value = props.initialStepData.aws_account_number;
 });
 
-function onSubmit(values: GenericObject) {
+async function onSubmit(values: GenericObject) {
   isLoading.value = true;
   console.log('values', values);
   // ...here goes the API call to manage endpoint...
-  isError.value = true;
-  isErrorMessage.value = 'Oh no, this endpoint is not available yet!';
+  const res = await editAccountInfo(
+    props.initialStepData.token,
+    props.initialStepData.auth_token,
+    selectedAWSaccount.value,
+    selectedRegion.value[0].value,
+  )
+  if (res.status !== 200) {
+      isError.value = true;
+      isErrorMessage.value =
+        res.data.message ||
+        'Could not edit token!';
+    }
+  isError.value = false;
   isLoading.value = false;
 }
 </script>

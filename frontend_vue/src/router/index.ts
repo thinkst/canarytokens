@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import { ENV_MODE } from '../constants.ts';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -147,30 +146,6 @@ const router = createRouter({
           'Please try refreshing the page, or go back to the homepage and try again later.',
       },
     },
-    ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
-      ? [
-          {
-            path: '/components',
-            name: 'components',
-            component: () => import('../views/ComponentPreview.vue'),
-            meta: {
-              title: 'Component Preview',
-            },
-          },
-        ]
-      : []),
-    ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
-      ? [
-          {
-            path: '/plan-preview',
-            name: 'plan-preview',
-            component: () => import('../views/DebugPlanPreview.vue'),
-            meta: {
-              title: 'Debug Plan Preview',
-            },
-          },
-        ]
-      : []),
   ],
 });
 
