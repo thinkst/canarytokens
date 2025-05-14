@@ -94,7 +94,6 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
-    EditResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -1007,11 +1006,11 @@ async def api_settings_post(
 
 
 @api.post("/edit")
-async def api_edit(request: AnyTokenEditRequest) -> EditResponse:
+async def api_edit(request: AnyTokenEditRequest) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
-    if canarydrop.edit():
-        return EditResponse(message="success")
-    return EditResponse(message="failure")
+    if canarydrop.edit(request):
+        return JSONResponse({"message": "success"})
+    return JSONResponse({"message": "failure"}, status_code=400)
 
 
 @api.get(
