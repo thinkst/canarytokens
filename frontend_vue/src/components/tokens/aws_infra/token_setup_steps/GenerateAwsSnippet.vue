@@ -205,8 +205,7 @@ function hadndleChangeAccountValues() {
     component: ModalEditAWSInfo,
     attrs: {
       closeModal: () => close(),
-      accountNumber: aws_account_number,
-      accountRegion: aws_region,
+      initialStepData: props.initialStepData
     },
   });
   open();
