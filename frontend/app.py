@@ -1008,7 +1008,7 @@ async def api_settings_post(
 @api.post("/edit")
 async def api_edit(request: AnyTokenEditRequest) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(
-        token=request.canarytoken, auth=request.auth
+        token=request.canarytoken, auth=request.auth_token
     )
     if canarydrop.edit(request):
         return JSONResponse({"message": "success"})
