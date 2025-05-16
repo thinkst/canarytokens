@@ -41,7 +41,7 @@
         <div class="flex flex-row items-center gap-8 h-[1.5rem]">
           <div
             v-if="value"
-            alt="icon"
+            :alt="`icon-${value}`"
             :style="{
               backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
             }"
