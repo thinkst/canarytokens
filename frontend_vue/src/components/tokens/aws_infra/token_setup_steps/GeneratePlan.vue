@@ -70,7 +70,7 @@
             class="font-semibold hover:text-red"
             @click="handleRemoveAsset(null, null, 0, true)"
           >
-            Delete All
+            Delete Selected
           </button>
           <button
             type="button"
