@@ -1,0 +1,1 @@
+import{r as u}from"./index-DTxozo0h.js";function s(e){const n=u(e);async function o(){return new Promise(r=>{const t=setInterval(()=>{n.value--,n.value<=0&&(clearInterval(t),r(!0))},1e3)})}return{countdownSeconds:n,triggerCountdown:o}}export{s as u};
