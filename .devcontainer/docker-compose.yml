@@ -17,6 +17,11 @@ services:
       - /var/run/docker.sock:/var/run/docker-host.sock
       # Update this to wherever you want VS Code to mount the folder of your project
       - ..:/workspace:cached
+      # ignore directories not needed by the container
+      - /workspace/cypress-tests
+      - /workspace/.github
+      - /workspace/dist
+      - /workspace/frontend_vue/node_modules
       - $HOME/Work/.gitconfig:/workspace/.gitconfig:ro
       - uploads:/uploads/
     ports:
@@ -68,5 +73,6 @@ services:
 
 volumes:
   db-data:
-  log-volume:
+  # uncomment if to test against python 2 implementation
+  # log-volume:
   uploads:
