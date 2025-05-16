@@ -316,9 +316,9 @@ def generate_s3_bucket():
     Return a name for a S3 bucket.
     """
     # TODO: make it smarter
-    separator = random.choice(["", "-", "_"])
+    separator = random.choice(["", "-"])
     suffix = "".join(
-        [random.choice(string.ascii_letters + string.digits) for _ in range(10)]
+        [random.choice(string.ascii_lowercase + string.digits) for _ in range(10)]
     )
     return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}bucket{separator}{suffix}"
 
