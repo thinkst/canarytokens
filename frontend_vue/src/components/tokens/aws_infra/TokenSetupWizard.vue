@@ -29,6 +29,7 @@
           (data: GenericDataType) => handleStoreCurrentStepData(data)
         "
         @is-setting-error="(isError: boolean) => handleSettingError(isError)"
+        @store-previous-step-data=" (data: GenericDataType) => handleStorePreviousStepData(data)"
       />
       <template #fallblack>
         <p>Loading next step...</p>
@@ -48,6 +49,7 @@ import { defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { getTokenData } from '@/utils/dataService';
 import StepState from './StepState.vue';
+import { log } from 'console';
 
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./token_setup_steps/GenerateAwsSnippet.vue')
@@ -125,6 +127,10 @@ function handleStoreCurrentStepData(data: GenericDataType) {
   sharedData.value[currentStep.value] = data;
 }
 
+function handleStorePreviousStepData(data: GenericDataType) {
+  sharedData.value[currentStep.value - 1] = {...sharedData.value[currentStep.value - 1], ...data};
+
+}
 function handleChangeStep(index: number) {
   currentStep.value = index;
 }

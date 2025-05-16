@@ -70,6 +70,7 @@ import type { TokenDataType } from '@/utils/dataService';
 const props = defineProps<{
   initialStepData: TokenDataType;
   closeModal: () => void;
+  saveData: (data: GenericObject) => void;
 }>();
 
 const selectedRegion = ref<{ value: string; label: string }[]>([]);
@@ -90,6 +91,7 @@ const schema = Yup.object().shape({
     ),
 });
 
+
 onMounted(() => {
   selectedRegion.value = AWS_REGIONS.filter((region) => {
     return region.value === props.initialStepData.aws_region;
@@ -101,19 +103,29 @@ async function onSubmit(values: GenericObject) {
   isLoading.value = true;
   console.log('values', values);
   // ...here goes the API call to manage endpoint...
+  try {
   const res = await editAccountInfo(
     props.initialStepData.token,
     props.initialStepData.auth_token,
     selectedAWSaccount.value,
     selectedRegion.value[0].value,
+
   )
+  props.saveData(values);
+  props.closeModal();
   if (res.status !== 200) {
       isError.value = true;
       isErrorMessage.value =
         res.data.message ||
         'Could not edit token!';
     }
-  isError.value = false;
-  isLoading.value = false;
+  } catch (err: any){
+    isError.value = true;
+    isErrorMessage.value =
+        err ||
+        'Could not edit token!';
+  } finally {
+    isLoading.value = false;
+  }
 }
 </script>
