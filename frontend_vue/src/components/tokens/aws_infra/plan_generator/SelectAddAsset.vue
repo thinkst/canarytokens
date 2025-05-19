@@ -34,7 +34,6 @@
             }"
             class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full"
           >
-          {{ getImageUrl(`aws_infra_icons/${value}.svg`) }}
         </div>
           {{ label }}
         </div>
