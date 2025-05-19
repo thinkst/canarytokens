@@ -30,7 +30,7 @@
             v-if="value"
             :alt="`icon-${value}-`"
             :style="{
-              backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
+              backgroundImage: `url(\'${getImageUrl(`aws_infra_icons/${value}.svg`)}\'')`,
             }"
             class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full"
           >
