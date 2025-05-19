@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       outDir: '../dist',
+      assetsInlineLimit: 2048,
     },
     optimizeDeps: {
       include: ['@fawmi/vue-google-maps', 'fast-deep-equal'],
