@@ -41,6 +41,10 @@ async function handler(event) {
     if ('referer' in event.request.headers) {
         referer = event.request.headers.referer.value;
         if (referer.indexOf('//') >= 0) {
+            if (referer.startsWith('fbapp://')) {
+                // Global ignore any FB app schemes
+                return matching_ref_response;
+            }
             const pathArray = referer.split( '/' );
             referer_origin = pathArray[2];
         } else {
