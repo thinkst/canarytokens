@@ -1,6 +1,9 @@
 resource "random_string" "trail_name" {
-  length = 16
-  lower  = false
+  length  = 16
+  lower   = true
+  numeric = true
+  upper   = true
+  special = false
 }
 
 data "aws_partition" "current" {}
