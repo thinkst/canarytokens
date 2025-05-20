@@ -2966,7 +2966,7 @@ class AWSInfraOperationType(str, enum.Enum):
     CHECK_ROLE = "Check-Role"
     INVENTORY = "Inventory"
     SETUP_INGESTION = "Setup-Ingestion"
-    PROVISION_INGESTION_BUCKET = "Provision-Ingestion-Bucket"
+    PROVISION_INGESTION_BUS = "Provision-Ingestion-Bus"
     TEARDOWN = "Teardown"
 
 

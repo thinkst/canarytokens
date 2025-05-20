@@ -171,16 +171,18 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
     elif operation == AWSInfraOperationType.SETUP_INGESTION:
         payload["params"] = {
             "canarytoken_id": canarydrop.canarytoken.value(),
-            "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
-            "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+            "bus_name": canarydrop.aws_infra_ingestion_bus_name,
+            "region": canarydrop.aws_region,
+            "aws_account": canarydrop.aws_account_id,
             "callback_domain": settings.DOMAINS[0],
         }
 
     elif operation == AWSInfraOperationType.TEARDOWN:
         payload["params"] = {
             "canarytoken_id": canarydrop.canarytoken.value(),
-            "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
-            "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+            "bus_name": canarydrop.aws_infra_ingestion_bus_name,
+            "region": canarydrop.aws_region,
+            "aws_account": canarydrop.aws_account_id,
         }
     _get_sqs_client().send_message(
         QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
@@ -254,7 +256,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
         "s3_bucket_names": [],
         "s3_objects": [],
         "canarytoken_id": canarydrop.canarytoken.value(),
-        "cloudtrail_name": canarydrop.aws_infra_cloudtrail_name,
+        "bus_name": canarydrop.aws_infra_ingestion_bus_name,
         "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
     }
     for bucket in plan["assets"]["S3Bucket"]:
@@ -301,8 +303,8 @@ def _upload_zip(canarytoken_id, prefix, variables):
     os.remove(archive)
 
 
-def generate_cloudtrail_name():
-    return f"trail-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
+def generate_ingestion_bus_name():
+    return f"trail-events-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
 
 
 NAME_ENVS = ["prod", "staging", "dev", "testing"]
