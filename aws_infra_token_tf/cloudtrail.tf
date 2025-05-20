@@ -6,8 +6,6 @@ resource "random_string" "trail_name" {
   special = false
 }
 
-data "aws_partition" "current" {}
-
 resource "aws_s3_bucket" "trail_bucket" {
   bucket        = "trail-bucket-${random_string.trail_name.result}"
   force_destroy = true
@@ -25,11 +23,6 @@ data "aws_iam_policy_document" "trail_bucket_policy" {
 
     actions   = ["s3:GetBucketAcl"]
     resources = [aws_s3_bucket.trail_bucket.arn]
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name.result}"]
-    }
   }
 
   statement {
@@ -42,17 +35,12 @@ data "aws_iam_policy_document" "trail_bucket_policy" {
     }
 
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.trail_bucket.arn}/prefix/AWSLogs/${local.decoy_config.account_id}/*"]
+    resources = ["${aws_s3_bucket.trail_bucket.arn}/*"]
 
     condition {
       test     = "StringEquals"
       variable = "s3:x-amz-acl"
       values   = ["bucket-owner-full-control"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name.result}"]
     }
   }
 }
@@ -76,63 +64,69 @@ resource "aws_cloudtrail" "trail" {
     aws_sqs_queue.fake-sqs-queues,
   ]
 
-  # S3 bucket selector
-  advanced_event_selector {
-    name = "S3 objects"
+  dynamic "advanced_event_selector" {
+    for_each = contains(keys(local.decoy_config), "s3_bucket_names") ? [1] : []
+    content {
+      name = "S3 objects"
 
-    field_selector {
-      field  = "eventCategory"
-      equals = ["Data"]
-    }
+      field_selector {
+        field  = "eventCategory"
+        equals = ["Data"]
+      }
 
-    field_selector {
-      field  = "resources.type"
-      equals = ["AWS::S3::Object"]
-    }
+      field_selector {
+        field  = "resources.type"
+        equals = ["AWS::S3::Object"]
+      }
 
-    field_selector {
-      field       = "resources.ARN"
-      starts_with = formatlist("%s/", [for bucket in aws_s3_bucket.fake-s3-buckets : bucket.arn])
-    }
-  }
-
-  # SQS queue selector
-  advanced_event_selector {
-    name = "SQS queues"
-
-    field_selector {
-      field  = "eventCategory"
-      equals = ["Data"]
-    }
-
-    field_selector {
-      field  = "resources.type"
-      equals = ["AWS::SQS::Queue"]
-    }
-
-    field_selector {
-      field       = "resources.ARN"
-      starts_with = [for queue in aws_sqs_queue.fake-sqs-queues : queue.arn]
+      field_selector {
+        field       = "resources.ARN"
+        starts_with = formatlist("%s/", [for bucket in aws_s3_bucket.fake-s3-buckets : bucket.arn])
+      }
     }
   }
 
-  # DynamoDB table selector
-  advanced_event_selector {
-    name = "DynamoDB tables"
+  dynamic "advanced_event_selector" {
+    for_each = contains(keys(local.decoy_config), "sqs_queues") ? [1] : []
+    content {
+      name = "SQS queues"
 
-    field_selector {
-      field  = "eventCategory"
-      equals = ["Data"]
+      field_selector {
+        field  = "eventCategory"
+        equals = ["Data"]
+      }
+
+      field_selector {
+        field  = "resources.type"
+        equals = ["AWS::SQS::Queue"]
+      }
+
+      field_selector {
+        field       = "resources.ARN"
+        starts_with = [for queue in aws_sqs_queue.fake-sqs-queues : queue.arn]
+      }
     }
+  }
 
-    field_selector {
-      field  = "resources.type"
-      equals = ["AWS::DynamoDB::Table"]
-    }
+  dynamic "advanced_event_selector" {
+    for_each = contains(keys(local.decoy_config), "tables") ? [1] : []
+    content {
+      name = "DynamoDB tables"
 
-    field_selector {
-      field       = "resources.ARN"
-      starts_with = [for table in aws_dynamodb_table.fake-tables : table.arn]
+      field_selector {
+        field  = "eventCategory"
+        equals = ["Data"]
+      }
+
+      field_selector {
+        field  = "resources.type"
+        equals = ["AWS::DynamoDB::Table"]
+      }
+
+      field_selector {
+        field       = "resources.ARN"
+        starts_with = [for table in aws_dynamodb_table.fake-tables : table.arn]
+      }
     }
   }
 }
