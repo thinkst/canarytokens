@@ -2,7 +2,7 @@ resource "random_string" "trail_name" {
   length  = 16
   lower   = true
   numeric = true
-  upper   = true
+  upper   = false
   special = false
 }
 
