@@ -116,7 +116,7 @@ def _generate_handle_id():
 
 
 def get_current_ingestion_bus():
-    ssm = _get_session().client("ssm", regio_name="eu-west-1")
+    ssm = _get_session().client("ssm", region_name="eu-west-1")
     bus_arn = settings.AWS_INFRA_INGESTION_BUS
     try:
         bus_name = ssm.get_parameter(Name=bus_arn).get("Parameter", {}).get("Value")
