@@ -138,7 +138,7 @@ class FrontendSettings(BaseSettings):
     AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str]
     AWS_INFRA_INVENTORY_ROLE: Optional[str]
     AWS_INFRA_CALLBACK_DOMAIN: Optional[str] = "callback domain goes here"
-    AWS_INFRA_CLOUDTRAIL_BUCKET: Optional[str]
+    AWS_INFRA_INGESTION_BUS: Optional[str]
     AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
 
     # temporary

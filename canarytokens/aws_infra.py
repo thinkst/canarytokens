@@ -115,6 +115,14 @@ def _generate_handle_id():
     return secrets.token_hex(20)
 
 
+def get_current_ingestion_bus():
+    # TODO: get from SSM parameter
+    return (
+        settings.AWS_INFRA_INGESTION_BUS
+        or "trail-events-ingestion-bus-2a196c471ca955d2"
+    )
+
+
 def get_role_commands(canarydrop: Canarydrop):
     """
     Return the aws-cli commands needed to setup the inventory role in the customer's account
@@ -256,7 +264,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
         "s3_bucket_names": [],
         "s3_objects": [],
         "canarytoken_id": canarydrop.canarytoken.value(),
-        "bus_name": canarydrop.aws_infra_ingestion_bus_name,
+        "cloudtrail_bus_name": canarydrop.aws_infra_ingestion_bus_name,
         "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
     }
     for bucket in plan["assets"]["S3Bucket"]:
@@ -301,10 +309,6 @@ def _upload_zip(canarytoken_id, prefix, variables):
     )
     shutil.rmtree(new_dir)
     os.remove(archive)
-
-
-def generate_ingestion_bus_name():
-    return f"trail-events-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
 
 
 NAME_ENVS = ["prod", "staging", "dev", "testing"]

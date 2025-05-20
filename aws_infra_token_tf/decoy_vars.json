@@ -62,6 +62,7 @@
     "canarytoken_id": "",
     "cloudtrail_name": "",
     "cloudtrail_destination_bucket": "",
+    "bus_name": "",
     "region": "",
     "account_id": ""
 }
