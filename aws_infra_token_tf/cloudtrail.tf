@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "trail_bucket_policy" {
     }
 
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.trail_bucket.arn}/prefix/AWSLogs/${local.decoy_condif.account_id}/*"]
+    resources = ["${aws_s3_bucket.trail_bucket.arn}/prefix/AWSLogs/${local.decoy_config.account_id}/*"]
 
     condition {
       test     = "StringEquals"
