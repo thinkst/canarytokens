@@ -116,11 +116,17 @@ def _generate_handle_id():
 
 
 def get_current_ingestion_bus():
-    # TODO: get from SSM parameter
-    return (
-        settings.AWS_INFRA_INGESTION_BUS
-        or "trail-events-ingestion-bus-2a196c471ca955d2"
-    )
+    ssm = _get_session().client("ssm", regio_name="eu-west-1")
+    bus_arn = settings.AWS_INFRA_INGESTION_BUS
+    try:
+        bus_name = ssm.get_parameter(Name=bus_arn).get("Parameter", {}).get("Value")
+        if bus_name is None:
+            raise RuntimeError(
+                f"Could not get the current ingestion bus name stored in: {bus_arn}"
+            )
+        return bus_name
+    except ClientError as e:
+        raise e
 
 
 def get_role_commands(canarydrop: Canarydrop):
