@@ -6,7 +6,7 @@ resource "random_string" "trail_name" {
 data "aws_partition" "current" {}
 
 resource "aws_s3_bucket" "trail_bucket" {
-  bucket        = "trail-bucket-${random_string.trail_name}"
+  bucket        = "trail-bucket-${random_string.trail_name.result}"
   force_destroy = true
 }
 
@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "trail_bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name}"]
+      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name.result}"]
     }
   }
 
@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "trail_bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name}"]
+      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name.result}"]
     }
   }
 }
@@ -60,7 +60,7 @@ resource "aws_s3_bucket_policy" "trail_bucket_policy" {
 }
 
 resource "aws_cloudtrail" "trail" {
-  name           = "trail-${random_string.trail_name}"
+  name           = "trail-${random_string.trail_name.result}"
   s3_bucket_name = aws_s3_bucket.trail_bucket.id
   s3_key_prefix  = local.decoy_config.canarytoken_id
 
