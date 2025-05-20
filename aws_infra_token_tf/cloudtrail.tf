@@ -1,10 +1,72 @@
+resource "random_string" "trail_name" {
+  length = 16
+  lower  = false
+}
+
+data "aws_partition" "current" {}
+
+resource "aws_s3_bucket" "trail_bucket" {
+  bucket        = "trail-bucket-${random_string.trail_name}"
+  force_destroy = true
+}
+
+data "aws_iam_policy_document" "trail_bucket_policy" {
+  statement {
+    sid    = "AWSCloudTrailAclCheck"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:GetBucketAcl"]
+    resources = [aws_s3_bucket.trail_bucket.arn]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name}"]
+    }
+  }
+
+  statement {
+    sid    = "AWSCloudTrailWrite"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.trail_bucket.arn}/prefix/AWSLogs/${local.decoy_condif.account_id}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${local.decoy_config.region}:${local.decoy_config.account_id}:trail/${random_string.trail_name}"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "trail_bucket_policy" {
+  bucket = aws_s3_bucket.trail_bucket.id
+  policy = data.aws_iam_policy_document.trail_bucket_policy.json
+}
+
 resource "aws_cloudtrail" "trail" {
-  name           = local.decoy_config.cloudtrail_name
-  s3_bucket_name = local.decoy_config.cloudtrail_destination_bucket
+  name           = "trail-${random_string.trail_name}"
+  s3_bucket_name = aws_s3_bucket.trail_bucket.id
   s3_key_prefix  = local.decoy_config.canarytoken_id
 
   depends_on = [
     null_resource.account_id_validator,
+    aws_s3_bucket.trail_bucket,
     aws_dynamodb_table.fake-tables,
     aws_s3_bucket.fake-s3-buckets,
     aws_s3_object.fake-s3-objects,

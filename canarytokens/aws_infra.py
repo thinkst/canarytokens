@@ -270,7 +270,9 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
         "s3_bucket_names": [],
         "s3_objects": [],
         "canarytoken_id": canarydrop.canarytoken.value(),
-        "cloudtrail_bus_name": canarydrop.aws_infra_ingestion_bus_name,
+        "target_bus_name": canarydrop.aws_infra_ingestion_bus_name,
+        "account_id": canarydrop.aws_account_id,
+        "region": canarydrop.aws_region
         # "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
     }
     for bucket in plan["assets"]["S3Bucket"]:
