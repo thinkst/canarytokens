@@ -66,6 +66,7 @@ resource "random_string" "trail_name" {
 resource "aws_s3_bucket" "trail_bucket" {
   bucket        = "trail-bucket-${random_string.trail_name.result}"
   force_destroy = true
+  depends_on    = [null_resource.account_id_validator, null_resource.region_validator]
 }
 
 data "aws_iam_policy_document" "trail_bucket_policy" {
@@ -114,6 +115,7 @@ resource "aws_cloudtrail" "trail" {
 
   depends_on = [
     null_resource.account_id_validator,
+    null_resource.region_validator,
     aws_s3_bucket.trail_bucket,
     aws_dynamodb_table.fake-tables,
     aws_s3_bucket.fake-s3-buckets,
@@ -193,6 +195,7 @@ resource "aws_cloudwatch_event_rule" "decoy_events" {
   description   = "Match events for trail analysis"
   event_pattern = jsonencode(local.event_pattern)
   state         = "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS"
+  depends_on    = [null_resource.account_id_validator, null_resource.region_validator]
 }
 
 data "aws_iam_policy_document" "eventbridge_assume_role" {
