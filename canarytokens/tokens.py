@@ -5,7 +5,7 @@ import binascii
 import json
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
 
@@ -833,12 +833,14 @@ class Canarytoken(object):
 
     @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
-
         body = request.get("cloudtrail_events")
+        hit = body.pop()
         hit_info = {
-            "time_of_hit": datetime.utcnow().strftime("%s.%f"),
+            "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
             "input_channel": INPUT_CHANNEL_HTTP,
-            "additional_data": {"details": body},
+            "src_ip": hit["event"]["detail"]["sourceIPAddress"],
+            "user_agent": hit["event"]["detail"]["userAgent"],
+            "src_data": {k: [v] for k, v in hit["event"]["detail"].items()},
         }
         return AWSInfraTokenHit(**hit_info)
 
