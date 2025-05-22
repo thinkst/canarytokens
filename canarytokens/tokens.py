@@ -834,9 +834,7 @@ class Canarytoken(object):
 
     @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
-        body = request.get("cloudtrail_events")
-        hit = body.pop()
-        event = hit["event"]
+        event = request.get("cloudtrail_event")
         event_detail = event["detail"]
         user = event_detail["userIdentity"]
         resource_name_keys = [
