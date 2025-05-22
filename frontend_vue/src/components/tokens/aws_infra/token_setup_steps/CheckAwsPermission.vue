@@ -115,8 +115,7 @@ onMounted(async () => {
   accountRegion.value = aws_region;
 });
 
-const codeSnippetCheckID = `aws iam get-role --role-name Canarytokens-Inventory-ReadOnly-Role --query
-"Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.\"sts:ExternalId\"" --output text`;
+const codeSnippetCheckID = `aws iam get-role --role-name Canarytokens-Inventory-ReadOnly-Role --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`;
 
 const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
