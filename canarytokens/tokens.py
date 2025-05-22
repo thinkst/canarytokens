@@ -25,6 +25,7 @@ from canarytokens.constants import (
 )
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
+    AdditionalInfo,
     AnyTokenHit,
     AWSInfraTokenHit,
     AWSKeyTokenHit,
@@ -835,13 +836,60 @@ class Canarytoken(object):
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
         body = request.get("cloudtrail_events")
         hit = body.pop()
+        event = hit["event"]
+        event_detail = event["detail"]
+        user = event_detail["userIdentity"]
+        resource_name_keys = [
+            "bucketName",
+            "tableName",
+            "queueName",
+            "queueUrl",
+            "secretId",
+            "name",
+        ]
         hit_info = {
             "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
             "input_channel": INPUT_CHANNEL_HTTP,
-            "src_ip": hit["event"]["detail"]["sourceIPAddress"],
-            "user_agent": hit["event"]["detail"]["userAgent"],
-            "src_data": {k: [v] for k, v in hit["event"]["detail"].items()},
+            "src_ip": event_detail["sourceIPAddress"],
+            "user_agent": event_detail["userAgent"],
+            "src_data": {
+                "Event Name": [
+                    f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})'
+                ],
+                "Event Time": [event_detail["eventTime"]],
+                "Decoy Resource": [
+                    next(
+                        (
+                            v
+                            for k, v in event_detail["requestParameters"].items()
+                            if k in resource_name_keys
+                        ),
+                        "",
+                    )
+                ],
+                "Request Parameters": [
+                    ", ".join(
+                        [
+                            f"{k}: {v}"
+                            for k, v in event_detail["requestParameters"].items()
+                        ]
+                    )
+                ],
+                "Account & Region": [f'{event["account"]}, {event["region"]}'],
+                "User Identity": [f'{user["arn"]} (type: {user["type"]})'],
+            },
+            "additional_info": AdditionalInfo(
+                **{
+                    "Useful Metadata": {
+                        "Read-Only Event?": [event_detail["readOnly"]],
+                        "Event Category": [event_detail["eventCategory"]],
+                        "Classification": [event["detail-type"]],
+                        "Event ID": [event_detail["eventID"]],
+                    }
+                }
+            ),
         }
+
         return AWSInfraTokenHit(**hit_info)
 
     @staticmethod
