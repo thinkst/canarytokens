@@ -874,7 +874,7 @@ class Canarytoken(object):
                 ],
                 "Account & Region": [f'{event["account"]}, {event["region"]}'],
                 "User Identity": [f'{user["arn"]} (type: {user["type"]})'],
-                "UserAgent": event_detail["userAgent"],
+                "UserAgent": [event_detail["userAgent"]],
             },
             "additional_info": AdditionalInfo(
                 **{
