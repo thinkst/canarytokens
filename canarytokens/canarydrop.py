@@ -139,7 +139,7 @@ class Canarydrop(BaseModel):
     aws_saved_plan: Optional[str]
     aws_tf_module_prefix: Optional[str]
     aws_infra_ingesting: Optional[bool]
-    aws_infra_cloudtrail_name: Optional[str]
+    aws_infra_ingestion_bus_name: Optional[str]
     aws_infra_stage: AWSInfraStage = AWSInfraStage.INITIAL
 
     # Azure key specific stuff

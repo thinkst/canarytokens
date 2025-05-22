@@ -2418,7 +2418,7 @@ def _(
         [random.choice(string.ascii_letters + string.digits) for _ in range(27)]
     )
     canarydrop.aws_infra_ingesting = False
-    canarydrop.aws_infra_cloudtrail_name = aws_infra.generate_cloudtrail_name()
+    canarydrop.aws_infra_ingestion_bus_name = aws_infra.get_current_ingestion_bus()
 
     save_canarydrop(canarydrop)
 
