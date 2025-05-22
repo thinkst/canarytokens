@@ -881,10 +881,10 @@ class Canarytoken(object):
             "additional_info": AdditionalInfo(
                 **{
                     "Useful Metadata": {
-                        "Read-Only Event?": [event_detail["readOnly"]],
-                        "Event Category": [event_detail["eventCategory"]],
-                        "Classification": [event["detail-type"]],
-                        "Event ID": [event_detail["eventID"]],
+                        "ReadOnly Event": event_detail["readOnly"],
+                        "Event Category": event_detail["eventCategory"],
+                        "Classification": event["detail-type"],
+                        "Event ID": event_detail["eventID"],
                     }
                 }
             ),

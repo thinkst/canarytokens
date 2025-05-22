@@ -1993,7 +1993,7 @@ class IdPAppTokenHit(TokenHit):
 
 class AWSInfraTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
-    additional_data: Any
+    additional_info: Any
 
 
 AnyTokenHit = Annotated[
