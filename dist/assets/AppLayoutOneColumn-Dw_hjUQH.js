@@ -1,0 +1,1 @@
+import{H as o,e as s,h as t,J as c}from"./index-CVx3_slE.js";const n={},r={class:"flex flex-col justify-center"};function a(e,l){return s(),t("div",r,[c(e.$slots,"default")])}const _=o(n,[["render",a]]);export{_ as A};
