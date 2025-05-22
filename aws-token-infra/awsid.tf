@@ -194,8 +194,8 @@ resource "aws_lambda_permission" "create_user_api_tokens" {
 }
 
 
-output "base_url" {
-  value = aws_api_gateway_deployment.create_user_api_tokens.invoke_url
+output "aws_api_key_creation_url" {
+  value = "https://${aws_api_gateway_rest_api.create_user_api_tokens.id}.execute-api.us-east-2.amazonaws.com/${aws_api_gateway_deployment.create_user_api_tokens.stage_name}/${aws_api_gateway_resource.create_user_api_tokens.path_part}"
 }
 
 
