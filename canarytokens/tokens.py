@@ -849,7 +849,6 @@ class Canarytoken(object):
             "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
             "input_channel": INPUT_CHANNEL_HTTP,
             "src_ip": event_detail["sourceIPAddress"],
-            "user_agent": event_detail["userAgent"],
             "src_data": {
                 "Event Name": [
                     f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})'
@@ -875,6 +874,7 @@ class Canarytoken(object):
                 ],
                 "Account & Region": [f'{event["account"]}, {event["region"]}'],
                 "User Identity": [f'{user["arn"]} (type: {user["type"]})'],
+                "UserAgent": event_detail["userAgent"],
             },
             "additional_info": AdditionalInfo(
                 **{
