@@ -1993,7 +1993,7 @@ class IdPAppTokenHit(TokenHit):
 
 class AWSInfraTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
-    additional_data: Any
+    additional_info: Any
 
 
 AnyTokenHit = Annotated[
@@ -2966,7 +2966,7 @@ class AWSInfraOperationType(str, enum.Enum):
     CHECK_ROLE = "Check-Role"
     INVENTORY = "Inventory"
     SETUP_INGESTION = "Setup-Ingestion"
-    PROVISION_INGESTION_BUCKET = "Provision-Ingestion-Bucket"
+    PROVISION_INGESTION_BUS = "Provision-Ingestion-Bus"
     TEARDOWN = "Teardown"
 
 

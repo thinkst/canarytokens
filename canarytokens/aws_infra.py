@@ -18,6 +18,7 @@ from canarytokens.tokens import Canarytoken
 
 settings = FrontendSettings()
 
+AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
 ROLE_SETUP_COMMANDS_TEMPLATE = """aws iam create-role --role-name $role_name --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::$aws_account:assumed-role/InventoryManagerRole/$external_id"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "$external_id"}}}]}\'
@@ -95,7 +96,7 @@ def get_shared_secret():
 
     try:
         get_secret_value_response = client.get_secret_value(
-            SecretId="arn:aws:secretsmanager:eu-west-1:194722410205:secret:com.thinkst.awsic.canarytokensorg_auth"
+            SecretId=f"arn:aws:secretsmanager:eu-west-1:{AWS_INFRA_AWS_ACCOUNT}:secret:com.thinkst.awsic.canarytokensorg_auth"
         )
     except ClientError as e:
         raise e
@@ -115,13 +116,29 @@ def _generate_handle_id():
     return secrets.token_hex(20)
 
 
+def get_current_ingestion_bus():
+    ssm = _get_session().client("ssm", region_name="eu-west-1")
+    bus_ssm_parameter = settings.AWS_INFRA_INGESTION_BUS
+    try:
+        bus_name = (
+            ssm.get_parameter(Name=bus_ssm_parameter).get("Parameter", {}).get("Value")
+        )
+        if bus_name is None:
+            raise RuntimeError(
+                f"Could not get the current ingestion bus name stored in: {bus_ssm_parameter}"
+            )
+        return bus_name
+    except ClientError as e:
+        raise e
+
+
 def get_role_commands(canarydrop: Canarydrop):
     """
     Return the aws-cli commands needed to setup the inventory role in the customer's account
     """
     return {
         "role_name": settings.AWS_INFRA_INVENTORY_ROLE,
-        "aws_account": settings.AWS_INFRA_AWS_ACCOUNT,
+        "aws_account": AWS_INFRA_AWS_ACCOUNT,
         "external_id": canarydrop.aws_customer_iam_access_external_id,
         "customer_aws_account": canarydrop.aws_account_id,
     }
@@ -171,16 +188,18 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
     elif operation == AWSInfraOperationType.SETUP_INGESTION:
         payload["params"] = {
             "canarytoken_id": canarydrop.canarytoken.value(),
-            "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
-            "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+            "bus_name": canarydrop.aws_infra_ingestion_bus_name,
+            "region": canarydrop.aws_region,
+            "aws_account": canarydrop.aws_account_id,
             "callback_domain": settings.DOMAINS[0],
         }
 
     elif operation == AWSInfraOperationType.TEARDOWN:
         payload["params"] = {
             "canarytoken_id": canarydrop.canarytoken.value(),
-            "customer_cloudtrail_arn": f"arn:aws:cloudtrail:{canarydrop.aws_region}:{canarydrop.aws_account_id}:trail/{canarydrop.aws_infra_cloudtrail_name}",
-            "alert_ingestion_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+            "bus_name": canarydrop.aws_infra_ingestion_bus_name,
+            "region": canarydrop.aws_region,
+            "aws_account": canarydrop.aws_account_id,
         }
     _get_sqs_client().send_message(
         QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
@@ -246,6 +265,10 @@ def save_plan(canarydrop: Canarydrop, plan: str):
     )
 
 
+def _get_ingestion_bus_arn(bus_name: str):
+    return f"arn:aws:events:eu-west-1:{AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
+
+
 def generate_tf_variables(canarydrop: Canarydrop, plan):
     """
     Generate variables to be used in the terraform template.
@@ -254,8 +277,12 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
         "s3_bucket_names": [],
         "s3_objects": [],
         "canarytoken_id": canarydrop.canarytoken.value(),
-        "cloudtrail_name": canarydrop.aws_infra_cloudtrail_name,
-        "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
+        "target_bus_arn": _get_ingestion_bus_arn(
+            canarydrop.aws_infra_ingestion_bus_name
+        ),
+        "account_id": canarydrop.aws_account_id,
+        "region": canarydrop.aws_region
+        # "cloudtrail_destination_bucket": settings.AWS_INFRA_CLOUDTRAIL_BUCKET,
     }
     for bucket in plan["assets"]["S3Bucket"]:
         tf_variables["s3_bucket_names"].append(bucket["bucket_name"])
@@ -299,10 +326,6 @@ def _upload_zip(canarytoken_id, prefix, variables):
     )
     shutil.rmtree(new_dir)
     os.remove(archive)
-
-
-def generate_cloudtrail_name():
-    return f"trail-{''.join([secrets.choice(string.ascii_letters + string.digits) for _ in range(21)])}"
 
 
 NAME_ENVS = ["prod", "staging", "dev", "testing"]
