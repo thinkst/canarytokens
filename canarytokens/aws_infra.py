@@ -19,6 +19,8 @@ from canarytokens.tokens import Canarytoken
 settings = FrontendSettings()
 
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
+AWS_INFRA_SHARED_SECRET = settings.AWS_INFRA_SHARED_SECRET
+AWS_INFRA_REGION = "eu-west-1"
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
 ROLE_SETUP_COMMANDS_TEMPLATE = """aws iam create-role --role-name $role_name --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::$aws_account:assumed-role/InventoryManagerRole/$external_id"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "$external_id"}}}]}\'
@@ -45,65 +47,44 @@ def _get_session():
     return boto3.Session()
 
 
-def _get_sqs_client():
-
+def _get_client(service: str, region_name: str = AWS_INFRA_REGION):
     if settings.DOMAINS[0] == "127.0.0.1":
         return _get_session().client(
-            "sqs",
-            region_name="eu-west-1",
+            service,
+            region_name=region_name,
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             aws_session_token=settings.AWS_SESSION_TOKEN,
         )
+
     return _get_session().client(
-        "sqs",
-        region_name="eu-west-1",
+        service,
+        region_name=region_name,
     )
 
 
-def _get_s3_client():
-    if settings.DOMAINS[0] == "127.0.0.1":
-        return _get_session().resource(
-            "s3",
-            region_name="eu-west-1",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            aws_session_token=settings.AWS_SESSION_TOKEN,
-        )
-    return _get_session().resource(
-        "s3",
-        region_name="eu-west-1",
-    )
+s3 = _get_client("s3")
+sqs = _get_client("sqs")
+ssm = _get_client("ssm")
 
 
 def get_shared_secret():
+    global AWS_INFRA_SHARED_SECRET
+    if AWS_INFRA_SHARED_SECRET:
+        return AWS_INFRA_SHARED_SECRET
 
-    # secret_name = "com.thinkst.awsic.canarytokensorg_auth"
-    region_name = "eu-west-1"
-
-    if settings.DOMAINS[0] == "127.0.0.1":
-        client = _get_session().client(
-            "secretsmanager",
-            region_name="eu-west-1",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            aws_session_token=settings.AWS_SESSION_TOKEN,
-        )
-    else:
-        client = _get_session().client(
-            service_name="secretsmanager", region_name=region_name
-        )
-
+    client = _get_client("secretsmanager")
     try:
         get_secret_value_response = client.get_secret_value(
-            SecretId=f"arn:aws:secretsmanager:eu-west-1:{AWS_INFRA_AWS_ACCOUNT}:secret:com.thinkst.awsic.canarytokensorg_auth"
+            SecretId=settings.AWS_INFRA_SHARED_SECRET
         )
     except ClientError as e:
         raise e
 
     shared_secret = get_secret_value_response["SecretString"]
+    AWS_INFRA_SHARED_SECRET = json.loads(shared_secret).get("auth_key")
 
-    return json.loads(shared_secret).get("auth_key")
+    return AWS_INFRA_SHARED_SECRET
 
 
 def generate_external_id():
@@ -117,7 +98,6 @@ def _generate_handle_id():
 
 
 def get_current_ingestion_bus():
-    ssm = _get_session().client("ssm", region_name="eu-west-1")
     bus_ssm_parameter = settings.AWS_INFRA_INGESTION_BUS
     try:
         bus_name = (
@@ -201,9 +181,7 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
             "region": canarydrop.aws_region,
             "aws_account": canarydrop.aws_account_id,
         }
-    _get_sqs_client().send_message(
-        QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
-    )
+    sqs.send_message(QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload))
 
 
 # TODO: add handle exist for token validation
@@ -320,7 +298,7 @@ def _upload_zip(canarytoken_id, prefix, variables):
     if os.path.exists(archive):
         os.remove(archive)
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
-    s3 = _get_s3_client()
+
     s3.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
         archive, f"{prefix}/{canarytoken_id}/tf.zip"
     )
