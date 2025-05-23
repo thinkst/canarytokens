@@ -7,7 +7,7 @@ import os
 import re
 import socket
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from distutils.util import strtobool
 from fastapi.responses import JSONResponse
 from functools import cached_property
@@ -1991,9 +1991,24 @@ class IdPAppTokenHit(TokenHit):
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
+class AwsInfraAdditionalInfo(BaseModel):
+    event: Optional[dict[str, Any]]
+    decoy_resource: Optional[dict[str, Any]]
+    identity: Optional[dict[str, Any]]
+    metadata: Optional[dict[str, Any]]
+
+    def serialize_for_v2(self) -> dict:
+        return self.dict()
+
+
 class AWSInfraTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
-    additional_info: Any
+    input_channel: str = "HTTP"
+    time_of_hit: float = datetime.now(timezone.utc).strftime("%s.%f")
+    additional_info: Optional[AwsInfraAdditionalInfo]
+
+    def serialize_for_v2(self) -> dict:
+        return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
 
 
 AnyTokenHit = Annotated[
@@ -2071,6 +2086,7 @@ class TokenHistory(GenericModel, Generic[TH]):
         for hit in self.hits:
             if (
                 isinstance(hit, AWSKeyTokenHit)
+                or isinstance(hit, AWSInfraTokenHit)
                 or isinstance(hit, SlackAPITokenHit)
                 or isinstance(hit, CreditCardV2TokenHit)
             ):

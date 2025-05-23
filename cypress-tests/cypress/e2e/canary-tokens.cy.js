@@ -40,10 +40,10 @@ describe('Token Tests', () => {
     it(`should execute the test for ${item.name}`, () => {
       const domain = Cypress.env('TEST_DOMAIN')
       cy.visit(`https://${domain}/`)
- 
+
       cy.contains(item.name).click()
 
-      cy.get('#email').type('sara@thinkst.com')
+      cy.get('#email').type('test_user@thinkst.com')
       cy.get('#memo').type('test')
 
       // Execute additional fields commands if they exist

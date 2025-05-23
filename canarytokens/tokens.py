@@ -5,7 +5,7 @@ import binascii
 import json
 import random
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
 
@@ -25,8 +25,8 @@ from canarytokens.constants import (
 )
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
-    AdditionalInfo,
     AnyTokenHit,
+    AwsInfraAdditionalInfo,
     AWSInfraTokenHit,
     AWSKeyTokenHit,
     AWSKeyTokenExposedHit,
@@ -845,46 +845,47 @@ class Canarytoken(object):
             "secretId",
             "name",
         ]
+        src_ip = event_detail["sourceIPAddress"]
+        time_of_hit = datetime.strptime(event_detail["eventTime"], "%Y-%m-%dT%H:%M:%SZ")
+        if "arn" in user:
+            identity = f'{user.get("arn")} (type: {user["type"]})'
+        else:
+            identity = ", ".join(f"{k}: {v}" for k, v in user.items())
         hit_info = {
-            "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
-            "input_channel": INPUT_CHANNEL_HTTP,
-            "src_ip": event_detail["sourceIPAddress"],
-            "src_data": {
-                "Event Name": [
-                    f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})'
-                ],
-                "Event Time": [event_detail["eventTime"]],
-                "Decoy Resource": [
-                    next(
+            "geo_info": queries.get_geoinfo(ip=src_ip),
+            "is_tor_relay": queries.is_tor_relay(src_ip),
+            "src_ip": src_ip,
+            "user_agent": event_detail["userAgent"],
+            "additional_info": AwsInfraAdditionalInfo(
+                event={
+                    "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
+                    "Event Time": f"{time_of_hit.isoformat()} UTC+0:00",
+                    "Account & Region": f'{event["account"]}, {event["region"]}',
+                },
+                decoy_resource={
+                    "Asset Name": next(
                         (
                             v
                             for k, v in event_detail["requestParameters"].items()
                             if k in resource_name_keys
                         ),
                         "",
-                    )
-                ],
-                "Request Parameters": [
-                    ", ".join(
-                        [
-                            f"{k}: {v}"
-                            for k, v in event_detail["requestParameters"].items()
-                        ]
-                    )
-                ],
-                "Account & Region": [f'{event["account"]}, {event["region"]}'],
-                "User Identity": [f'{user["arn"]} (type: {user["type"]})'],
-                "UserAgent": [event_detail["userAgent"]],
-            },
-            "additional_info": AdditionalInfo(
-                **{
-                    "Useful Metadata": {
-                        "ReadOnly Event": event_detail["readOnly"],
-                        "Event Category": event_detail["eventCategory"],
-                        "Classification": event["detail-type"],
-                        "Event ID": event_detail["eventID"],
-                    }
-                }
+                    ),
+                    "Request Parameters": ", ".join(
+                        f"{k}: {v}"
+                        for k, v in event_detail["requestParameters"].items()
+                    ),
+                },
+                identity={
+                    "User Identity": identity,
+                    "UserAgent": event_detail["userAgent"],
+                },
+                metadata={
+                    "Event ID": event_detail["eventID"],
+                    "ReadOnly Event": event_detail["readOnly"],
+                    "Event Category": event_detail["eventCategory"],
+                    "Classification": event["detail-type"],
+                },
             ),
         }
 
