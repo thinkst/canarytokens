@@ -7,7 +7,7 @@ import os
 import re
 import socket
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from distutils.util import strtobool
 from fastapi.responses import JSONResponse
 from functools import cached_property
@@ -2004,7 +2004,6 @@ class AwsInfraAdditionalInfo(BaseModel):
 class AWSInfraTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
     input_channel: str = "HTTP"
-    time_of_hit: float = float(datetime.now(timezone.utc).strftime("%s.%f"))
     additional_info: Optional[AwsInfraAdditionalInfo]
 
     def serialize_for_v2(self) -> dict:
