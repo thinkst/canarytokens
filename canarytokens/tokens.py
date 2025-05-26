@@ -5,7 +5,7 @@ import binascii
 import json
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
 
@@ -855,6 +855,7 @@ class Canarytoken(object):
             "geo_info": queries.get_geoinfo(ip=src_ip),
             "is_tor_relay": queries.is_tor_relay(src_ip),
             "src_ip": src_ip,
+            "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
             "user_agent": event_detail["userAgent"],
             "additional_info": AwsInfraAdditionalInfo(
                 event={
