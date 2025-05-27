@@ -17,6 +17,7 @@ from functools import singledispatch
 from pathlib import Path
 from typing import Annotated, Any, Optional, Union
 from urllib.parse import unquote
+import logging
 
 import requests
 import segno
@@ -216,6 +217,8 @@ from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
 from canarytokens import aws_infra
 
+log = logging.getLogger(__name__)
+
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
 protocol = "https" if switchboard_settings.FORCE_HTTPS else "http"
@@ -401,9 +404,9 @@ def validate_exclusive_handle(request: Request):
 
 
 def authorize_aws_infra(authorization: Annotated[str, Header()]):
-    print("authorising")
-    if not f"Bearer {aws_infra.get_shared_secret()}" == authorization:
-        print(authorization)
+    bearer_str = f"Bearer {aws_infra.get_shared_secret()}"
+    if bearer_str != authorization:
+        log.warning(f"{bearer_str} != {authorization}")
         raise HTTPException(
             status_code=401, detail="Invalid authorization token provided."
         )
