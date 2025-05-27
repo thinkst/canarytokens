@@ -63,7 +63,23 @@ def _get_client(service: str, region_name: str = AWS_INFRA_REGION):
     )
 
 
-s3 = _get_client("s3")
+def _get_resource(service: str, region_name: str = AWS_INFRA_REGION):
+    if settings.DOMAINS[0] == "127.0.0.1":
+        return _get_session().resource(
+            service,
+            region_name=region_name,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN,
+        )
+
+    return _get_session().resource(
+        service,
+        region_name=region_name,
+    )
+
+
+s3 = _get_resource("s3")
 sqs = _get_client("sqs")
 ssm = _get_client("ssm")
 
@@ -405,4 +421,4 @@ def get_module_snippet(canarydrop: Canarydrop):
     Return the snippet that can be pasted in the customer's terraform.
     """
 
-    return f' module "canarytoken_infra" {{ source = "https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip" }}'
+    return f'module "canarytoken_infra" {{ source = "https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip" }}'
