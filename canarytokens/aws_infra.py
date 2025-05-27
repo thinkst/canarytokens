@@ -19,7 +19,7 @@ from canarytokens.tokens import Canarytoken
 settings = FrontendSettings()
 
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
-AWS_INFRA_SHARED_SECRET = settings.AWS_INFRA_SHARED_SECRET
+AWS_INFRA_SHARED_SECRET = None
 AWS_INFRA_REGION = "eu-west-1"
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
@@ -70,7 +70,7 @@ ssm = _get_client("ssm")
 
 def get_shared_secret():
     global AWS_INFRA_SHARED_SECRET
-    if AWS_INFRA_SHARED_SECRET:
+    if AWS_INFRA_SHARED_SECRET is not None:
         return AWS_INFRA_SHARED_SECRET
 
     client = _get_client("secretsmanager")
@@ -83,6 +83,10 @@ def get_shared_secret():
 
     shared_secret = get_secret_value_response["SecretString"]
     AWS_INFRA_SHARED_SECRET = json.loads(shared_secret).get("auth_key")
+    if AWS_INFRA_SHARED_SECRET is None:
+        raise RuntimeError(
+            "Shared secret is not setup correctly, expected key was not found."
+        )
 
     return AWS_INFRA_SHARED_SECRET
 
