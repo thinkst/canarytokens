@@ -305,7 +305,7 @@ class Canarydrop(BaseModel):
     ):
         url_pages = queries.get_all_canary_pages()
 
-        if self.web_image_path and self.web_image_path.exists():
+        if self.web_image_path:
             url_pages = queries.get_all_canary_image_pages()
 
         return (queries.get_all_canary_path_elements(), url_pages)
