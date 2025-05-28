@@ -115,19 +115,8 @@ def test_custom_image_url(  # noqa: C901
         },
     )
 
-    # check response
-    if accept_image:
-        if web_image_enabled:
-            # expect web image response
-            assert file_mimetype == _resp.headers["Content-Type"]
-            assert input_file_contents == _resp.content
-        else:
-            # expect gif response
-            assert "image/gif" == _resp.headers["Content-Type"]
-            assert DEFAULT_GIF == _resp.content
-
     if not accept_image and accept_html:
-        # if no image is accepted expect html
+        # If no-image is accepted by the request and html is accepted by the request then expect html
         assert "text/html" == _resp.headers["Content-Type"]
         if browser_scanner_enabled:
             # expect browser
@@ -136,10 +125,16 @@ def test_custom_image_url(  # noqa: C901
         if not browser_scanner_enabled:
             # expect fortune
             assert "Pale Blue Dot" in _resp.content.decode()
-
-    if not accept_image and not accept_html:
-        assert "image/gif" == _resp.headers["Content-Type"]
-        assert DEFAULT_GIF == _resp.content
+    else:
+        # Otherwise expect the image or the default GIF
+        if web_image_enabled:
+            # expect web image response
+            assert file_mimetype == _resp.headers["Content-Type"]
+            assert input_file_contents == _resp.content
+        else:
+            # expect gif response
+            assert "image/gif" == _resp.headers["Content-Type"]
+            assert DEFAULT_GIF == _resp.content
 
     # check the memo
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
