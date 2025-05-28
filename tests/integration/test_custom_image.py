@@ -119,7 +119,7 @@ def test_custom_image_url(  # noqa: C901
         # If no-image is accepted by the request and html is accepted by the request then expect html
         assert "text/html" == _resp.headers["Content-Type"]
         if browser_scanner_enabled:
-            # expect browser
+            # expect browser scanner
             assert '<script type="text/javascript">' in _resp.content.decode()
 
         if not browser_scanner_enabled:
