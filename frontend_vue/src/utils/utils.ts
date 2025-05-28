@@ -72,3 +72,37 @@ export function debounce(fn: () => void, delay: number) {
     timeoutId = setTimeout(fn, delay);
   };
 }
+
+/**
+ * Checks if a value is not empty and all its nested keys have a value
+ */
+export function isNotEmpty(
+  value: number | string | null | string[] | undefined | Record<string, unknown>
+) {
+  if (typeof value === 'object' && value !== null) {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    } else {
+      return Object.values(value).some(
+        (val) =>
+          val !== null &&
+          val !== undefined &&
+          (typeof val !== 'object' || Object.keys(val).length > 0)
+      );
+    }
+  }
+  return value !== null && value !== undefined;
+}
+
+/**
+ * Formats a given string by replacing underscores with spaces and capitalizing the first letter.
+ */
+export function formatKey(string: string) {
+  const formattedString = string
+    .replace(/_/g, ' ')
+    .replace(/^(.)/, function (match, group) {
+      return group.toUpperCase();
+    });
+
+  return formattedString;
+}

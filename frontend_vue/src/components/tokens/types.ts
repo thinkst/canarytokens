@@ -212,6 +212,13 @@ export type AdditionalInfoType = {
   aws_key_log_data?: AWSLogDataType | null;
   file_path?: null | string;
   useragent?: null | string;
+  merchant?: string;
+  transaction_amount?: string;
+  transaction_currency?: string;
+  masked_card_number?: string;
+  transaction_date?: string;
+  transaction_type?: string;
+  status?: string;
 };
 
 type BasicInfoType = {
@@ -234,9 +241,9 @@ type BasicInfoType = {
 
 export type HitsType = {
   time_of_hit: number;
-  src_ip: string;
-  geo_info: GeoInfo;
-  is_tor_relay: boolean;
+  src_ip: string | null;
+  geo_info: GeoInfo | null;
+  is_tor_relay: boolean | null;
   input_channel: string;
   src_data: null | any;
   useragent: string | null;
