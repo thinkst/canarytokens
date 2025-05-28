@@ -825,7 +825,11 @@ class Canarytoken(object):
 
         _check_and_add_cors_headers(request)
 
-        if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
+        if (
+            image_accepted
+            and canarydrop.web_image_enabled
+            and canarydrop.web_image_path.exists()
+        ):
             # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
