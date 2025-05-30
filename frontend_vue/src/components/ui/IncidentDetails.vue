@@ -92,7 +92,6 @@
                          </template>
                       </template>
                     </ul>
-                    <div class="border-b border-grey-100"></div>
                   </template>
                 </ul>
               </template>
