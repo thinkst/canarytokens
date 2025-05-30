@@ -4,7 +4,7 @@
       id="aws_account_number"
       type="text"
       placeholder="e.g. 012345678901"
-      label="AWS account number"
+      label="AWS account ID"
       full-width
       required
     />
