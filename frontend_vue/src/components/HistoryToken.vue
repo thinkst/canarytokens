@@ -72,9 +72,10 @@
           <IncidentDetails
             v-if="selectedAlert"
             id="incident_detail"
-            :showingMap="showMap()"
+            :showing-map="showMap()"
             :hit-alert="selectedAlert"
             class="absolute top-[120px] left-[0] md:top-[0px] md:relative grid-areas z-10 md:overflow-scroll w-full sm:w-auto"
+            :token-type="tokenType"
             @close="selectedAlert = null"
           ></IncidentDetails>
         </transition>

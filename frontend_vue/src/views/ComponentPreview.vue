@@ -288,7 +288,8 @@
     <div class="flex flex-col gap-16 px-16 py-16 mb-32 bg-grey-100">
       <IncidentDetails
         :hit-alert="alertSample"
-        :showingMap="true"
+        :showing-map="true"
+        token-type="aws_keys"
       />
     </div>
     <div class="flex flex-col gap-16 mb-32">
