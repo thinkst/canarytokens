@@ -127,7 +127,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(['close']);
-const builtIncidentDetail: Ref<FormattedHitsType | HitsType | null> = ref(null);
+const builtIncidentDetail: Ref<FormattedHitsType | null> = ref(null);
 const formattedIncidentDetail = ref({});
 
 onMounted(() => {

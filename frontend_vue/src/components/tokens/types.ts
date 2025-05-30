@@ -269,7 +269,7 @@ export type FormattedHitsType = {
     | BasicInfoType
     | AdditionalInfoType;
   time_of_hit: string;
-  src_ip: string;
+  src_ip: string | null;
   geo_info: GeoInfo;
   is_tor_relay: boolean | null;
   basic_info: BasicInfoType;
