@@ -261,16 +261,9 @@ export type HitsType = {
 };
 
 export type FormattedHitsType = {
-  [key: string]:
-    | string
-    | boolean
-    | null
-    | GeoInfo
-    | BasicInfoType
-    | AdditionalInfoType;
   time_of_hit: string;
-  src_ip: string | null;
-  geo_info: GeoInfo;
+  src_ip?: string | null;
+  geo_info?: GeoInfo | null;
   is_tor_relay: boolean | null;
   basic_info: BasicInfoType;
   additional_info: AdditionalInfoType;

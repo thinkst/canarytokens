@@ -69,7 +69,7 @@ export default function incidentDetailsService(
           ...sharedBasicInfo,
           location: hitAlert.location ? hitAlert.location : null,
         },
-        ...sharedMainDetails,
+        time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
         is_tor_relay: null,
         additional_info: {
           ...hitAlert.additional_info,

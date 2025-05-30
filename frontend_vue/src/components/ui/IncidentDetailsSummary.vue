@@ -21,7 +21,7 @@
 <script setup lang="ts">
 defineProps<{
   date: string | number;
-  ip: string | null;
+  ip?: string | null;
   inputChannel: string;
 }>();
 </script>
