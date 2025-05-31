@@ -59,6 +59,9 @@ def test_qr_code_token(version, webhook_receiver, runv2, runv3):
     assert info.orientation == "UP"
     assert info.data.decode() == str(token_info.token_url)
 
+    # Check token url page extension
+    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+
     # Trigger token
     trigger_http_token(
         token_info=token_info,
