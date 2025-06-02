@@ -6,8 +6,8 @@
   <base-message-box
     class="mt-24"
     variant="info"
-    :message="`If the URL is requested as an image (e.g. <img src=''>) or if the URL is requested with an Accept header that for an image response then your custom image will be served. If you disable your custom image, (in this Canarytoken's manage page) then a 1x1 image is served instead.
-    If you enable browser scanner, (in this Canarytoken's manage page) and the URL is requested with an Accept header that allows an HTML response and does not allow an image response, then a blank page is served with fingerprinting Javascript. If you disable browser scanner, then an HTML page showing Earth will be returned.`"
+    :message="`If this URL is requested as an image (e.g. <img src=''>), or if the request includes an Accept header that allows an image response, your custom image will be served. If you've disable your custom image on this Canarytoken's management page, then a 1x1 image is served instead.
+    If you've enabled the browser scanner on this Canarytoken's management page, and the request includes an Accept header that allows HTML but not images, a blank HTML page containing fingerprinting JavaScript will be served. If the browser scanner is disabled, a HTML page displaying Earth will be returned.`"
     text-link="More tips?"
     @click="() => $emit('howToUse')"
   />
