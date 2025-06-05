@@ -12,6 +12,8 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState) -> bool:
     """
     Check if the next state is allowed based on the current state of the canarydrop.
     """
+    if settings.DEV:  # temporary override for development purposes
+        return settings.DEV
     if canarydrop.aws_infra_state == AWSInfraState.INITIAL:
         return next_state == AWSInfraState.ROLE_CHECKING
 
@@ -33,8 +35,7 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState) -> bool:
     ):
         return next_state in AWSInfraState.INVENTORYING
 
-    #  TODO: return False
-    return settings.DEV
+    return False
 
 
 def update_state(canarydrop: Canarydrop, new_state: AWSInfraState):

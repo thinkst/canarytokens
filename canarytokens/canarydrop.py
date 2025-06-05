@@ -140,7 +140,7 @@ class Canarydrop(BaseModel):
     aws_tf_module_prefix: Optional[str]
     aws_infra_ingesting: Optional[bool]
     aws_infra_ingestion_bus_name: Optional[str]
-    aws_infra_state: int = 0
+    aws_infra_state: AWSInfraState = AWSInfraState.INITIAL
 
     # Azure key specific stuff
     app_id: Optional[str]
