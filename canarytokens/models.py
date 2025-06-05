@@ -2865,7 +2865,7 @@ class AWSInfraAssetType(str, enum.Enum):
     S3_BUCKET = "S3Bucket"
     SQS_QUEUE = "SQSQueue"
     SSM_PARAMETER = "SSMParameter"
-    SECRETS_MANAGE_SECRET = "SecretsManagerSecret"
+    SECRETS_MANAGER_SECRET = "SecretsManagerSecret"
     DYNAMO_DB_TABLE = "DynamoDBTable"
 
 
@@ -2907,6 +2907,7 @@ class AWSInfraConfigStartResponse(BaseModel):
 class AWSInfraTriggerOperationRequest(BaseModel):  # before handle id created
     canarytoken: str
     auth_token: str
+    external_id: str = None
 
 
 class AWSInfraHandleRequest(BaseModel):
@@ -2991,9 +2992,10 @@ class AWSInfraManagementResponseRequest(BaseModel):
     result: dict
 
 
-class AWSInfraStage(enum.Flag):
-    INITIAL = enum.auto()
-    ROLE_CHECKING = enum.auto()  # after token created
-    PLANNING = enum.auto()  # after check-role
-    INGESTING = enum.auto()  # final
-    EDITING = enum.auto()  # editing existing token
+class AWSInfraState(enum.Flag):
+    INITIAL = enum.auto()  # initial state, before any operation
+    ROLE_CHECKING = enum.auto()  # after config started
+    INVENTORYING = enum.auto()  # after check-role
+    PLANNING = enum.auto()  # after inventorying
+    INGESTING = enum.auto()  # after plan saved
+    EDITING = enum.auto()  # editing existing token (can be used with other states)
