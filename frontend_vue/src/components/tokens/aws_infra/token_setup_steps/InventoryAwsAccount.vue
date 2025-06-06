@@ -21,6 +21,7 @@ import { ref, onMounted } from 'vue';
 import { requestInventoryCustomerAccount } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import StepState from '../StepState.vue';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -28,10 +29,9 @@ const props = defineProps<{
   initialStepData: TokenDataType;
 }>();
 
-const isLoading = ref(true);
-const isError = ref(false);
-const isSuccess = ref(false);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
+const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 
 const { token, auth_token } = props.initialStepData;
 
@@ -39,12 +39,11 @@ onMounted(async () => {
   await handleInventory();
 });
 
-async function handleInventory() {
-  const POLL_INTERVAL = 5000;
 
-  isLoading.value = true;
-  isError.value = false;
-  isSuccess.value = false;
+async function handleInventory() {
+  const POLL_INTERVAL = 2000;
+  errorMessage.value = '';
+  stateStatus.value = StepStateEnum.LOADING;
 
   try {
     const res = await requestInventoryCustomerAccount({
@@ -53,8 +52,7 @@ async function handleInventory() {
     });
 
     if (res.status !== 200) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value = res.data.error_message;
     }
 
@@ -68,16 +66,14 @@ async function handleInventory() {
         const resWithHandle = await requestInventoryCustomerAccount({ handle });
 
         if (resWithHandle.status !== 200) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = resWithHandle.data.error;
           clearInterval(pollingInventoringInterval);
           return;
         }
 
         if (resWithHandle.data.error) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = resWithHandle.data.error;
           clearInterval(pollingInventoringInterval);
           return;
@@ -85,8 +81,7 @@ async function handleInventory() {
 
         // timeout
         if (Date.now() - startTime >= timeout) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = 'The operation took too long. Try again.';
           clearInterval(pollingInventoringInterval);
           return;
@@ -94,8 +89,7 @@ async function handleInventory() {
 
         // success
         if (resWithHandle.data.proposed_plan) {
-          isLoading.value = false;
-          isSuccess.value = true;
+          stateStatus.value = StepStateEnum.SUCCESS;
           const proposed_plan = resWithHandle.data.proposed_plan;
           emits('storeCurrentStepData', { token, auth_token, proposed_plan });
           clearInterval(pollingInventoringInterval);
@@ -103,14 +97,11 @@ async function handleInventory() {
           return;
         }
       } catch (err: any) {
-        isError.value = true;
+        stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value =
           err.message ||
           'An error occurred while inventoring the account. Try again';
         clearInterval(pollingInventoringInterval);
-        return;
-      } finally {
-        isLoading.value = false;
         return;
       }
     };
@@ -120,9 +111,8 @@ async function handleInventory() {
       POLL_INTERVAL
     );
   } catch (err: any) {
-    isError.value = true;
+    stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value = err.message;
-    isSuccess.value = false;
   }
 }
 </script>
