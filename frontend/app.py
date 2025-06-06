@@ -200,6 +200,7 @@ from canarytokens.queries import (
     add_canary_google_api_key,
     add_canary_nxdomain,
     add_canary_page,
+    add_canary_image_page,
     add_canary_path_element,
     get_all_canary_domains,
     get_all_canary_sites,
@@ -427,6 +428,7 @@ def startup_event():
     add_canary_nxdomain(domain=frontend_settings.NXDOMAINS[0])
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
+    add_canary_image_page("photo1.jpg")
 
 
 # When the New UI is stable we can remove this entire "app" block up until the next comment

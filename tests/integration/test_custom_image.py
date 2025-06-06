@@ -35,11 +35,13 @@ DEFAULT_GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff
 @pytest.mark.parametrize("browser_scanner_enabled", [True, False])
 @pytest.mark.parametrize("web_image_enabled", [True, False])
 @pytest.mark.parametrize("accept_html", [True, False])
+@pytest.mark.parametrize("accept_image", [True, False])
 def test_custom_image_url(  # noqa: C901
     version,
     browser_scanner_enabled,
     web_image_enabled,
     accept_html,
+    accept_image,
     webhook_receiver,
     runv2,
     runv3,
@@ -96,90 +98,45 @@ def test_custom_image_url(  # noqa: C901
             version=version,
         )
 
+    # Check token url page extension
+    assert token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+
     # Trigger the token alert
+    accepted_content = [
+        file_mimetype if accept_image else "",
+        "text/html" if accept_html else "",
+    ]
     _resp = trigger_http_token(
         token_info=token_info,
         version=version,
         headers={
             "Referrer-Policy": "strict-origin-when-cross-origin",
-            "Accept": "image/gif,{mimetype}{html_type}".format(
-                mimetype=file_mimetype, html_type=",text/html" if accept_html else ""
-            ),
+            "Accept": ",".join(x for x in accepted_content if x),
         },
     )
 
-    # check response
-    if browser_scanner_enabled and accept_html:
-        # expect browser scanner response
+    if not accept_image and accept_html:
+        # If no-image is accepted by the request and html is accepted by the request then expect html
         assert "text/html" == _resp.headers["Content-Type"]
-        assert '<script type="text/javascript">' in _resp.content.decode()
+        if browser_scanner_enabled:
+            # expect browser scanner
+            assert '<script type="text/javascript">' in _resp.content.decode()
 
-    if web_image_enabled and not accept_html:
-        # expect web image response
-        assert file_mimetype == _resp.headers["Content-Type"]
-        assert input_file_contents == _resp.content
-
-    if not web_image_enabled and not accept_html:
-        # expect gif response
-        assert "image/gif" == _resp.headers["Content-Type"]
-        assert DEFAULT_GIF == _resp.content
-
-    if not browser_scanner_enabled and web_image_enabled and accept_html:
-        # expect fortune or gif or image response
-        assert (
-            file_mimetype == _resp.headers["Content-Type"]
-            or "image/gif" == _resp.headers["Content-Type"]
-            or "text/html" == _resp.headers["Content-Type"]
-        )
-        assert (
-            input_file_contents == _resp.content
-            or DEFAULT_GIF == _resp.content
-            or "stars" in _resp.content.decode()
-        )
-
-    if not browser_scanner_enabled and not web_image_enabled and accept_html:
-        # expect fortune or gif response
-        assert (
-            "image/gif" == _resp.headers["Content-Type"]
-            or "text/html" == _resp.headers["Content-Type"]
-        )
-        assert DEFAULT_GIF == _resp.content or "stars" in _resp.content.decode()
+        if not browser_scanner_enabled:
+            # expect fortune
+            assert "Pale Blue Dot" in _resp.content.decode()
+    else:
+        # Otherwise expect the image or the default GIF
+        if web_image_enabled:
+            # expect web image response
+            assert file_mimetype == _resp.headers["Content-Type"]
+            assert input_file_contents == _resp.content
+        else:
+            # expect gif response
+            assert "image/gif" == _resp.headers["Content-Type"]
+            assert DEFAULT_GIF == _resp.content
 
     # check the memo
-
-    if web_image_enabled and not accept_html:
-        # expect web image response
-        assert file_mimetype == _resp.headers["Content-Type"]
-        assert input_file_contents == _resp.content
-
-    if not web_image_enabled and not accept_html:
-        # expect gif response
-        assert "image/gif" == _resp.headers["Content-Type"]
-        assert DEFAULT_GIF == _resp.content
-
-    if not browser_scanner_enabled and web_image_enabled and accept_html:
-        # expect fortune or gif or image response
-        assert (
-            file_mimetype == _resp.headers["Content-Type"]
-            or "image/gif" == _resp.headers["Content-Type"]
-            or "text/html" == _resp.headers["Content-Type"]
-        )
-        assert (
-            input_file_contents == _resp.content
-            or DEFAULT_GIF == _resp.content
-            or "stars" in _resp.content.decode()
-        )
-
-    if not browser_scanner_enabled and not web_image_enabled and accept_html:
-        # expect fortune or gif response
-        assert (
-            "image/gif" == _resp.headers["Content-Type"]
-            or "text/html" == _resp.headers["Content-Type"]
-        )
-        assert DEFAULT_GIF == _resp.content or "stars" in _resp.content.decode()
-
-    # check the memo
-
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats:
         assert len(stats) == 1

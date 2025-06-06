@@ -26,6 +26,7 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_CANARY_IP_CACHE,
     KEY_CANARY_NXDOMAINS,
     KEY_CANARY_PAGES,
+    KEY_CANARY_IMAGE_PAGES,
     KEY_CANARY_PATH_ELEMENTS,
     KEY_CANARY_RETURN_TOKEN,
     KEY_CANARYDROP,
@@ -114,6 +115,14 @@ def add_canary_path_element(path_element: str) -> int:
 
 def get_all_canary_pages() -> list[str]:
     return list(DB.get_db().smembers(KEY_CANARY_PAGES))
+
+
+def get_all_canary_image_pages() -> list[str]:
+    return list(DB.get_db().smembers(KEY_CANARY_IMAGE_PAGES))
+
+
+def add_canary_image_page(page: str) -> int:
+    return DB.get_db().sadd(KEY_CANARY_IMAGE_PAGES, page)
 
 
 def add_canary_page(page: str) -> int:

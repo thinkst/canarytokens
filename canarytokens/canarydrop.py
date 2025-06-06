@@ -335,10 +335,12 @@ class Canarydrop(BaseModel):
     def get_url_components(
         self,
     ):
-        return (
-            queries.get_all_canary_path_elements(),
-            queries.get_all_canary_pages(),
-        )
+        if self.type == TokenTypes.WEB_IMAGE:
+            url_pages = queries.get_all_canary_image_pages()
+        else:
+            url_pages = queries.get_all_canary_pages()
+
+        return (queries.get_all_canary_path_elements(), url_pages)
 
     def generate_random_url(
         self,
