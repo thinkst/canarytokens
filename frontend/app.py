@@ -15,13 +15,22 @@ import textwrap
 from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
-from typing import Any, Optional
+from typing import Annotated, Any, Optional, Union
 from urllib.parse import unquote
 
 import requests
 import segno
 import sentry_sdk
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, Security, status
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+    Header,
+)
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import APIKeyQuery
@@ -31,6 +40,8 @@ from pydantic import HttpUrl, ValidationError, parse_obj_as
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
+import random
+import string
 
 import canarytokens
 import canarytokens.credit_card_v2 as credit_card_infra
@@ -43,10 +54,30 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import CanarydropAuthFailure
 from canarytokens.models import (
     PWA_APP_TITLES,
+    AWSInfaHandleResponse,
+    AWSInfraAssetField,
+    AWSInfraAssetType,
+    AWSInfraCheckRoleReceivedResponse,
+    AWSInfraGenerateDataChoiceRequest,
+    AWSInfraGenerateDataChoiceResponse,
+    AWSInfraHandleRequest,
+    AWSInfraInventoryCustomerAccountReceivedResponse,
+    AWSInfraManagementResponseRequest,
+    AWSInfraOperationType,
+    AWSInfraSavePlanRequest,
+    AWSInfraSetupIngestionReceivedResponse,
+    AWSInfraStage,
+    AWSInfraTeardownReceivedResponse,
+    AWSInfraTriggerOperationRequest,
     AnyDownloadRequest,
     AnySettingsRequest,
+    AnyTokenEditRequest,
     AnyTokenRequest,
     AnyTokenResponse,
+    AWSInfraConfigStartRequest,
+    AWSInfraConfigStartResponse,
+    AWSInfraTokenRequest,
+    AWSInfraTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
     AzureIDTokenRequest,
@@ -57,6 +88,7 @@ from canarytokens.models import (
     ClonedWebTokenResponse,
     CSSClonedWebTokenRequest,
     CSSClonedWebTokenResponse,
+    DefaultResponse,
     DeleteResponse,
     DownloadCSSClonedWebRequest,
     DownloadCSSClonedWebResponse,
@@ -183,6 +215,7 @@ from canarytokens.tokens import Canarytoken
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
+from canarytokens import aws_infra
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
@@ -346,6 +379,35 @@ def get_canarydrop_and_authenticate(token: str, auth: str = Security(auth_key)):
             status_code=403, detail="Token not found. Invalid `auth` and `token` pair."
         )
     return canarydrop
+
+
+def validate_handle(request: AWSInfraManagementResponseRequest):
+    operation = aws_infra.get_handle_operation(request.handle)
+    if operation is None:
+        raise HTTPException(status_code=400, detail="Handle does not exist.")
+    if request.operation.value != operation:
+        raise HTTPException(
+            status_code=400, detail="Operation does not match that of stored handle."
+        )
+    return request
+
+
+def validate_exclusive_handle(request: Request):
+    if isinstance(request, AWSInfraHandleRequest) and len(vars(request)) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail="A handle request should only contain handle and no other keys.",
+        )
+    return request
+
+
+def authorize_aws_infra(authorization: Annotated[str, Header()]):
+    print("authorising")
+    if not f"Bearer {aws_infra.get_shared_secret()}" == authorization:
+        print(authorization)
+        raise HTTPException(
+            status_code=401, detail="Invalid authorization token provided."
+        )
 
 
 @app.on_event("startup")
@@ -837,7 +899,6 @@ async def api_generate(  # noqa: C901  # gen is large
         if token_request_details.token_type == TokenTypes.WIREGUARD
         else None,
     )
-
     page = None
     if token_request_details.token_type == TokenTypes.PWA:
         page = "index.html"
@@ -946,6 +1007,16 @@ async def api_settings_post(
         return SettingsResponse(**{"message": "failure"})
 
 
+@api.post("/edit")
+async def api_edit(request: AnyTokenEditRequest) -> JSONResponse:
+    canarydrop = get_canarydrop_and_authenticate(
+        token=request.canarytoken, auth=request.auth_token
+    )
+    if canarydrop.edit(request):
+        return JSONResponse({"message": "success"})
+    return JSONResponse({"message": "failure"}, status_code=400)
+
+
 @api.get(
     "/download",
     tags=["Canarytokens Downloads"],
@@ -1006,6 +1077,215 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
         return JSONResponse({"message": "Something went wrong!"}, status_code=500)
 
     return JSONResponse({"message": "Success"}, status_code=200)
+
+
+# TODO: security scheme for token?
+
+
+@api.post("/awsinfra/config-start")
+def api_awsinfra_config_start(
+    request: AWSInfraConfigStartRequest,
+) -> Union[AWSInfraConfigStartResponse, DefaultResponse]:
+    canarydrop = get_canarydrop_and_authenticate(
+        request.canarytoken, request.auth_token
+    )
+    if not (
+        canarydrop.aws_infra_stage == AWSInfraStage.INITIAL
+        or canarydrop.aws_infra_stage == AWSInfraStage.ROLE_CHECKING
+    ):
+        return DefaultResponse(
+            result=False, message="Configuration has already started for this token."
+        )
+    if (
+        canarydrop.aws_infra_stage == AWSInfraStage.INITIAL
+        and canarydrop.aws_customer_iam_access_external_id is None
+    ):
+        canarydrop.aws_customer_iam_access_external_id = (
+            aws_infra.generate_external_id()
+        )
+        canarydrop.aws_infra_stage = AWSInfraStage.ROLE_CHECKING
+        save_canarydrop(canarydrop)
+
+    return AWSInfraConfigStartResponse(
+        result=True, role_setup_commands=aws_infra.get_role_commands(canarydrop)
+    )
+
+
+@api.post("/awsinfra/check-role", dependencies=[Depends(validate_exclusive_handle)])
+def api_awsinfra_check_role(
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraCheckRoleReceivedResponse, AWSInfaHandleResponse]:
+    if isinstance(request, AWSInfraTriggerOperationRequest):
+        canarydrop = get_canarydrop_and_authenticate(
+            request.canarytoken, request.auth_token
+        )
+        handle_id = aws_infra.create_handle(
+            AWSInfraOperationType.CHECK_ROLE, canarydrop
+        )
+        return AWSInfaHandleResponse(handle=handle_id)
+
+    handle_response = aws_infra.get_handle_response(request.handle)
+    if handle_response.response_received:
+        return AWSInfraCheckRoleReceivedResponse(
+            result=handle_response.response != "",
+            message=""
+            if handle_response.response != ""
+            else "Handle lookup has timedout.",
+            handle=request.handle,
+            session_credentials_retrieved=handle_response.response.get(
+                "session_credentials_retrieved"
+            ),
+            error=handle_response.response.get("error"),
+        )
+    return AWSInfaHandleResponse(handle=request.handle)
+
+
+@api.post(
+    "/awsinfra/inventory-customer-account",
+    dependencies=[Depends(validate_exclusive_handle)],
+)
+def api_awsinfra_inventory_customer_account(
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfaHandleResponse]:
+
+    if isinstance(request, AWSInfraTriggerOperationRequest):
+        canarydrop = get_canarydrop_and_authenticate(
+            request.canarytoken, request.auth_token
+        )
+        handle_id = aws_infra.create_handle(AWSInfraOperationType.INVENTORY, canarydrop)
+        return AWSInfaHandleResponse(handle=handle_id)
+
+    handle_response = aws_infra.get_handle_response(request.handle)
+
+    if handle_response.response_received and handle_response.response == "":
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            result=False,
+            message="Handle lookup has timed out.",
+            handle=request.handle,
+            error=handle_response.response.get("error"),
+        )
+
+    if handle_response.response_received and handle_response.response != "":
+        canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
+        aws_infra.save_current_assets(
+            canarydrop, handle_response.response.get("assets")
+        )
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            result=True,
+            handle=request.handle,
+            proposed_plan=aws_infra.generate_proposed_plan(canarydrop),
+        )
+
+    return AWSInfaHandleResponse(handle=request.handle)
+
+
+# TODO: add validate for type and field
+@api.post("/awsinfra/generate-data-choices")
+def api_awsinfra_generate_data_choices(
+    request: AWSInfraGenerateDataChoiceRequest, response: Response
+) -> AWSInfraGenerateDataChoiceResponse:
+    get_canarydrop_and_authenticate(request.canarytoken, request.auth_token)
+    if request.asset_type == AWSInfraAssetType.S3_BUCKET:
+        if request.asset_field == AWSInfraAssetField.BUCKET_NAME:
+            return AWSInfraGenerateDataChoiceResponse(
+                result=True, proposed_data=aws_infra.generate_s3_bucket()
+            )
+    if request.asset_field == AWSInfraAssetField.MESSAGE_COUNT:
+        return AWSInfraGenerateDataChoiceResponse(
+            result=True, proposed_data=str(random.randint(0, 10))
+        )
+
+    if request.asset_field == AWSInfraAssetField.DYNAMODB_ROW_COUNT:
+        return AWSInfraGenerateDataChoiceResponse(
+            result=True, proposed_data=str(random.randint(0, 100))
+        )
+
+    return AWSInfraGenerateDataChoiceResponse(
+        result=True,
+        proposed_data="".join(
+            [
+                random.choice(string.ascii_letters + string.digits)
+                for _ in range(random.randint(5, 20))
+            ]
+        ),
+    )
+
+
+@api.post("/awsinfra/save-plan")
+def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
+    canarydrop = get_canarydrop_and_authenticate(
+        request.canarytoken, request.auth_token
+    )
+    aws_infra.save_plan(canarydrop, request.plan)
+    return DefaultResponse(result=True, message="")
+
+
+@api.post(
+    "/awsinfra/setup-ingestion", dependencies=[Depends(validate_exclusive_handle)]
+)
+def api_awsinfra_setup_ingestion(
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraSetupIngestionReceivedResponse, AWSInfaHandleResponse]:
+    if isinstance(request, AWSInfraTriggerOperationRequest):
+        canarydrop = get_canarydrop_and_authenticate(
+            request.canarytoken, request.auth_token
+        )
+        handle_id = aws_infra.create_handle(
+            AWSInfraOperationType.SETUP_INGESTION, canarydrop
+        )
+        return AWSInfaHandleResponse(handle=handle_id)
+    handle_response = aws_infra.get_handle_response(request.handle)
+    if handle_response.response_received:
+        return AWSInfraSetupIngestionReceivedResponse(
+            result=handle_response.response != "",
+            message=""
+            if handle_response.response != ""
+            else "Handle lookup has timedout.",
+            handle=request.handle,
+            terraform_module_snippet=""
+            if handle_response.response == ""
+            else aws_infra.get_module_snippet(
+                aws_infra.get_canarydrop_from_handle(request.handle)
+            ),
+        )
+
+    return AWSInfaHandleResponse(handle=request.handle)
+
+
+@api.post("/awsinfra/teardown", dependencies=[Depends(validate_exclusive_handle)])
+def api_awsinfra_teardown(
+    request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
+) -> Union[AWSInfraTeardownReceivedResponse, AWSInfaHandleResponse]:
+    if isinstance(request, AWSInfraTriggerOperationRequest):
+        canarydrop = get_canarydrop_and_authenticate(
+            request.canarytoken, request.auth_token
+        )
+        handle_id = aws_infra.create_handle(AWSInfraOperationType.TEARDOWN, canarydrop)
+        return AWSInfaHandleResponse(handle=handle_id)
+
+    handle_response = aws_infra.get_handle_response(request.handle)
+
+    if handle_response.response_received:
+        return AWSInfraTeardownReceivedResponse(
+            result=handle_response.response != "",
+            message=""
+            if handle_response.response != ""
+            else "Handle lookup has timedout.",
+            handle=request.handle,
+            role_cleanup_commands=aws_infra.get_role_cleanup_commands(
+                aws_infra.get_canarydrop_from_handle(request.handle)
+            ),
+        )
+    return AWSInfaHandleResponse(handle=request.handle)
+
+
+@api.post("/awsinfra/management-response", dependencies=[Depends(authorize_aws_infra)])
+def api_awsinfra_management_response(
+    authorization: Annotated[str, Header()],
+    request: AWSInfraManagementResponseRequest = Depends(validate_handle),
+) -> JSONResponse:
+    aws_infra.add_handle_response(request.handle, request.result)
+    return JSONResponse({"message": "Success"})
 
 
 @singledispatch
@@ -2127,4 +2407,32 @@ def _(
         url_components=list(canarydrop.get_url_components()),
         entity_id=canarydrop.idp_app_entity_id,
         app_type=canarydrop.idp_app_type,
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: AWSInfraTokenRequest, canarydrop: Canarydrop
+) -> AWSInfraTokenResponse:
+    canarydrop.aws_account_id = token_request_details.aws_account_number
+    canarydrop.aws_region = token_request_details.aws_region
+    canarydrop.aws_tf_module_prefix = "".join(
+        [random.choice(string.ascii_letters + string.digits) for _ in range(27)]
+    )
+    canarydrop.aws_infra_ingesting = False
+    canarydrop.aws_infra_ingestion_bus_name = aws_infra.get_current_ingestion_bus()
+
+    save_canarydrop(canarydrop)
+
+    return AWSInfraTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        aws_account_number=canarydrop.aws_account_id,
+        aws_region=canarydrop.aws_region,
+        tf_module_prefix=canarydrop.aws_tf_module_prefix,
+        ingesting=canarydrop.aws_infra_ingesting,
     )
