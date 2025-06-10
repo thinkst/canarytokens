@@ -1078,6 +1078,9 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
     return JSONResponse({"message": "Success"}, status_code=200)
 
 
+# TODO: Cleanup canarydrops in invalid states:
+#    - module snippet doesn't exist
+# TODO: reduce stictness for state checking
 @api.post("/awsinfra/config-start")
 def api_awsinfra_config_start(
     request: AWSInfraConfigStartRequest,

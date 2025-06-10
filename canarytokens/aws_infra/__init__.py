@@ -9,7 +9,7 @@ from .operations import (
     get_handle_response,
 )
 from .plan_generation import generate_proposed_plan, generate_data_choice
-from .aws_connector import get_shared_secret, get_current_ingestion_bus
+from .management import get_shared_secret, get_current_ingestion_bus
 
 __all__ = [
     "allow_next_state",

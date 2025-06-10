@@ -12,8 +12,6 @@ import {
   faAngleLeft,
   faArrowRight,
   faCheck,
-  faChevronLeft,
-  faChevronRight,
   faCopy,
   faCloudArrowUp,
   faRotateRight,
@@ -35,8 +33,6 @@ import {
   faLock,
   faCalendarDay,
   faIdCard,
-  faCircleCheck,
-  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -79,10 +75,6 @@ library.add(
   faLock,
   faCalendarDay,
   faIdCard,
-  faCircleCheck,
-  faTrash,
-  faChevronLeft,
-  faChevronRight
 );
 
 const vfm = createVfm();

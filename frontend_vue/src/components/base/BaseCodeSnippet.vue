@@ -1,5 +1,5 @@
 <template>
-  <div v-bind="$attrs">
+  <div>
     <label
       v-if="label"
       class="inline-block mb-8 text-grey-500"
@@ -24,7 +24,6 @@
         <BaseCopyButton
           :content="code"
           class="ring-white ring-4"
-          @copy-content="emits('copy-content')"
         />
       </div>
       <highlightjs
@@ -46,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import 'highlight.js/lib/common';
 import 'highlight.js/styles/github.css';
 import hljsVuePlugin from '@highlightjs/vue-plugin';
@@ -61,7 +60,6 @@ const props = withDefaults(
     customHeight?: string;
     label?: string | null;
     isSingleLine?: boolean;
-    checkScroll?: boolean;
   }>(),
   {
     hasRefresh: false,
@@ -73,19 +71,9 @@ const props = withDefaults(
   }
 );
 
-const emits = defineEmits([
-  'refresh-token',
-  'copy-content',
-  'snippet-scrolled',
-]);
+const emits = defineEmits(['refresh-token']);
 const showAllCode = ref(false);
 const highlightjs = ref(hljsVuePlugin.component);
-
-onMounted(() => {
-  if (props.checkScroll && props.label) {
-    handleScrollToBottom();
-  }
-});
 
 const componentHeight = computed(() => {
   if (props.customHeight && !props.showExpandButton) {
@@ -100,20 +88,5 @@ function handleRefreshToken() {
 
 function handleShowAllSnippet() {
   showAllCode.value = !showAllCode.value;
-}
-
-function handleScrollToBottom() {
-  // useful for checking if user copied the entire snippet
-  //@ts-ignore - this function is called only when props.label exists
-  const snippetEl = document.getElementById(props.label);
-  snippetEl?.addEventListener('scroll', () => {
-    if (
-      Math.abs(
-        snippetEl.scrollHeight - snippetEl.clientHeight - snippetEl.scrollTop
-      ) < 1
-    ) {
-      emits('snippet-scrolled');
-    }
-  });
 }
 </script>

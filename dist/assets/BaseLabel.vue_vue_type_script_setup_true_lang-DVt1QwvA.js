@@ -1,1 +1,0 @@
-import{d as o,e as s,h as a,J as r}from"./index-BDTIPFyt.js";const t=["for"],p=o({__name:"BaseLabel",props:{id:{}},setup(n){return(e,l)=>(s(),a("label",{for:e.id,class:"mb-4 ml-4 font-semibold"},[r(e.$slots,"default")],8,t))}});export{p as _};

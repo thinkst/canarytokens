@@ -6,7 +6,6 @@
       <FilterButton
         id="filterAll"
         category="All"
-        category-type="Canarytokens"
         :selected="!filterValue"
         @click="filterValue = ''"
       />
@@ -16,7 +15,6 @@
       >
         <FilterButton
           :category="category"
-          category-type="Canarytokens"
           :selected="filterValue === category"
           @click="handleFilterByCategory(category)"
         />

@@ -45,8 +45,6 @@ const props = withDefaults(
   }
 );
 
-const emits = defineEmits(['copy-content']);
-
 const { isSupported, copy, copied } = useClipboard({
   //@ts-ignore
   content: props.content,
@@ -63,8 +61,7 @@ function delay(ms: number) {
 // 1. prevents UI from jumping when tooltip content changes
 // 2. shows tooltip when content is copied
 async function showTooltip() {
-  if (!isSupported || !navigator.clipboard)
-    return (tooltipText.value = 'Copy not supported');
+  if (!isSupported || !navigator.clipboard) return (tooltipText.value = 'Copy not supported');
   await delay(150);
   tooltipTriggers.value = [];
   isTriggered.value = true;
@@ -78,7 +75,6 @@ async function showTooltip() {
 }
 
 function copyContent() {
-  emits('copy-content');
   copy(props.content);
   showTooltip();
 }

@@ -12,22 +12,20 @@
       </h2>
     </div>
     <div
-      class="flex flex-col p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 items-center"
+      class="flex flex-col justify-center p-16 md:p-32 md:mx-32 rounded-xl bg-grey-50 md:max-w-[50vw] w-full"
     >
-      <div class="flex flex-col md:max-w-[50vw] justify-center">
-        <BaseMessageBox
-          class="mb-16"
-          :message="alertsMessage"
-          :variant="variant"
-        />
-        <BaseButton
-          class="m-auto"
-          variant="secondary"
-          @click="closeWindow()"
-          >Close Window</BaseButton
-        >
-        <BannerDeviceCanarytools class="my-8" />
-      </div>
+      <BaseMessageBox
+        class="mb-16"
+        :message="alertsMessage"
+        :variant="variant"
+      />
+      <BaseButton
+        class="m-auto"
+        variant="secondary"
+        @click="closeWindow()"
+        >Close Window</BaseButton
+      >
+      <BannerDeviceCanarytools class="my-8" />
     </div>
   </AppLayoutOneColumn>
 </template>

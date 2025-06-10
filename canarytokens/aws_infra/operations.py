@@ -6,7 +6,7 @@ import json
 from typing import Union
 
 from canarytokens import queries
-from canarytokens.aws_infra.aws_connector import (
+from canarytokens.aws_infra.management import (
     SQS_CLIENT,
     upload_tf_module,
 )

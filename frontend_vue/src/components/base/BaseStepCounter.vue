@@ -7,7 +7,7 @@
     >
       <button
         type="button"
-        class="grid grid-cols-3 group gap-y-8 md:gap-x-16 sm:gap-x-24 focus:outline-none focus-within:outline-none grid-rows-2"
+        class="grid grid-cols-3 group gap-y-8 md:gap-x-16 sm:gap-x-24 focus:outline-none focus-within:outline-none"
         :disabled="props.currentStep <= index"
         @click="emits('handleStepClick', index + 1)"
       >
@@ -39,12 +39,8 @@
         ></span>
         <!-- Label -->
         <span
-          class="text-sm col-span-full text-center"
-          :class="
-            isActiveStep(index)
-              ? 'group-hover:text-green-500 text-green-500'
-              : 'text-grey-400'
-          "
+          class="text-sm text-grey-400 col-span-full text-center"
+          :class="isActiveStep(index) && 'group-hover:text-green-500'"
         >
           {{ step.label }}
         </span>

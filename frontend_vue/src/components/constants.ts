@@ -40,7 +40,6 @@ export const TOKENS_TYPE = {
   CREDIT_CARD_V2: 'credit_card_v2',
   WEBDAV: 'webdav',
   IDP_APP: 'idp_app',
-  AWS_INFRA: 'aws_infra',
 };
 
 // unique keys to use in the frontend
@@ -162,132 +161,132 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   credit_card_v2: ['#C6C7C7', '#E3E5E7', '#38897F', '#38D47F', '#414241'],
   windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F'],
   idp_app: ['#1AABEE', '#026696', '#9CE5FD'],
-  aws_infra: ['#FA6A22', '#233243', '#FC9824'],
 };
 
-export const IDP_OPTIONS: { value: string; label: string }[] = [
+
+export const IDP_OPTIONS: { value: string; label: string }[]= [
   {
     value: 'gmail',
-    label: 'Gmail',
+    label: 'Gmail'
   },
   {
     value: 'outlook',
-    label: 'Outlook',
+    label: 'Outlook'
   },
   {
     value: 'gdrive',
-    label: 'Google Drive',
+    label: 'Google Drive'
   },
   {
     value: 'onedrive',
-    label: 'OneDrive',
+    label: 'OneDrive'
   },
   {
     value: 'aws',
-    label: 'AWS',
+    label: 'AWS'
   },
   {
     value: 'azure',
-    label: 'Azure',
+    label: 'Azure'
   },
   {
     value: 'gcloud',
-    label: 'Google Cloud',
+    label: 'Google Cloud'
   },
   {
     value: 'zoho',
-    label: 'Zoho',
+    label: 'Zoho'
   },
   {
     value: 'salesforce',
-    label: 'Salesforce',
+    label: 'Salesforce'
   },
   {
     value: 'zendesk',
-    label: 'Zendesk',
+    label: 'Zendesk'
   },
   {
     value: 'freshbooks',
-    label: 'Freshbooks',
+    label: 'Freshbooks'
   },
   {
     value: 'elasticsearch',
-    label: 'Elasticsearch',
+    label: 'Elasticsearch'
   },
   {
     value: 'kibana',
-    label: 'Kibana',
+    label: 'Kibana'
   },
   {
     value: 'onepassword',
-    label: '1Password',
+    label: '1Password'
   },
   {
     value: 'lastpass',
-    label: 'LastPass',
+    label: 'LastPass'
   },
   {
     value: 'bitwarden',
-    label: 'Bitwarden',
+    label: 'Bitwarden'
   },
   {
     value: 'sap',
-    label: 'SAP',
+    label: 'SAP'
   },
   {
     value: 'jira',
-    label: 'Jira',
+    label: 'Jira'
   },
   {
     value: 'jamf',
-    label: 'JAMF',
+    label: 'JAMF'
   },
   {
     value: 'duo',
-    label: 'Duo',
+    label: 'Duo'
   },
   {
     value: 'intune',
-    label: 'Intune',
+    label: 'Intune'
   },
   {
     value: 'zoom',
-    label: 'Zoom',
+    label: 'Zoom'
   },
   {
     value: 'dropbox',
-    label: 'Dropbox',
+    label: 'Dropbox'
   },
   {
     value: 'github',
-    label: 'GitHub',
+    label: 'GitHub'
   },
   {
     value: 'slack',
-    label: 'Slack',
+    label: 'Slack'
   },
   {
     value: 'msteams',
-    label: 'MS Teams',
+    label: 'MS Teams'
   },
   {
     value: 'ms365',
-    label: 'Microsoft 365',
+    label: 'Microsoft 365'
   },
   {
     value: 'gitlab',
-    label: 'GitLab',
+    label: 'GitLab'
   },
   {
     value: 'pagerduty',
-    label: 'PagerDuty',
+    label: 'PagerDuty'
   },
   {
     value: 'sage',
-    label: 'Sage',
+    label: 'Sage'
   },
   {
     value: 'virtru',
-    label: 'Virtru',
+    label: 'Virtru'
   },
 ];

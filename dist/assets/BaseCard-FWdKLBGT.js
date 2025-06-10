@@ -1,1 +1,0 @@
-import{H as r,e as o,h as s,J as n,W as t}from"./index-CVx3_slE.js";const a={};function c(e,d){return o(),s("div",t(e.$attrs,{class:"border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200"}),[n(e.$slots,"default")],16)}const l=r(a,[["render",c]]);export{l as _};

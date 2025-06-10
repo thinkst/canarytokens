@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
+import { ENV_MODE } from '../constants.ts';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,7 +10,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'Canarytokens',
+        title: 'Create New Canarytoken',
       },
     },
     {
@@ -21,28 +22,12 @@ const router = createRouter({
       },
     },
     {
-      path: '/generate/:tokentype',
-      name: 'generate-custom',
-      component: () => import('../views/CustomFlowView.vue'),
-      meta: {
-        title: 'Create New Canarytoken',
-      },
-    },
-    {
       path: '/manage/:auth/:token',
       name: 'manage',
       component: () =>
         import('../views/ManageView.vue').catch(() => {
           router.push({ name: 'error' });
         }),
-      meta: {
-        title: 'Manage Canarytoken',
-      },
-    },
-    {
-      path: '/token-config/:tokentype',
-      name: 'manage-custom',
-      component: () => import('../views/CustomFlowView.vue'),
       meta: {
         title: 'Manage Canarytoken',
       },
@@ -146,6 +131,18 @@ const router = createRouter({
           'Please try refreshing the page, or go back to the homepage and try again later.',
       },
     },
+    ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
+      ? [
+          {
+            path: '/components',
+            name: 'components',
+            component: () => import('../views/ComponentPreview.vue'),
+            meta: {
+              title: 'ComponentPreview',
+            },
+          },
+        ]
+      : []),
   ],
 });
 

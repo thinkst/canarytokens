@@ -69,7 +69,6 @@ export default {
         'solid-shadow-green-500-sm': `0px 0.25rem 0px 0px  ${theme('colors.green.500')}`,
         'solid-shadow-green-600-sm': `0px 0.20rem 0px 0px  ${theme('colors.green.600')}`,
         'solid-shadow-red': `0px 0.15rem 0px 0px  ${theme('colors.red.DEFAULT')}`,
-        'solid-shadow-yellow': `0px 0.15rem 0px 0px  ${theme('colors.yellow.DEFAULT')}`,
         'solid-shadow-green-300': `0px 0.15rem 0px 0px  ${theme('colors.green.300')}`,
         'solid-shadow-grey': `0px 0.20rem 0px 0px  ${theme('colors.grey.200')}`,
         'solid-shadow-grey-400': `0px 0.20rem 0px 0px  ${theme('colors.grey.400')}`,

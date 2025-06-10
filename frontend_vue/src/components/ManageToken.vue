@@ -15,7 +15,7 @@
   </div>
   <div
     v-if="isLoading"
-    class="flex flex-col items-center gap-8"
+    class="flex flex-col items-center w-full gap-8"
   >
     <BaseSkeletonLoader
       type="circle"
@@ -27,7 +27,7 @@
     />
     <BaseSkeletonLoader
       type="rectangle"
-      class="md:max-w-[50vw] h-[250px] mt-16"
+      class="md:max-w-[50vw] w-full h-[250px] mt-16"
     />
   </div>
 
@@ -39,10 +39,10 @@
   </BaseMessageBox>
   <div
     v-if="manageTokenResponse"
-    class="md:mx-32 flex flex-col md:items-center"
+    class="md:mx-32 md:max-w-[50vw] w-full"
   >
     <div
-      class="flex flex-col p-16 md:p-32 rounded-3xl bg-grey-50 md:max-w-[50vw]"
+      class="flex flex-col justify-center p-16 md:p-32 rounded-3xl bg-grey-50"
     >
       <Suspense>
         <component
@@ -50,7 +50,7 @@
           :token-backend-response="manageTokenResponse"
         />
         <template #fallback>
-          <div class="flex flex-col gap-8">
+          <div class="flex flex-col w-full gap-8">
             <BaseSkeletonLoader
               class="w-[100px]"
               type="text"
@@ -112,7 +112,7 @@
         :type="manageTokenResponse.canarydrop.type"
       />
     </div>
-    <div class="md:max-w-[50vw]">
+    <div class="flex justify-center sm:max-w-[50vw]">
       <BannerTextCanarytools class="mt-32 mb-8" />
     </div>
   </div>
@@ -131,7 +131,7 @@ import DeleteTokenButton from '@/components/ui/DeleteTokenButton.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
 
-const MAX_ALERTS = 11;
+const MAX_ALERTS = 11
 
 const route = useRoute();
 const router = useRouter();
