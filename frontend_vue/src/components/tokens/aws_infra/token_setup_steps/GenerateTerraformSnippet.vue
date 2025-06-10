@@ -84,6 +84,7 @@ import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
 import StepState from '../StepState.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -92,9 +93,8 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
-const isLoading = ref(true);
-const isError = ref(false);
-const isSuccess = ref(false);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
+  const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 const errorMessage = ref('');
 
 const terraformSnippet = ref('');
@@ -106,11 +106,9 @@ onMounted(async () => {
 });
 
 async function handleRequestTerraformSnippet() {
-  const POLL_INTERVAL = 5000;
-
-  isLoading.value = true;
-  isError.value = false;
-  isSuccess.value = false;
+  const POLL_INTERVAL = 2000;
+  errorMessage.value = '';
+  stateStatus.value = StepStateEnum.LOADING;
 
   try {
     const res = await requestTerraformSnippet({
@@ -118,8 +116,7 @@ async function handleRequestTerraformSnippet() {
       auth_token,
     });
     if (res.status !== 200) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value = res.data.message;
     }
 
@@ -133,8 +130,7 @@ async function handleRequestTerraformSnippet() {
         const resWithHandle = await requestTerraformSnippet({ handle });
 
         if (resWithHandle.status !== 200) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value =
             resWithHandle.data.error ||
             'Error on requesting the Terraform Snippet';
@@ -143,8 +139,7 @@ async function handleRequestTerraformSnippet() {
         }
 
         if (resWithHandle.data.message) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = resWithHandle.data.message;
           clearInterval(pollingTerraformSnippetInterval);
           return;
@@ -152,7 +147,7 @@ async function handleRequestTerraformSnippet() {
 
         // timeout
         if (Date.now() - startTime >= timeout) {
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = 'The operation took too long. Try again.';
           clearInterval(pollingTerraformSnippetInterval);
           return;
@@ -160,9 +155,7 @@ async function handleRequestTerraformSnippet() {
 
         // success
         if (resWithHandle.data.terraform_module_snippet) {
-          isLoading.value = false;
-          isSuccess.value = true;
-
+          stateStatus.value = StepStateEnum.SUCCESS;
           const terraform_module_snippet =
             resWithHandle.data.terraform_module_snippet;
 
@@ -176,13 +169,11 @@ async function handleRequestTerraformSnippet() {
           return;
         }
       } catch (err: any) {
-        isError.value = true;
+        stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value =
           err.message || 'An error occurred while checking the Role. Try again';
         clearInterval(pollingTerraformSnippetInterval);
         return;
-      } finally {
-        isLoading.value = false;
       }
     };
 
@@ -191,9 +182,8 @@ async function handleRequestTerraformSnippet() {
       POLL_INTERVAL
     );
   } catch (err: any) {
-    isError.value = true;
+    stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value = err.message;
-    isSuccess.value = false;
   }
 }
 
