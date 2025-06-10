@@ -25,7 +25,6 @@ from canarytokens.constants import (
 )
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
-    # AdditionalInfo,
     AnyTokenHit,
     AwsInfraAdditionalInfo,
     AWSInfraTokenHit,

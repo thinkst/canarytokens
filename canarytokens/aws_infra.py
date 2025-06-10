@@ -63,7 +63,23 @@ def _get_client(service: str, region_name: str = AWS_INFRA_REGION):
     )
 
 
-s3 = _get_client("s3")
+def _get_resource(service: str, region_name: str = AWS_INFRA_REGION):
+    if settings.DOMAINS[0] == "127.0.0.1":
+        return _get_session().resource(
+            service,
+            region_name=region_name,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN,
+        )
+
+    return _get_session().resource(
+        service,
+        region_name=region_name,
+    )
+
+
+s3 = _get_resource("s3")
 sqs = _get_client("sqs")
 ssm = _get_client("ssm")
 
@@ -302,6 +318,7 @@ def _upload_zip(canarytoken_id, prefix, variables):
     if os.path.exists(archive):
         os.remove(archive)
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
+
     s3.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
         archive, f"{prefix}/{canarytoken_id}/tf.zip"
     )
