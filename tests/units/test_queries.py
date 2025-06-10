@@ -350,7 +350,7 @@ def test_get_geoinfo_503_response_code_handling(monkeypatch):
 def test_get_geoinfo_aws_internal():
     ip = "AWS Internal"
     info = queries.get_geoinfo(ip)
-    assert info == "AWS Internal"
+    assert info is None
 
 
 def test_mail_queue(setup_db):

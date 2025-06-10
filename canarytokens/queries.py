@@ -423,7 +423,7 @@ def set_ip_info_api_key(ip_info_api_key):
 
 def get_geoinfo(ip: str):
     if ip.lower() == "aws internal":
-        return models.GeoIPBogonInfo(ip="AWS Internal", bogon=False).dict()
+        return None
 
     if is_ip_cached(ip):
         return get_geoinfo_from_cache(ip)
