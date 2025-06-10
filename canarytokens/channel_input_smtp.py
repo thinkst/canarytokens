@@ -36,22 +36,18 @@ original_lookup_method = smtp.ESMTP.lookupMethod
 
 def patched_lookupMethod(self, command):
     """
-    Patched version of lookupMethod that handles non-ASCII characters by ignoring them.
+    Patched version of lookupMethod that handles non-ASCII characters by closing the connection.
     """
     try:
         return original_lookup_method(self, command)
     except UnicodeDecodeError:
-        # Log the issue but continue processing
+        # Log the issue and close the connection
         log.warn(
             f"Received command with non-ASCII characters from {self.transport.getPeer().host}: {command!r}"
         )
-        # Try to decode with replacement character
-        try:
-            cleaned_command = command.decode("ascii", errors="replace").encode("ascii")
-            return original_lookup_method(self, cleaned_command)
-        except Exception as e:
-            log.error(f"Failed to process command after cleaning: {e}")
-            return None
+        self.sendLine(b"500 Syntax error, command unrecognized")
+        self.transport.loseConnection()
+        return None
 
 
 # Apply the patch to the ESMTP class
