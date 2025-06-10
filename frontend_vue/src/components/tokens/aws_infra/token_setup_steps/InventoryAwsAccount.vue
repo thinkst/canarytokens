@@ -2,13 +2,13 @@
   <section class="w-full flex text-center flex-col items-center">
     <div class="infra-token__title-wrapper">
       <h2>
-        {{ isLoading || isError ? 'Inventoring...' : 'Inventory done!' }}
+        {{ isLoading || isError ? 'Inventorying...' : 'Inventory done!' }}
       </h2>
     </div>
     <StepState
       :is-loading="isLoading"
       :is-error="isError"
-      loading-message="We are inventoring your account, hold on"
+      loading-message="We are inventorying your account, hold on"
       :error-message="errorMessage"
       :is-success="isSuccess"
       success-message="All set!"
