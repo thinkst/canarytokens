@@ -30,13 +30,16 @@ from canarytokens.tokens import Canarytoken
 
 log = Logger()
 
+# Store the original method before patching
+original_lookup_method = smtp.ESMTP.lookupMethod
+
 
 def patched_lookupMethod(self, command):
     """
     Patched version of lookupMethod that handles non-ASCII characters by ignoring them.
     """
     try:
-        return smtp.ESMTP.lookupMethod(self, command)
+        return original_lookup_method(self, command)
     except UnicodeDecodeError:
         # Log the issue but continue processing
         log.warn(
@@ -45,7 +48,7 @@ def patched_lookupMethod(self, command):
         # Try to decode with replacement character
         try:
             cleaned_command = command.decode("ascii", errors="replace").encode("ascii")
-            return smtp.ESMTP.lookupMethod(self, cleaned_command)
+            return original_lookup_method(self, cleaned_command)
         except Exception as e:
             log.error(f"Failed to process command after cleaning: {e}")
             return None
