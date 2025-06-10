@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       outDir: '../dist',
+      // Stop small icons from being inline images
       assetsInlineLimit: 2048,
     },
     optimizeDeps: {
