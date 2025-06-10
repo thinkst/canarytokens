@@ -30,6 +30,29 @@ from canarytokens.tokens import Canarytoken
 
 log = Logger()
 
+# Store the original method before patching
+original_lookup_method = smtp.ESMTP.lookupMethod
+
+
+def patched_lookupMethod(self, command):
+    """
+    Patched version of lookupMethod that handles non-ASCII characters by closing the connection.
+    """
+    try:
+        return original_lookup_method(self, command)
+    except UnicodeDecodeError:
+        # Log the issue and close the connection
+        log.warn(
+            f"Received command with non-ASCII characters from {self.transport.getPeer().host}: {command!r}"
+        )
+        self.sendLine(b"500 Syntax error, command unrecognized")
+        self.transport.loseConnection()
+        return None
+
+
+# Apply the patch to the ESMTP class
+smtp.ESMTP.lookupMethod = patched_lookupMethod
+
 
 @implementer(smtp.IMessage)
 class CanaryMessage:
