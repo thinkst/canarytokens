@@ -1,0 +1,1 @@
+import{r as a,L as i}from"./index-DIzyJwqW.js";var t=(s=>(s.LOADING="loading",s.ERROR="error",s.SUCCESS="success",s))(t||{});function f(s){const e=a(!1),o=a(!1),c=a(!1);return i(s,r=>{e.value=r==="loading",o.value=r==="error",c.value=r==="success"},{immediate:!0}),{isLoading:e,isError:o,isSuccess:c}}export{t as S,f as u};
