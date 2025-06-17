@@ -159,18 +159,6 @@ const router = createRouter({
           },
         ]
       : []),
-    ...(import.meta.env.MODE === ENV_MODE.DEVELOPMENT
-      ? [
-          {
-            path: '/plan-preview',
-            name: 'plan-preview',
-            component: () => import('../views/DebugPlanPreview.vue'),
-            meta: {
-              title: 'Debug Plan Preview',
-            },
-          },
-        ]
-      : []),
   ],
 });
 
