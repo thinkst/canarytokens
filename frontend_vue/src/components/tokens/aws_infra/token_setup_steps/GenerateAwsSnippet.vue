@@ -110,7 +110,7 @@ import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
 import type { GenericObject } from 'vee-validate';
-import {StepStateEnum, useStepState} from '@/components/tokens/aws_infra/useStepState.ts';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
