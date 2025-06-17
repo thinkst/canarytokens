@@ -1,3 +1,4 @@
+import { TOKENS_TYPE } from '@/components/constants';
 import axios from 'axios';
 
 type AWSInfraRequestPayload = {
@@ -94,6 +95,23 @@ export function deleteToken({
     canarytoken,
     auth_token,
     handle,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
+}
+
+export function editAccountInfo(
+  canarytoken: string,
+  auth_token: string,
+  account_number: string,
+  region: string
+) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/edit';
+  const params = {
+    token_type: TOKENS_TYPE.AWS_INFRA,
+    canarytoken,
+    auth_token,
+    account_number,
+    region,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }

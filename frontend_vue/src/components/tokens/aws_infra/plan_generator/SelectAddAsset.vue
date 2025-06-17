@@ -28,12 +28,13 @@
         <div class="flex flex-row items-center gap-16 h-[2rem]">
           <div
             v-if="value"
-            alt="icon"
+            :alt="`icon-${value}`"
             :style="{
               backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
             }"
             class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full"
-          ></div>
+          >
+        </div>
           {{ label }}
         </div>
       </template>
@@ -41,7 +42,7 @@
         <div class="flex flex-row items-center gap-8 h-[1.5rem]">
           <div
             v-if="value"
-            alt="icon"
+            :alt="`icon-${value}`"
             :style="{
               backgroundImage: `url(${getImageUrl(`aws_infra_icons/${value}.svg`)})`,
             }"

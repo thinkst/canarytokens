@@ -93,6 +93,7 @@ import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -104,9 +105,10 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
-const isLoading = ref(false);
-const isError = ref(false);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
+const { isLoading, isError } = useStepState(stateStatus);
+
 const accountNumber = ref('');
 const accountRegion = ref('');
 
@@ -115,8 +117,7 @@ onMounted(async () => {
   accountRegion.value = aws_region;
 });
 
-const codeSnippetCheckID = `aws iam get-role --role-name Canarytokens-Inventory-ReadOnly-Role --query
-"Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.\"sts:ExternalId\"" --output text`;
+const codeSnippetCheckID = `aws iam get-role --role-name Canarytokens-Inventory-ReadOnly-Role --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`;
 
 const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
@@ -124,7 +125,7 @@ const schema = Yup.object().shape({
 
 async function handleCheckPermission() {
   errorMessage.value = '';
-  isLoading.value = true;
+  stateStatus.value = StepStateEnum.LOADING;
   // ...here goes the API call to manage endpoint...
   emits('updateStep');
 }

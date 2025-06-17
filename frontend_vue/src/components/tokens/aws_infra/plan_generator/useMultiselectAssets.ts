@@ -43,7 +43,7 @@ export default function useMultiselectAsset(assetsData: Ref<AssetsTypes>) {
 
       if (!isSelected) {
         assetObject[assetKey] = assetObject[assetKey].filter(
-          (item) => item !== index
+          (item: any) => item !== index
         );
       }
     }
