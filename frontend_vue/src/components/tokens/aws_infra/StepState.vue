@@ -11,7 +11,7 @@
         v-if="isLongLoading"
         class="mt-24"
       >
-        <p>This might take up to <b>5 minutes</b></p>
+        <p>This might take up to <b>30 seconds</b></p>
       </div>
     </template>
     <template v-if="isError">
@@ -61,7 +61,7 @@ watch(
     if (newVal === true) {
       setTimeout(() => {
         isLongLoading.value = true;
-      }, 100000);
+      }, 30000);
     }
   }
 );

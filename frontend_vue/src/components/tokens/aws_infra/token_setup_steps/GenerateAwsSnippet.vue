@@ -110,7 +110,7 @@ import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
 import type { GenericObject } from 'vee-validate';
-import { log } from 'console';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
@@ -126,9 +126,10 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
-const isLoading = ref(true);
-const isError = ref(false);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
+const { isLoading, isError } = useStepState(stateStatus.value);
+
 const codeSnippetCommands = ref<string>('');
 const accountNumber = ref('');
 const accountRegion = ref('');
@@ -142,8 +143,6 @@ onMounted(async () => {
   const isExistingSnippet = props.currentStepData.codeSnippetCommands;
 
   if (isExistingSnippet) {
-    isError.value = false;
-    isLoading.value = false;
     codeSnippetCommands.value = isExistingSnippet;
   } else {
     await handleGetAwsSnippet();
@@ -151,8 +150,9 @@ onMounted(async () => {
 });
 
 async function handleGetAwsSnippet() {
-  isLoading.value = true;
-  isError.value = false;
+  stateStatus.value = StepStateEnum.LOADING;
+  errorMessage.value = '';
+
   try {
     const res = await requestAWSInfraRoleSetupCommands(
       token,
@@ -160,15 +160,13 @@ async function handleGetAwsSnippet() {
       aws_region
     );
     if (res.status !== 200) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       res.data.error_message = errorMessage;
     }
     isLoading.value = false;
 
     if (!res.data.role_setup_commands) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value =
         'Something went wrong when we tried to generate your snippet. Please try again.';
     }
@@ -194,11 +192,8 @@ async function handleGetAwsSnippet() {
       codeSnippetCommands: codeSnippetCommands.value,
     });
   } catch (err: any) {
-    isError.value = true;
-    isLoading.value = false;
+    stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value = err;
-  } finally {
-    isLoading.value = false;
   }
 }
 
