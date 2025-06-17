@@ -70,7 +70,7 @@
             class="font-semibold hover:text-red"
             @click="handleRemoveAsset(null, null, 0, true)"
           >
-            Delete All
+            Delete Selected
           </button>
           <button
             type="button"
@@ -386,10 +386,10 @@ function handleSaveAsset(
   if (index === -1) {
     assetSamples.value[assetType]!.push(newValues);
   } else {
-    assetSamples.value[assetType][index] = newValues;
-    setTimeout(() => {
-      AnimationTypeEnum.DEFAULT;
-    }, 0);
+        assetSamples.value[assetType]![index] = newValues;
+        setTimeout(() => {
+          AnimationTypeEnum.DEFAULT;
+        }, 0);
   }
 }
 

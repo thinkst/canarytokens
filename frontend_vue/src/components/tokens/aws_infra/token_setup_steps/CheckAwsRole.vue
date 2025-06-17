@@ -13,14 +13,6 @@
       :is-success="isSuccess"
       success-message="All set!"
     />
-
-    <p v-if="isSuccess">
-      Great, you’re set! <br />
-      We’ll inventory your account in
-      <span class="font-semibold">{{ countdownSeconds }}</span> second{{
-        countdownSeconds > 1 ? 's' : ''
-      }}.
-    </p>
     <BaseButton
       v-if="isError"
       class="mt-40"
@@ -36,8 +28,8 @@
 import { ref, onMounted } from 'vue';
 import type { TokenDataType } from '@/utils/dataService';
 import { requestAWSInfraRoleCheck } from '@/api/awsInfra.ts';
-import { useCountdown } from '@/utils/useCountdown';
 import StepState from '../StepState.vue';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits([
   'updateStep',
@@ -49,14 +41,11 @@ const props = defineProps<{
   initialStepData: TokenDataType;
 }>();
 
-const isLoading = ref(true);
-const isError = ref(false);
-const isSuccess = ref(false);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
+const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 
 const { token, auth_token } = props.initialStepData;
-
-const { countdownSeconds, triggerCountdown } = useCountdown(5);
 
 onMounted(async () => {
   emits('isSettingError', false);
@@ -64,11 +53,9 @@ onMounted(async () => {
 });
 
 async function handleCheckRole() {
-  const POLL_INTERVAL = 5000;
-
-  isLoading.value = true;
-  isError.value = false;
-  isSuccess.value = false;
+  const POLL_INTERVAL = 2000;
+  errorMessage.value = '';
+  stateStatus.value = StepStateEnum.LOADING;
 
   try {
     const res = await requestAWSInfraRoleCheck({
@@ -76,8 +63,7 @@ async function handleCheckRole() {
       auth_token,
     });
     if (res.status !== 200) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value = res.data.message;
       emits('isSettingError', true);
     }
@@ -85,15 +71,14 @@ async function handleCheckRole() {
     const handle = res.data.handle;
 
     const startTime = Date.now();
-    const timeout = 5 * 60 * 1000; // 5 minutes
+    const timeout = 5 * 60 * 1000;
 
     const pollInfraRoleCheck = async () => {
       try {
         const resWithHandle = await requestAWSInfraRoleCheck({ handle });
 
         if (resWithHandle.status !== 200) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = resWithHandle.data.error;
           emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
@@ -101,8 +86,7 @@ async function handleCheckRole() {
         }
 
         if (resWithHandle.data.error) {
-          isLoading.value = false;
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = resWithHandle.data.error;
           emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
@@ -111,7 +95,7 @@ async function handleCheckRole() {
 
         // timeout
         if (Date.now() - startTime >= timeout) {
-          isError.value = true;
+          stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value = 'The operation took too long. Try again.';
           emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
@@ -120,32 +104,26 @@ async function handleCheckRole() {
 
         // success
         if (resWithHandle.data.session_credentials_retrieved) {
-          isLoading.value = false;
-          isSuccess.value = true;
+          stateStatus.value = StepStateEnum.SUCCESS;
           emits('storeCurrentStepData', { token, auth_token });
           clearInterval(pollingRoleInterval);
-          await triggerCountdown().then(() => {
-            emits('updateStep');
-          });
+          emits('updateStep');
           return;
         }
       } catch (err: any) {
-        isError.value = true;
+        stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value =
           err.message || 'An error occurred while checking the Role. Try again';
         emits('isSettingError', true);
         clearInterval(pollingRoleInterval);
         return;
-      } finally {
-        isLoading.value = false;
       }
     };
 
     const pollingRoleInterval = setInterval(pollInfraRoleCheck, POLL_INTERVAL);
   } catch (err: any) {
-    isError.value = true;
+    stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value = err.message;
-    isSuccess.value = false;
     emits('isSettingError', true);
   }
 }

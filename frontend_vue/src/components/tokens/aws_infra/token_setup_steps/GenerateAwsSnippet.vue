@@ -109,12 +109,14 @@ import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.t
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
+import type { GenericObject } from 'vee-validate';
+import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
 );
 
-const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
+const emits = defineEmits(['updateStep', 'storeCurrentStepData', 'storePreviousStepData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
@@ -124,9 +126,10 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
-const isLoading = ref(true);
-const isError = ref(false);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
+const { isLoading, isError } = useStepState(stateStatus.value);
+
 const codeSnippetCommands = ref<string>('');
 const accountNumber = ref('');
 const accountRegion = ref('');
@@ -140,8 +143,6 @@ onMounted(async () => {
   const isExistingSnippet = props.currentStepData.codeSnippetCommands;
 
   if (isExistingSnippet) {
-    isError.value = false;
-    isLoading.value = false;
     codeSnippetCommands.value = isExistingSnippet;
   } else {
     await handleGetAwsSnippet();
@@ -149,8 +150,9 @@ onMounted(async () => {
 });
 
 async function handleGetAwsSnippet() {
-  isLoading.value = true;
-  isError.value = false;
+  stateStatus.value = StepStateEnum.LOADING;
+  errorMessage.value = '';
+
   try {
     const res = await requestAWSInfraRoleSetupCommands(
       token,
@@ -158,15 +160,13 @@ async function handleGetAwsSnippet() {
       aws_region
     );
     if (res.status !== 200) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       res.data.error_message = errorMessage;
     }
     isLoading.value = false;
 
     if (!res.data.role_setup_commands) {
-      isLoading.value = false;
-      isError.value = true;
+      stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value =
         'Something went wrong when we tried to generate your snippet. Please try again.';
     }
@@ -192,11 +192,8 @@ async function handleGetAwsSnippet() {
       codeSnippetCommands: codeSnippetCommands.value,
     });
   } catch (err: any) {
-    isError.value = true;
-    isLoading.value = false;
+    stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value = err;
-  } finally {
-    isLoading.value = false;
   }
 }
 
@@ -205,11 +202,17 @@ function hadndleChangeAccountValues() {
     component: ModalEditAWSInfo,
     attrs: {
       closeModal: () => close(),
-      accountNumber: aws_account_number,
-      accountRegion: aws_region,
+      saveData: (data: GenericObject) => handleSaveEditData(data),
+      initialStepData: props.initialStepData
     },
   });
   open();
+}
+
+function handleSaveEditData(data: GenericObject) {
+  emits('storePreviousStepData', data)
+  accountNumber.value = data.aws_account_number;
+  accountRegion.value = data.aws_region;
 }
 
 function handleSnippetChecked() {
