@@ -192,3 +192,12 @@ def generate_external_id():
     return "".join(
         [secrets.choice(string.ascii_letters + string.digits) for _ in range(21)]
     )
+
+
+def set_external_id(canarydrop: Canarydrop, external_id: str):
+    """
+    Set the external ID for the canarydrop. If no external ID is provided, generate a new one.
+    """
+    canarydrop.aws_customer_iam_access_external_id = external_id
+    queries.save_canarydrop(canarydrop)
+    return external_id

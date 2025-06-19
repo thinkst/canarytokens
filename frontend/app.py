@@ -1107,6 +1107,9 @@ def api_awsinfra_check_role(
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
+        if request.external_id:
+            aws_infra.set_external_id(canarydrop, request.external_id)
+
         if not aws_infra.allow_next_state(canarydrop, AWSInfraState.INVENTORYING):
             raise HTTPException(
                 status_code=400,

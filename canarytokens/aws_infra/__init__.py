@@ -8,6 +8,7 @@ from .operations import (
     create_handle,
     get_handle_response,
     get_handle_operation,
+    set_external_id,
 )
 from .plan_generation import generate_proposed_plan, generate_data_choice
 from .management import get_shared_secret, get_current_ingestion_bus
@@ -27,4 +28,5 @@ __all__ = [
     "generate_data_choice",
     "get_current_ingestion_bus",
     "get_handle_operation",
+    "set_external_id",
 ]
