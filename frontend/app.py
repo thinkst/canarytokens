@@ -1123,6 +1123,7 @@ def api_awsinfra_check_role(
 
     handle_response = aws_infra.get_handle_response(request.handle)
     if handle_response.response_received:
+        canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
         aws_infra.update_state(canarydrop, AWSInfraState.INVENTORYING)
         # TODO: don't update on error
         return AWSInfraCheckRoleReceivedResponse(

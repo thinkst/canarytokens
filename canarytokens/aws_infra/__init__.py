@@ -9,6 +9,8 @@ from .operations import (
     get_handle_response,
     get_handle_operation,
     set_external_id,
+    add_handle_response,
+    get_role_cleanup_commands,
 )
 from .plan_generation import generate_proposed_plan, generate_data_choice
 from .management import get_shared_secret, get_current_ingestion_bus
@@ -30,4 +32,6 @@ __all__ = [
     "get_handle_operation",
     "set_external_id",
     "delete_external_id",
+    "add_handle_response",
+    "get_role_cleanup_commands",
 ]

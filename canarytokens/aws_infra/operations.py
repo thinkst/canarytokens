@@ -173,11 +173,14 @@ def save_current_assets(canarydrop: Canarydrop, assets: dict):
 
 
 def get_canarydrop_from_handle(handle_id: str):
-    return queries.get_canarydrop(
+    canarydrop = queries.get_canarydrop(
         Canarytoken(
             value=queries.get_aws_management_lambda_handle(handle_id).get("canarytoken")
         )
     )
+    if not canarydrop:
+        raise Exception("Canarydrop not found for the given handle_id.")
+    return canarydrop
 
 
 def get_module_snippet(canarydrop: Canarydrop):
