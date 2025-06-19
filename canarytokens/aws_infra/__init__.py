@@ -29,4 +29,5 @@ __all__ = [
     "get_current_ingestion_bus",
     "get_handle_operation",
     "set_external_id",
+    "delete_external_id",
 ]

@@ -1,5 +1,5 @@
 from canarytokens import queries
-from canarytokens.aws_infra.operations import generate_external_id
+from canarytokens.aws_infra.operations import delete_external_id, generate_external_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import OperationNotAllowed
 from canarytokens.models import AWSInfraState
@@ -47,6 +47,9 @@ def update_state(canarydrop: Canarydrop, new_state: AWSInfraState):
 
     if canarydrop.aws_infra_state == AWSInfraState.INITIAL:
         canarydrop.aws_customer_iam_access_external_id = generate_external_id()
+
+    if canarydrop.aws_infra_state == AWSInfraState.PLANNING:
+        delete_external_id(canarydrop)
 
     if canarydrop.aws_infra_state == AWSInfraState.INGESTING:
         canarydrop.aws_infra_state = new_state | AWSInfraState.EDITING

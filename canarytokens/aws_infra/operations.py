@@ -201,3 +201,11 @@ def set_external_id(canarydrop: Canarydrop, external_id: str):
     canarydrop.aws_customer_iam_access_external_id = external_id
     queries.save_canarydrop(canarydrop)
     return external_id
+
+
+def delete_external_id(canarydrop: Canarydrop):
+    """
+    Delete the external ID for the canarydrop.
+    """
+    canarydrop.aws_customer_iam_access_external_id = None
+    queries.save_canarydrop(canarydrop)
