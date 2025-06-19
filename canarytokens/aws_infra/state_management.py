@@ -38,6 +38,9 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState) -> bool:
     return False
 
 
+# use dict to map states to their next allowed states
+
+
 def update_state(canarydrop: Canarydrop, new_state: AWSInfraState):
     """
     Update the state of the canarydrop to the new state.
