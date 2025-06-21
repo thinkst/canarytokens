@@ -19,6 +19,7 @@
         Oh no! Something didn't work as expected
       </h2>
       <img
+        v-if="hasIcon"
         :src="getImageUrl('icons/errorIcon.svg')"
         alt="success-icon"
         class="w-[15rem] h-[15rem]"
@@ -30,7 +31,7 @@
         class="min-w-[350px] mt-24"
       />
     </template>
-    <template v-if="isSuccess">
+    <template v-if="isSuccess && hasIcon">
       <img
         :src="getImageUrl('icons/successIcon.svg')"
         alt="success-icon"
@@ -51,6 +52,7 @@ const props = defineProps<{
   errorMessage?: string;
   isSuccess?: boolean;
   successMessage?: string;
+  hasIcon?: boolean;
 }>();
 
 const isLongLoading = ref(false);

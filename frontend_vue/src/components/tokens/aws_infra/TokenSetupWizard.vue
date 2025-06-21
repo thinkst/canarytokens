@@ -58,12 +58,12 @@ const GenerateAwsSnippet = defineAsyncComponent(
 const CheckAwsPermission = defineAsyncComponent(
   () => import('./token_setup_steps/CheckAwsPermission.vue')
 );
-const CheckAwsRole = defineAsyncComponent(
-  () => import('./token_setup_steps/CheckAwsRole.vue')
-);
-const InventoryAwsAccount = defineAsyncComponent(
-  () => import('./token_setup_steps/InventoryAwsAccount.vue')
-);
+// const CheckAwsRole = defineAsyncComponent(
+//   () => import('./token_setup_steps/CheckAwsRole.vue')
+// );
+// const InventoryAwsAccount = defineAsyncComponent(
+//   () => import('./token_setup_steps/InventoryAwsAccount.vue')
+// );
 const GeneratePlan = defineAsyncComponent(
   () => import('./token_setup_steps/GeneratePlan.vue')
 );
@@ -81,15 +81,15 @@ const props = defineProps<{
 
 const router = useRouter();
 const currentStep = ref(1);
-const sharedData = ref(Array(5).fill({}));
+const sharedData = ref(Array(3).fill({}));
 const stepComponents = ref<
   Record<number, ReturnType<typeof defineAsyncComponent>>
 >({
   1: props.isManageToken ? CheckAwsPermission : GenerateAwsSnippet,
-  2: CheckAwsRole,
-  3: InventoryAwsAccount,
-  4: GeneratePlan,
-  5: GenerateTerraformSnippet,
+  // 2: CheckAwsRole,
+  // 3: InventoryAwsAccount,
+  2: GeneratePlan,
+  3: GenerateTerraformSnippet,
 });
 const isInitialError = ref(false);
 const isSettingError = ref(false);
@@ -114,8 +114,8 @@ const showBackButton = computed(() => {
 
 const stepsValues = [
   { label: 'AWS Setup' },
-  { label: 'Check Role' },
-  { label: 'Inventory' },
+  // { label: 'Check Role' },
+  // { label: 'Inventory' },
   { label: 'Plan' },
   { label: 'Terraform snippet' },
 ];

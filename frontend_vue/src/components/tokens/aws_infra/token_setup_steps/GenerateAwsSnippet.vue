@@ -2,12 +2,27 @@
   <section class="flex text-center flex-col">
     <div class="infra-token__title-wrapper flex flex-col items-center">
       <h2>
-        {{
-          isLoading ? 'Generating AWS Snippet...' : `Setup AWS role and policy`
-        }}
+        {{ pageTitle }}
       </h2>
-      <div v-if="!isLoading && !isError">
-        <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
+    </div>
+    <StepState
+      v-if="!isIdle && !codeSnippetCommands"
+      :is-loading="isLoading"
+      :is-error="isError"
+      loading-message="We are generating the snippet, hold on"
+      :error-message="errorMessage"
+    />
+    <StepState
+      v-if="codeSnippetCommands"
+      :is-loading="isLoading"
+      :is-error="isError"
+      loading-message="We are fetching your account, hold on"
+      :error-message="errorMessage"
+      :has-icon="false"
+    />
+    <div v-if="!isLoading && codeSnippetCommands">
+      <div class="flex flex-col items-center mb-16">
+        <BaseCard class="p-24 mt-16 flex flex-col gap-8 items-center">
           <img
             :src="getImageUrl('token_icons/aws_infra.png')"
             alt="asw-token-icon"
@@ -28,50 +43,40 @@
           >Incorrect information? Edit</BaseButton
         >
       </div>
-    </div>
-    <div v-if="!isLoading && !isError">
-      <p class="text-gray-700">
-        Ensure your environment is configured to access the AWS account
-        <span class="text-grey font-bold">{{ accountNumber }}</span> <br />
-        Then run the AWS CLI snippet below
-      </p>
-    </div>
-    <StepState
-      v-if="isLoading || isError"
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are generating the snippet, hold on"
-      :error-message="errorMessage"
-    />
-    <div
-      v-if="!isLoading && !isError"
-      class="flex items-center flex-col text-left"
-    >
-      <BaseCodeSnippet
-        v-if="codeSnippetCommands"
-        lang="bash"
-        label="AWS CLI snippet"
-        :code="codeSnippetCommands"
-        custom-height="100px"
-        class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
-        :check-scroll="true"
-        @copy-content="handleSnippetChecked"
-        @snippet-scrolled="handleSnippetChecked"
-      />
-      <BaseBulletList
-        v-if="!isLoading && !isError"
-        :list="infoList"
-        class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
-      />
-      <div v-if="!isLoading && !isError">
-        <div class="mt-24 flex flex-col items-center">
+      <div>
+        <p class="text-gray-700">
+          Ensure your environment is configured to access the AWS account
+          <span class="text-grey font-bold">{{ accountNumber }}</span> <br />
+          Then run the AWS CLI snippet below
+        </p>
+      </div>
+      <div class="flex items-center flex-col text-left">
+        <BaseCodeSnippet
+          v-if="codeSnippetCommands"
+          lang="bash"
+          label="AWS CLI snippet"
+          :code="codeSnippetCommands"
+          custom-height="100px"
+          class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
+          :check-scroll="true"
+          @copy-content="handleSnippetChecked"
+          @snippet-scrolled="handleSnippetChecked"
+        />
+        <BaseBulletList
+          :list="infoList"
+          class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
+        />
+        <div
+          v-if="isIdle"
+          class="mt-24 flex flex-col items-center"
+        >
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
             variant="warning"
             class="mb-16"
           >
-            Make sure to run the command above. Otherwise, the next step will
-            lead to an error, preventing you from continuing.
+            Make sure to run the command above. Otherwise, we won't be able to
+            generate your canarytoken.
           </BaseMessageBox>
           <BaseButton
             v-if="!showWarningSnipeptCheck"
@@ -81,7 +86,7 @@
           </BaseButton>
           <BaseButton
             v-if="showWarningSnipeptCheck"
-            @click="emits('updateStep')"
+            @click="handleGoToNextStep"
           >
             I Ran the Command, Continue
           </BaseButton>
@@ -90,19 +95,28 @@
     </div>
     <div class="flex justify-center">
       <BaseButton
-        v-if="isError"
+        v-if="isError && !codeSnippetCommands"
         class="mt-40"
         variant="secondary"
         @click="handleGetAwsSnippet"
       >
         Try again
       </BaseButton>
+      <div v-if="isError && codeSnippetCommands">
+        <BaseButton
+          class="mt-40"
+          variant="secondary"
+          @click="handleFetchUserAccount"
+        >
+          Try again
+        </BaseButton>
+      </div>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, defineAsyncComponent } from 'vue';
+import { ref, onMounted, defineAsyncComponent, watch, computed } from 'vue';
 import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
@@ -114,6 +128,7 @@ import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
@@ -135,8 +150,30 @@ const { token, auth_token, aws_region, aws_account_number } =
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
-const { isLoading, isError } = useStepState(stateStatus.value);
 
+const { isLoading, isError } = useStepState(stateStatus);
+const {
+  errorMessage: errorMessageFetch,
+  stateStatus: stateStatusFetch,
+  handleFetchUserAccount,
+  proposedPlan,
+} = useFetchUserAccount(token, auth_token);
+
+const isIdle = computed(
+  () =>
+    stateStatus.value !== StepStateEnum.LOADING &&
+    stateStatus.value !== StepStateEnum.ERROR
+);
+
+const pageTitle = computed(() => {
+  if (isLoading.value && !codeSnippetCommands.value) {
+    return 'Generating AWS Snippet';
+  } else if (isLoading.value && codeSnippetCommands.value) {
+    return 'Fetching your AWS account';
+  } else {
+    return 'Setup AWS role and policy';
+  }
+});
 const codeSnippetCommands = ref<string>('');
 const accountNumber = ref('');
 const accountRegion = ref('');
@@ -234,7 +271,7 @@ async function handleGetAwsSnippet() {
     );
 
     codeSnippetCommands.value = codeSnippet as string;
-
+    stateStatus.value = StepStateEnum.SUCCESS;
     emits('storeCurrentStepData', {
       token,
       auth_token,
@@ -268,14 +305,35 @@ function handleSnippetChecked() {
   isSnippedChecked.value = true;
 }
 
-function handleGoToNextStep() {
+async function handleGoToNextStep() {
   if (!isSnippedChecked.value) {
     showWarningSnipeptCheck.value = true;
+    isSnippedChecked.value = true;
   } else {
     showWarningSnipeptCheck.value = false;
-    emits('updateStep');
+    await handleFetchUserAccount();
   }
 }
+
+watch(
+  () => stateStatusFetch.value,
+  (newValue) => {
+    if (newValue) {
+      stateStatus.value = newValue;
+      if (newValue === StepStateEnum.SUCCESS) {
+        emits('storeCurrentStepData', {
+          token,
+          auth_token,
+          codeSnippetCommands: codeSnippetCommands.value,
+          proposedPlan: proposedPlan.value,
+        });
+        emits('updateStep');
+      } else if (newValue === StepStateEnum.ERROR) {
+        errorMessage.value = errorMessageFetch.value;
+      }
+    }
+  }
+);
 
 const infoList = [
   'This step grants Canarytokens.org temporary, read-only access to list names of various AWS resources (S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles) to create a customized infrastructure plan.',
