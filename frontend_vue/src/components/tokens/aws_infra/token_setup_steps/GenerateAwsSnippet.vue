@@ -281,6 +281,7 @@ watch(
     if (newValue) {
       stateStatus.value = newValue;
       if (newValue === StepStateEnum.SUCCESS) {
+        console.log('proposedPlan', proposedPlan.value);
         emits('storeCurrentStepData', {
           token,
           auth_token,
@@ -307,7 +308,7 @@ function generateCodeSnippet(
   externalId: string,
   roleName: string
 ) {
-  return `aws iam create-role --no-cli-pager --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
+  return `aws iam create-role --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
 
 aws iam create-policy --no-cli-pager --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'${policyDocument}\'
 

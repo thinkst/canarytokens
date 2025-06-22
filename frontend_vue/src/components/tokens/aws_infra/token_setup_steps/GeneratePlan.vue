@@ -257,6 +257,7 @@ const {
 } = useMultiselectAssets(assetSamples);
 
 onMounted(() => {
+  console.log('props.initialStepData:', props.initialStepData);
   assetSamples.value = proposed_plan.assets;
   resetSelectedAssetObj();
 
