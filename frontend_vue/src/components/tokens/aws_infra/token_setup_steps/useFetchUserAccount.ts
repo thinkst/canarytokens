@@ -49,7 +49,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
           }
 
           if (resWithHandle.data.error) {
-            console.log('error', resWithHandle.data.error);
             stateStatus.value = StepStateEnum.ERROR;
             errorMessage.value = resWithHandle.data.error;
             // emits('isSettingError', true);
@@ -68,11 +67,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
 
           // success
           if (resWithHandle.data.session_credentials_retrieved) {
-            console.log('succeeeess');
-            // stateStatus.value = StepStateEnum.SUCCESS;
-            // emits('storeCurrentStepData', { token, auth_token });
             clearInterval(pollingRoleInterval);
-            // emits('updateStep');
             await handleInventory();
             return;
           }
@@ -81,7 +76,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
           errorMessage.value =
             err.message ||
             'An error occurred while checking the Role. Try again';
-          //   emits('isSettingError', true);
           clearInterval(pollingRoleInterval);
           return;
         }
@@ -94,14 +88,12 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value = err.message;
-      //   emits('isSettingError', true);
     }
   }
 
   async function handleInventory() {
     errorMessage.value = '';
     stateStatus.value = StepStateEnum.LOADING;
-    console.log('handleInventory');
 
     try {
       const res = await requestInventoryCustomerAccount({
@@ -151,7 +143,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
           if (resWithHandle.data.proposed_plan) {
             stateStatus.value = StepStateEnum.SUCCESS;
             proposedPlan.value = resWithHandle.data.proposed_plan;
-            console.log('proposed_plan', proposedPlan.value);
             clearInterval(pollingInventoringInterval);
             return;
           }

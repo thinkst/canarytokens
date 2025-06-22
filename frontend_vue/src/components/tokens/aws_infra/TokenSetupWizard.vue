@@ -6,7 +6,7 @@
         type="button"
         variant="text"
         icon="angle-left"
-        @click="currentStep--"
+        @click="handleBackButton"
       >
         Back
       </BaseButton>
@@ -58,12 +58,6 @@ const GenerateAwsSnippet = defineAsyncComponent(
 const CheckAwsPermission = defineAsyncComponent(
   () => import('./token_setup_steps/CheckAwsPermission.vue')
 );
-// const CheckAwsRole = defineAsyncComponent(
-//   () => import('./token_setup_steps/CheckAwsRole.vue')
-// );
-// const InventoryAwsAccount = defineAsyncComponent(
-//   () => import('./token_setup_steps/InventoryAwsAccount.vue')
-// );
 const GeneratePlan = defineAsyncComponent(
   () => import('./token_setup_steps/GeneratePlan.vue')
 );
@@ -86,8 +80,6 @@ const stepComponents = ref<
   Record<number, ReturnType<typeof defineAsyncComponent>>
 >({
   1: props.isManageToken ? CheckAwsPermission : GenerateAwsSnippet,
-  // 2: CheckAwsRole,
-  // 3: InventoryAwsAccount,
   2: GeneratePlan,
   3: GenerateTerraformSnippet,
 });
@@ -114,14 +106,20 @@ const showBackButton = computed(() => {
 
 const stepsValues = [
   { label: 'AWS Setup' },
-  // { label: 'Check Role' },
-  // { label: 'Inventory' },
   { label: 'Plan' },
   { label: 'Terraform snippet' },
 ];
 
 function handleUpdateStep() {
   currentStep.value++;
+}
+
+function handleBackButton() {
+  currentStep.value--;
+}
+
+function handleChangeStep(index: number) {
+  currentStep.value = index;
 }
 
 function handleStoreCurrentStepData(data: GenericDataType) {
@@ -133,9 +131,6 @@ function handleStorePreviousStepData(data: GenericDataType) {
     ...sharedData.value[currentStep.value - 1],
     ...data,
   };
-}
-function handleChangeStep(index: number) {
-  currentStep.value = index;
 }
 
 function handleSettingError(isError: boolean) {

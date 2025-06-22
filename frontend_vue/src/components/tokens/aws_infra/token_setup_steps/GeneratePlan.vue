@@ -211,7 +211,9 @@ const props = defineProps<{
   initialStepData: TokenDataType;
 }>();
 
-const { token, auth_token, proposed_plan } = props.initialStepData;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { token, auth_token, code_snippet_command, proposed_plan } =
+  props.initialStepData;
 
 const viewType = ref(ViewTypeEnum.GRID);
 const isLoading = ref(true);
@@ -240,6 +242,7 @@ const {
 } = useMultiselectAssets(assetSamples);
 
 onMounted(() => {
+  console.log('props.initialStepData:', props.initialStepData);
   assetSamples.value = proposed_plan.assets;
   resetSelectedAssetObj();
 });

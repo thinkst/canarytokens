@@ -13,7 +13,7 @@
       :error-message="errorMessage"
     />
     <StepState
-      v-if="codeSnippetCommands"
+      v-if="!isIdle && codeSnippetCommands"
       :is-loading="isLoading"
       :is-error="isError"
       loading-message="We are fetching your account, hold on"
@@ -223,13 +223,16 @@ const policyDocument = `{
 }`;
 
 onMounted(async () => {
-  accountNumber.value = props.initialStepData.aws_account_number;
-  accountRegion.value = props.initialStepData.aws_region;
+  console.log('initialStepData:', props.initialStepData);
+  console.log('currentStepData:', props.currentStepData);
+  accountNumber.value = aws_account_number;
+  accountRegion.value = aws_region;
 
-  const isExistingSnippet = props.currentStepData.codeSnippetCommands;
+  const isExistingSnippet = props.currentStepData.code_snippet_command;
 
   if (isExistingSnippet) {
     codeSnippetCommands.value = isExistingSnippet;
+    stateStatus.value = StepStateEnum.SUCCESS;
   } else {
     await handleGetAwsSnippet();
   }
@@ -275,7 +278,7 @@ async function handleGetAwsSnippet() {
     emits('storeCurrentStepData', {
       token,
       auth_token,
-      codeSnippetCommands: codeSnippetCommands.value,
+      code_snippet_command: codeSnippetCommands.value,
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
@@ -321,11 +324,12 @@ watch(
     if (newValue) {
       stateStatus.value = newValue;
       if (newValue === StepStateEnum.SUCCESS) {
+        console.log('proposedPlan', proposedPlan.value);
         emits('storeCurrentStepData', {
           token,
           auth_token,
-          codeSnippetCommands: codeSnippetCommands.value,
-          proposedPlan: proposedPlan.value,
+          code_snippet_command: codeSnippetCommands.value,
+          proposed_plan: proposedPlan.value,
         });
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
@@ -347,7 +351,7 @@ function generateCodeSnippet(
   externalId: string,
   roleName: string
 ) {
-  return `aws iam create-role --no-cli-pager --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
+  return `aws iam create-role --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
 
 aws iam create-policy --no-cli-pager --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'${policyDocument}\'
 

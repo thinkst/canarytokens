@@ -108,7 +108,7 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
-const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
 const { isLoading, isError } = useStepState(stateStatus);
 
