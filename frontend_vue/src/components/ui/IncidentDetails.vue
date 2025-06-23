@@ -92,7 +92,6 @@
                          </template>
                       </template>
                     </ul>
-                    <div class="border-b border-grey-100"></div>
                   </template>
                 </ul>
               </template>
@@ -110,29 +109,29 @@ import type { Ref } from 'vue';
 import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
 import IncidentDetailsListItem from '@/components/ui/IncidentDetailsListItem.vue';
 import IncidentDetailsSummary from '@/components/ui/IncidentDetailsSummary.vue';
-import { isObject } from '@/utils/utils';
+import { isObject, isNotEmpty } from '@/utils/utils';
+import incidentDetailsService from '@/utils/incidentDetailsService.ts'
 import {
   formatLabels,
-  isNotEmpty,
-  buildIncidentDetails,
-} from '@/utils/incidentAlertService';
+} from '@/utils/incidentUtils';
 
 const props = withDefaults(
   defineProps<{
     hitAlert: HitsType;
     showingMap: boolean;
+    tokenType: string;
   }>(), {
     showingMap: true,
   },
 );
 
 const emit = defineEmits(['close']);
-const builtIncidentDetail: Ref<FormattedHitsType | HitsType | null> = ref(null);
+const builtIncidentDetail: Ref<FormattedHitsType | null> = ref(null);
 const formattedIncidentDetail = ref({});
 
 onMounted(() => {
   // Map & cleanup hitAlert
-  builtIncidentDetail.value = buildIncidentDetails(props.hitAlert);
+  builtIncidentDetail.value = incidentDetailsService(props.hitAlert, props.tokenType);
 
   // Make the list UI friendly
   formattedIncidentDetail.value = formatLabels(
@@ -144,7 +143,7 @@ watch(
   () => props.hitAlert,
   () => {
     // Map & cleanup hitAlert
-    builtIncidentDetail.value = buildIncidentDetails(props.hitAlert);
+    builtIncidentDetail.value = incidentDetailsService(props.hitAlert, props.tokenType);
     // Make the list UI friendly
     formattedIncidentDetail.value = formatLabels(
       builtIncidentDetail.value as FormattedHitsType

@@ -38,7 +38,7 @@
 import AlertShieldIcon from '@/components/icons/AlertShieldIcon.vue';
 
 type incidentPreviewInfoType = {
-  [key: string]: string | Date;
+  [key: string]: string | Date | null;
 };
 
 defineProps<{

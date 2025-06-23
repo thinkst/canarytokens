@@ -94,16 +94,16 @@ function parseGeoInfoLocation(info: string) {
 
 const markers: ComputedRef<MarkerType[]> = computed(() => {
   return props.hitsList.filter(function(marker) {
-    return (marker.geo_info != null);
+    return !!marker.geo_info;
   }).map((marker) => {
     return {
       id: marker.time_of_hit,
-      ip: marker.geo_info.ip,
-      hostname: marker.geo_info.hostname,
-      city: marker.geo_info.city,
-      country: marker.geo_info.country,
+      ip: marker.geo_info?.ip,
+      hostname: marker.geo_info?.hostname,
+      city: marker.geo_info?.city,
+      country: marker.geo_info?.country,
       date: convertUnixTimeStampToDate(marker.time_of_hit),
-      position: marker.geo_info.loc
+      position: marker.geo_info?.loc
         ? parseGeoInfoLocation(marker.geo_info.loc)
         : undefined,
     };
