@@ -22,6 +22,7 @@ AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
 AWS_INFRA_SHARED_SECRET = None
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
+HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
 
 @dataclass
@@ -123,7 +124,7 @@ def get_handle_response(handle_id):
         handle.get("requested_timestamp"), "%Y-%m-%d %H:%M:%S"
     ).timestamp()
     current_time = datetime.now(timezone.utc).timestamp()
-    if requested_time - current_time > 300:
+    if requested_time - current_time > HANDLE_RESPONSE_TIMEOUT:
         return Handle(response_received=True, response="")
     return Handle(response_received=False, response="")
 

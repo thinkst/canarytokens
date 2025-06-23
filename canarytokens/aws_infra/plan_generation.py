@@ -64,7 +64,7 @@ def generate_s3_bucket():
     suffix = "".join(
         [random.choice(string.ascii_lowercase + string.digits) for _ in range(10)]
     )
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}bucket{separator}{suffix}"
+    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}{suffix}"
 
 
 def generate_s3_object():
@@ -84,12 +84,12 @@ def generate_sqs_queue():
     """
     separator = random.choice(["", "-", "_"])
 
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}queue"
+    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
 
 
 def generate_ssm_parameter():
     separator = random.choice(["", "-", "_"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}parameter"
+    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
 
 
 def generate_secretsmanager_secret():
@@ -97,7 +97,7 @@ def generate_secretsmanager_secret():
     Return a name for a Secrets Manager secret.
     """
     separator = random.choice(["", "-", "_", "+", "=", "@"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}secret"
+    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
 
 
 def generate_dynamo_table():
@@ -105,7 +105,7 @@ def generate_dynamo_table():
     Return a name for a DynamoDB table.
     """
     separator = random.choice(["", "-", "_"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}table"
+    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
 
 
 def generate_dynamo_table_item():
