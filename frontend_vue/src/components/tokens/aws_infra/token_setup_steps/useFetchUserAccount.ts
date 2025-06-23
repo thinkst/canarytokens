@@ -11,6 +11,9 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
   const proposedPlan = ref<any>(null);
 
   const POLL_INTERVAL = 2000;
+  // If the first attempts fails, it could depend on the AWS account still being set up
+  // so we retry a few times before giving up
+  const MAX_RETRIES = 3;
 
   async function handleFetchUserAccount() {
     await handleCheckRole();
@@ -19,6 +22,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
   async function handleCheckRole() {
     errorMessage.value = '';
     stateStatus.value = StepStateEnum.LOADING;
+    let RETRY_ATTEMPTS = 0;
 
     try {
       const res = await requestAWSInfraRoleCheck({
@@ -40,10 +44,18 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
         try {
           const resWithHandle = await requestAWSInfraRoleCheck({ handle });
 
+          if (resWithHandle.data.error && RETRY_ATTEMPTS <= MAX_RETRIES) {
+            RETRY_ATTEMPTS++;
+            console.log(
+              `Retrying AWS Infra Role Check (${RETRY_ATTEMPTS}/${MAX_RETRIES})`
+            );
+            await handleCheckRole();
+            return;
+          }
+
           if (resWithHandle.status !== 200) {
             stateStatus.value = StepStateEnum.ERROR;
             errorMessage.value = resWithHandle.data.error;
-            // emits('isSettingError', true);
             clearInterval(pollingRoleInterval);
             return;
           }
@@ -51,7 +63,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
           if (resWithHandle.data.error) {
             stateStatus.value = StepStateEnum.ERROR;
             errorMessage.value = resWithHandle.data.error;
-            // emits('isSettingError', true);
             clearInterval(pollingRoleInterval);
             return;
           }
@@ -60,7 +71,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
           if (Date.now() - startTime >= timeout) {
             stateStatus.value = StepStateEnum.ERROR;
             errorMessage.value = 'The operation took too long. Try again.';
-            // emits('isSettingError', true);
             clearInterval(pollingRoleInterval);
             return;
           }

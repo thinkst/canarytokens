@@ -324,7 +324,6 @@ watch(
     if (newValue) {
       stateStatus.value = newValue;
       if (newValue === StepStateEnum.SUCCESS) {
-        console.log('proposedPlan', proposedPlan.value);
         emits('storeCurrentStepData', {
           token,
           auth_token,

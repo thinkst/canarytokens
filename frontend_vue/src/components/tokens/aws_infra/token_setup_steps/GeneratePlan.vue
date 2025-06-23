@@ -2,7 +2,21 @@
   <div class="infra-token__title-wrapper">
     <h2>Proposed Plan</h2>
   </div>
-  <div class="flex items-stretch flex-col px-24">
+  <div
+    v-if="isLoadingUI"
+    class="mt-[80px] grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr"
+  >
+    <BaseSkeletonLoader
+      v-for="i in 10"
+      :key="i"
+      type="rectangle"
+      class="h-[160px]"
+    />
+  </div>
+  <div
+    v-if="!isLoadingUI"
+    class="flex items-stretch flex-col px-24"
+  >
     <div>
       <div class="flex justify-between mb-24">
         <div>
@@ -222,6 +236,7 @@ const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
+const isLoadingUI = ref(true);
 
 const assetSamples = ref<AssetsTypes>({
   S3Bucket: [],
@@ -245,6 +260,11 @@ onMounted(() => {
   console.log('props.initialStepData:', props.initialStepData);
   assetSamples.value = proposed_plan.assets;
   resetSelectedAssetObj();
+
+  // Set loading state to allow UI to render
+  setTimeout(() => {
+    isLoadingUI.value = false;
+  }, 300);
 });
 
 const isMissingPermissionAssetType = computed(() => {
