@@ -129,6 +129,7 @@ import {
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
 import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
+import { policyDocument } from '@/components/tokens/aws_infra/constants.ts';
 
 const ModalEditAWSInfo = defineAsyncComponent(
   () => import('./ModalEditAWSInfo.vue')
@@ -179,48 +180,6 @@ const accountNumber = ref('');
 const accountRegion = ref('');
 const isSnippedChecked = ref(false);
 const showWarningSnipeptCheck = ref(false);
-
-const policyDocument = `{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "sqs:ListQueues",
-                "sqs:GetQueueAttributes"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:ListAllMyBuckets"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:ListTables"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:DescribeParameters"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "secretsmanager:ListSecrets"
-            ],
-            "Resource": "*"
-        }
-    ]
-}`;
 
 onMounted(async () => {
   console.log('initialStepData:', props.initialStepData);
