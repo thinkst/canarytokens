@@ -1,5 +1,8 @@
 <template>
-  <IncidentSelectType @select-option="(value) => handleSelectOption(value)" />
+  <IncidentSelectType
+    :alerts-list="hitsList"
+    @select-option="(value) => handleSelectOption(value)"
+  />
   <section
     v-if="!selectedAssetName"
     ref="asset-section"
@@ -35,9 +38,9 @@
     </h3>
     <ul class="flex flex-col h-full gap-16 pb-16">
       <CardIncident
-        v-for="(incident, index) in filteredIncidentsListByName"
+        v-for="(incident, index) in filteredIncidentsListByAssetName"
         :key="index"
-        :last-key="index === filteredIncidentsListByName.length - 1"
+        :last-key="index === filteredIncidentsListByAssetName.length - 1"
         :incident-id="incident.time_of_hit"
         :incident-preview-info="{
           Date: convertUnixTimeStampToDate(incident.time_of_hit),
@@ -81,24 +84,24 @@ const assetSection = useTemplateRef('asset-section');
 const incidentsSection = useTemplateRef('incidents-section');
 
 const incidentsByTypeAndAssetName = computed(() => {
-  const filteredList = hitsList.history.hits.filter(
+  const filteredListByType = hitsList.history.hits.filter(
     (hit) =>
       (hit.additional_info as AdditionalInfoAWSInfraType).decoy_resource
         .asset_type === selectedAssetType.value
   );
 
-  const groupedList = Object.groupBy(
-    filteredList,
-    (alert: HitsType) =>
-      (alert.additional_info as AdditionalInfoAWSInfraType).decoy_resource[
+  const groupedListByAssetName = Object.groupBy(
+    filteredListByType,
+    (incident: HitsType) =>
+      (incident.additional_info as AdditionalInfoAWSInfraType).decoy_resource[
         'Asset Name'
       ]
   );
 
-  return groupedList as incidentsByTypeAndAssetNameType;
+  return groupedListByAssetName as incidentsByTypeAndAssetNameType;
 });
 
-const filteredIncidentsListByName = computed(() => {
+const filteredIncidentsListByAssetName = computed(() => {
   return hitsList.history.hits.filter(
     (hit) =>
       (hit.additional_info as AdditionalInfoAWSInfraType).decoy_resource[
