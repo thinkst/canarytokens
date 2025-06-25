@@ -15,7 +15,7 @@
         :last-key="
           index === Object.values(incidentsByTypeAndAssetName).length - 1
         "
-        :asset-preview-info="previewInfo(group[0])"
+        :asset-preview-info="assetPreviewInfo(group[0])"
         :asset-type="selectedAssetType"
         @click="handleSelectAssetName(group[0])"
       />
@@ -42,11 +42,7 @@
         :key="index"
         :last-key="index === filteredIncidentsListByAssetName.length - 1"
         :incident-id="incident.time_of_hit"
-        :incident-preview-info="{
-          Date: convertUnixTimeStampToDate(incident.time_of_hit),
-          IP: incident.src_ip,
-          Channel: incident.input_channel,
-        }"
+        :incident-preview-info="incidentPreviewInfo(incident)"
         @click="handleSelectAlert(incident)"
       ></CardIncident>
     </ul>
@@ -110,13 +106,23 @@ const filteredIncidentsListByAssetName = computed(() => {
   );
 });
 
-function previewInfo(hit: HitsType) {
+function assetPreviewInfo(hit: HitsType) {
   return {
     asset_name: (hit.additional_info as AdditionalInfoAWSInfraType)
       .decoy_resource['Asset Name'],
-    time_of_hit: hit.time_of_hit
+    last_date_of_hit: hit.time_of_hit
       ? convertUnixTimeStampToDate(hit.time_of_hit)
       : null,
+  };
+}
+
+function incidentPreviewInfo(hit: HitsType) {
+  return {
+    Date: convertUnixTimeStampToDate(hit.time_of_hit),
+    IP: hit.src_ip,
+    'Event Name': (hit.additional_info as AdditionalInfoAWSInfraType).event[
+      'Event Name'
+    ],
   };
 }
 
@@ -126,76 +132,61 @@ function handleSelectOption(value: string) {
 }
 
 function handleSelectAssetName(incident: HitsType) {
-  (selectedAssetName.value = (
-    incident.additional_info as AdditionalInfoAWSInfraType
-  ).decoy_resource['Asset Name']),
-    console.log('Selected Alert:', selectedAssetName.value);
+  animateList('assetSection', () => {
+    selectedAssetName.value = (
+      incident.additional_info as AdditionalInfoAWSInfraType
+    ).decoy_resource['Asset Name'];
+  });
 }
 
 function handleSelectAlert(incident: HitsType) {
   emits('select-alert', incident);
-  console.log('Selected Alert:', incident);
 }
 
 function handleBackButton() {
-  selectedAssetName.value = '';
+  animateList('', () => {
+    selectedAssetName.value = '';
+  });
+}
+
+function animateList(exitList: string, callback: () => void) {
+  if (exitList === 'assetSection') {
+    assetSection.value?.classList.add('exit-right');
+  } else {
+    incidentsSection.value?.classList.add('exit-left');
+  }
+  setTimeout(() => {
+    callback();
+  }, 250);
 }
 </script>
 
 <style lang="scss" scoped>
-@keyframes leaveLeft {
+@keyframes exitRight {
   from {
     transform: translateX(0);
   }
   to {
     opacity: 0;
-    transform: translateX(-100%);
+    transform: translateX(-200px);
   }
 }
 
-@keyframes leaveLeft {
+@keyframes exitLeft {
   from {
     transform: translateX(0);
   }
   to {
     opacity: 0;
-    transform: translateX(100%);
-  }
-}
-
-@keyframes enterLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes enterRight {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
+    transform: translateX(200px);
   }
 }
 
 .exit-left {
-  animation: leaveLeft 0.3s ease-in-out forwards;
+  animation: exitLeft 0.25s ease-in-out forwards;
 }
 
 .exit-right {
-  animation: leaveLeft 0.3s ease-in-out forwards;
-}
-
-.enter-left {
-  animation: enterLeft 0.3s ease-in-out forwards;
-}
-
-.enter-right {
-  animation: enterRight 0.3s ease-in-out forwards;
+  animation: exitRight 0.25s ease-in-out forwards;
 }
 </style>
