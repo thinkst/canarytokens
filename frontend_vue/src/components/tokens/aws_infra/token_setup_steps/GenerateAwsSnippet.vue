@@ -20,52 +20,65 @@
       :error-message="errorMessage"
       :has-icon="false"
     />
-    <div v-if="!isLoading && codeSnippetCommands">
+    <div
+      v-if="!isLoading && codeSnippetCommands"
+      class="flex flex-col items-center"
+    >
       <div class="flex flex-col items-center mb-16">
-        <BaseCard class="p-24 mt-16 flex flex-col gap-8 items-center">
-          <img
-            :src="getImageUrl('token_icons/aws_infra.png')"
-            alt="asw-token-icon"
-            class="w-[4.5rem] h-[4.5rem]"
-          />
-          <p class="text-md text-grey-400 leading-4">
-            AWS account:
-            <span class="text-grey font-semibold">{{ accountNumber }}</span>
-          </p>
-          <p class="text-md text-grey-400 leading-4">
-            AWS region:
-            <span class="text-grey font-semibold">{{ accountRegion }}</span>
-          </p>
-        </BaseCard>
-        <BaseButton
-          variant="text"
-          @click="hadndleChangeAccountValues"
-          >Incorrect information? Edit</BaseButton
-        >
+        <CardAwsAccount
+          :token-data="props.initialStepData"
+          @save-edit-data="handleSaveEditData"
+        />
       </div>
       <div>
-        <p class="text-gray-700">
-          Ensure your environment is configured to access the AWS account
-          <span class="text-grey font-bold">{{ accountNumber }}</span> <br />
-          Then run the AWS CLI snippet below
-        </p>
+        <BaseMessageBox
+          class="mt-24 mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+          variant="info"
+          >Please ensure your AWS environment is set up for account
+          <span class="font-bold">{{ accountNumber }}</span> before
+          continuing.</BaseMessageBox
+        >
       </div>
-      <div class="flex items-center flex-col text-left">
-        <BaseCodeSnippet
-          v-if="codeSnippetCommands"
-          lang="bash"
-          label="AWS CLI snippet"
-          :code="codeSnippetCommands"
-          custom-height="100px"
-          class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
-          :check-scroll="true"
-          @copy-content="handleSnippetChecked"
-          @snippet-scrolled="handleSnippetChecked"
-        />
-        <BaseBulletList
-          :list="infoList"
-          class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
-        />
+      <div class="text-left max-w-[100%]">
+        <BaseCard
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+        >
+          <div class="text-center">
+            <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
+            <p>
+              We need to inventory your account to suggest decoy resources to
+              deploy, execute these commands to give us read-only access
+            </p>
+          </div>
+          <BaseCodeSnippet
+            v-if="codeSnippetCommands"
+            lang="bash"
+            label="AWS CLI snippet"
+            :code="codeSnippetCommands"
+            custom-height="120px"
+            class="mt-24 wrap-code max-w-[100%]"
+            :check-scroll="true"
+            @copy-content="handleSnippetChecked"
+            @snippet-scrolled="handleSnippetChecked"
+          />
+          <div class="text-center flex mt-24 gap-8 items-center justify-center">
+            <p>What's this snippet doing?</p>
+            <button
+              v-tooltip="{
+                content: 'Check details',
+                triggers: ['hover'],
+              }"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
+              aria-label="What's this snippet doing?"
+              @click="handleShowModalInfoSnippet"
+            >
+              <font-awesome-icon
+                icon="question"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </BaseCard>
         <div
           v-if="isIdle"
           class="mt-24 flex flex-col items-center"
@@ -116,13 +129,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, defineAsyncComponent, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
+import { useModal } from 'vue-final-modal';
 import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
-import getImageUrl from '@/utils/getImageUrl.ts';
-import { useModal } from 'vue-final-modal';
 import type { GenericObject } from 'vee-validate';
 import {
   StepStateEnum,
@@ -130,9 +142,10 @@ import {
 } from '@/components/tokens/aws_infra/useStepState.ts';
 import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 import { policyDocument } from '@/components/tokens/aws_infra/constants.ts';
+import CardAwsAccount from './CardAwsAccount.vue';
 
-const ModalEditAWSInfo = defineAsyncComponent(
-  () => import('./ModalEditAWSInfo.vue')
+const ModalInfoSnippet = defineAsyncComponent(
+  () => import('./ModalInfoSnippet.vue')
 );
 
 const emits = defineEmits([
@@ -243,18 +256,6 @@ async function handleGetAwsSnippet() {
   }
 }
 
-function hadndleChangeAccountValues() {
-  const { open, close } = useModal({
-    component: ModalEditAWSInfo,
-    attrs: {
-      closeModal: () => close(),
-      saveData: (data: GenericObject) => handleSaveEditData(data),
-      initialStepData: props.initialStepData,
-    },
-  });
-  open();
-}
-
 function handleSaveEditData(data: GenericObject) {
   emits('storePreviousStepData', data);
   accountNumber.value = data.aws_account_number;
@@ -295,11 +296,15 @@ watch(
   }
 );
 
-const infoList = [
-  'This step grants Canarytokens.org temporary, read-only access to list names of various AWS resources (S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles) to create a customized infrastructure plan.',
-  'This access is automatically revoked by Canarytokens.org after plan creation.',
-  'You will be provided with cleanup instructions at the end of the wizard to remove the associated AWS policy, attachment, and role.',
-];
+function handleShowModalInfoSnippet() {
+  const { open, close } = useModal({
+    component: ModalInfoSnippet,
+    attrs: {
+      closeModal: () => close(),
+    },
+  });
+  open();
+}
 
 function generateCodeSnippet(
   awsAccount: number,

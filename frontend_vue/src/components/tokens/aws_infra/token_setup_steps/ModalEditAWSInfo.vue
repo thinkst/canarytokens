@@ -68,7 +68,7 @@ import { editAccountInfo } from '@/api/awsInfra';
 import type { TokenDataType } from '@/utils/dataService';
 
 const props = defineProps<{
-  initialStepData: TokenDataType;
+  tokenData: TokenDataType;
   closeModal: () => void;
   saveData: (data: GenericObject) => void;
 }>();
@@ -93,9 +93,9 @@ const schema = Yup.object().shape({
 
 onMounted(() => {
   selectedRegion.value = AWS_REGIONS.filter((region) => {
-    return region.value === props.initialStepData.aws_region;
+    return region.value === props.tokenData.aws_region;
   });
-  selectedAWSaccount.value = props.initialStepData.aws_account_number;
+  selectedAWSaccount.value = props.tokenData.aws_account_number;
 });
 
 async function onSubmit(values: GenericObject) {
@@ -103,8 +103,8 @@ async function onSubmit(values: GenericObject) {
   // ...here goes the API call to manage endpoint...
   try {
     const res = await editAccountInfo(
-      props.initialStepData.token,
-      props.initialStepData.auth_token,
+      props.tokenData.token,
+      props.tokenData.auth_token,
       selectedAWSaccount.value,
       selectedRegion.value[0].value
     );
