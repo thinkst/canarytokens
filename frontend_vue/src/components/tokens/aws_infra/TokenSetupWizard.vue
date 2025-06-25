@@ -29,7 +29,9 @@
           (data: GenericDataType) => handleStoreCurrentStepData(data)
         "
         @is-setting-error="(isError: boolean) => handleSettingError(isError)"
-        @store-previous-step-data=" (data: GenericDataType) => handleStorePreviousStepData(data)"
+        @store-previous-step-data="
+          (data: GenericDataType) => handleStorePreviousStepData(data)
+        "
       />
       <template #fallblack>
         <p>Loading next step...</p>
@@ -128,8 +130,10 @@ function handleStoreCurrentStepData(data: GenericDataType) {
 }
 
 function handleStorePreviousStepData(data: GenericDataType) {
-  sharedData.value[currentStep.value - 1] = {...sharedData.value[currentStep.value - 1], ...data};
-
+  sharedData.value[currentStep.value - 1] = {
+    ...sharedData.value[currentStep.value - 1],
+    ...data,
+  };
 }
 function handleChangeStep(index: number) {
   currentStep.value = index;
