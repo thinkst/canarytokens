@@ -50,8 +50,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
+import type { HistoryTokenBackendType } from '@/components/tokens/types.ts';
 import {
   AssetTypesEnum,
   ASSET_LABEL,
@@ -59,14 +60,40 @@ import {
 
 type SelectOption = { label: string; value: string };
 
+const props = defineProps<{
+  alertsList: HistoryTokenBackendType;
+}>();
+
 const emits = defineEmits(['selectOption']);
 
 const EMPTY_VALUE = { label: 'Choose asset', value: '' };
 const selectedValue = ref(EMPTY_VALUE);
 
+onMounted(() => {
+  selectedValue.value = options.value[0];
+  emits('selectOption', selectedValue.value.value);
+});
+
+function getExistingAssetTypes() {
+  const assetTypes = [] as string[];
+  props.alertsList.history.hits.forEach((hit) => {
+    const assetType = (hit.additional_info as any).decoy_resource.asset_type;
+    if (assetType && !assetTypes.includes(assetType)) {
+      assetTypes.push(assetType);
+    }
+  });
+
+  return Array.from(assetTypes);
+}
+
 const options = computed(() => {
+  const existingAssetTypes = getExistingAssetTypes();
+
   return Object.values(AssetTypesEnum)
     .map((val) => {
+      if (!existingAssetTypes.includes(val)) {
+        return null;
+      }
       return { label: ASSET_LABEL[val], value: val };
     })
     .filter((option) => option !== null);
