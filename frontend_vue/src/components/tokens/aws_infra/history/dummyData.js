@@ -213,7 +213,7 @@ const dummyData = {
                     },
                     "decoy_resource": {
                         "asset_type": "S3Bucket",
-                        "Asset Name": "foo-bar-bucket-2",
+                        "Asset Name": "foo-bar-bucket-2-something-else-very-long",
                         "Request Parameters": "userName: test-user"
                     },
                     "identity": {

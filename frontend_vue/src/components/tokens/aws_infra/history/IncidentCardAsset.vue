@@ -12,7 +12,7 @@
           :style="{
             backgroundImage: `url(${getImageUrl(`aws_infra_icons/${assetType}.svg`)})`,
           }"
-          class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full"
+          class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full hidden @xs:block min-w-[2rem]"
         ></div>
         <span class="text-left">
           <span
@@ -23,7 +23,7 @@
             <span
               v-if="val !== null"
               class="capitalize text-grey-400"
-              >{{ key }}:
+              >{{ formatKey(key as string) }}:
             </span>
             <span
               v-if="val !== null"
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import getImageUrl from '@/utils/getImageUrl';
+import { formatKey } from '@/utils/utils';
 
 type incidentPreviewInfoType = {
   [key: string]: string | Date | null;
