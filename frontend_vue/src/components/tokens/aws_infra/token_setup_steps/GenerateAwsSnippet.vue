@@ -43,20 +43,27 @@
         <BaseCard
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         >
-          <div class="text-center">
+          <div class="text-center mb-24">
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
               We need to inventory your account to suggest decoy resources to
               deploy, execute these commands to give us read-only access
             </p>
           </div>
+          <BaseLabelArrow
+            id="aws-snippet"
+            label="AWS CLI snippet"
+            :arrow-word-position="3"
+            arrow-variant="one"
+            class="z-10"
+          />
           <BaseCodeSnippet
             v-if="codeSnippetCommands"
+            id="aws-snippet"
             lang="bash"
-            label="AWS CLI snippet"
             :code="codeSnippetCommands"
             custom-height="120px"
-            class="mt-24 wrap-code max-w-[100%]"
+            class="wrap-code max-w-[100%]"
             :check-scroll="true"
             @copy-content="handleSnippetChecked"
             @snippet-scrolled="handleSnippetChecked"
