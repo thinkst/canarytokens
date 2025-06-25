@@ -206,6 +206,30 @@ export type AWSLogDataType = {
   eventName?: string[] | null;
 };
 
+export type DecoyResourceType = {
+  asset_type: string;
+  'Asset Name': string;
+  'Request Parameters': string;
+};
+
+export type EventType = {
+  'Event Name': string;
+  'Event Time': string;
+  'Account & Region': string;
+};
+
+export type IdentityType = {
+  'User Identity': string;
+  UserAgent: string;
+};
+
+export type MetadataType = {
+  'Event ID'?: string;
+  'ReadOnly Event'?: boolean;
+  'Event Category'?: string;
+  Classification?: string;
+};
+
 export type AdditionalInfoType = {
   javascript?: null | string;
   browser?: null | string;
@@ -222,6 +246,16 @@ export type AdditionalInfoType = {
   transaction_date?: string;
   transaction_type?: string;
   status?: string;
+  event?: EventType;
+  decoy_resource?: DecoyResourceType;
+  identity?: IdentityType;
+  metadata?: MetadataType;
+};
+
+export type AdditionalInfoAWSInfraType = AdditionalInfoType & {
+  event: EventType;
+  decoy_resource: DecoyResourceType;
+  identity: IdentityType;
 };
 
 type BasicInfoType = {
