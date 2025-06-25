@@ -49,7 +49,7 @@
         <template v-if="hasCustomIncidentsList">
           <component
             :is="dynamicIncidentList"
-            @select-alert="(incident) => handleSelectAlert(incident)"
+            @select-alert="(incident: HitsType) => handleSelectAlert(incident)"
           />
         </template>
         <template v-else>
@@ -137,33 +137,21 @@ const tokenType = ref();
 const dynamicIncidentList = shallowRef();
 
 const hasCustomIncidentsList = computed(() => {
-  const tokensWithCustomIncidentsList = [TOKENS_TYPE.WEB_BUG];
-  // const tokensWithCustomIncidentsList = [TOKENS_TYPE.AWS_INFRA];
+  const tokensWithCustomIncidentsList = [TOKENS_TYPE.AWS_INFRA];
   return tokensWithCustomIncidentsList.includes(tokenType.value);
 });
 
 onMounted(async () => {
   await fetchTokenHistoryData();
 
-  // if (hasCustomIncidentsList.value) {
-  //   try {
-  //     isLoading.value = true;
-  //     dynamicIncidentList.value = defineAsyncComponent(
-  //       () => import(`@/components/tokens/${tokenType.value}/history/IncidentList.vue`)
-  //     );
-  //     await dynamicIncidentList.value.__asyncLoader();
-  //     isLoading.value = false;
-  //   } catch (err) {
-  //     console.error(err);
-  //     error.value = true;
-  //     isLoading.value = false;
-  //   }
-  // }
   if (hasCustomIncidentsList.value) {
     try {
       isLoading.value = true;
       dynamicIncidentList.value = defineAsyncComponent(
-        () => import(`@/components/tokens/aws_infra/history/IncidentList.vue`)
+        () =>
+          import(
+            `@/components/tokens/${tokenType.value}/history/IncidentList.vue`
+          )
       );
       await dynamicIncidentList.value.__asyncLoader();
       isLoading.value = false;
