@@ -113,11 +113,12 @@ export default function incidentDetailsService(
         is_tor_relay: null,
         event: {
           eventName: hitAlert.additional_info?.event?.['Event Name'] || null,
-          eventTime: hitAlert.additional_info?.event?.['Event Time']
-            ? convertISOtoLocalDate(
-                hitAlert.additional_info.event?.['Event Time']
-              )
-            : null,
+          eventTime: hitAlert.additional_info?.event?.['Event Time'],
+          // TO BE FIXED
+          // ? convertISOtoLocalDate(
+          //     hitAlert.additional_info.event?.['Event Time']
+          //   )
+          // : null,
           accountAndRegion:
             hitAlert.additional_info?.event?.['Account & Region'],
         },
