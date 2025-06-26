@@ -49,6 +49,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
               `Retrying AWS Infra Role Check (${RETRY_ATTEMPTS}/${MAX_RETRIES})`
             );
             setTimeout(() => {
+              clearInterval(pollingRoleInterval);
               pollInfraRoleCheck();
             }, POLL_INTERVAL);
             return;

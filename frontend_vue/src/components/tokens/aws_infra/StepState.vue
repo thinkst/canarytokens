@@ -67,4 +67,13 @@ watch(
     }
   }
 );
+
+watch(
+  () => props.isError,
+  (newVal) => {
+    if (newVal === true) {
+      isLongLoading.value = false;
+    }
+  }
+);
 </script>
