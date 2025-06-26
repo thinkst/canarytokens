@@ -13,7 +13,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
   const POLL_INTERVAL = 2000;
   // If the first attempts fails, it could depend on the AWS account still being set up
   // so we retry a few times before giving up
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 5;
 
   async function handleFetchUserAccount() {
     await handleCheckRole();
@@ -22,7 +22,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
   async function handleCheckRole() {
     errorMessage.value = '';
     stateStatus.value = StepStateEnum.LOADING;
-    let RETRY_ATTEMPTS = 0;
+    let retryAttempts = 0;
 
     try {
       const res = await requestAWSInfraRoleCheck({
@@ -32,7 +32,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       if (res.status !== 200) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value = res.data.message;
-        // emits('isSettingError', true);
       }
 
       const handle = res.data.handle;
@@ -44,12 +43,15 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
         try {
           const resWithHandle = await requestAWSInfraRoleCheck({ handle });
 
-          if (resWithHandle.data.error && RETRY_ATTEMPTS <= MAX_RETRIES) {
-            RETRY_ATTEMPTS++;
+          if (resWithHandle.data.error && retryAttempts < MAX_RETRIES) {
+            retryAttempts++;
             console.log(
-              `Retrying AWS Infra Role Check (${RETRY_ATTEMPTS}/${MAX_RETRIES})`
+              `Retrying AWS Infra Role Check (${retryAttempts}/${MAX_RETRIES})`
             );
-            await handleCheckRole();
+            setTimeout(() => {
+              clearInterval(pollingRoleInterval);
+              pollInfraRoleCheck();
+            }, POLL_INTERVAL);
             return;
           }
 
