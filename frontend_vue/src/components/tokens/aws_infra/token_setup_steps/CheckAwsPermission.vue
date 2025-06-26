@@ -61,7 +61,7 @@
 
         <BaseCard class="p-40 text-left place-self-center w-full mt-24">
           <Form
-            class="flex flex-col gap-16 items-stretch"
+            class="flex flex-col gap-16 items-center"
             :validation-schema="schema"
             @submit="onSubmit"
           >
@@ -73,7 +73,7 @@
               :has-arrow="true"
               arrow-variant="one"
               :arrow-word-position="2"
-              class="flex-grow"
+              class="flex-grow external-id-input"
             />
             <BaseButton
               type="submit"
@@ -164,5 +164,9 @@ async function onSubmit() {
     white-space: pre-wrap;
     word-break: break-word;
   }
+}
+
+.external-id-input {
+  width: clamp(200px, 100%, 400px);
 }
 </style>
