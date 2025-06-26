@@ -17,16 +17,63 @@
       :error-message="errorMessage"
     />
     <div v-if="isSuccess">
-      <h3 class="text-center">
-        Add this module to your code and run ``terraform init``
-      </h3>
-      <BaseCodeSnippet
-        lang="bash"
-        label="Terraform module"
-        :code="terraformSnippet"
-        class="mt-40 md:max-w-[600px] max-w-[350px] wrap-code"
-        custom-height="150px"
-      ></BaseCodeSnippet>
+      <div>
+        <BaseMessageBox
+          class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+          variant="info"
+          >So we have done this and this and the following module will do this
+          and that</BaseMessageBox
+        >
+      </div>
+      <div class="text-left max-w-[100%]">
+        <BaseCard
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
+        >
+          <div class="text-center mb-24 flex flex-col items-center">
+            <img
+              :src="getImageUrl('terraform_icon.svg')"
+              alt="terraform-icon"
+              class="w-[2.5rem] h-[2.5rem]"
+            />
+            <h2 class="text-2xl mb-16">
+              Add this module to your code <br />
+              and run `<span class="monospace">terraform init</span>`
+            </h2>
+          </div>
+          <BaseLabelArrow
+            id="terraform-module"
+            label="Terraform module"
+            :arrow-word-position="2"
+            arrow-variant="one"
+            class="z-10"
+          />
+          <BaseCodeSnippet
+            id="terraform-module"
+            lang="bash"
+            :code="terraformSnippet"
+            class="md:max-w-[40vw] max-w-[350px] wrap-code"
+            custom-height="150px"
+          ></BaseCodeSnippet>
+          <div class="text-center flex mt-24 gap-8 items-center justify-center">
+            <p>How do I use this module?</p>
+            <button
+              v-tooltip="{
+                content: 'Check details',
+                triggers: ['hover'],
+              }"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
+              aria-label="What's this snippet doing?"
+              @click="handleShowModalInfoModule"
+            >
+              <font-awesome-icon
+                icon="question"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </BaseCard>
+      </div>
+
       <div class="flex flex-col items-center pt-16">
         <div class="relative">
           <TokenIcon
@@ -83,11 +130,13 @@ import { TOKENS_TYPE } from '@/components/constants.ts';
 import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
 import StepState from '../StepState.vue';
+import { useModal } from 'vue-final-modal';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
 import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+import ModalInfoTerraformModule from '@/components/tokens/aws_infra/token_setup_steps/ModalInfoTerraformModule.vue';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -194,6 +243,16 @@ function handleManageTokenButton() {
   router.push({ name: 'manage', params: { auth: auth_token, token } });
 }
 
+function handleShowModalInfoModule() {
+  const { open, close } = useModal({
+    component: ModalInfoTerraformModule,
+    attrs: {
+      closeModal: () => close(),
+    },
+  });
+  open();
+}
+
 watch(isSuccess, (newVal) => {
   if (newVal === true) {
     launchConfetti(TOKENS_TYPE.AWS_INFRA, '.section-terraform-snippet');
@@ -207,5 +266,9 @@ watch(isSuccess, (newVal) => {
     white-space: pre-wrap;
     text-align: left;
   }
+}
+
+.monospace {
+  font-family: 'Courier New', Courier, monospace;
 }
 </style>

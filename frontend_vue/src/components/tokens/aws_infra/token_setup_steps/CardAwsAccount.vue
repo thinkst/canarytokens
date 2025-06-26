@@ -9,7 +9,7 @@
       <div class="relative flex flex-col items-center gap-8 px-16 pt-16">
         <img
           :src="getImageUrl('aws_icon.svg')"
-          alt="asw-token-icon"
+          alt="asw-account-icon"
           class="w-[4.5rem] h-[4.5rem]"
         />
         <ul class="mb-16">
