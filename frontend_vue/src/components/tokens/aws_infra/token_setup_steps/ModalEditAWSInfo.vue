@@ -3,10 +3,9 @@
     title="Edit account informations"
     :has-close-button="true"
     :hide-footer="true"
-    :content-class="`items-stretch`"
   >
     <template #default>
-      <div>
+      <div class="min-w-[250px] lg:w-[30vw] max-w-[400px]">
         <Form
           class="flex flex-col"
           :validation-schema="schema"

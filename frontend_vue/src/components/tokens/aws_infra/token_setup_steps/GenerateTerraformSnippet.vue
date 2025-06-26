@@ -52,7 +52,7 @@
             lang="bash"
             :code="terraformSnippet"
             class="md:max-w-[40vw] max-w-[350px] wrap-code"
-            custom-height="150px"
+            custom-height="100px"
           ></BaseCodeSnippet>
           <div class="text-center flex mt-24 gap-8 items-center justify-center">
             <p>How do I use this module?</p>

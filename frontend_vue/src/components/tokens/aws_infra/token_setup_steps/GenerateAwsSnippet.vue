@@ -30,18 +30,18 @@
           @save-edit-data="handleSaveEditData"
         />
       </div>
-      <div>
-        <BaseMessageBox
-          class="mt-24 mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
-          variant="info"
-          >Please ensure your AWS environment is set up for account
-          <span class="font-bold">{{ accountNumber }}</span> before
-          continuing.</BaseMessageBox
-        >
-      </div>
       <div class="text-left max-w-[100%]">
+        <div class="mt-24 flex flex-col items-center">
+          <BaseMessageBox
+            class="mt-24 mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+            variant="info"
+            >Please ensure your AWS environment is set up for account
+            <span class="font-bold">{{ accountNumber }}</span> before
+            continuing.</BaseMessageBox
+          >
+        </div>
         <BaseCard
-          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
+          class="p-40 flex items-center flex-col text-left max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] place-self-center"
         >
           <div class="text-center mb-24">
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
@@ -298,6 +298,7 @@ watch(
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
         errorMessage.value = errorMessageFetch.value;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   }
