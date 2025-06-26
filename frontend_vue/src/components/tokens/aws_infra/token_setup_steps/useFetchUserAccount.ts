@@ -22,7 +22,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
   async function handleCheckRole() {
     errorMessage.value = '';
     stateStatus.value = StepStateEnum.LOADING;
-    let RETRY_ATTEMPTS = 0;
+    let RETRY_ATTEMPTS = 1;
 
     try {
       const res = await requestAWSInfraRoleCheck({
@@ -32,7 +32,6 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       if (res.status !== 200) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value = res.data.message;
-        // emits('isSettingError', true);
       }
 
       const handle = res.data.handle;
@@ -49,7 +48,9 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
             console.log(
               `Retrying AWS Infra Role Check (${RETRY_ATTEMPTS}/${MAX_RETRIES})`
             );
-            await handleCheckRole();
+            setTimeout(() => {
+              pollInfraRoleCheck();
+            }, POLL_INTERVAL);
             return;
           }
 

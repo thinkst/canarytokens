@@ -41,13 +41,13 @@
       </div>
       <div class="text-left max-w-[100%]">
         <BaseCard
-          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
           <div class="text-center mb-24">
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
               We need to inventory your account to suggest decoy resources to
-              deploy, execute these commands to give us read-only access
+              deploy, execute these commands to give us read-only access.
             </p>
           </div>
           <BaseLabelArrow
@@ -93,7 +93,7 @@
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
             variant="warning"
-            class="mb-16"
+            class="mb-16 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
           >
             Make sure to run the command above. Otherwise, we won't be able to
             generate your canarytoken.
