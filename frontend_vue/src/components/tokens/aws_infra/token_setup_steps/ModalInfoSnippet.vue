@@ -28,8 +28,8 @@ defineProps<{
 }>();
 
 const infoList = [
-  'This step grants Canarytokens.org temporary, read-only access to list names of various AWS resources (S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles) to create a customized infrastructure plan.',
-  'This access is automatically revoked by Canarytokens.org after plan creation.',
-  'You will be provided with cleanup instructions at the end of the wizard to remove the associated AWS policy, attachment, and role.',
+  'This step grants Canarytokens.org temporary read-only access to fetch the names of your S3 buckets, SQS queues, SSM parameters, Secrets Manager secrets, DynamoDB tables, and IAM roles. We do this to create a customized set of decoy resources that apply to you.',
+  'When we’re done with creating the decoy resource configuration at the end of this wizard, we will delete the ExternalID from our database. This revokes our ability to access your account.',
+  'You’ll be provided with cleanup instructions at the end of the wizard to remove the associated AWS policy, attachment, and role. You should perform these steps, even though we no longer will have access to your account.',
 ];
 </script>

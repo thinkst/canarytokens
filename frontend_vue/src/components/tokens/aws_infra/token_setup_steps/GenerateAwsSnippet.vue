@@ -5,45 +5,42 @@
         {{ pageTitle }}
       </h2>
     </div>
-    <StepState
-      v-if="!isIdle && !codeSnippetCommands"
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are generating the snippet, hold on"
-      :error-message="errorMessage"
-    />
-    <StepState
-      v-if="!isIdle && codeSnippetCommands"
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are fetching your account, hold on"
-      :error-message="errorMessage"
-      :has-icon="false"
-    />
+    <div class="flex justify-center">
+      <StepState
+        v-if="!isIdle && !codeSnippetCommands"
+        :is-loading="isLoading"
+        :is-error="isError"
+        loading-message="We are generating the snippet. Hold on…"
+        :error-message="errorMessage"
+      />
+      <StepState
+        v-if="!isIdle && codeSnippetCommands"
+        class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+        :is-loading="isLoading"
+        :is-error="isError"
+        loading-message="This will take a couple of seconds for us to analyse your account, depending on network conditions, solar flare activity, and errant squirrels. Hold on…"
+        :error-message="errorMessage"
+        :has-icon="false"
+        :has-error-title="false"
+      />
+    </div>
     <div
       v-if="!isLoading && codeSnippetCommands"
       class="flex flex-col items-center"
     >
-      <div class="flex flex-col items-center mb-16">
-        <CardAwsAccount
-          :token-data="props.initialStepData"
-          @save-edit-data="handleSaveEditData"
-        />
-      </div>
       <div class="text-left max-w-[100%]">
-        <div class="mt-24 flex flex-col items-center">
-          <BaseMessageBox
-            class="mt-24 mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
-            variant="info"
-            >Please ensure your AWS environment is set up for account
-            <span class="font-bold">{{ accountNumber }}</span> before
-            continuing.</BaseMessageBox
-          >
-        </div>
         <BaseCard
-          class="p-40 flex items-center flex-col text-left max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] place-self-center"
+          class="p-40 pt-24 flex items-center flex-col text-left max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] place-self-center"
         >
           <div class="text-center mb-24">
+            <div class="flex justify-center mb-24">
+              <TokenIcon
+                title="aws infra token"
+                logo-img-url="aws_infra.png"
+                :has-shadow="true"
+                class="w-[5rem]"
+              />
+            </div>
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
               We need to inventory your account to suggest decoy resources to
@@ -86,6 +83,21 @@
             </button>
           </div>
         </BaseCard>
+        <div class="mt-24 flex flex-col items-center">
+          <BaseMessageBox
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+            variant="info"
+            >Please ensure you have run the above commands on the
+            <span class="font-bold">{{ accountNumber }}</span> AWS account
+            <button
+              class="font-semibold"
+              @click.stop="handleChangeAccountValues"
+            >
+              (edit)
+            </button>
+            before continuing, otherwise the setup won’t work.
+          </BaseMessageBox>
+        </div>
         <div
           v-if="isIdle"
           class="mt-24 flex flex-col items-center"
@@ -93,7 +105,7 @@
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
             variant="warning"
-            class="mb-16 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
           >
             Make sure to run the command above. Otherwise, we won't be able to
             generate your canarytoken.
@@ -139,6 +151,7 @@
 import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
+import TokenIcon from '@/components/icons/TokenIcon.vue';
 import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
@@ -149,10 +162,13 @@ import {
 } from '@/components/tokens/aws_infra/useStepState.ts';
 import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 import { policyDocument } from '@/components/tokens/aws_infra/constants.ts';
-import CardAwsAccount from './CardAwsAccount.vue';
 
 const ModalInfoSnippet = defineAsyncComponent(
   () => import('./ModalInfoSnippet.vue')
+);
+
+const ModalEditAWSInfo = defineAsyncComponent(
+  () => import('./ModalEditAWSInfo.vue')
 );
 
 const emits = defineEmits([
@@ -190,7 +206,7 @@ const pageTitle = computed(() => {
   if (isLoading.value && !codeSnippetCommands.value) {
     return 'Generating AWS Snippet';
   } else if (isLoading.value && codeSnippetCommands.value) {
-    return 'Fetching your AWS account';
+    return 'Analysing your AWS account';
   } else {
     return 'Setup AWS role and policy';
   }
@@ -281,6 +297,18 @@ async function handleGoToNextStep() {
     showWarningSnipeptCheck.value = false;
     await handleFetchUserAccount();
   }
+}
+
+function handleChangeAccountValues() {
+  const { open, close } = useModal({
+    component: ModalEditAWSInfo,
+    attrs: {
+      closeModal: () => close(),
+      saveData: (data: GenericObject) => handleSaveEditData(data),
+      tokenData: props.initialStepData,
+    },
+  });
+  open();
 }
 
 watch(

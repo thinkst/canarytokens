@@ -4,23 +4,6 @@
       <h2>
         {{ isLoading ? 'Checking permission...' : `Check your AWS permission` }}
       </h2>
-      <div v-if="!isLoading && !isError">
-        <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
-          <img
-            :src="getImageUrl('aws_icon.svg')"
-            alt="asw-account-icon"
-            class="w-[4.5rem] h-[4.5rem]"
-          />
-          <p class="text-md text-grey-400 leading-4">
-            AWS account:
-            <span class="text-grey font-semibold">{{ accountNumber }}</span>
-          </p>
-          <p class="text-md text-grey-400 leading-4">
-            AWS region:
-            <span class="text-grey font-semibold">{{ accountRegion }}</span>
-          </p>
-        </BaseCard>
-      </div>
     </div>
     <div
       v-if="!isLoading && !isError"
@@ -29,8 +12,10 @@
       <BaseMessageBox
         class="mt-24 mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         variant="warning"
-        >In order to proceed we need you to confirm the <b>External ID</b> for
-        our role.</BaseMessageBox
+        >In order to proceed we need you to confirm the
+        <span class="font-semibold">External ID</span> for our role on your AWS
+        Account
+        <span class="font-semibold">{{ accountNumber }}</span></BaseMessageBox
       >
       <div class="text-left max-w-[100%]">
         <BaseCard
