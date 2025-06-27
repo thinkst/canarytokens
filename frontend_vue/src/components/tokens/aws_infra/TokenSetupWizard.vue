@@ -106,8 +106,8 @@ const showBackButton = computed(() => {
 
 const stepsValues = [
   { label: 'AWS Setup' },
-  { label: 'Plan' },
-  { label: 'Terraform snippet' },
+  { label: 'Design your decoys' },
+  { label: 'Deploy your decoys' },
 ];
 
 function handleUpdateStep() {

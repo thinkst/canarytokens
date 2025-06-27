@@ -5,7 +5,7 @@
         {{
           isLoading || isError
             ? 'Preparing the Terraform module...'
-            : 'Terraform Module'
+            : 'Deploy your decoys'
         }}
       </h2>
     </div>
@@ -16,33 +16,39 @@
       loading-message="We are generating the terraform module, hold on"
       :error-message="errorMessage"
     />
-    <div v-if="isSuccess">
-      <div>
-        <BaseMessageBox
-          class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
-          variant="info"
-          >So we have done this and this and the following module will do this
-          and that</BaseMessageBox
-        >
-      </div>
+    <div
+      v-if="isSuccess"
+      class="flex flex-col items-center"
+    >
       <div class="text-left max-w-[100%]">
+        <div>
+          <BaseMessageBox
+            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+            variant="info"
+            >Your decoy infrastructure design has been generated and stored. All
+            that remains is to include it into your Terraform configuration, and
+            apply it.</BaseMessageBox
+          >
+        </div>
         <BaseCard
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
-          <div class="text-center mb-24 flex flex-col items-center">
+          <div class="text-center mb-16 flex flex-col items-center">
             <img
               :src="getImageUrl('terraform_icon.svg')"
               alt="terraform-icon"
-              class="w-[2.5rem] h-[2.5rem]"
+              class="w-[2.5rem] h-[2.5rem] mb-8"
             />
-            <h2 class="text-2xl mb-16">
-              Add this module to your code <br />
-              and run `<span class="monospace">terraform init</span>`
+            <h2 class="textmd mb-16">
+              Add this snippet to your Terraform configuration file then run<br />
+              <span class="monospace">$ terraform init</span> to import the
+              module, and <span class="monospace">$terraform apply</span> to
+              create the resources.
             </h2>
           </div>
           <BaseLabelArrow
             id="terraform-module"
-            label="Terraform module"
+            label="Terraform snippet"
             :arrow-word-position="2"
             arrow-variant="one"
             class="z-10"
@@ -71,27 +77,30 @@
               />
             </button>
           </div>
+          <div class="text-center flex mt-8 gap-8 items-center justify-center">
+            <p>How do I cleanup my AWS accont?</p>
+            <button
+              v-tooltip="{
+                content: 'Check details',
+                triggers: ['hover'],
+              }"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
+              aria-label="How do I cleanup my AWS accont?"
+              @click="handleShowModalCleanup"
+            >
+              <font-awesome-icon
+                icon="question"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
         </BaseCard>
       </div>
 
-      <div class="flex flex-col items-center pt-16">
-        <div class="relative">
-          <TokenIcon
-            title="aws infra token"
-            logo-img-url="aws_infra.png"
-            :has-shadow="true"
-            class="w-[6rem]"
-          />
-          <img
-            alt="active token"
-            :src="getImageUrl('icons/active_token_badge.png')"
-            class="absolute top-[4.5rem] left-[4rem] w-[1.5rem]"
-          />
-        </div>
-      </div>
-      <h2 class="mt-24 text-center">
-        That’s it! Any attempts to interact with the decoy assets will generate
-        an alert.
+      <h2 class="text-md mt-24 text-center">
+        That’s it! Once you’ve applied the Terraform configuration <br />and
+        created the decoy resources, any interactions with them will give you an
+        alert.
       </h2>
     </div>
     <div class="flex flex-row mt-40 gap-16">
@@ -122,7 +131,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import getImageUrl from '@/utils/getImageUrl';
 import type { TokenDataType } from '@/utils/dataService';
@@ -131,12 +140,24 @@ import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
 import StepState from '../StepState.vue';
 import { useModal } from 'vue-final-modal';
-import TokenIcon from '@/components/icons/TokenIcon.vue';
 import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
-import ModalInfoTerraformModule from '@/components/tokens/aws_infra/token_setup_steps/ModalInfoTerraformModule.vue';
+
+const ModalInfoTerraformModule = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/tokens/aws_infra/token_setup_steps/ModalInfoTerraformSnippet.vue'
+    )
+);
+
+const ModalInfoCleanup = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/tokens/aws_infra/token_setup_steps/ModalInfoCleanup.vue'
+    )
+);
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -248,6 +269,18 @@ function handleShowModalInfoModule() {
     component: ModalInfoTerraformModule,
     attrs: {
       closeModal: () => close(),
+    },
+  });
+  open();
+}
+
+function handleShowModalCleanup() {
+  const { open, close } = useModal({
+    component: ModalInfoCleanup,
+    attrs: {
+      closeModal: () => close(),
+      awsAccountNumber: props.initialStepData.aws_account_number,
+      roleName: 'something',
     },
   });
   open();
