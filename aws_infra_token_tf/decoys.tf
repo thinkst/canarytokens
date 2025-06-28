@@ -60,3 +60,13 @@ resource "aws_dynamodb_table_item" "fake-table-items" {
 
   depends_on = [aws_dynamodb_table.fake-tables]
 }
+
+resource "null_resource" "decoys_anchor" {
+  depends_on = [
+    aws_s3_object.fake-s3-objects,
+    aws_sqs_queue.fake-sqs-queues,
+    aws_ssm_parameter.fake-ssm-parameters,
+    aws_secretsmanager_secret.fake-secrets,
+    aws_dynamodb_table_item.fake-table-items,
+  ]
+}
