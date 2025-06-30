@@ -57,7 +57,7 @@ type CurrentTokenDataType = {
   token: string;
   auth_token: string;
   proposed_plan: PlanValueTypes;
-  codeSnippetCommands?: string;
+  code_snippet_command?: string;
 };
 
 export type {

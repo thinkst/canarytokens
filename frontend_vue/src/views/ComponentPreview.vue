@@ -319,6 +319,7 @@
       <IncidentDetails
         :hit-alert="alertSample"
         :showing-map="true"
+        token-type="aws_keys"
       />
     </div>
     <div class="flex flex-col gap-16 mb-32">

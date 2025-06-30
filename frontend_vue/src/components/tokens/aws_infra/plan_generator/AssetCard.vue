@@ -45,7 +45,7 @@
         >
           <span class="label text-grey-400"> {{ showDataLabel(key) }}: </span>
           <span
-            class="value text-grey-700"
+            class="value text-grey-700 shrink-0"
             :class="{ 'with-icon': showDataIcon(key) }"
           >
             <img
@@ -151,7 +151,7 @@ const assetDataDisplay = computed<any[][]>((): any[][] => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
-    return assets as any[][];
+  return assets as any[][];
 });
 
 const assetLabel = computed(() => {

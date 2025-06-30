@@ -15,22 +15,25 @@
       </div>
     </template>
     <template v-if="isError">
-      <h2 class="text-red font-semibold">
+      <h2
+        v-if="hasErrorTitle"
+        class="text-red font-semibold"
+      >
         Oh no! Something didn't work as expected
       </h2>
       <img
+        v-if="hasIcon"
         :src="getImageUrl('icons/errorIcon.svg')"
         alt="success-icon"
-        class="w-[15rem] h-[15rem]"
+        class="w-[15rem] h-[15rem] mb-24"
       />
       <BaseMessageBox
         v-if="errorMessage"
-        :message="errorMessage"
+        :message="errorMessageMapper(errorMessage)"
         variant="danger"
-        class="min-w-[350px] mt-24"
       />
     </template>
-    <template v-if="isSuccess">
+    <template v-if="isSuccess && hasIcon">
       <img
         :src="getImageUrl('icons/successIcon.svg')"
         alt="success-icon"
@@ -43,6 +46,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
+import { errorMessageMapper } from '@/utils/errorMessageMapper';
 
 const props = defineProps<{
   isLoading?: boolean;
@@ -51,6 +55,8 @@ const props = defineProps<{
   errorMessage?: string;
   isSuccess?: boolean;
   successMessage?: string;
+  hasIcon?: boolean;
+  hasErrorTitle?: boolean;
 }>();
 
 const isLongLoading = ref(false);
@@ -62,6 +68,15 @@ watch(
       setTimeout(() => {
         isLongLoading.value = true;
       }, 30000);
+    }
+  }
+);
+
+watch(
+  () => props.isError,
+  (newVal) => {
+    if (newVal === true) {
+      isLongLoading.value = false;
     }
   }
 );

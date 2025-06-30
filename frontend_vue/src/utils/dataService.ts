@@ -17,6 +17,7 @@ export type TokenDataType = {
   tf_module_prefix: string;
   ingesting: boolean;
   proposed_plan: PlanValueTypes;
+  code_snippet_command: string;
 };
 
 let tokenData: TokenDataType | null = null;

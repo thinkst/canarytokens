@@ -23,7 +23,6 @@ const props = defineProps<{
 }>();
 
 defineEmits(['howToUse']);
-console.log(props.tokenData);
 
 const tokenSnippetData = ref({
   url: props.tokenData.token_url || '',

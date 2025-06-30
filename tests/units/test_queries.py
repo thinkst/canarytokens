@@ -347,6 +347,12 @@ def test_get_geoinfo_503_response_code_handling(monkeypatch):
     assert captured[0]["log_level"] == LogLevel.info
 
 
+def test_get_geoinfo_aws_internal():
+    ip = "AWS Internal"
+    info = queries.get_geoinfo(ip)
+    assert info is None
+
+
 def test_mail_queue(setup_db):
     details = make_token_alert_detail()
     mail_key = "some_unique_key"

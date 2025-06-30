@@ -35,7 +35,6 @@ export const TOKENS_TYPE = {
   KUBECONFIG: 'kubeconfig',
   WIREGUARD: 'wireguard',
   AZURE_ENTRA_CONFIG: 'azure_id_config',
-  CREDIT_CARD: 'cc',
   PWA: 'pwa',
   CREDIT_CARD_V2: 'credit_card_v2',
   WEBDAV: 'webdav',

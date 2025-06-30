@@ -25,6 +25,7 @@ from canarytokens.queries import (
     add_canary_domain,
     add_canary_nxdomain,
     add_canary_page,
+    add_canary_image_page,
     add_canary_path_element,
     get_certificate,
     save_certificate,
@@ -306,6 +307,7 @@ def setup_db(  # noqa: C901
     add_canary_domain(frontend_settings.DOMAINS[0])
     add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
+    add_canary_image_page("photo1.jpg")
     add_canary_path_element("tags")
 
     yield db
@@ -319,6 +321,7 @@ def setup_db(  # noqa: C901
     add_canary_domain(frontend_settings.DOMAINS[0])
     add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
+    add_canary_image_page("photo1.jpg")
     add_canary_path_element("tags")
 
 

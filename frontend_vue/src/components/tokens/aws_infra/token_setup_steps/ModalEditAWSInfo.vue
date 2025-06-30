@@ -3,10 +3,9 @@
     title="Edit account informations"
     :has-close-button="true"
     :hide-footer="true"
-    :content-class="`items-stretch`"
   >
     <template #default>
-      <div>
+      <div class="min-w-[250px] lg:w-[30vw] max-w-[400px]">
         <Form
           class="flex flex-col"
           :validation-schema="schema"
@@ -68,7 +67,7 @@ import { editAccountInfo } from '@/api/awsInfra';
 import type { TokenDataType } from '@/utils/dataService';
 
 const props = defineProps<{
-  initialStepData: TokenDataType;
+  tokenData: TokenDataType;
   closeModal: () => void;
   saveData: (data: GenericObject) => void;
 }>();
@@ -91,12 +90,11 @@ const schema = Yup.object().shape({
     ),
 });
 
-
 onMounted(() => {
   selectedRegion.value = AWS_REGIONS.filter((region) => {
-    return region.value === props.initialStepData.aws_region;
+    return region.value === props.tokenData.aws_region;
   });
-  selectedAWSaccount.value = props.initialStepData.aws_account_number;
+  selectedAWSaccount.value = props.tokenData.aws_account_number;
 });
 
 async function onSubmit(values: GenericObject) {
@@ -104,26 +102,21 @@ async function onSubmit(values: GenericObject) {
   console.log('values', values);
   // ...here goes the API call to manage endpoint...
   try {
-  const res = await editAccountInfo(
-    props.initialStepData.token,
-    props.initialStepData.auth_token,
-    selectedAWSaccount.value,
-    selectedRegion.value[0].value,
-
-  )
-  props.saveData(values);
-  props.closeModal();
-  if (res.status !== 200) {
+    const res = await editAccountInfo(
+      props.tokenData.token,
+      props.tokenData.auth_token,
+      selectedAWSaccount.value,
+      selectedRegion.value[0].value
+    );
+    props.saveData(values);
+    props.closeModal();
+    if (res.status !== 200) {
       isError.value = true;
-      isErrorMessage.value =
-        res.data.message ||
-        'Could not edit token!';
+      isErrorMessage.value = res.data.message || 'Could not edit token!';
     }
-  } catch (err: any){
+  } catch (err: any) {
     isError.value = true;
-    isErrorMessage.value =
-        err ||
-        'Could not edit token!';
+    isErrorMessage.value = err || 'Could not edit token!';
   } finally {
     isLoading.value = false;
   }

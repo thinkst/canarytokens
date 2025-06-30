@@ -19,14 +19,14 @@ export type TokenServicesType = {
 export const tokenServices: TokenServicesType = {
   [TOKENS_TYPE.AWS_INFRA]: {
     label: 'AWS Infra',
-    description: 'Get an alert an attacker interact with your infrastructure',
+    description: 'Get an alert when an attacker explores your AWS Infrastructure',
     documentationLink: 'https://docs.canarytokens.org/guide/#',
     icon: `${TOKENS_TYPE.AWS_INFRA}.png`,
     instruction: 'Here goes the instruction for this token',
     howItWorksInstructions: [
-      'Oh, baby, baby, How was I supposed to know',
-      "That somethin' was't right here?",
-      "Oh, baby, baby, I shouldn't have let you go",
+      'We guide you through creating a Terraform configuration for decoy AWS resources',
+      'You apply the Terraform plan to your AWS account, creating the decoy resources',
+      'We send you an alert if any of the decoy resources are accessed',
     ],
     category: TOKEN_CATEGORY.OTHER,
     keywords: ['aws', 'infra', 'bucket'],

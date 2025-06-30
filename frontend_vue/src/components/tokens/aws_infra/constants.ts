@@ -118,3 +118,45 @@ export const AWS_REGIONS = [
   { value: 'ap-southeast-7', label: 'Asia Pacific (Thailand)' },
   { value: 'mx-central-1', label: 'Mexico (Central)' },
 ];
+
+export const policyDocument = `{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "sqs:ListQueues",
+              "sqs:GetQueueAttributes"
+          ],
+          "Resource": "*"
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "s3:ListAllMyBuckets"
+          ],
+          "Resource": "*"
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "dynamodb:ListTables"
+          ],
+          "Resource": "*"
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "ssm:DescribeParameters"
+          ],
+          "Resource": "*"
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "secretsmanager:ListSecrets"
+          ],
+          "Resource": "*"
+      }
+  ]
+}`;

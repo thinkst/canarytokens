@@ -6,7 +6,7 @@
   <base-message-box
     class="mt-24"
     variant="info"
-    :message="`If the URL is requested as an image (e.g. <img src=''>) then a 1x1 image is served. If the URL is surfed in a browser then a blank page is served with fingerprinting Javascript.`"
+    :message="`If this URL is requested as an image, your custom image will be served. If you've disabled your custom image on this Canarytoken's management page, then a 1x1 image is served instead.`"
     text-link="More tips?"
     @click="() => $emit('howToUse')"
   />

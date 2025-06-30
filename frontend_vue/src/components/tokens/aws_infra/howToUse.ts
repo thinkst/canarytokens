@@ -1,0 +1,1 @@
+export const howToUse = ['Sprinkle decoy S3 buckets, SSM Parameters, SQS queues, and more inside a region of your AWS account.', 'If your AWS account is compromised and any of the decoy resources are touched by an attacker, you’ll get an alert.'];
