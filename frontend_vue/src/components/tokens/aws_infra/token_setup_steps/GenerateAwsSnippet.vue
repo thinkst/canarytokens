@@ -15,7 +15,7 @@
       />
       <StepState
         v-if="!isIdle && codeSnippetCommands"
-        class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+        class="mb-24"
         :is-loading="isLoading"
         :is-error="isError"
         loading-message="This will take a couple of seconds for us to analyse your account, depending on network conditions, solar flare activity, and errant squirrels. Hold on…"
@@ -100,7 +100,7 @@
         </div>
         <div
           v-if="isIdle"
-          class="mt-24 flex flex-col items-center"
+          class="flex flex-col items-center"
         >
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
@@ -128,7 +128,6 @@
     <div class="flex justify-center">
       <BaseButton
         v-if="isError && !codeSnippetCommands"
-        class="mt-40"
         variant="secondary"
         @click="handleGetAwsSnippet"
       >
@@ -136,7 +135,6 @@
       </BaseButton>
       <div v-if="isError && codeSnippetCommands">
         <BaseButton
-          class="mt-40"
           variant="secondary"
           @click="handleFetchUserAccount"
         >

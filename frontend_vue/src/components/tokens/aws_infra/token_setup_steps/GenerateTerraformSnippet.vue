@@ -24,7 +24,7 @@
         <div>
           <BaseMessageBox
             class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
-            variant="info"
+            variant="success"
             >Your decoy infrastructure design has been generated and stored. All
             that remains is to include it into your Terraform configuration, and
             apply it.</BaseMessageBox
@@ -180,6 +180,10 @@ const { token, auth_token } = props.initialStepData;
 
 onMounted(async () => {
   await handleRequestTerraformSnippet();
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 });
 
 async function handleRequestTerraformSnippet() {
