@@ -31,7 +31,11 @@ resource "null_resource" "region_validator" {
   lifecycle {
     precondition {
       condition     = data.aws_region.current.name == local.expected_region
-      error_message = "AWS region validation failed. Expected: ${local.expected_region}, Got: ${data.aws_region.current.name}"
+      error_message = "You're trying to create decoys in ${data.aws_region.current.name}, but this Terraform targets ${local.expected_region} specifically. You can set the AWS_REGION variable to switch your region: export AWS_REGION=${local.expected_region}, then run 'terraform apply' again."
     }
   }
+}
+
+provider "aws" {
+  region = local.expected_region
 }
