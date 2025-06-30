@@ -137,6 +137,7 @@
               v-for="(asset, index) of assetValues"
               :key="`${assetKey}-${Object.values(asset)[0]}`"
               :asset-type="assetKey as AssetTypesEnum"
+              :view-type="viewType"
               :asset-data="asset"
               :is-active-selected="isActiveSelected"
               @open-asset="
@@ -388,7 +389,7 @@ function handleSaveAsset(
     assetSamples.value[assetType]!.push(newValues);
   } else {
     animationName.value = '';
-    assetSamples.value[assetType][index] = newValues;
+    assetSamples.value[assetType]![index] = newValues;
     setTimeout(() => {
       animationName.value = 'list';
     }, 0);
