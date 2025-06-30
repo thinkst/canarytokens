@@ -17,6 +17,7 @@ from functools import singledispatch
 from pathlib import Path
 from typing import Annotated, Any, Optional, Union
 from urllib.parse import unquote
+import logging
 
 import requests
 import segno
@@ -48,15 +49,14 @@ import canarytokens.credit_card_v2 as credit_card_infra
 from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
+from canarytokens import aws_infra
 from canarytokens.awskeys import get_aws_key
 from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.exceptions import CanarydropAuthFailure
+from canarytokens.exceptions import CanarydropAuthFailure, OperationNotAllowed
 from canarytokens.models import (
     PWA_APP_TITLES,
     AWSInfaHandleResponse,
-    AWSInfraAssetField,
-    AWSInfraAssetType,
     AWSInfraCheckRoleReceivedResponse,
     AWSInfraGenerateDataChoiceRequest,
     AWSInfraGenerateDataChoiceResponse,
@@ -66,7 +66,7 @@ from canarytokens.models import (
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
     AWSInfraSetupIngestionReceivedResponse,
-    AWSInfraStage,
+    AWSInfraState,
     AWSInfraTeardownReceivedResponse,
     AWSInfraTriggerOperationRequest,
     AnyDownloadRequest,
@@ -214,7 +214,8 @@ from canarytokens.tokens import Canarytoken
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
-from canarytokens import aws_infra
+
+log = logging.getLogger(__name__)
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
@@ -401,9 +402,9 @@ def validate_exclusive_handle(request: Request):
 
 
 def authorize_aws_infra(authorization: Annotated[str, Header()]):
-    print("authorising")
-    if not f"Bearer {aws_infra.get_shared_secret()}" == authorization:
-        print(authorization)
+    bearer_str = f"Bearer {aws_infra.get_shared_secret()}"
+    if bearer_str != authorization:
+        log.warning(f"{bearer_str} != {authorization}")
         raise HTTPException(
             status_code=401, detail="Invalid authorization token provided."
         )
@@ -1077,9 +1078,9 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
     return JSONResponse({"message": "Success"}, status_code=200)
 
 
-# TODO: security scheme for token?
-
-
+# TODO: Cleanup canarydrops in invalid states:
+#    - module snippet doesn't exist
+# TODO: reduce stictness for state checking
 @api.post("/awsinfra/config-start")
 def api_awsinfra_config_start(
     request: AWSInfraConfigStartRequest,
@@ -1087,26 +1088,15 @@ def api_awsinfra_config_start(
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
-    if not (
-        canarydrop.aws_infra_stage == AWSInfraStage.INITIAL
-        or canarydrop.aws_infra_stage == AWSInfraStage.ROLE_CHECKING
-    ):
+    try:
+        aws_infra.update_state(canarydrop, AWSInfraState.ROLE_CHECKING)
+        return AWSInfraConfigStartResponse(
+            result=True, role_setup_commands=aws_infra.get_role_commands(canarydrop)
+        )
+    except OperationNotAllowed:
         return DefaultResponse(
             result=False, message="Configuration has already started for this token."
         )
-    if (
-        canarydrop.aws_infra_stage == AWSInfraStage.INITIAL
-        and canarydrop.aws_customer_iam_access_external_id is None
-    ):
-        canarydrop.aws_customer_iam_access_external_id = (
-            aws_infra.generate_external_id()
-        )
-        canarydrop.aws_infra_stage = AWSInfraStage.ROLE_CHECKING
-        save_canarydrop(canarydrop)
-
-    return AWSInfraConfigStartResponse(
-        result=True, role_setup_commands=aws_infra.get_role_commands(canarydrop)
-    )
 
 
 @api.post("/awsinfra/check-role", dependencies=[Depends(validate_exclusive_handle)])
@@ -1117,13 +1107,25 @@ def api_awsinfra_check_role(
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
+        if request.external_id:
+            aws_infra.set_external_id(canarydrop, request.external_id)
+
+        if not aws_infra.allow_next_state(canarydrop, AWSInfraState.INVENTORYING):
+            raise HTTPException(
+                status_code=400,
+                detail="Operation not allowed.",
+            )
         handle_id = aws_infra.create_handle(
             AWSInfraOperationType.CHECK_ROLE, canarydrop
         )
+        # TODO: return for exception
         return AWSInfaHandleResponse(handle=handle_id)
 
     handle_response = aws_infra.get_handle_response(request.handle)
     if handle_response.response_received:
+        canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
+        aws_infra.update_state(canarydrop, AWSInfraState.INVENTORYING)
+        # TODO: don't update on error
         return AWSInfraCheckRoleReceivedResponse(
             result=handle_response.response != "",
             message=""
@@ -1150,6 +1152,11 @@ def api_awsinfra_inventory_customer_account(
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
+        if not aws_infra.allow_next_state(canarydrop, AWSInfraState.PLANNING):
+            raise HTTPException(
+                status_code=400,
+                detail="Operation not allowed.",
+            )
         handle_id = aws_infra.create_handle(AWSInfraOperationType.INVENTORY, canarydrop)
         return AWSInfaHandleResponse(handle=handle_id)
 
@@ -1168,6 +1175,7 @@ def api_awsinfra_inventory_customer_account(
         aws_infra.save_current_assets(
             canarydrop, handle_response.response.get("assets")
         )
+        aws_infra.update_state(canarydrop, AWSInfraState.PLANNING)
         return AWSInfraInventoryCustomerAccountReceivedResponse(
             result=True,
             handle=request.handle,
@@ -1177,36 +1185,24 @@ def api_awsinfra_inventory_customer_account(
     return AWSInfaHandleResponse(handle=request.handle)
 
 
-# TODO: add validate for type and field
 @api.post("/awsinfra/generate-data-choices")
 def api_awsinfra_generate_data_choices(
     request: AWSInfraGenerateDataChoiceRequest, response: Response
 ) -> AWSInfraGenerateDataChoiceResponse:
     get_canarydrop_and_authenticate(request.canarytoken, request.auth_token)
-    if request.asset_type == AWSInfraAssetType.S3_BUCKET:
-        if request.asset_field == AWSInfraAssetField.BUCKET_NAME:
-            return AWSInfraGenerateDataChoiceResponse(
-                result=True, proposed_data=aws_infra.generate_s3_bucket()
-            )
-    if request.asset_field == AWSInfraAssetField.MESSAGE_COUNT:
+    try:
         return AWSInfraGenerateDataChoiceResponse(
-            result=True, proposed_data=str(random.randint(0, 10))
+            result=True,
+            proposed_data=aws_infra.generate_data_choice(
+                request.asset_type, request.asset_field
+            ),
         )
-
-    if request.asset_field == AWSInfraAssetField.DYNAMODB_ROW_COUNT:
+    except Exception as e:
+        log.error(f"Error generating data choice: {e}")
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return AWSInfraGenerateDataChoiceResponse(
-            result=True, proposed_data=str(random.randint(0, 100))
+            result=False, message=f"Error generating data choice: {e}"
         )
-
-    return AWSInfraGenerateDataChoiceResponse(
-        result=True,
-        proposed_data="".join(
-            [
-                random.choice(string.ascii_letters + string.digits)
-                for _ in range(random.randint(5, 20))
-            ]
-        ),
-    )
 
 
 @api.post("/awsinfra/save-plan")
@@ -1214,7 +1210,14 @@ def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
-    aws_infra.save_plan(canarydrop, request.plan)
+    try:
+        aws_infra.update_state(canarydrop, AWSInfraState.INGESTING)
+        aws_infra.save_plan(canarydrop, request.plan)
+    except OperationNotAllowed:
+        raise HTTPException(
+            status_code=400,
+            detail="Operation not allowed.",
+        )
     return DefaultResponse(result=True, message="")
 
 

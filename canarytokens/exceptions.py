@@ -35,4 +35,13 @@ class InvalidChannel(Exception):
 
 
 class CanarydropAuthFailure(Exception):
-    ...
+    pass
+
+
+class OperationNotAllowed(Exception):
+    """
+    Exception raised when an operation is not allowed for the current canarytoken.
+    For example, trying to perform check-role on a canarytoken that is not in the role-checking state.
+    """
+
+    pass

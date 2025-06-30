@@ -29,7 +29,7 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
-    AWSInfraStage,
+    AWSInfraState,
     Anonymous,
     AnySettingsRequest,
     AnyTokenEditRequest,
@@ -135,12 +135,12 @@ class Canarydrop(BaseModel):
     # AWS  infra specific stuff
     aws_customer_iam_access_external_id: Optional[str]
     aws_deployed_assets: Optional[str]
-    aws_current_assets: Optional[str]
+    aws_inventoried_assets: Optional[str]
     aws_saved_plan: Optional[str]
     aws_tf_module_prefix: Optional[str]
     aws_infra_ingesting: Optional[bool]
     aws_infra_ingestion_bus_name: Optional[str]
-    aws_infra_stage: AWSInfraStage = AWSInfraStage.INITIAL
+    aws_infra_state: AWSInfraState = AWSInfraState.INITIAL
 
     # Azure key specific stuff
     app_id: Optional[str]
@@ -320,8 +320,8 @@ class Canarydrop(BaseModel):
         """
         if (
             edit_request.token_type == TokenTypes.AWS_INFRA
-            and self.aws_infra_stage
-            in AWSInfraStage.ROLE_CHECKING | AWSInfraStage.INITIAL
+            and self.aws_infra_state
+            in AWSInfraState.ROLE_CHECKING | AWSInfraState.INITIAL
         ):
             for field in edit_request:
                 if field in ["token", "auth"]:
