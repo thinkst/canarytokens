@@ -31,7 +31,6 @@
         v-if="errorMessage"
         :message="errorMessageMapper(errorMessage)"
         variant="danger"
-        class="min-w-[350px]"
       />
     </template>
     <template v-if="isSuccess && hasIcon">
