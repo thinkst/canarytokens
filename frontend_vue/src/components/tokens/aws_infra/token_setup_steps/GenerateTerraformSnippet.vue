@@ -57,17 +57,19 @@
             id="terraform-module"
             lang="bash"
             :code="terraformSnippet"
-            class="md:max-w-[40vw] max-w-[350px] wrap-code"
+            class="w-full wrap-code"
             custom-height="100px"
           ></BaseCodeSnippet>
-          <div class="text-center flex mt-24 gap-8 items-center justify-center">
+          <div
+            class="text-left sm:text-center flex mt-24 gap-8 items-center justify-center"
+          >
             <p>How do I use this module?</p>
             <button
               v-tooltip="{
                 content: 'Check details',
                 triggers: ['hover'],
               }"
-              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
               aria-label="What's this snippet doing?"
               @click="handleShowModalInfoModule"
             >
@@ -77,14 +79,16 @@
               />
             </button>
           </div>
-          <div class="text-center flex mt-8 gap-8 items-center justify-center">
+          <div
+            class="text-left sm:text-center flex mt-8 gap-8 items-center justify-center"
+          >
             <p>How do I cleanup my AWS accont?</p>
             <button
               v-tooltip="{
                 content: 'Check details',
                 triggers: ['hover'],
               }"
-              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
               aria-label="How do I cleanup my AWS accont?"
               @click="handleShowModalCleanup"
             >
@@ -298,6 +302,7 @@ watch(isSuccess, (newVal) => {
   :deep(pre) > code {
     white-space: pre-wrap;
     text-align: left;
+    word-break: break-word;
   }
 }
 

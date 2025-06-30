@@ -10,7 +10,7 @@
       class="flex flex-col text-left items-center"
     >
       <BaseMessageBox
-        class="mt-24 mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         variant="warning"
         >In order to proceed we need you to confirm the
         <span class="font-semibold">External ID</span> for our role on your AWS
@@ -97,7 +97,6 @@ import { Form } from 'vee-validate';
 import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
-import getImageUrl from '@/utils/getImageUrl.ts';
 import {
   StepStateEnum,
   useStepState,
