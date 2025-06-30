@@ -31,6 +31,7 @@
         v-if="errorMessage"
         :message="errorMessageMapper(errorMessage)"
         variant="danger"
+        class="max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw]"
       />
     </template>
     <template v-if="isSuccess && hasIcon">
