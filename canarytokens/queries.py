@@ -73,8 +73,8 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
         canarydrop["key_exposed_details"] = json.loads(
             canarydrop.pop("key_exposed_details")
         )
-    if "aws_infra_stage" in canarydrop:
-        canarydrop["aws_infra_stage"] = int(canarydrop["aws_infra_stage"])
+    if "aws_infra_state" in canarydrop:
+        canarydrop["aws_infra_state"] = int(canarydrop["aws_infra_state"])
 
     canarydrop["canarytoken"] = canarytoken
     try:
