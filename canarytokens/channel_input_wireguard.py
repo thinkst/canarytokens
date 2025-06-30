@@ -97,7 +97,7 @@ class WireGuardProtocol(DatagramProtocol):
                 )
             )
         except StopIteration:
-            log.error(
+            log.info(
                 f"Could not find matching public key for message from {src}: {data!r}"
             )
             return
