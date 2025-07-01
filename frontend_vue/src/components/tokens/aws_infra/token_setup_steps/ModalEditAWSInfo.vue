@@ -104,15 +104,18 @@ async function onSubmit(values: GenericObject) {
     const res = await editAccountInfo(
       props.tokenData.token,
       props.tokenData.auth_token,
-      selectedAWSaccount.value,
-      selectedRegion.value[0].value
+      values.aws_account_number,
+      values.aws_region
     );
-    props.saveData(values);
-    props.closeModal();
+
     if (res.status !== 200) {
       isError.value = true;
       isErrorMessage.value = res.data.message || 'Could not edit token!';
     }
+
+    props.saveData(values);
+    props.closeModal();
+
   } catch (err: any) {
     isError.value = true;
     isErrorMessage.value = err || 'Could not edit token!';
