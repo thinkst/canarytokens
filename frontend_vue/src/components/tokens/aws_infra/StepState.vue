@@ -31,7 +31,7 @@
         v-if="errorMessage"
         :message="errorMessageMapper(errorMessage)"
         variant="danger"
-        class="max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw]"
+        class="max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] text-left"
       />
     </template>
     <template v-if="isSuccess && hasIcon">
@@ -41,6 +41,12 @@
         class="w-[15rem] h-[15rem]"
       />
     </template>
+    <BaseMessageBox
+      v-if="isSuccess && successMessage"
+      :message="successMessage"
+      variant="success"
+      class="max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] text-left"
+    />
   </div>
 </template>
 
