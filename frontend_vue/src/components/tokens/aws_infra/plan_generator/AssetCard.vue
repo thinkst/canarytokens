@@ -151,7 +151,7 @@ const assetDataDisplay = computed<any[][]>((): any[][] => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
-    return assets as any[][];
+  return assets as any[][];
 });
 
 const assetLabel = computed(() => {

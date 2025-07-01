@@ -84,7 +84,10 @@ import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
 import StepState from '../StepState.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
-import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
+import {
+  StepStateEnum,
+  useStepState,
+} from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -94,7 +97,7 @@ const props = defineProps<{
 
 const router = useRouter();
 const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
-  const { isLoading, isError, isSuccess } = useStepState(stateStatus);
+const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 const errorMessage = ref('');
 
 const terraformSnippet = ref('');

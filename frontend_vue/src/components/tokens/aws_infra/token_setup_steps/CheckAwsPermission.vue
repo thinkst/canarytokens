@@ -93,7 +93,10 @@ import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
-import { StepStateEnum, useStepState } from '@/components/tokens/aws_infra/useStepState.ts';
+import {
+  StepStateEnum,
+  useStepState,
+} from '@/components/tokens/aws_infra/useStepState.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -105,7 +108,7 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
-const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
+const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
 const { isLoading, isError } = useStepState(stateStatus);
 
