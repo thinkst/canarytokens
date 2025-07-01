@@ -1,0 +1,1 @@
+import{_ as a}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-DGaQYFO4.js";import{d as n,e as s,f as t}from"./index-DKCLmwJ7.js";const m=n({__name:"TokenDisplay",props:{tokenData:{}},setup(_){return(e,c)=>{const o=a;return s(),t(o,{lang:"bash",label:"SVN command",code:e.tokenData},null,8,["code"])}}});export{m as _};
