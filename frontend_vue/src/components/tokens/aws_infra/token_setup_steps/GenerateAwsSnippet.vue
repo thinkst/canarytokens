@@ -182,8 +182,6 @@ const isSnippedChecked = ref(false);
 const showWarningSnipeptCheck = ref(false);
 
 onMounted(async () => {
-  console.log('initialStepData:', props.initialStepData);
-  console.log('currentStepData:', props.currentStepData);
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 

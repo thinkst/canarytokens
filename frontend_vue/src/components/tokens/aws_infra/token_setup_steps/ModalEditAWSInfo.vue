@@ -100,7 +100,6 @@ onMounted(() => {
 
 async function onSubmit(values: GenericObject) {
   isLoading.value = true;
-  console.log('values', values);
   // ...here goes the API call to manage endpoint...
   try {
     const res = await editAccountInfo(
