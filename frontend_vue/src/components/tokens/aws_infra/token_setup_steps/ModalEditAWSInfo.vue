@@ -91,7 +91,6 @@ const schema = Yup.object().shape({
     ),
 });
 
-
 onMounted(() => {
   selectedRegion.value = AWS_REGIONS.filter((region) => {
     return region.value === props.initialStepData.aws_region;
@@ -101,29 +100,23 @@ onMounted(() => {
 
 async function onSubmit(values: GenericObject) {
   isLoading.value = true;
-  console.log('values', values);
   // ...here goes the API call to manage endpoint...
   try {
-  const res = await editAccountInfo(
-    props.initialStepData.token,
-    props.initialStepData.auth_token,
-    selectedAWSaccount.value,
-    selectedRegion.value[0].value,
-
-  )
-  props.saveData(values);
-  props.closeModal();
-  if (res.status !== 200) {
+    const res = await editAccountInfo(
+      props.initialStepData.token,
+      props.initialStepData.auth_token,
+      selectedAWSaccount.value,
+      selectedRegion.value[0].value
+    );
+    props.saveData(values);
+    props.closeModal();
+    if (res.status !== 200) {
       isError.value = true;
-      isErrorMessage.value =
-        res.data.message ||
-        'Could not edit token!';
+      isErrorMessage.value = res.data.message || 'Could not edit token!';
     }
-  } catch (err: any){
+  } catch (err: any) {
     isError.value = true;
-    isErrorMessage.value =
-        err ||
-        'Could not edit token!';
+    isErrorMessage.value = err || 'Could not edit token!';
   } finally {
     isLoading.value = false;
   }

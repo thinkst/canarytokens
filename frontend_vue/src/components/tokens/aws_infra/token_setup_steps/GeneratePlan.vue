@@ -2,7 +2,21 @@
   <div class="infra-token__title-wrapper">
     <h2>Proposed Plan</h2>
   </div>
-  <div class="flex items-stretch flex-col px-24">
+  <div
+    v-if="isLoadingUI"
+    class="mt-[80px] grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr"
+  >
+    <BaseSkeletonLoader
+      v-for="i in 10"
+      :key="i"
+      type="rectangle"
+      class="h-[160px]"
+    />
+  </div>
+  <div
+    v-if="!isLoadingUI"
+    class="flex items-stretch flex-col px-24"
+  >
     <div>
       <div class="flex justify-between mb-24">
         <div>
@@ -211,7 +225,9 @@ const props = defineProps<{
   initialStepData: TokenDataType;
 }>();
 
-const { token, auth_token, proposed_plan } = props.initialStepData;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { token, auth_token, code_snippet_command, proposed_plan } =
+  props.initialStepData;
 
 const viewType = ref(ViewTypeEnum.GRID);
 const isLoading = ref(true);
@@ -220,6 +236,7 @@ const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
+const isLoadingUI = ref(true);
 
 const assetSamples = ref<AssetsTypes>({
   S3Bucket: [],
@@ -242,6 +259,11 @@ const {
 onMounted(() => {
   assetSamples.value = proposed_plan.assets;
   resetSelectedAssetObj();
+
+  // Set loading state to allow UI to render
+  setTimeout(() => {
+    isLoadingUI.value = false;
+  }, 300);
 });
 
 const isMissingPermissionAssetType = computed(() => {
@@ -386,10 +408,10 @@ function handleSaveAsset(
   if (index === -1) {
     assetSamples.value[assetType]!.push(newValues);
   } else {
-        assetSamples.value[assetType]![index] = newValues;
-        setTimeout(() => {
-          AnimationTypeEnum.DEFAULT;
-        }, 0);
+    assetSamples.value[assetType]![index] = newValues;
+    setTimeout(() => {
+      AnimationTypeEnum.DEFAULT;
+    }, 0);
   }
 }
 
