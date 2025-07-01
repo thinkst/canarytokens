@@ -15,7 +15,7 @@
       />
       <StepState
         v-if="!isIdle && codeSnippetCommands"
-        class="mb-24"
+        class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
         :is-loading="isLoading"
         :is-error="isError"
         loading-message="This will take a couple of seconds for us to analyse your account, depending on network conditions, solar flare activity, and errant squirrels. Hold on…"
@@ -49,10 +49,10 @@
           </div>
           <BaseLabelArrow
             id="aws-snippet"
-            label="AWS CLI snippet"
-            :arrow-word-position="3"
-            arrow-variant="one"
-            class="z-10"
+            label="Copy AWS CLI snippet"
+            arrow-word-position="last"
+            arrow-variant="two"
+            class="z-10 text-right"
           />
           <BaseCodeSnippet
             v-if="codeSnippetCommands"

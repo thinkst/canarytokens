@@ -1,6 +1,6 @@
 <template>
   <BaseModal
-    title="Edit account informations"
+    title="Edit account information"
     :has-close-button="true"
     :hide-footer="true"
   >
