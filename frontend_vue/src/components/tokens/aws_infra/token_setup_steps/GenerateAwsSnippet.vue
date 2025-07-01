@@ -85,7 +85,7 @@
         </BaseCard>
         <div class="mt-24 flex flex-col items-center">
           <BaseMessageBox
-            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] text-justify"
             variant="info"
             >Please ensure you have run the above commands on the
             <span class="font-bold">{{ accountNumber }}</span> AWS account
@@ -105,7 +105,7 @@
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
             variant="warning"
-            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] text-justify"
           >
             Make sure to run the command above. Otherwise, we won't be able to
             generate your canarytoken.
@@ -212,6 +212,10 @@ const pageTitle = computed(() => {
 const codeSnippetCommands = ref<string>('');
 const accountNumber = ref('');
 const accountRegion = ref('');
+const managementAwsAccount = ref<number>(0);
+const roleName = ref('');
+const externalId = ref('');
+
 const isSnippedChecked = ref(false);
 const showWarningSnipeptCheck = ref(false);
 
@@ -251,18 +255,11 @@ async function handleGetAwsSnippet() {
         'Something went wrong when we tried to generate your snippet. Please try again.';
     }
 
-    const awsAccount = res.data.role_setup_commands.aws_account;
-    const customerAwsAccount =
-      res.data.role_setup_commands.customer_aws_account;
-    const externalId = res.data.role_setup_commands.external_id;
-    const roleName = res.data.role_setup_commands.role_name;
+    managementAwsAccount.value = res.data.role_setup_commands.aws_account;
+    externalId.value = res.data.role_setup_commands.external_id;
+    roleName.value = res.data.role_setup_commands.role_name;
 
-    const codeSnippet = generateCodeSnippet(
-      awsAccount,
-      customerAwsAccount,
-      externalId,
-      roleName
-    );
+    const codeSnippet = generateCodeSnippet();
 
     codeSnippetCommands.value = codeSnippet as string;
     stateStatus.value = StepStateEnum.SUCCESS;
@@ -281,6 +278,12 @@ function handleSaveEditData(data: GenericObject) {
   emits('storePreviousStepData', data);
   accountNumber.value = data.aws_account_number;
   accountRegion.value = data.aws_region;
+  codeSnippetCommands.value  = generateCodeSnippet();
+  emits('storeCurrentStepData', {
+      token,
+      auth_token,
+      code_snippet_command: codeSnippetCommands.value,
+    });
 }
 
 function handleSnippetChecked() {
@@ -341,16 +344,12 @@ function handleShowModalInfoSnippet() {
 }
 
 function generateCodeSnippet(
-  awsAccount: number,
-  customerAwsAccount: number,
-  externalId: string,
-  roleName: string
 ) {
-  return `aws iam create-role --no-cli-pager --role-name ${roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${awsAccount}:assumed-role/InventoryManagerRole/${externalId}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId}"}}}]}\'
+  return `aws iam create-role --no-cli-pager --role-name ${roleName.value} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${managementAwsAccount.value}:assumed-role/InventoryManagerRole/${externalId.value}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId.value}"}}}]}\'
 
 aws iam create-policy --no-cli-pager --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'${policyDocument}\'
 
-aws iam attach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+aws iam attach-role-policy --role-name ${roleName.value} --policy-arn arn:aws:iam::${accountNumber.value}:policy/Canarytokens-Inventory-ReadOnly-Policy
 `;
 }
 </script>
