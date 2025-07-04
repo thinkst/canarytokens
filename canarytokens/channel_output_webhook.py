@@ -36,8 +36,10 @@ class WebhookOutputChannel(OutputChannel):
         # TODO we should format using the hit directly,
         #      we use the drop to get the latest when we already have it
         url = canarydrop.alert_webhook_url
-        if not (url.startswith("http://") or url.startswith("https://")):
-            log.error(
+        if not (
+            url.lower().startswith("http://") or url.lower().startswith("https://")
+        ):
+            log.warn(
                 f"alert_webhook_url must start with http[s]://; url found for drop {canarydrop.canarytoken.value()}: {url}"
             )
 
