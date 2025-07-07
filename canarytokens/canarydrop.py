@@ -411,7 +411,7 @@ class Canarydrop(BaseModel):
 
             sl = list(s)
             for idx in idxs:
-                sl[idx] = f"\\{ord(s[idx]):x}"
+                sl[idx] = f"\\{ord(s[idx]):x} "
             return "".join(sl)
 
         if ".cloudfront.net" in cf_url:
