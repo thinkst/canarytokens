@@ -12,6 +12,7 @@ import json
 import logging
 import random
 import textwrap
+from string import hexdigits
 from base64 import b64encode
 from datetime import datetime, timedelta
 from hashlib import md5
@@ -401,6 +402,29 @@ class Canarydrop(BaseModel):
         return clonedsite_js
 
     def get_cloned_site_css(self, cf_url: str):
+        def _ucc_swap(s: str, n=3) -> str:
+            """
+            Replaces ~n of the characters in the string with a CSS-encoded unicode codepoint.
+            """
+            idxs = random.sample(
+                [
+                    i
+                    for i in range(len(s))
+                    if s[min(len(s) - 1, i + 1)] not in hexdigits
+                ],
+                k=n,
+            )
+            return "".join(
+                [
+                    f"\\{ord(s[idx]):x}" if idx in idxs else s[idx]
+                    for idx in range(len(s))
+                ]
+            )
+
+        cfs = "\x2e\x63\x6c\x6f\x75\x64\x66\x72\x6f\x6e\x74\x2e\x6e\x65\x74"
+        if cfs in cf_url:
+            cf_url = cf_url[: -len(cfs)] + _ucc_swap(cfs)
+
         token_val = self.canarytoken.value()
         expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
         clonedsite_css = textwrap.dedent(
