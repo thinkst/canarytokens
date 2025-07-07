@@ -12,6 +12,7 @@ import json
 import logging
 import random
 import textwrap
+from string import hexdigits
 from base64 import b64encode
 from datetime import datetime, timedelta
 from hashlib import md5
@@ -405,17 +406,23 @@ class Canarydrop(BaseModel):
             """
             Replaces ~n of the characters in the string with a CSS-encoded unicode codepoint.
             """
-            idxs = []
-            for _ in range(n):
-                idxs.append(random.randint(0, len(s) - 1))
+            idxs = random.sample(
+                [
+                    i
+                    for i in range(len(s))
+                    if s[min(len(s) - 1, i + 1)] not in hexdigits
+                ],
+                k=n,
+            )
+            return "".join(
+                [
+                    f"\\{ord(s[idx]):x}" if idx in idxs else s[idx]
+                    for idx in range(len(s))
+                ]
+            )
 
-            sl = list(s)
-            for idx in idxs:
-                sl[idx] = f"\\{ord(s[idx]):x} "
-            return "".join(sl)
-
-        if ".cloudfront.net" in cf_url:
-            cfs = ".cloudfront.net"
+        cfs = "\x2e\x63\x6c\x6f\x75\x64\x66\x72\x6f\x6e\x74\x2e\x6e\x65\x74"
+        if cfs in cf_url:
             cf_url = cf_url[: -len(cfs)] + _ucc_swap(cfs)
 
         token_val = self.canarytoken.value()
