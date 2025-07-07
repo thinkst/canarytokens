@@ -23,7 +23,7 @@
       <div class="text-left max-w-[100%]">
         <div>
           <BaseMessageBox
-            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]"
             variant="success"
             >Your decoy infrastructure design has been generated and stored. All
             that remains is to include it into your Terraform configuration, and
@@ -31,7 +31,7 @@
           >
         </div>
         <BaseCard
-          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]  xl:max-w-[40vw]  place-self-center"
         >
           <div class="text-center mb-16 flex flex-col items-center">
             <img
@@ -48,10 +48,10 @@
           </div>
           <BaseLabelArrow
             id="terraform-module"
-            label="Terraform snippet"
-            :arrow-word-position="2"
+            label="Copy Terraform snippet"
+            arrow-word-position="last"
             arrow-variant="one"
-            class="z-10"
+            class="z-10 text-right"
           />
           <BaseCodeSnippet
             id="terraform-module"
@@ -82,7 +82,7 @@
           <div
             class="text-left sm:text-center flex mt-8 gap-8 items-center justify-center"
           >
-            <p>How do I cleanup my AWS accont?</p>
+            <p>How do I clean up IAM resources for Canarytokens Inventory?</p>
             <button
               v-tooltip="{
                 content: 'Check details',

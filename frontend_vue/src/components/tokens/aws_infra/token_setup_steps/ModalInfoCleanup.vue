@@ -1,6 +1,6 @@
 <template>
   <BaseModal
-    title="How do I cleanup my AWS accont?"
+    title="How do I clean up IAM resources for Canarytokens Inventory?"
     :has-close-button="true"
     :content-class="`items-stretch`"
   >
@@ -11,10 +11,10 @@
       </h2>
       <BaseLabelArrow
         id="aws-snippet"
-        label="AWS Cleanup snippet"
-        :arrow-word-position="2"
+        label="Copy AWS Cleanup snippet"
+        arrow-word-position="last"
         arrow-variant="two"
-        class="z-10"
+        class="z-10 text-right"
       />
       <BaseCodeSnippet
         v-if="cleanupSnippetCommands"

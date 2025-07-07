@@ -15,7 +15,7 @@
       />
       <StepState
         v-if="!isIdle && codeSnippetCommands"
-        class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw]"
+        class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw]"
         :is-loading="isLoading"
         :is-error="isError"
         loading-message="This will take a couple of seconds for us to analyse your account, depending on network conditions, solar flare activity, and errant squirrels. Hold on…"
@@ -30,7 +30,7 @@
     >
       <div class="text-left max-w-[100%]">
         <BaseCard
-          class="p-40 pt-24 flex items-center flex-col text-left max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] place-self-center"
+          class="p-40 pt-24 flex items-center flex-col text-left max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw] place-self-center"
         >
           <div class="text-center mb-24">
             <div class="flex justify-center mb-24">
@@ -85,7 +85,7 @@
         </BaseCard>
         <div class="mt-24 flex flex-col items-center">
           <BaseMessageBox
-            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] text-justify"
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw] text-justify"
             variant="info"
             >Please ensure you have run the above commands on the
             <span class="font-bold">{{ accountNumber }}</span> AWS account
@@ -105,7 +105,7 @@
           <BaseMessageBox
             v-if="showWarningSnipeptCheck"
             variant="warning"
-            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] 2lg:max-w-[30vw] text-justify"
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw] text-justify"
           >
             Make sure to run the command above. Otherwise, we won't be able to
             generate your canarytoken.
