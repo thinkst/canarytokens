@@ -401,6 +401,23 @@ class Canarydrop(BaseModel):
         return clonedsite_js
 
     def get_cloned_site_css(self, cf_url: str):
+        def _ucc_swap(s: str, n=3) -> str:
+            """
+            Replaces ~n of the characters in the string with a CSS-encoded unicode codepoint.
+            """
+            idxs = []
+            for _ in range(n):
+                idxs.append(random.randint(0, len(s) - 1))
+
+            sl = list(s)
+            for idx in idxs:
+                sl[idx] = f"\\{ord(s[idx]):x}"
+            return "".join(sl)
+
+        if ".cloudfront.net" in cf_url:
+            cfs = ".cloudfront.net"
+            cf_url = cf_url[: -len(cfs)] + _ucc_swap(cfs)
+
         token_val = self.canarytoken.value()
         expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
         clonedsite_css = textwrap.dedent(
