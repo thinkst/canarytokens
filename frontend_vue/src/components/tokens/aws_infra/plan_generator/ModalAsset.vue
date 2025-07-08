@@ -45,6 +45,7 @@
       class="mb-16"
       >{{ isErrorMessage }}
     </BaseMessageBox>
+
     <ModalAssetContentList
       v-if="!showAssetDetails"
       :asset-type="props.assetType"
@@ -139,6 +140,7 @@ const isEmptyAssetData = computed(() => {
 });
 
 const assetLabel = computed(() => getAssetLabel(props.assetType));
+
 const subtitle = computed(() => {
   return !isEmptyAssetData.value
     ? `We generated names for your ${assetLabel.value} is based on your current deployment.`
@@ -154,6 +156,7 @@ function handleShowAssetDetails(selectedItem: AssetData, index: number) {
     assetData: selectedItem,
     index: index,
   };
+  console.log('selectedAssetDetails', selectedAssetDetails.value);
 }
 
 function removeManageInfo(assetData: any) {
