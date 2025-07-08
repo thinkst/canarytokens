@@ -17,7 +17,6 @@
       ref="assetCardRef"
       class="asset-card group border group bg-white rounded-2xl top-[0px] border-grey-200 duration-100 ease-in-out"
       :class="{
-        active: isSelected,
         'border-yellow': isOffInventory,
       }"
       @click.stop="handleAssetClick"
@@ -72,7 +71,7 @@
     </button>
     <!-- Select and Btn Delete -->
     <div class="asset-card__options">
-      <BaseInputCheckbox
+      <!-- <BaseInputCheckbox
         id="select-asset"
         label="Select asset"
         class="input-select text-sm text-grey-500"
@@ -80,7 +79,7 @@
         :hide-label="true"
         :model-value="isSelected"
         @update:model-value="(value) => handleSelectAsset(value)"
-      />
+      /> -->
       <button
         type="button"
         class="list-btn-edit text-sm text-grey-400"
@@ -119,18 +118,18 @@ import {
 
 type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
 
-const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
+const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: AssetDataTypeWithoutS3Object;
-  isActiveSelected: boolean;
+  // isActiveSelected: boolean;
   viewType: 'gridView' | 'listView';
 }>();
 
 const isHoverCard = ref(false);
 const assetCardRef = ref();
-const isSelected = ref(false);
+// const isSelected = ref(false);
 
 const assetName = computed(() => {
   const nameKey =
@@ -172,7 +171,7 @@ function showDataIcon(key: string) {
 
 function handleAssetClick() {
   // Open Modal
-  emit('openAsset');
+  emit('showAsset');
   // remove focus from selected card
   if (assetCardRef.value) {
     assetCardRef.value.blur();
@@ -187,17 +186,17 @@ function handleMouseLeave() {
   isHoverCard.value = false;
 }
 
-function handleSelectAsset(value: boolean) {
-  isSelected.value = value;
-  emit('selectAsset', isSelected.value);
-}
+// function handleSelectAsset(value: boolean) {
+//   isSelected.value = value;
+//   emit('selectAsset', isSelected.value);
+// }
 
-watch(
-  () => props.isActiveSelected,
-  (newVal) => {
-    newVal === false ? (isSelected.value = newVal) : null;
-  }
-);
+// watch(
+//   () => props.isActiveSelected,
+//   (newVal) => {
+//     newVal === false ? (isSelected.value = newVal) : null;
+//   }
+// );
 </script>
 
 <style>

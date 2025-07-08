@@ -96,6 +96,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/plan-preview',
+      name: 'plan-preview',
+      component: () => import('@/components/tokens/aws_infra/token_setup_steps/GeneratePlan.vue'),
+      meta: {
+        title: 'Plan Preview',
+      },
+    },
+    {
       path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),

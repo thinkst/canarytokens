@@ -21,6 +21,11 @@
       Add object
     </BaseButton>
   </div>
+  <BaseMessageBox
+    v-if="isErrorMessage"
+    variant="danger"
+    >{{ isErrorMessage }}
+  </BaseMessageBox>
   <div class="paginated_object_list__wrapper">
     <fieldset
       class="paginated_object_list"
@@ -170,6 +175,7 @@ function handleNextPage() {
 
 async function handleAddObject() {
   isLoading.value = true;
+  isErrorMessage.value = '';
 
   const {
     handleGenerateName,
