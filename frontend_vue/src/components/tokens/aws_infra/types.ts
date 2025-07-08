@@ -44,8 +44,7 @@ type AssetData =
   | SecretsManagerSecretData
   | SSMParameterData
   | SQSQueueData
-  | S3BucketData
-
+  | S3BucketData;
 
 type TokenSetupData = {
   token: string;
@@ -56,7 +55,6 @@ type TokenSetupData = {
   code_snippet_command?: string;
 };
 
-
 export type {
   AssetData,
   S3BucketData,
@@ -66,5 +64,5 @@ export type {
   SecretsManagerSecretData,
   DynamoDBTableData,
   TokenSetupData,
-  ProposedAWSInfraTokenPlanData
+  ProposedAWSInfraTokenPlanData,
 };
