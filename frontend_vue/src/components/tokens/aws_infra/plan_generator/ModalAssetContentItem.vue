@@ -36,27 +36,16 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits(['update-asset']);
-// const triggerSubmit = ref(false);
-// const triggerCancel = ref(false);
 
 function handleUpdateAsset(values: any) {
   console.log('handleUpdateAsset', values);
   emits('update-asset', values);
 }
 
-// function handleSubmit() {
-//   triggerSubmit.value = true;
-// }
-
 function handleInvalidSubmit() {
-  // triggerSubmit.value = false;
   console.log('handleInvalidSubmit');
 }
 
-// function handleCancel() {
-//   triggerCancel.value = true;
-//   props.closeModal();
-// }
 
 const validationSchema = computed(() => {
   switch (props.assetType) {

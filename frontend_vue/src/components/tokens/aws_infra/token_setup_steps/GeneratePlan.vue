@@ -145,7 +145,7 @@ const assetsNotInPlan = computed(() => {
 
 const assetWithMissingPermissionText = computed(() => {
   const isMultipleAssets = assetsWithMissingPermissions.value.length > 1;
-  return `The following asset ${isMultipleAssets ? 'types are' : 'type is'} not included in the plan due to missing permissions: ${assetsWithMissingPermissions.value.join(', ')}${isMultipleAssets ? '.' : ''}. Please ensure you have the necessary permissions to access ${isMultipleAssets ? 'these assets' : 'this asset'}.`;
+  return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}: ${assetsWithMissingPermissions.value.join(', ')}. Please check the permissions and run the inventory again.`;
 
 });
 
