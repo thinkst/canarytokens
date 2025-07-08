@@ -252,22 +252,9 @@ function handleMouseLeave() {
           flex-direction: row;
         }
       }
-
-      // li:not(:last-child) {
-      //   border-right: 1px solid hsl(153, 9%, 81%);
-
-      //   @media (max-width: 768px) {
-      //     border: none;
-      //   }
-      // }
     }
 
-    // &__btn-edit {
-    //   // display: none;
-    // }
-
     &__options {
-      // display: none;
       align-items: center;
 
       .input-select {

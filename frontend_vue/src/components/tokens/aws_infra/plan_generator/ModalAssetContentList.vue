@@ -15,7 +15,6 @@
 </template>
 
 <script setup lang="ts">
-// import { ref, computed, onMounted } from 'vue';
 import type { AssetDataTypeWithoutS3Object } from '../types';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
@@ -28,15 +27,12 @@ const props = defineProps<{
 const emit = defineEmits(['show-asset-details', 'delete-asset']);
 
 function handleShowAssetItem(asset: AssetDataTypeWithoutS3Object, index: number) {
-  // Emit an event to open the asset modal
-  console.log('handleShowAssetItem', asset, index);
   emit('show-asset-details', asset, index);
 }
 
 function handleRemoveAssetItem(
   index: number
 ) {
-  // Emit an event to delete the asset
   emit('delete-asset', index);
 }
 </script>

@@ -69,7 +69,6 @@ const totalAssets = computed(() => {
 });
 
 function handleAssetClick() {
-  // Open Modal
   emit('openAsset');
   // remove focus from selected card
   if (assetCardRef.value) {
