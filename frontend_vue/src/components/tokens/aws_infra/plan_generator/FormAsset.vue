@@ -57,7 +57,6 @@ const props = defineProps<{
   validationSchema: any;
   triggerSubmit: boolean;
   triggerCancel: boolean;
-  // closeModal: () => void;
 }>();
 
 const emits = defineEmits(['update-asset', 'invalid-submit']);
@@ -104,7 +103,6 @@ watch(
 watch(
   () => props.triggerSubmit,
   (newVal) => {
-    console.log('triggerSubmit', newVal);
     if (newVal === true) return handleProgramaticSubmit();
   },
   { immediate: true }

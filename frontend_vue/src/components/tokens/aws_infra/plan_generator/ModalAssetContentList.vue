@@ -1,15 +1,17 @@
 <template>
+  <ul class="flex flex-col gap-8">
   <AssetCard
     v-for="(asset, index) of props.assetData"
     :key="`${index}-${props.assetType}`"
     :asset-data="asset"
     :asset-type="assetType as AssetTypesEnum"
     view-type="listView"
-    @show-asset="(asset, index) => handleShowAssetItem(asset, index)"
+    @show-asset="() => handleShowAssetItem(asset, index)"
     @delete-asset="
     handleRemoveAssetItem(index as number)
     "
   />
+  </ul>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +29,7 @@ const emit = defineEmits(['show-asset-details', 'delete-asset']);
 
 function handleShowAssetItem(asset: AssetDataType, index: number) {
   // Emit an event to open the asset modal
+  console.log('handleShowAssetItem', asset, index);
   emit('show-asset-details', asset, index);
 }
 
