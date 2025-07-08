@@ -20,20 +20,33 @@
         <span class="fa-sr-only">Back</span>
       </button>
     </template>
-    <!-- Content -->
-
-    <BaseButton
+    <div
       v-if="!showAssetDetails"
-      :loading="isLoading"
-      @click="handleAddNewAsset()"
+      class="flex flex-col mb-8"
     >
-      Add new {{ props.assetType }}
-    </BaseButton>
+      <p class="text-center mb-16">
+        We generated names for your {{ assetLabel }}s based on your current
+        deployment.
+      </p>
+      <BaseButton
+        v-if="!showAssetDetails"
+        :loading="isLoading"
+        class="self-end"
+        variant="text"
+        icon="plus"
+        @click="handleAddNewAsset()"
+      >
+        New {{ assetLabel }} Decoy
+      </BaseButton>
+    </div>
+    <!-- Asset List -->
     <BaseMessageBox
       v-if="isErrorMessage"
       variant="danger"
+      class="mb-16"
       >{{ isErrorMessage }}
     </BaseMessageBox>
+
     <ModalAssetContentList
       v-if="!showAssetDetails"
       :asset-type="props.assetType"
@@ -47,6 +60,8 @@
         }
       "
     />
+
+    <!-- Asset Details -->
     <ModalAssetContentItem
       v-else
       :asset-type="props.assetType"
@@ -55,7 +70,7 @@
       :trigger-cancel="triggerCancel"
       @update-asset="
         (values) => {
-            handleUpdateAsset(values);
+          handleUpdateAsset(values);
         }
       "
     />
@@ -86,8 +101,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 import {
+  ASSET_LABEL,
   ASSET_DATA,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
@@ -116,7 +132,10 @@ const triggerCancel = ref(false);
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 
-function handleShowAssetDetails(selectedItem: AssetDataTypeWithoutS3Object, index: number) {
+function handleShowAssetDetails(
+  selectedItem: AssetDataTypeWithoutS3Object,
+  index: number
+) {
   isErrorMessage.value = '';
   showAssetDetails.value = true;
   selectedAssetDetails.value = {
@@ -124,7 +143,10 @@ function handleShowAssetDetails(selectedItem: AssetDataTypeWithoutS3Object, inde
     assetData: selectedItem,
     index: index,
   };
+  console.log('selectedAssetDetails', selectedAssetDetails.value);
 }
+
+const assetLabel = computed(() => ASSET_LABEL[props.assetType]);
 
 function removeManageInfo(assetData: any) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -136,7 +158,7 @@ function handleUpdateAsset(values: any) {
   selectedAssetDetails.value.assetData = values;
   emit('update-asset', selectedAssetDetails.value);
   showAssetDetails.value = false;
-//   props.closeModal();
+  //   props.closeModal();
 }
 
 async function handleAddNewAsset() {
@@ -161,6 +183,7 @@ async function handleAddNewAsset() {
 
   async function getAssetRandomData() {
     isLoading.value = true;
+    isErrorMessage.value = '';
 
     try {
       const results = await Promise.all(
@@ -187,6 +210,9 @@ async function handleAddNewAsset() {
           newAssetValues[result.key] = result.value;
         }
       });
+
+      if (isErrorMessage.value) return null;
+      emit('add-asset', newAssetValues);
     } catch (err: any) {
       isErrorMessage.value = err.message || 'An error occurred';
     } finally {
@@ -195,14 +221,12 @@ async function handleAddNewAsset() {
   }
 
   await getAssetRandomData();
-  emit('add-asset', newAssetValues);
 }
 
 function handleDeleteAsset(index: any) {
   isErrorMessage.value = '';
   emit('delete-asset', index);
 }
-
 
 function handleCloseModal() {
   props.closeModal();
@@ -211,10 +235,10 @@ function handleCloseModal() {
 
 function handleSaveButton() {
   triggerSubmit.value = true;
-//   showAssetDetails.value = false;
-    nextTick(() => {
-        triggerSubmit.value = false;
-    });
+  //   showAssetDetails.value = false;
+  nextTick(() => {
+    triggerSubmit.value = false;
+  });
 }
 
 function handleCancelButton() {
@@ -228,8 +252,6 @@ function handleBackButton() {
   isErrorMessage.value = '';
   showAssetDetails.value = false;
 }
-
-
 </script>
 
 <style lang="scss" scoped></style>

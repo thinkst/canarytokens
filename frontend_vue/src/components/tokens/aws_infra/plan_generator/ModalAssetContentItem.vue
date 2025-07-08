@@ -2,20 +2,9 @@
     <div
       class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16 2xl:mx-[8vw] xl:mx-[3vw]"
     >
-      <!-- <FormAsset
-        :asset-type="props.assetType"
-        :asset-data="props.assetData"
-        :close-modal="props.closeModal"
-        :validation-schema="validationSchema"
-        :trigger-submit="triggerSubmit"
-        :trigger-cancel="triggerCancel"
-        @update-asset="handleUpdateAsset"
-        @invalid-submit="handleInvalidSubmit"
-      /> -->
       <FormAsset
         :asset-type="props.assetType"
         :asset-data="props.assetData"
-        :close-modal="props.closeModal"
         :validation-schema="validationSchema"
         :trigger-submit="props.triggerSubmit"
         :trigger-cancel="props.triggerCancel"
@@ -23,19 +12,6 @@
         @invalid-submit="handleInvalidSubmit"
       />
     </div>
-    <!-- <template #footer>
-      <BaseButton
-        variant="grey"
-        @click="handleCancel"
-        >Cancel</BaseButton
-      >
-      <BaseButton
-        variant="primary"
-        type="submit"
-        @click="handleSubmit"
-        >Save</BaseButton
-      >
-    </template> -->
 </template>
 
 <script setup lang="ts">
@@ -55,7 +31,6 @@ import FormAsset from './FormAsset.vue';
 const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: AssetDataType;
-  closeModal: () => void;
   triggerSubmit: boolean;
   triggerCancel: boolean;
 }>();

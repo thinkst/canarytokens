@@ -1,8 +1,5 @@
 <template>
-  <li
-    class="asset-card__wrapper"
-    :class="viewType"
-  >
+  <li class="asset-card__wrapper">
     <span
       v-if="isOffInventory"
       v-tooltip="{
@@ -60,14 +57,14 @@
         </li>
       </ul>
       <!--- Btn Edit --->
-      <div
+      <!-- <div
         :class="{
           'shadow-solid-shadow-yellow': isOffInventory,
         }"
         class="asset-card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
       >
         {{ isHoverCard ? 'Edit' : assetLabel }}
-      </div>
+      </div> -->
     </button>
     <!-- Select and Btn Delete -->
     <div class="asset-card__options">
@@ -124,7 +121,7 @@ const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: AssetDataTypeWithoutS3Object;
   // isActiveSelected: boolean;
-  viewType: 'gridView' | 'listView';
+  // viewType: 'gridView' | 'listView';
 }>();
 
 const isHoverCard = ref(false);
@@ -213,119 +210,10 @@ function handleMouseLeave() {
 </style>
 
 <style lang="scss">
-.asset-card__wrapper.gridView {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-
-  .asset-card {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: space-between;
-    align-items: stretch;
-
-    &__badge {
-      top: -10px;
-      left: 50%;
-      transform: translate(-50%);
-    }
-
-    &__content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8;
-      padding-inline: 0.5rem;
-      padding-top: 0.8rem;
-
-      img {
-        height: 2rem;
-        width: 2rem;
-        border-radius: 2rem;
-      }
-
-      p {
-        padding-block: 0.3rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 20ch;
-      }
-    }
-
-    &__list-data {
-      padding-bottom: 0.5rem;
-      padding-inline: 0.5rem;
-
-      li {
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-        justify-content: space-between;
-        text-align: left;
-
-        span.value {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: 10ch;
-        }
-
-        span.value.with-icon {
-          display: flex;
-          flex-direction: row;
-          gap: 0.3rem;
-        }
-      }
-    }
-    &__btn-edit {
-      padding-block: 0.5rem;
-      align-items: center;
-      line-height: 0.8rem;
-    }
-
-    &__options {
-      display: none;
-      align-items: center;
-
-      .list-btn-edit {
-        display: none;
-      }
-
-      .input-select {
-        position: absolute;
-        left: 0.8rem;
-        top: 0.7rem;
-      }
-
-      .list-btn-edit {
-        position: absolute;
-        right: 3em;
-        top: 0.6rem;
-      }
-
-      .btn-delete {
-        position: absolute;
-        right: 0.5rem;
-        top: 0.5rem;
-      }
-    }
-  }
-
-  &:hover,
-  &:focus,
-  &:active,
-  &:focus-within {
-    .asset-card__options {
-      display: flex;
-    }
-  }
-}
-
-.asset-card__wrapper.listView {
+.asset-card__wrapper {
   display: flex;
   position: relative;
+  container-type: inline-size;
 
   .asset-card {
     display: flex;
@@ -337,10 +225,6 @@ function handleMouseLeave() {
     &__badge {
       top: -6px;
       right: 0.4rem;
-    }
-
-    @media (max-width: 1024px) {
-      flex-direction: column;
     }
 
     &__content {
@@ -410,21 +294,21 @@ function handleMouseLeave() {
         }
       }
 
-      li:not(:last-child) {
-        border-right: 1px solid hsl(153, 9%, 81%);
+      // li:not(:last-child) {
+      //   border-right: 1px solid hsl(153, 9%, 81%);
 
-        @media (max-width: 768px) {
-          border: none;
-        }
-      }
+      //   @media (max-width: 768px) {
+      //     border: none;
+      //   }
+      // }
     }
 
-    &__btn-edit {
-      display: none;
-    }
+    // &__btn-edit {
+    //   // display: none;
+    // }
 
     &__options {
-      display: none;
+      // display: none;
       align-items: center;
 
       .input-select {
@@ -446,6 +330,19 @@ function handleMouseLeave() {
       }
     }
   }
+
+  @container (width < 50em) {
+    .asset-card:has(.asset-card__list-data li:nth-child(n + 2)) {
+      flex-direction: column;
+    }
+  }
+
+  @container (width < 40em) {
+    .asset-card {
+      flex-direction: column;
+    }
+  }
+
   &:hover,
   &:focus,
   &:active,
