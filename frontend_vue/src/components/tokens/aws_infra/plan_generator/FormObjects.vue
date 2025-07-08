@@ -187,6 +187,10 @@ async function handleAddObject() {
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();
   isErrorMessage.value = isGenerateNameError.value;
+  if (isErrorMessage.value) {
+    isLoading.value = false;
+    return;
+  }
   props.prepend({ [objectKey.value]: generatedName.value });
   isLoading.value = false;
 }

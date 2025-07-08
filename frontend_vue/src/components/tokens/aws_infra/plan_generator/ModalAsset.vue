@@ -114,7 +114,7 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object | null;
+  assetData: AssetDataTypeWithoutS3Object[] | null;
   closeModal: () => void;
 }>();
 
@@ -123,7 +123,7 @@ const emit = defineEmits(['update-asset', 'delete-asset', 'add-asset']);
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
-  assetData: {} as AssetDataTypeWithoutS3Object,
+  assetData: [] as AssetDataTypeWithoutS3Object[],
   index: -1,
 });
 
@@ -133,7 +133,7 @@ const isLoading = ref(false);
 const isErrorMessage = ref('');
 
 function handleShowAssetDetails(
-  selectedItem: AssetDataTypeWithoutS3Object,
+  selectedItem: AssetDataTypeWithoutS3Object[],
   index: number
 ) {
   isErrorMessage.value = '';

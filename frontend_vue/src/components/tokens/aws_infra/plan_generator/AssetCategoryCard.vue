@@ -51,7 +51,7 @@ const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object | null;
+  assetData: any | AssetDataTypeWithoutS3Object | null;
 }>();
 
 const isHoverCard = ref(false);
