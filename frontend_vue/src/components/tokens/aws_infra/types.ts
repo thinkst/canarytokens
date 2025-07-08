@@ -60,6 +60,8 @@ type CurrentTokenDataType = {
   code_snippet_command?: string;
 };
 
+type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
+
 export type {
   AssetDataType,
   AssetsTypes,
@@ -71,4 +73,5 @@ export type {
   DynamoDBTableType,
   PlanValueTypes,
   CurrentTokenDataType,
+  AssetDataTypeWithoutS3Object
 };
