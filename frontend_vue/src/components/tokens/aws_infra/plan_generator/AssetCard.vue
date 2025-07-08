@@ -56,27 +56,8 @@
           >
         </li>
       </ul>
-      <!--- Btn Edit --->
-      <!-- <div
-        :class="{
-          'shadow-solid-shadow-yellow': isOffInventory,
-        }"
-        class="asset-card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
-      >
-        {{ isHoverCard ? 'Edit' : assetLabel }}
-      </div> -->
     </button>
-    <!-- Select and Btn Delete -->
     <div class="asset-card__options">
-      <!-- <BaseInputCheckbox
-        id="select-asset"
-        label="Select asset"
-        class="input-select text-sm text-grey-500"
-        tooltip-content="Select asset"
-        :hide-label="true"
-        :model-value="isSelected"
-        @update:model-value="(value) => handleSelectAsset(value)"
-      /> -->
       <button
         type="button"
         class="list-btn-edit text-sm text-grey-400"
@@ -103,7 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import type { AssetDataType, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import {
@@ -120,13 +101,10 @@ const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: AssetDataTypeWithoutS3Object;
-  // isActiveSelected: boolean;
-  // viewType: 'gridView' | 'listView';
 }>();
 
 const isHoverCard = ref(false);
 const assetCardRef = ref();
-// const isSelected = ref(false);
 
 const assetName = computed(() => {
   const nameKey =
@@ -150,10 +128,6 @@ const assetDataDisplay = computed<any[][]>((): any[][] => {
   return assets as any[][];
 });
 
-const assetLabel = computed(() => {
-  return ASSET_LABEL[props.assetType];
-});
-
 const isOffInventory = computed(() => {
   return props.assetData.off_inventory;
 });
@@ -167,7 +141,6 @@ function showDataIcon(key: string) {
 }
 
 function handleAssetClick() {
-  // Open Modal
   emit('showAsset');
   // remove focus from selected card
   if (assetCardRef.value) {
@@ -182,18 +155,6 @@ function handleMouseOver() {
 function handleMouseLeave() {
   isHoverCard.value = false;
 }
-
-// function handleSelectAsset(value: boolean) {
-//   isSelected.value = value;
-//   emit('selectAsset', isSelected.value);
-// }
-
-// watch(
-//   () => props.isActiveSelected,
-//   (newVal) => {
-//     newVal === false ? (isSelected.value = newVal) : null;
-//   }
-// );
 </script>
 
 <style>
