@@ -98,7 +98,6 @@ watch(
 watch(
   () => props.triggerSubmit,
   (newVal) => {
-    console.log('triggerSubmit', newVal);
     if (newVal === true) return handleProgramaticSubmit();
   },
   { immediate: true }
