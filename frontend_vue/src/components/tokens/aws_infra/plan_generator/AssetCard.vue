@@ -85,7 +85,6 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import type { AssetDataType, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import {
   ASSET_DATA_NAME,
@@ -93,8 +92,7 @@ import {
   ASSET_WITH_ICON,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-
-type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
+import type { AssetDataTypeWithoutS3Object } from '../types';
 
 const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 
@@ -109,7 +107,7 @@ const assetCardRef = ref();
 const assetName = computed(() => {
   const nameKey =
     ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
-  return props.assetData[nameKey as keyof AssetDataType];
+  return props.assetData[nameKey as keyof AssetDataTypeWithoutS3Object];
 });
 
 const assetDataDisplay = computed<any[][]>((): any[][] => {
