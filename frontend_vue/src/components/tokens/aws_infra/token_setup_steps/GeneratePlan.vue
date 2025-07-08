@@ -296,26 +296,27 @@ const proposed_plan = {
         off_inventory: false,
       },
     ],
-    SecretsManagerSecret: [
-      {
-        secretsmanager_secret_name: '0HrXF',
-        secretsmanager_secret_value: 'kUZypC10r',
-        off_inventory: false,
-      },
-      {
-        secretsmanager_secret_name: '3dcr5XkRFNpvySfVr',
-        secretsmanager_secret_value: 'jK9hW0U2FE40zTHZM',
-        off_inventory: false,
-      },
-    ],
-    DynamoDBTable: [
-      {
-        dynamodb_name: '0F5Gsi',
-        dynamodb_partition_key: 'JuqvGiGkPnXexlrgOu',
-        dynamodb_row_count: '8',
-        off_inventory: false,
-      },
-    ],
+    SecretsManagerSecret: null,
+    // SecretsManagerSecret: [
+    //   {
+    //     secretsmanager_secret_name: '0HrXF',
+    //     secretsmanager_secret_value: 'kUZypC10r',
+    //     off_inventory: false,
+    //   },
+    //   {
+    //     secretsmanager_secret_name: '3dcr5XkRFNpvySfVr',
+    //     secretsmanager_secret_value: 'jK9hW0U2FE40zTHZM',
+    //     off_inventory: false,
+    //   },
+    // ],
+    // DynamoDBTable: [
+    //   {
+    //     dynamodb_name: '0F5Gsi',
+    //     dynamodb_partition_key: 'JuqvGiGkPnXexlrgOu',
+    //     dynamodb_row_count: '8',
+    //     off_inventory: false,
+    //   },
+    // ],
     SQSQueue: [
       {
         queue_name: 'XDAXOfW',
@@ -374,6 +375,7 @@ const assetWithMissingPermissionText = computed(() => {
   return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}:
   ${assetsWithMissingPermissions.value.join(', ')}.
   Please check the permissions and run the inventory again.`;
+
 });
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
@@ -409,7 +411,6 @@ function handleSaveAsset(
   newValues: AssetData,
   index: number
 ) {
-  console.log('handleSaveAsset save asset!!!')
   if (!assetSamples.value[assetType]) {
     assetSamples.value[assetType] = [];
   }
