@@ -74,7 +74,7 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
-const currentStep = ref(2);
+const currentStep = ref(1);
 const sharedData = ref(Array(3).fill({}));
 const stepComponents = ref<
   Record<number, ReturnType<typeof defineAsyncComponent>>
