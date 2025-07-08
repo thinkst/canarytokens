@@ -375,7 +375,6 @@ const assetWithMissingPermissionText = computed(() => {
   return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}:
   ${assetsWithMissingPermissions.value.join(', ')}.
   Please check the permissions and run the inventory again.`;
-
 });
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {

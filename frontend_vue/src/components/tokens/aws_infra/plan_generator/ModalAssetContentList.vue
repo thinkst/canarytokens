@@ -1,5 +1,6 @@
 <template>
   <ul class="flex flex-col gap-8">
+    {{ props.assetData }}
   <AssetCard
     v-for="(asset, index) of props.assetData"
     :key="`${index}-${props.assetType}`"
