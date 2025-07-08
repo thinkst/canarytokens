@@ -15,6 +15,7 @@
           :src="getImageUrl(`aws_infra_icons/${props.assetType}.svg`)"
           :alt="`logo-${assetType}`"
           class="rounded-full w-[5rem] h-[5rem]"
+          :class="assetData ? '' : 'grayscale opacity-50'"
         />
         <p class="text-grey-600 text-pretty mt-8">
           {{ assetCategoryName }}
@@ -30,7 +31,7 @@
       <div
         class="asset_category_card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
       >
-        Review
+        {{ assetData ? 'Review' : 'Add Decoys' }}
       </div>
     </button>
   </li>
@@ -46,12 +47,11 @@ import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 
-
 const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object;
+  assetData: AssetDataTypeWithoutS3Object | null;
 }>();
 
 const isHoverCard = ref(false);
@@ -61,9 +61,10 @@ const assetCategoryName = computed(() => {
   return ASSET_LABEL[props.assetType as keyof typeof ASSET_DATA_NAME];
 });
 
-console.log('AssetCategoryCard props:', props);
-
 const totalAssets = computed(() => {
+  if (!props.assetData) {
+    return 0;
+  }
   return Object.keys(props.assetData).length;
 });
 

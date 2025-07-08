@@ -114,7 +114,7 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object;
+  assetData: AssetDataTypeWithoutS3Object | null;
   closeModal: () => void;
 }>();
 
