@@ -25,8 +25,7 @@
       class="flex flex-col mb-8"
     >
       <p class="text-center mb-16">
-        We generated names for your {{ assetLabel }}s based on your current
-        deployment.
+        {{ subtitle }}
       </p>
       <BaseButton
         v-if="!showAssetDetails"
@@ -50,7 +49,7 @@
     <ModalAssetContentList
       v-if="!showAssetDetails"
       :asset-type="props.assetType"
-      :asset-data="props.assetData"
+      :asset-data="currentAssetData"
       @show-asset-details="
         (selectedItem, index) => handleShowAssetDetails(selectedItem, index)
       "
@@ -107,6 +106,7 @@ import {
   ASSET_DATA,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
+import type {ComputedRef} from 'vue';
 import type { AssetDataTypeWithoutS3Object } from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
@@ -114,11 +114,15 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object[] | null;
+  assetData: ComputedRef<AssetDataTypeWithoutS3Object[] | [] | null>;
   closeModal: () => void;
 }>();
 
 const emit = defineEmits(['update-asset', 'delete-asset', 'add-asset']);
+
+const currentAssetData = computed(() => {
+  return props.assetData?.value ?? props.assetData;
+});
 
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
@@ -143,10 +147,21 @@ function handleShowAssetDetails(
     assetData: selectedItem,
     index: index,
   };
-  console.log('selectedAssetDetails', selectedAssetDetails.value);
 }
 
+const isEmptyAssetData = computed(() => {
+  if (Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0) {
+    return true;
+  }
+  return false;
+});
+
 const assetLabel = computed(() => ASSET_LABEL[props.assetType]);
+const subtitle = computed(() => {
+  return !isEmptyAssetData.value
+    ? `We generated names for your ${assetLabel.value} is based on your current deployment.`
+    : `You can add new decoys to your ${assetLabel.value} list.`;
+});
 
 function removeManageInfo(assetData: any) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -158,7 +173,6 @@ function handleUpdateAsset(values: any) {
   selectedAssetDetails.value.assetData = values;
   emit('update-asset', selectedAssetDetails.value);
   showAssetDetails.value = false;
-  //   props.closeModal();
 }
 
 async function handleAddNewAsset() {
@@ -235,7 +249,6 @@ function handleCloseModal() {
 
 function handleSaveButton() {
   triggerSubmit.value = true;
-  //   showAssetDetails.value = false;
   nextTick(() => {
     triggerSubmit.value = false;
   });
@@ -252,6 +265,7 @@ function handleBackButton() {
   isErrorMessage.value = '';
   showAssetDetails.value = false;
 }
+
 </script>
 
 <style lang="scss" scoped></style>
