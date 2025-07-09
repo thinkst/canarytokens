@@ -207,13 +207,13 @@ async function handleSavePlan(formValues: PlanValueTypes) {
       isSaveErrorMessage.value = res.data.message;
     }
     isSaveSuccess.value = true;
+    emits('storeCurrentStepData', { token, auth_token });
+    emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
     isSaveErrorMessage.value =
       err.message || 'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
-    emits('storeCurrentStepData', { token, auth_token });
-    emits('updateStep');
   } finally {
     isSavingPlan.value = false;
   }
