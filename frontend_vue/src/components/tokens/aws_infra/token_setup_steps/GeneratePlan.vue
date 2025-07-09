@@ -34,18 +34,8 @@
           :asset-type="assetKey as AssetTypesEnum"
           @open-asset="
             handleOpenAssetCategoryModal(
-              assetValues,
               assetKey as AssetTypesEnum
             )
-          "
-        />
-        <AssetCategoryCard
-          v-for="assetType in assetsNotInPlan"
-          :key="`missing-${assetType}`"
-          :asset-type="assetType as AssetTypesEnum"
-          :asset-data="null"
-          @open-asset="
-            handleOpenAssetCategoryModal(null, assetType as AssetTypesEnum)
           "
         />
       </ul>
@@ -84,6 +74,7 @@ import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
+
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
@@ -112,7 +103,7 @@ const assetSamples = ref<Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] |
 });
 
 onMounted(() => {
-  assetSamples.value = proposed_plan.assets;
+  assetSamples.value = proposed_plan.assets as Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] | null>;
   // Set loading state to allow UI to render
   setTimeout(() => {
     isLoadingUI.value = false;
@@ -120,10 +111,23 @@ onMounted(() => {
 });
 
 const availableAssets = computed(() => {
-  return Object.fromEntries(
-    Object.entries(assetSamples.value).filter(
-      ([, assets]) => assets !== null && assets.length > 0
-    )
+  return Object.values(AssetTypesEnum).reduce(
+    (acc, assetType) => {
+      if (
+        assetSamples.value[assetType] !== undefined &&
+        assetSamples.value[assetType] !== null
+      ) {
+        acc[assetType] = assetSamples.value[assetType];
+      }
+      if (assetSamples.value[assetType] === undefined) {
+        acc[assetType] = [];
+      }
+      if (assetSamples.value[assetType] === null) {
+        return acc;
+      }
+      return acc;
+    },
+    {} as Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] | [] | null>
   );
 });
 
@@ -133,19 +137,12 @@ const assetsWithMissingPermissions = computed(() => {
     .map(([assetType]) => assetType);
 });
 
-const assetsNotInPlan = computed(() => {
-  const currentAssetTypes = Object.keys(assetSamples.value);
-
-  return Object.values(AssetTypesEnum).filter(
-    (assetType) =>
-      !currentAssetTypes.includes(assetType) &&
-      !assetsWithMissingPermissions.value.includes(assetType)
-  );
-});
 
 const assetWithMissingPermissionText = computed(() => {
   const isMultipleAssets = assetsWithMissingPermissions.value.length > 1;
-  return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}: ${assetsWithMissingPermissions.value.join(', ')}. Please check the permissions and run the inventory again.`;
+  return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}:
+  ${assetsWithMissingPermissions.value.join(', ')}.
+  Please check the permissions and run the inventory again.`;
 
 });
 
@@ -154,14 +151,13 @@ function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
 }
 
 function handleOpenAssetCategoryModal(
-  assetData: AssetDataTypeWithoutS3Object[] | null,
   assetType: AssetTypesEnum
 ) {
   const { open, close } = useModal({
     component: ModalAsset,
     attrs: {
       assetType: assetType,
-      assetData: assetData,
+      assetData: computed(() => availableAssets.value[assetType]),
       closeModal: () => {
         close();
       },
@@ -211,13 +207,13 @@ async function handleSavePlan(formValues: PlanValueTypes) {
       isSaveErrorMessage.value = res.data.message;
     }
     isSaveSuccess.value = true;
-    emits('storeCurrentStepData', { token, auth_token });
-    emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
     isSaveErrorMessage.value =
       err.message || 'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
+    emits('storeCurrentStepData', { token, auth_token });
+    emits('updateStep');
   } finally {
     isSavingPlan.value = false;
   }

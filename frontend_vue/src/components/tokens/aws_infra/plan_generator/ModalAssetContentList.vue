@@ -15,13 +15,14 @@
 </template>
 
 <script setup lang="ts">
+import type { ComputedRef } from 'vue';
 import type { AssetDataTypeWithoutS3Object } from '../types';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object[] | null;
+  assetData: AssetDataTypeWithoutS3Object[] | ComputedRef<AssetDataTypeWithoutS3Object[] | null>;
 }>();
 
 const emit = defineEmits(['show-asset-details', 'delete-asset']);
@@ -35,8 +36,5 @@ function handleRemoveAssetItem(
 ) {
   emit('delete-asset', index);
 }
+
 </script>
-
-<style lang="scss" scoped>
-
-</style>
