@@ -1,5 +1,3 @@
-import { AssetTypesEnum } from './constants';
-
 type S3ObjectData = {
   object_path: string;
 };
@@ -36,7 +34,11 @@ type DynamoDBTableData = {
 };
 
 type ProposedAWSInfraTokenPlanData = {
-  [K in AssetTypesEnum]?: AssetData[] | null;
+  S3Bucket?: S3BucketData[] | null;
+  SQSQueue?: SQSQueueData[] | null;
+  SSMParameter?: SSMParameterData[] | null;
+  SecretsManagerSecret?: SecretsManagerSecretData[] | null;
+  DynamoDBTable?: DynamoDBTableData[] | null;
 };
 
 type AssetData =

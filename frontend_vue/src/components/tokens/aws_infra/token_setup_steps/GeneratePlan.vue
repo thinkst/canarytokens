@@ -32,7 +32,11 @@
           :key="`${assetKey}-${index}`"
           :asset-data="assetValues"
           :asset-type="assetKey as AssetTypesEnum"
-          @open-asset="handleOpenAssetCategoryModal(assetKey as AssetTypesEnum)"
+          @open-asset="
+            handleOpenAssetCategoryModal(
+              assetKey as AssetTypesEnum
+            )
+          "
         />
       </ul>
       <BaseMessageBox
@@ -435,13 +439,13 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null; }) {
       return;
     }
     isSaveSuccess.value = true;
-    emits('storeCurrentStepData', { token, auth_token });
-    emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
     isSaveErrorMessage.value =
       err.message || 'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
+    emits('storeCurrentStepData', { token, auth_token });
+    emits('updateStep');
   } finally {
     isSavingPlan.value = false;
   }

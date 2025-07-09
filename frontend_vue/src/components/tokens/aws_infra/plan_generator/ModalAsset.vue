@@ -156,7 +156,6 @@ function handleShowAssetDetails(selectedItem: AssetData, index: number) {
     assetData: selectedItem,
     index: index,
   };
-  console.log('selectedAssetDetails', selectedAssetDetails.value);
 }
 
 function removeManageInfo(assetData: any) {
@@ -246,6 +245,7 @@ function handleBackButton() {
   isErrorMessage.value = '';
   showAssetDetails.value = false;
 }
+
 </script>
 
 <style lang="scss" scoped></style>
