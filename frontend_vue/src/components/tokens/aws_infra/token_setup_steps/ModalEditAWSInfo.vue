@@ -80,13 +80,13 @@ const isErrorMessage = ref('');
 
 const schema = Yup.object().shape({
   aws_region: Yup.string().required('AWS region is required'),
-  aws_account_number: Yup.number()
-    .typeError('AWS account must be a number')
+  aws_account_number: Yup.string()
     .required('AWS account number is required')
+    .matches(/^\d+$/, 'AWS account must be a number')
     .test(
       'len',
       'AWS account number must have 12 digits',
-      (val) => val.toString().length === 12
+      (val) => val.length === 12
     ),
 });
 
@@ -115,7 +115,6 @@ async function onSubmit(values: GenericObject) {
 
     props.saveData(values);
     props.closeModal();
-
   } catch (err: any) {
     isError.value = true;
     isErrorMessage.value = err || 'Could not edit token!';
