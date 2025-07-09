@@ -86,7 +86,6 @@ const props = defineProps<{
 const { token, auth_token, code_snippet_command, proposed_plan } =
   props.initialStepData;
 
-const isLoading = ref(true);
 const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);

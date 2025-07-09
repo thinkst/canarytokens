@@ -45,7 +45,6 @@
       class="mb-16"
       >{{ isErrorMessage }}
     </BaseMessageBox>
-
     <ModalAssetContentList
       v-if="!showAssetDetails"
       :asset-type="props.assetType"
@@ -59,7 +58,6 @@
         }
       "
     />
-
     <!-- Asset Details -->
     <ModalAssetContentItem
       v-else
@@ -127,7 +125,7 @@ const currentAssetData = computed(() => {
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
-  assetData: [] as AssetDataTypeWithoutS3Object[],
+  assetData: {} as AssetDataTypeWithoutS3Object,
   index: -1,
 });
 
@@ -137,7 +135,7 @@ const isLoading = ref(false);
 const isErrorMessage = ref('');
 
 function handleShowAssetDetails(
-  selectedItem: AssetDataTypeWithoutS3Object[],
+  selectedItem: AssetDataTypeWithoutS3Object,
   index: number
 ) {
   isErrorMessage.value = '';
