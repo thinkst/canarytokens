@@ -45,7 +45,6 @@
       class="mb-16"
       >{{ isErrorMessage }}
     </BaseMessageBox>
-
     <ModalAssetContentList
       v-if="!showAssetDetails"
       :asset-type="props.assetType"
