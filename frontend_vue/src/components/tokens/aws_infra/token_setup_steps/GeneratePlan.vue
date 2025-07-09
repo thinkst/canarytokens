@@ -113,18 +113,11 @@ onMounted(() => {
 const availableAssets = computed(() => {
   return Object.values(AssetTypesEnum).reduce(
     (acc, assetType) => {
-      if (
-        assetSamples.value[assetType] !== undefined &&
-        assetSamples.value[assetType] !== null
-      ) {
-        acc[assetType] = assetSamples.value[assetType];
-      }
-      if (assetSamples.value[assetType] === undefined) {
-        acc[assetType] = [];
-      }
-      if (assetSamples.value[assetType] === null) {
+      const assetData = assetSamples.value[assetType];
+      if (assetData === null) {
         return acc;
       }
+      acc[assetType] = assetData || [];
       return acc;
     },
     {} as Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] | [] | null>
@@ -191,8 +184,6 @@ function handleSaveAsset(
   }
 }
 
-isLoading.value = false;
-
 async function handleSavePlan(formValues: PlanValueTypes) {
   isSavingPlan.value = true;
   isSaveError.value = false;
@@ -205,6 +196,7 @@ async function handleSavePlan(formValues: PlanValueTypes) {
       isSavingPlan.value = false;
       isSaveError.value = true;
       isSaveErrorMessage.value = res.data.message;
+      return;
     }
     isSaveSuccess.value = true;
     emits('storeCurrentStepData', { token, auth_token });
