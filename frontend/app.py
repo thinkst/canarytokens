@@ -1137,8 +1137,6 @@ def api_awsinfra_check_role(
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful check-role
-    if not handle_response.session_credentials_retrieved:
-        aws_infra.mark_failed(canarydrop)
     else:
         aws_infra.mark_succeeded(canarydrop)
     return handle_response
