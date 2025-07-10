@@ -37,6 +37,7 @@ from canarytokens.models import (
     CreditCardV2AdditionalInfo,
     WebDavTokenHit,
     WebDavAdditionalInfo,
+    AWSInfraAssetType,
 )
 from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
@@ -864,6 +865,12 @@ class Canarytoken(object):
                     "Account & Region": f'{event["account"]}, {event["region"]}',
                 },
                 decoy_resource={
+                    "asset_type": next(
+                        asset_type.value
+                        for asset_type in AWSInfraAssetType
+                        if asset_type.value
+                        in event_detail["resources"][0]["type"].replace("::", "")
+                    ),
                     "Asset Name": next(
                         (
                             v
