@@ -1139,6 +1139,7 @@ def api_awsinfra_check_role(
         )  # mark fail for in case this is coming from a successful check-role
     else:
         aws_infra.mark_succeeded(canarydrop)
+    queries.save_canarydrop(canarydrop)
     return handle_response
 
 
@@ -1182,6 +1183,7 @@ def api_awsinfra_inventory_customer_account(
         )  # mark fail for in case this is coming from a successful inventory
     else:
         aws_infra.mark_succeeded(canarydrop)
+    queries.save_canarydrop(canarydrop)
     return handle_response
 
 
@@ -1219,6 +1221,8 @@ def api_awsinfra_save_plan(
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
         aws_infra.save_plan(canarydrop, request.plan)
         aws_infra.mark_succeeded(canarydrop)
+        queries.save_canarydrop(canarydrop)
+
     except AWSInfraOperationNotAllowed as e:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return DefaultResponse(result=False, message=str(e))
@@ -1264,6 +1268,7 @@ def api_awsinfra_setup_ingestion(
     else:
         aws_infra.mark_succeeded(canarydrop)
         aws_infra.mark_ingesting(canarydrop)
+    queries.save_canarydrop(canarydrop)
     return handle_response
 
 
