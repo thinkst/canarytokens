@@ -1035,22 +1035,14 @@ def wireguard_keymap_get(public_key: bytes) -> Optional[str]:
 
 
 def add_aws_management_lambda_handle(
-    handle: str, token: str, operation: models.AWSInfraOperationType
+    handle_id: str, handle: dict, handle_lifetime: int = 3600
 ):
-    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle}"
+    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle_id}"
     DB.get_db().hset(
         key,
-        mapping={
-            "canarytoken": token,
-            "operation": operation.value,
-            "requested_timestamp": datetime.datetime.now(
-                datetime.timezone.utc
-            ).strftime("%Y-%m-%d %H:%M:%S"),
-            "response_received": "False",
-            "response_content": "",
-        },
+        mapping=handle,
     )
-    DB.get_db().expire(key, 3600)
+    DB.get_db().expire(key, handle_lifetime)
 
 
 def get_aws_management_lambda_handle(handle):
