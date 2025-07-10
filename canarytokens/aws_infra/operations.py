@@ -169,6 +169,8 @@ def _build_handle_response_payload(
         "handle": handle_id,
     }
 
+    logging.info("Received payload: %s", payload)
+
     if timeout:
         payload["message"] = "Handle response timed out."
     elif response_content.get("error", "") == "":
@@ -178,7 +180,8 @@ def _build_handle_response_payload(
 
     if handle.operation == AWSInfraOperationType.CHECK_ROLE:
         payload["session_credentials_retrieved"] = (
-            response_content.get("session_credentials_retrieved", False),
+            response_content.get("session_credentials_retrieved", "False").lower()
+            == "true"
         )
         return AWSInfraCheckRoleReceivedResponse(**payload)
 
