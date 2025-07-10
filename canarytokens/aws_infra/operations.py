@@ -173,7 +173,7 @@ def _build_handle_response_payload(
 
     if timeout:
         payload["message"] = "Handle response timed out."
-    elif response_content.get("error", "") == "":
+    elif response_content.get("error", "") != "":
         payload["message"] = response_content.get("error").split("::")[
             -1
         ]  # TODO: map ServiceError (maybe?)
