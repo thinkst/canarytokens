@@ -21,6 +21,8 @@ from canarytokens.models import (
     AWSInfraAssetType,
     AWSInfraInventoryCustomerAccountReceivedResponse,
     AWSInfraOperationType,
+    AWSInfraSetupIngestionReceivedResponse,
+    AWSInfraTeardownReceivedResponse,
 )
 from canarytokens.settings import FrontendSettings
 from canarytokens.tokens import Canarytoken
@@ -193,9 +195,14 @@ def _build_handle_response_payload(
     if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
         payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
         payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+        return AWSInfraSetupIngestionReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.TEARDOWN:
         payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+        return AWSInfraTeardownReceivedResponse(**payload)
+
+    # this should never happen
+    logging.error(f"Unknown operation type {handle.operation} for handle {handle_id}.")
 
 
 def get_handle_operation(handle_id):
