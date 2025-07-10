@@ -1,7 +1,7 @@
 import datetime
 from pathlib import Path
 import uuid
-from pydantic import EmailStr
+from pydantic.v1 import EmailStr
 import pytest
 from unittest.mock import patch
 from twisted.logger import capturedLogs

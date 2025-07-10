@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Literal, Union
 
 import pycountry_convert
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 
 def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:

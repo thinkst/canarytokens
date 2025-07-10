@@ -2,7 +2,7 @@ import os
 from distutils.util import strtobool
 from typing import Any, Literal, Optional
 
-from pydantic import BaseSettings, EmailStr, HttpUrl, SecretStr
+from pydantic.v1 import BaseSettings, EmailStr, HttpUrl, SecretStr
 
 from canarytokens.models import Port
 

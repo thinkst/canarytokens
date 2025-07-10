@@ -6,7 +6,7 @@ import re
 from functools import partial
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as, validator
+from pydantic.v1 import BaseModel, HttpUrl, parse_obj_as, validator
 
 from canarytokens import constants
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv

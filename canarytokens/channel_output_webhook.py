@@ -6,7 +6,7 @@ from typing import Dict, Union
 
 import advocate
 import requests
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 from twisted.logger import Logger
 
 from canarytokens import canarydrop

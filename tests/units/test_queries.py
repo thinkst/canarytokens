@@ -1,7 +1,7 @@
 from datetime import datetime
 from twisted.logger import LogLevel, capturedLogs
 import pytest
-from pydantic import EmailStr
+from pydantic.v1 import EmailStr
 from redis import StrictRedis
 import requests
 

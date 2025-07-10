@@ -4,7 +4,7 @@ from distutils.util import strtobool
 from pathlib import Path
 
 import pytest
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens.models import (
     Memo,

@@ -16,7 +16,7 @@ from requests import HTTPError
 import uvicorn  # type: ignore
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 from starlette.responses import JSONResponse
 
 from canarytokens import kubeconfig

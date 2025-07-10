@@ -2,7 +2,7 @@ from typing import Optional
 
 import pytest
 import requests
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens.awskeys import get_aws_key
 from canarytokens.settings import FrontendSettings, SwitchboardSettings

@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 import requests
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens.models import AzureID
 from canarytokens import tokens

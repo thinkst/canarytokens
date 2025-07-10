@@ -8,7 +8,7 @@ from canarytokens.models import Canarytoken
 from dataclasses import dataclass
 from typing import Optional, Tuple, Literal, Union
 from enum import Enum
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 
 frontend_settings = FrontendSettings()

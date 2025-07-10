@@ -5,7 +5,7 @@ from typing import Union
 
 import pytest
 import requests
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 from requests import HTTPError
 
 from canarytokens.exceptions import CanaryTokenCreationError

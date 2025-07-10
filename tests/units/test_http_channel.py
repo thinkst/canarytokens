@@ -1,7 +1,7 @@
 from typing import Sequence
 
 import pytest
-from pydantic import EmailStr
+from pydantic.v1 import EmailStr
 from twisted.internet.address import IPv4Address
 from twisted.web.http import Request
 from twisted.web.http_headers import Headers

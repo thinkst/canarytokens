@@ -21,7 +21,7 @@ from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
 from canarytokens.webdav import FsType
 
-from pydantic import AnyHttpUrl, BaseModel, Field, parse_obj_as, root_validator
+from pydantic.v1 import AnyHttpUrl, BaseModel, Field, parse_obj_as, root_validator
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (

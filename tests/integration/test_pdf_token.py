@@ -3,7 +3,7 @@ import zlib
 
 import dns
 import pytest
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens.constants import CANARY_PDF_TEMPLATE_OFFSET as STREAM_OFFSET
 from canarytokens.models import (

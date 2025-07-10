@@ -7,7 +7,7 @@ from time import sleep
 from typing import Union
 
 import pytest
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 from requests import get
 
 from canarytokens.canarydrop import Canarydrop

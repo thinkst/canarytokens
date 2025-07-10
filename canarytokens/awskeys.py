@@ -3,7 +3,7 @@ import re
 from typing import Optional
 
 import requests
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens import tokens
 from canarytokens.models import AWSKey

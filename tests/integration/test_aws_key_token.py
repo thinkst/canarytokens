@@ -7,7 +7,7 @@ import boto3
 import botocore.exceptions
 import pytest
 import requests
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens.models import (
     V2,

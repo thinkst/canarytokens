@@ -16,7 +16,7 @@ import dns.resolver
 import pytest
 import requests
 from dns.resolver import LifetimeTimeout
-from pydantic import EmailStr, HttpUrl, parse_obj_as
+from pydantic.v1 import EmailStr, HttpUrl, parse_obj_as
 
 from canarytokens.exceptions import CanaryTokenCreationError
 from canarytokens.models import (

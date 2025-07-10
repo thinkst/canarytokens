@@ -11,7 +11,7 @@ from typing import Literal, Optional, Union
 
 import advocate
 import requests
-from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
+from pydantic.v1 import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
 
 from canarytokens import canarydrop as cand

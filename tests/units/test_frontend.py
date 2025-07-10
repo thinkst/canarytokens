@@ -6,7 +6,7 @@ from unittest import mock
 
 import pytest
 from fastapi.testclient import TestClient
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 
 from canarytokens import canarydrop, models, queries, constants
 from canarytokens.models import (

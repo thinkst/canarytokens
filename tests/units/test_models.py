@@ -2,7 +2,7 @@ import inspect
 from datetime import datetime
 
 import pytest
-from pydantic import HttpUrl, ValidationError, parse_obj_as
+from pydantic.v1 import HttpUrl, ValidationError, parse_obj_as
 
 from canarytokens import models
 from canarytokens.canarydrop import Canarydrop
@@ -257,7 +257,7 @@ def test_fast_redirect_request():
         "memo": "Test stuff break stuff test stuff sometimes build stuff",
         "redirect_url": "https://www.youtube.com",
     }
-    from pydantic import parse_obj_as
+    from pydantic.v1 import parse_obj_as
 
     dd = parse_obj_as(AnyTokenRequest, data)
     assert dd.token_type == TokenTypes.FAST_REDIRECT
@@ -269,7 +269,7 @@ def test_dns_request():
         "webhook_url": "https://slack.com/api/api.test",
         "memo": "Test stuff break stuff test stuff sometimes build stuff",
     }
-    from pydantic import parse_obj_as
+    from pydantic.v1 import parse_obj_as
 
     dd = parse_obj_as(AnyTokenRequest, data)
     assert dd.token_type == TokenTypes.DNS

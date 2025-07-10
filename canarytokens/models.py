@@ -28,7 +28,7 @@ from typing import (
 )
 
 from fastapi import Response
-from pydantic import (
+from pydantic.v1 import (
     AnyHttpUrl,
     BaseModel,
     ConstrainedInt,
@@ -40,7 +40,7 @@ from pydantic import (
     root_validator,
     validator,
 )
-from pydantic.generics import GenericModel
+from pydantic.v1.generics import GenericModel
 from typing_extensions import Annotated
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,

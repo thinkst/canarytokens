@@ -10,7 +10,7 @@ from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader
-from pydantic import parse_obj_as
+from pydantic.v1 import parse_obj_as
 from twisted.web.http import Request
 from twisted.web.util import redirectTo
 

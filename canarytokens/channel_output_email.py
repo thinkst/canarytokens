@@ -15,7 +15,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Template
-from pydantic import EmailStr, HttpUrl, SecretStr
+from pydantic.v1 import EmailStr, HttpUrl, SecretStr
 from python_http_client.exceptions import HTTPError
 from sendgrid.helpers.mail import Content, From, Mail, MailSettings, SandBoxMode, To
 from twisted.logger import Logger

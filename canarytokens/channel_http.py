@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import ValidationError, parse_obj_as
+from pydantic.v1 import ValidationError, parse_obj_as
 from twisted.application import internet
 from twisted.logger import Logger
 from twisted.python.failure import Failure

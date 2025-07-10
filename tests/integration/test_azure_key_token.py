@@ -2,7 +2,7 @@ import os
 from distutils.util import strtobool
 
 from typing import Union
-from pydantic import HttpUrl
+from pydantic.v1 import HttpUrl
 import pytest
 
 from canarytokens.models import (

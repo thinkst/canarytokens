@@ -10,7 +10,7 @@ from canarytokens.models import (
     WebDavTokenResponse,
 )
 from canarytokens.settings import FrontendSettings
-from pydantic import parse_obj_as, HttpUrl
+from pydantic.v1 import parse_obj_as, HttpUrl
 
 from tests.utils import (
     create_token,

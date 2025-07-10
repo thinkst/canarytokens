@@ -7,7 +7,7 @@ license = "GPLv3"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pydantic = {extras = ["dotenv", "email"], version = "^1.9.0"}
+pydantic = {extras = ["dotenv", "email"], version = "^2.11.7"}
 PyQRCode = "^1.2.1"
 redis = "^4.2.0"
 httpx = "^0.23.0"
