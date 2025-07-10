@@ -169,7 +169,7 @@ def _build_handle_response_payload(
         "handle": handle_id,
     }
 
-    logging.info("Received payload: %s", payload)
+    print("Received payload: ", payload)
 
     if timeout:
         payload["message"] = "Handle response timed out."
