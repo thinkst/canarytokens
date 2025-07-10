@@ -516,3 +516,51 @@ export const assetsManageExample = ref<AssetsTypes>({
     },
   ],
 });
+
+export const assetInitialEmptyParameter = ref<AssetsTypes>({
+  S3Bucket: [
+    {
+      bucket_name: 'decoy-bucket-1',
+      objects: [
+        { object_path: 'foo/bar/object1' },
+        { object_path: 'foo/baz/object2' },
+      ],
+      off_inventory: false,
+    },
+    {
+      bucket_name: 'decoy-bucket-2-test-for-a-very-long-name',
+      objects: [
+        { object_path: 'moo/bar/object1' },
+        { object_path: 'moo/baz/object2' },
+      ],
+      off_inventory: true,
+    },
+  ],
+  SQSQueue: [
+    {
+      queue_name: 'decoy-queue-1',
+      message_count: 5,
+      off_inventory: false,
+    },
+    {
+      queue_name: 'decoy-queue-2',
+      message_count: 5,
+      off_inventory: false,
+    },
+  ],
+  SecretsManagerSecret: [
+    {
+      secretsmanager_secret_name: 'decoy-secretsmanager-secret-1',
+      secretsmanager_secret_value: 'some_fake_looking_api_key',
+      off_inventory: true,
+    },
+  ],
+  DynamoDBTable: [
+    {
+      dynamodb_name: 'decoy-ssm-param-2-very-long-name',
+      dynamodb_partition_key: 'username',
+      dynamodb_row_count: 10,
+      off_inventory: false,
+    },
+  ],
+});

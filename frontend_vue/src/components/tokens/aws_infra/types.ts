@@ -34,11 +34,11 @@ type DynamoDBTableType = {
 };
 
 type AssetsTypes = {
-  S3Bucket: S3BucketType[] | null;
-  SQSQueue: SQSQueueType[] | null;
-  SSMParameter: SSMParameterType[] | null;
-  SecretsManagerSecret: SecretsManagerSecretType[] | null;
-  DynamoDBTable: DynamoDBTableType[] | null;
+  S3Bucket?: S3BucketType[] | null;
+  SQSQueue?: SQSQueueType[] | null;
+  SSMParameter?: SSMParameterType[] | null;
+  SecretsManagerSecret?: SecretsManagerSecretType[] | null;
+  DynamoDBTable?: DynamoDBTableType[] | null;
 };
 
 type AssetDataType =
@@ -60,6 +60,8 @@ type CurrentTokenDataType = {
   code_snippet_command?: string;
 };
 
+type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
+
 export type {
   AssetDataType,
   AssetsTypes,
@@ -71,4 +73,5 @@ export type {
   DynamoDBTableType,
   PlanValueTypes,
   CurrentTokenDataType,
+  AssetDataTypeWithoutS3Object
 };

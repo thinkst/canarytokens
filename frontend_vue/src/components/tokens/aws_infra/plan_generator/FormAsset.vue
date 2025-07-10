@@ -57,7 +57,6 @@ const props = defineProps<{
   validationSchema: any;
   triggerSubmit: boolean;
   triggerCancel: boolean;
-  closeModal: () => void;
 }>();
 
 const emits = defineEmits(['update-asset', 'invalid-submit']);
@@ -73,7 +72,6 @@ onMounted(() => {
 
 function onSubmit(values: GenericObject) {
   emits('update-asset', values);
-  props.closeModal();
 }
 
 function onInvalidSubmit(values: any) {
