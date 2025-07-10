@@ -5,7 +5,7 @@
         {{
           isLoading || isError
             ? 'Preparing the Terraform module...'
-            : 'Terraform Module'
+            : 'Deploy your decoys'
         }}
       </h2>
     </div>
@@ -16,35 +16,95 @@
       loading-message="We are generating the terraform module, hold on"
       :error-message="errorMessage"
     />
-    <div v-if="isSuccess">
-      <h3 class="text-center">
-        Add this module to your code and run ``terraform init``
-      </h3>
-      <BaseCodeSnippet
-        lang="bash"
-        label="Terraform module"
-        :code="terraformSnippet"
-        class="mt-40 md:max-w-[600px] max-w-[350px] wrap-code"
-        custom-height="150px"
-      ></BaseCodeSnippet>
-      <div class="flex flex-col items-center pt-16">
-        <div class="relative">
-          <TokenIcon
-            title="aws infra token"
-            logo-img-url="aws_infra.png"
-            :has-shadow="true"
-            class="w-[6rem]"
-          />
-          <img
-            alt="active token"
-            :src="getImageUrl('icons/active_token_badge.png')"
-            class="absolute top-[4.5rem] left-[4rem] w-[1.5rem]"
-          />
+    <div
+      v-if="isSuccess"
+      class="flex flex-col items-center"
+    >
+      <div class="text-left max-w-[100%]">
+        <div>
+          <BaseMessageBox
+            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]"
+            variant="success"
+            >Your decoy infrastructure design has been generated and stored. All
+            that remains is to include it into your Terraform configuration, and
+            apply it.</BaseMessageBox
+          >
         </div>
+        <BaseCard
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]  xl:max-w-[40vw]  place-self-center"
+        >
+          <div class="text-center mb-16 flex flex-col items-center">
+            <img
+              :src="getImageUrl('terraform_icon.svg')"
+              alt="terraform-icon"
+              class="w-[2.5rem] h-[2.5rem] mb-8"
+            />
+            <h2 class="textmd mb-16">
+              Add this snippet to your Terraform configuration file then run<br />
+              <span class="monospace">$ terraform init</span> to import the
+              module, and <span class="monospace">$terraform apply</span> to
+              create the resources.
+            </h2>
+          </div>
+          <BaseLabelArrow
+            id="terraform-module"
+            label="Copy Terraform snippet"
+            arrow-word-position="last"
+            arrow-variant="one"
+            class="z-10 text-right"
+          />
+          <BaseCodeSnippet
+            id="terraform-module"
+            lang="bash"
+            :code="terraformSnippet"
+            class="w-full wrap-code"
+            custom-height="100px"
+          ></BaseCodeSnippet>
+          <div
+            class="text-left sm:text-center flex mt-24 gap-8 items-center justify-center"
+          >
+            <p>How do I use this module?</p>
+            <button
+              v-tooltip="{
+                content: 'Check details',
+                triggers: ['hover'],
+              }"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
+              aria-label="What's this snippet doing?"
+              @click="handleShowModalInfoModule"
+            >
+              <font-awesome-icon
+                icon="question"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+          <div
+            class="text-left sm:text-center flex mt-8 gap-8 items-center justify-center"
+          >
+            <p>How do I clean up IAM resources for Canarytokens Inventory?</p>
+            <button
+              v-tooltip="{
+                content: 'Check details',
+                triggers: ['hover'],
+              }"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
+              aria-label="How do I cleanup my AWS accont?"
+              @click="handleShowModalCleanup"
+            >
+              <font-awesome-icon
+                icon="question"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </BaseCard>
       </div>
-      <h2 class="mt-24 text-center">
-        That’s it! Any attempts to interact with the decoy assets will generate
-        an alert.
+
+      <h2 class="text-md mt-24 text-center">
+        That’s it! Once you’ve applied the Terraform configuration <br />and
+        created the decoy resources, any interactions with them will give you an
+        alert.
       </h2>
     </div>
     <div class="flex flex-row mt-40 gap-16">
@@ -75,7 +135,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import getImageUrl from '@/utils/getImageUrl';
 import type { TokenDataType } from '@/utils/dataService';
@@ -83,11 +143,25 @@ import { TOKENS_TYPE } from '@/components/constants.ts';
 import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
 import StepState from '../StepState.vue';
-import TokenIcon from '@/components/icons/TokenIcon.vue';
+import { useModal } from 'vue-final-modal';
 import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+
+const ModalInfoTerraformModule = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/tokens/aws_infra/token_setup_steps/ModalInfoTerraformSnippet.vue'
+    )
+);
+
+const ModalInfoCleanup = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/tokens/aws_infra/token_setup_steps/ModalInfoCleanup.vue'
+    )
+);
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -106,6 +180,10 @@ const { token, auth_token } = props.initialStepData;
 
 onMounted(async () => {
   await handleRequestTerraformSnippet();
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 });
 
 async function handleRequestTerraformSnippet() {
@@ -194,6 +272,28 @@ function handleManageTokenButton() {
   router.push({ name: 'manage', params: { auth: auth_token, token } });
 }
 
+function handleShowModalInfoModule() {
+  const { open, close } = useModal({
+    component: ModalInfoTerraformModule,
+    attrs: {
+      closeModal: () => close(),
+    },
+  });
+  open();
+}
+
+function handleShowModalCleanup() {
+  const { open, close } = useModal({
+    component: ModalInfoCleanup,
+    attrs: {
+      closeModal: () => close(),
+      awsAccountNumber: props.initialStepData.aws_account_number,
+      roleName: 'something',
+    },
+  });
+  open();
+}
+
 watch(isSuccess, (newVal) => {
   if (newVal === true) {
     launchConfetti(TOKENS_TYPE.AWS_INFRA, '.section-terraform-snippet');
@@ -206,6 +306,11 @@ watch(isSuccess, (newVal) => {
   :deep(pre) > code {
     white-space: pre-wrap;
     text-align: left;
+    word-break: break-word;
   }
+}
+
+.monospace {
+  font-family: 'Courier New', Courier, monospace;
 }
 </style>

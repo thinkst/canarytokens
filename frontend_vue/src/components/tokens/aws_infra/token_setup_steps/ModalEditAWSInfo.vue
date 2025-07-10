@@ -1,12 +1,11 @@
 <template>
   <BaseModal
-    title="Edit account informations"
+    title="Edit account information"
     :has-close-button="true"
     :hide-footer="true"
-    :content-class="`items-stretch`"
   >
     <template #default>
-      <div>
+      <div class="min-w-[250px] lg:w-[30vw] max-w-[400px]">
         <Form
           class="flex flex-col"
           :validation-schema="schema"
@@ -68,7 +67,7 @@ import { editAccountInfo } from '@/api/awsInfra';
 import type { TokenDataType } from '@/utils/dataService';
 
 const props = defineProps<{
-  initialStepData: TokenDataType;
+  tokenData: TokenDataType;
   closeModal: () => void;
   saveData: (data: GenericObject) => void;
 }>();
@@ -81,21 +80,21 @@ const isErrorMessage = ref('');
 
 const schema = Yup.object().shape({
   aws_region: Yup.string().required('AWS region is required'),
-  aws_account_number: Yup.number()
-    .typeError('AWS account must be a number')
+  aws_account_number: Yup.string()
     .required('AWS account number is required')
+    .matches(/^\d+$/, 'AWS account must be a number')
     .test(
       'len',
       'AWS account number must have 12 digits',
-      (val) => val.toString().length === 12
+      (val) => val.length === 12
     ),
 });
 
 onMounted(() => {
   selectedRegion.value = AWS_REGIONS.filter((region) => {
-    return region.value === props.initialStepData.aws_region;
+    return region.value === props.tokenData.aws_region;
   });
-  selectedAWSaccount.value = props.initialStepData.aws_account_number;
+  selectedAWSaccount.value = props.tokenData.aws_account_number;
 });
 
 async function onSubmit(values: GenericObject) {
@@ -103,17 +102,19 @@ async function onSubmit(values: GenericObject) {
   // ...here goes the API call to manage endpoint...
   try {
     const res = await editAccountInfo(
-      props.initialStepData.token,
-      props.initialStepData.auth_token,
-      selectedAWSaccount.value,
-      selectedRegion.value[0].value
+      props.tokenData.token,
+      props.tokenData.auth_token,
+      values.aws_account_number,
+      values.aws_region
     );
-    props.saveData(values);
-    props.closeModal();
+
     if (res.status !== 200) {
       isError.value = true;
       isErrorMessage.value = res.data.message || 'Could not edit token!';
     }
+
+    props.saveData(values);
+    props.closeModal();
   } catch (err: any) {
     isError.value = true;
     isErrorMessage.value = err || 'Could not edit token!';

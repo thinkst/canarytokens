@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { getTokenData } from '@/utils/dataService';
@@ -94,7 +94,17 @@ onMounted(() => {
       router.push('/');
     }, 5000);
   }
+  window.addEventListener('beforeunload', handleBeforeUnload);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+});
+
+// Prevent the user from leaving the page during the setup process
+function handleBeforeUnload(e: Event){
+  e.preventDefault();
+}
 
 const currentComponent = computed(
   () => stepComponents.value[currentStep.value] || null
@@ -106,8 +116,8 @@ const showBackButton = computed(() => {
 
 const stepsValues = [
   { label: 'AWS Setup' },
-  { label: 'Plan' },
-  { label: 'Terraform snippet' },
+  { label: 'Design your decoys' },
+  { label: 'Deploy your decoys' },
 ];
 
 function handleUpdateStep() {
@@ -136,6 +146,8 @@ function handleStorePreviousStepData(data: GenericDataType) {
 function handleSettingError(isError: boolean) {
   isSettingError.value = isError;
 }
+
+
 </script>
 
 <style>
