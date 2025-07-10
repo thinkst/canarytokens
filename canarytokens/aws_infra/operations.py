@@ -171,7 +171,7 @@ def _build_handle_response_payload(
         "handle": handle_id,
     }
 
-    print("Received payload: ", payload)
+    print("Received payload: ", handle.response_content)
 
     if timeout:
         payload["message"] = "Handle response timed out."
