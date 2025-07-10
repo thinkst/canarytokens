@@ -1,5 +1,4 @@
 from .state_management import (
-    allow_next_state,
     update_state,
     initialise,
     is_initialised,
@@ -9,27 +8,21 @@ from .state_management import (
 )
 from .operations import (
     save_plan,
-    save_current_assets,
     get_canarydrop_from_handle,
-    get_module_snippet,
     get_role_create_commands,
     start_operation,
     get_handle_response,
     get_handle_operation,
     add_handle_response,
-    get_role_cleanup_commands,
 )
 from .plan_generation import generate_proposed_plan, generate_data_choice
 from .aws_management import get_shared_secret, get_current_ingestion_bus
 
 # Putting this here for the editor, not for * imports
 __all__ = [
-    "allow_next_state",
     "update_state",
     "save_plan",
-    "save_current_assets",
     "get_canarydrop_from_handle",
-    "get_module_snippet",
     "get_shared_secret",
     "get_role_create_commands",
     "start_operation",
@@ -39,7 +32,6 @@ __all__ = [
     "get_current_ingestion_bus",
     "get_handle_operation",
     "add_handle_response",
-    "get_role_cleanup_commands",
     "initialise",
     "is_initialised",
     "mark_succeeded",

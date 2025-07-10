@@ -37,4 +37,4 @@ def generate_inventory_role_name():
 
 
 def generate_handle_id():
-    return _secret_string(20)
+    return secrets.token_hex(20)
