@@ -2,8 +2,9 @@ import json
 import random
 import string
 
+from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType, AWSInfraState
+from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
@@ -296,7 +297,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
     }
 
     add_new_assets_to_plan(aws_deployed_assets, proposed_plan)
-    if canarydrop.aws_infra_state not in AWSInfraState.EDITING:
+    if is_ingesting(canarydrop):
         return proposed_plan
 
     add_current_assets_to_plan(

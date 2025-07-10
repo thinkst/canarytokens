@@ -1288,7 +1288,7 @@ class AWSInfraTokenResponse(TokenResponse):
     aws_region: str
     aws_account_number: str
     tf_module_prefix: str
-    ingesting: bool
+    ingesting: bool  # TODO: remove
 
 
 AnyTokenResponse = Annotated[
@@ -2914,8 +2914,9 @@ class AWSInfraHandleRequest(BaseModel):
     handle: str
 
 
-class AWSInfaHandleResponse(BaseModel):  # before response received
+class AWSInfraHandleResponse(BaseModel):  # before response received
     handle: str
+    message: str = ""
 
 
 class AWSInfraCheckRoleReceivedResponse(BaseModel):
@@ -2993,9 +2994,32 @@ class AWSInfraManagementResponseRequest(BaseModel):
 
 
 class AWSInfraState(enum.Flag):
+    # Base states
     INITIAL = enum.auto()  # initial state, before any operation
-    ROLE_CHECKING = enum.auto()  # after config started
-    INVENTORYING = enum.auto()  # after check-role
-    PLANNING = enum.auto()  # after inventorying
-    INGESTING = enum.auto()  # after plan saved
-    EDITING = enum.auto()  # editing existing token (can be used with other states)
+    CHECK_ROLE = enum.auto()  # after config started
+    INVENTORY = enum.auto()  # after check-role succeeded
+    PLAN = enum.auto()  # after inventorying
+    SETUP_INGESTION = enum.auto()  # after plan saved
+
+    # Overlay states
+    INGESTING = enum.auto()
+    SUCCEEDED = enum.auto()
+
+
+# TODO: map errors from aws management
+class AWSInfraServiceError(enum.Enum):
+    FAILURE_CHECK_ROLE = enum.auto()
+    FAILURE_INGESTION_BUS_PROVISION = enum.auto()
+    FAILURE_INGESTION_SETUP = enum.auto()
+    FAILURE_INGESTION_TEARDOWN = enum.auto()
+    FAILURE_INVENTORY = enum.auto()
+    FAILURE_MGMT_RESPONSE = enum.auto()
+    FAILURE_TRIG_ALERT = enum.auto()
+    OP_MISSING_KEY = enum.auto()
+    REQ_HANDLE_INVALID = enum.auto()
+    REQ_OPERATION_INVALID = enum.auto()
+    REQ_PAYLOAD_INVALID_JSON = enum.auto()
+    REQ_PAYLOAD_UNSUPPORTED = enum.auto()
+    UNHANDLED_ERROR = enum.auto()
+    UNKNOWN = enum.auto()
+    NO_ERROR = enum.auto()
