@@ -179,9 +179,8 @@ def _build_handle_response_payload(
         ]  # TODO: map ServiceError (maybe?)
 
     if handle.operation == AWSInfraOperationType.CHECK_ROLE:
-        payload["session_credentials_retrieved"] = (
-            response_content.get("session_credentials_retrieved", "False").lower()
-            == "true"
+        payload["session_credentials_retrieved"] = response_content.get(
+            "session_credentials_retrieved", False
         )
         return AWSInfraCheckRoleReceivedResponse(**payload)
 
