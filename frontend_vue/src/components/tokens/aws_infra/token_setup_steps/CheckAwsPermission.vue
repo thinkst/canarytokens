@@ -4,65 +4,70 @@
       <h2>
         {{ isLoading ? 'Checking permission...' : `Check your AWS permission` }}
       </h2>
-      <div v-if="!isLoading && !isError">
-        <BaseCard class="p-16 mt-16 flex flex-col gap-8 items-center">
-          <img
-            :src="getImageUrl('token_icons/aws_infra.png')"
-            alt="asw-token-icon"
-            class="w-[4.5rem] h-[4.5rem]"
-          />
-          <p class="text-md text-grey-400 leading-4">
-            AWS account:
-            <span class="text-grey font-semibold">{{ accountNumber }}</span>
-          </p>
-          <p class="text-md text-grey-400 leading-4">
-            AWS region:
-            <span class="text-grey font-semibold">{{ accountRegion }}</span>
-          </p>
-        </BaseCard>
-      </div>
-    </div>
-    <div v-if="!isLoading && !isError">
-      <p class="text-gray-700">
-        In order to proceed we need you to confirm the <b>External ID</b> for
-        our role.<br />
-        Run the AWS CLI command below to find the External ID
-      </p>
     </div>
     <div
       v-if="!isLoading && !isError"
       class="flex flex-col text-left items-center"
     >
-      <BaseCodeSnippet
-        lang="bash"
-        label="AWS CLI snippet"
-        :code="codeSnippetCheckID"
-        custom-height="100px"
-        class="mt-24 wrap-code lg:max-w-[50vw]"
-        :check-scroll="true"
-      />
-      <div
-        v-if="!isLoading && !isError"
-        class="flex flex-col items-stretch sm:min-w-[40vw] md:min-w-[30vw] min-w-full"
+      <BaseMessageBox
+        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+        variant="warning"
+        >In order to proceed we need you to confirm the
+        <span class="font-semibold">External ID</span> for our role on your AWS
+        Account
+        <span class="font-semibold">{{ accountNumber }}</span></BaseMessageBox
       >
-        <Form
-          class="mt-24 flex flex-col gap-16 items-center"
-          :validation-schema="schema"
-          @submit="onSubmit"
+      <div class="text-left max-w-[100%]">
+        <BaseCard
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
-          <BaseFormTextField
-            id="external_id"
-            label="Add your External ID"
-            placeholder="e.g. abCd7Lb6cEZrMCEm3OAoj"
-            required
-            class="min-w-full"
+          <div class="text-center mb-24">
+            <h2 class="text-2xl mb-16">
+              Run the AWS CLI command below to
+              <span class="font-semibold">find the External ID</span>
+            </h2>
+          </div>
+          <BaseLabelArrow
+            id="aws-snippet-code"
+            label="AWS CLI snippet"
+            :arrow-word-position="3"
+            arrow-variant="one"
+            class="z-10"
           />
-          <BaseButton
-            type="submit"
-            variant="primary"
-            >Check permissions</BaseButton
+          <BaseCodeSnippet
+            id="aws-snippet-code"
+            lang="bash"
+            :code="codeSnippetCheckID"
+            custom-height="100px"
+            class="wrap-code lg:max-w-[50vw]"
+            :check-scroll="true"
+          />
+        </BaseCard>
+
+        <BaseCard class="p-40 text-left place-self-center w-full mt-24">
+          <Form
+            class="flex flex-col gap-16 items-center"
+            :validation-schema="schema"
+            @submit="onSubmit"
           >
-        </Form>
+            <BaseFormTextField
+              id="external_id"
+              label="Add here your External ID"
+              placeholder="e.g. abCd7Lb6cEZrMCEm3OAoj"
+              required
+              :has-arrow="true"
+              arrow-variant="one"
+              :arrow-word-position="2"
+              class="flex-grow external-id-input"
+            />
+            <BaseButton
+              type="submit"
+              variant="primary"
+              class="self-center"
+              >Check permissions</BaseButton
+            >
+          </Form>
+        </BaseCard>
       </div>
     </div>
     <StepState
@@ -92,7 +97,6 @@ import { Form } from 'vee-validate';
 import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
-import getImageUrl from '@/utils/getImageUrl.ts';
 import {
   StepStateEnum,
   useStepState,
@@ -144,5 +148,9 @@ async function onSubmit() {
     white-space: pre-wrap;
     word-break: break-word;
   }
+}
+
+.external-id-input {
+  width: clamp(200px, 100%, 400px);
 }
 </style>

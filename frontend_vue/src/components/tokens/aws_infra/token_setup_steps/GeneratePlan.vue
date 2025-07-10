@@ -1,6 +1,6 @@
 <template>
   <div class="infra-token__title-wrapper">
-    <h2>Proposed Plan</h2>
+    <h2>Design your Decoys</h2>
   </div>
   <div
     v-if="isLoadingUI"
