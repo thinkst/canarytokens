@@ -91,7 +91,6 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          poetry lock
           poetry install -E 'twisted web'
 
       - name: Run unit tests
@@ -153,7 +152,6 @@ jobs:
         run: |
           poetry config virtualenvs.in-project true
           poetry cache clear --all pypi
-          poetry lock --no-update
           poetry install -E 'twisted web'
       - name: Integration Tests
         run: |
