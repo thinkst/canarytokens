@@ -33,7 +33,8 @@ azure-identity = "^1.10.0"
 cssutils = "^1.0.2"
 advocate = {git = "https://github.com/JordanMilne/Advocate.git"}
 pycountry-convert = "^0.7.2"
-pydantic = {extras = ["dotenv", "email"], version = "^2.11.7"}
+pydantic = {version = "^2.11.7", extras = ["dotenv", "email"]}
+python-dotenv = "^1.1.1"
 
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
