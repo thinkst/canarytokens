@@ -1,6 +1,6 @@
 <template>
   <div class="my-16 flex flex-col items-center">
-    <template v-if="isLoading">
+    <template v-if="isLoading && !$slots.loading">
       <p>{{ loadingMessage }}</p>
       <BaseSpinner
         height="5rem"
@@ -14,13 +14,8 @@
         <p>This might take up to <b>30 seconds</b></p>
       </div>
     </template>
+    <slot v-if="isLoading" name="loading" ></slot>
     <template v-if="isError">
-      <h2
-        v-if="hasErrorTitle"
-        class="text-red font-semibold"
-      >
-        Oh no! Something didn't work as expected
-      </h2>
       <img
         v-if="hasIcon"
         :src="getImageUrl('icons/errorIcon.svg')"
@@ -34,19 +29,6 @@
         class="max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] text-justify"
       />
     </template>
-    <template v-if="isSuccess && hasIcon">
-      <img
-        :src="getImageUrl('icons/successIcon.svg')"
-        alt="success-icon"
-        class="w-[15rem] h-[15rem]"
-      />
-    </template>
-    <BaseMessageBox
-      v-if="isSuccess && successMessage"
-      :message="successMessage"
-      variant="success"
-      class="max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] text-justify"
-    />
   </div>
 </template>
 
@@ -60,10 +42,7 @@ const props = defineProps<{
   loadingMessage?: string;
   isError?: boolean;
   errorMessage?: string;
-  isSuccess?: boolean;
-  successMessage?: string;
   hasIcon?: boolean;
-  hasErrorTitle?: boolean;
 }>();
 
 const isLongLoading = ref(false);

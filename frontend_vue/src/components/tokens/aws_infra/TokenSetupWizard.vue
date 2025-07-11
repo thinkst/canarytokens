@@ -50,7 +50,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { getTokenData } from '@/utils/dataService';
-import StepState from './StepState.vue';
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./token_setup_steps/GenerateAwsSnippet.vue')

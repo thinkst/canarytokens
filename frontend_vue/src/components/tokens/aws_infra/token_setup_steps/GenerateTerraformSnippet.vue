@@ -13,9 +13,12 @@
       v-if="isLoading || isError"
       :is-loading="isLoading"
       :is-error="isError"
-      loading-message="We are generating the terraform module, hold on"
       :error-message="errorMessage"
-    />
+    >
+      <template #loading>
+        <GenerateTerraformSnippetLoadingState />
+      </template>
+    </StepState>
     <div
       v-if="isSuccess"
       class="flex flex-col items-center"
@@ -31,7 +34,7 @@
           >
         </div>
         <BaseCard
-          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]  xl:max-w-[40vw]  place-self-center"
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw] place-self-center"
         >
           <div class="text-center mb-16 flex flex-col items-center">
             <img
@@ -142,12 +145,13 @@ import type { TokenDataType } from '@/utils/dataService';
 import { TOKENS_TYPE } from '@/components/constants.ts';
 import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
-import StepState from '../StepState.vue';
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 import { useModal } from 'vue-final-modal';
 import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+import GenerateTerraformSnippetLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GenerateTerraformSnippetLoadingState.vue';
 
 const ModalInfoTerraformModule = defineAsyncComponent(
   () =>

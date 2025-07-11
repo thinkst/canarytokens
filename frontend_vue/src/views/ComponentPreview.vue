@@ -17,11 +17,6 @@
         loading-message="Hold on, we are doing things"
         :is-loading="true"
       />
-      <p>Success State</p>
-      <StepState
-        :is-success="true"
-        success-message="Yay! this worked!"
-      />
       <p>Error State</p>
       <StepState
         :is-error="true"
