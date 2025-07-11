@@ -50,7 +50,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { getTokenData } from '@/utils/dataService';
-import StepState from './StepState.vue';
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 
 const GenerateAwsSnippet = defineAsyncComponent(
   () => import('./token_setup_steps/GenerateAwsSnippet.vue')
@@ -102,7 +102,7 @@ onUnmounted(() => {
 });
 
 // Prevent the user from leaving the page during the setup process
-function handleBeforeUnload(e: Event){
+function handleBeforeUnload(e: Event) {
   e.preventDefault();
 }
 
@@ -146,8 +146,6 @@ function handleStorePreviousStepData(data: GenericDataType) {
 function handleSettingError(isError: boolean) {
   isSettingError.value = isError;
 }
-
-
 </script>
 
 <style>

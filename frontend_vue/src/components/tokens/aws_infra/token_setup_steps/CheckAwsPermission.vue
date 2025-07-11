@@ -96,7 +96,7 @@ import * as Yup from 'yup';
 import { Form } from 'vee-validate';
 import type { TokenDataType } from '@/utils/dataService';
 import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
-import StepState from '../StepState.vue';
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 import {
   StepStateEnum,
   useStepState,
