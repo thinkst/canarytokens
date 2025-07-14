@@ -18,7 +18,7 @@
       </li>
     </ul>
     <img
-      :src="getImageUrl('aws_infra_token_loading_folder.gif')"
+      :src="getImageUrl('aws_infra_token_loading_folder.webp')"
       alt="Loading"
       class="w-[15rem] h-[15rem] mt-40"
     />
