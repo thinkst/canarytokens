@@ -67,6 +67,7 @@ from canarytokens.models import (
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
+    AWSInfraServiceError,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraState,
     AWSInfraTeardownReceivedResponse,
@@ -1132,7 +1133,12 @@ def api_awsinfra_check_role(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.message:
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
+        )
+        handle_response.error = ""  # Don't show error type in the response
         response.status_code = status.HTTP_400_BAD_REQUEST
         aws_infra.mark_failed(
             canarydrop
@@ -1176,8 +1182,12 @@ def api_awsinfra_inventory_customer_account(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.message:
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
         response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
+        )
+        handle_response.error = ""  # Don't show error type in the response
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful inventory
@@ -1260,8 +1270,12 @@ def api_awsinfra_setup_ingestion(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.message:
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
         response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in setup-ingestion for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
+        )
+        handle_response.error = ""  # Don't show error type in the response
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful setup-ingestion
@@ -1294,8 +1308,12 @@ def api_awsinfra_teardown(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.message:
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
         response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in teardown for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
+        )
+        handle_response.error = ""  # Don't show error type in the response
     return handle_response
 
 

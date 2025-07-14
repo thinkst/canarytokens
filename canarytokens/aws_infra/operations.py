@@ -21,6 +21,7 @@ from canarytokens.models import (
     AWSInfraAssetType,
     AWSInfraInventoryCustomerAccountReceivedResponse,
     AWSInfraOperationType,
+    AWSInfraServiceError,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraTeardownReceivedResponse,
 )
@@ -176,10 +177,16 @@ def _build_handle_response_payload(
     if timeout:
         payload["message"] = "Handle response timed out."
     elif response_content.get("error", "") != "":
-        payload["message"] = response_content.get("error").split("::")[
-            -1
-        ]  # TODO: map ServiceError (maybe?)
+        error, message = response_content.get("error").split("::")
+        try:
+            service_error = AWSInfraServiceError[error]
+        except KeyError:
+            service_error = AWSInfraServiceError.UNKNOWN
 
+        payload[
+            "message"
+        ] = message  # TODO: maybe expand messages with service_error mapping
+        payload["error"] = service_error.name
     if handle.operation == AWSInfraOperationType.CHECK_ROLE:
         payload["session_credentials_retrieved"] = response_content.get(
             "session_credentials_retrieved", False
