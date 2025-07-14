@@ -179,6 +179,7 @@ const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 const errorMessage = ref('');
 
 const terraformSnippet = ref('');
+const cleaupSnippet = ref('');
 
 const { token, auth_token } = props.initialStepData;
 
@@ -241,14 +242,29 @@ async function handleRequestTerraformSnippet() {
         // success
         if (resWithHandle.data.terraform_module_snippet) {
           stateStatus.value = StepStateEnum.SUCCESS;
-          const terraform_module_snippet =
-            resWithHandle.data.terraform_module_snippet;
 
-          terraformSnippet.value = terraform_module_snippet;
+          const source = resWithHandle.data.terraform_module_snippet.source;
+          const module = resWithHandle.data.terraform_module_snippet.module;
+
+          terraformSnippet.value = generateTerraformSnippet(
+            source,
+            module
+          );
+
+          const roleName = resWithHandle.data.role_cleanup_commands.role_name;
+          const customerAwsAccount =
+            resWithHandle.data.role_cleanup_commands.customer_aws_account;
+
+          cleaupSnippet.value = generateCleanupSnippet(
+            roleName,
+            customerAwsAccount
+          );
+
           emits('storeCurrentStepData', {
             token,
             auth_token,
-            terraform_module_snippet,
+            terraformSnippet: terraformSnippet.value,
+            cleaupSnippet: cleaupSnippet.value,
           });
           clearInterval(pollingTerraformSnippetInterval);
           return;
@@ -286,13 +302,25 @@ function handleShowModalInfoModule() {
   open();
 }
 
+function generateTerraformSnippet(source: string, module: string) {
+  return `module "${module}" {
+  source = "${source}" }`
+}
+
+function generateCleanupSnippet(customerAwsAccount: string, roleName: string) {
+  return `aws iam detach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+aws iam delete-policy --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+aws iam delete-role --role-name  ${roleName}`;
+}
+
 function handleShowModalCleanup() {
   const { open, close } = useModal({
     component: ModalInfoCleanup,
     attrs: {
       closeModal: () => close(),
-      awsAccountNumber: props.initialStepData.aws_account_number,
-      roleName: 'something',
+      cleanupSnippetCommands: cleaupSnippet.value
     },
   });
   open();

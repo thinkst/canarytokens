@@ -17,9 +17,9 @@
         class="z-10 text-right"
       />
       <BaseCodeSnippet
-        v-if="cleanupSnippetCommands"
+        v-if="props.cleanupSnippetCommands"
         lang="bash"
-        :code="cleanupSnippetCommands"
+        :code="props.cleanupSnippetCommands"
         custom-height="100px"
         class="wrap-code"
       />
@@ -35,23 +35,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
 
 const props = defineProps<{
-  awsAccountNumber: string;
-  roleName: string;
   closeModal: () => void;
+  cleanupSnippetCommands: string;
 }>();
 
-const cleanupSnippetCommands = computed(() => {
-  return generateCodeSnippet(props.awsAccountNumber, props.roleName);
-});
-
-function generateCodeSnippet(customerAwsAccount: string, roleName: string) {
-  return `aws iam detach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
-
-aws iam delete-policy --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
-
-aws iam delete-role --role-name  ${roleName}`;
-}
 </script>
