@@ -41,8 +41,6 @@ from pydantic import HttpUrl, ValidationError, parse_obj_as
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
-import random
-import string
 
 import canarytokens
 import canarytokens.credit_card_v2 as credit_card_infra
@@ -53,10 +51,14 @@ from canarytokens import aws_infra
 from canarytokens.awskeys import get_aws_key
 from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.exceptions import CanarydropAuthFailure, OperationNotAllowed
+from canarytokens.exceptions import (
+    CanarydropAuthFailure,
+    NoCanarydropFound,
+    AWSInfraOperationNotAllowed,
+)
 from canarytokens.models import (
     PWA_APP_TITLES,
-    AWSInfaHandleResponse,
+    AWSInfraHandleResponse,
     AWSInfraCheckRoleReceivedResponse,
     AWSInfraGenerateDataChoiceRequest,
     AWSInfraGenerateDataChoiceResponse,
@@ -65,6 +67,7 @@ from canarytokens.models import (
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
+    AWSInfraServiceError,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraState,
     AWSInfraTeardownReceivedResponse,
@@ -1015,7 +1018,7 @@ async def api_edit(request: AnyTokenEditRequest) -> JSONResponse:
     )
     if canarydrop.edit(request):
         return JSONResponse({"message": "success"})
-    return JSONResponse({"message": "failure"}, status_code=400)
+    return JSONResponse({"message": "Canarytoken can't be edited."}, status_code=400)
 
 
 @api.get(
@@ -1082,7 +1085,6 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
 
 # TODO: Cleanup canarydrops in invalid states:
 #    - module snippet doesn't exist
-# TODO: reduce stictness for state checking
 @api.post("/awsinfra/config-start")
 def api_awsinfra_config_start(
     request: AWSInfraConfigStartRequest,
@@ -1090,56 +1092,63 @@ def api_awsinfra_config_start(
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
-    try:
-        aws_infra.update_state(canarydrop, AWSInfraState.ROLE_CHECKING)
-        return AWSInfraConfigStartResponse(
-            result=True, role_setup_commands=aws_infra.get_role_commands(canarydrop)
+    # Make sure the state has been initialised
+    if not aws_infra.is_initialised(canarydrop):
+        raise HTTPException(
+            status_code=400,
+            detail="This AWS Infra Canarytoken hasn't been configured correctly.",
         )
-    except OperationNotAllowed:
-        return DefaultResponse(
-            result=False, message="Configuration has already started for this token."
-        )
+    return AWSInfraConfigStartResponse(
+        result=True, role_setup_commands=aws_infra.get_role_create_commands(canarydrop)
+    )
 
 
 @api.post("/awsinfra/check-role", dependencies=[Depends(validate_exclusive_handle)])
 def api_awsinfra_check_role(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
-) -> Union[AWSInfraCheckRoleReceivedResponse, AWSInfaHandleResponse]:
+    response: Response,
+) -> Union[AWSInfraCheckRoleReceivedResponse, AWSInfraHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
-        if request.external_id:
-            aws_infra.set_external_id(canarydrop, request.external_id)
 
-        if not aws_infra.allow_next_state(canarydrop, AWSInfraState.INVENTORYING):
+        try:
+            aws_infra.update_state(
+                canarydrop, AWSInfraState.CHECK_ROLE, external_id=request.external_id
+            )
+        except AWSInfraOperationNotAllowed as e:
             raise HTTPException(
                 status_code=400,
-                detail="Operation not allowed.",
+                detail=str(e),
             )
-        handle_id = aws_infra.create_handle(
+        handle_id = aws_infra.start_operation(
             AWSInfraOperationType.CHECK_ROLE, canarydrop
         )
-        # TODO: return for exception
-        return AWSInfaHandleResponse(handle=handle_id)
+        return AWSInfraHandleResponse(handle=handle_id)
 
-    handle_response = aws_infra.get_handle_response(request.handle)
-    if handle_response.response_received:
+    handle_response = aws_infra.get_handle_response(
+        request.handle, AWSInfraOperationType.CHECK_ROLE
+    )
+    try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
-        aws_infra.update_state(canarydrop, AWSInfraState.INVENTORYING)
-        # TODO: don't update on error
-        return AWSInfraCheckRoleReceivedResponse(
-            result=handle_response.response != "",
-            message=""
-            if handle_response.response != ""
-            else "Handle lookup has timedout.",
-            handle=request.handle,
-            session_credentials_retrieved=handle_response.response.get(
-                "session_credentials_retrieved"
-            ),
-            error=handle_response.response.get("error"),
+    except NoCanarydropFound:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return handle_response
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
-    return AWSInfaHandleResponse(handle=request.handle)
+        handle_response.error = ""  # Don't show error type in the response
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        aws_infra.mark_failed(
+            canarydrop
+        )  # mark fail for in case this is coming from a successful check-role
+    else:
+        aws_infra.mark_succeeded(canarydrop)
+    queries.save_canarydrop(canarydrop)
+    return handle_response
 
 
 @api.post(
@@ -1148,51 +1157,57 @@ def api_awsinfra_check_role(
 )
 def api_awsinfra_inventory_customer_account(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
-) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfaHandleResponse]:
+    response: Response,
+) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfraHandleResponse]:
 
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
-        if not aws_infra.allow_next_state(canarydrop, AWSInfraState.PLANNING):
+        try:
+            aws_infra.update_state(canarydrop, AWSInfraState.INVENTORY)
+        except AWSInfraOperationNotAllowed as e:
             raise HTTPException(
                 status_code=400,
-                detail="Operation not allowed.",
+                detail=str(e),
             )
-        handle_id = aws_infra.create_handle(AWSInfraOperationType.INVENTORY, canarydrop)
-        return AWSInfaHandleResponse(handle=handle_id)
-
-    handle_response = aws_infra.get_handle_response(request.handle)
-
-    if handle_response.response_received and handle_response.response == "":
-        return AWSInfraInventoryCustomerAccountReceivedResponse(
-            result=False,
-            message="Handle lookup has timed out.",
-            handle=request.handle,
-            error=handle_response.response.get("error"),
+        handle_id = aws_infra.start_operation(
+            AWSInfraOperationType.INVENTORY, canarydrop
         )
+        return AWSInfraHandleResponse(handle=handle_id)
 
-    if handle_response.response_received and handle_response.response != "":
+    handle_response = aws_infra.get_handle_response(
+        request.handle, AWSInfraOperationType.INVENTORY
+    )
+    try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
-        aws_infra.save_current_assets(
-            canarydrop, handle_response.response.get("assets")
+    except NoCanarydropFound:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return handle_response
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
-        aws_infra.update_state(canarydrop, AWSInfraState.PLANNING)
-        return AWSInfraInventoryCustomerAccountReceivedResponse(
-            result=True,
-            handle=request.handle,
-            proposed_plan=aws_infra.generate_proposed_plan(canarydrop),
-        )
-
-    return AWSInfaHandleResponse(handle=request.handle)
+        handle_response.error = ""  # Don't show error type in the response
+        aws_infra.mark_failed(
+            canarydrop
+        )  # mark fail for in case this is coming from a successful inventory
+    else:
+        aws_infra.mark_succeeded(canarydrop)
+    queries.save_canarydrop(canarydrop)
+    return handle_response
 
 
 @api.post("/awsinfra/generate-data-choices")
 def api_awsinfra_generate_data_choices(
     request: AWSInfraGenerateDataChoiceRequest, response: Response
 ) -> AWSInfraGenerateDataChoiceResponse:
-    get_canarydrop_and_authenticate(request.canarytoken, request.auth_token)
+    canarydrop = get_canarydrop_and_authenticate(
+        request.canarytoken, request.auth_token
+    )
     try:
+        aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
         return AWSInfraGenerateDataChoiceResponse(
             result=True,
             proposed_data=aws_infra.generate_data_choice(
@@ -1200,26 +1215,30 @@ def api_awsinfra_generate_data_choices(
             ),
         )
     except Exception as e:
-        log.error(f"Error generating data choice: {e}")
+        log.error(f"Error generating data choice: {str(e)}")
         response.status_code = status.HTTP_400_BAD_REQUEST
         return AWSInfraGenerateDataChoiceResponse(
-            result=False, message=f"Error generating data choice: {e}"
+            result=False, message=f"Error generating data choice.: {str(e)}"
         )
 
 
 @api.post("/awsinfra/save-plan")
-def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
+def api_awsinfra_save_plan(
+    request: AWSInfraSavePlanRequest, response: Response
+) -> DefaultResponse:
     canarydrop = get_canarydrop_and_authenticate(
         request.canarytoken, request.auth_token
     )
     try:
-        aws_infra.update_state(canarydrop, AWSInfraState.INGESTING)
+        aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
         aws_infra.save_plan(canarydrop, request.plan)
-    except OperationNotAllowed:
-        raise HTTPException(
-            status_code=400,
-            detail="Operation not allowed.",
-        )
+        aws_infra.mark_succeeded(canarydrop)
+        queries.save_canarydrop(canarydrop)
+
+    except AWSInfraOperationNotAllowed as e:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return DefaultResponse(result=False, message=str(e))
+
     return DefaultResponse(result=True, message="")
 
 
@@ -1228,58 +1247,76 @@ def api_awsinfra_save_plan(request: AWSInfraSavePlanRequest) -> DefaultResponse:
 )
 def api_awsinfra_setup_ingestion(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
-) -> Union[AWSInfraSetupIngestionReceivedResponse, AWSInfaHandleResponse]:
+    response: Response,
+) -> Union[AWSInfraSetupIngestionReceivedResponse, AWSInfraHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
-        handle_id = aws_infra.create_handle(
+        try:
+            aws_infra.update_state(canarydrop, AWSInfraState.SETUP_INGESTION)
+        except AWSInfraOperationNotAllowed as e:
+            raise HTTPException(
+                status_code=400,
+                detail=str(e),
+            )
+        handle_id = aws_infra.start_operation(
             AWSInfraOperationType.SETUP_INGESTION, canarydrop
         )
-        return AWSInfaHandleResponse(handle=handle_id)
-    handle_response = aws_infra.get_handle_response(request.handle)
-    if handle_response.response_received:
-        return AWSInfraSetupIngestionReceivedResponse(
-            result=handle_response.response != "",
-            message=""
-            if handle_response.response != ""
-            else "Handle lookup has timedout.",
-            handle=request.handle,
-            terraform_module_snippet=""
-            if handle_response.response == ""
-            else aws_infra.get_module_snippet(
-                aws_infra.get_canarydrop_from_handle(request.handle)
-            ),
+        return AWSInfraHandleResponse(handle=handle_id)
+    handle_response = aws_infra.get_handle_response(
+        request.handle, AWSInfraOperationType.SETUP_INGESTION
+    )
+    try:
+        canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
+    except NoCanarydropFound:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return handle_response
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in setup-ingestion for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
-
-    return AWSInfaHandleResponse(handle=request.handle)
+        handle_response.error = ""  # Don't show error type in the response
+        aws_infra.mark_failed(
+            canarydrop
+        )  # mark fail for in case this is coming from a successful setup-ingestion
+    else:
+        aws_infra.mark_succeeded(canarydrop)
+        aws_infra.mark_ingesting(canarydrop)
+    queries.save_canarydrop(canarydrop)
+    return handle_response
 
 
 @api.post("/awsinfra/teardown", dependencies=[Depends(validate_exclusive_handle)])
 def api_awsinfra_teardown(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
-) -> Union[AWSInfraTeardownReceivedResponse, AWSInfaHandleResponse]:
+    response: Response,
+) -> Union[AWSInfraTeardownReceivedResponse, AWSInfraHandleResponse]:
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
         )
-        handle_id = aws_infra.create_handle(AWSInfraOperationType.TEARDOWN, canarydrop)
-        return AWSInfaHandleResponse(handle=handle_id)
-
-    handle_response = aws_infra.get_handle_response(request.handle)
-
-    if handle_response.response_received:
-        return AWSInfraTeardownReceivedResponse(
-            result=handle_response.response != "",
-            message=""
-            if handle_response.response != ""
-            else "Handle lookup has timedout.",
-            handle=request.handle,
-            role_cleanup_commands=aws_infra.get_role_cleanup_commands(
-                aws_infra.get_canarydrop_from_handle(request.handle)
-            ),
+        handle_id = aws_infra.start_operation(
+            AWSInfraOperationType.TEARDOWN, canarydrop
         )
-    return AWSInfaHandleResponse(handle=request.handle)
+        return AWSInfraHandleResponse(handle=handle_id)
+
+    handle_response = aws_infra.get_handle_response(
+        request.handle, AWSInfraOperationType.TEARDOWN
+    )
+    try:
+        canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
+    except NoCanarydropFound:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return handle_response
+    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        logging.error(
+            f"Error in teardown for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
+        )
+        handle_response.error = ""  # Don't show error type in the response
+    return handle_response
 
 
 @api.post("/awsinfra/management-response", dependencies=[Depends(authorize_aws_infra)])
@@ -2419,12 +2456,12 @@ def _(
 ) -> AWSInfraTokenResponse:
     canarydrop.aws_account_id = token_request_details.aws_account_number
     canarydrop.aws_region = token_request_details.aws_region
-    canarydrop.aws_tf_module_prefix = "".join(
-        [random.choice(string.ascii_letters + string.digits) for _ in range(27)]
-    )
-    canarydrop.aws_infra_ingesting = False
-    canarydrop.aws_infra_ingestion_bus_name = aws_infra.get_current_ingestion_bus()
-
+    try:
+        aws_infra.initialise(canarydrop)
+    except Exception:
+        return JSONResponse(
+            {"message": "Failed to generate AWS Infra Canarytoken."}, status_code=500
+        )
     save_canarydrop(canarydrop)
 
     return AWSInfraTokenResponse(
@@ -2437,5 +2474,5 @@ def _(
         aws_account_number=canarydrop.aws_account_id,
         aws_region=canarydrop.aws_region,
         tf_module_prefix=canarydrop.aws_tf_module_prefix,
-        ingesting=canarydrop.aws_infra_ingesting,
+        ingesting=False,  # TODO: remove
     )

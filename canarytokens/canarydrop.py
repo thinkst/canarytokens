@@ -139,9 +139,9 @@ class Canarydrop(BaseModel):
     aws_inventoried_assets: Optional[str]
     aws_saved_plan: Optional[str]
     aws_tf_module_prefix: Optional[str]
-    aws_infra_ingesting: Optional[bool]
     aws_infra_ingestion_bus_name: Optional[str]
-    aws_infra_state: AWSInfraState = AWSInfraState.INITIAL
+    aws_infra_state: Optional[AWSInfraState]
+    aws_infra_inventory_role: Optional[str] = None
 
     # Azure key specific stuff
     app_id: Optional[str]
@@ -321,8 +321,7 @@ class Canarydrop(BaseModel):
         """
         if (
             edit_request.token_type == TokenTypes.AWS_INFRA
-            and self.aws_infra_state
-            in AWSInfraState.ROLE_CHECKING | AWSInfraState.INITIAL
+            and self.aws_infra_state == AWSInfraState.INITIAL
         ):
             for field in edit_request:
                 if field in ["token", "auth"]:

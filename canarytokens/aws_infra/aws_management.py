@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 import boto3
@@ -9,6 +10,7 @@ from canarytokens.settings import FrontendSettings
 AWS_INFRA_REGION = "eu-west-1"
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
+MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
 
 
 def _get_session():
@@ -54,6 +56,15 @@ SQS_CLIENT = _get_client("sqs")
 SSM_CLIENT = _get_client("ssm")
 
 
+def queue_management_request(payload: dict):
+    """
+    Send a message to the management request queue.
+    """
+    SQS_CLIENT.send_message(
+        QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
+    )
+
+
 def get_shared_secret():
     global AWS_INFRA_SHARED_SECRET
     if AWS_INFRA_SHARED_SECRET is not None:
@@ -79,6 +90,10 @@ def get_shared_secret():
 
 def get_current_ingestion_bus():
     bus_ssm_parameter = settings.AWS_INFRA_INGESTION_BUS
+    if bus_ssm_parameter is None:
+        error_message = "AWS_INFRA_INGESTION_BUS is not set!"
+        logging.error(error_message)
+        raise RuntimeError(error_message)
     try:
         bus_name = (
             SSM_CLIENT.get_parameter(Name=bus_ssm_parameter)
@@ -86,11 +101,17 @@ def get_current_ingestion_bus():
             .get("Value")
         )
         if bus_name is None:
-            raise RuntimeError(
-                f"Could not get the current ingestion bus name stored in: {bus_ssm_parameter}"
-            )
+            error_message = f"Could not get the current ingestion bus name stored in: {bus_ssm_parameter}"
+            logging.error(error_message)
+            raise RuntimeError(error_message)
         return bus_name
     except ClientError as e:
+        logging.error(
+            " ".join(e.args)
+            if len(e.args) > 0
+            else e.response["Error"]["Message"]
+            or "ClientError occurred when fetching SSM parameter"
+        )
         raise e
 
 
