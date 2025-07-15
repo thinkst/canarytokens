@@ -1,31 +1,4 @@
 <template>
-  <div class="flex flex-row justify-between my-16">
-    <div class="flex flex-row gap-8 items-center">
-      <img
-        :src="iconURL()"
-        :alt="`icon ${getLabel(props.assetKey)}`"
-        class="h-[2rem] w-[2rem]"
-      />
-      <legend class="flex flex-col">
-        <span class="text-grey-500">{{ getLabel(props.assetKey) }}</span>
-        <span>{{ getLabel(props.objectKey) }}</span>
-      </legend>
-    </div>
-    <BaseButton
-      type="button"
-      variant="text"
-      icon="plus"
-      :loading="isLoading"
-      @click="handleAddObject"
-    >
-      Add object
-    </BaseButton>
-  </div>
-  <BaseMessageBox
-    v-if="isErrorMessage"
-    variant="danger"
-    >{{ isErrorMessage }}
-  </BaseMessageBox>
   <div class="paginated_object_list__wrapper">
     <fieldset
       class="paginated_object_list"
@@ -36,29 +9,8 @@
         '--container-width': `${containerWidth}px`,
       }"
     >
-      <div
-        v-for="(field, fieldIndex) in fields"
-        :key="fieldIndex"
-        class="object_item pl-24"
-      >
-        <div
-          v-for="(_propertyValue, propertyKey) in field.value"
-          :key="propertyKey"
-        >
-          <AssetTextField
-            :id="`${props.assetKey}.${fieldIndex}.${propertyKey}`"
-            :value="field.value[propertyKey]"
-            :label="getLabel(propertyKey as any)"
-            :field-type="objectKey"
-            variant="small"
-            icon="aws_infra_icons/objects.svg"
-            :hide-label="true"
-            :has-remove="true"
-            :asset-type="props.assetType"
-            @handle-remove-instance="remove(fieldIndex)"
-          />
-        </div>
-      </div>
+      <!-- Slot Form -->
+      <slot></slot>
     </fieldset>
   </div>
   <div
@@ -108,35 +60,18 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
-import {
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetData, S3ObjectData } from '../types';
-import getImageUrl from '@/utils/getImageUrl';
-import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
-import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
 
 const props = defineProps<{
-  assetType: AssetTypesEnum;
-  assetKey: keyof AssetData;
-  objectKey: keyof S3ObjectData;
   fields: any;
-  prepend: (value: any) => void;
-  remove: (value: number) => void;
 }>();
 
 const MAX_PER_PAGE = 10;
 const currentPageNumber = ref(1);
 const containerWidth = ref(0);
-const isLoading = ref(false);
-const isErrorMessage = ref('');
 
 const totalPagesNumber = computed(() => {
   return Math.ceil(props.fields.length / MAX_PER_PAGE);
 });
-
-const objectKey = computed(() => props.objectKey);
 
 onMounted(() => {
   checkContainerWidth();
@@ -153,14 +88,6 @@ function checkContainerWidth() {
     element instanceof HTMLElement ? element.offsetWidth : 0;
 }
 
-function iconURL() {
-  return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
-}
-
-function getLabel(key: keyof AssetData | keyof S3ObjectData) {
-  return getFieldLabel(props.assetType, key);
-}
-
 function handlePreviousPage() {
   if (currentPageNumber.value >= 1) {
     currentPageNumber.value--;
@@ -171,28 +98,6 @@ function handleNextPage() {
   if (currentPageNumber.value < totalPagesNumber.value) {
     currentPageNumber.value++;
   }
-}
-
-async function handleAddObject() {
-  isLoading.value = true;
-  isErrorMessage.value = '';
-
-  const {
-    handleGenerateName,
-    isGenerateNameError,
-    isGenerateNameLoading,
-    generatedName,
-  } = useGenerateAssetName(props.assetType, props.objectKey);
-
-  isLoading.value = isGenerateNameLoading.value;
-  await handleGenerateName();
-  isErrorMessage.value = isGenerateNameError.value;
-  if (isErrorMessage.value) {
-    isLoading.value = false;
-    return;
-  }
-  props.prepend({ [objectKey.value]: generatedName.value });
-  isLoading.value = false;
 }
 </script>
 

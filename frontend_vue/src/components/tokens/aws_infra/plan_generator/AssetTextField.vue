@@ -10,7 +10,7 @@
     >
     <span
       v-if="icon"
-      class="icon rounded-full"
+      class="icon"
       :class="[{ 'top-[2rem]': !hideLabel }, { 'top-[0.5rem]': hideLabel }]"
       :style="{ 'background-image': `url(${iconURL})` }"
     ></span>

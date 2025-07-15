@@ -15,20 +15,9 @@
           v-slot="{ fields, prepend, remove }"
           :name="key"
         >
-          <FormObjects
-            v-if="isObject(fields[0]?.value as Record<string, string>)"
+          <AssetFormArray
             :asset-type="props.assetType"
             :asset-key="key"
-            object-key="object_path"
-            :fields="fields"
-            :prepend="prepend"
-            :remove="remove"
-          />
-          <FormArray
-            v-else
-            :asset-type="props.assetType"
-            :asset-key="key"
-            :array-key="key"
             :fields="fields"
             :prepend="prepend"
             :remove="remove"
@@ -57,11 +46,9 @@ import type { AssetData } from '../types';
 import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import { isObject } from '@/utils/utils.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObjects.vue';
 import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
-import FormArray from '@/components/tokens/aws_infra/plan_generator/FormArray.vue';
+import AssetFormArray from '@/components/tokens/aws_infra/plan_generator/AssetFormArray.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -87,7 +74,6 @@ function onSubmit(values: GenericObject) {
 }
 
 function onInvalidSubmit(values: any) {
-  console.log('onInvalidSubmit', values);
   emits('invalid-submit', values);
 }
 
