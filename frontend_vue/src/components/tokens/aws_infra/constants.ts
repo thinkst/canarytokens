@@ -16,24 +16,20 @@ export const ASSET_DATA = {
     object_path: '',
   },
   [AssetTypesEnum.SQSQUEUE]: {
-    queue_name: '',
-    message_count: null,
+    sqs_queue_name: null,
     off_inventory: false,
   },
   [AssetTypesEnum.SSMPARAMETER]: {
     ssm_parameter_name: '',
-    ssm_parameter_value: '',
     off_inventory: false,
   },
   [AssetTypesEnum.SECRETMANAGERSECRET]: {
-    secretsmanager_secret_name: '',
-    secretsmanager_secret_value: '',
+    secret_name: '',
     off_inventory: false,
   },
   [AssetTypesEnum.DYNAMODBTABLE]: {
-    dynamodb_name: '',
-    dynamodb_partition_key: '',
-    dynamodb_row_count: null,
+    table_name: '',
+    table_items: [],
     off_inventory: false,
   },
 };
@@ -44,15 +40,11 @@ export const ASSET_LABEL = {
   [AssetTypesEnum.SSMPARAMETER]: 'SSM Parameter',
   [AssetTypesEnum.SECRETMANAGERSECRET]: 'Secrets Manager Secret',
   [AssetTypesEnum.DYNAMODBTABLE]: 'Dynamo DB Table',
-  dynamodb_row_count: 'Row Count',
-  dynamodb_partition_key: 'Partition Key',
-  dynamodb_name: 'Table Name',
-  secretsmanager_secret_value: 'Secret Value',
-  secretsmanager_secret_name: 'Secret Name',
-  ssm_parameter_value: 'Parameter Value',
+  table_name: 'Table Name',
+  table_items: 'Table Items',
+  secret_name: 'Secret Name',
   ssm_parameter_name: 'Parameter Name',
-  message_count: 'Message Count',
-  queue_name: 'Queue Name',
+  sqs_queue_name: 'Queue Name',
   object_path: 'Object Path',
   bucket_name: 'S3 Bucket Name',
   objects: 'S3 Bucket Objects',
@@ -61,10 +53,10 @@ export const ASSET_LABEL = {
 // Main keys for the Asset Card
 // to display close to the asset icon
 export const ASSET_DATA_NAME = {
-  [AssetTypesEnum.DYNAMODBTABLE]: 'dynamodb_name',
-  [AssetTypesEnum.SECRETMANAGERSECRET]: 'secretsmanager_secret_name',
+  [AssetTypesEnum.DYNAMODBTABLE]: 'table_name',
+  [AssetTypesEnum.SECRETMANAGERSECRET]: 'secret_name',
   [AssetTypesEnum.SSMPARAMETER]: 'ssm_parameter_name',
-  [AssetTypesEnum.SQSQUEUE]: 'queue_name',
+  [AssetTypesEnum.SQSQUEUE]: 'sqs_queue_name',
   [AssetTypesEnum.S3BUCKET]: 'bucket_name',
 };
 

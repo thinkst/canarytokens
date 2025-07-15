@@ -42,14 +42,13 @@ const options = [
   { label: 'Example Plan', value: assetsExample.value },
   { label: 'Unavailable SQS Queue', value: assetsWithEmptySQSQueue.value },
   {
-    label: 'Empty initial SSMParameter',
+    label: 'Empty initial Dynamo DB table',
     value: assetInitialEmptyParameter.value,
   },
   { label: 'Manage Plan', value: assetsManageExample.value },
 ];
 
 function handleSelectOption(value) {
-  console.log('Selected value:', value);
   selectedPlan.value = value;
   selectedPlanKey.value++;
 }

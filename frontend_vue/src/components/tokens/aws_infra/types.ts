@@ -9,27 +9,23 @@ type S3BucketType = {
 };
 
 type SQSQueueType = {
-  queue_name: string;
-  message_count: number | null;
+  sqs_queue_name: string;
   off_inventory: boolean;
 };
 
 type SSMParameterType = {
   ssm_parameter_name: string;
-  ssm_parameter_value: string;
   off_inventory: boolean;
 };
 
 type SecretsManagerSecretType = {
-  secretsmanager_secret_name: string;
-  secretsmanager_secret_value: string;
+  secret_name: string;
   off_inventory: boolean;
 };
 
 type DynamoDBTableType = {
-  dynamodb_name: string;
-  dynamodb_partition_key: string;
-  dynamodb_row_count: number | null;
+  table_name: string;
+  table_items: string[];
   off_inventory: boolean;
 };
 
