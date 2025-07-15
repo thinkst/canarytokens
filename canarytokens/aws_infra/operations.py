@@ -1,43 +1,54 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
-import string
-import secrets
 import json
-from typing import Union
+import logging
+
+from pydantic import BaseModel
 
 from canarytokens import queries
-from canarytokens.aws_infra.management import (
-    SQS_CLIENT,
+from canarytokens.aws_infra.aws_management import (
+    queue_management_request,
     upload_tf_module,
 )
-from canarytokens.aws_infra.plan_generation import generate_tf_variables
+from canarytokens.aws_infra.plan_generation import (
+    generate_proposed_plan,
+    generate_tf_variables,
+)
+from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType, AWSInfraOperationType
+from canarytokens.models import (
+    AWSInfraCheckRoleReceivedResponse,
+    AWSInfraHandleResponse,
+    AWSInfraAssetType,
+    AWSInfraInventoryCustomerAccountReceivedResponse,
+    AWSInfraOperationType,
+    AWSInfraServiceError,
+    AWSInfraSetupIngestionReceivedResponse,
+    AWSInfraTeardownReceivedResponse,
+)
 from canarytokens.settings import FrontendSettings
 from canarytokens.tokens import Canarytoken
 
 settings = FrontendSettings()
 
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
-AWS_INFRA_SHARED_SECRET = None
-MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
-INVENTORY_ROLE_NAME = settings.AWS_INFRA_INVENTORY_ROLE
 HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
 
-@dataclass
-class Handle:
-    response_received: bool
-    response: Union[bool, str, dict]
+class Handle(BaseModel):
+    canarytoken: str
+    operation: str
+    requested_time: float
+    response_received: str = "False"
+    response_content: str
 
 
-def get_role_commands(canarydrop: Canarydrop):
+def get_role_create_commands(canarydrop: Canarydrop):
     """
     Return the aws-cli commands needed to setup the inventory role in the customer's account
     """
     return {
-        "role_name": settings.AWS_INFRA_INVENTORY_ROLE,
-        "aws_account": AWS_INFRA_AWS_ACCOUNT,
+        "role_name": canarydrop.aws_infra_inventory_role,
+        "aws_account": AWS_INFRA_AWS_ACCOUNT,  # TODO: rename to aws_management_account
         "external_id": canarydrop.aws_customer_iam_access_external_id,
         "customer_aws_account": canarydrop.aws_account_id,
     }
@@ -48,26 +59,36 @@ def get_role_cleanup_commands(canarydrop: Canarydrop):
     Return the aws-cli commands needed to detach and delete the inventory policy and role in the customer's account
     """
     return {
-        "role_name": settings.AWS_INFRA_INVENTORY_ROLE,
+        "role_name": canarydrop.aws_infra_inventory_role,
         "customer_aws_account": canarydrop.aws_account_id,
     }
 
 
-def _generate_handle_id():
-    return secrets.token_hex(20)
-
-
-def create_handle(operation: AWSInfraOperationType, canarydrop: Canarydrop):
+def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
     "Create a new handle entry in the redis DB and trigger the specified operation"
-    handle_id = _generate_handle_id()
-    queries.add_aws_management_lambda_handle(
-        handle_id, canarydrop.canarytoken.value(), operation
+    handle_id = generate_handle_id()
+    handle = Handle(
+        canarytoken=canarydrop.canarytoken.value(),
+        operation=operation.value,
+        requested_time=datetime.now(timezone.utc).timestamp(),
+        response_received="False",
+        response_content="",
     )
-    trigger_operation(operation, handle_id, canarydrop)
+    queries.add_aws_management_lambda_handle(
+        handle_id,
+        handle.dict(),
+    )
+    payload = _build_operation_payload(operation, handle_id, canarydrop)
+    queue_management_request(payload)
     return handle_id
 
 
-def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Canarydrop):
+def _build_operation_payload(
+    operation: AWSInfraOperationType, handle, canarydrop: Canarydrop
+):
+    """
+    Construct the payload for the specified AWS infrastructure operation to be sent to the management SQS queue.
+    """
     payload = {
         "handle": handle,
         "operation": operation.value,
@@ -77,13 +98,13 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
         payload["params"] = {
             "aws_account": canarydrop.aws_account_id,
             "customer_iam_access_external_id": canarydrop.aws_customer_iam_access_external_id,
-            "role_name": INVENTORY_ROLE_NAME,
+            "role_name": canarydrop.aws_infra_inventory_role,
         }
     elif operation == AWSInfraOperationType.INVENTORY:
         payload["params"] = {
             "aws_account": canarydrop.aws_account_id,
             "customer_iam_access_external_id": canarydrop.aws_customer_iam_access_external_id,
-            "role_name": INVENTORY_ROLE_NAME,
+            "role_name": canarydrop.aws_infra_inventory_role,
             "region": canarydrop.aws_region,
             "assets_types": [asset_type.value for asset_type in AWSInfraAssetType],
         }
@@ -104,29 +125,84 @@ def trigger_operation(operation: AWSInfraOperationType, handle, canarydrop: Cana
             "region": canarydrop.aws_region,
             "aws_account": canarydrop.aws_account_id,
         }
-    SQS_CLIENT.send_message(
-        QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
-    )
+    return payload
 
 
 # TODO: add handle exist for token validation
-def get_handle_response(handle_id):
+def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
     """
     handle = queries.get_aws_management_lambda_handle(handle_id)
+
     if not handle:
-        raise Exception("Handle does not exist")
-    if handle.get("response_received") == "True":
-        response = json.loads(handle.get("response_content"))
-        return Handle(response_received=True, response=response)
-    requested_time = datetime.strptime(
-        handle.get("requested_timestamp"), "%Y-%m-%d %H:%M:%S"
-    ).timestamp()
+        logging.error(f"Handle with ID {handle_id} not found.")
+        return AWSInfraHandleResponse(handle=handle_id, message="Handle not found.")
+
+    handle = Handle(**handle)
+    if handle.operation != operation.value:
+        logging.error(
+            f"Handle operation {handle.operation} does not match requested operation {operation.value}."
+        )
+        return AWSInfraHandleResponse(
+            handle=handle_id,
+            message="Handle operation does not match requested operation.",
+        )
+
     current_time = datetime.now(timezone.utc).timestamp()
-    if requested_time - current_time > HANDLE_RESPONSE_TIMEOUT:
-        return Handle(response_received=True, response="")
-    return Handle(response_received=False, response="")
+    if handle.requested_time - current_time > HANDLE_RESPONSE_TIMEOUT:
+        return _build_handle_response_payload(handle_id, handle, timeout=True)
+
+    if handle.response_received != "True":
+        return AWSInfraHandleResponse(
+            handle=handle_id,
+        )
+
+    return _build_handle_response_payload(handle_id, handle)
+
+
+def _build_handle_response_payload(
+    handle_id: str, handle: Handle, timeout: bool = False
+):
+    response_content = (
+        json.loads(handle.response_content) if handle.response_content else {}
+    )
+    payload = {
+        "result": not timeout and response_content.get("error", "") == "",
+        "handle": handle_id,
+    }
+
+    print("Received payload: ", handle.response_content)
+
+    if timeout:
+        payload["message"] = "Handle response timed out."
+    elif response_content.get("error", "") != "":
+        error, message = AWSInfraServiceError.parse(response_content["error"])
+        payload["message"] = message
+        payload["error"] = error
+    if handle.operation == AWSInfraOperationType.CHECK_ROLE:
+        payload["session_credentials_retrieved"] = response_content.get(
+            "session_credentials_retrieved", False
+        )
+        return AWSInfraCheckRoleReceivedResponse(**payload)
+
+    canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
+    if handle.operation == AWSInfraOperationType.INVENTORY:
+        save_current_assets(canarydrop, response_content.get("assets", {}))
+        payload["proposed_plan"] = generate_proposed_plan(canarydrop)
+        return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
+
+    if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
+        payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
+        payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+        return AWSInfraSetupIngestionReceivedResponse(**payload)
+
+    if handle.operation == AWSInfraOperationType.TEARDOWN:
+        payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+        return AWSInfraTeardownReceivedResponse(**payload)
+
+    # this should never happen
+    logging.error(f"Unknown operation type {handle.operation} for handle {handle_id}.")
 
 
 def get_handle_operation(handle_id):
@@ -179,8 +255,6 @@ def get_canarydrop_from_handle(handle_id: str):
             value=queries.get_aws_management_lambda_handle(handle_id).get("canarytoken")
         )
     )
-    if not canarydrop:
-        raise Exception("Canarydrop not found for the given handle_id.")
     return canarydrop
 
 
@@ -188,28 +262,5 @@ def get_module_snippet(canarydrop: Canarydrop):
     """
     Return the snippet that can be pasted in the customer's terraform.
     """
-
+    # TODOD: return variables
     return f'module "canarytoken_infra" {{ source = "https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip" }}'
-
-
-def generate_external_id():
-    return "".join(
-        [secrets.choice(string.ascii_letters + string.digits) for _ in range(21)]
-    )
-
-
-def set_external_id(canarydrop: Canarydrop, external_id: str):
-    """
-    Set the external ID for the canarydrop. If no external ID is provided, generate a new one.
-    """
-    canarydrop.aws_customer_iam_access_external_id = external_id
-    queries.save_canarydrop(canarydrop)
-    return external_id
-
-
-def delete_external_id(canarydrop: Canarydrop):
-    """
-    Delete the external ID for the canarydrop.
-    """
-    canarydrop.aws_customer_iam_access_external_id = None
-    queries.save_canarydrop(canarydrop)
