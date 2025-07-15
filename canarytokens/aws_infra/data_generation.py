@@ -156,7 +156,6 @@ class GeminiDecoyNameGenerator:
             return False
         if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", name):  # IP-style
             return False
-
         reserved_prefixes = (
             "xn--",
             "sthree-",

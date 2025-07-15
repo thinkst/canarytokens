@@ -9,6 +9,7 @@ from canarytokens import queries
 from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.db_queries import get_current_assets
+from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
@@ -25,6 +26,8 @@ MAX_DYNAMO_TABLES = 10
 MAX_SSM_PARAMETERS = 10
 MAX_SQS_QUEUES = 10
 MAX_SECRET_MANAGER_SECRETS = 10
+
+NAME_GENERATOR = GeminiDecoyNameGenerator()
 
 
 NAME_GENERATOR = GeminiDecoyNameGenerator()
@@ -83,6 +86,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
     return tf_variables
 
 
+<<<<<<< HEAD
 async def generate_for_asset_type(
     asset_type: AWSInfraAssetType, inventory: list, count: int = 1
 ):
@@ -99,6 +103,16 @@ async def generate_objects_for_bucket(bucket, name_generator):
         count,
     )
     bucket[AssetLabel.OBJECTS].extend(objects)
+=======
+def generate_s3_buckets(inventory: list, count: int = 1):
+    """
+    Return a name for a S3 bucket.
+    """
+    suggested = NAME_GENERATOR.generate_names(
+        AWSInfraAssetType.S3_BUCKET, inventory, count
+    )
+    return suggested.suggested_names
+>>>>>>> a1ece127 (add s3)
 
 
 async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
@@ -131,6 +145,7 @@ async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
     )
 
 
+<<<<<<< HEAD
 async def _add_sqs_queues(aws_deployed_assets, aws_inventoried_assets, plan):
     count = _get_decoy_asset_count(
         aws_inventoried_assets,
@@ -151,6 +166,31 @@ async def _add_sqs_queues(aws_deployed_assets, aws_inventoried_assets, plan):
             for sqs_queue_name in sqs_queue_names
         ]
     )
+=======
+def add_new_assets_to_plan(
+    aws_deployed_assets: dict, aws_inventoried_assets: dict, plan: dict
+):
+    # generate new assets
+    count = random.randint(
+        1,
+        MAX_S3_BUCKETS
+        - len(aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, [])),
+    )
+
+    plan["assets"][AWSInfraAssetType.S3_BUCKET.value].extend(
+        [
+            {"bucket_name": bucket_name, "objects": [], "off_inventory": False}
+            for bucket_name in generate_s3_buckets(
+                aws_inventoried_assets.get(AWSInfraAssetType.S3_BUCKET.value, []), count
+            )
+        ]
+    )
+    for i in range(len(plan["assets"][AWSInfraAssetType.S3_BUCKET.value])):
+        for _ in range(random.randint(1, MAX_S3_OBJECTS)):
+            plan["assets"][AWSInfraAssetType.S3_BUCKET.value][i]["objects"].append(
+                {"object_path": generate_s3_object()}
+            )
+>>>>>>> a1ece127 (add s3)
 
 
 async def _add_ssm_parameters(aws_deployed_assets, aws_inventoried_assets, plan):
@@ -377,6 +417,10 @@ async def generate_proposed_plan(canarydrop: Canarydrop):
         "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
     }
 
+<<<<<<< HEAD
+=======
+    add_new_assets_to_plan(aws_deployed_assets, aws_inventoried_assets, proposed_plan)
+>>>>>>> a1ece127 (add s3)
     if is_ingesting(canarydrop):
         return proposed_plan
 
@@ -393,6 +437,7 @@ def _get_ingestion_bus_arn(bus_name: str):
     return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
 
 
+<<<<<<< HEAD
 def _get_inventory_for_asset_type(
     canarydrop: Canarydrop, asset_type: AWSInfraAssetType
 ) -> list:
@@ -443,6 +488,39 @@ async def _generate_asset_by_type_and_field(
         AssetLabel.SSM_PARAMETER_NAME,
         AssetLabel.SECRET_NAME,
         AssetLabel.TABLE_NAME,
+=======
+def generate_data_choice(asset_type: AWSInfraAssetType, asset_field: str):
+    """
+    Generate a random data choice for the given asset type and field.
+    """
+    asset_map = {
+        (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_buckets,
+        (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
+        (AWSInfraAssetType.SQS_QUEUE, "queue_name"): generate_sqs_queue,
+        (AWSInfraAssetType.SQS_QUEUE, "message_count"): lambda: str(
+            random.randint(0, 10)
+        ),
+        (AWSInfraAssetType.SSM_PARAMETER, "parameter_name"): generate_ssm_parameter,
+        (
+            AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+            "secretsmanager_secret_name",
+        ): generate_secretsmanager_secret,
+        (
+            AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+            "secretsmanager_secret_value",
+        ): lambda: "".join(
+            random.choice(string.ascii_letters + string.digits)
+            for _ in range(random.randint(5, 50))
+        ),
+        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_name"): generate_dynamo_table,
+        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_partition_key"): lambda: "".join(
+            random.choice(string.ascii_letters + string.digits)
+            for _ in range(random.randint(3, 10))
+        ),
+        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_row_count"): lambda: str(
+            random.randint(0, 100)
+        ),
+>>>>>>> a1ece127 (add s3)
     }
 
     # Child asset types (nested resources)
