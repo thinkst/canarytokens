@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: 'eu-west-1'
+      WEB_CONCURRENCY: 2
+
     permissions:
       id-token: write
       contents: read
@@ -115,6 +117,7 @@ jobs:
           export CANARY_CLOUDFLARE_ACCOUNT_ID=test
           export CANARY_CLOUDFLARE_API_TOKEN=test
           export CANARY_CLOUDFLARE_NAMESPACE=test
+          export WEB_CONCURRENCY=2
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
 
