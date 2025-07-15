@@ -3006,7 +3006,6 @@ class AWSInfraState(enum.Flag):
     SUCCEEDED = enum.auto()
 
 
-# TODO: map errors from aws management
 class AWSInfraServiceError(enum.Enum):
     FAILURE_CHECK_ROLE = enum.auto()
     FAILURE_INGESTION_BUS_PROVISION = enum.auto()
@@ -3023,3 +3022,17 @@ class AWSInfraServiceError(enum.Enum):
     UNHANDLED_ERROR = enum.auto()
     UNKNOWN = enum.auto()
     NO_ERROR = enum.auto()
+
+    @classmethod
+    def parse(cls, error: str):
+        if error == "":
+            return cls.NO_ERROR.name, ""
+
+        try:
+            code, message = error.split("::")
+            return next(
+                ((e.name, message) for e in cls if e.name == code),
+                (cls.UNKNOWN.name, "Something went wrong."),
+            )
+        except Exception:
+            return cls.UNKNOWN.name, "Something went wrong."

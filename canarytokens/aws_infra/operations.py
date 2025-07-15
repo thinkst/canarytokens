@@ -177,16 +177,9 @@ def _build_handle_response_payload(
     if timeout:
         payload["message"] = "Handle response timed out."
     elif response_content.get("error", "") != "":
-        error, message = response_content.get("error").split("::")
-        try:
-            service_error = AWSInfraServiceError[error]
-        except KeyError:
-            service_error = AWSInfraServiceError.UNKNOWN
-
-        payload[
-            "message"
-        ] = message  # TODO: maybe expand messages with service_error mapping
-        payload["error"] = service_error.name
+        error, message = AWSInfraServiceError.parse(response_content["error"])
+        payload["message"] = message
+        payload["error"] = error
     if handle.operation == AWSInfraOperationType.CHECK_ROLE:
         payload["session_credentials_retrieved"] = response_content.get(
             "session_credentials_retrieved", False
