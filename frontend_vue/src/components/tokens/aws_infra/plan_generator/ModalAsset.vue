@@ -244,7 +244,6 @@ function handleBackButton() {
   isErrorMessage.value = '';
   showAssetDetails.value = false;
 }
-
 </script>
 
 <style lang="scss" scoped></style>
