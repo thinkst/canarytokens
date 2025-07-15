@@ -135,9 +135,10 @@ jobs:
           redis-cli flushall
           mkdir uploads
           make switchboard &
-          make frontend &
+          cd frontend
+          poetry run uvicorn app:app --reload --log-config log.ini --host 0.0.0.0 --port 8082 &
           echo "web concurrency $WEB_CONCURRENCY"
-          cd tests
+          cd ../tests
           sleep 10
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
