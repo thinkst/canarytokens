@@ -74,6 +74,7 @@ function onSubmit(values: GenericObject) {
 }
 
 function onInvalidSubmit(values: any) {
+  console.log('onInvalidSubmit', values);
   emits('invalid-submit', values);
 }
 
