@@ -2969,7 +2969,7 @@ class AWSInfraSetupIngestionReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
-    terraform_module_snippet: str = ""
+    terraform_module_snippet: dict = None
 
 
 class AWSInfraTeardownReceivedResponse(BaseModel):
