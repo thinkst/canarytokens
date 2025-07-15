@@ -9,28 +9,24 @@ type S3BucketData = {
 };
 
 type SQSQueueData = {
-  queue_name: string;
-  message_count: number | null;
-  off_inventory?: boolean;
+  sqs_queue_name: string;
+  off_inventory: boolean;
 };
 
 type SSMParameterData = {
   ssm_parameter_name: string;
-  ssm_parameter_value: string;
-  off_inventory?: boolean;
+  off_inventory: boolean;
 };
 
 type SecretsManagerSecretData = {
-  secretsmanager_secret_name: string;
-  secretsmanager_secret_value: string;
-  off_inventory?: boolean;
+  secret_name: string;
+  off_inventory: boolean;
 };
 
 type DynamoDBTableData = {
-  dynamodb_name: string;
-  dynamodb_partition_key: string;
-  dynamodb_row_count: number | null;
-  off_inventory?: boolean;
+  table_name: string;
+  table_items: string[];
+  off_inventory: boolean;
 };
 
 type ProposedAWSInfraTokenPlanData = {

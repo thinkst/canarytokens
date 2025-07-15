@@ -167,7 +167,6 @@ function handleMouseLeave() {
   .asset-card {
     display: flex;
     flex-grow: 1;
-    gap: 0.5rem;
     padding-block: 0.8rem;
     padding-inline: 0.5rem;
 
@@ -267,11 +266,11 @@ function handleMouseLeave() {
     }
   }
 
-  @container (width < 50em) {
-    .asset-card:has(.asset-card__list-data li:nth-child(n + 2)) {
-      flex-direction: column;
-    }
-  }
+  // @container (width < 50em) {
+  //   .asset-card:has(.asset-card__list-data li:nth-child(n + 2)) {
+  //     flex-direction: column;
+  //   }
+  // }
 
   @container (width < 40em) {
     .asset-card {

@@ -32,10 +32,6 @@ export const SQSQueue_schema = yup.object().shape({
 });
 
 export const SSMParameter_schema = yup.object().shape({
-  ssm_parameter_value: requiredString(
-    AssetTypesEnum.SSMPARAMETER,
-    'ssm_parameter_value'
-  ),
   ssm_parameter_name: requiredString(
     AssetTypesEnum.SSMPARAMETER,
     'ssm_parameter_name'
@@ -43,29 +39,21 @@ export const SSMParameter_schema = yup.object().shape({
 });
 
 export const SecretsManagerSecret_schema = yup.object().shape({
-  secretsmanager_secret_name: requiredString(
+  secret_name: requiredString(
     AssetTypesEnum.SECRETMANAGERSECRET,
-    'secretsmanager_secret_name'
-  ),
-  secretsmanager_secret_value: requiredString(
-    AssetTypesEnum.SECRETMANAGERSECRET,
-    'secretsmanager_secret_value'
+    'secret_name'
   ),
 });
 
 export const DynamoDBTable_schema = yup.object().shape({
-  dynamodb_partition_key: requiredString(
-    AssetTypesEnum.DYNAMODBTABLE,
-    'dynamodb_partition_key'
-  ),
-  dynamodb_name: requiredString(AssetTypesEnum.DYNAMODBTABLE, 'dynamodb_name'),
-  dynamodb_row_count: yup
-    .number()
-    .typeError(
-      `${getFieldLabel(AssetTypesEnum.DYNAMODBTABLE, 'dynamodb_row_count')} must be a number`
-    )
-    .required(
-      getFieldLabel(AssetTypesEnum.DYNAMODBTABLE, 'dynamodb_row_count')
+  table_name: requiredString(AssetTypesEnum.DYNAMODBTABLE, 'table_name'),
+  table_items: yup
+    .array()
+    .of(
+      yup
+        .string()
+        .required()
+        .label(getFieldLabel(AssetTypesEnum.DYNAMODBTABLE, 'table_items'))
     ),
 });
 
