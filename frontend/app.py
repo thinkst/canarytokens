@@ -15,6 +15,7 @@ import textwrap
 from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
+import time
 from typing import Annotated, Any, Optional, Union
 from urllib.parse import unquote
 import logging
@@ -783,6 +784,7 @@ async def api_generate(  # noqa: C901  # gen is large
     """
     Generate a token and return the appropriate TokenResponse
     """
+    time.sleep(300)
 
     if request.headers.get("Content-Type", "application/json") == "application/json":
         token_request_data = await request.json()
