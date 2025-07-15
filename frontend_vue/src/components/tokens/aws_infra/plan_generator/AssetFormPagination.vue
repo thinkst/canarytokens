@@ -1,30 +1,4 @@
 <template>
-  <div class="flex flex-row justify-between my-16">
-    <div class="flex flex-row gap-8 items-center">
-      <img
-        :src="iconURL()"
-        :alt="`icon ${getLabel(props.assetKey)}`"
-        class="h-[2rem] w-[2rem] rounded-full"
-      />
-      <legend class="flex flex-col">
-        <span class="text-grey-500">{{ getLabel(props.assetKey) }}</span>
-      </legend>
-    </div>
-    <BaseButton
-      type="button"
-      variant="text"
-      icon="plus"
-      :loading="isLoading"
-      @click="handleAddItem"
-    >
-      Add Item
-    </BaseButton>
-  </div>
-  <BaseMessageBox
-    v-if="isErrorMessage"
-    variant="danger"
-    >{{ isErrorMessage }}
-  </BaseMessageBox>
   <div class="paginated_object_list__wrapper">
     <fieldset
       class="paginated_object_list"
@@ -35,24 +9,8 @@
         '--container-width': `${containerWidth}px`,
       }"
     >
-      <div
-        v-for="(field, fieldIndex) in fields"
-        :key="fieldIndex"
-        class="object_item pl-24"
-      >
-        <AssetTextField
-          :id="`${props.assetKey}.${fieldIndex}`"
-          :value="field.value"
-          :label="getLabel(props.assetKey as any)"
-          :field-type="props.assetKey"
-          variant="small"
-          :icon="`aws_infra_icons/${props.assetKey}.svg`"
-          :hide-label="true"
-          :has-remove="true"
-          :asset-type="props.assetType"
-          @handle-remove-instance="remove(fieldIndex)"
-        />
-      </div>
+      <!-- Slot Form -->
+      <slot></slot>
     </fieldset>
   </div>
   <div
@@ -102,28 +60,14 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
-import {
-  ASSET_LABEL,
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetDataType } from '../types';
-import getImageUrl from '@/utils/getImageUrl';
-import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 const props = defineProps<{
-  assetType: AssetTypesEnum;
-  assetKey: keyof AssetDataType;
   fields: any;
-  prepend: (value: any) => void;
-  remove: (value: number) => void;
 }>();
 
 const MAX_PER_PAGE = 10;
 const currentPageNumber = ref(1);
 const containerWidth = ref(0);
-const isLoading = ref(false);
-const isErrorMessage = ref('');
 
 const totalPagesNumber = computed(() => {
   return Math.ceil(props.fields.length / MAX_PER_PAGE);
@@ -144,14 +88,6 @@ function checkContainerWidth() {
     element instanceof HTMLElement ? element.offsetWidth : 0;
 }
 
-function iconURL() {
-  return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
-}
-
-function getLabel(key: keyof typeof ASSET_LABEL) {
-  return ASSET_LABEL[key];
-}
-
 function handlePreviousPage() {
   if (currentPageNumber.value >= 1) {
     currentPageNumber.value--;
@@ -162,28 +98,6 @@ function handleNextPage() {
   if (currentPageNumber.value < totalPagesNumber.value) {
     currentPageNumber.value++;
   }
-}
-
-async function handleAddItem() {
-  isLoading.value = true;
-  isErrorMessage.value = '';
-
-  const {
-    handleGenerateName,
-    isGenerateNameError,
-    isGenerateNameLoading,
-    generatedName,
-  } = useGenerateAssetName(props.assetType, props.assetKey);
-
-  isLoading.value = isGenerateNameLoading.value;
-  await handleGenerateName();
-  isErrorMessage.value = isGenerateNameError.value;
-  if (isErrorMessage.value) {
-    isLoading.value = false;
-    return;
-  }
-  props.prepend(generatedName.value);
-  isLoading.value = false;
 }
 </script>
 

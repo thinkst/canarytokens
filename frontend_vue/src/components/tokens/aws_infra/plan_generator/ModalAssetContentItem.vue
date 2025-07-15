@@ -1,17 +1,17 @@
 <template>
-    <div
-      class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16 2xl:mx-[8vw] xl:mx-[3vw]"
-    >
-      <FormAsset
-        :asset-type="props.assetType"
-        :asset-data="props.assetData"
-        :validation-schema="validationSchema"
-        :trigger-submit="props.triggerSubmit"
-        :trigger-cancel="props.triggerCancel"
-        @update-asset="handleUpdateAsset"
-        @invalid-submit="handleInvalidSubmit"
-      />
-    </div>
+  <div
+    class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16 2xl:mx-[8vw] xl:mx-[3vw]"
+  >
+    <FormAsset
+      :asset-type="props.assetType"
+      :asset-data="props.assetData"
+      :validation-schema="validationSchema"
+      :trigger-submit="props.triggerSubmit"
+      :trigger-cancel="props.triggerCancel"
+      @update-asset="handleUpdateAsset"
+      @invalid-submit="handleInvalidSubmit"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,7 +26,7 @@ import {
   DynamoDBTable_schema,
   Default_schema,
 } from './assetValidators';
-import FormAsset from './FormAsset.vue';
+import FormAsset from './AssetForm.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -38,14 +38,12 @@ const props = defineProps<{
 const emits = defineEmits(['update-asset']);
 
 function handleUpdateAsset(values: any) {
-  console.log('handleUpdateAsset', values);
   emits('update-asset', values);
 }
 
 function handleInvalidSubmit() {
   console.log('handleInvalidSubmit');
 }
-
 
 const validationSchema = computed(() => {
   switch (props.assetType) {

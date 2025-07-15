@@ -104,7 +104,7 @@ import {
   ASSET_DATA,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type {ComputedRef} from 'vue';
+import type { ComputedRef } from 'vue';
 import type { AssetDataTypeWithoutS3Object } from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
@@ -148,7 +148,10 @@ function handleShowAssetDetails(
 }
 
 const isEmptyAssetData = computed(() => {
-  if (Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0) {
+  if (
+    Array.isArray(currentAssetData.value) &&
+    currentAssetData.value.length === 0
+  ) {
     return true;
   }
   return false;
@@ -263,7 +266,6 @@ function handleBackButton() {
   isErrorMessage.value = '';
   showAssetDetails.value = false;
 }
-
 </script>
 
 <style lang="scss" scoped></style>
