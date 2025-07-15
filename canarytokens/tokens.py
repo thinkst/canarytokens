@@ -843,12 +843,12 @@ class Canarytoken(object):
             "AWS::SecretsManager::Secret": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
             "AWS::SSM::Parameter": AWSInfraAssetType.SSM_PARAMETER.value,
         }
-        asset_type = mapping.get(resource_type, "Unknown")
-        if asset_type == "Unknown":
-            logging.error(
+        asset_type = mapping.get(resource_type)
+        if asset_type is None:
+            logging.warning(
                 f"Unknown AWS asset type in AWS Infra Canarytoken event: {resource_type}"
             )
-        return asset_type
+        return asset_type or resource_type
 
     @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
