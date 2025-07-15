@@ -218,7 +218,7 @@ async function handleRequestTerraformSnippet() {
         if (resWithHandle.status !== 200) {
           stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value =
-            resWithHandle.data.error ||
+            resWithHandle.data.message ||
             'Error on requesting the Terraform Snippet';
           clearInterval(pollingTerraformSnippetInterval);
           return;
@@ -271,7 +271,7 @@ async function handleRequestTerraformSnippet() {
         }
       } catch (err: any) {
         stateStatus.value = StepStateEnum.ERROR;
-        errorMessage.value =
+        errorMessage.value = err.response?.data?.message ||
           err.message || 'An error occurred while checking the Role. Try again';
         clearInterval(pollingTerraformSnippetInterval);
         return;
@@ -284,7 +284,7 @@ async function handleRequestTerraformSnippet() {
     );
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value = err.message;
+    errorMessage.value = err.response?.data?.message || err.message;
   }
 }
 
