@@ -52,6 +52,7 @@
       >
       <BaseMessageBox
         v-if="isSaveError"
+        class="mt-24"
         variant="danger"
         >{{ isSaveErrorMessage }}</BaseMessageBox
       >
@@ -194,7 +195,7 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null; }) {
     emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
-    isSaveErrorMessage.value =
+    isSaveErrorMessage.value = err.response?.data?.message ||
       err.message || 'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
   } finally {

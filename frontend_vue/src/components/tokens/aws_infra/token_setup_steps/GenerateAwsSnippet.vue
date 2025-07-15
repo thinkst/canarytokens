@@ -272,7 +272,7 @@ async function handleGetAwsSnippet() {
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value = err;
+    errorMessage.value = err.response?.data?.message || err;
   }
 }
 
