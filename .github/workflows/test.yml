@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: 'eu-west-1'
-      WEB_CONCURRENCY: 2
 
     permissions:
       id-token: write
@@ -130,11 +129,14 @@ jobs:
           poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 85
 
       - name: Run integration tests (against local V3)
+        env:
+          WEB_CONCURRENCY: 2
         run: |
           redis-cli flushall
           mkdir uploads
           make switchboard &
           make frontend &
+          echo "web concurrency $WEB_CONCURRENCY"
           cd tests
           sleep 10
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
