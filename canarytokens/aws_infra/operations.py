@@ -262,5 +262,7 @@ def get_module_snippet(canarydrop: Canarydrop):
     """
     Return the snippet that can be pasted in the customer's terraform.
     """
-    # TODOD: return variables
-    return f'module "canarytoken_infra" {{ source = "https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip" }}'
+    return {
+        "module": "canarytoken_infra",  # pass this to the frontend for in case we change it
+        "source": f"https://{settings.AWS_INFRA_TF_MODULE_BUCKET}.s3.eu-west-1.amazonaws.com/{canarydrop.aws_tf_module_prefix}/{canarydrop.canarytoken.value()}/tf.zip",
+    }
