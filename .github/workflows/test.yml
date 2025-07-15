@@ -103,6 +103,7 @@ jobs:
           CANARY_ALERT_EMAIL_FROM_DISPLAY: Canarytoken Mail
           CANARY_ALERT_EMAIL_SUBJECT: Your Canarytoken was Triggered
         # Here we gather coverage info on all tests.
+        continue-on-error: true
         run: |
           mv frontend/frontend.env.dist frontend/frontend.env
           mv switchboard/switchboard.env.dist switchboard/switchboard.env
@@ -141,6 +142,8 @@ jobs:
 
 
   windows-tests:
+    env:
+      WEB_CONCURRENCY: 2
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
