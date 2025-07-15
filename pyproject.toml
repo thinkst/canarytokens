@@ -7,7 +7,6 @@ license = "GPLv3"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pydantic = {extras = ["dotenv", "email"], version = "^1.9.0"}
 PyQRCode = "^1.2.1"
 redis = "^4.2.0"
 httpx = "^0.23.0"
@@ -34,6 +33,7 @@ azure-identity = "^1.10.0"
 cssutils = "^1.0.2"
 advocate = {git = "https://github.com/JordanMilne/Advocate.git"}
 pycountry-convert = "^0.7.2"
+pydantic = {version = "^1.10", extras = ["dotenv", "email"]}
 
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
