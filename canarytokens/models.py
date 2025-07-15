@@ -2862,11 +2862,11 @@ class HistoryResponse(BaseModel):
 
 
 class AWSInfraAssetType(str, enum.Enum):
-    S3_BUCKET = "S3Bucket"  # AWS::S3::Bucket
-    SQS_QUEUE = "SQSQueue"  # AWS::SQS::Queue
-    SSM_PARAMETER = "SSMParameter"  # AWS::SSM::Parameter
-    SECRETS_MANAGER_SECRET = "SecretsManagerSecret"  # AWS::SecretsManager::Secret
-    DYNAMO_DB_TABLE = "DynamoDBTable"  # AWS::DynamoDB::Table
+    S3_BUCKET = "S3Bucket"
+    SQS_QUEUE = "SQSQueue"
+    SSM_PARAMETER = "SSMParameter"
+    SECRETS_MANAGER_SECRET = "SecretsManagerSecret"
+    DYNAMO_DB_TABLE = "DynamoDBTable"
 
 
 class AWSInfraAssetField(str, enum.Enum):
