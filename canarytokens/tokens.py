@@ -8,6 +8,7 @@ import re
 from datetime import datetime, timezone
 from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
+import logging
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
@@ -37,6 +38,7 @@ from canarytokens.models import (
     CreditCardV2AdditionalInfo,
     WebDavTokenHit,
     WebDavAdditionalInfo,
+    AWSInfraAssetType,
 )
 from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
@@ -840,6 +842,22 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_asset_type(resource_type: str):
+        mapping = {
+            "AWS::S3::Bucket": AWSInfraAssetType.S3_BUCKET.value,
+            "AWS::DynamoDB::Table": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
+            "AWS::SQS::Queue": AWSInfraAssetType.SQS_QUEUE.value,
+            "AWS::SecretsManager::Secret": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
+            "AWS::SSM::Parameter": AWSInfraAssetType.SSM_PARAMETER.value,
+        }
+        asset_type = mapping.get(resource_type)
+        if asset_type is None:
+            logging.warning(
+                f"Unknown AWS asset type in AWS Infra Canarytoken event: {resource_type}"
+            )
+        return asset_type or resource_type
+
+    @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
         event = request.get("cloudtrail_event")
         event_detail = event["detail"]
@@ -871,6 +889,9 @@ class Canarytoken(object):
                     "Account & Region": f'{event["account"]}, {event["region"]}',
                 },
                 decoy_resource={
+                    "asset_type": Canarytoken._get_asset_type(
+                        event_detail["resources"][0]["type"]
+                    ),
                     "Asset Name": next(
                         (
                             v
