@@ -5,9 +5,10 @@ import binascii
 import json
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
+import logging
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
@@ -26,6 +27,8 @@ from canarytokens.constants import (
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
     AnyTokenHit,
+    AwsInfraAdditionalInfo,
+    AWSInfraTokenHit,
     AWSKeyTokenHit,
     AWSKeyTokenExposedHit,
     AzureIDTokenHit,
@@ -35,6 +38,7 @@ from canarytokens.models import (
     CreditCardV2AdditionalInfo,
     WebDavTokenHit,
     WebDavAdditionalInfo,
+    AWSInfraAssetType,
 )
 from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
@@ -836,6 +840,85 @@ class Canarytoken(object):
 
         request.setHeader("Content-Type", "image/gif")
         return GIF
+
+    @staticmethod
+    def _get_asset_type(resource_type: str):
+        mapping = {
+            "AWS::S3::Bucket": AWSInfraAssetType.S3_BUCKET.value,
+            "AWS::DynamoDB::Table": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
+            "AWS::SQS::Queue": AWSInfraAssetType.SQS_QUEUE.value,
+            "AWS::SecretsManager::Secret": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
+            "AWS::SSM::Parameter": AWSInfraAssetType.SSM_PARAMETER.value,
+        }
+        asset_type = mapping.get(resource_type)
+        if asset_type is None:
+            logging.warning(
+                f"Unknown AWS asset type in AWS Infra Canarytoken event: {resource_type}"
+            )
+        return asset_type or resource_type
+
+    @staticmethod
+    def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
+        event = request.get("cloudtrail_event")
+        event_detail = event["detail"]
+        user = event_detail["userIdentity"]
+        resource_name_keys = [
+            "bucketName",
+            "tableName",
+            "queueName",
+            "queueUrl",
+            "secretId",
+            "name",
+        ]
+        src_ip = event_detail["sourceIPAddress"]
+        time_of_hit = datetime.strptime(event_detail["eventTime"], "%Y-%m-%dT%H:%M:%SZ")
+        if "arn" in user:
+            identity = f'{user.get("arn")} (type: {user["type"]})'
+        else:
+            identity = ", ".join(f"{k}: {v}" for k, v in user.items())
+        hit_info = {
+            "geo_info": queries.get_geoinfo(ip=src_ip),
+            "is_tor_relay": queries.is_tor_relay(src_ip),
+            "src_ip": src_ip,
+            "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
+            "user_agent": event_detail["userAgent"],
+            "additional_info": AwsInfraAdditionalInfo(
+                event={
+                    "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
+                    "Event Time": f"{time_of_hit.isoformat()} UTC+0:00",
+                    "Account & Region": f'{event["account"]}, {event["region"]}',
+                },
+                decoy_resource={
+                    "asset_type": Canarytoken._get_asset_type(
+                        event_detail["resources"][0]["type"]
+                    ),
+                    "Asset Name": next(
+                        (
+                            v
+                            for k, v in event_detail["requestParameters"].items()
+                            if k in resource_name_keys
+                        ),
+                        "",
+                    ),
+                    "Request Parameters": ", ".join(
+                        f"{k}: {v}"
+                        for k, v in event_detail["requestParameters"].items()
+                    ),
+                },
+                identity={
+                    "User Identity": identity,
+                    "UserAgent": event_detail["userAgent"],
+                },
+                metadata={
+                    "Event ID": event_detail["eventID"],
+                    "ReadOnly Event": event_detail["readOnly"],
+                    "Event Category": event_detail["eventCategory"],
+                    "Classification": event["detail-type"],
+                },
+            ),
+        }
+
+        return AWSInfraTokenHit(**hit_info)
 
     @staticmethod
     def _get_info_for_legacy(request):

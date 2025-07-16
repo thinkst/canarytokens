@@ -35,4 +35,12 @@ class InvalidChannel(Exception):
 
 
 class CanarydropAuthFailure(Exception):
-    ...
+    pass
+
+
+class AWSInfraOperationNotAllowed(Exception):
+    """
+    Exception raised when an operation is not allowed for the current canarytoken.
+    """
+
+    pass
