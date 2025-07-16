@@ -9,6 +9,7 @@ import re
 import requests
 import json
 import random
+import httpx
 
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
@@ -253,8 +254,11 @@ class GeminiDecoyNameGenerator:
         }
 
         try:
-            response = requests.post(
-                self._GEMINI_API_URL, headers=headers, json=self._get_post_data(prompt)
+            response = httpx.post(
+                self._GEMINI_API_URL,
+                headers=headers,
+                json=self._get_post_data(prompt),
+                timeout=60,
             )
             response.raise_for_status()
 
