@@ -1,4 +1,5 @@
 import json
+import math
 import random
 import string
 
@@ -8,6 +9,7 @@ from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
+import asyncio
 
 settings = FrontendSettings()
 
@@ -91,24 +93,24 @@ def generate_dynamo_table_item():
     return f"{random.choice(items)}{separator}{suffix}"
 
 
-def add_new_assets_to_plan(
-    aws_deployed_assets: dict, aws_inventoried_assets: dict, plan: dict
-):
-    # generate new assets
-    count = random.randint(
-        1,
-        MAX_S3_BUCKETS
-        - len(aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, [])),
+async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
+    count = _get_decoy_asset_count(
+        aws_inventoried_assets,
+        AWSInfraAssetType.S3_BUCKET,
+        aws_deployed_assets,
+        MAX_S3_BUCKETS,
     )
-
+    if count <= 0:
+        return
+    bucket_names = await generate_for_asset_type(
+        AWSInfraAssetType.S3_BUCKET,
+        aws_inventoried_assets.get(AWSInfraAssetType.S3_BUCKET.value, []),
+        count,
+    )
     plan["assets"][AWSInfraAssetType.S3_BUCKET.value].extend(
         [
             {"bucket_name": bucket_name, "objects": [], "off_inventory": False}
-            for bucket_name in generate_for_asset_type(
-                AWSInfraAssetType.S3_BUCKET,
-                aws_inventoried_assets.get(AWSInfraAssetType.S3_BUCKET.value, []),
-                count,
-            )
+            for bucket_name in bucket_names
         ]
     )
     for i in range(len(plan["assets"][AWSInfraAssetType.S3_BUCKET.value])):
@@ -117,75 +119,93 @@ def add_new_assets_to_plan(
                 {"object_path": generate_s3_object()}
             )
 
-    count = random.randint(
-        1,
-        MAX_SQS_QUEUES
-        - len(aws_deployed_assets.get(AWSInfraAssetType.SQS_QUEUE.value, [])),
-    )
 
+async def _add_sqs_queues(aws_deployed_assets, aws_inventoried_assets, plan):
+    count = _get_decoy_asset_count(
+        aws_inventoried_assets,
+        AWSInfraAssetType.SQS_QUEUE,
+        aws_deployed_assets,
+        MAX_SQS_QUEUES,
+    )
+    if count <= 0:
+        return
+    sqs_queue_names = await generate_for_asset_type(
+        AWSInfraAssetType.SQS_QUEUE,
+        aws_inventoried_assets.get(AWSInfraAssetType.SQS_QUEUE.value, []),
+        count,
+    )
     plan["assets"][AWSInfraAssetType.SQS_QUEUE.value].extend(
         [
             {"sqs_queue_name": sqs_queue_name, "off_inventory": False}
-            for sqs_queue_name in generate_for_asset_type(
-                AWSInfraAssetType.SQS_QUEUE,
-                aws_inventoried_assets.get(AWSInfraAssetType.SQS_QUEUE.value, []),
-                count,
-            )
+            for sqs_queue_name in sqs_queue_names
         ]
     )
 
-    count = random.randint(
-        1,
-        MAX_SSM_PARAMETERS
-        - len(aws_deployed_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, [])),
-    )
 
+async def _add_ssm_parameters(aws_deployed_assets, aws_inventoried_assets, plan):
+    count = _get_decoy_asset_count(
+        aws_inventoried_assets,
+        AWSInfraAssetType.SSM_PARAMETER,
+        aws_deployed_assets,
+        MAX_SSM_PARAMETERS,
+    )
+    if count <= 0:
+        return
+    ssm_parameter_names = await generate_for_asset_type(
+        AWSInfraAssetType.SSM_PARAMETER,
+        aws_inventoried_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, []),
+        count,
+    )
     plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value].extend(
         [
             {"ssm_parameter_name": ssm_parameter_name, "off_inventory": False}
-            for ssm_parameter_name in generate_for_asset_type(
-                AWSInfraAssetType.SSM_PARAMETER,
-                aws_inventoried_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, []),
-                count,
-            )
+            for ssm_parameter_name in ssm_parameter_names
         ]
     )
 
-    count = random.randint(
-        1,
-        MAX_SECRET_MANAGER_SECRETS
-        - len(
-            aws_deployed_assets.get(AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, [])
-        ),
-    )
 
+async def _add_secret_manager_secrets(
+    aws_deployed_assets, aws_inventoried_assets, plan
+):
+    count = _get_decoy_asset_count(
+        aws_inventoried_assets,
+        AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+        aws_deployed_assets,
+        MAX_SECRET_MANAGER_SECRETS,
+    )
+    if count <= 0:
+        return
+    secret_names = await generate_for_asset_type(
+        AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+        aws_inventoried_assets.get(AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []),
+        count,
+    )
     plan["assets"][AWSInfraAssetType.SECRETS_MANAGER_SECRET.value].extend(
         [
             {"secret_name": secret_name, "off_inventory": False}
-            for secret_name in generate_for_asset_type(
-                AWSInfraAssetType.SECRETS_MANAGER_SECRET,
-                aws_inventoried_assets.get(
-                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                ),
-                count,
-            )
+            for secret_name in secret_names
         ]
     )
 
-    count = random.randint(
-        1,
-        MAX_DYNAMO_TABLES
-        - len(aws_deployed_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])),
-    )
 
+async def _add_dynamo_tables(aws_deployed_assets, aws_inventoried_assets, plan):
+    count = _get_decoy_asset_count(
+        aws_inventoried_assets,
+        AWSInfraAssetType.DYNAMO_DB_TABLE,
+        aws_deployed_assets,
+        MAX_DYNAMO_TABLES,
+    )
+    if count <= 0:
+        return
+    table_names = await generate_for_asset_type(
+        AWSInfraAssetType.DYNAMO_DB_TABLE,
+        aws_inventoried_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, []),
+        count,
+    )
     plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value].extend(
         [
             {"table_name": table_name, "off_inventory": False, "table_items": []}
-            for table_name in generate_for_asset_type(
-                AWSInfraAssetType.DYNAMO_DB_TABLE,
-                aws_inventoried_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, []),
-                count,
-            )
+            for table_name in table_names
         ]
     )
     for i in range(len(plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value])):
@@ -193,6 +213,30 @@ def add_new_assets_to_plan(
             plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value][i][
                 "table_items"
             ].append(generate_dynamo_table_item())
+
+
+def _get_decoy_asset_count(
+    aws_inventoried_assets,
+    asset_type: AWSInfraAssetType,
+    aws_deployed_assets,
+    MAX_ASSETS: int,
+):
+    return min(
+        math.ceil(len(aws_inventoried_assets.get(asset_type.value, [])) * 1),
+        MAX_ASSETS - len(aws_deployed_assets.get(asset_type.value, [])),
+    )
+
+
+async def add_new_assets_to_plan(
+    aws_deployed_assets: dict, aws_inventoried_assets: dict, plan: dict
+):
+    await asyncio.gather(
+        _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan),
+        _add_sqs_queues(aws_deployed_assets, aws_inventoried_assets, plan),
+        _add_ssm_parameters(aws_deployed_assets, aws_inventoried_assets, plan),
+        _add_secret_manager_secrets(aws_deployed_assets, aws_inventoried_assets, plan),
+        _add_dynamo_tables(aws_deployed_assets, aws_inventoried_assets, plan),
+    )
 
 
 def add_current_assets_to_plan(

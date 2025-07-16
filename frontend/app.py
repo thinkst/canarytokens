@@ -1105,7 +1105,7 @@ def api_awsinfra_config_start(
 
 
 @api.post("/awsinfra/check-role", dependencies=[Depends(validate_exclusive_handle)])
-def api_awsinfra_check_role(
+async def api_awsinfra_check_role(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
     response: Response,
 ) -> Union[AWSInfraCheckRoleReceivedResponse, AWSInfraHandleResponse]:
@@ -1156,7 +1156,7 @@ def api_awsinfra_check_role(
     "/awsinfra/inventory-customer-account",
     dependencies=[Depends(validate_exclusive_handle)],
 )
-def api_awsinfra_inventory_customer_account(
+async def api_awsinfra_inventory_customer_account(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
     response: Response,
 ) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfraHandleResponse]:
@@ -1203,7 +1203,7 @@ def api_awsinfra_inventory_customer_account(
 @api.post(
     "/awsinfra/test/inventory-customer-account",
 )
-def test_api_awsinfra_inventory_customer_account():
+async def test_api_awsinfra_inventory_customer_account():
 
     proposed_plan = {
         "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
@@ -1213,7 +1213,8 @@ def test_api_awsinfra_inventory_customer_account():
         AWSInfraAssetType.S3_BUCKET.value: [
             "coffee-bean-imports",
             "coffee-bean-exports",
-            "roasting-recipes" "product-catalog",
+            "roasting-recipes",
+            "product-catalog",
         ],
         AWSInfraAssetType.DYNAMO_DB_TABLE.value: ["test-table-1", "test-table-2"],
         AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
@@ -1223,12 +1224,14 @@ def test_api_awsinfra_inventory_customer_account():
         AWSInfraAssetType.SQS_QUEUE.value: ["test-queue-1", "test-queue-2"],
         AWSInfraAssetType.SSM_PARAMETER.value: ["test-parameter-1", "test-parameter-2"],
     }
-    aws_infra.add_new_assets_to_plan(deployed_assets, inventoried_assets, proposed_plan)
+    await aws_infra.add_new_assets_to_plan(
+        deployed_assets, inventoried_assets, proposed_plan
+    )
     return JSONResponse({"plan": proposed_plan})
 
 
 @api.post("/awsinfra/generate-data-choices")
-def api_awsinfra_generate_data_choices(
+async def api_awsinfra_generate_data_choices(
     request: AWSInfraGenerateDataChoiceRequest, response: Response
 ) -> AWSInfraGenerateDataChoiceResponse:
     canarydrop = get_canarydrop_and_authenticate(
@@ -1251,7 +1254,7 @@ def api_awsinfra_generate_data_choices(
 
 
 @api.post("/awsinfra/save-plan")
-def api_awsinfra_save_plan(
+async def api_awsinfra_save_plan(
     request: AWSInfraSavePlanRequest, response: Response
 ) -> DefaultResponse:
     canarydrop = get_canarydrop_and_authenticate(
@@ -1273,7 +1276,7 @@ def api_awsinfra_save_plan(
 @api.post(
     "/awsinfra/setup-ingestion", dependencies=[Depends(validate_exclusive_handle)]
 )
-def api_awsinfra_setup_ingestion(
+async def api_awsinfra_setup_ingestion(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
     response: Response,
 ) -> Union[AWSInfraSetupIngestionReceivedResponse, AWSInfraHandleResponse]:
@@ -1317,7 +1320,7 @@ def api_awsinfra_setup_ingestion(
 
 
 @api.post("/awsinfra/teardown", dependencies=[Depends(validate_exclusive_handle)])
-def api_awsinfra_teardown(
+async def api_awsinfra_teardown(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
     response: Response,
 ) -> Union[AWSInfraTeardownReceivedResponse, AWSInfraHandleResponse]:
@@ -1348,7 +1351,7 @@ def api_awsinfra_teardown(
 
 
 @api.post("/awsinfra/management-response", dependencies=[Depends(authorize_aws_infra)])
-def api_awsinfra_management_response(
+async def api_awsinfra_management_response(
     authorization: Annotated[str, Header()],
     request: AWSInfraManagementResponseRequest = Depends(validate_handle),
 ) -> JSONResponse:

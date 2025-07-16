@@ -31,7 +31,9 @@ async def make_request(
     async with httpx.AsyncClient() as client:
         try:
             if method.upper() == "POST":
-                response = await client.post(url, json=data, headers=headers)
+                response = await client.post(
+                    url, json=data, headers=headers, timeout=60
+                )
             elif method.upper() == "HEAD":
                 response = await client.head(url, headers=headers)
             elif method.upper() == "GET":
@@ -60,7 +62,7 @@ class GeminiDecoyNameGenerator:
             AWSInfraAssetType.SECRETS_MANAGER_SECRET: self._validate_secrets_manager_name,
         }
         self._gemini_config = {
-            "temperature": 0.8,
+            "temperature": 1.8,
             "response_mime_type": "application/json",
             "response_schema": {
                 "required": ["suggested_names"],
@@ -236,6 +238,10 @@ class GeminiDecoyNameGenerator:
 
         prompt = self._prompt_template.format(
             count=count, service=asset_type.value, inventory=",".join(inventory)
+        )
+
+        log.info(
+            f"Generating {count} names for {asset_type.value} with prompt: {prompt}"
         )
 
         headers = {
