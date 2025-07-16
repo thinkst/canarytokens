@@ -32,17 +32,14 @@
           :key="`${assetKey}-${index}`"
           :asset-data="assetValues"
           :asset-type="assetKey as AssetTypesEnum"
-          @open-asset="
-            handleOpenAssetCategoryModal(
-              assetKey as AssetTypesEnum
-            )
-          "
+          @open-asset="handleOpenAssetCategoryModal(assetKey as AssetTypesEnum)"
         />
       </ul>
       <BaseMessageBox
         v-if="assetsWithMissingPermissions.length > 0"
         variant="warning"
-        class="mt-16">
+        class="mt-16"
+      >
         {{ assetWithMissingPermissionText }}
       </BaseMessageBox>
     </div>
@@ -67,10 +64,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
-import type {
-  AssetDataTypeWithoutS3Object
-} from '@/components/tokens/aws_infra/types.ts';
-import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
+import type { AssetTypes } from '@/components/tokens/aws_infra/types.ts';
+// import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
@@ -80,7 +75,6 @@ const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 const props = defineProps<{
   initialStepData: TokenDataType;
 }>();
-
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { token, auth_token, code_snippet_command, proposed_plan } =
@@ -93,7 +87,7 @@ const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
 const isLoadingUI = ref(true);
 
-const assetSamples = ref<Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] | null>>({
+const assetSamples = ref<Record<AssetTypesEnum, AssetTypes[] | null>>({
   S3Bucket: [],
   SQSQueue: [],
   SSMParameter: [],
@@ -102,7 +96,10 @@ const assetSamples = ref<Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] |
 });
 
 onMounted(() => {
-  assetSamples.value = proposed_plan.assets as Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] | null>;
+  assetSamples.value = proposed_plan.assets as Record<
+    AssetTypesEnum,
+    AssetTypes[] | null
+  >;
   // Set loading state to allow UI to render
   setTimeout(() => {
     isLoadingUI.value = false;
@@ -119,7 +116,7 @@ const availableAssets = computed(() => {
       acc[assetType] = assetData || [];
       return acc;
     },
-    {} as Record<AssetTypesEnum, AssetDataTypeWithoutS3Object[] | [] | null>
+    {} as Record<AssetTypesEnum, AssetTypes[] | [] | null>
   );
 });
 
@@ -129,22 +126,18 @@ const assetsWithMissingPermissions = computed(() => {
     .map(([assetType]) => assetType);
 });
 
-
 const assetWithMissingPermissionText = computed(() => {
   const isMultipleAssets = assetsWithMissingPermissions.value.length > 1;
   return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}:
   ${assetsWithMissingPermissions.value.join(', ')}.
   Please check the permissions and run the inventory again.`;
-
 });
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
   assetSamples.value[assetType]!.splice(index, 1);
 }
 
-function handleOpenAssetCategoryModal(
-  assetType: AssetTypesEnum
-) {
+function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
   const { open, close } = useModal({
     component: ModalAsset,
     attrs: {
@@ -170,20 +163,20 @@ function handleOpenAssetCategoryModal(
 
 function handleSaveAsset(
   assetType: AssetTypesEnum,
-  newValues: AssetDataTypeWithoutS3Object,
+  newValues: AssetTypes,
   index: number
 ) {
   if (!assetSamples.value[assetType]) {
     assetSamples.value[assetType] = [];
   }
   if (index === -1) {
-    (assetSamples.value[assetType])?.unshift(newValues);
+    assetSamples.value[assetType]?.unshift(newValues);
   } else {
-    (assetSamples.value[assetType])![index] = newValues
+    assetSamples.value[assetType]![index] = newValues;
   }
 }
 
-async function handleSavePlan(formValues: PlanValueTypes) {
+async function handleSavePlan(formValues: { assets: AssetTypes }) {
   isSavingPlan.value = true;
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
@@ -210,7 +203,7 @@ async function handleSavePlan(formValues: PlanValueTypes) {
   }
 }
 
-async function handleSubmit(formValues: PlanValueTypes) {
+async function handleSubmit(formValues: { assets: AssetTypes }) {
   await handleSavePlan(formValues);
 }
 </script>

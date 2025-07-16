@@ -43,7 +43,7 @@ import { ref, watch, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
-import type { AssetDataType } from '../types';
+import type { AssetType } from '../types';
 import {
   ASSET_LABEL,
   AssetTypesEnum,
@@ -53,7 +53,7 @@ import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObject
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataType;
+  assetData: AssetType;
   validationSchema: any;
   triggerSubmit: boolean;
   triggerCancel: boolean;
@@ -62,7 +62,7 @@ const props = defineProps<{
 const emits = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
 const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
-const tempFields: Ref<AssetDataType | []> = ref([]);
+const tempFields: Ref<AssetType | []> = ref([]);
 
 onMounted(() => {
   tempFields.value = { ...props.assetData };

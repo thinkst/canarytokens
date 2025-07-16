@@ -92,27 +92,27 @@ import {
   ASSET_WITH_ICON,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetDataTypeWithoutS3Object } from '../types';
+import type { AssetType, AssetPropertyKey } from '../types';
+
+type AssetDataDisplayType = [AssetPropertyKey, string | number];
 
 const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object;
+  assetData: AssetType;
 }>();
 
 const isHoverCard = ref(false);
 const assetCardRef = ref();
 
 const assetName = computed(() => {
-  const nameKey =
-    ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
-  return props.assetData[nameKey as keyof AssetDataTypeWithoutS3Object];
+  const nameKey = ASSET_DATA_NAME[props.assetType];
+  return props.assetData[nameKey as keyof AssetType];
 });
 
-const assetDataDisplay = computed<any[][]>((): any[][] => {
-  const nameKey =
-    ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
+const assetDataDisplay = computed(() => {
+  const nameKey = ASSET_DATA_NAME[props.assetType];
 
   const assets = Object.entries(props.assetData)
     .map(([key, value]) => {
@@ -123,18 +123,18 @@ const assetDataDisplay = computed<any[][]>((): any[][] => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
-  return assets as any[][];
+  return assets as AssetDataDisplayType[];
 });
 
 const isOffInventory = computed(() => {
   return props.assetData.off_inventory;
 });
 
-function showDataLabel(key: keyof typeof ASSET_LABEL) {
+function showDataLabel(key: AssetPropertyKey) {
   return ASSET_LABEL[key];
 }
 
-function showDataIcon(key: string) {
+function showDataIcon(key: AssetPropertyKey) {
   return ASSET_WITH_ICON.includes(key);
 }
 

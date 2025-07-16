@@ -95,7 +95,7 @@ import { ref, onMounted } from 'vue';
 import * as Yup from 'yup';
 import { Form } from 'vee-validate';
 import type { TokenDataType } from '@/utils/dataService';
-import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
+import type { FirstStepTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import {
   StepStateEnum,
@@ -106,7 +106,7 @@ const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
-  currentStepData: CurrentTokenDataType;
+  currentStepData: FirstStepTokenDataType;
 }>();
 
 const { token, auth_token, aws_region, aws_account_number } =

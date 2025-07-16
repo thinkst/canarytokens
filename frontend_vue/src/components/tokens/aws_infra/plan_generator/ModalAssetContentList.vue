@@ -16,18 +16,18 @@
 
 <script setup lang="ts">
 import type { ComputedRef } from 'vue';
-import type { AssetDataTypeWithoutS3Object } from '../types';
+import type { AssetTypes } from '../types';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object[] | ComputedRef<AssetDataTypeWithoutS3Object[] | null>;
+  assetData: AssetTypes[] | ComputedRef<AssetTypes[] | null>;
 }>();
 
 const emit = defineEmits(['show-asset-details', 'delete-asset']);
 
-function handleShowAssetItem(asset: AssetDataTypeWithoutS3Object, index: number) {
+function handleShowAssetItem(asset: AssetTypes, index: number) {
   emit('show-asset-details', asset, index);
 }
 

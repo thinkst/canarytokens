@@ -6,38 +6,6 @@ export enum AssetTypesEnum {
   DYNAMODBTABLE = 'DynamoDBTable',
 }
 
-export const ASSET_DATA = {
-  [AssetTypesEnum.S3BUCKET]: {
-    bucket_name: '',
-    objects: [],
-    off_inventory: false,
-  },
-  object_path: {
-    object_path: '',
-  },
-  [AssetTypesEnum.SQSQUEUE]: {
-    queue_name: '',
-    message_count: null,
-    off_inventory: false,
-  },
-  [AssetTypesEnum.SSMPARAMETER]: {
-    ssm_parameter_name: '',
-    ssm_parameter_value: '',
-    off_inventory: false,
-  },
-  [AssetTypesEnum.SECRETMANAGERSECRET]: {
-    secretsmanager_secret_name: '',
-    secretsmanager_secret_value: '',
-    off_inventory: false,
-  },
-  [AssetTypesEnum.DYNAMODBTABLE]: {
-    dynamodb_name: '',
-    dynamodb_partition_key: '',
-    dynamodb_row_count: null,
-    off_inventory: false,
-  },
-};
-
 export const ASSET_LABEL = {
   [AssetTypesEnum.S3BUCKET]: 'S3 Bucket',
   [AssetTypesEnum.SQSQUEUE]: 'SQS Queue',
@@ -56,6 +24,7 @@ export const ASSET_LABEL = {
   object_path: 'Object Path',
   bucket_name: 'S3 Bucket Name',
   objects: 'S3 Bucket Objects',
+  off_inventory: 'Off Inventory',
 };
 
 // Main keys for the Asset Card
