@@ -157,6 +157,15 @@ const router = createRouter({
               title: 'Component Preview',
             },
           },
+          {
+            path: '/plan-preview',
+            name: 'plan-preview',
+            //@ts-expect-error
+            component: () => import('../views/PlanPreview.vue'),
+            meta: {
+              title: 'Plan Preview',
+            },
+          },
         ]
       : []),
   ],

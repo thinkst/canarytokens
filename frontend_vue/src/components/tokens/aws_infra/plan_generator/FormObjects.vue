@@ -21,6 +21,11 @@
       Add object
     </BaseButton>
   </div>
+  <BaseMessageBox
+    v-if="isErrorMessage"
+    variant="danger"
+    >{{ isErrorMessage }}
+  </BaseMessageBox>
   <div class="paginated_object_list__wrapper">
     <fieldset
       class="paginated_object_list"
@@ -107,14 +112,14 @@ import {
   ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetDataType, S3ObjectType } from '../types';
+import type { AssetPropertyKey, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetKey: keyof AssetDataType;
+  assetKey: AssetPropertyKey;
   objectKey: keyof S3ObjectType;
   fields: any;
   prepend: (value: any) => void;
@@ -170,6 +175,7 @@ function handleNextPage() {
 
 async function handleAddObject() {
   isLoading.value = true;
+  isErrorMessage.value = '';
 
   const {
     handleGenerateName,
@@ -181,6 +187,10 @@ async function handleAddObject() {
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();
   isErrorMessage.value = isGenerateNameError.value;
+  if (isErrorMessage.value) {
+    isLoading.value = false;
+    return;
+  }
   props.prepend({ [objectKey.value]: generatedName.value });
   isLoading.value = false;
 }
