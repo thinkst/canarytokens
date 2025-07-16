@@ -64,8 +64,10 @@ import { ref, onMounted, computed } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
-import type { AssetTypes } from '@/components/tokens/aws_infra/types.ts';
-// import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
+import type {
+  AssetTypes,
+  AssetType,
+} from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
@@ -87,7 +89,7 @@ const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
 const isLoadingUI = ref(true);
 
-const assetSamples = ref<Record<AssetTypesEnum, AssetTypes[] | null>>({
+const assetSamples = ref<Record<AssetTypesEnum, AssetType[] | null>>({
   S3Bucket: [],
   SQSQueue: [],
   SSMParameter: [],
@@ -98,7 +100,7 @@ const assetSamples = ref<Record<AssetTypesEnum, AssetTypes[] | null>>({
 onMounted(() => {
   assetSamples.value = proposed_plan.assets as Record<
     AssetTypesEnum,
-    AssetTypes[] | null
+    AssetType[] | null
   >;
   // Set loading state to allow UI to render
   setTimeout(() => {
@@ -116,7 +118,7 @@ const availableAssets = computed(() => {
       acc[assetType] = assetData || [];
       return acc;
     },
-    {} as Record<AssetTypesEnum, AssetTypes[] | [] | null>
+    {} as Record<AssetTypesEnum, AssetType[]>
   );
 });
 
@@ -163,7 +165,7 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
 
 function handleSaveAsset(
   assetType: AssetTypesEnum,
-  newValues: AssetTypes,
+  newValues: AssetType,
   index: number
 ) {
   if (!assetSamples.value[assetType]) {

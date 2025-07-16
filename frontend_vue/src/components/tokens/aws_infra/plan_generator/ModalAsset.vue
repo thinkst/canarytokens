@@ -111,6 +111,7 @@ import type {
   SSMParameterType,
   SQSQueueType,
   S3BucketType,
+  AssetType,
 } from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
@@ -118,7 +119,7 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: ComputedRef<AssetTypes[] | [] | null>;
+  assetData: ComputedRef<AssetType[] | [] | null>;
   closeModal: () => void;
 }>();
 
@@ -131,7 +132,7 @@ const currentAssetData = computed(() => {
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
-  assetData: {} as AssetTypes,
+  assetData: {} as AssetType,
   index: -1,
 });
 
@@ -140,7 +141,7 @@ const triggerCancel = ref(false);
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 
-function handleShowAssetDetails(selectedItem: AssetTypes, index: number) {
+function handleShowAssetDetails(selectedItem: AssetType, index: number) {
   isErrorMessage.value = '';
   showAssetDetails.value = true;
   selectedAssetDetails.value = {
