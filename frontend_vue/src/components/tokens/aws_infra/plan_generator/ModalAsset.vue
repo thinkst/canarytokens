@@ -101,18 +101,24 @@
 import { ref, nextTick, computed } from 'vue';
 import {
   ASSET_LABEL,
-  ASSET_DATA,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type {ComputedRef} from 'vue';
-import type { AssetDataTypeWithoutS3Object } from '../types';
+import type { ComputedRef } from 'vue';
+import type {
+  AssetTypes,
+  DynamoDBTableType,
+  SecretsManagerSecretType,
+  SSMParameterType,
+  SQSQueueType,
+  S3BucketType,
+} from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: ComputedRef<AssetDataTypeWithoutS3Object[] | [] | null>;
+  assetData: ComputedRef<AssetTypes[] | [] | null>;
   closeModal: () => void;
 }>();
 
@@ -125,7 +131,7 @@ const currentAssetData = computed(() => {
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
-  assetData: {} as AssetDataTypeWithoutS3Object,
+  assetData: {} as AssetTypes,
   index: -1,
 });
 
@@ -134,10 +140,7 @@ const triggerCancel = ref(false);
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 
-function handleShowAssetDetails(
-  selectedItem: AssetDataTypeWithoutS3Object,
-  index: number
-) {
+function handleShowAssetDetails(selectedItem: AssetTypes, index: number) {
   isErrorMessage.value = '';
   showAssetDetails.value = true;
   selectedAssetDetails.value = {
@@ -148,7 +151,10 @@ function handleShowAssetDetails(
 }
 
 const isEmptyAssetData = computed(() => {
-  if (Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0) {
+  if (
+    Array.isArray(currentAssetData.value) &&
+    currentAssetData.value.length === 0
+  ) {
     return true;
   }
   return false;
@@ -177,15 +183,36 @@ async function handleAddNewAsset() {
   const newAssetFields = () => {
     switch (props.assetType) {
       case AssetTypesEnum.S3BUCKET:
-        return ASSET_DATA[AssetTypesEnum.S3BUCKET];
+        return {
+          bucket_name: '',
+          objects: [],
+          off_inventory: false,
+        } as S3BucketType;
       case AssetTypesEnum.SQSQUEUE:
-        return ASSET_DATA[AssetTypesEnum.SQSQUEUE];
+        return {
+          queue_name: '',
+          message_count: null,
+          off_inventory: false,
+        } as SQSQueueType;
       case AssetTypesEnum.SSMPARAMETER:
-        return ASSET_DATA[AssetTypesEnum.SSMPARAMETER];
+        return {
+          ssm_parameter_name: '',
+          ssm_parameter_value: '',
+          off_inventory: false,
+        } as SSMParameterType;
       case AssetTypesEnum.SECRETMANAGERSECRET:
-        return ASSET_DATA[AssetTypesEnum.SECRETMANAGERSECRET];
+        return {
+          secretsmanager_secret_name: '',
+          secretsmanager_secret_value: '',
+          off_inventory: false,
+        } as SecretsManagerSecretType;
       case AssetTypesEnum.DYNAMODBTABLE:
-        return ASSET_DATA[AssetTypesEnum.DYNAMODBTABLE];
+        return {
+          dynamodb_name: '',
+          dynamodb_partition_key: '',
+          dynamodb_row_count: null,
+          off_inventory: false,
+        } as DynamoDBTableType;
       default:
         return {};
     }
@@ -263,7 +290,6 @@ function handleBackButton() {
   isErrorMessage.value = '';
   showAssetDetails.value = false;
 }
-
 </script>
 
 <style lang="scss" scoped></style>

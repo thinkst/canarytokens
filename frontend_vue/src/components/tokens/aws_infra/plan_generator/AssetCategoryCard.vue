@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
-import type { AssetDataTypeWithoutS3Object } from '../types';
+import type { AssetTypes } from '../types';
 import {
   ASSET_DATA_NAME,
   ASSET_LABEL,
@@ -51,7 +51,7 @@ const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object[] | [] | null;
+  assetData: AssetTypes[] | [] | null;
 }>();
 
 const isHoverCard = ref(false);

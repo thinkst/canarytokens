@@ -1,3 +1,5 @@
+import { AssetTypesEnum } from './constants';
+
 type S3ObjectType = {
   object_path: string;
 };
@@ -5,73 +7,66 @@ type S3ObjectType = {
 type S3BucketType = {
   bucket_name: string;
   objects: S3ObjectType[] | [];
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
 type SQSQueueType = {
   queue_name: string;
   message_count: number | null;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
 type SSMParameterType = {
   ssm_parameter_name: string;
   ssm_parameter_value: string;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
 type SecretsManagerSecretType = {
   secretsmanager_secret_name: string;
   secretsmanager_secret_value: string;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
 type DynamoDBTableType = {
   dynamodb_name: string;
   dynamodb_partition_key: string;
   dynamodb_row_count: number | null;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
-type AssetsTypes = {
-  S3Bucket?: S3BucketType[] | null;
-  SQSQueue?: SQSQueueType[] | null;
-  SSMParameter?: SSMParameterType[] | null;
-  SecretsManagerSecret?: SecretsManagerSecretType[] | null;
-  DynamoDBTable?: DynamoDBTableType[] | null;
+type AssetTypes = {
+  [K in AssetTypesEnum]?: AssetType[] | null;
 };
 
-type AssetDataType =
+type AssetType =
   | DynamoDBTableType
   | SecretsManagerSecretType
   | SSMParameterType
   | SQSQueueType
   | S3BucketType
-  | S3ObjectType;
 
-type PlanValueTypes = {
-  assets: AssetsTypes;
-};
+type AssetPropertyKey = keyof AssetType;
 
-type CurrentTokenDataType = {
+type FirstStepTokenDataType = {
   token: string;
   auth_token: string;
-  proposed_plan: PlanValueTypes;
+  proposed_plan: {
+    assets: AssetTypes;
+  };
   code_snippet_command?: string;
 };
 
-type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
 
 export type {
-  AssetDataType,
-  AssetsTypes,
+  AssetType,
+  AssetTypes,
   S3BucketType,
   S3ObjectType,
   SQSQueueType,
   SSMParameterType,
   SecretsManagerSecretType,
   DynamoDBTableType,
-  PlanValueTypes,
-  CurrentTokenDataType,
-  AssetDataTypeWithoutS3Object
+  FirstStepTokenDataType,
+  AssetPropertyKey
 };

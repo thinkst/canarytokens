@@ -119,7 +119,7 @@
 import { ref, onMounted, defineAsyncComponent, watch, computed } from 'vue';
 import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
-import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
+import type { FirstStepTokenDataType } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import getImageUrl from '@/utils/getImageUrl.ts';
 import { useModal } from 'vue-final-modal';
@@ -143,7 +143,7 @@ const emits = defineEmits([
 
 const props = defineProps<{
   initialStepData: TokenDataType;
-  currentStepData: CurrentTokenDataType;
+  currentStepData: FirstStepTokenDataType;
 }>();
 
 const { token, auth_token, aws_region, aws_account_number } =
