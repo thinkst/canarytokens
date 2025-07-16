@@ -72,10 +72,10 @@ def generate_s3_object():
     return f"{random.randint(2000, 2025)}/{directory}/{random.choice(objects)}"
 
 
-def generate_for_asset_type(
+async def generate_for_asset_type(
     asset_type: AWSInfraAssetType, inventory: list, count: int = 1
 ):
-    suggested = NAME_GENERATOR.generate_names(asset_type, inventory, count)
+    suggested = await NAME_GENERATOR.generate_names(asset_type, inventory, count)
     return suggested.suggested_names
 
 
@@ -296,10 +296,10 @@ def generate_proposed_plan(canarydrop: Canarydrop):
         "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
     }
 
-    add_new_assets_to_plan(aws_deployed_assets, aws_inventoried_assets, proposed_plan)
     if is_ingesting(canarydrop):
         return proposed_plan
 
+    add_new_assets_to_plan(aws_deployed_assets, aws_inventoried_assets, proposed_plan)
     add_current_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
     )
