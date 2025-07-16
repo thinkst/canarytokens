@@ -15,7 +15,6 @@ import textwrap
 from base64 import b64decode
 from functools import singledispatch
 from pathlib import Path
-import time
 from typing import Annotated, Any, Optional, Union
 from urllib.parse import unquote
 import logging
@@ -59,6 +58,7 @@ from canarytokens.exceptions import (
 )
 from canarytokens.models import (
     PWA_APP_TITLES,
+    AWSInfraAssetType,
     AWSInfraHandleResponse,
     AWSInfraCheckRoleReceivedResponse,
     AWSInfraGenerateDataChoiceRequest,
@@ -784,7 +784,6 @@ async def api_generate(  # noqa: C901  # gen is large
     """
     Generate a token and return the appropriate TokenResponse
     """
-    time.sleep(300)
 
     if request.headers.get("Content-Type", "application/json") == "application/json":
         token_request_data = await request.json()
@@ -1199,6 +1198,33 @@ def api_awsinfra_inventory_customer_account(
         aws_infra.mark_succeeded(canarydrop)
     queries.save_canarydrop(canarydrop)
     return handle_response
+
+
+@api.post(
+    "/awsinfra/test/inventory-customer-account",
+)
+def test_api_awsinfra_inventory_customer_account():
+
+    proposed_plan = {
+        "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
+    }
+    deployed_assets = {}
+    inventoried_assets = {
+        AWSInfraAssetType.S3_BUCKET.value: [
+            "coffee-bean-imports",
+            "coffee-bean-exports",
+            "roasting-recipes" "product-catalog",
+        ],
+        AWSInfraAssetType.DYNAMO_DB_TABLE.value: ["test-table-1", "test-table-2"],
+        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
+            "test-secret-1",
+            "test-secret-2",
+        ],
+        AWSInfraAssetType.SQS_QUEUE.value: ["test-queue-1", "test-queue-2"],
+        AWSInfraAssetType.SSM_PARAMETER.value: ["test-parameter-1", "test-parameter-2"],
+    }
+    aws_infra.add_new_assets_to_plan(deployed_assets, inventoried_assets, proposed_plan)
+    return JSONResponse({"plan": proposed_plan})
 
 
 @api.post("/awsinfra/generate-data-choices")

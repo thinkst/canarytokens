@@ -15,7 +15,11 @@ from .operations import (
     get_handle_operation,
     add_handle_response,
 )
-from .plan_generation import generate_proposed_plan, generate_data_choice
+from .plan_generation import (
+    generate_proposed_plan,
+    generate_data_choice,
+    add_new_assets_to_plan,
+)
 from .aws_management import get_shared_secret, get_current_ingestion_bus
 
 # Putting this here for the editor, not for * imports
@@ -37,4 +41,5 @@ __all__ = [
     "mark_succeeded",
     "mark_failed",
     "mark_ingesting",
+    "add_new_assets_to_plan",
 ]

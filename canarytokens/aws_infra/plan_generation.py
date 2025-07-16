@@ -61,16 +61,6 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
     return tf_variables
 
 
-def generate_s3_buckets(inventory: list, count: int = 1):
-    """
-    Return a name for a S3 bucket.
-    """
-    suggested = NAME_GENERATOR.generate_names(
-        AWSInfraAssetType.S3_BUCKET, inventory, count
-    )
-    return suggested.suggested_names
-
-
 def generate_s3_object():
     """
     Return a path for a S3 object.
@@ -82,34 +72,11 @@ def generate_s3_object():
     return f"{random.randint(2000, 2025)}/{directory}/{random.choice(objects)}"
 
 
-def generate_sqs_queue():
-    """
-    Return a name for a SQS queue.
-    """
-    separator = random.choice(["", "-", "_"])
-
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_ssm_parameter():
-    separator = random.choice(["", "-", "_"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_secretsmanager_secret():
-    """
-    Return a name for a Secrets Manager secret.
-    """
-    separator = random.choice(["", "-", "_", "+", "=", "@"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_dynamo_table():
-    """
-    Return a name for a DynamoDB table.
-    """
-    separator = random.choice(["", "-", "_"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
+def generate_for_asset_type(
+    asset_type: AWSInfraAssetType, inventory: list, count: int = 1
+):
+    suggested = NAME_GENERATOR.generate_names(asset_type, inventory, count)
+    return suggested.suggested_names
 
 
 def generate_dynamo_table_item():
@@ -137,8 +104,10 @@ def add_new_assets_to_plan(
     plan["assets"][AWSInfraAssetType.S3_BUCKET.value].extend(
         [
             {"bucket_name": bucket_name, "objects": [], "off_inventory": False}
-            for bucket_name in generate_s3_buckets(
-                aws_inventoried_assets.get(AWSInfraAssetType.S3_BUCKET.value, []), count
+            for bucket_name in generate_for_asset_type(
+                AWSInfraAssetType.S3_BUCKET,
+                aws_inventoried_assets.get(AWSInfraAssetType.S3_BUCKET.value, []),
+                count,
             )
         ]
     )
@@ -148,57 +117,78 @@ def add_new_assets_to_plan(
                 {"object_path": generate_s3_object()}
             )
 
-    for i in range(
-        random.randint(
-            1,
-            MAX_SQS_QUEUES
-            - len(aws_deployed_assets.get(AWSInfraAssetType.SQS_QUEUE.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.SQS_QUEUE.value].append(
-            {"sqs_queue_name": generate_sqs_queue(), "off_inventory": False}
-        )
+    count = random.randint(
+        1,
+        MAX_SQS_QUEUES
+        - len(aws_deployed_assets.get(AWSInfraAssetType.SQS_QUEUE.value, [])),
+    )
 
-    for i in range(
-        random.randint(
-            1,
-            MAX_SSM_PARAMETERS
-            - len(aws_deployed_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value].append(
-            {"ssm_parameter_name": generate_ssm_parameter(), "off_inventory": False}
-        )
+    plan["assets"][AWSInfraAssetType.SQS_QUEUE.value].extend(
+        [
+            {"sqs_queue_name": sqs_queue_name, "off_inventory": False}
+            for sqs_queue_name in generate_for_asset_type(
+                AWSInfraAssetType.SQS_QUEUE,
+                aws_inventoried_assets.get(AWSInfraAssetType.SQS_QUEUE.value, []),
+                count,
+            )
+        ]
+    )
 
-    for i in range(
-        random.randint(
-            1,
-            MAX_SECRET_MANAGER_SECRETS
-            - len(
-                aws_deployed_assets.get(
+    count = random.randint(
+        1,
+        MAX_SSM_PARAMETERS
+        - len(aws_deployed_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, [])),
+    )
+
+    plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value].extend(
+        [
+            {"ssm_parameter_name": ssm_parameter_name, "off_inventory": False}
+            for ssm_parameter_name in generate_for_asset_type(
+                AWSInfraAssetType.SSM_PARAMETER,
+                aws_inventoried_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, []),
+                count,
+            )
+        ]
+    )
+
+    count = random.randint(
+        1,
+        MAX_SECRET_MANAGER_SECRETS
+        - len(
+            aws_deployed_assets.get(AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, [])
+        ),
+    )
+
+    plan["assets"][AWSInfraAssetType.SECRETS_MANAGER_SECRET.value].extend(
+        [
+            {"secret_name": secret_name, "off_inventory": False}
+            for secret_name in generate_for_asset_type(
+                AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+                aws_inventoried_assets.get(
                     AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                )
-            ),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.SECRETS_MANAGER_SECRET.value].append(
-            {"secret_name": generate_secretsmanager_secret(), "off_inventory": False}
-        )
+                ),
+                count,
+            )
+        ]
+    )
 
-    for i in range(
-        random.randint(
-            1,
-            MAX_DYNAMO_TABLES
-            - len(aws_deployed_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value].append(
-            {
-                "table_name": generate_dynamo_table(),
-                "off_inventory": False,
-                "table_items": [],
-            }
-        )
+    count = random.randint(
+        1,
+        MAX_DYNAMO_TABLES
+        - len(aws_deployed_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])),
+    )
+
+    plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value].extend(
+        [
+            {"table_name": table_name, "off_inventory": False, "table_items": []}
+            for table_name in generate_for_asset_type(
+                AWSInfraAssetType.DYNAMO_DB_TABLE,
+                aws_inventoried_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, []),
+                count,
+            )
+        ]
+    )
+    for i in range(len(plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value])):
         for _ in range(random.randint(1, MAX_DYNAMO_TABLES_ITEMS)):
             plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value][i][
                 "table_items"
@@ -325,32 +315,32 @@ def generate_data_choice(asset_type: AWSInfraAssetType, asset_field: str):
     Generate a random data choice for the given asset type and field.
     """
     asset_map = {
-        (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_buckets,
-        (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
-        (AWSInfraAssetType.SQS_QUEUE, "queue_name"): generate_sqs_queue,
-        (AWSInfraAssetType.SQS_QUEUE, "message_count"): lambda: str(
-            random.randint(0, 10)
-        ),
-        (AWSInfraAssetType.SSM_PARAMETER, "parameter_name"): generate_ssm_parameter,
-        (
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET,
-            "secretsmanager_secret_name",
-        ): generate_secretsmanager_secret,
-        (
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET,
-            "secretsmanager_secret_value",
-        ): lambda: "".join(
-            random.choice(string.ascii_letters + string.digits)
-            for _ in range(random.randint(5, 50))
-        ),
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_name"): generate_dynamo_table,
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_partition_key"): lambda: "".join(
-            random.choice(string.ascii_letters + string.digits)
-            for _ in range(random.randint(3, 10))
-        ),
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_row_count"): lambda: str(
-            random.randint(0, 100)
-        ),
+        # (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_buckets,
+        # (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
+        # (AWSInfraAssetType.SQS_QUEUE, "queue_name"): generate_sqs_queue,
+        # (AWSInfraAssetType.SQS_QUEUE, "message_count"): lambda: str(
+        #     random.randint(0, 10)
+        # ),
+        # (AWSInfraAssetType.SSM_PARAMETER, "parameter_name"): generate_ssm_parameters,
+        # (
+        #     AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+        #     "secretsmanager_secret_name",
+        # ): generate_secretsmanager_secrets,
+        # (
+        #     AWSInfraAssetType.SECRETS_MANAGER_SECRET,
+        #     "secretsmanager_secret_value",
+        # ): lambda: "".join(
+        #     random.choice(string.ascii_letters + string.digits)
+        #     for _ in range(random.randint(5, 50))
+        # ),
+        # (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_name"): generate_dynamo_table,
+        # (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_partition_key"): lambda: "".join(
+        #     random.choice(string.ascii_letters + string.digits)
+        #     for _ in range(random.randint(3, 10))
+        # ),
+        # (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_row_count"): lambda: str(
+        #     random.randint(0, 100)
+        # ),
     }
 
     # Retrieve the corresponding function or value
