@@ -68,7 +68,7 @@ from canarytokens.models import (
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
-    AWSInfraServiceError,
+    # AWSInfraServiceError,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraState,
     AWSInfraTeardownReceivedResponse,
@@ -1126,7 +1126,7 @@ async def api_awsinfra_check_role(
         )
         return AWSInfraHandleResponse(handle=handle_id)
 
-    handle_response = aws_infra.get_handle_response(
+    handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.CHECK_ROLE
     )
     try:
@@ -1134,7 +1134,7 @@ async def api_awsinfra_check_role(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+    if handle_response.message != "":
         response.status_code = status.HTTP_400_BAD_REQUEST
         logging.error(
             f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
@@ -1175,7 +1175,7 @@ async def api_awsinfra_inventory_customer_account(
         )
         return AWSInfraHandleResponse(handle=handle_id)
 
-    handle_response = aws_infra.get_handle_response(
+    handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.INVENTORY
     )
     try:
@@ -1183,7 +1183,8 @@ async def api_awsinfra_inventory_customer_account(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+    if handle_response.message != "":
+
         response.status_code = status.HTTP_400_BAD_REQUEST
         logging.error(
             f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
@@ -1293,7 +1294,7 @@ async def api_awsinfra_setup_ingestion(
             AWSInfraOperationType.SETUP_INGESTION, canarydrop
         )
         return AWSInfraHandleResponse(handle=handle_id)
-    handle_response = aws_infra.get_handle_response(
+    handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.SETUP_INGESTION
     )
     try:
@@ -1301,7 +1302,8 @@ async def api_awsinfra_setup_ingestion(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+    if handle_response.message != "":
+
         response.status_code = status.HTTP_400_BAD_REQUEST
         logging.error(
             f"Error in setup-ingestion for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
@@ -1331,7 +1333,7 @@ async def api_awsinfra_teardown(
         )
         return AWSInfraHandleResponse(handle=handle_id)
 
-    handle_response = aws_infra.get_handle_response(
+    handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.TEARDOWN
     )
     try:
@@ -1339,7 +1341,8 @@ async def api_awsinfra_teardown(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.error != AWSInfraServiceError.NO_ERROR.name:
+    if handle_response.message != "":
+
         response.status_code = status.HTTP_400_BAD_REQUEST
         logging.error(
             f"Error in teardown for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
