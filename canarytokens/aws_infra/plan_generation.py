@@ -23,6 +23,7 @@ MAX_SSM_PARAMETERS = 10
 MAX_SQS_QUEUES = 10
 MAX_SECRET_MANAGER_SECRETS = 10
 
+
 NAME_GENERATOR = GeminiDecoyNameGenerator()
 
 
@@ -222,7 +223,12 @@ def _get_decoy_asset_count(
     MAX_ASSETS: int,
 ):
     return min(
-        max(math.ceil(len(aws_inventoried_assets.get(asset_type.value, [])) * 0.2), 1),
+        max(
+            math.ceil(
+                math.log2(len(aws_inventoried_assets.get(asset_type.value, [])) + 1)
+            ),
+            1,
+        ),
         MAX_ASSETS - len(aws_deployed_assets.get(asset_type.value, [])),
     )
 
@@ -359,18 +365,34 @@ def _get_ingestion_bus_arn(bus_name: str):
     return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
 
 
-def generate_data_choice(asset_type: AWSInfraAssetType, asset_field: str):
+def generate_data_choice(
+    canarydrop: Canarydrop, asset_type: AWSInfraAssetType, asset_field: str
+):
     """
     Generate a random data choice for the given asset type and field.
     """
+    inventory = canarydrop.aws_inventoried_assets or {}
     asset_map = {
-        # (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_buckets,
-        # (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
-        # (AWSInfraAssetType.SQS_QUEUE, "queue_name"): generate_sqs_queue,
-        # (AWSInfraAssetType.SQS_QUEUE, "message_count"): lambda: str(
-        #     random.randint(0, 10)
-        # ),
-        # (AWSInfraAssetType.SSM_PARAMETER, "parameter_name"): generate_ssm_parameters,
+        (AWSInfraAssetType.S3_BUCKET, "bucket_name"): lambda: generate_for_asset_type(
+            AWSInfraAssetType.S3_BUCKET,
+            inventory.get(AWSInfraAssetType.S3_BUCKET.value, []),
+            1,
+        )[0],
+        (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
+        (
+            AWSInfraAssetType.SQS_QUEUE,
+            "sqs_queue_name",
+        ): lambda: generate_for_asset_type(
+            AWSInfraAssetType.SQS_QUEUE,
+            inventory.get(AWSInfraAssetType.SQS_QUEUE.value, []),
+            1,
+        )[
+            0
+        ],
+        # (
+        #     AWSInfraAssetType.SSM_PARAMETER,
+        #     "ssm_parameter_name",
+        # ): generate_ssm_parameters,
         # (
         #     AWSInfraAssetType.SECRETS_MANAGER_SECRET,
         #     "secretsmanager_secret_name",
