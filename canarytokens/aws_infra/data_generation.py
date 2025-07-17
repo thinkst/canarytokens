@@ -5,6 +5,7 @@ from typing import List
 import re
 import json
 import random
+import secrets
 
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
@@ -28,18 +29,25 @@ async def make_request(
     """
     Generic HTTP request function using httpx.
     """
+    REQUEST_TIMEOUT = 60  # seconds
     async with httpx.AsyncClient() as client:
         try:
             if method.upper() == "POST":
                 response = await client.post(
-                    url, json=data, headers=headers, timeout=60
+                    url, json=data, headers=headers, timeout=REQUEST_TIMEOUT
                 )
             elif method.upper() == "HEAD":
-                response = await client.head(url, headers=headers)
+                response = await client.head(
+                    url, headers=headers, timeout=REQUEST_TIMEOUT
+                )
             elif method.upper() == "GET":
-                response = await client.get(url, headers=headers)
+                response = await client.get(
+                    url, headers=headers, timeout=REQUEST_TIMEOUT
+                )
             else:
-                response = await client.request(method, url, headers=headers, json=data)
+                response = await client.request(
+                    method, url, headers=headers, json=data, timeout=REQUEST_TIMEOUT
+                )
 
             return response.status_code, response.content, response.headers
         except httpx.RequestError as e:
@@ -62,7 +70,7 @@ class GeminiDecoyNameGenerator:
             AWSInfraAssetType.SECRETS_MANAGER_SECRET: self._validate_secrets_manager_name,
         }
         self._gemini_config = {
-            "temperature": 1.8,
+            "temperature": settings.GEMINI_TEMPERATURE,
             "response_mime_type": "application/json",
             "response_schema": {
                 "required": ["suggested_names"],
@@ -73,11 +81,12 @@ class GeminiDecoyNameGenerator:
             },
             "system_instruction": _get_system_prompt(),
         }
-        self._max_attempts = 5
-        self._GEMINI_MODEL = "gemini-2.5-flash"
+        self._MAX_ATTEMPTS = 5
+        self._GEMINI_MODEL = settings.GEMINI_MODEL
         self._GEMINI_API_KEY = settings.GEMINI_API_KEY
-        self._prompt_template = "In line with your system instructions, generate a list of {count} decoy asset names for the following AWS service based on the provided inventory. If the list for the service type in the provided inventory is empty, still return a list of {count} names.\n{service} inventory names found: [{inventory}]"
+        self._prompt_template = settings.GEMINI_PROMPT_TEMPLATE
         self._GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{self._GEMINI_MODEL}:generateContent"
+        self._SIMILARITY_THRESHOLD = 0.9
 
     async def generate_names(
         self, asset_type: AWSInfraAssetType, inventory: list[str], count=5
@@ -94,19 +103,17 @@ class GeminiDecoyNameGenerator:
 
         while len(validated_names) < count:
             attempts += 1
-            if attempts == self._max_attempts:
+            if attempts == self._MAX_ATTEMPTS:
                 raise RuntimeError(
-                    f"Failed to generate enough valid names for {asset_type.name} after {self._max_attempts} attempts."
+                    f"Failed to generate enough valid names for {asset_type.name} after {self._MAX_ATTEMPTS} attempts."
                 )
 
             overshoot = max(count + 5, 2 * count - len(validated_names))
             new_names = await self._get_suggested_names(
                 asset_type, inventory, count=overshoot
             )
-            trimmed_names = await self._trim_list(
-                asset_type, inventory, new_names, count
-            )
-            validated_names.extend(trimmed_names)
+            names = await self._finalize_list(asset_type, inventory, new_names, count)
+            validated_names.extend(names)
 
         random.shuffle(validated_names)
         suggested_names = validated_names[:count]
@@ -173,7 +180,8 @@ class GeminiDecoyNameGenerator:
 
     def _validate_secrets_manager_name(self, name: str) -> bool:
         # 1-512 chars, A-Z a-z 0-9 / _ + = . @ - .
-        return bool(re.fullmatch(r"[A-Za-z0-9/_+=\.@\-]{1,512}", name))
+        # Disallow consecutive dots using negative lookahead
+        return bool(re.fullmatch(r"(?!.*\.\.)[A-Za-z0-9/_+=\.@\-]{1,512}", name))
 
     async def _validate_name(self, asset_type: AWSInfraAssetType, name: str) -> bool:
         """
@@ -195,7 +203,17 @@ class GeminiDecoyNameGenerator:
             default=0,
         )
 
-    async def _trim_list(
+    def _augment_name(self, asset_type: AWSInfraAssetType, name: str) -> str:
+        """
+        Augment a name with a random suffix to ensure uniqueness.
+        """
+        if asset_type == AWSInfraAssetType.S3_BUCKET:
+            min_random_suffix_length = 3
+            name = f"{name}-{secrets.token_hex(random.randint(min_random_suffix_length, len(name) // 3))}"
+
+        return name
+
+    async def _finalize_list(
         self,
         asset_type: AWSInfraAssetType,
         inventory: list[str],
@@ -209,8 +227,12 @@ class GeminiDecoyNameGenerator:
 
         validated_names = []
         for name in suggested_names:
+            name = self._augment_name(asset_type, name)
             is_valid = await self._validate_name(asset_type, name)
-            if is_valid and not self._similarity_score(name, inventory) >= 0.9:
+            if (
+                is_valid
+                and self._similarity_score(name, inventory) < self._SIMILARITY_THRESHOLD
+            ):
                 validated_names.append(name)
 
         return validated_names
@@ -240,10 +262,6 @@ class GeminiDecoyNameGenerator:
             count=count, service=asset_type.value, inventory=",".join(inventory)
         )
 
-        log.info(
-            f"Generating {count} names for {asset_type.value} with prompt: {prompt}"
-        )
-
         headers = {
             "Content-Type": "application/json",
             "X-goog-api-key": self._GEMINI_API_KEY,
@@ -259,10 +277,28 @@ class GeminiDecoyNameGenerator:
 
             if status_code == 200:
                 result = json.loads(response_body.decode("utf-8"))
-                parsed_content = json.loads(
-                    result["candidates"][0]["content"]["parts"][0]["text"]
-                )
-                return parsed_content.get("suggested_names", [])
+                try:
+                    candidates = result.get("candidates")
+                    if (
+                        not candidates
+                        or "content" not in candidates[0]
+                        or "parts" not in candidates[0]["content"]
+                    ):
+                        log.error(
+                            'Gemini API response missing expected keys: \'candidates[0]["content"]["parts"]\''
+                        )
+                        return []
+                    parts = candidates[0]["content"]["parts"]
+                    if not parts or "text" not in parts[0]:
+                        log.error(
+                            "Gemini API response missing expected key: 'text' in 'parts[0]'"
+                        )
+                        return []
+                    parsed_content = json.loads(parts[0]["text"])
+                    return parsed_content.get("suggested_names", [])
+                except (KeyError, IndexError, json.JSONDecodeError) as e:
+                    log.error(f"Error parsing Gemini API response: {e}")
+                    return []
             else:
                 raise RuntimeError(f"Gemini API returned status {status_code}")
 

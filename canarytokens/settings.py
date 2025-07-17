@@ -141,6 +141,8 @@ class FrontendSettings(BaseSettings):
     AWS_INFRA_INGESTION_BUS: Optional[str]
     AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
     GEMINI_API_KEY: Optional[str]
+    GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
+    GEMINI_PROMPT_TEMPLATE: Optional[str]
     GEMINI_SYSTEM_PROMPT: Optional[
         str
     ] = """
@@ -161,8 +163,8 @@ Strict Guidelines:
 8. Fallback for Weak Patterns: If the inventory has inconsistent or ambiguous patterns, invent plausible code/project names or generic-sounding names that do not stand out. examples: Project Moonshot, Project Black Hawk etc.
 
 Above all, decoy names must be indistinguishable from real production resources—mirroring all observed conventions, in realistic proportions, and always enticing to an attacker.
-
 """
+    GEMINI_TEMPERATURE: Optional[str]
 
     # temporary
     AWS_ACCESS_KEY_ID: Optional[str]
