@@ -136,7 +136,7 @@ async def _add_sqs_queues(aws_deployed_assets, aws_inventoried_assets, plan):
     )
     plan["assets"][AWSInfraAssetType.SQS_QUEUE.value].extend(
         [
-            {"sqs_queue_name": sqs_queue_name, "off_inventory": False}
+            {"queue_name": sqs_queue_name, "off_inventory": False}
             for sqs_queue_name in sqs_queue_names
         ]
     )
@@ -222,7 +222,7 @@ def _get_decoy_asset_count(
     MAX_ASSETS: int,
 ):
     return min(
-        math.ceil(len(aws_inventoried_assets.get(asset_type.value, [])) * 1),
+        max(math.ceil(len(aws_inventoried_assets.get(asset_type.value, [])) * 0.2), 1),
         MAX_ASSETS - len(aws_deployed_assets.get(asset_type.value, [])),
     )
 
@@ -230,6 +230,9 @@ def _get_decoy_asset_count(
 async def add_new_assets_to_plan(
     aws_deployed_assets: dict, aws_inventoried_assets: dict, plan: dict
 ):
+    """
+    Asynchronously add new decoy AWS assets to the plan based on the current deployed and inventoried assets.
+    """
     await asyncio.gather(
         _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan),
         _add_sqs_queues(aws_deployed_assets, aws_inventoried_assets, plan),
@@ -328,7 +331,7 @@ def add_current_assets_to_plan(
         )
 
 
-def generate_proposed_plan(canarydrop: Canarydrop):
+async def generate_proposed_plan(canarydrop: Canarydrop):
     """
     Return a proposed plan for decoy assets containing new and current assets.
     """
@@ -343,7 +346,9 @@ def generate_proposed_plan(canarydrop: Canarydrop):
     if is_ingesting(canarydrop):
         return proposed_plan
 
-    add_new_assets_to_plan(aws_deployed_assets, aws_inventoried_assets, proposed_plan)
+    await add_new_assets_to_plan(
+        aws_deployed_assets, aws_inventoried_assets, proposed_plan
+    )
     add_current_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
     )
