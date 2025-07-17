@@ -68,7 +68,7 @@ const emits = defineEmits(['selectOption']);
 
 const EMPTY_VALUE = { label: 'Choose asset', value: '' };
 const ALL_DECOYS = {
-  label: 'All decoys',
+  label: 'All alerting decoys',
   value: 'all_decoys',
 };
 const selectedValue = ref(EMPTY_VALUE);

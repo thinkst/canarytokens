@@ -1,5 +1,5 @@
 <template>
-  <IncidentSelectType
+  <SelectIncidentType
     :alerts-list="hitsList"
     @select-option="(value) => handleSelectOption(value)"
   />
@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, useTemplateRef } from 'vue';
-import IncidentSelectType from '@/components/tokens/aws_infra/history/IncidentSelectType.vue';
+import SelectIncidentType from '@/components/tokens/aws_infra/history/SelectIncidentType.vue';
 import type {
   HitsType,
   AdditionalInfoType,

@@ -297,7 +297,7 @@ export type FormattedHitsType = {
   geo_info?: GeoInfo | null;
   is_tor_relay: boolean | null;
   basic_info: BasicInfoType;
-  additional_info: AdditionalInfoType;
+  additional_info?: AdditionalInfoType;
 };
 
 export type HistoryType = {
