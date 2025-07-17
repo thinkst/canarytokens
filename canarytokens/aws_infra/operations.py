@@ -131,7 +131,7 @@ def _build_operation_payload(
 
 
 # TODO: add handle exist for token validation
-def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
+async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
     """
@@ -153,17 +153,17 @@ def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
 
     current_time = datetime.now(timezone.utc).timestamp()
     if handle.requested_time - current_time > HANDLE_RESPONSE_TIMEOUT:
-        return _build_handle_response_payload(handle_id, handle, timeout=True)
+        return await _build_handle_response_payload(handle_id, handle, timeout=True)
 
     if handle.response_received != "True":
         return AWSInfraHandleResponse(
             handle=handle_id,
         )
 
-    return _build_handle_response_payload(handle_id, handle)
+    return await _build_handle_response_payload(handle_id, handle)
 
 
-def _build_handle_response_payload(
+async def _build_handle_response_payload(
     handle_id: str, handle: Handle, timeout: bool = False
 ):
     response_content = (
@@ -191,7 +191,7 @@ def _build_handle_response_payload(
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if handle.operation == AWSInfraOperationType.INVENTORY:
         save_current_assets(canarydrop, response_content.get("assets", {}))
-        payload["proposed_plan"] = generate_proposed_plan(canarydrop)
+        payload["proposed_plan"] = await generate_proposed_plan(canarydrop)
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
