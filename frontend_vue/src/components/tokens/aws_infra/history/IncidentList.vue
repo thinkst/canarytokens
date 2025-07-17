@@ -146,6 +146,7 @@ function getAssetPreviewInfo(hit: HitsType) {
   const assetType = getAssetType(hit) || 'Unknown';
 
   //@ts-ignore-error
+  // TODO: we are refactoring the constants on another diff, so this will be fixed
   const label = assetType && ASSET_LABEL[assetType];
 
   return {
