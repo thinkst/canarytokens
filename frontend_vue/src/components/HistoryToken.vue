@@ -49,6 +49,7 @@
         <template v-if="hasCustomIncidentsList">
           <component
             :is="dynamicIncidentList"
+            :hits-list="hitsList"
             @select-alert="(incident: HitsType) => handleSelectAlert(incident)"
           />
         </template>

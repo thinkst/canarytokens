@@ -52,7 +52,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
-import type { HistoryTokenBackendType } from '@/components/tokens/types.ts';
+import type { HitsType } from '@/components/tokens/types.ts';
 import {
   AssetTypesEnum,
   ASSET_LABEL,
@@ -61,12 +61,16 @@ import {
 type SelectOption = { label: string; value: string };
 
 const props = defineProps<{
-  alertsList: HistoryTokenBackendType;
+  alertsList: HitsType[];
 }>();
 
 const emits = defineEmits(['selectOption']);
 
 const EMPTY_VALUE = { label: 'Choose asset', value: '' };
+const ALL_DECOYS = {
+  label: 'All decoys',
+  value: 'all_decoys',
+};
 const selectedValue = ref(EMPTY_VALUE);
 
 onMounted(() => {
@@ -76,7 +80,7 @@ onMounted(() => {
 
 function getExistingAssetTypes() {
   const assetTypes = [] as string[];
-  props.alertsList.history.hits.forEach((hit) => {
+  props.alertsList.forEach((hit) => {
     const assetType = (hit.additional_info as any).decoy_resource.asset_type;
     if (assetType && !assetTypes.includes(assetType)) {
       assetTypes.push(assetType);
@@ -88,15 +92,14 @@ function getExistingAssetTypes() {
 
 const options = computed(() => {
   const existingAssetTypes = getExistingAssetTypes();
+  const assetOptions = Object.values(AssetTypesEnum)
+    .filter((val) => existingAssetTypes.includes(val))
+    .map((val) => ({
+      label: ASSET_LABEL[val],
+      value: val,
+    }));
 
-  return Object.values(AssetTypesEnum)
-    .map((val) => {
-      if (!existingAssetTypes.includes(val)) {
-        return null;
-      }
-      return { label: ASSET_LABEL[val], value: val };
-    })
-    .filter((option) => option !== null);
+  return [ALL_DECOYS, ...assetOptions];
 });
 
 function handleSelectOption(value: string | SelectOption) {

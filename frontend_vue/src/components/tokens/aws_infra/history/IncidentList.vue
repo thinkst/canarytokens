@@ -7,17 +7,15 @@
     v-if="!selectedAssetName"
     ref="asset-section"
   >
-    <h3 class="p-8">{{ selectedAssetType }} alerts list</h3>
+    <h3 class="p-8">{{ labelSelectedAssetType }} alerts list</h3>
     <ul class="flex flex-col h-full gap-16 pb-16">
       <IncidentCardAsset
-        v-for="(group, index) in incidentsByTypeAndAssetName"
+        v-for="(group, index) in groupedIncidentsList"
         :key="group[0].time_of_hit"
-        :last-key="
-          index === Object.values(incidentsByTypeAndAssetName).length - 1
-        "
-        :asset-preview-info="assetPreviewInfo(group[0])"
-        :asset-type="selectedAssetType"
-        @click="handleSelectAssetName(group[0])"
+        :last-key="index === Object.values(groupedIncidentsList).length - 1"
+        :asset-preview-info="getAssetPreviewInfo(group[0])"
+        :asset-type="getAssetType(group[0])"
+        @click="handleSelectAssetGroup(group[0])"
       />
     </ul>
   </section>
@@ -42,7 +40,7 @@
         :key="index"
         :last-key="index === filteredIncidentsListByAssetName.length - 1"
         :incident-id="incident.time_of_hit"
-        :incident-preview-info="incidentPreviewInfo(incident)"
+        :incident-preview-info="getIncidentPreviewInfo(incident)"
         @click="handleSelectAlert(incident)"
       ></CardIncident>
     </ul>
@@ -53,89 +51,135 @@
 import { ref, computed, useTemplateRef } from 'vue';
 import IncidentSelectType from '@/components/tokens/aws_infra/history/IncidentSelectType.vue';
 import type {
-  HistoryTokenBackendType,
   HitsType,
-  AdditionalInfoAWSInfraType,
+  AdditionalInfoType,
 } from '@/components/tokens/types.ts';
+import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 import IncidentCardAsset from '@/components/tokens/aws_infra/history/IncidentCardAsset.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
 
-import { dummyData } from '@/components/tokens/aws_infra/history/dummyData.js';
+const props = defineProps<{
+  hitsList: HitsType[];
+}>();
 
-// const props = defineProps<{
-//     hitsList: HistoryTokenBackendType;
-// }>();
-
-type incidentsByTypeAndAssetNameType = {
+type groupedIncidentsListType = {
   [key: string]: HitsType[];
 };
 
+const ALL_DECOYS = 'all_decoys';
+
 const emits = defineEmits(['select-alert']);
 
-const hitsList: HistoryTokenBackendType = dummyData; // props.hitsList;
+const hitsList: HitsType[] = props.hitsList;
 const selectedAssetType = ref('');
 const selectedAssetName = ref('');
 const assetSection = useTemplateRef('asset-section');
 const incidentsSection = useTemplateRef('incidents-section');
 
-const incidentsByTypeAndAssetName = computed(() => {
-  const filteredListByType = hitsList.history.hits.filter(
-    (hit) =>
-      (hit.additional_info as AdditionalInfoAWSInfraType).decoy_resource
-        .asset_type === selectedAssetType.value
-  );
+const getAssetName = (hit: HitsType) =>
+  (hit.additional_info as AdditionalInfoType).decoy_resource?.['Asset Name'];
 
-  const groupedListByAssetName = Object.groupBy(
-    filteredListByType,
-    (incident: HitsType) =>
-      (incident.additional_info as AdditionalInfoAWSInfraType).decoy_resource[
-        'Asset Name'
-      ]
-  );
+const getAssetType = (hit: HitsType) =>
+  (hit.additional_info as AdditionalInfoType).decoy_resource?.asset_type ||
+  'Unknown';
 
-  return groupedListByAssetName as incidentsByTypeAndAssetNameType;
+const labelSelectedAssetType = computed(() => {
+  return Object.keys(ASSET_LABEL).includes(selectedAssetType.value)
+    ? //@ts-ignore-error
+      // TODO: we are refactoring the constants on another diff, so this will be fixed
+      ASSET_LABEL[selectedAssetType.value]
+    : 'All decoys';
 });
+
+const groupedIncidentsList = computed((): groupedIncidentsListType => {
+  const listToProcess =
+    selectedAssetType.value === ALL_DECOYS
+      ? props.hitsList
+      : props.hitsList.filter(
+          (hit) => getAssetType(hit) === selectedAssetType.value
+        );
+
+  const groupedList = groupListByAssetName(listToProcess);
+  const orderedTimeList = orderListByTimeStamp(groupedList);
+
+  return orderedTimeList;
+});
+
+function groupListByAssetName(list: HitsType[]) {
+  return list.reduce((acc: groupedIncidentsListType, incident) => {
+    const assetName = getAssetName(incident);
+    if (assetName) {
+      acc[assetName] = acc[assetName] || [];
+      acc[assetName].push(incident);
+    }
+    return acc;
+  }, {} as groupedIncidentsListType);
+}
+
+function orderListByTimeStamp(list: groupedIncidentsListType) {
+  return Object.fromEntries(
+    // Sort incidents within group
+    Object.entries(list)
+      .map(([assetName, incidents]) => [
+        assetName,
+        incidents.sort((a, b) => b.time_of_hit - a.time_of_hit),
+      ])
+      // Sort groups by their most recent incident
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .sort(([_assetNameA, incidentsA], [_assetNameB, incidentsB]) => {
+        const mostRecentA = (incidentsA as HitsType[])[0]?.time_of_hit || 0;
+        const mostRecentB = (incidentsB as HitsType[])[0]?.time_of_hit || 0;
+        return mostRecentB - mostRecentA;
+      })
+  );
+}
 
 const filteredIncidentsListByAssetName = computed(() => {
-  return hitsList.history.hits.filter(
-    (hit) =>
-      (hit.additional_info as AdditionalInfoAWSInfraType).decoy_resource[
-        'Asset Name'
-      ] === selectedAssetName.value
+  return hitsList.filter(
+    (hit) => getAssetName(hit) === selectedAssetName.value
   );
 });
 
-function assetPreviewInfo(hit: HitsType) {
+function getAssetPreviewInfo(hit: HitsType) {
+  const assetName = getAssetName(hit) || '';
+  const assetType = getAssetType(hit) || 'Unknown';
+
+  //@ts-ignore-error
+  const label = assetType && ASSET_LABEL[assetType];
+
   return {
-    asset_name: (hit.additional_info as AdditionalInfoAWSInfraType)
-      .decoy_resource['Asset Name'],
+    asset_type: label || assetType,
+    asset_name: assetName,
     last_date_of_hit: hit.time_of_hit
       ? convertUnixTimeStampToDate(hit.time_of_hit)
       : null,
   };
 }
 
-function incidentPreviewInfo(hit: HitsType) {
+function getIncidentPreviewInfo(hit: HitsType) {
+  const eventName = (hit.additional_info as AdditionalInfoType)?.event?.[
+    'Event Name'
+  ];
+
   return {
     Date: convertUnixTimeStampToDate(hit.time_of_hit),
     IP: hit.src_ip,
-    'Event Name': (hit.additional_info as AdditionalInfoAWSInfraType).event[
-      'Event Name'
-    ],
+    'Event Name': eventName || 'Unknown',
   };
 }
 
-function handleSelectOption(value: string) {
+const handleSelectOption = (value: string) => {
   selectedAssetName.value = '';
-  selectedAssetType.value = value;
-}
+  selectedAssetType.value = value === ALL_DECOYS ? ALL_DECOYS : value;
+};
 
-function handleSelectAssetName(incident: HitsType) {
+function handleSelectAssetGroup(incident: HitsType) {
+  const assetName = (incident.additional_info as AdditionalInfoType)
+    ?.decoy_resource?.['Asset Name'];
+
   animateList('assetSection', () => {
-    selectedAssetName.value = (
-      incident.additional_info as AdditionalInfoAWSInfraType
-    ).decoy_resource['Asset Name'];
+    selectedAssetName.value = assetName || '';
   });
 }
 

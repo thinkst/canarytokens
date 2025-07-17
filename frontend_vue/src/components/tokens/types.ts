@@ -252,12 +252,6 @@ export type AdditionalInfoType = {
   metadata?: MetadataType;
 };
 
-export type AdditionalInfoAWSInfraType = AdditionalInfoType & {
-  event: EventType;
-  decoy_resource: DecoyResourceType;
-  identity: IdentityType;
-};
-
 type BasicInfoType = {
   token_type: string;
   input_channel: string;

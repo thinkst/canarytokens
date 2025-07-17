@@ -14,7 +14,6 @@
     "allowImportingTsExtensions": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "lib": ["ES2024"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

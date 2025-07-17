@@ -50,13 +50,15 @@ import getImageUrl from '@/utils/getImageUrl';
 import { formatKey } from '@/utils/utils';
 
 type incidentPreviewInfoType = {
-  [key: string]: string | Date | null;
+  last_date_of_hit: string | Date | null;
+  asset_name: string;
+  asset_type: string;
 };
 
 defineProps<{
   lastKey: boolean;
   assetPreviewInfo: incidentPreviewInfoType;
-  assetType: string;
+  assetType: string | undefined;
 }>();
 
 const emits = defineEmits(['click']);
