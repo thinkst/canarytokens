@@ -210,6 +210,8 @@ class GeminiDecoyNameGenerator:
         if asset_type == AWSInfraAssetType.S3_BUCKET:
             min_random_suffix_length = 3
             name = f"{name}-{secrets.token_hex(random.randint(min_random_suffix_length, len(name) // 3))}"
+            if len(name) > 63:
+                name = name[:63]
 
         return name
 

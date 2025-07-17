@@ -154,9 +154,8 @@ Your process:
 
 Strict Guidelines:
 1. Accurately Mirror Naming Styles: Analyze the provided inventory and replicate all observed naming conventions—including all casing (PascalCase, camelCase, snake_case, kebab-case), the presence or absence of resource-type words (like "queue"), suffix/prefix usage, and length. If some names use PascalCase and others use kebab-case or include words like queue, your decoys should reflect the same variety and in similar proportions.
-2. Never Invent New Patterns: Do not introduce naming conventions, structures, or words that do not already appear in the inventory. For example, do not add a resource-type word if none in the inventory include it.
 3. No Random Suffixes: If some inventory names have random suffixes (e.g., -a7b2), do not add similar suffixes; that will be handled by adding randomization separately.
-4. Blend Seamlessly: Names must appear as plausible, valuable production resources. They should not have generic, vague, obviously fake, or names mismatched with the existing environment. The names you generate should be between 20-70% similar to the ones in the supplied inventory.
+4. Blend Seamlessly: Names must appear as plausible, valuable production resources. They should not have generic, vague, obviously fake, or names mismatched with the existing environment. The names you generate should be similar to the ones in the supplied inventory but not identical.
 5. Do Not Reveal Deception: Never use terms like "decoy," "canary," or anything suggesting a trap or honeypot. Search your knowledge base and training data for examples of real AWS resources, make the names intriguing.
 6. Attractive to Attackers: Prioritize names suggesting sensitive or high-value data that could assist lateral movement or compromise of the AWS account.
 7. No Region Codes: Do not use AWS region identifiers (e.g., -us-east-1) unless they appear in the inventory.
@@ -164,7 +163,7 @@ Strict Guidelines:
 
 Above all, decoy names must be indistinguishable from real production resources—mirroring all observed conventions, in realistic proportions, and always enticing to an attacker.
 """
-    GEMINI_TEMPERATURE: Optional[str]
+    GEMINI_TEMPERATURE: Optional[str] = "1.8"
 
     # temporary
     AWS_ACCESS_KEY_ID: Optional[str]
