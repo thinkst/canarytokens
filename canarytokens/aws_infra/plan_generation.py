@@ -16,7 +16,7 @@ settings = FrontendSettings()
 
 NAME_ENVS = ["prod", "staging", "dev", "testing"]
 NAME_TARGETS = ["customer", "user", "admin", "audit"]
-MAX_CHILD_ITEMS = 50
+MAX_CHILD_ITEMS = 20
 MAX_S3_BUCKETS = 10
 MAX_DYNAMO_TABLES = 10
 MAX_SSM_PARAMETERS = 10
@@ -33,15 +33,17 @@ class AssetLabel(str, enum.Enum):
     """
 
     BUCKET_NAME = "bucket_name"
+    OBJECTS = "objects"
     OBJECT_PATH = "object_path"
     SQS_QUEUE_NAME = "sqs_queue_name"
     SSM_PARAMETER_NAME = "ssm_parameter_name"
     SECRET_NAME = "secret_name"
     TABLE_NAME = "table_name"
+    TABLE_ITEMS = "table_items"
     TABLE_ITEM = "table_item"
 
 
-def generate_tf_variables(canarydrop: Canarydrop, plan):
+def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
     """
     Generate variables to be used in the terraform template.
     """
@@ -62,11 +64,11 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
     }
     for bucket in plan["assets"]["S3Bucket"]:
         tf_variables["s3_bucket_names"].append(bucket[AssetLabel.BUCKET_NAME])
-        for s3_object in bucket["objects"]:
+        for s3_object in bucket.get("objects", []):
             tf_variables["s3_objects"].append(
                 {
                     "bucket": bucket[AssetLabel.BUCKET_NAME],
-                    "key": s3_object[AssetLabel.OBJECT_PATH],
+                    "key": s3_object,
                     "content": "".join(
                         [
                             random.choice(string.ascii_letters + string.digits)
@@ -78,17 +80,6 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
     return tf_variables
 
 
-def generate_s3_object():
-    """
-    Return a path for a S3 object.
-    """
-    objects = ["object", "data", "text", "passwords"]
-    directory = "".join(
-        [random.choice(string.ascii_letters + string.digits) for _ in range(10)]
-    )
-    return f"{random.randint(2000, 2025)}/{directory}/{random.choice(objects)}"
-
-
 async def generate_for_asset_type(
     asset_type: AWSInfraAssetType, inventory: list, count: int = 1
 ):
@@ -96,16 +87,15 @@ async def generate_for_asset_type(
     return suggested.suggested_names
 
 
-def generate_dynamo_table_item():
-    """
-    Return a name for a DynamoDB table item.
-    """
-    separator = random.choice(["", "-", "_"])
-    items = ["object", "data", "text", "passwords"]
-    suffix = "".join(
-        [random.choice(string.ascii_lowercase + string.digits) for _ in range(5)]
+async def generate_objects_for_bucket(bucket, name_generator):
+    count = random.randint(1, MAX_CHILD_ITEMS)
+    bucket_name = bucket[AssetLabel.BUCKET_NAME]
+    objects = await name_generator.generate_children_names(
+        AWSInfraAssetType.S3_BUCKET,
+        bucket_name,
+        count,
     )
-    return f"{random.choice(items)}{separator}{suffix}"
+    bucket[AssetLabel.OBJECTS].extend(objects)
 
 
 async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
@@ -130,20 +120,9 @@ async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
     )
 
     # Generate S3 objects for each bucket asynchronously
-
-    async def generate_objects_for_bucket(bucket):
-        count = random.randint(1, MAX_CHILD_ITEMS)
-        bucket_name = bucket[AssetLabel.BUCKET_NAME]
-        objects = await NAME_GENERATOR.generate_children_names(
-            AWSInfraAssetType.S3_BUCKET,
-            bucket_name,
-            count,
-        )
-        bucket["objects"].extend([{AssetLabel.OBJECT_PATH: obj} for obj in objects])
-
     await asyncio.gather(
         *[
-            generate_objects_for_bucket(bucket)
+            generate_objects_for_bucket(bucket, NAME_GENERATOR)
             for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
         ]
     )
@@ -252,7 +231,7 @@ async def _add_dynamo_tables(aws_deployed_assets, aws_inventoried_assets, plan):
             table_name,
             count,
         )
-        table["table_items"].extend([{AssetLabel.TABLE_ITEM: item} for item in items])
+        table["table_items"].extend(items)
 
     await asyncio.gather(
         *[
@@ -411,63 +390,83 @@ def _get_ingestion_bus_arn(bus_name: str):
     return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
 
 
+def _get_inventory_for_asset_type(
+    canarydrop: Canarydrop, asset_type: AWSInfraAssetType
+) -> list:
+    """Extract inventory for a specific asset type from canarydrop."""
+    if not canarydrop or not canarydrop.aws_inventoried_assets:
+        return []
+
+    if isinstance(canarydrop.aws_inventoried_assets, dict):
+        inventory = canarydrop.aws_inventoried_assets
+    else:
+        inventory = json.loads(canarydrop.aws_inventoried_assets)
+
+    return inventory.get(asset_type.value, [])
+
+
+async def _generate_parent_asset_name(
+    asset_type: AWSInfraAssetType, inventory: list
+) -> str:
+    """Generate a parent asset name (S3 bucket, SQS queue, etc.)."""
+    names = await generate_for_asset_type(asset_type, inventory, 1)
+    return names[0]
+
+
+async def _generate_child_asset_name(
+    asset_type: AWSInfraAssetType, parent_name: str
+) -> str:
+    """Generate a child asset name (S3 object, DynamoDB item, etc.)."""
+    if not parent_name:
+        raise ValueError(
+            f"Parent asset name required for {asset_type.value} child generation"
+        )
+
+    names = await NAME_GENERATOR.generate_children_names(asset_type, parent_name, 1)
+    return names[0]
+
+
+async def _generate_asset_by_type_and_field(
+    asset_type: AWSInfraAssetType,
+    asset_field: str,
+    inventory: list,
+    parent_asset_name: str = None,
+) -> str:
+    """Generate asset name based on type and field."""
+    # Parent asset types (top-level resources)
+    parent_fields = {
+        AssetLabel.BUCKET_NAME,
+        AssetLabel.SQS_QUEUE_NAME,
+        AssetLabel.SSM_PARAMETER_NAME,
+        AssetLabel.SECRET_NAME,
+        AssetLabel.TABLE_NAME,
+    }
+
+    # Child asset types (nested resources)
+    child_fields = {
+        AssetLabel.OBJECT_PATH,
+        AssetLabel.TABLE_ITEM,
+    }
+
+    if asset_field in parent_fields:
+        return await _generate_parent_asset_name(asset_type, inventory)
+    elif asset_field in child_fields:
+        return await _generate_child_asset_name(asset_type, parent_asset_name)
+    else:
+        raise ValueError(f"Unsupported asset field: {asset_field}")
+
+
 async def generate_data_choice(
     canarydrop: Canarydrop,
     asset_type: AWSInfraAssetType,
     asset_field: str,
     parent_asset_name: str = None,
-):
-    """
-    Generate a random data choice for the given asset type and field.
-    """
-    if canarydrop is not None and canarydrop.aws_inventoried_assets:
-        if isinstance(canarydrop.aws_inventoried_assets, dict):
-            inventory = canarydrop.aws_inventoried_assets
-        else:
-            inventory = json.loads(canarydrop.aws_inventoried_assets)
-    else:
-        inventory = {}
+) -> str:
+    """Generate a random data choice for the given asset type and field."""
+    inventory = _get_inventory_for_asset_type(canarydrop, asset_type)
 
-    # Map (asset_type, asset_field) to their respective generation logic
-    key = (asset_type, asset_field)
-
-    # Helper to get inventory for the asset type
-    def get_inventory():
-        return inventory.get(asset_type.value, [])
-
-    if key == (AWSInfraAssetType.S3_BUCKET, AssetLabel.BUCKET_NAME):
-        return (await generate_for_asset_type(asset_type, get_inventory()))[0]
-    if key == (AWSInfraAssetType.S3_BUCKET, AssetLabel.OBJECT_PATH):
-        if parent_asset_name:
-            return (
-                await NAME_GENERATOR.generate_children_names(
-                    asset_type, parent_asset_name, 1
-                )
-            )[0]
-        raise ValueError(
-            "Parent asset name must be provided for S3 object path generation."
-        )
-    if key == (AWSInfraAssetType.SQS_QUEUE, AssetLabel.SQS_QUEUE_NAME):
-        return (await generate_for_asset_type(asset_type, get_inventory()))[0]
-    if key == (AWSInfraAssetType.SSM_PARAMETER, AssetLabel.SSM_PARAMETER_NAME):
-        return (await generate_for_asset_type(asset_type, get_inventory()))[0]
-    if key == (AWSInfraAssetType.SECRETS_MANAGER_SECRET, AssetLabel.SECRET_NAME):
-        return (await generate_for_asset_type(asset_type, get_inventory()))[0]
-    if key == (AWSInfraAssetType.DYNAMO_DB_TABLE, AssetLabel.TABLE_NAME):
-        return (await generate_for_asset_type(asset_type, get_inventory()))[0]
-    if key == (AWSInfraAssetType.DYNAMO_DB_TABLE, AssetLabel.TABLE_ITEM):
-        if parent_asset_name:
-            return (
-                await NAME_GENERATOR.generate_children_names(
-                    asset_type, parent_asset_name, 1
-                )
-            )[0]
-        raise ValueError(
-            "Parent asset name must be provided for DynamoDB table item generation."
-        )
-
-    raise ValueError(
-        f"Invalid asset type and asset field pairing: {asset_type}, {asset_field}"
+    return await _generate_asset_by_type_and_field(
+        asset_type, asset_field, inventory, parent_asset_name
     )
 
 
