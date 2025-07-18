@@ -9,11 +9,12 @@ import {
   convertISOtoLocalDate,
 } from '@/utils/utils';
 import type { HitsType, CoordsType } from '@/components/tokens/types.ts';
+import type { FormattedIncidentDetailsType } from '@/utils/IncidentTypes.ts';
 
 export default function incidentDetailsService(
   hitAlert: HitsType,
   tokenType: string
-) {
+): FormattedIncidentDetailsType {
   const sharedBasicInfo = {
     token_type: formatTokenTypeLabel(hitAlert.token_type),
     input_channel: hasChannelCustomLabel(

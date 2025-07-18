@@ -24,10 +24,9 @@
       <IncidentDetailsSummary
         v-if="builtIncidentDetail"
         :date="builtIncidentDetail?.time_of_hit"
-        :ip="builtIncidentDetail.src_ip"
+        :ip="getSrcIp(builtIncidentDetail)"
         :input-channel="
-          (builtIncidentDetail as FormattedHitsType).basic_info.input_channel
-        "
+        builtIncidentDetail.basic_info.input_channel"
       />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
@@ -113,7 +112,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
-import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
+import type { HitsType } from '@/components/tokens/types.ts';
+import type { FormattedIncidentDetailsType } from '@/utils/IncidentTypes';
 import IncidentDetailsListItem from '@/components/ui/IncidentDetailsListItem.vue';
 import IncidentDetailsSummary from '@/components/ui/IncidentDetailsSummary.vue';
 import { isObject, isNotEmpty } from '@/utils/utils';
@@ -132,8 +132,15 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(['close']);
-const builtIncidentDetail: Ref<FormattedHitsType | null> = ref(null);
+const builtIncidentDetail: Ref<FormattedIncidentDetailsType | null> = ref(null);
 const formattedIncidentDetail = ref({});
+
+const getSrcIp = (incident: FormattedIncidentDetailsType): string | null => {
+  if ('src_ip' in incident) {
+    return incident.src_ip;
+  }
+  return null;
+};
 
 onMounted(() => {
   // Map & cleanup hitAlert
@@ -144,7 +151,7 @@ onMounted(() => {
 
   // Make the list UI friendly
   formattedIncidentDetail.value = formatLabels(
-    builtIncidentDetail.value as FormattedHitsType
+    builtIncidentDetail.value as FormattedIncidentDetailsType
   );
 });
 
@@ -158,7 +165,7 @@ watch(
     );
     // Make the list UI friendly
     formattedIncidentDetail.value = formatLabels(
-      builtIncidentDetail.value as FormattedHitsType
+      builtIncidentDetail.value as FormattedIncidentDetailsType
     );
   }
 );

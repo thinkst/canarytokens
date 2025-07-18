@@ -252,23 +252,6 @@ export type AdditionalInfoType = {
   metadata?: MetadataType;
 };
 
-type BasicInfoType = {
-  token_type: string;
-  input_channel: string;
-  src_data: string;
-  useragent: string | null;
-  last4: string | null;
-  amount: string | null;
-  merchant: string | null;
-  mail: string | null;
-  referer: string | null;
-  location:
-    | string
-    | GeolocationPosition
-    | GeolocationCoordinates
-    | CoordsType
-    | null;
-};
 
 export type HitsType = {
   time_of_hit: number;
@@ -289,15 +272,6 @@ export type HitsType = {
   referer?: string | null;
   referrer?: string | null;
   location?: string | GeolocationPosition | CoordsType | null;
-};
-
-export type FormattedHitsType = {
-  time_of_hit: string;
-  src_ip?: string | null;
-  geo_info?: GeoInfo | null;
-  is_tor_relay: boolean | null;
-  basic_info: BasicInfoType;
-  additional_info?: AdditionalInfoType;
 };
 
 export type HistoryType = {
