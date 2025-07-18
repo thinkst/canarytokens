@@ -112,14 +112,14 @@ import {
   ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetPropertyKey, S3ObjectType } from '../types';
+import type { AssetDataType, S3ObjectType } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetKey: AssetPropertyKey;
+  assetKey: keyof AssetDataType;
   objectKey: keyof S3ObjectType;
   fields: any;
   prepend: (value: any) => void;

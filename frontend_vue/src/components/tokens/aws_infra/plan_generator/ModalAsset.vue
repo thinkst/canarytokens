@@ -105,13 +105,12 @@ import {
 } from '@/components/tokens/aws_infra/constants.ts';
 import type { ComputedRef } from 'vue';
 import type {
-  AssetTypes,
   DynamoDBTableType,
   SecretsManagerSecretType,
   SSMParameterType,
   SQSQueueType,
   S3BucketType,
-  AssetType,
+  AssetDataType,
 } from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
@@ -119,7 +118,7 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: ComputedRef<AssetType[] | [] | null>;
+  assetData: ComputedRef<AssetDataType[] | [] | null>;
   closeModal: () => void;
 }>();
 
@@ -132,7 +131,7 @@ const currentAssetData = computed(() => {
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
-  assetData: {} as AssetType,
+  assetData: {} as AssetDataType,
   index: -1,
 });
 
@@ -141,7 +140,7 @@ const triggerCancel = ref(false);
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 
-function handleShowAssetDetails(selectedItem: AssetType, index: number) {
+function handleShowAssetDetails(selectedItem: AssetDataType, index: number) {
   isErrorMessage.value = '';
   showAssetDetails.value = true;
   selectedAssetDetails.value = {

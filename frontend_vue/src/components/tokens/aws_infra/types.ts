@@ -35,38 +35,36 @@ type DynamoDBTableType = {
   off_inventory?: boolean;
 };
 
-type AssetTypes = {
-  [K in AssetTypesEnum]?: AssetType[] | null;
+type ProposedAWSInfraTokenPlanType = {
+  [K in AssetTypesEnum]?: AssetDataType[] | null;
 };
 
-type AssetType =
+type AssetDataType =
   | DynamoDBTableType
   | SecretsManagerSecretType
   | SSMParameterType
   | SQSQueueType
   | S3BucketType
 
-type AssetPropertyKey = keyof AssetType;
 
-type FirstStepTokenDataType = {
+type TokenSetupDataType = {
   token: string;
   auth_token: string;
   proposed_plan: {
-    assets: AssetTypes;
+    assets: ProposedAWSInfraTokenPlanType;
   };
   code_snippet_command?: string;
 };
 
 
 export type {
-  AssetType,
-  AssetTypes,
+  AssetDataType,
   S3BucketType,
   S3ObjectType,
   SQSQueueType,
   SSMParameterType,
   SecretsManagerSecretType,
   DynamoDBTableType,
-  FirstStepTokenDataType,
-  AssetPropertyKey
+  TokenSetupDataType,
+  ProposedAWSInfraTokenPlanType
 };

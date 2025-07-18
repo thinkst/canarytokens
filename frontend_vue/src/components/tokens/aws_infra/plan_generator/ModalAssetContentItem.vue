@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { AssetType } from '../types';
+import type { AssetDataType } from '../types';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import {
   S3Bucket_schema,
@@ -30,7 +30,7 @@ import FormAsset from './FormAsset.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetType;
+  assetData: AssetDataType;
   triggerSubmit: boolean;
   triggerCancel: boolean;
 }>();

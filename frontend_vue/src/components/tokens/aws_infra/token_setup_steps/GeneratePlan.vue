@@ -65,8 +65,8 @@ import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type {
-  AssetTypes,
-  AssetType,
+  ProposedAWSInfraTokenPlanType,
+  AssetDataType,
 } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
@@ -89,7 +89,7 @@ const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
 const isLoadingUI = ref(true);
 
-const assetSamples = ref<Record<AssetTypesEnum, AssetType[] | null>>({
+const assetSamples = ref<ProposedAWSInfraTokenPlanType>({
   S3Bucket: [],
   SQSQueue: [],
   SSMParameter: [],
@@ -98,10 +98,7 @@ const assetSamples = ref<Record<AssetTypesEnum, AssetType[] | null>>({
 });
 
 onMounted(() => {
-  assetSamples.value = proposed_plan.assets as Record<
-    AssetTypesEnum,
-    AssetType[] | null
-  >;
+  assetSamples.value = proposed_plan.assets as ProposedAWSInfraTokenPlanType;
   // Set loading state to allow UI to render
   setTimeout(() => {
     isLoadingUI.value = false;
@@ -118,7 +115,7 @@ const availableAssets = computed(() => {
       acc[assetType] = assetData || [];
       return acc;
     },
-    {} as Record<AssetTypesEnum, AssetType[]>
+    {} as Record<AssetTypesEnum, AssetDataType[]>
   );
 });
 
@@ -165,7 +162,7 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
 
 function handleSaveAsset(
   assetType: AssetTypesEnum,
-  newValues: AssetType,
+  newValues: AssetDataType,
   index: number
 ) {
   if (!assetSamples.value[assetType]) {
@@ -178,7 +175,7 @@ function handleSaveAsset(
   }
 }
 
-async function handleSavePlan(formValues: { assets: AssetTypes }) {
+async function handleSavePlan(formValues: { assets: AssetDataType[] | null; }) {
   isSavingPlan.value = true;
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
@@ -205,7 +202,7 @@ async function handleSavePlan(formValues: { assets: AssetTypes }) {
   }
 }
 
-async function handleSubmit(formValues: { assets: AssetTypes }) {
+async function handleSubmit(formValues: { assets: AssetDataType[] | null; }) {
   await handleSavePlan(formValues);
 }
 </script>

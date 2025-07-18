@@ -35,22 +35,22 @@
       </div>
       <ul class="asset-card__list-data list-none">
         <li
-          v-for="[key, value] in assetDataDisplay"
+          v-for="[key, value] in visibleAssetProperties"
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400"> {{ showDataLabel(key) }}: </span>
+          <span class="label text-grey-400"> {{ ASSET_LABEL[key] }}: </span>
           <span
-            class="value text-grey-700 shrink-0"
-            :class="{ 'with-icon': showDataIcon(key) }"
+            class="value text-grey-700"
+            :class="{ 'with-icon': ASSET_WITH_ICON.includes(key) }"
           >
             <img
-              v-if="showDataIcon(key)"
+              v-if="ASSET_WITH_ICON.includes(key)"
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
               :alt="`${key} icon`"
               class="w-[1.5rem] h-[1.5rem]"
             />
-            <span :class="{ 'cropped-data': assetDataDisplay.length > 1 }">
+            <span :class="{ 'cropped-data': visibleAssetProperties.length > 1 }">
               {{ value }}</span
             ></span
           >
@@ -92,15 +92,15 @@ import {
   ASSET_WITH_ICON,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetType, AssetPropertyKey } from '../types';
+import type { AssetDataType } from '../types';
 
-type AssetDataDisplayType = [AssetPropertyKey, string | number];
+type VisibleAssetPropertiesType = [keyof AssetDataType, string | number];
 
 const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetType;
+  assetData: AssetDataType;
 }>();
 
 const isHoverCard = ref(false);
@@ -108,10 +108,10 @@ const assetCardRef = ref();
 
 const assetName = computed(() => {
   const nameKey = ASSET_DATA_NAME[props.assetType];
-  return props.assetData[nameKey as keyof AssetType];
+  return props.assetData[nameKey as keyof AssetDataType];
 });
 
-const assetDataDisplay = computed(() => {
+const visibleAssetProperties = computed(() => {
   const nameKey = ASSET_DATA_NAME[props.assetType];
 
   const assets = Object.entries(props.assetData)
@@ -123,20 +123,13 @@ const assetDataDisplay = computed(() => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
-  return assets as AssetDataDisplayType[];
+  return assets as VisibleAssetPropertiesType[];
 });
 
 const isOffInventory = computed(() => {
   return props.assetData.off_inventory;
 });
 
-function showDataLabel(key: AssetPropertyKey) {
-  return ASSET_LABEL[key];
-}
-
-function showDataIcon(key: AssetPropertyKey) {
-  return ASSET_WITH_ICON.includes(key);
-}
 
 function handleAssetClick() {
   emit('showAsset');
