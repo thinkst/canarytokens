@@ -102,7 +102,7 @@ onUnmounted(() => {
 });
 
 // Prevent the user from leaving the page during the setup process
-function handleBeforeUnload(e: Event){
+function handleBeforeUnload(e: Event) {
   e.preventDefault();
 }
 
@@ -146,8 +146,6 @@ function handleStorePreviousStepData(data: GenericDataType) {
 function handleSettingError(isError: boolean) {
   isSettingError.value = isError;
 }
-
-
 </script>
 
 <style>

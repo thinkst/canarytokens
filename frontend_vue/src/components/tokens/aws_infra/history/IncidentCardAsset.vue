@@ -4,23 +4,26 @@
       v-bind="$attrs"
       class="relative w-full px-16 py-8 transition duration-100 bg-white border text-grey-700 grouped group rounded-2xl shadow-solid-shadow-grey border-grey-200 error-card"
       :class="{ 'mb-8': lastKey }"
-      @click.stop="handleClickError"
+      @click.stop="handleClickAsset"
     >
       <span class="flex flex-row items-center flex-1 gap-16">
-        <AlertShieldIcon
-          class="hidden @xs:block min-w-[30px] group-hover:fill-red group-focus:fill-red group-active:fill-red fill-grey-700 group-hover:scale-95 transition duration-200"
-          aria-hidden="true"
-        />
+        <div
+          :alt="`icon-${assetType}`"
+          :style="{
+            backgroundImage: `url(${getImageUrl(`aws_infra_icons/${assetType}.svg`)})`,
+          }"
+          class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full hidden @xs:block min-w-[2rem]"
+        ></div>
         <span class="text-left">
           <span
-            v-for="(val, key) in incidentPreviewInfo"
+            v-for="(val, key) in assetPreviewInfo"
             :key="key"
             class="block"
           >
             <span
               v-if="val !== null"
               class="capitalize text-grey-400"
-              >{{ key }}:
+              >{{ formatKey(key as string) }}:
             </span>
             <span
               v-if="val !== null"
@@ -32,7 +35,7 @@
       </span>
       <span
         class="flex flex-row items-center justify-end gap-8 mt-8 font-semibold text-red sm:hidden"
-        >Check Incident
+        >Check Incidents
         <font-awesome-icon
           icon="arrow-right"
           class="text-red"
@@ -43,21 +46,24 @@
 </template>
 
 <script setup lang="ts">
-import AlertShieldIcon from '@/components/icons/AlertShieldIcon.vue';
+import getImageUrl from '@/utils/getImageUrl';
+import { formatKey } from '@/utils/utils';
 
 type incidentPreviewInfoType = {
-  [key: string]: string | Date | null;
+  last_date_of_hit: string | Date | null;
+  asset_name: string;
+  asset_type: string;
 };
 
 defineProps<{
   lastKey: boolean;
-  incidentPreviewInfo: incidentPreviewInfoType;
-  incidentId: number | string;
+  assetPreviewInfo: incidentPreviewInfoType;
+  assetType: string | undefined;
 }>();
 
 const emits = defineEmits(['click']);
 
-function handleClickError() {
+function handleClickAsset() {
   emits('click');
 }
 </script>
@@ -66,6 +72,6 @@ function handleClickError() {
 .error-card:hover,
 .error-card:focus,
 .error-card:active {
-  @apply border-red shadow-solid-shadow-red;
+  @apply border-green-500  shadow-solid-shadow-green;
 }
 </style>
