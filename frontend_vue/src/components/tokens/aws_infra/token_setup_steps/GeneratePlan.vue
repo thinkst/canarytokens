@@ -65,7 +65,7 @@ import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type {
-  ProposedAWSInfraTokenPlanType,
+  ProposedAWSInfraTokenPlanData,
   AssetData,
 } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
@@ -89,7 +89,7 @@ const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
 const isLoadingUI = ref(true);
 
-const assetSamples = ref<ProposedAWSInfraTokenPlanType>({
+const assetSamples = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
   SQSQueue: [],
   SSMParameter: [],
@@ -98,7 +98,7 @@ const assetSamples = ref<ProposedAWSInfraTokenPlanType>({
 });
 
 onMounted(() => {
-  assetSamples.value = proposed_plan.assets as ProposedAWSInfraTokenPlanType;
+  assetSamples.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
   // Set loading state to allow UI to render
   setTimeout(() => {
     isLoadingUI.value = false;

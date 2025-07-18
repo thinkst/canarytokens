@@ -35,7 +35,7 @@ type DynamoDBTableData = {
   off_inventory?: boolean;
 };
 
-type ProposedAWSInfraTokenPlanType = {
+type ProposedAWSInfraTokenPlanData = {
   [K in AssetTypesEnum]?: AssetData[] | null;
 };
 
@@ -51,7 +51,7 @@ type TokenSetupData = {
   token: string;
   auth_token: string;
   proposed_plan: {
-    assets: ProposedAWSInfraTokenPlanType;
+    assets: ProposedAWSInfraTokenPlanData;
   };
   code_snippet_command?: string;
 };
@@ -66,5 +66,5 @@ export type {
   SecretsManagerSecretData,
   DynamoDBTableData,
   TokenSetupData,
-  ProposedAWSInfraTokenPlanType
+  ProposedAWSInfraTokenPlanData
 };
