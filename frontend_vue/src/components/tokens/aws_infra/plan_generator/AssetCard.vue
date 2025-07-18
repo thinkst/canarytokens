@@ -35,7 +35,7 @@
       </div>
       <ul class="asset-card__list-data list-none">
         <li
-          v-for="[key, value] in visibleAssetProperties"
+          v-for="[key, value] in assetCardProperties"
           :key="key"
           class="text-sm"
         >
@@ -50,7 +50,7 @@
               :alt="`${key} icon`"
               class="w-[1.5rem] h-[1.5rem]"
             />
-            <span :class="{ 'cropped-data': visibleAssetProperties.length > 1 }">
+            <span :class="{ 'cropped-data': assetCardProperties.length > 1 }">
               {{ value }}</span
             ></span
           >
@@ -109,7 +109,7 @@ const assetName = computed(() => {
   return props.assetData[nameKey as keyof AssetData];
 });
 
-const visibleAssetProperties = computed(() => {
+const assetCardProperties = computed(() => {
   const nameKey = ASSET_DATA_NAME[props.assetType];
 
   const assets = Object.entries(props.assetData)
