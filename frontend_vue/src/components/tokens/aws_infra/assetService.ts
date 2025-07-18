@@ -8,7 +8,7 @@ export const ASSET_CONFIG = {
   [AssetTypesEnum.S3BUCKET]: {
     label: 'S3 Bucket',
     nameKey: 'bucket_name',
-    fields: {
+    fieldsLabel: {
       bucket_name: 'S3 Bucket Name',
       objects: 'S3 Bucket Objects',
       object_path: 'Object Path',
@@ -23,7 +23,7 @@ export const ASSET_CONFIG = {
   [AssetTypesEnum.SQSQUEUE]: {
     label: 'SQS Queue',
     nameKey: 'queue_name',
-    fields: {
+    fieldsLabel: {
       queue_name: 'Queue Name',
       message_count: 'Message Count',
       off_inventory: 'Off Inventory',
@@ -37,7 +37,7 @@ export const ASSET_CONFIG = {
   [AssetTypesEnum.SSMPARAMETER]: {
     label: 'SSM Parameter',
     nameKey: 'ssm_parameter_name',
-    fields: {
+    fieldsLabel: {
       ssm_parameter_name: 'Parameter Name',
       ssm_parameter_value: 'Parameter Value',
       off_inventory: 'Off Inventory',
@@ -51,7 +51,7 @@ export const ASSET_CONFIG = {
   [AssetTypesEnum.SECRETMANAGERSECRET]: {
     label: 'Secrets Manager Secret',
     nameKey: 'secretsmanager_secret_name',
-    fields: {
+    fieldsLabel: {
       secretsmanager_secret_name: 'Secret Name',
       secretsmanager_secret_value: 'Secret Value',
       off_inventory: 'Off Inventory',
@@ -65,7 +65,7 @@ export const ASSET_CONFIG = {
   [AssetTypesEnum.DYNAMODBTABLE]: {
     label: 'Dynamo DB Table',
     nameKey: 'dynamodb_name',
-    fields: {
+    fieldsLabel: {
       dynamodb_name: 'Table Name',
       dynamodb_partition_key: 'Partition Key',
       dynamodb_row_count: 'Row Count',
@@ -93,7 +93,7 @@ export function getFieldLabel(
   fieldKey: string
 ): string {
   return (
-    ASSET_CONFIG[assetType].fields[fieldKey as keyof AssetData] || fieldKey
+    ASSET_CONFIG[assetType].fieldsLabel[fieldKey as keyof AssetData] || fieldKey
   );
 }
 
