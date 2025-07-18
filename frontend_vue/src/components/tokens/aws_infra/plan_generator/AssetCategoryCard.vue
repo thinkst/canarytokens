@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
-import type { AssetDataType } from '../types';
+import type { AssetData } from '../types';
 import {
   ASSET_LABEL,
   AssetTypesEnum,
@@ -50,7 +50,7 @@ const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataType[];
+  assetData: AssetData[];
 }>();
 
 const isHoverCard = ref(false);

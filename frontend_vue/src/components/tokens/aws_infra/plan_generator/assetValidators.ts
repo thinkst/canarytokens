@@ -1,8 +1,9 @@
 import * as yup from 'yup';
 import { ASSET_LABEL } from '../constants.ts';
+import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
 
-const requiredString = (labelKey: keyof typeof ASSET_LABEL) =>
-  yup.string().required().label(ASSET_LABEL[labelKey]);
+const requiredString = (labelKey: string) =>
+  yup.string().required().label(ASSET_LABEL[labelKey as keyof AssetData]);
 
 export const S3Bucket_schema = yup.object().shape({
   bucket_name: requiredString('bucket_name'),

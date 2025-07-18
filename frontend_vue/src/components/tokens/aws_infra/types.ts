@@ -1,34 +1,34 @@
 import { AssetTypesEnum } from './constants';
 
-type S3ObjectType = {
+type S3ObjectData = {
   object_path: string;
 };
 
-type S3BucketType = {
+type S3BucketData = {
   bucket_name: string;
-  objects: S3ObjectType[] | [];
+  objects: S3ObjectData[] | [];
   off_inventory?: boolean;
 };
 
-type SQSQueueType = {
+type SQSQueueData = {
   queue_name: string;
   message_count: number | null;
   off_inventory?: boolean;
 };
 
-type SSMParameterType = {
+type SSMParameterData = {
   ssm_parameter_name: string;
   ssm_parameter_value: string;
   off_inventory?: boolean;
 };
 
-type SecretsManagerSecretType = {
+type SecretsManagerSecretData = {
   secretsmanager_secret_name: string;
   secretsmanager_secret_value: string;
   off_inventory?: boolean;
 };
 
-type DynamoDBTableType = {
+type DynamoDBTableData = {
   dynamodb_name: string;
   dynamodb_partition_key: string;
   dynamodb_row_count: number | null;
@@ -36,18 +36,18 @@ type DynamoDBTableType = {
 };
 
 type ProposedAWSInfraTokenPlanType = {
-  [K in AssetTypesEnum]?: AssetDataType[] | null;
+  [K in AssetTypesEnum]?: AssetData[] | null;
 };
 
-type AssetDataType =
-  | DynamoDBTableType
-  | SecretsManagerSecretType
-  | SSMParameterType
-  | SQSQueueType
-  | S3BucketType
+type AssetData =
+  | DynamoDBTableData
+  | SecretsManagerSecretData
+  | SSMParameterData
+  | SQSQueueData
+  | S3BucketData
 
 
-type TokenSetupDataType = {
+type TokenSetupData = {
   token: string;
   auth_token: string;
   proposed_plan: {
@@ -58,13 +58,13 @@ type TokenSetupDataType = {
 
 
 export type {
-  AssetDataType,
-  S3BucketType,
-  S3ObjectType,
-  SQSQueueType,
-  SSMParameterType,
-  SecretsManagerSecretType,
-  DynamoDBTableType,
-  TokenSetupDataType,
+  AssetData,
+  S3BucketData,
+  S3ObjectData,
+  SQSQueueData,
+  SSMParameterData,
+  SecretsManagerSecretData,
+  DynamoDBTableData,
+  TokenSetupData,
   ProposedAWSInfraTokenPlanType
 };

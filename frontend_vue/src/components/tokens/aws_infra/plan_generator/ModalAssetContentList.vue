@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import type { ComputedRef } from 'vue';
-import type { AssetDataType } from '../types';
+import type { AssetData } from '../types';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
@@ -25,12 +25,12 @@ const props = defineProps<{
   // The Modal struggles to track reactive data, so this prop is unusual:
   // assetData is a ComputedRef to ensure reactivity
   // AssetType[] is used to ensure type safety in the template
-  assetData: AssetDataType[] | ComputedRef<AssetDataType[] | null>;
+  assetData: AssetData[] | ComputedRef<AssetData[] | null>;
 }>();
 
 const emit = defineEmits(['show-asset-details', 'delete-asset']);
 
-function handleShowAssetItem(asset: AssetDataType, index: number) {
+function handleShowAssetItem(asset: AssetData, index: number) {
   emit('show-asset-details', asset, index);
 }
 
