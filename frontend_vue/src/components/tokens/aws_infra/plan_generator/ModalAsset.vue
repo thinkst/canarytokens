@@ -104,15 +104,10 @@ import {
 } from '@/components/tokens/aws_infra/constants.ts';
 import type { ComputedRef } from 'vue';
 import type {
-  DynamoDBTableData,
-  SecretsManagerSecretData,
-  SSMParameterData,
-  SQSQueueData,
-  S3BucketData,
   AssetData,
 } from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
-import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
+import { getAssetLabel, getAssetDefaultValues } from '@/components/tokens/aws_infra/assetService.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
@@ -174,43 +169,7 @@ function handleUpdateAsset(values: any) {
 }
 
 async function handleAddNewAsset() {
-  const newAssetFields = () => {
-    switch (props.assetType) {
-      case AssetTypesEnum.S3BUCKET:
-        return {
-          bucket_name: '',
-          objects: [],
-          off_inventory: false,
-        } as S3BucketData;
-      case AssetTypesEnum.SQSQUEUE:
-        return {
-          queue_name: '',
-          message_count: null,
-          off_inventory: false,
-        } as SQSQueueData;
-      case AssetTypesEnum.SSMPARAMETER:
-        return {
-          ssm_parameter_name: '',
-          ssm_parameter_value: '',
-          off_inventory: false,
-        } as SSMParameterData;
-      case AssetTypesEnum.SECRETMANAGERSECRET:
-        return {
-          secretsmanager_secret_name: '',
-          secretsmanager_secret_value: '',
-          off_inventory: false,
-        } as SecretsManagerSecretData;
-      case AssetTypesEnum.DYNAMODBTABLE:
-        return {
-          dynamodb_name: '',
-          dynamodb_partition_key: '',
-          dynamodb_row_count: null,
-          off_inventory: false,
-        } as DynamoDBTableData;
-      default:
-        return {};
-    }
-  };
+  const newAssetFields = () => getAssetDefaultValues(props.assetType)
 
   const newAssetValues: Record<string, any> = { ...newAssetFields() };
 

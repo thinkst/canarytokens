@@ -1,5 +1,8 @@
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
+import type {
+  AssetData,
+  S3ObjectData,
+} from '@/components/tokens/aws_infra/types.ts';
 
 export const ASSET_CONFIG = {
   [AssetTypesEnum.S3BUCKET]: {
@@ -11,6 +14,11 @@ export const ASSET_CONFIG = {
       object_path: 'Object Path',
       off_inventory: 'Off Inventory',
     },
+    defaultValues: {
+      bucket_name: '',
+      objects: [] as S3ObjectData[],
+      off_inventory: false,
+    },
   },
   [AssetTypesEnum.SQSQUEUE]: {
     label: 'SQS Queue',
@@ -19,6 +27,11 @@ export const ASSET_CONFIG = {
       queue_name: 'Queue Name',
       message_count: 'Message Count',
       off_inventory: 'Off Inventory',
+    },
+    defaultValues: {
+      queue_name: '',
+      message_count: 0,
+      off_inventory: false,
     },
   },
   [AssetTypesEnum.SSMPARAMETER]: {
@@ -29,6 +42,11 @@ export const ASSET_CONFIG = {
       ssm_parameter_value: 'Parameter Value',
       off_inventory: 'Off Inventory',
     },
+    defaultValues: {
+      ssm_parameter_name: '',
+      ssm_parameter_value: '',
+      off_inventory: false,
+    },
   },
   [AssetTypesEnum.SECRETMANAGERSECRET]: {
     label: 'Secrets Manager Secret',
@@ -37,6 +55,11 @@ export const ASSET_CONFIG = {
       secretsmanager_secret_name: 'Secret Name',
       secretsmanager_secret_value: 'Secret Value',
       off_inventory: 'Off Inventory',
+    },
+    defaultValues: {
+      secretsmanager_secret_name: '',
+      secretsmanager_secret_value: '',
+      off_inventory: false,
     },
   },
   [AssetTypesEnum.DYNAMODBTABLE]: {
@@ -47,6 +70,12 @@ export const ASSET_CONFIG = {
       dynamodb_partition_key: 'Partition Key',
       dynamodb_row_count: 'Row Count',
       off_inventory: 'Off Inventory',
+    },
+    defaultValues: {
+      dynamodb_name: '',
+      dynamodb_partition_key: '',
+      dynamodb_row_count: 0,
+      off_inventory: false,
     },
   },
 } as const;
@@ -66,4 +95,8 @@ export function getFieldLabel(
   return (
     ASSET_CONFIG[assetType].fields[fieldKey as keyof AssetData] || fieldKey
   );
+}
+
+export function getAssetDefaultValues(assetType: AssetTypesEnum): AssetData {
+  return ASSET_CONFIG[assetType].defaultValues;
 }
