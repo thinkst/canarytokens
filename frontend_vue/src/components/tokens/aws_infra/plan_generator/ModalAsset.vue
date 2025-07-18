@@ -100,7 +100,6 @@
 <script setup lang="ts">
 import { ref, nextTick, computed } from 'vue';
 import {
-  ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import type { ComputedRef } from 'vue';
@@ -113,6 +112,7 @@ import type {
   AssetData,
 } from '../types';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
@@ -143,7 +143,7 @@ const isEmptyAssetData = computed(() => {
   return Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0;
 });
 
-const assetLabel = computed(() => ASSET_LABEL[props.assetType]);
+const assetLabel = computed(() => getAssetLabel(props.assetType));
 const subtitle = computed(() => {
   return !isEmptyAssetData.value
     ? `We generated names for your ${assetLabel.value} is based on your current deployment.`

@@ -6,37 +6,6 @@ export enum AssetTypesEnum {
   DYNAMODBTABLE = 'DynamoDBTable',
 }
 
-export const ASSET_LABEL = {
-  [AssetTypesEnum.S3BUCKET]: 'S3 Bucket',
-  [AssetTypesEnum.SQSQUEUE]: 'SQS Queue',
-  [AssetTypesEnum.SSMPARAMETER]: 'SSM Parameter',
-  [AssetTypesEnum.SECRETMANAGERSECRET]: 'Secrets Manager Secret',
-  [AssetTypesEnum.DYNAMODBTABLE]: 'Dynamo DB Table',
-  dynamodb_row_count: 'Row Count',
-  dynamodb_partition_key: 'Partition Key',
-  dynamodb_name: 'Table Name',
-  secretsmanager_secret_value: 'Secret Value',
-  secretsmanager_secret_name: 'Secret Name',
-  ssm_parameter_value: 'Parameter Value',
-  ssm_parameter_name: 'Parameter Name',
-  message_count: 'Message Count',
-  queue_name: 'Queue Name',
-  object_path: 'Object Path',
-  bucket_name: 'S3 Bucket Name',
-  objects: 'S3 Bucket Objects',
-  off_inventory: 'Off Inventory',
-};
-
-// Main keys for the Asset Card
-// to display close to the asset icon
-export const ASSET_DATA_NAME = {
-  [AssetTypesEnum.DYNAMODBTABLE]: 'dynamodb_name',
-  [AssetTypesEnum.SECRETMANAGERSECRET]: 'secretsmanager_secret_name',
-  [AssetTypesEnum.SSMPARAMETER]: 'ssm_parameter_name',
-  [AssetTypesEnum.SQSQUEUE]: 'queue_name',
-  [AssetTypesEnum.S3BUCKET]: 'bucket_name',
-};
-
 // Display icon in Asset Card
 export const ASSET_WITH_ICON = ['objects'];
 

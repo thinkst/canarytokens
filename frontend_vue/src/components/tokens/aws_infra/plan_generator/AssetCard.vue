@@ -39,7 +39,7 @@
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400"> {{ ASSET_LABEL[key] }}: </span>
+          <span class="label text-grey-400"> {{ getFieldLabel(assetType, key) }}: </span>
           <span
             class="value text-grey-700"
             :class="{ 'with-icon': ASSET_WITH_ICON.includes(key) }"
@@ -87,11 +87,10 @@
 import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import {
-  ASSET_DATA_NAME,
-  ASSET_LABEL,
   ASSET_WITH_ICON,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
+import {getFieldLabel, getAssetLabel, getAssetNameKey} from '@/components/tokens/aws_infra/assetService.ts';
 import type { AssetData } from '../types';
 
 const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
@@ -105,12 +104,12 @@ const isHoverCard = ref(false);
 const assetCardRef = ref();
 
 const assetName = computed(() => {
-  const nameKey = ASSET_DATA_NAME[props.assetType];
+  const nameKey = getAssetNameKey(props.assetType);
   return props.assetData[nameKey as keyof AssetData];
 });
 
 const assetCardProperties = computed(() => {
-  const nameKey = ASSET_DATA_NAME[props.assetType];
+  const nameKey = getAssetLabel(props.assetType);
 
   const assets = Object.entries(props.assetData)
     .map(([key, value]) => {

@@ -45,11 +45,11 @@ import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import type { AssetData } from '../types';
 import {
-  ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObjects.vue';
+import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -89,7 +89,7 @@ function handleRestoreFields() {
 }
 
 function getLabel(key: keyof AssetData) {
-  return ASSET_LABEL[key];
+  return getFieldLabel(props.assetType, key);
 }
 
 watch(
