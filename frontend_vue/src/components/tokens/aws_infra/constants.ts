@@ -6,8 +6,6 @@ export enum AssetTypesEnum {
   DYNAMODBTABLE = 'DynamoDBTable',
 }
 
-// import type { S3BucketType, SQSQueueType, SSMParameterType, SecretsManagerSecretType, DynamoDBTableType } from '@/components/tokens/aws_infra/types.ts';
-
 export const ASSET_LABEL = {
   [AssetTypesEnum.S3BUCKET]: 'S3 Bucket',
   [AssetTypesEnum.SQSQUEUE]: 'SQS Queue',
