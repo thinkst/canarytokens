@@ -1,7 +1,7 @@
 // Utils just to serve the static Plan Preview
 // Remove this file when the Plan will be merged
 import { ref } from 'vue';
-import type { AssetTypes } from '@/components/tokens/aws_infra/types.ts';
+import type { ProposedAWSInfraTokenPlanType } from '@/components/tokens/aws_infra/types.ts';
 
 export function generateDataChoice() {
   return new Promise((resolve) => {
@@ -15,7 +15,7 @@ export function generateDataChoice() {
   });
 }
 
-export const assetsExample = ref<AssetTypes>({
+export const assetsExample = ref<ProposedAWSInfraTokenPlanType>({
   S3Bucket: [
     {
       bucket_name: 'decoy-bucket-1',
@@ -259,7 +259,7 @@ export const assetsExample = ref<AssetTypes>({
   ],
 });
 
-export const assetsWithEmptySQSQueue = ref<AssetTypes>({
+export const assetsWithEmptySQSQueue = ref<ProposedAWSInfraTokenPlanType>({
   S3Bucket: [
     {
       bucket_name: 'decoy-bucket-1',
@@ -462,7 +462,7 @@ export const assetsWithEmptySQSQueue = ref<AssetTypes>({
   ],
 });
 
-export const assetsManageExample = ref<AssetTypes>({
+export const assetsManageExample = ref<ProposedAWSInfraTokenPlanType>({
   S3Bucket: [
     {
       bucket_name: 'decoy-bucket-1',
@@ -517,7 +517,7 @@ export const assetsManageExample = ref<AssetTypes>({
   ],
 });
 
-export const assetInitialEmptyParameter = ref<AssetTypes>({
+export const assetInitialEmptyParameter = ref<ProposedAWSInfraTokenPlanType>({
   S3Bucket: [
     {
       bucket_name: 'decoy-bucket-1',
