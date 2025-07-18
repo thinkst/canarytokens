@@ -120,6 +120,33 @@ class GeminiDecoyNameGenerator:
 
         return Suggestion(asset_type, suggested_names)
 
+    async def generate_children_names(
+        self, parent_asset_type: AWSInfraAssetType, parent_name: str, count: int = 5
+    ) -> List[str]:
+        """
+        Generate a list of child names for the specified AWS asset type.
+        :param asset_type: The type of AWS asset to generate names for.
+        :param inventory: A list of existing names for the specified asset type.
+        :param count: The number of names to generate.
+        :return: A list of generated child names.
+        """
+        if parent_asset_type not in [
+            AWSInfraAssetType.S3_BUCKET,
+            AWSInfraAssetType.DYNAMO_DB_TABLE,
+        ]:
+            raise ValueError(
+                f"Child name generation is only supported for S3 buckets and DynamoDB tables, not {parent_asset_type.name}."
+            )
+        if parent_asset_type == AWSInfraAssetType.S3_BUCKET:
+            child_description = (
+                "objects (full paths including forward slashes are acceptable)"
+            )
+        else:
+            child_description = "items"
+
+        prompt = f"Generate {count} names for {child_description} in the {parent_asset_type.name} called {parent_name}."
+        return await self._gemini_request(prompt)
+
     async def _validate_s3_name(self, name: str) -> bool:
         """Validate S3 bucket name asynchronously."""
         # Basic validation first
@@ -208,10 +235,11 @@ class GeminiDecoyNameGenerator:
         Augment a name with a random suffix to ensure uniqueness.
         """
         if asset_type == AWSInfraAssetType.S3_BUCKET:
+            max_length = 63
             min_random_suffix_length = 3
             name = f"{name}-{secrets.token_hex(random.randint(min_random_suffix_length, len(name) // 3))}"
-            if len(name) > 63:
-                name = name[:63]
+            if len(name) > max_length:
+                name = name[:max_length]
 
         return name
 
@@ -252,23 +280,14 @@ class GeminiDecoyNameGenerator:
             },
         }
 
-    async def _get_suggested_names(
-        self, asset_type: AWSInfraAssetType, inventory: list[str], count=5
-    ):
+    async def _gemini_request(self, prompt: str):
         """
-        Get suggested names from Gemini for the specified asset type based on the provided inventory.
+        Make a request to the Gemini API with the provided prompt.
         """
-        assert count > 0, "Count must be a positive integer."
-
-        prompt = self._prompt_template.format(
-            count=count, service=asset_type.value, inventory=",".join(inventory)
-        )
-
         headers = {
             "Content-Type": "application/json",
             "X-goog-api-key": self._GEMINI_API_KEY,
         }
-
         try:
             status_code, response_body, _ = await make_request(
                 self._GEMINI_API_URL,
@@ -298,6 +317,7 @@ class GeminiDecoyNameGenerator:
                         return []
                     parsed_content = json.loads(parts[0]["text"])
                     return parsed_content.get("suggested_names", [])
+
                 except (KeyError, IndexError, json.JSONDecodeError) as e:
                     log.error(f"Error parsing Gemini API response: {e}")
                     return []
@@ -307,3 +327,17 @@ class GeminiDecoyNameGenerator:
         except Exception as e:
             log.exception(f"Failed to get response from Gemini API: {e}")
             return []
+
+    async def _get_suggested_names(
+        self, asset_type: AWSInfraAssetType, inventory: list[str], count=5
+    ):
+        """
+        Get suggested names from Gemini for the specified asset type based on the provided inventory.
+        """
+        assert count > 0, "Count must be a positive integer."
+
+        prompt = self._prompt_template.format(
+            count=count, service=asset_type.value, inventory=",".join(inventory)
+        )
+
+        return await self._gemini_request(prompt)

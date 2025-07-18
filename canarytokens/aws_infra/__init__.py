@@ -19,6 +19,7 @@ from .plan_generation import (
     generate_proposed_plan,
     generate_data_choice,
     add_new_assets_to_plan,
+    generate_child_assets,
 )
 from .aws_management import get_shared_secret, get_current_ingestion_bus
 
@@ -42,4 +43,5 @@ __all__ = [
     "mark_failed",
     "mark_ingesting",
     "add_new_assets_to_plan",
+    "generate_child_assets",
 ]
