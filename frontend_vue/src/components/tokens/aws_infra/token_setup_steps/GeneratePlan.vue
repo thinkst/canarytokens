@@ -66,7 +66,7 @@ import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type {
   ProposedAWSInfraTokenPlanType,
-  AssetDataType,
+  AssetData,
 } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
@@ -115,7 +115,7 @@ const availableAssets = computed(() => {
       acc[assetType] = assetData || [];
       return acc;
     },
-    {} as Record<AssetTypesEnum, AssetDataType[]>
+    {} as Record<AssetTypesEnum, AssetData[]>
   );
 });
 
@@ -162,7 +162,7 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
 
 function handleSaveAsset(
   assetType: AssetTypesEnum,
-  newValues: AssetDataType,
+  newValues: AssetData,
   index: number
 ) {
   if (!assetSamples.value[assetType]) {
@@ -175,7 +175,7 @@ function handleSaveAsset(
   }
 }
 
-async function handleSavePlan(formValues: { assets: AssetDataType[] | null; }) {
+async function handleSavePlan(formValues: { assets: AssetData[] | null; }) {
   isSavingPlan.value = true;
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
@@ -202,7 +202,7 @@ async function handleSavePlan(formValues: { assets: AssetDataType[] | null; }) {
   }
 }
 
-async function handleSubmit(formValues: { assets: AssetDataType[] | null; }) {
+async function handleSubmit(formValues: { assets: AssetData[] | null; }) {
   await handleSavePlan(formValues);
 }
 </script>

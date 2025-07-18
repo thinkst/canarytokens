@@ -92,15 +92,13 @@ import {
   ASSET_WITH_ICON,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetDataType } from '../types';
-
-type VisibleAssetPropertiesType = [keyof AssetDataType, string | number];
+import type { AssetData } from '../types';
 
 const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataType;
+  assetData: AssetData;
 }>();
 
 const isHoverCard = ref(false);
@@ -108,7 +106,7 @@ const assetCardRef = ref();
 
 const assetName = computed(() => {
   const nameKey = ASSET_DATA_NAME[props.assetType];
-  return props.assetData[nameKey as keyof AssetDataType];
+  return props.assetData[nameKey as keyof AssetData];
 });
 
 const visibleAssetProperties = computed(() => {
@@ -123,7 +121,7 @@ const visibleAssetProperties = computed(() => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
-  return assets as VisibleAssetPropertiesType[];
+  return assets as [keyof AssetData, string | number][];
 });
 
 const isOffInventory = computed(() => {
