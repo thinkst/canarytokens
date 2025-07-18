@@ -2940,6 +2940,7 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
     auth_token: str
     asset_type: AWSInfraAssetType
     asset_field: AWSInfraAssetField
+    parent_asset_name: str = None
 
 
 class AWSInfraGenerateDataChoiceResponse(BaseModel):
@@ -2991,6 +2992,29 @@ class AWSInfraManagementResponseRequest(BaseModel):
     handle: str
     operation: AWSInfraOperationType
     result: dict
+
+
+# TODO: might change if it doesn't work with the frontend
+class AWSInfraGenerateChildAssetsRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        list[str],
+    ]
+
+
+class AWSInfraGenerateChildAssetsResponse(BaseModel):
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        dict[str, list[str]],
+    ]
 
 
 class AWSInfraState(enum.Flag):

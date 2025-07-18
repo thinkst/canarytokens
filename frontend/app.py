@@ -59,6 +59,8 @@ from canarytokens.exceptions import (
 from canarytokens.models import (
     PWA_APP_TITLES,
     AWSInfraAssetType,
+    AWSInfraGenerateChildAssetsRequest,
+    AWSInfraGenerateChildAssetsResponse,
     AWSInfraHandleResponse,
     AWSInfraCheckRoleReceivedResponse,
     AWSInfraGenerateDataChoiceRequest,
@@ -1202,6 +1204,29 @@ async def api_awsinfra_inventory_customer_account(
 
 
 @api.post(
+    "/awsinfra/generate-child-assets",
+    dependencies=[Depends(validate_exclusive_handle)],
+)
+async def api_awsinfra_generate_child_assets(
+    request: AWSInfraGenerateChildAssetsRequest,
+    response: Response,
+) -> AWSInfraGenerateChildAssetsResponse:
+    pass
+
+
+@api.post(
+    "/awsinfra/test/generate-child-assets",
+    dependencies=[Depends(validate_exclusive_handle)],
+)
+async def test_api_awsinfra_generate_child_assets(
+    request: AWSInfraGenerateChildAssetsRequest,
+    response: Response,
+) -> AWSInfraGenerateChildAssetsResponse:
+    result = await aws_infra.generate_child_assets(request.assets)
+    return AWSInfraGenerateChildAssetsResponse(assets=result)
+
+
+@api.post(
     "/awsinfra/test/inventory-customer-account",
 )
 async def test_api_awsinfra_inventory_customer_account():
@@ -1229,6 +1254,19 @@ async def test_api_awsinfra_inventory_customer_account():
         deployed_assets, inventoried_assets, proposed_plan
     )
     return JSONResponse({"plan": proposed_plan})
+
+
+@api.post("/awsinfra/test/generate-data-choices")
+async def test_api_awsinfra_generate_data_choices(
+    request: AWSInfraGenerateDataChoiceRequest,
+):
+    result = await aws_infra.generate_data_choice(
+        canarydrop=None,
+        asset_type=request.asset_type,
+        asset_field=request.asset_field,
+        parent_asset_name=request.parent_asset_name,
+    )
+    return JSONResponse({"result": result})
 
 
 @api.post("/awsinfra/generate-data-choices")
