@@ -42,9 +42,9 @@ import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import type { AssetData } from '../types';
 import {
-  ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
 
 const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 
@@ -57,7 +57,7 @@ const isHoverCard = ref(false);
 const assetCardRef = ref();
 
 const assetCategoryName = computed(() => {
-  return ASSET_LABEL[props.assetType];
+  return getAssetLabel(props.assetType);
 });
 
 const totalAssets = computed(() => {

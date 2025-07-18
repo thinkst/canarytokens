@@ -109,13 +109,13 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
 import {
-  ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import type { AssetData, S3ObjectData } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
+import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -158,7 +158,7 @@ function iconURL() {
 }
 
 function getLabel(key: keyof AssetData | keyof S3ObjectData) {
-  return ASSET_LABEL[key];
+  return getFieldLabel(props.assetType, key);
 }
 
 function handlePreviousPage() {
