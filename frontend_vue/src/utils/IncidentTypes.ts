@@ -130,17 +130,5 @@ type FormattedIncidentDetailsType =
   | DefaultIncidentDetails;
 
 export type {
-  BasicInfo,
-  MainDetails,
-  AWSKeyLogData,
-  AWSKeysIncidentDetails,
-  CreditCardV2IncidentDetails,
-  PWAIncidentDetails,
-  AWSInfraEvent,
-  AWSInfraDecoyResource,
-  AWSInfraIdentity,
-  AWSInfraMetadata,
-  AWSInfraIncidentDetails,
-  DefaultIncidentDetails,
   FormattedIncidentDetailsType,
 };
