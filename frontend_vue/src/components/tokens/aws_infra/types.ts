@@ -1,10 +1,6 @@
-type S3ObjectData = {
-  object_path: string;
-};
-
 type S3BucketData = {
   bucket_name: string;
-  objects: S3ObjectData[] | [];
+  objects: string[];
   off_inventory?: boolean;
 };
 
@@ -56,7 +52,6 @@ type TokenSetupData = {
 export type {
   AssetData,
   S3BucketData,
-  S3ObjectData,
   SQSQueueData,
   SSMParameterData,
   SecretsManagerSecretData,

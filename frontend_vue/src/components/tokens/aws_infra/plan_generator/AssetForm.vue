@@ -28,7 +28,7 @@
         <AssetTextField
           :id="key"
           :value="initialValues[key]"
-          :label="getLabel(key)"
+          :label="getFieldLabel(props.assetType, key)"
           :field-type="key"
           :asset-type="props.assetType"
         />
@@ -47,7 +47,7 @@ import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
+import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import AssetFormArray from '@/components/tokens/aws_infra/plan_generator/AssetFormArray.vue';
 
 const props = defineProps<{
@@ -85,10 +85,6 @@ function handleProgramaticSubmit() {
 
 function handleRestoreFields() {
   emits('update-asset', tempFields);
-}
-
-function getLabel(key: keyof AssetData) {
-  return getFieldLabel(props.assetType, key);
 }
 
 watch(

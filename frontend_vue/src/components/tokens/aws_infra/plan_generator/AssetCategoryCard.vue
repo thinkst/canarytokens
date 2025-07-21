@@ -44,7 +44,7 @@ import type { AssetData } from '../types';
 import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 
 const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 

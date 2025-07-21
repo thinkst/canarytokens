@@ -106,7 +106,7 @@ import type { ComputedRef } from 'vue';
 import type {
   AssetData,
 } from '../types';
-import { getAssetLabel, getAssetDefaultValues } from '@/components/tokens/aws_infra/assetService.ts';
+import { getAssetLabel, getAssetDefaultValues } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';

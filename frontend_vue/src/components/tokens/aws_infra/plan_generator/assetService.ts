@@ -1,8 +1,5 @@
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
-import type {
-  AssetData,
-  S3ObjectData,
-} from '@/components/tokens/aws_infra/types.ts';
+import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
 
 export const ASSET_CONFIG = {
   [AssetTypesEnum.S3BUCKET]: {
@@ -10,27 +7,26 @@ export const ASSET_CONFIG = {
     nameKey: 'bucket_name',
     fieldsLabel: {
       bucket_name: 'S3 Bucket Name',
-      objects: 'S3 Bucket Objects',
-      object_path: 'Object Path',
+      objects: 'S3 Bucket Object Paths',
       off_inventory: 'Off Inventory',
     },
+    fieldsWithIcons: ['objects'] as string[],
     defaultValues: {
       bucket_name: '',
-      objects: [] as S3ObjectData[],
+      objects: [] as string[],
       off_inventory: false,
     },
   },
   [AssetTypesEnum.SQSQUEUE]: {
     label: 'SQS Queue',
-    nameKey: 'queue_name',
+    nameKey: 'sqs_queue_name',
     fieldsLabel: {
-      queue_name: 'Queue Name',
-      message_count: 'Message Count',
+      sqs_queue_name: 'Queue Name',
       off_inventory: 'Off Inventory',
     },
+    fieldsWithIcons: [] as string[],
     defaultValues: {
-      queue_name: '',
-      message_count: 0,
+      sqs_queue_name: '',
       off_inventory: false,
     },
   },
@@ -39,46 +35,43 @@ export const ASSET_CONFIG = {
     nameKey: 'ssm_parameter_name',
     fieldsLabel: {
       ssm_parameter_name: 'Parameter Name',
-      ssm_parameter_value: 'Parameter Value',
       off_inventory: 'Off Inventory',
     },
+    fieldsWithIcons: [] as string[],
     defaultValues: {
       ssm_parameter_name: '',
-      ssm_parameter_value: '',
       off_inventory: false,
     },
   },
   [AssetTypesEnum.SECRETMANAGERSECRET]: {
     label: 'Secrets Manager Secret',
-    nameKey: 'secretsmanager_secret_name',
+    nameKey: 'secret_name',
     fieldsLabel: {
-      secretsmanager_secret_name: 'Secret Name',
-      secretsmanager_secret_value: 'Secret Value',
+      secret_name: 'Secret Name',
       off_inventory: 'Off Inventory',
     },
+    fieldsWithIcons: [] as string[],
     defaultValues: {
-      secretsmanager_secret_name: '',
-      secretsmanager_secret_value: '',
+      secret_name: '',
       off_inventory: false,
     },
   },
   [AssetTypesEnum.DYNAMODBTABLE]: {
     label: 'Dynamo DB Table',
-    nameKey: 'dynamodb_name',
+    nameKey: 'table_name',
     fieldsLabel: {
-      dynamodb_name: 'Table Name',
-      dynamodb_partition_key: 'Partition Key',
-      dynamodb_row_count: 'Row Count',
+      table_name: 'Table Name',
+      table_items: 'Table Items',
       off_inventory: 'Off Inventory',
     },
+    fieldsWithIcons: ['table_items'] as string[],
     defaultValues: {
-      dynamodb_name: '',
-      dynamodb_partition_key: '',
-      dynamodb_row_count: 0,
+      table_name: '',
+      table_items: [] as string[],
       off_inventory: false,
     },
   },
-} as const;
+};
 
 export function getAssetLabel(assetType: AssetTypesEnum): string {
   return ASSET_CONFIG[assetType].label;
@@ -99,4 +92,13 @@ export function getFieldLabel(
 
 export function getAssetDefaultValues(assetType: AssetTypesEnum): AssetData {
   return ASSET_CONFIG[assetType].defaultValues;
+}
+
+export function hasFieldIcon(
+  assetType: AssetTypesEnum,
+  fieldKey: keyof AssetData
+): boolean {
+  return ASSET_CONFIG[assetType]?.fieldsWithIcons?.includes(
+    fieldKey as keyof AssetData
+  );
 }

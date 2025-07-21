@@ -39,13 +39,15 @@
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400"> {{ getFieldLabel(assetType, key) }}: </span>
+          <span class="label text-grey-400">
+            {{ getFieldLabel(assetType, key) }}:
+          </span>
           <span
             class="value text-grey-700"
-            :class="{ 'with-icon': ASSET_WITH_ICON.includes(key) }"
+            :class="{ 'with-icon': hasFieldIcon(props.assetType, key) }"
           >
             <img
-              v-if="ASSET_WITH_ICON.includes(key)"
+              v-if="hasFieldIcon(props.assetType, key)"
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
               :alt="`${key} icon`"
               class="w-[1.5rem] h-[1.5rem]"
@@ -86,11 +88,12 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import {
-  ASSET_WITH_ICON,
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
-import {getFieldLabel, getAssetLabel, getAssetNameKey} from '@/components/tokens/aws_infra/assetService.ts';
+  getFieldLabel,
+  hasFieldIcon,
+  getAssetNameKey,
+} from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import type { AssetData } from '../types';
 
 const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
@@ -109,7 +112,7 @@ const assetName = computed(() => {
 });
 
 const assetCardProperties = computed(() => {
-  const nameKey = getAssetLabel(props.assetType);
+  const nameKey = getAssetNameKey(props.assetType);
 
   const assets = Object.entries(props.assetData)
     .map(([key, value]) => {
@@ -126,7 +129,6 @@ const assetCardProperties = computed(() => {
 const isOffInventory = computed(() => {
   return props.assetData.off_inventory;
 });
-
 
 function handleAssetClick() {
   emit('showAsset');

@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { getFieldLabel } from '@/components/tokens/aws_infra/assetService.ts';
+import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
@@ -11,14 +11,14 @@ const requiredString = (assetType: AssetTypesEnum, labelKey: string) =>
 
 export const S3Bucket_schema = yup.object().shape({
   bucket_name: requiredString(AssetTypesEnum.S3BUCKET, 'bucket_name'),
-  objects: yup.array().of(
-    yup.object().shape({
-      object_path: yup
+  objects: yup
+    .array()
+    .of(
+      yup
         .string()
         .required()
-        .label(getFieldLabel(AssetTypesEnum.S3BUCKET, 'object_path')),
-    })
-  ),
+        .label(getFieldLabel(AssetTypesEnum.S3BUCKET, 'objects'))
+    ),
 });
 
 export const SQSQueue_schema = yup.object().shape({
