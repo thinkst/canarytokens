@@ -44,9 +44,9 @@
             </div>
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
-              We need to inventory your account to suggest decoy resources to
-              deploy, execute these commands to give us read-only access.
+              Run these commands to grant read-only access so we can inventory your accound and suggest decoy resources.
             </p>
+            <p><span class="font-bold text-green-500">Plase note:</span> We send limited inventory data to Google's Gemini to generate realistic decoy names.</p>
           </div>
           <BaseLabelArrow
             id="aws-snippet"

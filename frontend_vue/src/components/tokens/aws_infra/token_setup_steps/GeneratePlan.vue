@@ -29,8 +29,15 @@
     <div>
       <div class="flex justify-between mb-24"></div>
       <BaseMessageBox
+        variant="success"
+        class="mb-24"
+        >We analyzed your AWS account. Below are the recommended decoys that have been generated to match your environment for each asset.
+        You can review or edit anything before we generate your canarytoken.</BaseMessageBox
+      >
+      <BaseMessageBox
         v-if="isErrorMessage"
         variant="danger"
+        class="mb-24"
         >{{ isErrorMessage }}</BaseMessageBox
       >
       <ul
@@ -58,7 +65,7 @@
       <BaseButton
         :loading="isSavingPlan"
         @click="handleSubmit(proposed_plan)"
-        >{{ isSavingPlan ? 'Saving the plan...' : 'Save Plan' }}</BaseButton
+        >{{ isSavingPlan ? 'Saving...' : 'Save configuration' }}</BaseButton
       >
       <BaseMessageBox
         v-if="isSaveError"
