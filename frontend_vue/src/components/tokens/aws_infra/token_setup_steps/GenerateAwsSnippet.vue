@@ -151,7 +151,7 @@ import { useModal } from 'vue-final-modal';
 import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
 import type { TokenDataType } from '@/utils/dataService';
-import type { CurrentTokenDataType } from '@/components/tokens/aws_infra/types.ts';
+import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
 import StepState from '../StepState.vue';
 import type { GenericObject } from 'vee-validate';
 import {
@@ -177,7 +177,7 @@ const emits = defineEmits([
 
 const props = defineProps<{
   initialStepData: TokenDataType;
-  currentStepData: CurrentTokenDataType;
+  currentStepData: TokenSetupData;
 }>();
 
 const { token, auth_token, aws_region, aws_account_number } =

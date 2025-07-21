@@ -4,13 +4,13 @@
   </div>
   <div
     v-if="isLoadingUI"
-    class="mt-[80px] grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr"
+    class="mt-[20px] grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
   >
     <BaseSkeletonLoader
-      v-for="i in 10"
+      v-for="i in 5"
       :key="i"
       type="rectangle"
-      class="h-[160px]"
+      class="h-[210px]"
     />
   </div>
   <div
@@ -18,154 +18,30 @@
     class="flex items-stretch flex-col px-24"
   >
     <div>
-      <div class="flex justify-between mb-24">
-        <div>
-          <SelectAddAsset
-            :is-type-missing-permission="isMissingPermissionAssetType"
-            @select-option="(assetKey) => handleAddNewAsset(assetKey)"
-          />
-        </div>
-        <div class="flex items-center gap-8 text-grey-500">
-          View:
-          <button
-            type="button"
-            :class="{ 'text-green-500': viewType === ViewTypeEnum.LIST }"
-            @click="handleSelectViewType(ViewTypeEnum.LIST)"
-          >
-            List
-          </button>
-          |
-          <button
-            type="button"
-            :class="{ 'text-green-500': viewType === ViewTypeEnum.GRID }"
-            @click="handleSelectViewType(ViewTypeEnum.GRID)"
-          >
-            Grid
-          </button>
-        </div>
-      </div>
-      <div class="min-h-[3rem] flex items-center">
-        <!-- Filters -->
-        <div
-          v-if="!numberSelectedAssets"
-          class="flex flex-col items-center justify-between w-full gap-24 md:flex-row"
-        >
-          <ul class="flex flex-row flex-wrap gap-8 list-none justify-left">
-            <FilterButton
-              id="filterAll"
-              category="All"
-              category-type="Assets"
-              :selected="!filterValue"
-              :high-contrast="true"
-              @click="filterValue = ''"
-            />
-            <li
-              v-for="(_assetValues, assetKey) in assetSamples"
-              :key="assetKey"
-            >
-              <FilterButton
-                :category="ASSET_LABEL[assetKey]"
-                category-type="Assets"
-                :high-contrast="true"
-                :selected="filterValue === assetKey"
-                @click="handleFilterList(assetKey as AssetTypesEnum)"
-              />
-            </li>
-          </ul>
-        </div>
-        <!-- Bulk select actions -->
-        <div
-          v-if="numberSelectedAssets"
-          class="bg-grey-100 rounded-xl px-24 py-8 flex flex-row w-fit gap-8"
-        >
-          <span>{{ numberSelectedAssets }} assets selected: </span>
-          <button
-            type="button"
-            class="font-semibold hover:text-red"
-            @click="handleRemoveAsset(null, null, 0, true)"
-          >
-            Delete Selected
-          </button>
-          <button
-            type="button"
-            class="ml-8 font-semibold hover:text-green-500"
-            @click="resetSelectedAssetObj"
-          >
-            Unselect All
-          </button>
-        </div>
-      </div>
+      <div class="flex justify-between mb-24"></div>
       <BaseMessageBox
         v-if="isErrorMessage"
         variant="danger"
         >{{ isErrorMessage }}</BaseMessageBox
       >
-
-      <template
-        v-for="(assetValues, assetKey) in assetSamples"
-        :key="assetKey"
+      <ul
+        class="grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
       >
-        <section
-          v-if="showSection(assetKey as AssetTypesEnum)"
-          :id="`section-${assetKey}`"
-          class="asset-section"
-        >
-          <h1 class="mb-16 mt-40 uppercase">{{ ASSET_LABEL[assetKey] }}</h1>
-          <div v-if="isMissingPermissionAssetType.includes(assetKey)">
-            <BaseMessageBox variant="warning"
-              >We couldn't inventory your {{ ASSET_LABEL[assetKey] }}. Please
-              check the permissions and run the inventory again.</BaseMessageBox
-            >
-          </div>
-          <div
-            v-else
-            :class="[
-              {
-                'grid grid-col-1 gap-8 auto-rows-fr':
-                  viewType === ViewTypeEnum.LIST,
-              },
-              {
-                'grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-fr':
-                  viewType === ViewTypeEnum.GRID,
-              },
-            ]"
-          >
-            <TransitionGroup :name="animationName">
-              <AssetCard
-                v-for="(asset, index) of assetValues"
-                :key="`${assetKey}-${Object.values(asset)[0]}`"
-                :asset-type="assetKey as AssetTypesEnum"
-                :view-type="viewType"
-                :asset-data="asset"
-                :is-active-selected="isActiveSelected"
-                @open-asset="
-                  handleOpenAssetModal(asset, assetKey as AssetTypesEnum, index)
-                "
-                @select-asset="
-                  (isSelected) =>
-                    handleSelectAsset(
-                      isSelected,
-                      assetKey as AssetTypesEnum,
-                      index
-                    )
-                "
-                @delete-asset="
-                  handleRemoveAsset(
-                    assetKey,
-                    assetSamples[assetKey],
-                    index,
-                    false
-                  )
-                "
-              />
-            </TransitionGroup>
-            <ButtonAddAsset
-              :asset-type="assetKey as AssetTypesEnum"
-              @add-asset="handleAddNewAsset(assetKey as AssetTypesEnum)"
-            />
-          </div>
-        </section>
-      </template>
+        <AssetCategoryCard
+          v-for="(assetValues, assetKey, index) in availableAssets"
+          :key="`${assetKey}-${index}`"
+          :asset-data="assetValues"
+          :asset-type="assetKey as AssetTypesEnum"
+          @open-asset="handleOpenAssetCategoryModal(assetKey as AssetTypesEnum)"
+        />
+      </ul>
+      <BaseMessageBox
+        v-if="assetsWithMissingPermissions.length > 0"
+        variant="warning"
+        class="mt-16"
+      >
+        {{ assetWithMissingPermissionText }}
+      </BaseMessageBox>
     </div>
 
     <div class="flex flex-col items-center mt-32">
@@ -189,35 +65,12 @@ import { useModal } from 'vue-final-modal';
 import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type {
-  AssetsTypes,
-  AssetDataType,
+  ProposedAWSInfraTokenPlanData,
+  AssetData,
 } from '@/components/tokens/aws_infra/types.ts';
-import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
-import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
-
-import FilterButton from '@/components/ui/FilterButton.vue';
-import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
-import {
-  ASSET_LABEL,
-  ASSET_DATA,
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
+import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
-import ModalDelete from '@/components/tokens/aws_infra/plan_generator/ModalDeleteAsset.vue';
-import ButtonAddAsset from '@/components/tokens/aws_infra/plan_generator/ButtonAddAsset.vue';
-import SelectAddAsset from '@/components/tokens/aws_infra/plan_generator/SelectAddAsset.vue';
-import useMultiselectAssets from '@/components/tokens/aws_infra/plan_generator/useMultiselectAssets.ts';
-
-enum ViewTypeEnum {
-  GRID = 'gridView',
-  LIST = 'listView',
-}
-
-enum AnimationTypeEnum {
-  LOADING = 'loading',
-  DEFAULT = 'list',
-  NONE = 'none',
-}
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -229,8 +82,6 @@ const props = defineProps<{
 const { token, auth_token, code_snippet_command, proposed_plan } =
   props.initialStepData;
 
-const viewType = ref(ViewTypeEnum.GRID);
-const isLoading = ref(true);
 const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);
@@ -238,7 +89,7 @@ const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
 const isLoadingUI = ref(true);
 
-const assetSamples = ref<AssetsTypes>({
+const assetSamples = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
   SQSQueue: [],
   SSMParameter: [],
@@ -246,178 +97,85 @@ const assetSamples = ref<AssetsTypes>({
   DynamoDBTable: [],
 });
 
-const filterValue = ref('');
-const animationName = ref(AnimationTypeEnum.LOADING);
-const {
-  isActiveSelected,
-  numberSelectedAssets,
-  handleRemoveAllSelected,
-  handleSelectAsset,
-  resetSelectedAssetObj,
-} = useMultiselectAssets(assetSamples);
-
 onMounted(() => {
-  assetSamples.value = proposed_plan.assets;
-  resetSelectedAssetObj();
-
+  assetSamples.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
   // Set loading state to allow UI to render
   setTimeout(() => {
     isLoadingUI.value = false;
   }, 300);
 });
 
-const isMissingPermissionAssetType = computed(() => {
-  return Object.entries(assetSamples.value)
-    .filter(([, v]) => v === null)
-    .map(([k]) => k);
+const availableAssets = computed(() => {
+  return Object.values(AssetTypesEnum).reduce(
+    (acc, assetType) => {
+      const assetData = assetSamples.value[assetType];
+      if (assetData === null) {
+        return acc;
+      }
+      acc[assetType] = assetData || [];
+      return acc;
+    },
+    {} as Record<AssetTypesEnum, AssetData[]>
+  );
 });
 
-function handleRemoveManageInfo(assetData: any) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { off_inventory, ...rest } = assetData;
-  return rest;
+const assetsWithMissingPermissions = computed(() => {
+  return Object.entries(assetSamples.value)
+    .filter(([, assets]) => assets === null)
+    .map(([assetType]) => assetType);
+});
+
+const assetWithMissingPermissionText = computed(() => {
+  const isMultipleAssets = assetsWithMissingPermissions.value.length > 1;
+  return `We couldn't inventory the following asset${isMultipleAssets ? 's' : ''}:
+  ${assetsWithMissingPermissions.value.join(', ')}.
+  Please check the permissions and run the inventory again.`;
+});
+
+function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
+  assetSamples.value[assetType]!.splice(index, 1);
 }
 
-function handleSelectViewType(value: ViewTypeEnum) {
-  viewType.value = value;
-}
-
-function handleFilterList(assetType: AssetTypesEnum) {
-  filterValue.value = assetType;
-}
-
-function showSection(assetType: AssetTypesEnum) {
-  return filterValue.value === assetType || filterValue.value === '';
-}
-
-function handleRemoveAsset(
-  assetType: any,
-  list: any,
-  index: number,
-  isBulkDelete: boolean
-) {
-  const { open, close } = useModal({
-    component: ModalDelete,
-    attrs: {
-      assetType: assetType,
-      isBulkDelete: isBulkDelete,
-      closeModal: () => {
-        close();
-      },
-      onDeleteConfirmed: () => {
-        !isBulkDelete ? list.splice(index, 1) : handleRemoveAllSelected();
-      },
-    },
-  });
-  open();
-}
-
-function handleOpenAssetModal(
-  assetData: AssetDataType,
-  assetType: AssetTypesEnum,
-  index: number
-) {
+function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
   const { open, close } = useModal({
     component: ModalAsset,
     attrs: {
       assetType: assetType,
-      assetData: handleRemoveManageInfo(assetData),
+      assetData: computed(() => availableAssets.value[assetType]),
       closeModal: () => {
         close();
       },
       'onUpdate-asset': (newValues) => {
-        animationName.value = AnimationTypeEnum.NONE;
-        handleSaveAsset(newValues, assetType, index);
+        const { assetType, assetData, index } = newValues;
+        handleSaveAsset(assetType, assetData, index);
+      },
+      'onDelete-asset': (index: number) => {
+        handleDeleteAsset(assetType, index);
+      },
+      'onAdd-asset': (newValues) => {
+        handleSaveAsset(assetType, newValues, -1);
       },
     },
   });
   open();
 }
 
-async function handleAddNewAsset(assetType: AssetTypesEnum) {
-  animationName.value = AnimationTypeEnum.DEFAULT;
-
-  const newAssetFields = () => {
-    switch (assetType) {
-      case AssetTypesEnum.S3BUCKET:
-        return ASSET_DATA[AssetTypesEnum.S3BUCKET];
-      case AssetTypesEnum.SQSQUEUE:
-        return ASSET_DATA[AssetTypesEnum.SQSQUEUE];
-      case AssetTypesEnum.SSMPARAMETER:
-        return ASSET_DATA[AssetTypesEnum.SSMPARAMETER];
-      case AssetTypesEnum.SECRETMANAGERSECRET:
-        return ASSET_DATA[AssetTypesEnum.SECRETMANAGERSECRET];
-      case AssetTypesEnum.DYNAMODBTABLE:
-        return ASSET_DATA[AssetTypesEnum.DYNAMODBTABLE];
-      default:
-        return {};
-    }
-  };
-
-  const newAssetValues: Record<string, any> = { ...newAssetFields() };
-
-  async function getAssetRandomData() {
-    isLoading.value = true;
-
-    try {
-      const results = await Promise.all(
-        Object.keys(newAssetFields()).map(async (key) => {
-          if (Array.isArray(newAssetValues[key])) return null;
-          if (key === 'off_inventory') return { key, value: false };
-
-          const {
-            handleGenerateName,
-            isGenerateNameError,
-            isGenerateNameLoading,
-            generatedName,
-          } = useGenerateAssetName(assetType, key);
-
-          isLoading.value = isGenerateNameLoading.value;
-          await handleGenerateName();
-          isErrorMessage.value = isGenerateNameError.value;
-          return { key, value: generatedName.value };
-        })
-      );
-
-      results.forEach((result) => {
-        if (result) {
-          newAssetValues[result.key] = result.value;
-        }
-      });
-    } catch (err: any) {
-      isErrorMessage.value = err.message || 'An error occurred';
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  await getAssetRandomData();
-  handleSaveAsset(newAssetValues, assetType, -1);
-  // scroll to section
-  location.href = `#section-${assetType}`;
-}
-
 function handleSaveAsset(
-  newValues: any,
   assetType: AssetTypesEnum,
+  newValues: AssetData,
   index: number
 ) {
   if (!assetSamples.value[assetType]) {
     assetSamples.value[assetType] = [];
   }
   if (index === -1) {
-    assetSamples.value[assetType]!.push(newValues);
+    assetSamples.value[assetType]?.unshift(newValues);
   } else {
     assetSamples.value[assetType]![index] = newValues;
-    setTimeout(() => {
-      AnimationTypeEnum.DEFAULT;
-    }, 0);
   }
 }
 
-isLoading.value = false;
-
-async function handleSavePlan(formValues: PlanValueTypes) {
+async function handleSavePlan(formValues: { assets: AssetData[] | null; }) {
   isSavingPlan.value = true;
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
@@ -429,6 +187,7 @@ async function handleSavePlan(formValues: PlanValueTypes) {
       isSavingPlan.value = false;
       isSaveError.value = true;
       isSaveErrorMessage.value = res.data.message;
+      return;
     }
     isSaveSuccess.value = true;
     emits('storeCurrentStepData', { token, auth_token });
@@ -443,59 +202,9 @@ async function handleSavePlan(formValues: PlanValueTypes) {
   }
 }
 
-async function handleSubmit(formValues: PlanValueTypes) {
+async function handleSubmit(formValues: { assets: AssetData[] | null; }) {
   await handleSavePlan(formValues);
 }
 </script>
 
-<style>
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  20% {
-    transform: translateY(-10px);
-  }
-  40% {
-    transform: translateY(10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-  80% {
-    transform: translateY(5px);
-  }
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.4s ease;
-  transition-delay: 0.2s;
-}
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
-}
-
-.list-enter-active {
-  animation: bounce 1.2s ease infinite;
-  animation-delay: 0.8s;
-}
-
-.loading-enter-active,
-.loading-leave-active {
-  transition: all 0.4s ease;
-  transition-delay: 0.2s;
-}
-.loading-enter-from,
-.loading-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
-}
-
-.loading-enter-active {
-  animation-delay: 0.8s;
-}
-</style>
+<style></style>

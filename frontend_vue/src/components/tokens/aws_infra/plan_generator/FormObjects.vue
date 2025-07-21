@@ -21,6 +21,11 @@
       Add object
     </BaseButton>
   </div>
+  <BaseMessageBox
+    v-if="isErrorMessage"
+    variant="danger"
+    >{{ isErrorMessage }}
+  </BaseMessageBox>
   <div class="paginated_object_list__wrapper">
     <fieldset
       class="paginated_object_list"
@@ -104,18 +109,18 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
 import {
-  ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
-import type { AssetDataType, S3ObjectType } from '../types';
+import type { AssetData, S3ObjectData } from '../types';
 import getImageUrl from '@/utils/getImageUrl';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
+import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetKey: keyof AssetDataType;
-  objectKey: keyof S3ObjectType;
+  assetKey: keyof AssetData;
+  objectKey: keyof S3ObjectData;
   fields: any;
   prepend: (value: any) => void;
   remove: (value: number) => void;
@@ -152,8 +157,8 @@ function iconURL() {
   return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
 }
 
-function getLabel(key: keyof typeof ASSET_LABEL) {
-  return ASSET_LABEL[key];
+function getLabel(key: keyof AssetData | keyof S3ObjectData) {
+  return getFieldLabel(props.assetType, key);
 }
 
 function handlePreviousPage() {
@@ -170,6 +175,7 @@ function handleNextPage() {
 
 async function handleAddObject() {
   isLoading.value = true;
+  isErrorMessage.value = '';
 
   const {
     handleGenerateName,
@@ -181,6 +187,10 @@ async function handleAddObject() {
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();
   isErrorMessage.value = isGenerateNameError.value;
+  if (isErrorMessage.value) {
+    isLoading.value = false;
+    return;
+  }
   props.prepend({ [objectKey.value]: generatedName.value });
   isLoading.value = false;
 }
