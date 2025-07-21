@@ -1,8 +1,5 @@
 <template>
-  <li
-    class="asset-card__wrapper"
-    :class="viewType"
-  >
+  <li class="asset-card__wrapper">
     <span
       v-if="isOffInventory"
       v-tooltip="{
@@ -17,7 +14,6 @@
       ref="assetCardRef"
       class="asset-card group border group bg-white rounded-2xl top-[0px] border-grey-200 duration-100 ease-in-out"
       :class="{
-        active: isSelected,
         'border-yellow': isOffInventory,
       }"
       @click.stop="handleAssetClick"
@@ -39,48 +35,29 @@
       </div>
       <ul class="asset-card__list-data list-none">
         <li
-          v-for="[key, value] in assetDataDisplay"
+          v-for="[key, value] in assetCardProperties"
           :key="key"
           class="text-sm"
         >
-          <span class="label text-grey-400"> {{ showDataLabel(key) }}: </span>
+          <span class="label text-grey-400"> {{ getFieldLabel(assetType, key) }}: </span>
           <span
-            class="value text-grey-700 shrink-0"
-            :class="{ 'with-icon': showDataIcon(key) }"
+            class="value text-grey-700"
+            :class="{ 'with-icon': ASSET_WITH_ICON.includes(key) }"
           >
             <img
-              v-if="showDataIcon(key)"
+              v-if="ASSET_WITH_ICON.includes(key)"
               :src="getImageUrl(`aws_infra_icons/${key}.svg`)"
               :alt="`${key} icon`"
               class="w-[1.5rem] h-[1.5rem]"
             />
-            <span :class="{ 'cropped-data': assetDataDisplay.length > 1 }">
+            <span :class="{ 'cropped-data': assetCardProperties.length > 1 }">
               {{ value }}</span
             ></span
           >
         </li>
       </ul>
-      <!--- Btn Edit --->
-      <div
-        :class="{
-          'shadow-solid-shadow-yellow': isOffInventory,
-        }"
-        class="asset-card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
-      >
-        {{ isHoverCard ? 'Edit' : assetLabel }}
-      </div>
     </button>
-    <!-- Select and Btn Delete -->
     <div class="asset-card__options">
-      <BaseInputCheckbox
-        id="select-asset"
-        label="Select asset"
-        class="input-select text-sm text-grey-500"
-        tooltip-content="Select asset"
-        :hide-label="true"
-        :model-value="isSelected"
-        @update:model-value="(value) => handleSelectAsset(value)"
-      />
       <button
         type="button"
         class="list-btn-edit text-sm text-grey-400"
@@ -107,40 +84,32 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
-import type { AssetDataType, S3ObjectType } from '../types';
+import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import {
-  ASSET_DATA_NAME,
-  ASSET_LABEL,
   ASSET_WITH_ICON,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
+import {getFieldLabel, getAssetLabel, getAssetNameKey} from '@/components/tokens/aws_infra/assetService.ts';
+import type { AssetData } from '../types';
 
-type AssetDataTypeWithoutS3Object = Exclude<AssetDataType, S3ObjectType>;
-
-const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
+const emit = defineEmits(['showAsset', 'deleteAsset', 'selectAsset']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataTypeWithoutS3Object;
-  isActiveSelected: boolean;
-  viewType: 'gridView' | 'listView';
+  assetData: AssetData;
 }>();
 
 const isHoverCard = ref(false);
 const assetCardRef = ref();
-const isSelected = ref(false);
 
 const assetName = computed(() => {
-  const nameKey =
-    ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
-  return props.assetData[nameKey as keyof AssetDataType];
+  const nameKey = getAssetNameKey(props.assetType);
+  return props.assetData[nameKey as keyof AssetData];
 });
 
-const assetDataDisplay = computed<any[][]>((): any[][] => {
-  const nameKey =
-    ASSET_DATA_NAME[props.assetType as keyof typeof ASSET_DATA_NAME];
+const assetCardProperties = computed(() => {
+  const nameKey = getAssetLabel(props.assetType);
 
   const assets = Object.entries(props.assetData)
     .map(([key, value]) => {
@@ -151,28 +120,16 @@ const assetDataDisplay = computed<any[][]>((): any[][] => {
       return [key, value];
     })
     .filter((asset) => asset !== null);
-  return assets as any[][];
-});
-
-const assetLabel = computed(() => {
-  return ASSET_LABEL[props.assetType];
+  return assets as [keyof AssetData, string | number][];
 });
 
 const isOffInventory = computed(() => {
   return props.assetData.off_inventory;
 });
 
-function showDataLabel(key: keyof typeof ASSET_LABEL) {
-  return ASSET_LABEL[key];
-}
-
-function showDataIcon(key: string) {
-  return ASSET_WITH_ICON.includes(key);
-}
 
 function handleAssetClick() {
-  // Open Modal
-  emit('openAsset');
+  emit('showAsset');
   // remove focus from selected card
   if (assetCardRef.value) {
     assetCardRef.value.blur();
@@ -186,18 +143,6 @@ function handleMouseOver() {
 function handleMouseLeave() {
   isHoverCard.value = false;
 }
-
-function handleSelectAsset(value: boolean) {
-  isSelected.value = value;
-  emit('selectAsset', isSelected.value);
-}
-
-watch(
-  () => props.isActiveSelected,
-  (newVal) => {
-    newVal === false ? (isSelected.value = newVal) : null;
-  }
-);
 </script>
 
 <style>
@@ -214,119 +159,10 @@ watch(
 </style>
 
 <style lang="scss">
-.asset-card__wrapper.gridView {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-
-  .asset-card {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: space-between;
-    align-items: stretch;
-
-    &__badge {
-      top: -10px;
-      left: 50%;
-      transform: translate(-50%);
-    }
-
-    &__content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8;
-      padding-inline: 0.5rem;
-      padding-top: 0.8rem;
-
-      img {
-        height: 2rem;
-        width: 2rem;
-        border-radius: 2rem;
-      }
-
-      p {
-        padding-block: 0.3rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 20ch;
-      }
-    }
-
-    &__list-data {
-      padding-bottom: 0.5rem;
-      padding-inline: 0.5rem;
-
-      li {
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-        justify-content: space-between;
-        text-align: left;
-
-        span.value {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: 10ch;
-        }
-
-        span.value.with-icon {
-          display: flex;
-          flex-direction: row;
-          gap: 0.3rem;
-        }
-      }
-    }
-    &__btn-edit {
-      padding-block: 0.5rem;
-      align-items: center;
-      line-height: 0.8rem;
-    }
-
-    &__options {
-      display: none;
-      align-items: center;
-
-      .list-btn-edit {
-        display: none;
-      }
-
-      .input-select {
-        position: absolute;
-        left: 0.8rem;
-        top: 0.7rem;
-      }
-
-      .list-btn-edit {
-        position: absolute;
-        right: 3em;
-        top: 0.6rem;
-      }
-
-      .btn-delete {
-        position: absolute;
-        right: 0.5rem;
-        top: 0.5rem;
-      }
-    }
-  }
-
-  &:hover,
-  &:focus,
-  &:active,
-  &:focus-within {
-    .asset-card__options {
-      display: flex;
-    }
-  }
-}
-
-.asset-card__wrapper.listView {
+.asset-card__wrapper {
   display: flex;
   position: relative;
+  container-type: inline-size;
 
   .asset-card {
     display: flex;
@@ -338,10 +174,6 @@ watch(
     &__badge {
       top: -6px;
       right: 0.4rem;
-    }
-
-    @media (max-width: 1024px) {
-      flex-direction: column;
     }
 
     &__content {
@@ -410,22 +242,9 @@ watch(
           flex-direction: row;
         }
       }
-
-      li:not(:last-child) {
-        border-right: 1px solid hsl(153, 9%, 81%);
-
-        @media (max-width: 768px) {
-          border: none;
-        }
-      }
-    }
-
-    &__btn-edit {
-      display: none;
     }
 
     &__options {
-      display: none;
       align-items: center;
 
       .input-select {
@@ -447,6 +266,19 @@ watch(
       }
     }
   }
+
+  @container (width < 50em) {
+    .asset-card:has(.asset-card__list-data li:nth-child(n + 2)) {
+      flex-direction: column;
+    }
+  }
+
+  @container (width < 40em) {
+    .asset-card {
+      flex-direction: column;
+    }
+  }
+
   &:hover,
   &:focus,
   &:active,

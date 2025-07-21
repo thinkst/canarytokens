@@ -1,74 +1,70 @@
-type S3ObjectType = {
+import { AssetTypesEnum } from './constants';
+
+type S3ObjectData = {
   object_path: string;
 };
 
-type S3BucketType = {
+type S3BucketData = {
   bucket_name: string;
-  objects: S3ObjectType[] | [];
-  off_inventory: boolean;
+  objects: S3ObjectData[] | [];
+  off_inventory?: boolean;
 };
 
-type SQSQueueType = {
+type SQSQueueData = {
   queue_name: string;
   message_count: number | null;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
-type SSMParameterType = {
+type SSMParameterData = {
   ssm_parameter_name: string;
   ssm_parameter_value: string;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
-type SecretsManagerSecretType = {
+type SecretsManagerSecretData = {
   secretsmanager_secret_name: string;
   secretsmanager_secret_value: string;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
-type DynamoDBTableType = {
+type DynamoDBTableData = {
   dynamodb_name: string;
   dynamodb_partition_key: string;
   dynamodb_row_count: number | null;
-  off_inventory: boolean;
+  off_inventory?: boolean;
 };
 
-type AssetsTypes = {
-  S3Bucket: S3BucketType[] | null;
-  SQSQueue: SQSQueueType[] | null;
-  SSMParameter: SSMParameterType[] | null;
-  SecretsManagerSecret: SecretsManagerSecretType[] | null;
-  DynamoDBTable: DynamoDBTableType[] | null;
+type ProposedAWSInfraTokenPlanData = {
+  [K in AssetTypesEnum]?: AssetData[] | null;
 };
 
-type AssetDataType =
-  | DynamoDBTableType
-  | SecretsManagerSecretType
-  | SSMParameterType
-  | SQSQueueType
-  | S3BucketType
-  | S3ObjectType;
+type AssetData =
+  | DynamoDBTableData
+  | SecretsManagerSecretData
+  | SSMParameterData
+  | SQSQueueData
+  | S3BucketData
 
-type PlanValueTypes = {
-  assets: AssetsTypes;
-};
 
-type CurrentTokenDataType = {
+type TokenSetupData = {
   token: string;
   auth_token: string;
-  proposed_plan: PlanValueTypes;
+  proposed_plan: {
+    assets: ProposedAWSInfraTokenPlanData;
+  };
   code_snippet_command?: string;
 };
 
+
 export type {
-  AssetDataType,
-  AssetsTypes,
-  S3BucketType,
-  S3ObjectType,
-  SQSQueueType,
-  SSMParameterType,
-  SecretsManagerSecretType,
-  DynamoDBTableType,
-  PlanValueTypes,
-  CurrentTokenDataType,
+  AssetData,
+  S3BucketData,
+  S3ObjectData,
+  SQSQueueData,
+  SSMParameterData,
+  SecretsManagerSecretData,
+  DynamoDBTableData,
+  TokenSetupData,
+  ProposedAWSInfraTokenPlanData
 };

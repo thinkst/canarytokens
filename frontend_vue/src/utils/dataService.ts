@@ -1,4 +1,4 @@
-import type { PlanValueTypes } from '@/components/tokens/aws_infra/types.ts';
+import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
 
 export type TokenDataType = {
   token: string;
@@ -16,7 +16,7 @@ export type TokenDataType = {
   aws_account_number: string;
   tf_module_prefix: string;
   ingesting: boolean;
-  proposed_plan: PlanValueTypes;
+  proposed_plan: { assets: AssetData[] | null };
   code_snippet_command: string;
 };
 

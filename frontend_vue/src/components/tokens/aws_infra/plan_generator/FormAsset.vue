@@ -43,27 +43,26 @@ import { ref, watch, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
-import type { AssetDataType } from '../types';
+import type { AssetData } from '../types';
 import {
-  ASSET_LABEL,
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObjects.vue';
+import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
-  assetData: AssetDataType;
+  assetData: AssetData;
   validationSchema: any;
   triggerSubmit: boolean;
   triggerCancel: boolean;
-  closeModal: () => void;
 }>();
 
 const emits = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
 const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
-const tempFields: Ref<AssetDataType | []> = ref([]);
+const tempFields: Ref<AssetData | []> = ref([]);
 
 onMounted(() => {
   tempFields.value = { ...props.assetData };
@@ -73,7 +72,6 @@ onMounted(() => {
 
 function onSubmit(values: GenericObject) {
   emits('update-asset', values);
-  props.closeModal();
 }
 
 function onInvalidSubmit(values: any) {
@@ -90,8 +88,8 @@ function handleRestoreFields() {
   emits('update-asset', tempFields);
 }
 
-function getLabel(key: keyof typeof ASSET_LABEL) {
-  return ASSET_LABEL[key];
+function getLabel(key: keyof AssetData) {
+  return getFieldLabel(props.assetType, key);
 }
 
 watch(
