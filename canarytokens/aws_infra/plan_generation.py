@@ -2,6 +2,7 @@ import json
 import random
 import string
 
+from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
@@ -290,7 +291,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
     """
 
     aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
-    aws_inventoried_assets = json.loads(canarydrop.aws_inventoried_assets or "{}")
+    aws_inventoried_assets = get_current_assets(canarydrop)
     current_plan = json.loads(canarydrop.aws_saved_plan or "{}")
     proposed_plan = {
         "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
