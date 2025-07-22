@@ -69,7 +69,7 @@
           ></CardIncident>
         </template>
         <!-- Benner for small screens -->
-        <BannerDeviceCanarytools class="flex sm:hidden" />
+        <BannerDeviceCanarytools class="flex md:hidden" />
       </ul>
     </div>
     <div>
@@ -95,7 +95,7 @@
         ></CustomMap>
       </div>
       <!-- Benner for larger screens -->
-      <BannerDeviceCanarytools class="hidden sm:flex" />
+      <BannerDeviceCanarytools class="hidden md:flex" />
     </div>
   </template>
 </template>

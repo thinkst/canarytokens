@@ -36,9 +36,9 @@
     </h3>
     <ul class="flex flex-col h-full gap-16 pb-16">
       <CardIncident
-        v-for="(incident, index) in filteredIncidentsListByAssetName"
+        v-for="(incident, index) in getFilteredIncidentsListByAssetName()"
         :key="index"
-        :last-key="index === filteredIncidentsListByAssetName.length - 1"
+        :last-key="index === getFilteredIncidentsListByAssetName().length - 1"
         :incident-id="incident.time_of_hit"
         :incident-preview-info="getIncidentPreviewInfo(incident)"
         @click="handleSelectAlert(incident)"
@@ -72,7 +72,7 @@ const ALL_DECOYS = 'all_decoys';
 const emits = defineEmits(['select-alert']);
 
 const hitsList: HitsType[] = props.hitsList;
-const selectedAssetType = ref('');
+const selectedAssetType = ref(ALL_DECOYS);
 const selectedAssetName = ref('');
 const assetSection = useTemplateRef('asset-section');
 const incidentsSection = useTemplateRef('incidents-section');
@@ -93,20 +93,20 @@ const labelSelectedAssetType = computed(() => {
 });
 
 const groupedIncidentsList = computed((): groupedIncidentsListType => {
-  const listToProcess =
-    selectedAssetType.value === ALL_DECOYS
-      ? props.hitsList
-      : props.hitsList.filter(
-          (hit) => getAssetType(hit) === selectedAssetType.value
-        );
-
-  const groupedList = groupListByAssetName(listToProcess);
-  const orderedTimeList = orderListByTimeStamp(groupedList);
+  const listToProcess = getFilteredIncidentsListByAssetName();
+  const groupedList = getGroupListByAssetName(listToProcess);
+  const orderedTimeList = getOrderListByTimeStamp(groupedList);
 
   return orderedTimeList;
 });
 
-function groupListByAssetName(list: HitsType[]) {
+
+function getFilteredIncidentsListByAssetName(){
+  return selectedAssetType.value === ALL_DECOYS ? hitsList :
+  hitsList.filter((hit) => getAssetType(hit) === selectedAssetType.value);
+}
+
+function getGroupListByAssetName(list: HitsType[]) {
   return list.reduce((acc: groupedIncidentsListType, incident) => {
     const assetName = getAssetName(incident);
     if (assetName) {
@@ -117,7 +117,7 @@ function groupListByAssetName(list: HitsType[]) {
   }, {} as groupedIncidentsListType);
 }
 
-function orderListByTimeStamp(list: groupedIncidentsListType) {
+function getOrderListByTimeStamp(list: groupedIncidentsListType) {
   return Object.fromEntries(
     // Sort incidents within group
     Object.entries(list)
@@ -134,12 +134,6 @@ function orderListByTimeStamp(list: groupedIncidentsListType) {
       })
   );
 }
-
-const filteredIncidentsListByAssetName = computed(() => {
-  return hitsList.filter(
-    (hit) => getAssetName(hit) === selectedAssetName.value
-  );
-});
 
 function getAssetPreviewInfo(hit: HitsType) {
   const assetName = getAssetName(hit) || '';
@@ -172,7 +166,7 @@ function getIncidentPreviewInfo(hit: HitsType) {
 
 const handleSelectOption = (value: string) => {
   selectedAssetName.value = '';
-  selectedAssetType.value = value === ALL_DECOYS ? ALL_DECOYS : value;
+  selectedAssetType.value = value;
 };
 
 function handleSelectAssetGroup(incident: HitsType) {
