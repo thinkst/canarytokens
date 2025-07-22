@@ -28,6 +28,8 @@ from canarytokens.models import (
 from canarytokens.settings import FrontendSettings
 from canarytokens.tokens import Canarytoken
 
+from canarytokens.aws_infra.db_queries import delete_current_assets, save_current_assets
+
 settings = FrontendSettings()
 
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
@@ -238,15 +240,12 @@ def save_plan(canarydrop: Canarydrop, plan: str):
         }
     )
     queries.save_canarydrop(canarydrop)
+    # Clear inventory
+    delete_current_assets(canarydrop)
     variables = generate_tf_variables(canarydrop, plan)
     upload_tf_module(
         canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
     )
-
-
-def save_current_assets(canarydrop: Canarydrop, assets: dict):
-    canarydrop.aws_inventoried_assets = json.dumps(assets)
-    queries.save_canarydrop(canarydrop)
 
 
 def get_canarydrop_from_handle(handle_id: str):
