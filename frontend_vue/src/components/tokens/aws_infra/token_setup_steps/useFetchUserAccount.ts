@@ -97,7 +97,9 @@ export function useFetchUserAccount(
       await pollInfraRoleCheck();
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
-      errorMessage.value = err.message;
+      errorMessage.value =
+        err.response?.data?.message ||
+        'An error occurred while checking the Role. Try again';
     }
   }
 
@@ -169,7 +171,9 @@ export function useFetchUserAccount(
       await pollInventoryCustomerAccount();
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
-      errorMessage.value = err.message;
+      errorMessage.value =
+        err.response?.data?.message ||
+        'An error occurred while inventoring the account. Try again';
     }
   }
 
