@@ -1,7 +1,11 @@
 <template>
   <div
     class="pb-32 bg-white rounded-3xl"
-    :class="{ 'sm:m-8': props.showingMap, 'border shadow-solid-shadow-grey border-grey-100': !props.showingMap }">
+    :class="{
+      'sm:m-8': props.showingMap,
+      'border shadow-solid-shadow-grey border-grey-100': !props.showingMap,
+    }"
+  >
     <div class="sticky top-[0px] bg-white h-[4rem] sm:h-40 flex justify-end">
       <button
         v-if="props.showingMap"
@@ -20,10 +24,9 @@
       <IncidentDetailsSummary
         v-if="builtIncidentDetail"
         :date="builtIncidentDetail?.time_of_hit"
-        :ip="builtIncidentDetail.src_ip"
+        :ip="getSrcIp(builtIncidentDetail)"
         :input-channel="
-          (builtIncidentDetail as FormattedHitsType).basic_info.input_channel
-        "
+        builtIncidentDetail.basic_info.input_channel"
       />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">
@@ -68,15 +71,18 @@
                       >
                         <IncidentDetailsListItem
                           v-if="
-                            !isObject(deepnested_val) && isNotEmpty(deepnested_val)
+                            !isObject(deepnested_val) &&
+                            isNotEmpty(deepnested_val)
                           "
                           :label="deepnested_key"
                           :value="deepnested_val"
                           class="py-8 ml-24"
                         />
-                         <template v-else>
+                        <template v-else>
                           <template
-                            v-for="(deepestnested_val, deepernested_key) in deepnested_val"
+                            v-for="(
+                              deepestnested_val, deepernested_key
+                            ) in deepnested_val"
                             :key="deepernested_key"
                           >
                             <IncidentDetailsListItem
@@ -88,8 +94,8 @@
                               :value="deepestnested_val"
                               class="py-8 ml-24"
                             />
-                            </template>
-                         </template>
+                          </template>
+                        </template>
                       </template>
                     </ul>
                   </template>
@@ -106,36 +112,46 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
-import type { HitsType, FormattedHitsType } from '@/components/tokens/types.ts';
+import type { HitsType } from '@/components/tokens/types.ts';
+import type { FormattedIncidentDetailsType } from '@/utils/IncidentTypes';
 import IncidentDetailsListItem from '@/components/ui/IncidentDetailsListItem.vue';
 import IncidentDetailsSummary from '@/components/ui/IncidentDetailsSummary.vue';
 import { isObject, isNotEmpty } from '@/utils/utils';
-import incidentDetailsService from '@/utils/incidentDetailsService.ts'
-import {
-  formatLabels,
-} from '@/utils/incidentUtils';
+import incidentDetailsService from '@/utils/incidentDetailsService.ts';
+import { formatLabels } from '@/utils/incidentUtils';
 
 const props = withDefaults(
   defineProps<{
     hitAlert: HitsType;
     showingMap: boolean;
     tokenType: string;
-  }>(), {
+  }>(),
+  {
     showingMap: true,
-  },
+  }
 );
 
 const emit = defineEmits(['close']);
-const builtIncidentDetail: Ref<FormattedHitsType | null> = ref(null);
+const builtIncidentDetail: Ref<FormattedIncidentDetailsType | null> = ref(null);
 const formattedIncidentDetail = ref({});
+
+const getSrcIp = (incident: FormattedIncidentDetailsType): string | null => {
+  if ('src_ip' in incident) {
+    return incident.src_ip;
+  }
+  return null;
+};
 
 onMounted(() => {
   // Map & cleanup hitAlert
-  builtIncidentDetail.value = incidentDetailsService(props.hitAlert, props.tokenType);
+  builtIncidentDetail.value = incidentDetailsService(
+    props.hitAlert,
+    props.tokenType
+  );
 
   // Make the list UI friendly
   formattedIncidentDetail.value = formatLabels(
-    builtIncidentDetail.value as FormattedHitsType
+    builtIncidentDetail.value as FormattedIncidentDetailsType
   );
 });
 
@@ -143,10 +159,13 @@ watch(
   () => props.hitAlert,
   () => {
     // Map & cleanup hitAlert
-    builtIncidentDetail.value = incidentDetailsService(props.hitAlert, props.tokenType);
+    builtIncidentDetail.value = incidentDetailsService(
+      props.hitAlert,
+      props.tokenType
+    );
     // Make the list UI friendly
     formattedIncidentDetail.value = formatLabels(
-      builtIncidentDetail.value as FormattedHitsType
+      builtIncidentDetail.value as FormattedIncidentDetailsType
     );
   }
 );

@@ -9,11 +9,12 @@ import {
   convertISOtoLocalDate,
 } from '@/utils/utils';
 import type { HitsType, CoordsType } from '@/components/tokens/types.ts';
+import type { FormattedIncidentDetailsType } from '@/utils/IncidentTypes.ts';
 
 export default function incidentDetailsService(
   hitAlert: HitsType,
   tokenType: string
-) {
+): FormattedIncidentDetailsType {
   const sharedBasicInfo = {
     token_type: formatTokenTypeLabel(hitAlert.token_type),
     input_channel: hasChannelCustomLabel(
@@ -100,6 +101,43 @@ export default function incidentDetailsService(
         additional_info: {
           ...hitAlert.additional_info,
           aws_key_log_data: null,
+        },
+      };
+
+    case TOKENS_TYPE.AWS_INFRA:
+      return {
+        basic_info: {
+          ...sharedBasicInfo,
+          location: hitAlert.location ? hitAlert.location : null,
+        },
+        ...sharedMainDetails,
+        is_tor_relay: null,
+        event: {
+          eventName: hitAlert.additional_info?.event?.['Event Name'] || null,
+          eventTime: hitAlert.additional_info?.event?.['Event Time'],
+          accountAndRegion:
+            hitAlert.additional_info?.event?.['Account & Region'],
+        },
+        decoy_resource: {
+          asset_type:
+            hitAlert.additional_info?.decoy_resource?.asset_type || null,
+          request_parameters:
+            hitAlert.additional_info?.decoy_resource?.['Request Parameters'] ||
+            null,
+        },
+        identity: {
+          userIdentity:
+            hitAlert.additional_info?.identity?.['User Identity'] || null,
+          userAgent: hitAlert.additional_info?.identity?.UserAgent || null,
+        },
+        metadata: {
+          eventId: hitAlert.additional_info?.metadata?.['Event ID'] || null,
+          readOnlyEvent:
+            hitAlert.additional_info?.metadata?.['ReadOnly Event'] || null,
+          eventCategory:
+            hitAlert.additional_info?.metadata?.['Event Category'] || null,
+          classification:
+            hitAlert.additional_info?.metadata?.Classification || null,
         },
       };
 
