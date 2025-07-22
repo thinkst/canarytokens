@@ -12,7 +12,14 @@
   gap: 1rem;
 }
 
-@media screen and (max-width: 761px) {
+@media screen and (max-width: 1280px) {
+  .two-col-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  }
+}
+
+@media screen and (max-width: 1024px) {
   .two-col-grid {
     grid-template-columns: 100%;
     gap: 1rem;
