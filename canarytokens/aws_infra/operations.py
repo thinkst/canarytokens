@@ -240,31 +240,6 @@ def add_handle_response(handle_id, response):
     """
     queries.update_aws_management_lambda_handle(handle_id, json.dumps(response))
 
-
-def save_plan(canarydrop: Canarydrop, plan: str):
-    """
-    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
-    """
-    # TODO: validate plan
-    canarydrop.aws_saved_plan = json.dumps(plan)
-    # TODO: add other asset types
-    canarydrop.aws_deployed_assets = json.dumps(
-        {
-            AWSInfraAssetType.S3_BUCKET.value: [
-                bucket["bucket_name"]
-                for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
-            ]
-        }
-    )
-    queries.save_canarydrop(canarydrop)
-    # Clear inventory
-    delete_current_assets(canarydrop)
-    variables = generate_tf_variables(canarydrop, plan)
-    upload_tf_module(
-        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
-    )
-
-
 def get_canarydrop_from_handle(handle_id: str):
     canarydrop = queries.get_canarydrop(
         Canarytoken(
