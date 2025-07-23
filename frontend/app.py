@@ -1141,7 +1141,7 @@ async def api_awsinfra_check_role(
         return handle_response
     if handle_response.message != "":
         response.status_code = status.HTTP_400_BAD_REQUEST
-        logging.error(
+        log.error(
             f"Error in check-role for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
         handle_response.error = ""  # Don't show error type in the response
@@ -1191,7 +1191,7 @@ async def api_awsinfra_inventory_customer_account(
     if handle_response.message != "":
 
         response.status_code = status.HTTP_400_BAD_REQUEST
-        logging.error(
+        log.error(
             f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
         handle_response.error = ""  # Don't show error type in the response
@@ -1360,7 +1360,7 @@ async def api_awsinfra_setup_ingestion(
     if handle_response.message != "":
 
         response.status_code = status.HTTP_400_BAD_REQUEST
-        logging.error(
+        log.error(
             f"Error in setup-ingestion for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
         handle_response.error = ""  # Don't show error type in the response
@@ -1399,7 +1399,7 @@ async def api_awsinfra_teardown(
     if handle_response.message != "":
 
         response.status_code = status.HTTP_400_BAD_REQUEST
-        logging.error(
+        log.error(
             f"Error in teardown for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
         handle_response.error = ""  # Don't show error type in the response
