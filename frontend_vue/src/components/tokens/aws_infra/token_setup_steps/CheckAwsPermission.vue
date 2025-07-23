@@ -5,15 +5,15 @@
         {{ isLoading ? 'Checking permission...' : `Check your AWS permission` }}
       </h2>
     </div>
-   <div class="flex justify-center">
-    <StepState
-      v-if="isLoading || isError"
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are checking the permissions, hold on"
-      :error-message="errorMessage"
-      class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
-    />
+    <div class="flex justify-center">
+      <StepState
+        v-if="isLoading || isError"
+        :is-loading="isLoading"
+        :is-error="isError"
+        loading-message="We are checking the permissions, hold on"
+        :error-message="errorMessage"
+        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+      />
     </div>
     <div
       v-if="!isLoading"
@@ -24,9 +24,9 @@
         variant="warning"
         >In order to proceed we need you to confirm the
         <span class="font-semibold">External ID</span> for our role on your AWS
-        Account
-        <span class="font-semibold">{{ accountNumber }}</span></BaseMessageBox
-      >
+        Account <span class="font-semibold">{{ accountNumber }}</span
+        >.
+      </BaseMessageBox>
       <div class="text-left max-w-[100%]">
         <BaseCard
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
@@ -53,10 +53,18 @@
             :check-scroll="true"
           />
         </BaseCard>
+        <BaseMessageBox
+          class="mb-24 mt-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+          variant="info"
+          text-link="Restore Permissions"
+          @click="handleModalSetupRolePolicySnippet"
+          >Canarytoken IAM role and policy needed. Did you remove them?
+        </BaseMessageBox>
         <BaseCard class="p-40 text-left place-self-center w-full mt-24">
           <Form
             class="flex flex-col gap-16 items-center"
             :validation-schema="schema"
+            :initial-values="formInitialValues"
             @submit="onSubmit"
           >
             <BaseFormTextField
@@ -68,6 +76,7 @@
               arrow-variant="one"
               :arrow-word-position="2"
               class="flex-grow external-id-input"
+              @input="handleExternalIdChange"
             />
             <BaseButton
               type="submit"
@@ -93,9 +102,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
 import * as Yup from 'yup';
 import { Form } from 'vee-validate';
+import { useModal } from 'vue-final-modal';
 import type { TokenDataType } from '@/utils/dataService';
 import type { GenericObject } from 'vee-validate';
 import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
@@ -106,6 +116,13 @@ import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+
+const ModalSetupRolePolicySnippet = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/tokens/aws_infra/token_setup_steps/ModalSetupRolePolicySnippet.vue'
+    )
+);
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -119,8 +136,9 @@ const { token, auth_token, aws_region, aws_account_number } =
 
 const accountNumber = ref('');
 const accountRegion = ref('');
-const externalId = ref('')
-const roleName = ref('')
+const externalId = ref('');
+const roleName = ref('');
+const managementAwsAccount = ref('');
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
@@ -132,29 +150,45 @@ const {
   proposedPlan,
 } = useFetchUserAccount(token, auth_token, externalId);
 
+const formInitialValues = computed(
+  (): GenericObject => ({
+    external_id: externalId.value,
+  })
+);
+
 onMounted(async () => {
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 
-  const currentRoleName = props.currentStepData.role_name;
-  currentRoleName ? roleName.value = currentRoleName : await handleGetRoleName();
+  const currentAccountInfo =
+    props.currentStepData.role_name &&
+    props.currentStepData.aws_account &&
+    props.currentStepData.aws_account_number;
 
+  currentAccountInfo
+    ? ((roleName.value = props.currentStepData.role_name!),
+      (managementAwsAccount.value = props.currentStepData.aws_account!),
+      (accountNumber.value = props.currentStepData.aws_account_number!))
+    : await handleGetRoleName();
 });
 
-const codeSnippetCheckID = computed(() => `aws iam get-role --role-name ${roleName.value} --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`);
+const codeSnippetCheckID = computed(
+  () =>
+    `aws iam get-role --role-name ${roleName.value} --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`
+);
 
 const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
 });
 
-async function handleGetRoleName(){
+async function handleGetRoleName() {
   stateStatus.value = StepStateEnum.LOADING;
   errorMessage.value = '';
-   try {
+  try {
     const res = await requestAWSInfraRoleSetupCommands(
       token,
       auth_token,
-      accountRegion.value,
+      accountRegion.value
     );
     if (res.status !== 200) {
       stateStatus.value = StepStateEnum.ERROR;
@@ -169,12 +203,15 @@ async function handleGetRoleName(){
     }
 
     roleName.value = res.data.role_setup_commands.role_name;
+    managementAwsAccount.value = res.data.role_setup_commands.aws_account;
     stateStatus.value = StepStateEnum.SUCCESS;
 
     emits('storeCurrentStepData', {
       token,
       auth_token,
-      role_name: roleName.value
+      role_name: roleName.value,
+      aws_account: managementAwsAccount.value,
+      aws_account_number: accountNumber.value,
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
@@ -182,15 +219,38 @@ async function handleGetRoleName(){
   }
 }
 
-async function handleCheckPermission(){
+async function handleCheckPermission() {
   errorMessage.value = '';
   stateStatus.value = StepStateEnum.LOADING;
+
   await handleFetchUserAccount();
 }
 
-async function onSubmit(values: GenericObject) {
-  externalId.value = values.external_id;
-  await handleCheckPermission()
+async function onSubmit() {
+  await handleCheckPermission();
+}
+
+function handleExternalIdChange(event: Event) {
+  externalId.value = (event.target as HTMLInputElement).value;
+}
+
+function handleModalSetupRolePolicySnippet() {
+  const { open, close } = useModal({
+    component: ModalSetupRolePolicySnippet,
+    attrs: {
+      roleName: roleName.value,
+      externalId: externalId.value,
+      managementAwsAccount: managementAwsAccount.value,
+      accountNumber: accountNumber.value,
+      closeModal: () => {
+        close();
+      },
+      onUpdateExternalId: (newExternalId: string) => {
+        externalId.value = newExternalId;
+      },
+    },
+  });
+  open();
 }
 
 watch(
@@ -203,6 +263,8 @@ watch(
           token,
           auth_token,
           role_name: roleName.value,
+          aws_account: managementAwsAccount.value,
+          aws_account_number: accountNumber.value,
           proposed_plan: proposedPlan.value,
         });
         emits('updateStep');
@@ -213,7 +275,6 @@ watch(
     }
   }
 );
-
 </script>
 
 <style scoped>
