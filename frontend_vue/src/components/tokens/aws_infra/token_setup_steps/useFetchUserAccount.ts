@@ -51,7 +51,7 @@ export function useFetchUserAccount(
         try {
           const resWithHandle = await requestAWSInfraRoleCheck({
             handle,
-            external_id: externalId.value,
+            // external_id: externalId.value,
           });
 
           if (resWithHandle.data.error && retryAttempts < MAX_RETRIES) {

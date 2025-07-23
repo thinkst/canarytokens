@@ -39,8 +39,8 @@ export function requestAWSInfraRoleCheck({
   const params = {
     canarytoken,
     auth_token,
-    handle: handle || '',
-    external_id: external_id || '',
+    handle,
+    external_id,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }
