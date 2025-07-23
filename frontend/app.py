@@ -1298,7 +1298,7 @@ async def api_awsinfra_generate_data_choices(
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
         return AWSInfraGenerateDataChoiceResponse(
             result=True,
-            proposed_data=aws_infra.generate_data_choice(
+            proposed_data=await aws_infra.generate_data_choice(
                 canarydrop,
                 request.asset_type,
                 request.asset_field,
