@@ -5,9 +5,9 @@ from .state_management import (
     mark_succeeded,
     mark_failed,
     mark_ingesting,
+    in_state,
 )
 from .operations import (
-    save_plan,
     get_canarydrop_from_handle,
     get_role_create_commands,
     start_operation,
@@ -20,6 +20,7 @@ from .plan_generation import (
     generate_data_choice,
     add_new_assets_to_plan,
     generate_child_assets,
+    save_plan,
 )
 from .aws_management import get_shared_secret, get_current_ingestion_bus
 
@@ -44,4 +45,5 @@ __all__ = [
     "mark_ingesting",
     "add_new_assets_to_plan",
     "generate_child_assets",
+    "in_state",
 ]

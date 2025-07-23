@@ -3022,6 +3022,7 @@ class AWSInfraState(enum.Flag):
     INITIAL = enum.auto()  # initial state, before any operation
     CHECK_ROLE = enum.auto()  # after config started
     INVENTORY = enum.auto()  # after check-role succeeded
+    GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
     PLAN = enum.auto()  # after inventorying
     SETUP_INGESTION = enum.auto()  # after plan saved
 

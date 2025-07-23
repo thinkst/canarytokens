@@ -35,13 +35,6 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
     """
     print("current state:", canarydrop.aws_infra_state)
     from_state_to_state_allow_map = {
-        None: [
-            AWSInfraState.INITIAL,
-            AWSInfraState.CHECK_ROLE,
-            AWSInfraState.INVENTORY,
-            AWSInfraState.PLAN,
-            AWSInfraState.SETUP_INGESTION,
-        ],
         AWSInfraState.INITIAL: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE
@@ -51,6 +44,16 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
         | AWSInfraState.SUCCEEDED: [
             AWSInfraState.INVENTORY,
             AWSInfraState.CHECK_ROLE,
+            AWSInfraState.GENERATE_CHILD_ASSETS,
+        ],
+        AWSInfraState.GENERATE_CHILD_ASSETS: [
+            AWSInfraState.INVENTORY,
+            AWSInfraState.GENERATE_CHILD_ASSETS,
+        ],
+        AWSInfraState.GENERATE_CHILD_ASSETS
+        | AWSInfraState.SUCCEEDED: [
+            AWSInfraState.INVENTORY,
+            AWSInfraState.GENERATE_CHILD_ASSETS,
             AWSInfraState.PLAN,
         ],
         AWSInfraState.PLAN: [AWSInfraState.PLAN],
@@ -98,6 +101,13 @@ def get_base_state(state: AWSInfraState) -> AWSInfraState:
     Return the base state of the given state.
     """
     return state & ~OVERLAY_STATES
+
+
+def in_state(canarydrop: Canarydrop, state: AWSInfraState) -> bool:
+    """
+    Check if the canarydrop is in the specified state.
+    """
+    return (canarydrop.aws_infra_state & state) == state
 
 
 def mark_succeeded(canarydrop: Canarydrop):

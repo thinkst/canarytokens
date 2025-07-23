@@ -5,6 +5,8 @@ import random
 import string
 
 from canarytokens.aws_infra.db_queries import get_current_assets
+from canarytokens import queries
+from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
@@ -495,3 +497,41 @@ async def generate_child_assets(assets: dict):
             i += 1
 
     return result
+
+
+def save_plan(canarydrop: Canarydrop, plan: str):
+    """
+    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
+    """
+    canarydrop.aws_saved_plan = json.dumps(plan)
+    canarydrop.aws_deployed_assets = json.dumps(
+        {
+            AWSInfraAssetType.S3_BUCKET.value: [
+                bucket[AssetLabel.BUCKET_NAME]
+                for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
+            ],
+            AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
+                table[AssetLabel.TABLE_NAME]
+                for table in plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value]
+            ],
+            AWSInfraAssetType.SQS_QUEUE.value: [
+                queue[AssetLabel.SQS_QUEUE_NAME]
+                for queue in plan["assets"][AWSInfraAssetType.SQS_QUEUE.value]
+            ],
+            AWSInfraAssetType.SSM_PARAMETER.value: [
+                param[AssetLabel.SSM_PARAMETER_NAME]
+                for param in plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value]
+            ],
+            AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
+                secret[AssetLabel.SECRET_NAME]
+                for secret in plan["assets"][
+                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value
+                ]
+            ],
+        }
+    )
+    queries.save_canarydrop(canarydrop)
+    variables = generate_tf_variables(canarydrop, plan)
+    upload_tf_module(
+        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
+    )

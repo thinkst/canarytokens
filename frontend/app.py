@@ -20,6 +20,7 @@ from urllib.parse import unquote
 import logging
 
 import requests
+import canarytokens.aws_infra.plan_generation
 import segno
 import sentry_sdk
 from fastapi import (
@@ -1141,7 +1142,7 @@ async def api_awsinfra_check_role(
     if handle_response.message != "":
         response.status_code = status.HTTP_400_BAD_REQUEST
         logging.error(
-            f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
+            f"Error in check-role for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
         )
         handle_response.error = ""  # Don't show error type in the response
         response.status_code = status.HTTP_400_BAD_REQUEST
@@ -1211,9 +1212,21 @@ async def api_awsinfra_generate_child_assets(
     request: AWSInfraGenerateChildAssetsRequest,
     response: Response,
 ) -> AWSInfraGenerateChildAssetsResponse:
-    pass
+    canarydrop = get_canarydrop_and_authenticate(
+        request.canarytoken, request.auth_token
+    )
+    try:
+        aws_infra.update_state(canarydrop, AWSInfraState.GENERATE_CHILD_ASSETS)
+    except AWSInfraOperationNotAllowed as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
+    assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
+    return AWSInfraGenerateChildAssetsResponse(assets=assets)
 
 
+# TODO: Remove or move later
 @api.post(
     "/awsinfra/test/generate-child-assets",
     dependencies=[Depends(validate_exclusive_handle)],
@@ -1226,6 +1239,7 @@ async def test_api_awsinfra_generate_child_assets(
     return AWSInfraGenerateChildAssetsResponse(assets=result)
 
 
+# TODO: Remove or move later
 @api.post(
     "/awsinfra/test/inventory-customer-account",
 )
@@ -1256,6 +1270,7 @@ async def test_api_awsinfra_inventory_customer_account():
     return JSONResponse({"plan": proposed_plan})
 
 
+# TODO: Remove or move later
 @api.post("/awsinfra/test/generate-data-choices")
 async def test_api_awsinfra_generate_data_choices(
     request: AWSInfraGenerateDataChoiceRequest,
@@ -1301,7 +1316,7 @@ async def api_awsinfra_save_plan(
     )
     try:
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
-        aws_infra.save_plan(canarydrop, request.plan)
+        canarytokens.aws_infra.plan_generation.save_plan(canarydrop, request.plan)
         aws_infra.mark_succeeded(canarydrop)
         queries.save_canarydrop(canarydrop)
 

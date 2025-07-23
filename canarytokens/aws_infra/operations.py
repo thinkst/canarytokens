@@ -7,12 +7,11 @@ from pydantic import BaseModel
 from canarytokens import queries
 from canarytokens.aws_infra.aws_management import (
     queue_management_request,
-    upload_tf_module,
 )
 from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
-    generate_tf_variables,
 )
+from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
@@ -192,6 +191,8 @@ async def _build_handle_response_payload(
     if handle.operation == AWSInfraOperationType.INVENTORY:
         save_current_assets(canarydrop, response_content.get("assets", {}))
         payload["proposed_plan"] = await generate_proposed_plan(canarydrop)
+        if is_ingesting(canarydrop):
+            filter_decoys_from_inventory(canarydrop)
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
@@ -205,6 +206,22 @@ async def _build_handle_response_payload(
 
     # this should never happen
     logging.error(f"Unknown operation type {handle.operation} for handle {handle_id}.")
+
+
+def filter_decoys_from_inventory(canarydrop: Canarydrop):
+    """
+    Filter out decoy assets from the inventory of the canarydrop.
+    """
+    inventory = json.loads(canarydrop.aws_inventoried_assets)
+    decoys = json.loads(canarydrop.aws_deployed_assets)
+    for asset_type in AWSInfraAssetType:
+        if asset_type.value in inventory["assets"]:
+            inventory["assets"][asset_type.value] = [
+                asset
+                for asset in inventory["assets"][asset_type.value]
+                if asset not in decoys.get(asset_type.value, [])
+            ]
+    save_current_assets(canarydrop, inventory)
 
 
 def get_handle_operation(handle_id):
