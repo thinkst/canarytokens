@@ -47,6 +47,8 @@ type TokenSetupData = {
     assets: ProposedAWSInfraTokenPlanData;
   };
   code_snippet_command?: string;
+  role_name?: string;
+  external_id?: string;
 };
 
 export type {

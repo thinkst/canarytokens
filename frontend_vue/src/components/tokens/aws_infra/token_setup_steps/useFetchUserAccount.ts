@@ -39,6 +39,7 @@ export function useFetchUserAccount(
       if (res.status !== 200) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value = res.data.message;
+        return;
       }
 
       const handle = res.data.handle;
@@ -48,17 +49,20 @@ export function useFetchUserAccount(
 
       const pollInfraRoleCheck = async () => {
         try {
-          const resWithHandle = await requestAWSInfraRoleCheck({ handle });
+          const resWithHandle = await requestAWSInfraRoleCheck({
+            handle,
+            external_id: externalId.value,
+          });
 
           if (resWithHandle.data.error && retryAttempts < MAX_RETRIES) {
             retryAttempts++;
             console.log(
               `Retrying AWS Infra Role Check (${retryAttempts}/${MAX_RETRIES})`
             );
-            setTimeout(() => {
-              clearInterval(pollingRoleInterval);
-              pollInfraRoleCheck();
-            }, POLL_INTERVAL);
+            // setTimeout(() => {
+            //   clearInterval(pollingRoleInterval);
+            //   pollInfraRoleCheck();
+            // }, POLL_INTERVAL);
             return;
           }
 
@@ -123,6 +127,7 @@ export function useFetchUserAccount(
       if (res.status !== 200) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value = res.data.error_message;
+        return;
       }
 
       const handle = res.data.handle;

@@ -39,10 +39,10 @@
           </div>
           <BaseLabelArrow
             id="aws-snippet-code"
-            label="AWS CLI snippet"
-            :arrow-word-position="3"
-            arrow-variant="one"
-            class="z-10"
+            label="Copy AWS CLI snippet"
+            arrow-word-position="last"
+            arrow-variant="two"
+            class="z-10 text-right"
           />
           <BaseCodeSnippet
             id="aws-snippet-code"
@@ -61,7 +61,6 @@
           >
             <BaseFormTextField
               id="external_id"
-              :value="external_id"
               label="Add here your External ID"
               placeholder="e.g. abCd7Lb6cEZrMCEm3OAoj"
               required
@@ -94,12 +93,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import * as Yup from 'yup';
 import { Form } from 'vee-validate';
 import type { TokenDataType } from '@/utils/dataService';
 import type { GenericObject } from 'vee-validate';
 import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
+import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import StepState from '../StepState.vue';
 import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 import {
@@ -119,7 +119,8 @@ const { token, auth_token, aws_region, aws_account_number } =
 
 const accountNumber = ref('');
 const accountRegion = ref('');
-const external_id = ref('')
+const externalId = ref('')
+const roleName = ref('')
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
@@ -129,21 +130,56 @@ const {
   stateStatus: stateStatusFetch,
   handleFetchUserAccount,
   proposedPlan,
-} = useFetchUserAccount(token, auth_token, external_id);
+} = useFetchUserAccount(token, auth_token, externalId);
 
 onMounted(async () => {
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
+
+  const currentRoleName = props.currentStepData.role_name;
+  currentRoleName ? roleName.value = currentRoleName : await handleGetRoleName();
+
 });
 
-const codeSnippetCheckID = `aws iam get-role --role-name Canarytokens-Inventory-ReadOnly-Role --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`;
+const codeSnippetCheckID = computed(() => `aws iam get-role --role-name ${roleName.value} --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`);
 
 const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
 });
 
-async function handleGetCheckIDsnippet(){
-  // Add code
+async function handleGetRoleName(){
+  stateStatus.value = StepStateEnum.LOADING;
+  errorMessage.value = '';
+   try {
+    const res = await requestAWSInfraRoleSetupCommands(
+      token,
+      auth_token,
+      accountRegion.value,
+    );
+    if (res.status !== 200) {
+      stateStatus.value = StepStateEnum.ERROR;
+      res.data.error_message = errorMessage;
+    }
+    isLoading.value = false;
+
+    if (!res.data.role_setup_commands) {
+      stateStatus.value = StepStateEnum.ERROR;
+      errorMessage.value =
+        'Something went wrong when we tried to generate your snippet. Please try again.';
+    }
+
+    roleName.value = res.data.role_setup_commands.role_name;
+    stateStatus.value = StepStateEnum.SUCCESS;
+
+    emits('storeCurrentStepData', {
+      token,
+      auth_token,
+      role_name: roleName.value
+    });
+  } catch (err: any) {
+    stateStatus.value = StepStateEnum.ERROR;
+    errorMessage.value = err;
+  }
 }
 
 async function handleCheckPermission(){
@@ -153,7 +189,7 @@ async function handleCheckPermission(){
 }
 
 async function onSubmit(values: GenericObject) {
-  external_id.value = values.external_id;
+  externalId.value = values.external_id;
   await handleCheckPermission()
 }
 
@@ -166,7 +202,7 @@ watch(
         emits('storeCurrentStepData', {
           token,
           auth_token,
-          // code_snippet_command: codeSnippetCommands.value,
+          role_name: roleName.value,
           proposed_plan: proposedPlan.value,
         });
         emits('updateStep');
