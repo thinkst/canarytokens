@@ -9,6 +9,8 @@ from canarytokens import queries
 from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.db_queries import get_current_assets
+from canarytokens import queries
+from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop

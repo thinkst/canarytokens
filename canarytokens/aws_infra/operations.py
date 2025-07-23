@@ -240,6 +240,7 @@ def add_handle_response(handle_id, response):
     """
     queries.update_aws_management_lambda_handle(handle_id, json.dumps(response))
 
+
 def get_canarydrop_from_handle(handle_id: str):
     canarydrop = queries.get_canarydrop(
         Canarytoken(
