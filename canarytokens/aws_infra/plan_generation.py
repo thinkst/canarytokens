@@ -467,25 +467,29 @@ def save_plan(canarydrop: Canarydrop, plan: str):
         {
             AWSInfraAssetType.S3_BUCKET.value: [
                 bucket[AssetLabel.BUCKET_NAME]
-                for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
+                for bucket in plan["assets"].get(AWSInfraAssetType.S3_BUCKET.value, [])
             ],
             AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
                 table[AssetLabel.TABLE_NAME]
-                for table in plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value]
+                for table in plan["assets"].get(
+                    AWSInfraAssetType.DYNAMO_DB_TABLE.value, []
+                )
             ],
             AWSInfraAssetType.SQS_QUEUE.value: [
                 queue[AssetLabel.SQS_QUEUE_NAME]
-                for queue in plan["assets"][AWSInfraAssetType.SQS_QUEUE.value]
+                for queue in plan["assets"].get(AWSInfraAssetType.SQS_QUEUE.value, [])
             ],
             AWSInfraAssetType.SSM_PARAMETER.value: [
                 param[AssetLabel.SSM_PARAMETER_NAME]
-                for param in plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value]
+                for param in plan["assets"].get(
+                    AWSInfraAssetType.SSM_PARAMETER.value, []
+                )
             ],
             AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
                 secret[AssetLabel.SECRET_NAME]
-                for secret in plan["assets"][
-                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value
-                ]
+                for secret in plan["assets"].get(
+                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
+                )
             ],
         }
     )
