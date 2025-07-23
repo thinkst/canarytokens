@@ -113,6 +113,7 @@ class GeminiDecoyNameGenerator:
                 asset_type, inventory, count=overshoot
             )
             names = await self._finalize_list(asset_type, inventory, new_names, count)
+            print("generated names:", names)  # Debugging output
             validated_names.extend(names)
 
         random.shuffle(validated_names)

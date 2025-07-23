@@ -26,9 +26,6 @@ MAX_SECRET_MANAGER_SECRETS = 10
 NAME_GENERATOR = GeminiDecoyNameGenerator()
 
 
-NAME_GENERATOR = GeminiDecoyNameGenerator()
-
-
 class AssetLabel(str, enum.Enum):
     """
     Enum for asset labels used in the AWS infrastructure.
@@ -89,17 +86,6 @@ async def generate_for_asset_type(
     return suggested.suggested_names
 
 
-async def generate_objects_for_bucket(bucket, name_generator):
-    count = random.randint(1, MAX_CHILD_ITEMS)
-    bucket_name = bucket[AssetLabel.BUCKET_NAME]
-    objects = await name_generator.generate_children_names(
-        AWSInfraAssetType.S3_BUCKET,
-        bucket_name,
-        count,
-    )
-    bucket[AssetLabel.OBJECTS].extend(objects)
-
-
 async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
     count = _get_decoy_asset_count(
         aws_inventoried_assets,
@@ -118,14 +104,6 @@ async def _add_s3_buckets(aws_deployed_assets, aws_inventoried_assets, plan):
         [
             {AssetLabel.BUCKET_NAME: bucket_name, "objects": [], "off_inventory": False}
             for bucket_name in bucket_names
-        ]
-    )
-
-    # Generate S3 objects for each bucket asynchronously
-    await asyncio.gather(
-        *[
-            generate_objects_for_bucket(bucket, NAME_GENERATOR)
-            for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
         ]
     )
 
@@ -220,25 +198,6 @@ async def _add_dynamo_tables(aws_deployed_assets, aws_inventoried_assets, plan):
                 "table_items": [],
             }
             for table_name in table_names
-        ]
-    )
-
-    # Generate DynamoDB table items for each table asynchronously
-
-    async def generate_items_for_table(table):
-        count = random.randint(1, MAX_CHILD_ITEMS)
-        table_name = table[AssetLabel.TABLE_NAME]
-        items = await NAME_GENERATOR.generate_children_names(
-            AWSInfraAssetType.DYNAMO_DB_TABLE,
-            table_name,
-            count,
-        )
-        table["table_items"].extend(items)
-
-    await asyncio.gather(
-        *[
-            generate_items_for_table(table)
-            for table in plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value]
         ]
     )
 
