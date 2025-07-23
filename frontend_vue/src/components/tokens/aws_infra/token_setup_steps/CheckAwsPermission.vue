@@ -200,6 +200,7 @@ async function handleGetRoleName() {
       stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value =
         res.data.error_message || 'Failed to generate setup commands';
+      return;
     }
 
     roleName.value = res.data.role_setup_commands.role_name;
@@ -215,7 +216,8 @@ async function handleGetRoleName() {
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value = err;
+    errorMessage.value =
+      err.data.message || 'Failed to generate setup commands';
   }
 }
 
