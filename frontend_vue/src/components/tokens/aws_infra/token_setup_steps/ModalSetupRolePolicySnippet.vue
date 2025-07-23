@@ -15,6 +15,7 @@
         >
           <BaseFormTextField
             id="external_id"
+            name="external_id"
             label="Add here your External ID"
             placeholder="e.g. abCd7Lb6cEZrMCEm3OAoj"
             required
@@ -100,7 +101,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['updateExternalId']);
 
-const newExternalId = ref('');
+const localExternalId = ref('');
 const showSnippet = ref(false);
 const isLoading = ref(false);
 
@@ -109,7 +110,7 @@ const initialValues = {
 };
 
 const setupSnippetCommands = computed(() => {
-  const externalIdSnippet = props.externalId || newExternalId.value;
+  const externalIdSnippet = props.externalId || localExternalId.value;
 
   return `aws iam create-role --no-cli-pager --role-name ${props.roleName} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${props.managementAwsAccount}:assumed-role/InventoryManagerRole/${externalIdSnippet}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalIdSnippet}"}}}]}\'
 
@@ -124,12 +125,12 @@ const schema = Yup.object().shape({
 });
 
 function handleGenerateSnippet(values: GenericObject) {
-  newExternalId.value = values.external_id;
+  localExternalId.value = values.external_id;
 
-  if (newExternalId.value) {
+  if (localExternalId.value) {
     showSnippet.value = true;
     isLoading.value = true;
-    emits('updateExternalId', newExternalId.value);
+    emits('updateExternalId', localExternalId.value);
     setTimeout(() => {
       isLoading.value = false;
     }, 2000);
