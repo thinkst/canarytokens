@@ -11,4 +11,3 @@ frontend/canarytokens-0.3.0-py3-none-any.whl
 frontend/frontend.env
 switchboard/switchboard.env
 private_settings.sh
-dist/*
