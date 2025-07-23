@@ -3,6 +3,7 @@ import random
 import string
 
 from canarytokens.aws_infra.db_queries import get_current_assets
+from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
@@ -19,6 +20,8 @@ MAX_DYNAMO_TABLES_ITEMS = 100
 MAX_SSM_PARAMETERS = 10
 MAX_SQS_QUEUES = 10
 MAX_SECRET_MANAGER_SECRETS = 10
+
+NAME_GENERATOR = GeminiDecoyNameGenerator()
 
 
 def generate_tf_variables(canarydrop: Canarydrop, plan):
@@ -58,15 +61,14 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
     return tf_variables
 
 
-def generate_s3_bucket():
+def generate_s3_buckets(inventory: list, count: int = 1):
     """
     Return a name for a S3 bucket.
     """
-    separator = random.choice(["", "-"])
-    suffix = "".join(
-        [random.choice(string.ascii_lowercase + string.digits) for _ in range(10)]
+    suggested = NAME_GENERATOR.generate_names(
+        AWSInfraAssetType.S3_BUCKET, inventory, count
     )
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}{suffix}"
+    return suggested.suggested_names
 
 
 def generate_s3_object():
@@ -122,18 +124,25 @@ def generate_dynamo_table_item():
     return f"{random.choice(items)}{separator}{suffix}"
 
 
-def add_new_assets_to_plan(aws_deployed_assets: dict, plan: dict):
+def add_new_assets_to_plan(
+    aws_deployed_assets: dict, aws_inventoried_assets: dict, plan: dict
+):
     # generate new assets
-    for i in range(
-        random.randint(
-            1,
-            MAX_S3_BUCKETS
-            - len(aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
-            {"bucket_name": generate_s3_bucket(), "objects": [], "off_inventory": False}
-        )
+    count = random.randint(
+        1,
+        MAX_S3_BUCKETS
+        - len(aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, [])),
+    )
+
+    plan["assets"][AWSInfraAssetType.S3_BUCKET.value].extend(
+        [
+            {"bucket_name": bucket_name, "objects": [], "off_inventory": False}
+            for bucket_name in generate_s3_buckets(
+                aws_inventoried_assets.get(AWSInfraAssetType.S3_BUCKET.value, []), count
+            )
+        ]
+    )
+    for i in range(len(plan["assets"][AWSInfraAssetType.S3_BUCKET.value])):
         for _ in range(random.randint(1, MAX_S3_OBJECTS)):
             plan["assets"][AWSInfraAssetType.S3_BUCKET.value][i]["objects"].append(
                 {"object_path": generate_s3_object()}
@@ -297,7 +306,7 @@ def generate_proposed_plan(canarydrop: Canarydrop):
         "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
     }
 
-    add_new_assets_to_plan(aws_deployed_assets, proposed_plan)
+    add_new_assets_to_plan(aws_deployed_assets, aws_inventoried_assets, proposed_plan)
     if is_ingesting(canarydrop):
         return proposed_plan
 
@@ -316,7 +325,7 @@ def generate_data_choice(asset_type: AWSInfraAssetType, asset_field: str):
     Generate a random data choice for the given asset type and field.
     """
     asset_map = {
-        (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_bucket,
+        (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_buckets,
         (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
         (AWSInfraAssetType.SQS_QUEUE, "queue_name"): generate_sqs_queue,
         (AWSInfraAssetType.SQS_QUEUE, "message_count"): lambda: str(
