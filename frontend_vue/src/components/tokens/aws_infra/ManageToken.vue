@@ -1,17 +1,17 @@
 <template>
   <div class="flex flex-row items-center justify-between mt-32">
     <div class="flex flex-col">
-      <span>AWS Infra Plan</span>
+      <span>AWS Infra Decoys</span>
       <span class="text-xs leading-4 text-grey-500 pr-[3rem]"
-        >Step through the wizard to check your current plan or make any required
-        changes</span
+        >Step through the wizard to check your current decoys or make any
+        required changes</span
       >
     </div>
     <div>
       <BaseButton
         class="whitespace-nowrap"
         @click="handleEditPlan"
-        >Manage Plan</BaseButton
+        >Manage Decoys</BaseButton
       >
     </div>
   </div>
