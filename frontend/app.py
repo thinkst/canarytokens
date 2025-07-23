@@ -1299,7 +1299,10 @@ async def api_awsinfra_generate_data_choices(
         return AWSInfraGenerateDataChoiceResponse(
             result=True,
             proposed_data=aws_infra.generate_data_choice(
-                request.asset_type, request.asset_field
+                canarydrop,
+                request.asset_type,
+                request.asset_field,
+                request.parent_asset_name,
             ),
         )
     except Exception as e:
