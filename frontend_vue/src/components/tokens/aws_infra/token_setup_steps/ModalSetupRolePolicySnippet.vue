@@ -6,24 +6,6 @@
   >
     <template #default>
       <h2 class="mb-24 text-center">Run the AWS CLI command below</h2>
-      <!-- <template v-if="props.externalId">
-        <BaseLabelArrow
-          id="aws-snippet"
-          label="Copy AWS CLI snippet"
-          arrow-word-position="last"
-          arrow-variant="two"
-          class="z-10 text-right"
-        />
-        <BaseCodeSnippet
-          v-if="setupSnippetCommands"
-          id="aws-snippet"
-          lang="bash"
-          :code="setupSnippetCommands"
-          custom-height="120px"
-          class="wrap-code max-w-[100%]"
-        />
-      </template> -->
-
       <div class="place-self-center w-full">
         <Form
           class="flex flex-col justify-center items-center mb-24"
@@ -66,24 +48,24 @@
               class="wrap-code max-w-[100%]"
             />
           </template>
+          <div class="text-center flex mt-24 gap-8 items-center justify-center">
+            <p>What's this snippet doing?</p>
+            <button
+              v-tooltip="{
+                content: 'Check details',
+                triggers: ['hover'],
+              }"
+              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
+              aria-label="What's this snippet doing?"
+              @click="handleShowModalInfoSnippet"
+            >
+              <font-awesome-icon
+                icon="question"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
         </template>
-      </div>
-      <div class="text-center flex mt-24 gap-8 items-center justify-center">
-        <p>What's this snippet doing?</p>
-        <button
-          v-tooltip="{
-            content: 'Check details',
-            triggers: ['hover'],
-          }"
-          class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300"
-          aria-label="What's this snippet doing?"
-          @click="handleShowModalInfoSnippet"
-        >
-          <font-awesome-icon
-            icon="question"
-            aria-hidden="true"
-          />
-        </button>
       </div>
     </template>
     <template #footer>

@@ -61,14 +61,13 @@
           >Canarytoken IAM role and policy needed. Did you remove them?
         </BaseMessageBox>
         <BaseCard class="p-40 text-left place-self-center w-full mt-24">
-          <Form
+          <form
             class="flex flex-col gap-16 items-center"
-            :validation-schema="schema"
-            :initial-values="formInitialValues"
             @submit="onSubmit"
           >
             <BaseFormTextField
               id="external_id"
+              name="external_id"
               label="Add here your External ID"
               placeholder="e.g. abCd7Lb6cEZrMCEm3OAoj"
               required
@@ -76,7 +75,6 @@
               arrow-variant="one"
               :arrow-word-position="2"
               class="flex-grow external-id-input"
-              @input="handleExternalIdChange"
             />
             <BaseButton
               type="submit"
@@ -84,7 +82,7 @@
               class="self-center"
               >Check permissions</BaseButton
             >
-          </Form>
+          </form>
         </BaseCard>
       </div>
     </div>
@@ -104,10 +102,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
 import * as Yup from 'yup';
-import { Form } from 'vee-validate';
+import { useForm } from 'vee-validate';
 import { useModal } from 'vue-final-modal';
 import type { TokenDataType } from '@/utils/dataService';
-import type { GenericObject } from 'vee-validate';
 import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
 import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import StepState from '../StepState.vue';
@@ -136,7 +133,6 @@ const { token, auth_token, aws_region, aws_account_number } =
 
 const accountNumber = ref('');
 const accountRegion = ref('');
-const externalId = ref('');
 const roleName = ref('');
 const managementAwsAccount = ref('');
 
@@ -148,15 +144,17 @@ const {
   stateStatus: stateStatusFetch,
   handleFetchUserAccount,
   proposedPlan,
-} = useFetchUserAccount(token, auth_token, externalId);
-
-const formInitialValues = computed(
-  (): GenericObject => ({
-    external_id: externalId.value,
-  })
+} = useFetchUserAccount(
+  token,
+  auth_token,
+  computed(() => values.external_id)
 );
 
 onMounted(async () => {
+  initializeRoleData();
+});
+
+async function initializeRoleData() {
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 
@@ -170,7 +168,7 @@ onMounted(async () => {
       (managementAwsAccount.value = props.currentStepData.aws_account!),
       (accountNumber.value = props.currentStepData.aws_account_number!))
     : await handleGetRoleName();
-});
+}
 
 const codeSnippetCheckID = computed(
   () =>
@@ -179,6 +177,13 @@ const codeSnippetCheckID = computed(
 
 const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
+});
+
+const { handleSubmit, setFieldValue, values } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    external_id: '',
+  },
 });
 
 async function handleGetRoleName() {
@@ -190,16 +195,11 @@ async function handleGetRoleName() {
       auth_token,
       accountRegion.value
     );
-    if (res.status !== 200) {
-      stateStatus.value = StepStateEnum.ERROR;
-      res.data.error_message = errorMessage;
-    }
-    isLoading.value = false;
 
-    if (!res.data.role_setup_commands) {
+    if (res.status !== 200 || !res.data.role_setup_commands) {
       stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value =
-        'Something went wrong when we tried to generate your snippet. Please try again.';
+        res.data.error_message || 'Failed to generate setup commands';
     }
 
     roleName.value = res.data.role_setup_commands.role_name;
@@ -226,27 +226,23 @@ async function handleCheckPermission() {
   await handleFetchUserAccount();
 }
 
-async function onSubmit() {
+const onSubmit = handleSubmit(async () => {
   await handleCheckPermission();
-}
-
-function handleExternalIdChange(event: Event) {
-  externalId.value = (event.target as HTMLInputElement).value;
-}
+});
 
 function handleModalSetupRolePolicySnippet() {
   const { open, close } = useModal({
     component: ModalSetupRolePolicySnippet,
     attrs: {
       roleName: roleName.value,
-      externalId: externalId.value,
+      externalId: values.external_id,
       managementAwsAccount: managementAwsAccount.value,
       accountNumber: accountNumber.value,
       closeModal: () => {
         close();
       },
       onUpdateExternalId: (newExternalId: string) => {
-        externalId.value = newExternalId;
+        setFieldValue('external_id', newExternalId);
       },
     },
   });
