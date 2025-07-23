@@ -10,6 +10,7 @@ import base64
 import datetime
 import errno
 import hashlib
+import logging.config
 import os
 import textwrap
 from base64 import b64decode
@@ -222,7 +223,8 @@ from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
 
-log = logging.getLogger(__name__)
+logging.config.fileConfig("log.ini", disable_existing_loggers=False)
+log = logging.getLogger()
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
