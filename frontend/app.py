@@ -1224,6 +1224,8 @@ async def api_awsinfra_generate_child_assets(
             detail=str(e),
         )
     assets = await aws_infra.generate_child_assets(request.assets)
+    aws_infra.mark_succeeded(canarydrop)
+    queries.save_canarydrop(canarydrop)
     return AWSInfraGenerateChildAssetsResponse(assets=assets)
 
 
