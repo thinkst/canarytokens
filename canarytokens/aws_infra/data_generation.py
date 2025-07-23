@@ -191,12 +191,14 @@ class GeminiDecoyNameGenerator:
 
     def _validate_ssm_parameter_name(self, name: str) -> bool:
         # path segments of a-z A-Z 0-9 _ . - separated by "/"; no leading "aws" or "ssm"
-        if not name or name.startswith("/") or len(name) > 2048:
+        if not name or len(name) > 2048:
             return False
         segments = name.split("/")
         if segments[0].lower() in ("aws", "ssm"):
             return False
         for seg in segments:
+            if not seg:
+                continue  # skip empty segments
             if not re.fullmatch(r"[A-Za-z0-9_.\-]+", seg):
                 return False
         return True

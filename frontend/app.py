@@ -1223,7 +1223,7 @@ async def api_awsinfra_generate_child_assets(
             status_code=400,
             detail=str(e),
         )
-    assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
+    assets = await aws_infra.generate_child_assets(request.assets)
     return AWSInfraGenerateChildAssetsResponse(assets=assets)
 
 
