@@ -9,8 +9,6 @@ from canarytokens import queries
 from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.db_queries import get_current_assets
-from canarytokens import queries
-from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
@@ -610,9 +608,4 @@ def save_plan(canarydrop: Canarydrop, plan: str):
                 ]
             ],
         }
-    )
-    queries.save_canarydrop(canarydrop)
-    variables = generate_tf_variables(canarydrop, plan)
-    upload_tf_module(
-        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
     )

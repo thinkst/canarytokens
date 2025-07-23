@@ -7,9 +7,12 @@ from pydantic import BaseModel
 from canarytokens import queries
 from canarytokens.aws_infra.aws_management import (
     queue_management_request,
+    upload_tf_module,
 )
 from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
+    generate_tf_variables,
+    save_plan,
 )
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.aws_infra.utils import generate_handle_id
@@ -192,7 +195,9 @@ async def _build_handle_response_payload(
         save_current_assets(canarydrop, response_content.get("assets", {}))
         payload["proposed_plan"] = await generate_proposed_plan(canarydrop)
         if is_ingesting(canarydrop):
-            filter_decoys_from_inventory(canarydrop)
+            filter_decoys_from_inventory(
+                canarydrop
+            )  # remove decoys from inventory so that they don't influence calls to generate-data-choices
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
@@ -239,6 +244,20 @@ def add_handle_response(handle_id, response):
     Update the specified handle with a response in the redis DB.
     """
     queries.update_aws_management_lambda_handle(handle_id, json.dumps(response))
+
+
+def setup_new_plan(canarydrop: Canarydrop, plan: str):
+    """
+    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
+    """
+    save_plan(canarydrop, plan)
+    queries.save_canarydrop(canarydrop)
+    # Clear inventory
+    delete_current_assets(canarydrop)
+    variables = generate_tf_variables(canarydrop, plan)
+    upload_tf_module(
+        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
+    )
 
 
 def get_canarydrop_from_handle(handle_id: str):

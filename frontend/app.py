@@ -20,7 +20,6 @@ from urllib.parse import unquote
 import logging
 
 import requests
-import canarytokens.aws_infra.plan_generation
 import segno
 import sentry_sdk
 from fastapi import (
@@ -1139,7 +1138,7 @@ async def api_awsinfra_check_role(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.message != "":
+    if handle_response.message != "":  # TODO: fix error handling
         response.status_code = status.HTTP_400_BAD_REQUEST
         log.error(
             f"Error in check-role for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
@@ -1316,7 +1315,7 @@ async def api_awsinfra_save_plan(
     )
     try:
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
-        canarytokens.aws_infra.plan_generation.save_plan(canarydrop, request.plan)
+        aws_infra.setup_new_plan(canarydrop, request.plan)
         aws_infra.mark_succeeded(canarydrop)
         queries.save_canarydrop(canarydrop)
 
