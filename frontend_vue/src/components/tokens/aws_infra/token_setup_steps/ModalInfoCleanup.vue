@@ -40,18 +40,16 @@ import { computed } from 'vue';
 const props = defineProps<{
   awsAccountNumber: string;
   roleName: string;
+  customerAwsAccount: string;
   closeModal: () => void;
 }>();
 
 const cleanupSnippetCommands = computed(() => {
-  return generateCodeSnippet(props.awsAccountNumber, props.roleName);
+  return `aws iam detach-role-policy --role-name ${props.roleName} --policy-arn arn:aws:iam::${props.customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+    aws iam delete-policy --policy-arn arn:aws:iam::${props.customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+    aws iam delete-role --role-name  ${props.roleName}`;
 });
 
-function generateCodeSnippet(customerAwsAccount: string, roleName: string) {
-  return `aws iam detach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
-
-aws iam delete-policy --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
-
-aws iam delete-role --role-name  ${roleName}`;
-}
 </script>

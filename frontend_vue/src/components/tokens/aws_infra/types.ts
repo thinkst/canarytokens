@@ -44,8 +44,7 @@ type AssetData =
   | SecretsManagerSecretData
   | SSMParameterData
   | SQSQueueData
-  | S3BucketData
-
+  | S3BucketData;
 
 type TokenSetupData = {
   token: string;
@@ -54,8 +53,12 @@ type TokenSetupData = {
     assets: ProposedAWSInfraTokenPlanData;
   };
   code_snippet_command?: string;
+  customer_aws_account?: string;
+  terraform_module_snippet?: {
+    source: string;
+    module: string;
+  };
 };
-
 
 export type {
   AssetData,
@@ -66,5 +69,5 @@ export type {
   SecretsManagerSecretData,
   DynamoDBTableData,
   TokenSetupData,
-  ProposedAWSInfraTokenPlanData
+  ProposedAWSInfraTokenPlanData,
 };

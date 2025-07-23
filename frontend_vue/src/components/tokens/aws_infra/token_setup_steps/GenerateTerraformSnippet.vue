@@ -31,7 +31,7 @@
           >
         </div>
         <BaseCard
-          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]  xl:max-w-[40vw]  place-self-center"
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw] place-self-center"
         >
           <div class="text-center mb-16 flex flex-col items-center">
             <img
@@ -56,7 +56,7 @@
           <BaseCodeSnippet
             id="terraform-module"
             lang="bash"
-            :code="terraformSnippet"
+            :code="formattedTerraformSnippet"
             class="w-full wrap-code"
             custom-height="100px"
           ></BaseCodeSnippet>
@@ -135,10 +135,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, defineAsyncComponent } from 'vue';
+import { ref, onMounted, watch, defineAsyncComponent, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import getImageUrl from '@/utils/getImageUrl';
 import type { TokenDataType } from '@/utils/dataService';
+import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
 import { TOKENS_TYPE } from '@/components/constants.ts';
 import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
@@ -167,6 +168,7 @@ const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
+  currentStepData: TokenSetupData;
 }>();
 
 const router = useRouter();
@@ -174,11 +176,31 @@ const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 const errorMessage = ref('');
 
-const terraformSnippet = ref('');
+const terraformSnippet = ref({
+    source: '',
+    module: ''
+});
+const customerAwsAccount = ref('');
 
 const { token, auth_token } = props.initialStepData;
 
+const formattedTerraformSnippet = computed(() => {
+  return `module "${terraformSnippet.value.module}" {
+  source = "${terraformSnippet.value.source}"
+}`;
+});
+
 onMounted(async () => {
+  const { customer_aws_account, terraform_module_snippet } =
+    props.currentStepData;
+
+  if (customer_aws_account && terraform_module_snippet?.source) {
+    customerAwsAccount.value = customer_aws_account!;
+    terraformSnippet.value = terraform_module_snippet;
+    stateStatus.value = StepStateEnum.SUCCESS;
+    return
+  }
+
   await handleRequestTerraformSnippet();
   window.scrollTo({
     top: 0,
@@ -237,13 +259,18 @@ async function handleRequestTerraformSnippet() {
         // success
         if (resWithHandle.data.terraform_module_snippet) {
           stateStatus.value = StepStateEnum.SUCCESS;
+
           const terraform_module_snippet =
             resWithHandle.data.terraform_module_snippet;
 
+          const customer_aws_account = resWithHandle.data.customer_aws_account;
           terraformSnippet.value = terraform_module_snippet;
+          customerAwsAccount.value = customer_aws_account;
+
           emits('storeCurrentStepData', {
             token,
             auth_token,
+            customer_aws_account,
             terraform_module_snippet,
           });
           clearInterval(pollingTerraformSnippetInterval);
@@ -289,6 +316,7 @@ function handleShowModalCleanup() {
       closeModal: () => close(),
       awsAccountNumber: props.initialStepData.aws_account_number,
       roleName: 'something',
+      customerAwsAccount: 'something',
     },
   });
   open();
