@@ -3,7 +3,7 @@ import secrets
 import string
 
 
-def _random_string(length: int) -> str:
+def random_string(length: int) -> str:
     """
     Generate a random string of fixed length.
     """
@@ -26,14 +26,14 @@ def generate_external_id():
 
 
 def generate_tf_module_prefix():
-    return _random_string(27)
+    return random_string(27)
 
 
 def generate_inventory_role_name():
     """
     Generate a unique inventory role name for the canarydrop.
     """
-    return f"Canarytokens-Inventory-{_random_string(10)}-ReadOnly-Role"
+    return f"Canarytokens-Inventory-{random_string(10)}-ReadOnly-Role"
 
 
 def generate_handle_id():

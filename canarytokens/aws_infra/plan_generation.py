@@ -2,7 +2,6 @@ import enum
 import json
 import math
 import random
-import string
 
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
@@ -14,8 +13,7 @@ import asyncio
 
 settings = FrontendSettings()
 
-NAME_ENVS = ["prod", "staging", "dev", "testing"]
-NAME_TARGETS = ["customer", "user", "admin", "audit"]
+
 MAX_CHILD_ITEMS = 20
 MAX_S3_BUCKETS = 10
 MAX_DYNAMO_TABLES = 10
@@ -40,43 +38,6 @@ class AssetLabel(str, enum.Enum):
     TABLE_NAME = "table_name"
     TABLE_ITEMS = "table_items"
     TABLE_ITEM = "table_item"
-
-
-def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
-    """
-    Generate variables to be used in the terraform template.
-    """
-    tf_variables = {
-        "s3_bucket_names": [],
-        "s3_objects": [],
-        "sqs_queues": [],
-        "ssm_parameters": [],
-        "secrets": [],
-        "tables": [],
-        "table_items": [],
-        "canarytoken_id": canarydrop.canarytoken.value(),
-        "target_bus_arn": _get_ingestion_bus_arn(
-            canarydrop.aws_infra_ingestion_bus_name
-        ),
-        "account_id": canarydrop.aws_account_id,
-        "region": canarydrop.aws_region,
-    }
-    for bucket in plan["assets"]["S3Bucket"]:
-        tf_variables["s3_bucket_names"].append(bucket[AssetLabel.BUCKET_NAME])
-        for s3_object in bucket.get("objects", []):
-            tf_variables["s3_objects"].append(
-                {
-                    "bucket": bucket[AssetLabel.BUCKET_NAME],
-                    "key": s3_object,
-                    "content": "".join(
-                        [
-                            random.choice(string.ascii_letters + string.digits)
-                            for _ in range(random.randint(5, 1000))
-                        ]
-                    ),
-                }
-            )
-    return tf_variables
 
 
 async def generate_for_asset_type(
