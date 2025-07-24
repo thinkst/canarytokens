@@ -10,7 +10,7 @@ from canarytokens.tokens import Canarytoken
 
 
 class Variable(str, enum.Enum):
-    S3_BUCKET_NAME = "s3_bucket_name"
+    S3_BUCKET_NAMES = "s3_bucket_names"
     S3_OBJECTS = "s3_objects"
     SQS_QUEUES = "sqs_queues"
     SSM_PARAMETERS = "ssm_parameters"
@@ -28,7 +28,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
     Generate variables to be used in the terraform template.
     """
     tf_variables = {
-        Variable.S3_BUCKET_NAME: [],
+        Variable.S3_BUCKET_NAMES: [],
         Variable.S3_OBJECTS: [],
         Variable.SQS_QUEUES: [],
         Variable.SSM_PARAMETERS: [],
@@ -53,8 +53,8 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
 
 
 def _add_s3_buckets(tf_variables, plan):
-    for bucket in plan["assets"].get("S3Bucket", []):
-        tf_variables[Variable.S3_BUCKET_NAME].append(bucket[AssetLabel.BUCKET_NAME])
+    for bucket in plan["assets"].get(AWSInfraAssetType.S3_BUCKET, []):
+        tf_variables[Variable.S3_BUCKET_NAMES].append(bucket[AssetLabel.BUCKET_NAME])
         for s3_object in bucket.get("objects", []):
             tf_variables[Variable.S3_OBJECTS].append(
                 {
@@ -68,12 +68,12 @@ def _add_s3_buckets(tf_variables, plan):
 
 
 def _add_sqs_queues(tf_variables, plan):
-    for queue in plan["assets"].get("SQSQueue", []):
+    for queue in plan["assets"].get(AWSInfraAssetType.SQS_QUEUE, []):
         tf_variables[Variable.SQS_QUEUES].append(queue[AssetLabel.SQS_QUEUE_NAME])
 
 
 def _add_ssm_parameters(tf_variables, plan):
-    for param in plan["assets"].get("SSMParameter", []):
+    for param in plan["assets"].get(AWSInfraAssetType.SSM_PARAMETER, []):
         tf_variables[Variable.SSM_PARAMETERS].append(
             {
                 "name": param[AssetLabel.SSM_PARAMETER_NAME],
@@ -83,21 +83,21 @@ def _add_ssm_parameters(tf_variables, plan):
 
 
 def _add_secrets(tf_variables, plan):
-    for secret in plan["assets"].get("SecretsManagerSecret", []):
+    for secret in plan["assets"].get(AWSInfraAssetType.SECRETS_MANAGER_SECRET, []):
         tf_variables[Variable.SECRETS].append(
             secret[AssetLabel.SECRET_NAME],
         )
 
 
 def _add_dynamodb_tables(tf_variables, plan):
-    for table in plan["assets"].get("DynamoDBTable", []):
+    for table in plan["assets"].get(AWSInfraAssetType.DYNAMO_DB_TABLE, []):
         tf_variables[Variable.TABLES].append(table[AssetLabel.TABLE_NAME])
         for item in table.get("table_items", []):
             tf_variables[Variable.TABLE_ITEMS].append(
                 {
                     "table_name": table[AssetLabel.TABLE_NAME],
-                    "key": item,
-                    "value": random_string(random.randint(5, 1000)),
+                    "key": "id",
+                    "value": item,  # Assuming 'id' is the primary key
                 }
             )
 
@@ -108,36 +108,27 @@ if __name__ == "__main__":
         "assets": {
             AWSInfraAssetType.S3_BUCKET: [
                 {
-                    AssetLabel.BUCKET_NAME: "bucket1",
+                    AssetLabel.BUCKET_NAME: "bucket1-312465",
                     AssetLabel.OBJECTS: ["file1.txt", "file2.txt"],
                 },
                 {
-                    AssetLabel.BUCKET_NAME: "bucket2",
-                    AssetLabel.OBJECTS: ["file3.txt", "file4.txt"],
+                    AssetLabel.BUCKET_NAME: "bucket2-312465",
+                    AssetLabel.OBJECTS: [],
                 },
             ],
-            AWSInfraAssetType.SQS_QUEUE: [
-                {AssetLabel.SQS_QUEUE_NAME: "queue1"},
-                {AssetLabel.SQS_QUEUE_NAME: "queue2"},
-            ],
-            AWSInfraAssetType.SSM_PARAMETER: [
-                {AssetLabel.SSM_PARAMETER_NAME: "pa/ram/1"},
-                {AssetLabel.SSM_PARAMETER_NAME: "pa/ram/2"},
-            ],
+            AWSInfraAssetType.SQS_QUEUE: [],
+            AWSInfraAssetType.SSM_PARAMETER: [],
             AWSInfraAssetType.SECRETS_MANAGER_SECRET: [
-                {AssetLabel.SECRET_NAME: "secret1"},
-                {AssetLabel.SECRET_NAME: "secret2"},
-                {AssetLabel.SECRET_NAME: "secret3"},
-                {AssetLabel.SECRET_NAME: "secret4"},
+                {AssetLabel.SECRET_NAME: "secret1312321213"},
             ],
             AWSInfraAssetType.DYNAMO_DB_TABLE: [
                 {
-                    AssetLabel.TABLE_NAME: "example-table",
+                    AssetLabel.TABLE_NAME: "example-table31132123123",
                     AssetLabel.TABLE_ITEMS: ["table1", "table2"],
                 },
                 {
-                    AssetLabel.TABLE_NAME: "another-table",
-                    AssetLabel.TABLE_ITEMS: ["table3", "table4"],
+                    AssetLabel.TABLE_NAME: "another-table55212",
+                    AssetLabel.TABLE_ITEMS: [],
                 },
             ],
         }
