@@ -1,10 +1,14 @@
 import os
 from distutils.util import strtobool
+from pathlib import Path
 from typing import Any, Literal, Optional
 
 from pydantic import BaseSettings, EmailStr, HttpUrl, SecretStr
 
 from canarytokens.models import Port
+
+# Get the project root directory
+PROJECT_ROOT = Path(__file__).parent.parent
 
 
 class SwitchboardSettings(BaseSettings):
@@ -28,9 +32,9 @@ class SwitchboardSettings(BaseSettings):
     WG_PRIVATE_KEY_SEED: str
     WG_PRIVATE_KEY_N: str = "1000"
 
-    FRONTEND_SETTINGS_PATH: str = "../frontend/frontend.env"
+    FRONTEND_SETTINGS_PATH: str = str(PROJECT_ROOT / "frontend" / "frontend.env")
     USING_NGINX: bool = True
-    TEMPLATES_PATH: str = "../templates"
+    TEMPLATES_PATH: str = str(PROJECT_ROOT / "templates")
 
     ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("illegal@email.com")
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
@@ -66,7 +70,7 @@ class SwitchboardSettings(BaseSettings):
 
     class Config:
         allow_mutation = False
-        env_file = "../switchboard/switchboard.env"
+        env_file = str(PROJECT_ROOT / "switchboard" / "switchboard.env")
         env_file_encoding = "utf-8"
         env_prefix = "CANARY_"
 
@@ -77,7 +81,9 @@ class FrontendSettings(BaseSettings):
     PUBLIC_IP: str
     DOMAINS: list[str]
     NXDOMAINS: list[str]
-    SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
+    SWITCHBOARD_SETTINGS_PATH: str = str(
+        PROJECT_ROOT / "switchboard" / "switchboard.env"
+    )
 
     SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
@@ -85,8 +91,8 @@ class FrontendSettings(BaseSettings):
 
     NEW_UI: bool = True
 
-    TEMPLATES_PATH: str = "../templates"
-    STATIC_FILES_PATH: str = "../templates/static"
+    TEMPLATES_PATH: str = str(PROJECT_ROOT / "templates")
+    STATIC_FILES_PATH: str = str(PROJECT_ROOT / "templates" / "static")
     STATIC_FILES_APPLICATION_SUB_PATH: str = "/resources"
     STATIC_FILES_APPLICATION_INTERNAL_NAME: str = "resources"
 
@@ -173,7 +179,7 @@ Above all, decoy names must be indistinguishable from real production resourcesâ
 
     class Config:
         allow_mutation = False
-        env_file = "../frontend/frontend.env"
+        env_file = str(PROJECT_ROOT / "frontend" / "frontend.env")
         env_file_encoding = "utf-8"
         env_prefix = "CANARY_"
 
