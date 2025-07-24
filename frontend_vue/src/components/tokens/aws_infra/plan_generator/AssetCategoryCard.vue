@@ -3,7 +3,7 @@
     <button
       ref="assetCardRef"
       v-tooltip="{
-        content: isLoadingData ? 'Loading decoys...' : '',
+        content: isLoadingData ? 'Generating decoys...' : '',
         triggers: ['hover'],
       }"
       class="asset_category_card group"
