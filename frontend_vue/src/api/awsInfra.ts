@@ -143,7 +143,8 @@ export function requestAIgeneratedAssets({
   auth_token,
   assets,
 }: generatedAIAssetsPayload) {
-  const url = '/d3aece8093b71007b5ccfedad91ebb11/generate-child-assets';
+  const url =
+    '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-child-assets';
   const params = {
     canarytoken,
     auth_token,

@@ -72,11 +72,15 @@ import { ref, onMounted, computed } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { savePlan, requestAIgeneratedAssets } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
+import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
 import type {
   ProposedAWSInfraTokenPlanData,
   AssetData,
 } from '@/components/tokens/aws_infra/types.ts';
-import { useAIGenerateAssets } from '../plan_generator/useAIGenerateAssets';
+import {
+  formatDataForAIRequest,
+  mergeAIGeneratedAssets,
+} from '../plan_generator/AIGenerateAssetsUtils';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
@@ -85,6 +89,7 @@ const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
 const props = defineProps<{
   initialStepData: TokenDataType;
+  currentStepData: TokenSetupData;
 }>();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -97,17 +102,15 @@ const isSaveError = ref(false);
 const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
 const isLoadingUI = ref(true);
-const isLoadingAssetData = ref({
+const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   S3Bucket: false,
   SQSQueue: false,
   SSMParameter: false,
   SecretsManagerSecret: false,
   DynamoDBTable: false,
 });
-const isAiGenerateErrorMessage = ref('');
 
-const { formatDataForAIRequest, mergeAIGeneratedAssets } =
-  useAIGenerateAssets();
+const isAiGenerateErrorMessage = ref('');
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
@@ -118,6 +121,15 @@ const assetsData = ref<ProposedAWSInfraTokenPlanData>({
 });
 
 onMounted(() => {
+  const isExistingPlan = props.currentStepData?.proposed_plan;
+
+  if (isExistingPlan) {
+    assetsData.value = props.currentStepData
+      .proposed_plan as ProposedAWSInfraTokenPlanData;
+    isLoadingUI.value = false;
+    return;
+  }
+
   assetsData.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
   fetchAIgeneratedAssets(assetsData.value);
   // Set loading state to allow UI to render
@@ -154,7 +166,7 @@ const assetWithMissingPermissionText = computed(() => {
 });
 
 function getIsLoadingAssetData(assetType: AssetTypesEnum): boolean {
-  return isLoadingAssetData.value[assetType] || false;
+  return isLoadingAssetCard.value[assetType] || false;
 }
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
@@ -185,11 +197,23 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
   open();
 }
 
+const resetAssetCardsLoadingState = () => {
+  Object.keys(isLoadingAssetCard.value).forEach((assetType) => {
+    isLoadingAssetCard.value[assetType as AssetTypesEnum] = false;
+  });
+};
+
 async function fetchAIgeneratedAssets(
   initialAssetData: ProposedAWSInfraTokenPlanData
 ) {
   const payload = formatDataForAIRequest(initialAssetData);
   let updatedPlanData = {};
+
+  // Update AI generation loading state
+  isAiGenerateErrorMessage.value = '';
+  Object.keys(payload.assets).forEach((assetType) => {
+    isLoadingAssetCard.value[assetType as AssetTypesEnum] = true;
+  });
 
   try {
     const res = await requestAIgeneratedAssets({
@@ -198,11 +222,20 @@ async function fetchAIgeneratedAssets(
       assets: payload.assets,
     });
 
-    if (res.status !== 200) {
-      // something
+    if (res.status === 429) {
+      isAiGenerateErrorMessage.value =
+        'You have reached your daily limit for AI-generated decoy names. You can continue with your current configuration or add decoys manually.';
+      resetAssetCardsLoadingState();
       return;
     }
 
+    if (res.status !== 200) {
+      isAiGenerateErrorMessage.value =
+        res.data.message ||
+        'We encountered an issue generating AI assets. You can continue setting up your decoys manually.';
+      resetAssetCardsLoadingState();
+      return;
+    }
     const newAssets = res.data.assets;
 
     if (Object.keys(newAssets).length > 0) {
@@ -210,11 +243,12 @@ async function fetchAIgeneratedAssets(
     }
 
     assetsData.value = { ...assetsData.value, ...updatedPlanData };
-
-    console.log(assetsData.value);
+    resetAssetCardsLoadingState();
   } catch (err: any) {
-    // TODO : decide what to do with the error
-    isAiGenerateErrorMessage.value = 'error!';
+    isAiGenerateErrorMessage.value =
+      err.data.message ||
+      'We encountered an issue generating AI assets. You can continue setting up your decoys manually.';
+    resetAssetCardsLoadingState();
   }
 }
 
@@ -248,7 +282,11 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
       return;
     }
     isSaveSuccess.value = true;
-    emits('storeCurrentStepData', { token, auth_token });
+    emits('storeCurrentStepData', {
+      token,
+      auth_token,
+      proposed_plan: assetsData.value,
+    });
     emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
