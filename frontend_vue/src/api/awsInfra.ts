@@ -1,4 +1,5 @@
 import { TOKENS_TYPE } from '@/components/constants';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants';
 import axios from 'axios';
 
 type AWSInfraRequestPayload = {
@@ -6,6 +7,14 @@ type AWSInfraRequestPayload = {
   auth_token?: string;
   handle?: string;
   external_id?: string;
+};
+
+type generatedAIAssetsPayload = {
+  canarytoken: string;
+  auth_token: string;
+  assets: {
+    [key in keyof AssetTypesEnum]: string[];
+  };
 };
 
 export function requestAWSInfraRoleSetupCommands(
@@ -125,6 +134,20 @@ export function editAccountInfo(
     auth_token,
     account_number,
     region,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
+}
+
+export function requestAIgeneratedAssets({
+  canarytoken,
+  auth_token,
+  assets,
+}: generatedAIAssetsPayload) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/generate-child-assets';
+  const params = {
+    canarytoken,
+    auth_token,
+    assets,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }
