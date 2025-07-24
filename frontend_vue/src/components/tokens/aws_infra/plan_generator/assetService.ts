@@ -11,6 +11,7 @@ export const ASSET_CONFIG = {
       off_inventory: 'Off Inventory',
     },
     fieldsWithIcons: ['objects'] as string[],
+    fieldsAIgenerated: ['objects'] as string[],
     defaultValues: {
       bucket_name: '',
       objects: [] as string[],
@@ -25,6 +26,7 @@ export const ASSET_CONFIG = {
       off_inventory: 'Off Inventory',
     },
     fieldsWithIcons: [] as string[],
+    fieldsAIgenerated: [] as string[],
     defaultValues: {
       sqs_queue_name: '',
       off_inventory: false,
@@ -38,6 +40,7 @@ export const ASSET_CONFIG = {
       off_inventory: 'Off Inventory',
     },
     fieldsWithIcons: [] as string[],
+    fieldsAIgenerated: [] as string[],
     defaultValues: {
       ssm_parameter_name: '',
       off_inventory: false,
@@ -51,6 +54,7 @@ export const ASSET_CONFIG = {
       off_inventory: 'Off Inventory',
     },
     fieldsWithIcons: [] as string[],
+    fieldsAIgenerated: [] as string[],
     defaultValues: {
       secret_name: '',
       off_inventory: false,
@@ -65,6 +69,7 @@ export const ASSET_CONFIG = {
       off_inventory: 'Off Inventory',
     },
     fieldsWithIcons: ['table_items'] as string[],
+    fieldsAIgenerated: ['table_items'] as string[],
     defaultValues: {
       table_name: '',
       table_items: [] as string[],
@@ -101,4 +106,9 @@ export function hasFieldIcon(
   return ASSET_CONFIG[assetType]?.fieldsWithIcons?.includes(
     fieldKey as keyof AssetData
   );
+}
+
+// Fields that support AI generated naming
+export function hasAiGeneratedField(assetType: AssetTypesEnum): string[] {
+  return ASSET_CONFIG[assetType]?.fieldsAIgenerated;
 }
