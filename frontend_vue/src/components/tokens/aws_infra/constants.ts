@@ -6,9 +6,6 @@ export enum AssetTypesEnum {
   DYNAMODBTABLE = 'DynamoDBTable',
 }
 
-// Display icon in Asset Card
-export const ASSET_WITH_ICON = ['objects'];
-
 export const AWS_REGIONS = [
   { value: 'us-east-1', label: 'US East (N. Virginia)' },
   { value: 'us-east-2', label: 'US East (Ohio)' },

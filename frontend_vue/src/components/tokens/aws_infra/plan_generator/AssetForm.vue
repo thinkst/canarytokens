@@ -13,12 +13,11 @@
       <template v-if="Array.isArray(value)">
         <FieldArray
           v-slot="{ fields, prepend, remove }"
-          name="objects"
+          :name="key"
         >
-          <FormObjects
+          <AssetFormArray
             :asset-type="props.assetType"
             :asset-key="key"
-            object-key="object_path"
             :fields="fields"
             :prepend="prepend"
             :remove="remove"
@@ -29,7 +28,7 @@
         <AssetTextField
           :id="key"
           :value="initialValues[key]"
-          :label="getLabel(key)"
+          :label="getFieldLabel(props.assetType, key)"
           :field-type="key"
           :asset-type="props.assetType"
         />
@@ -48,8 +47,8 @@ import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import FormObjects from '@/components/tokens/aws_infra/plan_generator/FormObjects.vue';
-import {getFieldLabel} from '@/components/tokens/aws_infra/assetService.ts';
+import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
+import AssetFormArray from '@/components/tokens/aws_infra/plan_generator/AssetFormArray.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -86,10 +85,6 @@ function handleProgramaticSubmit() {
 
 function handleRestoreFields() {
   emits('update-asset', tempFields);
-}
-
-function getLabel(key: keyof AssetData) {
-  return getFieldLabel(props.assetType, key);
 }
 
 watch(
