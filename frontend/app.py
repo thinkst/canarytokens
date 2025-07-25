@@ -1192,13 +1192,15 @@ async def api_awsinfra_inventory_customer_account(
     except AWSInfraDataGenerationLimitReached as e:
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
         return AWSInfraInventoryCustomerAccountReceivedResponse(
+            handle=request.handle,
             result=False,
             message=str(e),
             data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
             ).requests_remaining_percentage,
         )
-
+    # Reload canarydrop to ensure we have the latest state
+    canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     if handle_response.message != "":
         response.status_code = status.HTTP_400_BAD_REQUEST
         log.error(
@@ -1232,7 +1234,17 @@ async def api_awsinfra_generate_child_assets(
             status_code=400,
             detail=str(e),
         )
-    assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
+    try:
+        assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
+    except AWSInfraDataGenerationLimitReached:
+        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
+        return AWSInfraGenerateChildAssetsResponse(
+            assets=[],
+            data_generation_remaining=aws_infra.usage_by_canarydrop(
+                canarydrop
+            ).requests_remaining_percentage,
+        )
+
     aws_infra.mark_succeeded(canarydrop)
     queries.save_canarydrop(canarydrop)
     return AWSInfraGenerateChildAssetsResponse(
