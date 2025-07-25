@@ -1,5 +1,4 @@
 import { TOKENS_TYPE } from '@/components/constants';
-import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants';
 import axios from 'axios';
 
 type AWSInfraRequestPayload = {
@@ -12,9 +11,7 @@ type AWSInfraRequestPayload = {
 type generatedAIAssetsPayload = {
   canarytoken: string;
   auth_token: string;
-  assets: {
-    [key in keyof AssetTypesEnum]: string[];
-  };
+  assets: Record<string, string[]>;
 };
 
 export function requestAWSInfraRoleSetupCommands(

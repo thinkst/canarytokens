@@ -3,12 +3,13 @@ import {
   hasAiGeneratedField,
   getAssetNameKey,
 } from '@/components/tokens/aws_infra/plan_generator/assetService';
+import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import type { ProposedAWSInfraTokenPlanData } from '@/components/tokens/aws_infra/types.ts';
 
 type FormattedDataForAI = {
   assets: {
-    [key in keyof AssetTypesEnum]: string[];
+    [key in keyof AssetData]: string[];
   };
 };
 
@@ -24,8 +25,12 @@ export function formatDataForAIRequest(
         return aiCompatibleFields.length > 0;
       })
       .map(([assetType, assetList]) => {
+        if (!assetList) return [assetType, []];
         const nameField = getAssetNameKey(assetType as AssetTypesEnum);
-        const assetNames = assetList?.map((fields) => fields[nameField]);
+        const assetNames = assetList.map((fields) => {
+          const value = fields[nameField as keyof typeof fields];
+          return String(value) || '';
+        });
         return [assetType, assetNames];
       })
   );
@@ -34,7 +39,7 @@ export function formatDataForAIRequest(
 }
 
 export function mergeAIGeneratedAssets(
-  existingAssetsData: ProposedAWSInfraTokenPlanData,
+  currentAssetsData: ProposedAWSInfraTokenPlanData,
   generatedAssets: Record<string, Record<string, string[]>>
 ): ProposedAWSInfraTokenPlanData {
   const mergedAssets = Object.entries(generatedAssets).reduce(
@@ -48,15 +53,15 @@ export function mergeAIGeneratedAssets(
       const assetNameKey = getAssetNameKey(assetType as AssetTypesEnum);
 
       const currentAssets =
-        existingAssetsData[assetType as AssetTypesEnum] || [];
+        currentAssetsData[assetType as AssetTypesEnum] || [];
       const updatedAssets = [...currentAssets];
 
       Object.entries(generatedAssetsForType).forEach(
         ([assetName, fieldValues]) => {
-          console.log(updatedAssets, 'updatedAssets');
-          const existingAsset = updatedAssets.find(
-            (asset) => asset[assetNameKey] === assetName
-          );
+          const existingAsset = updatedAssets.find((asset) => {
+            String((asset as AssetData)[assetNameKey as keyof AssetData]) ===
+              assetName;
+          });
 
           if (!existingAsset) return;
 
@@ -76,5 +81,5 @@ export function mergeAIGeneratedAssets(
     {}
   );
 
-  return { ...existingAssetsData, ...mergedAssets };
+  return { ...currentAssetsData, ...mergedAssets };
 }

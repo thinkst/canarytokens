@@ -21,6 +21,8 @@
       v-if="isAiGenerateErrorMessage"
       variant="warning"
       class="mt-16"
+      text-link="Try again"
+      @click="handleRetryAIAssets"
     >
       {{ isAiGenerateErrorMessage }}
     </BaseMessageBox>
@@ -109,7 +111,6 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   SecretsManagerSecret: false,
   DynamoDBTable: false,
 });
-
 const isAiGenerateErrorMessage = ref('');
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
@@ -203,6 +204,11 @@ const resetAssetCardsLoadingState = () => {
   });
 };
 
+function handleRetryAIAssets() {
+  isAiGenerateErrorMessage.value = '';
+  fetchAIgeneratedAssets(assetsData.value);
+}
+
 async function fetchAIgeneratedAssets(
   initialAssetData: ProposedAWSInfraTokenPlanData
 ) {
@@ -224,15 +230,15 @@ async function fetchAIgeneratedAssets(
 
     if (res.status === 429) {
       isAiGenerateErrorMessage.value =
-        'You have reached your daily limit for AI-generated decoy names. You can continue with your current configuration or add decoys manually.';
+        'You have reached your daily limit for AI-generated decoy names. You can continue with manual setup or try again later.';
       resetAssetCardsLoadingState();
       return;
     }
 
     if (res.status !== 200) {
       isAiGenerateErrorMessage.value =
-        res.data.message ||
-        'We encountered an issue generating AI assets. You can continue setting up your decoys manually.';
+        res.data?.message ||
+        'We encountered an issue while generating AI assets. You can continue setting up your decoys manually or try again.';
       resetAssetCardsLoadingState();
       return;
     }
@@ -246,8 +252,8 @@ async function fetchAIgeneratedAssets(
     resetAssetCardsLoadingState();
   } catch (err: any) {
     isAiGenerateErrorMessage.value =
-      err.data.message ||
-      'We encountered an issue generating AI assets. You can continue setting up your decoys manually.';
+      err.data?.message ||
+      'We encountered an issue while generating AI assets. You can continue setting up your decoys manually or try again.';
     resetAssetCardsLoadingState();
   }
 }
