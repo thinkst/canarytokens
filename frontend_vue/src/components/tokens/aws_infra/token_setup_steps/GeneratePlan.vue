@@ -169,7 +169,7 @@ function handleSaveAsset(
     assetSamples.value[assetType] = [];
   }
   if (index === -1) {
-    assetSamples.value[assetType]?.unshift(newValues);
+    (assetSamples.value[assetType] as AssetData[])?.unshift(newValues);
   } else {
     assetSamples.value[assetType]![index] = newValues;
   }

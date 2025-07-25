@@ -26,7 +26,7 @@ import {
   DynamoDBTable_schema,
   Default_schema,
 } from './assetValidators';
-import FormAsset from './FormAsset.vue';
+import FormAsset from './AssetForm.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;

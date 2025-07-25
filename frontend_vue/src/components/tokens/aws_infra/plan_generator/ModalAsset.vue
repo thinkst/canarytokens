@@ -106,8 +106,8 @@ import type { ComputedRef } from 'vue';
 import type {
   AssetData,
 } from '../types';
+import { getAssetLabel, getAssetDefaultValues } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
-import { getAssetLabel, getAssetDefaultValues } from '@/components/tokens/aws_infra/assetService.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
 
@@ -139,6 +139,7 @@ const isEmptyAssetData = computed(() => {
 });
 
 const assetLabel = computed(() => getAssetLabel(props.assetType));
+
 const subtitle = computed(() => {
   return !isEmptyAssetData.value
     ? `We generated names for your ${assetLabel.value} is based on your current deployment.`
