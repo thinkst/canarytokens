@@ -53,9 +53,9 @@
 import { ref, computed, onMounted } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import type { HitsType } from '@/components/tokens/types.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
 import {
   AssetTypesEnum,
-  ASSET_LABEL,
 } from '@/components/tokens/aws_infra/constants.ts';
 
 type SelectOption = { label: string; value: string };
@@ -95,8 +95,8 @@ const options = computed(() => {
   const assetOptions = Object.values(AssetTypesEnum)
     .filter((val) => existingAssetTypes.includes(val))
     .map((val) => ({
-      label: ASSET_LABEL[val],
-      value: val,
+      label: getAssetLabel(val) || val,
+      value: val
     }));
 
   return [ALL_DECOYS, ...assetOptions];

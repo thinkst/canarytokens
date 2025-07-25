@@ -54,7 +54,8 @@ import type {
   HitsType,
   AdditionalInfoType,
 } from '@/components/tokens/types.ts';
-import { ASSET_LABEL } from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 import IncidentCardAsset from '@/components/tokens/aws_infra/history/IncidentCardAsset.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
@@ -85,11 +86,8 @@ const getAssetType = (hit: HitsType) =>
   'Unknown';
 
 const labelSelectedAssetType = computed(() => {
-  return Object.keys(ASSET_LABEL).includes(selectedAssetType.value)
-    ? //@ts-ignore-error
-      // TODO: we are refactoring the constants on another diff, so this will be fixed
-      ASSET_LABEL[selectedAssetType.value]
-    : 'All decoys';
+   return getAssetLabel(selectedAssetType.value as AssetTypesEnum) ||
+    'All alerting decoys';
 });
 
 const groupedIncidentsList = computed((): groupedIncidentsListType => {
@@ -141,7 +139,7 @@ function getAssetPreviewInfo(hit: HitsType) {
 
   //@ts-ignore-error
   // TODO: we are refactoring the constants on another diff, so this will be fixed
-  const label = assetType && ASSET_LABEL[assetType];
+  const label = assetType && getAssetLabel(assetType as AssetTypesEnum);
 
   return {
     asset_type: label || assetType,
