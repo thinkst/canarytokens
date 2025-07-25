@@ -81,7 +81,7 @@ export const ASSET_CONFIG = {
 } as const;
 
 export function getAssetLabel(assetType: AssetTypesEnum): string {
-  return ASSET_CONFIG[assetType].label;
+  return ASSET_CONFIG[assetType]?.label;
 }
 
 export function getAssetNameKey(assetType: AssetTypesEnum): string {

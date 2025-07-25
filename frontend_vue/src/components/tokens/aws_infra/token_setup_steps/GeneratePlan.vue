@@ -20,8 +20,15 @@
     <div>
       <div class="flex justify-between mb-24"></div>
       <BaseMessageBox
+        variant="success"
+        class="mb-24"
+        >We analyzed your AWS account. Below are the recommended decoys that have been generated to match your environment for each asset.
+        You can review or edit anything before we generate your canarytoken.</BaseMessageBox
+      >
+      <BaseMessageBox
         v-if="isErrorMessage"
         variant="danger"
+        class="mb-24"
         >{{ isErrorMessage }}</BaseMessageBox
       >
       <ul
@@ -48,10 +55,11 @@
       <BaseButton
         :loading="isSavingPlan"
         @click="handleSubmit(proposed_plan)"
-        >{{ isSavingPlan ? 'Saving the plan...' : 'Save Plan' }}</BaseButton
+        >{{ isSavingPlan ? 'Saving...' : 'Save configuration' }}</BaseButton
       >
       <BaseMessageBox
         v-if="isSaveError"
+        class="mt-24"
         variant="danger"
         >{{ isSaveErrorMessage }}</BaseMessageBox
       >
@@ -194,7 +202,7 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null; }) {
     emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
-    isSaveErrorMessage.value =
+    isSaveErrorMessage.value = err.response?.data?.message ||
       err.message || 'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
   } finally {

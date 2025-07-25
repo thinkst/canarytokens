@@ -29,10 +29,10 @@
           </div>
           <BaseLabelArrow
             id="aws-snippet-code"
-            label="AWS CLI snippet"
-            :arrow-word-position="3"
-            arrow-variant="one"
-            class="z-10"
+            label="Copy AWS CLI snippet"
+            arrow-word-position="last"
+            arrow-variant="two"
+            class="z-10 text-right"
           />
           <BaseCodeSnippet
             id="aws-snippet-code"

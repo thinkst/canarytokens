@@ -86,7 +86,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
         } catch (err: any) {
           stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value =
-            err.message ||
+            err.response?.data?.message ||
             'An error occurred while checking the Role. Try again';
           clearInterval(pollingRoleInterval);
           return;
@@ -99,7 +99,9 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       );
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
-      errorMessage.value = err.message;
+      errorMessage.value =
+        err.response?.data?.message ||
+        'An error occurred while checking the Role. Try again';
     }
   }
 
@@ -174,7 +176,9 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       );
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
-      errorMessage.value = err.message;
+      errorMessage.value =
+        err.response?.data?.message ||
+        'An error occurred while inventoring the account. Try again';
     }
   }
 
