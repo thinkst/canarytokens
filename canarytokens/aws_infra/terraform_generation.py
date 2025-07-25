@@ -1,12 +1,10 @@
 import enum
 import random
 
-from canarytokens.aws_infra.aws_management import upload_tf_module
 from canarytokens.aws_infra.plan_generation import AssetLabel, _get_ingestion_bus_arn
 from canarytokens.aws_infra.utils import random_string
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType, TokenTypes
-from canarytokens.tokens import Canarytoken
+from canarytokens.models import AWSInfraAssetType
 
 
 class Variable(str, enum.Enum):
@@ -100,55 +98,3 @@ def _add_dynamodb_tables(tf_variables, plan):
                     "value": item,  # Assuming 'id' is the primary key
                 }
             )
-
-
-if __name__ == "__main__":
-    # Example usage or test code can go here
-    plan = {
-        "assets": {
-            AWSInfraAssetType.S3_BUCKET: [
-                {
-                    AssetLabel.BUCKET_NAME: "bucket1-312465",
-                    AssetLabel.OBJECTS: ["file1.txt", "file2.txt"],
-                },
-                {
-                    AssetLabel.BUCKET_NAME: "bucket2-312465",
-                    AssetLabel.OBJECTS: [],
-                },
-            ],
-            AWSInfraAssetType.SQS_QUEUE: [],
-            AWSInfraAssetType.SSM_PARAMETER: [],
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET: [
-                {AssetLabel.SECRET_NAME: "secret1312321213"},
-            ],
-            AWSInfraAssetType.DYNAMO_DB_TABLE: [
-                {
-                    AssetLabel.TABLE_NAME: "example-table31132123123",
-                    AssetLabel.TABLE_ITEMS: ["table1", "table2"],
-                },
-                {
-                    AssetLabel.TABLE_NAME: "another-table55212",
-                    AssetLabel.TABLE_ITEMS: [],
-                },
-            ],
-        }
-    }
-
-    canarydrop = Canarydrop(
-        type=TokenTypes.AWS_INFRA,
-        canarytoken=Canarytoken(),
-        aws_infra_ingestion_bus_name="trail-events-ingestion-bus-2a196c471ca955d2",
-        aws_account_id="507518642175",
-        aws_region="eu-west-1",
-    )
-
-    variables = generate_tf_variables(canarydrop, plan)
-    print("Generated Terraform variables:")
-    for key, value in variables.items():
-        print(f"{key}: {value}")
-
-    upload_tf_module(
-        canarytoken_id=canarydrop.canarytoken.value(),
-        prefix="test_prefix_1234",
-        variables=variables,
-    )
