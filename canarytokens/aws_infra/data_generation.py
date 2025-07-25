@@ -10,6 +10,7 @@ import secrets
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
+from canarytokens.queries import save_canarydrop
 import httpx
 
 import logging
@@ -360,6 +361,7 @@ class _GeminiUsage:
         self.requests_remaining = (
             settings.GEMINI_MAX_REQUESTS_PER_TOKEN - self.requests_made
         )
+        self.requests_exhausted = False
         if self.requests_remaining <= 0:
             self.requests_remaining = 0
             self.requests_exhausted = True
@@ -398,4 +400,4 @@ def update_gemini_usage(canarydrop: Canarydrop, value: int = 1) -> None:
         incremented = settings.GEMINI_MAX_REQUESTS_PER_TOKEN
 
     canarydrop.aws_data_generation_requests_made = incremented
-    canarydrop.save()
+    save_canarydrop(canarydrop)
