@@ -391,7 +391,7 @@ def update_gemini_usage(canarydrop: Canarydrop, value: int = 1) -> None:
     """
     if usage_by_canarydrop(canarydrop).requests_exhausted:
         log.warning(
-            f"Canarytoken {canarydrop.canarytoken.value} has already reached the Gemini data generation limit."
+            f"Canarytoken {canarydrop.canarytoken.value()} has already reached the Gemini data generation limit."
         )
         return
 

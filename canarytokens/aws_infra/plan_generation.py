@@ -91,7 +91,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
 def _check_gemini_limit(canarydrop: Canarydrop):
     if usage_by_canarydrop(canarydrop).requests_exhausted:
         raise AWSInfraDataGenerationLimitReached(
-            f"Gemini data generation limit reached for canarytoken {canarydrop.canarytoken.value}."
+            f"Gemini data generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
         )
 
 
@@ -444,11 +444,13 @@ async def generate_data_choice(
     _check_gemini_limit(canarydrop)
 
     inventory = _get_inventory_for_asset_type(canarydrop, asset_type)
-    update_gemini_usage(canarydrop)
 
-    return await _generate_asset_by_type_and_field(
+    result = await _generate_asset_by_type_and_field(
         asset_type, asset_field, inventory, parent_asset_name
     )
+    update_gemini_usage(canarydrop)
+
+    return result
 
 
 async def generate_child_assets(canarydrop: Canarydrop, assets: dict) -> dict:
