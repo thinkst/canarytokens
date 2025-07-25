@@ -1,14 +1,20 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import type { Ref } from 'vue';
 import {
   requestAWSInfraRoleCheck,
   requestInventoryCustomerAccount,
 } from '@/api/awsInfra.ts';
 import { StepStateEnum } from '@/components/tokens/aws_infra/useStepState.ts';
 
-export function useFetchUserAccount(canarytoken: string, auth_token: string) {
+export function useFetchUserAccount(
+  canarytoken: string,
+  auth_token: string,
+  external_id?: Ref<string>
+) {
   const errorMessage = ref('');
   const stateStatus = ref<StepStateEnum>();
   const proposedPlan = ref<any>(null);
+  const externalId = ref(external_id || '');
 
   const POLL_INTERVAL = 2000;
   // If the first attempts fails, it could depend on the AWS account still being set up
@@ -28,10 +34,12 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       const res = await requestAWSInfraRoleCheck({
         canarytoken,
         auth_token,
+        external_id: externalId.value || '',
       });
       if (res.status !== 200) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value = res.data.message;
+        return;
       }
 
       const handle = res.data.handle;
@@ -41,17 +49,20 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
 
       const pollInfraRoleCheck = async () => {
         try {
-          const resWithHandle = await requestAWSInfraRoleCheck({ handle });
+          const resWithHandle = await requestAWSInfraRoleCheck({
+            handle,
+            // external_id: externalId.value,
+          });
 
           if (resWithHandle.data.error && retryAttempts < MAX_RETRIES) {
             retryAttempts++;
             console.log(
               `Retrying AWS Infra Role Check (${retryAttempts}/${MAX_RETRIES})`
             );
-            setTimeout(() => {
-              clearInterval(pollingRoleInterval);
-              pollInfraRoleCheck();
-            }, POLL_INTERVAL);
+            // setTimeout(() => {
+            //   clearInterval(pollingRoleInterval);
+            //   pollInfraRoleCheck();
+            // }, POLL_INTERVAL);
             return;
           }
 
@@ -116,6 +127,7 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       if (res.status !== 200) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value = res.data.error_message;
+        return;
       }
 
       const handle = res.data.handle;
@@ -177,6 +189,13 @@ export function useFetchUserAccount(canarytoken: string, auth_token: string) {
       errorMessage.value = err.message;
     }
   }
+
+  watch(
+    () => external_id,
+    (newValue) => {
+      externalId.value = newValue || '';
+    }
+  );
 
   return {
     errorMessage,

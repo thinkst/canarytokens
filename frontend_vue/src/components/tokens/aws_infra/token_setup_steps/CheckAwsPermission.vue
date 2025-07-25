@@ -5,8 +5,18 @@
         {{ isLoading ? 'Checking permission...' : `Check your AWS permission` }}
       </h2>
     </div>
+    <div class="flex justify-center">
+      <StepState
+        v-if="isLoading || isError"
+        :is-loading="isLoading"
+        :is-error="isError"
+        loading-message="We are checking the permissions, hold on"
+        :error-message="errorMessage"
+        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+      />
+    </div>
     <div
-      v-if="!isLoading && !isError"
+      v-if="!isLoading"
       class="flex flex-col text-left items-center"
     >
       <BaseMessageBox
@@ -14,9 +24,9 @@
         variant="warning"
         >In order to proceed we need you to confirm the
         <span class="font-semibold">External ID</span> for our role on your AWS
-        Account
-        <span class="font-semibold">{{ accountNumber }}</span></BaseMessageBox
-      >
+        Account <span class="font-semibold">{{ accountNumber }}</span
+        >.
+      </BaseMessageBox>
       <div class="text-left max-w-[100%]">
         <BaseCard
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
@@ -29,10 +39,10 @@
           </div>
           <BaseLabelArrow
             id="aws-snippet-code"
-            label="AWS CLI snippet"
-            :arrow-word-position="3"
-            arrow-variant="one"
-            class="z-10"
+            label="Copy AWS CLI snippet"
+            arrow-word-position="last"
+            arrow-variant="two"
+            class="z-10 text-right"
           />
           <BaseCodeSnippet
             id="aws-snippet-code"
@@ -43,15 +53,21 @@
             :check-scroll="true"
           />
         </BaseCard>
-
+        <BaseMessageBox
+          class="mb-24 mt-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+          variant="info"
+          text-link="Restore Permissions"
+          @click="handleModalSetupRolePolicySnippet"
+          >Canarytoken IAM role and policy needed. Did you remove them?
+        </BaseMessageBox>
         <BaseCard class="p-40 text-left place-self-center w-full mt-24">
-          <Form
+          <form
             class="flex flex-col gap-16 items-center"
-            :validation-schema="schema"
             @submit="onSubmit"
           >
             <BaseFormTextField
               id="external_id"
+              name="external_id"
               label="Add here your External ID"
               placeholder="e.g. abCd7Lb6cEZrMCEm3OAoj"
               required
@@ -66,17 +82,10 @@
               class="self-center"
               >Check permissions</BaseButton
             >
-          </Form>
+          </form>
         </BaseCard>
       </div>
     </div>
-    <StepState
-      v-if="isLoading || isError"
-      :is-loading="isLoading"
-      :is-error="isError"
-      loading-message="We are checking the permissions, hold on"
-      :error-message="errorMessage"
-    />
     <div class="flex justify-center">
       <BaseButton
         v-if="isError"
@@ -91,16 +100,26 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
 import * as Yup from 'yup';
-import { Form } from 'vee-validate';
+import { useForm } from 'vee-validate';
+import { useModal } from 'vue-final-modal';
 import type { TokenDataType } from '@/utils/dataService';
 import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
+import { requestAWSInfraRoleSetupCommands } from '@/api/awsInfra.ts';
 import StepState from '../StepState.vue';
+import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+
+const ModalSetupRolePolicySnippet = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/tokens/aws_infra/token_setup_steps/ModalSetupRolePolicySnippet.vue'
+    )
+);
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -112,34 +131,148 @@ const props = defineProps<{
 const { token, auth_token, aws_region, aws_account_number } =
   props.initialStepData;
 
+const accountNumber = ref('');
+const accountRegion = ref('');
+const roleName = ref('');
+const managementAwsAccount = ref('');
+
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
 const { isLoading, isError } = useStepState(stateStatus);
-
-const accountNumber = ref('');
-const accountRegion = ref('');
+const {
+  errorMessage: errorMessageFetch,
+  stateStatus: stateStatusFetch,
+  handleFetchUserAccount,
+  proposedPlan,
+} = useFetchUserAccount(
+  token,
+  auth_token,
+  computed(() => values.external_id)
+);
 
 onMounted(async () => {
-  accountNumber.value = aws_account_number;
-  accountRegion.value = aws_region;
+  initializeRoleData();
 });
 
-const codeSnippetCheckID = `aws iam get-role --role-name Canarytokens-Inventory-ReadOnly-Role --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`;
+async function initializeRoleData() {
+  accountNumber.value = aws_account_number;
+  accountRegion.value = aws_region;
+
+  const currentAccountInfo =
+    props.currentStepData.role_name &&
+    props.currentStepData.aws_account &&
+    props.currentStepData.aws_account_number;
+
+  currentAccountInfo
+    ? ((roleName.value = props.currentStepData.role_name!),
+      (managementAwsAccount.value = props.currentStepData.aws_account!),
+      (accountNumber.value = props.currentStepData.aws_account_number!))
+    : await handleGetRoleName();
+}
+
+const codeSnippetCheckID = computed(
+  () =>
+    `aws iam get-role --role-name ${roleName.value} --query 'Role.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals."sts:ExternalId"' --output text`
+);
 
 const schema = Yup.object().shape({
   external_id: Yup.string().required('The external ID is required'),
 });
 
+const { handleSubmit, setFieldValue, values } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    external_id: '',
+  },
+});
+
+async function handleGetRoleName() {
+  stateStatus.value = StepStateEnum.LOADING;
+  errorMessage.value = '';
+  try {
+    const res = await requestAWSInfraRoleSetupCommands(
+      token,
+      auth_token,
+      accountRegion.value
+    );
+
+    if (res.status !== 200 || !res.data.role_setup_commands) {
+      stateStatus.value = StepStateEnum.ERROR;
+      errorMessage.value =
+        res.data.error_message || 'Failed to generate setup commands';
+      return;
+    }
+
+    roleName.value = res.data.role_setup_commands.role_name;
+    managementAwsAccount.value = res.data.role_setup_commands.aws_account;
+    stateStatus.value = StepStateEnum.SUCCESS;
+
+    emits('storeCurrentStepData', {
+      token,
+      auth_token,
+      role_name: roleName.value,
+      aws_account: managementAwsAccount.value,
+      aws_account_number: accountNumber.value,
+    });
+  } catch (err: any) {
+    stateStatus.value = StepStateEnum.ERROR;
+    errorMessage.value =
+      err.data.message || 'Failed to generate setup commands';
+  }
+}
+
 async function handleCheckPermission() {
   errorMessage.value = '';
   stateStatus.value = StepStateEnum.LOADING;
-  // ...here goes the API call to manage endpoint...
-  emits('updateStep');
+
+  await handleFetchUserAccount();
 }
 
-async function onSubmit() {
+const onSubmit = handleSubmit(async () => {
   await handleCheckPermission();
+});
+
+function handleModalSetupRolePolicySnippet() {
+  const { open, close } = useModal({
+    component: ModalSetupRolePolicySnippet,
+    attrs: {
+      roleName: roleName.value,
+      externalId: values.external_id,
+      managementAwsAccount: managementAwsAccount.value,
+      accountNumber: accountNumber.value,
+      closeModal: () => {
+        close();
+      },
+      onUpdateExternalId: (newExternalId: string) => {
+        setFieldValue('external_id', newExternalId);
+      },
+    },
+  });
+  open();
 }
+
+watch(
+  () => stateStatusFetch.value,
+  (newValue) => {
+    if (newValue) {
+      stateStatus.value = newValue;
+      if (newValue === StepStateEnum.SUCCESS) {
+        emits('storeCurrentStepData', {
+          token,
+          auth_token,
+          role_name: roleName.value,
+          aws_account: managementAwsAccount.value,
+          aws_account_number: accountNumber.value,
+          proposed_plan: proposedPlan.value,
+        });
+        emits('updateStep');
+      } else if (newValue === StepStateEnum.ERROR) {
+        errorMessage.value = errorMessageFetch.value;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
+);
 </script>
 
 <style scoped>
