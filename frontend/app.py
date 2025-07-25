@@ -56,6 +56,7 @@ from canarytokens.exceptions import (
     CanarydropAuthFailure,
     NoCanarydropFound,
     AWSInfraOperationNotAllowed,
+    AWSInfraDataGenerationLimitReached,
 )
 from canarytokens.models import (
     PWA_APP_TITLES,
@@ -1180,10 +1181,19 @@ async def api_awsinfra_inventory_customer_account(
             AWSInfraOperationType.INVENTORY, canarydrop
         )
         return AWSInfraHandleResponse(handle=handle_id)
-
-    handle_response = await aws_infra.get_handle_response(
-        request.handle, AWSInfraOperationType.INVENTORY
-    )
+    try:
+        handle_response = await aws_infra.get_handle_response(
+            request.handle, AWSInfraOperationType.INVENTORY
+        )
+    except AWSInfraDataGenerationLimitReached as e:
+        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            result=False,
+            message=str(e),
+            data_generation_usage=aws_infra.usage_by_canarydrop(
+                canarydrop
+            ).requests_remaining_percentage,
+        )
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     except NoCanarydropFound:
@@ -1226,7 +1236,12 @@ async def api_awsinfra_generate_child_assets(
     assets = await aws_infra.generate_child_assets(request.assets)
     aws_infra.mark_succeeded(canarydrop)
     queries.save_canarydrop(canarydrop)
-    return AWSInfraGenerateChildAssetsResponse(assets=assets)
+    return AWSInfraGenerateChildAssetsResponse(
+        assets=assets,
+        data_generation_usage=aws_infra.usage_by_canarydrop(
+            canarydrop
+        ).requests_remaining_percentage,
+    )
 
 
 # TODO: Remove or move later
@@ -1304,12 +1319,28 @@ async def api_awsinfra_generate_data_choices(
                 request.asset_field,
                 request.parent_asset_name,
             ),
+            data_generation_usage=aws_infra.usage_by_canarydrop(
+                canarydrop
+            ).requests_remaining_percentage,
+        )
+    except AWSInfraDataGenerationLimitReached as e:
+        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
+        return AWSInfraGenerateDataChoiceResponse(
+            result=False,
+            message=str(e),
+            data_generation_usage=aws_infra.usage_by_canarydrop(
+                canarydrop
+            ).requests_remaining_percentage,
         )
     except Exception as e:
         log.error(f"Error generating data choice: {str(e)}")
         response.status_code = status.HTTP_400_BAD_REQUEST
         return AWSInfraGenerateDataChoiceResponse(
-            result=False, message=f"Error generating data choice.: {str(e)}"
+            result=False,
+            message=f"Error generating data choice.: {str(e)}",
+            data_generation_usage=aws_infra.usage_by_canarydrop(
+                canarydrop
+            ).requests_remaining_percentage,
         )
 
 

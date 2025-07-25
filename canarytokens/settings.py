@@ -141,6 +141,7 @@ class FrontendSettings(BaseSettings):
     AWS_INFRA_INGESTION_BUS: Optional[str]
     AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
     GEMINI_API_KEY: Optional[str]
+    GEMINI_MAX_REQUESTS_PER_TOKEN: int = 50
     GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
     GEMINI_PROMPT_TEMPLATE: Optional[str]
     GEMINI_SYSTEM_PROMPT: Optional[

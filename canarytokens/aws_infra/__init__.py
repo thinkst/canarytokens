@@ -22,6 +22,9 @@ from .plan_generation import (
     add_new_assets_to_plan,
     generate_child_assets,
 )
+from .data_generation import (
+    usage_by_canarydrop,
+)
 from .aws_management import get_shared_secret, get_current_ingestion_bus
 
 # Putting this here for the editor, not for * imports
@@ -46,4 +49,5 @@ __all__ = [
     "generate_child_assets",
     "in_state",
     "setup_new_plan",
+    "usage_by_canarydrop",
 ]

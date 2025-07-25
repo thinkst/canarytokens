@@ -7,6 +7,7 @@ import json
 import random
 import secrets
 
+from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
 import httpx
@@ -23,7 +24,7 @@ def _get_system_prompt():
     return settings.GEMINI_SYSTEM_PROMPT
 
 
-async def make_request(
+async def _make_request(
     url: str, method: str = "GET", headers: dict = None, data: dict = None
 ):
     """
@@ -174,7 +175,7 @@ class GeminiDecoyNameGenerator:
         # Check if bucket exists using async HTTP request
         url = f"https://{name}.s3.amazonaws.com"
         try:
-            status_code, _, _ = await make_request(url, method="HEAD")
+            status_code, _, _ = await _make_request(url, method="HEAD")
             bucket_exists = status_code in (200, 403) and status_code != 404
         except Exception:
             log.exception("Error checking S3 bucket existence")
@@ -291,7 +292,7 @@ class GeminiDecoyNameGenerator:
             "X-goog-api-key": self._GEMINI_API_KEY,
         }
         try:
-            status_code, response_body, _ = await make_request(
+            status_code, response_body, _ = await _make_request(
                 self._GEMINI_API_URL,
                 method="POST",
                 headers=headers,
@@ -343,3 +344,58 @@ class GeminiDecoyNameGenerator:
         )
 
         return await self._gemini_request(prompt)
+
+
+@dataclass
+class _GeminiUsage:
+    requests_made: int = 0
+    requests_remaining: int = field(init=False)
+    requests_remaining_percentage: float = field(init=False)
+    requests_exhausted: bool = field(init=False)
+
+    def __post_init__(self):
+        assert (
+            settings.GEMINI_MAX_REQUESTS_PER_TOKEN > 0
+        ), "Max Gemini requests allowed must be a positive integer."
+        self.requests_remaining = (
+            settings.GEMINI_MAX_REQUESTS_PER_TOKEN - self.requests_made
+        )
+        if self.requests_remaining <= 0:
+            self.requests_remaining = 0
+            self.requests_exhausted = True
+
+        self.requests_remaining_percentage = (
+            self.requests_remaining / settings.GEMINI_MAX_REQUESTS_PER_TOKEN
+        ) * 100
+
+
+def usage_by_canarydrop(canarydrop: Canarydrop) -> _GeminiUsage:
+    """
+    Get the Gemini usage statistics for the canarydrop.
+    :param canarydrop: The canarydrop instance for which to retrieve usage statistics.
+    :return: A GeminiUsage object containing the usage statistics.
+    """
+    return _GeminiUsage(
+        requests_made=canarydrop.aws_data_generation_requests_made,
+    )
+
+
+def update_gemini_usage(canarydrop: Canarydrop, value: int = 1) -> None:
+    """
+    Increment the Gemini usage count for the canarydrop and persist the change by calling canarydrop.save().
+    :param canarydrop: The canarydrop instance for which to increment usage.
+    :param value: The amount to increment the usage by (default is 1).
+    :return: None
+    """
+    if usage_by_canarydrop(canarydrop).requests_exhausted:
+        log.warning(
+            f"Canarytoken {canarydrop.canarytoken.value} has already reached the Gemini data generation limit."
+        )
+        return
+
+    incremented = canarydrop.aws_data_generation_requests_made + value
+    if incremented >= settings.GEMINI_MAX_REQUESTS_PER_TOKEN:
+        incremented = settings.GEMINI_MAX_REQUESTS_PER_TOKEN
+
+    canarydrop.aws_data_generation_requests_made = incremented
+    canarydrop.save()
