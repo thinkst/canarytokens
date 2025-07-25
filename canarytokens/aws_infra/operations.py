@@ -195,7 +195,7 @@ async def _build_handle_response_payload(
     if handle.operation == AWSInfraOperationType.INVENTORY:
         save_current_assets(canarydrop, response_content.get("assets", {}))
         payload["proposed_plan"] = await generate_proposed_plan(canarydrop)
-        payload["data_generation_usage"] = usage_by_canarydrop(
+        payload["data_generation_remaining"] = usage_by_canarydrop(
             canarydrop
         ).requests_remaining_percentage
         if is_ingesting(canarydrop):

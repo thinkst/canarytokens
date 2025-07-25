@@ -1190,7 +1190,7 @@ async def api_awsinfra_inventory_customer_account(
         return AWSInfraInventoryCustomerAccountReceivedResponse(
             result=False,
             message=str(e),
-            data_generation_usage=aws_infra.usage_by_canarydrop(
+            data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
             ).requests_remaining_percentage,
         )
@@ -1233,12 +1233,12 @@ async def api_awsinfra_generate_child_assets(
             status_code=400,
             detail=str(e),
         )
-    assets = await aws_infra.generate_child_assets(request.assets)
+    assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
     aws_infra.mark_succeeded(canarydrop)
     queries.save_canarydrop(canarydrop)
     return AWSInfraGenerateChildAssetsResponse(
         assets=assets,
-        data_generation_usage=aws_infra.usage_by_canarydrop(
+        data_generation_remaining=aws_infra.usage_by_canarydrop(
             canarydrop
         ).requests_remaining_percentage,
     )
@@ -1319,7 +1319,7 @@ async def api_awsinfra_generate_data_choices(
                 request.asset_field,
                 request.parent_asset_name,
             ),
-            data_generation_usage=aws_infra.usage_by_canarydrop(
+            data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
             ).requests_remaining_percentage,
         )
@@ -1328,7 +1328,7 @@ async def api_awsinfra_generate_data_choices(
         return AWSInfraGenerateDataChoiceResponse(
             result=False,
             message=str(e),
-            data_generation_usage=aws_infra.usage_by_canarydrop(
+            data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
             ).requests_remaining_percentage,
         )
@@ -1338,7 +1338,7 @@ async def api_awsinfra_generate_data_choices(
         return AWSInfraGenerateDataChoiceResponse(
             result=False,
             message=f"Error generating data choice.: {str(e)}",
-            data_generation_usage=aws_infra.usage_by_canarydrop(
+            data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
             ).requests_remaining_percentage,
         )
