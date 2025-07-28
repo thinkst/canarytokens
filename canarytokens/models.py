@@ -2870,29 +2870,15 @@ class AWSInfraAssetType(str, enum.Enum):
 
 
 class AWSInfraAssetField(str, enum.Enum):
-    QUEUE_NAME = "queue_name"
-    MESSAGE_COUNT = "message_count"
-    SSM_PARAMETER_NAME = "ssm_parameter_name"
-    SSM_PARAMETER_VALUE = "ssm_parameter_value"
-    SECRETSMANAGER_SECRET_NAME = "secretsmanager_secret_name"
-    SECRETSMANAGER_SECRET_VALUE = "secretsmanager_secret_value"
-    DYNAMODB_NAME = "dynamodb_name"
-    DYNAMODB_PARTITION_KEY = "dynamodb_partition_key"
-    DYNAMODB_ROW_COUNT = "dynamodb_row_count"
     BUCKET_NAME = "bucket_name"
     OBJECT_PATH = "object_path"
+    SQS_QUEUE_NAME = "sqs_queue_name"
+    SSM_PARAMETER_NAME = "ssm_parameter_name"
+    SECRET_NAME = "secret_name"
+    TABLE_NAME = "table_name"
+    TABLE_ITEM = "table_item"
 
 
-class AWSInfraAsset(BaseModel):
-    pass
-
-
-class S3Bucket(AWSInfraAsset):
-    bucket_name: str
-    objects: list[dict[str, int]]
-
-
-# TODO add other assets
 class AWSInfraConfigStartRequest(BaseModel):
     canarytoken: str
     auth_token: str
