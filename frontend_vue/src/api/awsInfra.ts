@@ -5,6 +5,7 @@ type AWSInfraRequestPayload = {
   canarytoken?: string;
   auth_token?: string;
   handle?: string;
+  external_id?: string;
 };
 
 export function requestAWSInfraRoleSetupCommands(
@@ -18,16 +19,28 @@ export function requestAWSInfraRoleSetupCommands(
     .then((response) => response);
 }
 
+export function requestAWSInfraExternalIdSnippet({
+  canarytoken,
+  auth_token,
+}: AWSInfraRequestPayload) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/management-response';
+  return axios
+    .post(url, { canarytoken, auth_token })
+    .then((response) => response);
+}
+
 export function requestAWSInfraRoleCheck({
   canarytoken,
   auth_token,
   handle,
+  external_id,
 }: AWSInfraRequestPayload) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/check-role';
   const params = {
     canarytoken,
     auth_token,
     handle,
+    external_id,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }

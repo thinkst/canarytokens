@@ -47,6 +47,10 @@ type TokenSetupData = {
     assets: ProposedAWSInfraTokenPlanData;
   };
   code_snippet_command?: string;
+  role_name?: string;
+  external_id?: string;
+  aws_account?: string;
+  aws_account_number?: string;
 };
 
 export type {
