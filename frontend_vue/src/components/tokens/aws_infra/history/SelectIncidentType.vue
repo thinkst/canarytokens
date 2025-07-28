@@ -53,7 +53,7 @@
 import { ref, computed, onMounted } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import type { HitsType } from '@/components/tokens/types.ts';
-import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
