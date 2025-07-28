@@ -2971,6 +2971,7 @@ class AWSInfraSetupIngestionReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     terraform_module_snippet: dict = None
+    role_cleanup_commands: dict = None
 
 
 class AWSInfraTeardownReceivedResponse(BaseModel):
