@@ -19,10 +19,6 @@ log.setLevel(logging.INFO)
 settings = FrontendSettings()
 
 
-def _get_system_prompt():
-    return settings.GEMINI_SYSTEM_PROMPT
-
-
 async def make_request(
     url: str, method: str = "GET", headers: dict = None, data: dict = None
 ):
@@ -79,7 +75,7 @@ class GeminiDecoyNameGenerator:
                 },
                 "type": "OBJECT",
             },
-            "system_instruction": _get_system_prompt(),
+            "system_instruction": settings.GEMINI_SYSTEM_PROMPT,
         }
         self._MAX_ATTEMPTS = 5
         self._GEMINI_MODEL = settings.GEMINI_MODEL

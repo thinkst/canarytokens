@@ -101,7 +101,6 @@ jobs:
           CANARY_ALERT_EMAIL_FROM_DISPLAY: Canarytoken Mail
           CANARY_ALERT_EMAIL_SUBJECT: Your Canarytoken was Triggered
         # Here we gather coverage info on all tests.
-        continue-on-error: true
         run: |
           mv frontend/frontend.env.dist frontend/frontend.env
           mv switchboard/switchboard.env.dist switchboard/switchboard.env
@@ -116,28 +115,22 @@ jobs:
           export CANARY_CLOUDFLARE_ACCOUNT_ID=test
           export CANARY_CLOUDFLARE_API_TOKEN=test
           export CANARY_CLOUDFLARE_NAMESPACE=test
-          export WEB_CONCURRENCY=2
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
 
       - name: Check coverage is over threshold percentage for unit tests
         # Here we check coverage info on all tests
-        continue-on-error: true
         run: |
           cd tests
           poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 85
 
       - name: Run integration tests (against local V3)
-        env:
-          WEB_CONCURRENCY: 2
         run: |
           redis-cli flushall
           mkdir uploads
           make switchboard &
-          cd frontend
-          poetry run uvicorn app:app --log-config log.ini --host 0.0.0.0 --port 8082 &
-          echo "web concurrency $WEB_CONCURRENCY"
-          cd ../tests
+          make frontend &
+          cd tests
           sleep 10
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
@@ -145,8 +138,6 @@ jobs:
 
 
   windows-tests:
-    env:
-      WEB_CONCURRENCY: 2
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2

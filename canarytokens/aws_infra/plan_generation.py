@@ -69,10 +69,8 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
                     "bucket": bucket[AssetLabel.BUCKET_NAME],
                     "key": s3_object,
                     "content": "".join(
-                        [
-                            random.choice(string.ascii_letters + string.digits)
-                            for _ in range(random.randint(5, 1000))
-                        ]
+                        random.choice(string.ascii_letters + string.digits),
+                        k=random.randint(5, 1000),
                     ),
                 }
             )
