@@ -28,22 +28,9 @@ async def make_request(
     REQUEST_TIMEOUT = 60  # seconds
     async with httpx.AsyncClient() as client:
         try:
-            if method.upper() == "POST":
-                response = await client.post(
-                    url, json=data, headers=headers, timeout=REQUEST_TIMEOUT
-                )
-            elif method.upper() == "HEAD":
-                response = await client.head(
-                    url, headers=headers, timeout=REQUEST_TIMEOUT
-                )
-            elif method.upper() == "GET":
-                response = await client.get(
-                    url, headers=headers, timeout=REQUEST_TIMEOUT
-                )
-            else:
-                response = await client.request(
-                    method, url, headers=headers, json=data, timeout=REQUEST_TIMEOUT
-                )
+            response = await client.request(
+                method, url, headers=headers, json=data, timeout=REQUEST_TIMEOUT
+            )
 
             return response.status_code, response.content, response.headers
         except httpx.RequestError as e:
