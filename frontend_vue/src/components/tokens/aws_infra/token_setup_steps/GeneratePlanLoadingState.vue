@@ -1,10 +1,5 @@
 <template>
   <div class="my-16 flex flex-col items-center mt-24">
-    <p class="mb-24">
-      This will take a couple of seconds for us to analyse your account,
-      depending on network conditions, solar flare activity, and errant
-      squirrels. Hold on…
-    </p>
     <ul class="flex-row flex gap-24 checks-list">
       <li
         v-for="(value, i) in instructions"

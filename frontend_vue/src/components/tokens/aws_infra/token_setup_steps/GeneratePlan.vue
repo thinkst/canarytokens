@@ -4,7 +4,7 @@
   </div>
   <div
     v-if="isLoadingUI"
-    class="mt-[20px] grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
+    class="mt-[20px] grid gap-16 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
   >
     <BaseSkeletonLoader
       v-for="i in 5"
@@ -41,7 +41,7 @@
         >{{ isErrorMessage }}</BaseMessageBox
       >
       <ul
-        class="grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
+        class="grid gap-16 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
       >
         <AssetCategoryCard
           v-for="(assetValues, assetKey, index) in availableAssets"
