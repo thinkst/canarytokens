@@ -46,7 +46,7 @@ export function mergeAIGeneratedAssets(
       ([assetType, generatedAssetsForType]) => {
         const fieldToPopulate = hasAiGeneratedField(
           assetType as AssetTypesEnum
-        ).toString();
+        );
         const assetNameKey = getAssetNameKey(assetType as AssetTypesEnum);
         const currentAssets =
           currentAssetsData[assetType as AssetTypesEnum] || [];
