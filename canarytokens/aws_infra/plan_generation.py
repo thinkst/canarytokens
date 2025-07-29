@@ -5,7 +5,7 @@ import random
 import string
 
 from canarytokens.aws_infra.db_queries import get_current_assets
-from canarytokens.aws_infra.data_generation import GeminiDecoyNameGenerator
+from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
@@ -13,8 +13,6 @@ from canarytokens.settings import FrontendSettings
 import asyncio
 
 settings = FrontendSettings()
-
-NAME_GENERATOR = GeminiDecoyNameGenerator()
 
 
 class AssetLabel(str, enum.Enum):
@@ -33,7 +31,7 @@ class AssetLabel(str, enum.Enum):
     TABLE_ITEM = "table_item"
 
 
-ASSET_TYPE_CONFIG = {
+_ASSET_TYPE_CONFIG = {
     AWSInfraAssetType.S3_BUCKET: {
         "max_assets": 10,
         "asset_key": AssetLabel.BUCKET_NAME,
@@ -115,11 +113,11 @@ async def _add_assets_for_type(
     if count <= 0:
         return
 
-    asset_names = await NAME_GENERATOR.generate_names(
+    asset_names = await data_generation.generate_names(
         asset_type, aws_inventoried_assets.get(asset_type, []), count
     )
 
-    config = ASSET_TYPE_CONFIG[asset_type]
+    config = _ASSET_TYPE_CONFIG[asset_type]
     asset_name_key = config["asset_key"]
 
     assets = []
@@ -142,7 +140,7 @@ def _get_decoy_asset_count(
             math.ceil(math.log2(len(aws_inventoried_assets.get(asset_type, [])) + 1)),
             1,
         ),
-        ASSET_TYPE_CONFIG[asset_type]["max_assets"]
+        _ASSET_TYPE_CONFIG[asset_type]["max_assets"]
         - len(aws_deployed_assets.get(asset_type, [])),
     )
 
@@ -155,7 +153,7 @@ async def add_new_assets_to_plan(
     """
     # Create tasks for all asset types
     tasks = []
-    for asset_type in ASSET_TYPE_CONFIG:
+    for asset_type in _ASSET_TYPE_CONFIG:
         tasks.append(
             _add_assets_for_type(
                 asset_type, aws_deployed_assets, aws_inventoried_assets, plan
@@ -174,7 +172,7 @@ def add_current_assets_to_plan(
     """
     Add current deployed assets to the proposed plan.
     """
-    for asset_type, config in ASSET_TYPE_CONFIG.items():
+    for asset_type, config in _ASSET_TYPE_CONFIG.items():
         asset_key = config["asset_key"]
 
         for asset_name in aws_deployed_assets.get(asset_type, []):
@@ -227,7 +225,7 @@ async def _generate_parent_asset_name(
 ) -> str:
     """Generate a parent asset name (S3 bucket, SQS queue, etc.)."""
     names = (
-        await NAME_GENERATOR.generate_names(asset_type, inventory, 1)
+        await data_generation.generate_names(asset_type, inventory, 1)
     ).suggested_names
     return names[0]
 
@@ -241,7 +239,7 @@ async def _generate_child_asset_name(
             f"Parent asset name required for {asset_type.value} child generation"
         )
 
-    names = await NAME_GENERATOR.generate_children_names(asset_type, parent_name, 1)
+    names = await data_generation.generate_children_names(asset_type, parent_name, 1)
     return names[0]
 
 
@@ -291,10 +289,12 @@ async def generate_child_assets(
     for asset_type, asset_names in assets.items():
         for asset_name in asset_names:
             tasks.append(
-                NAME_GENERATOR.generate_children_names(
+                data_generation.generate_children_names(
                     asset_type,
                     asset_name,
-                    random.randint(1, ASSET_TYPE_CONFIG[asset_type]["max_child_items"]),
+                    random.randint(
+                        1, _ASSET_TYPE_CONFIG[asset_type]["max_child_items"]
+                    ),
                 )
             )
     all_names: list[list[str]] = await asyncio.gather(
