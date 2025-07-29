@@ -30,7 +30,11 @@ from canarytokens.models import (
 from canarytokens.settings import FrontendSettings
 from canarytokens.tokens import Canarytoken
 
-from canarytokens.aws_infra.db_queries import delete_current_assets, save_current_assets
+from canarytokens.aws_infra.db_queries import (
+    delete_current_assets,
+    get_current_assets,
+    save_current_assets,
+)
 
 settings = FrontendSettings()
 
@@ -190,7 +194,8 @@ async def _build_handle_response_payload(
 
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if handle.operation == AWSInfraOperationType.INVENTORY:
-        save_current_assets(canarydrop, response_content.get("assets", {}))
+        inventory = response_content.get("assets", {})
+        save_current_assets(canarydrop, inventory)
         proposed_plan = await generate_proposed_plan(canarydrop)
         payload["proposed_plan"] = {"assets": proposed_plan}
         if is_ingesting(canarydrop):
@@ -216,7 +221,7 @@ def filter_decoys_from_inventory(canarydrop: Canarydrop):
     """
     Filter out decoy assets from the inventory of the canarydrop.
     """
-    inventory = json.loads(canarydrop.aws_inventoried_assets)
+    inventory = get_current_assets(canarydrop)
     decoys = json.loads(canarydrop.aws_deployed_assets)
     for asset_type in AWSInfraAssetType:
         if asset_type.value in inventory:

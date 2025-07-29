@@ -98,13 +98,6 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
     return tf_variables
 
 
-async def generate_for_asset_type(
-    asset_type: AWSInfraAssetType, inventory: list, count: int = 1
-) -> list[str]:
-    suggested = await NAME_GENERATOR.generate_names(asset_type, inventory, count)
-    return suggested.suggested_names
-
-
 async def _add_assets_for_type(
     asset_type: AWSInfraAssetType,
     aws_deployed_assets: dict,
@@ -122,10 +115,8 @@ async def _add_assets_for_type(
     if count <= 0:
         return
 
-    asset_names = await generate_for_asset_type(
-        asset_type,
-        aws_inventoried_assets.get(asset_type, []),
-        count,
+    asset_names = await NAME_GENERATOR.generate_names(
+        asset_type, aws_inventoried_assets.get(asset_type, []), count
     )
 
     config = ASSET_TYPE_CONFIG[asset_type]
@@ -205,7 +196,7 @@ def add_current_assets_to_plan(
             proposed_plan[asset_type].append(asset)
 
 
-async def generate_proposed_plan(canarydrop: Canarydrop):
+async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     """
     Return a proposed plan for decoy assets containing new and current assets.
     """
@@ -231,26 +222,13 @@ def _get_ingestion_bus_arn(bus_name: str):
     return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
 
 
-def _get_inventory_for_asset_type(
-    canarydrop: Canarydrop, asset_type: AWSInfraAssetType
-) -> list:
-    """Extract inventory for a specific asset type from canarydrop."""
-    if not canarydrop or not canarydrop.aws_inventoried_assets:
-        return []
-
-    if isinstance(canarydrop.aws_inventoried_assets, dict):
-        inventory = canarydrop.aws_inventoried_assets
-    else:
-        inventory = json.loads(canarydrop.aws_inventoried_assets)
-
-    return inventory.get(asset_type.value, [])
-
-
 async def _generate_parent_asset_name(
     asset_type: AWSInfraAssetType, inventory: list
 ) -> str:
     """Generate a parent asset name (S3 bucket, SQS queue, etc.)."""
-    names = await generate_for_asset_type(asset_type, inventory, 1)
+    names = (
+        await NAME_GENERATOR.generate_names(asset_type, inventory, 1)
+    ).suggested_names
     return names[0]
 
 
@@ -274,7 +252,7 @@ async def generate_data_choice(
     parent_asset_name: str = None,
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
-    inventory = _get_inventory_for_asset_type(canarydrop, asset_type)
+    inventory = get_current_assets(canarydrop).get(asset_type, [])
 
     # Parent asset types (top-level resources)
     PARENT_FIELDS = {
