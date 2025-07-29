@@ -41,46 +41,29 @@ export function mergeAIGeneratedAssets(
   currentAssetsData: ProposedAWSInfraTokenPlanData,
   generatedAssets: Record<string, Record<string, string[]>>
 ): ProposedAWSInfraTokenPlanData {
-  const mergedAssets = Object.entries(generatedAssets).reduce(
-    (acc, current) => {
-      const assetType = current[0];
-      const generatedAssetsForType = current[1];
+  const updatedAssets = Object.fromEntries(
+    Object.entries(generatedAssets).map(
+      ([assetType, generatedAssetsForType]) => {
+        const fieldToPopulate = hasAiGeneratedField(
+          assetType as AssetTypesEnum
+        ).toString();
+        const assetNameKey = getAssetNameKey(assetType as AssetTypesEnum);
+        const currentAssets =
+          currentAssetsData[assetType as AssetTypesEnum] || [];
 
-      const fieldToPopulate = hasAiGeneratedField(
-        assetType as AssetTypesEnum
-      ).toString();
-      const assetNameKey = getAssetNameKey(assetType as AssetTypesEnum);
+        const updatedCurrentAssets = currentAssets.map((asset) => {
+          const assetName = String((asset as any)[assetNameKey]);
+          const fieldValues = generatedAssetsForType[assetName];
 
-      const currentAssets =
-        currentAssetsData[assetType as AssetTypesEnum] || [];
-      const updatedAssets = [...currentAssets];
+          return fieldValues
+            ? { ...asset, [fieldToPopulate]: fieldValues }
+            : asset;
+        });
 
-      Object.entries(generatedAssetsForType).forEach(
-        ([assetName, fieldValues]) => {
-          const existingAsset = updatedAssets.find((asset) => {
-            return (
-              String((asset as AssetData)[assetNameKey as keyof AssetData]) ===
-              assetName
-            );
-          });
-
-          if (!existingAsset) return;
-
-          const existingAssetIndex = updatedAssets.indexOf(existingAsset);
-          updatedAssets[existingAssetIndex] = {
-            ...updatedAssets[existingAssetIndex],
-            [fieldToPopulate]: fieldValues,
-          };
-        }
-      );
-
-      return {
-        ...acc,
-        [assetType]: updatedAssets,
-      };
-    },
-    {}
+        return [assetType, updatedCurrentAssets];
+      }
+    )
   );
 
-  return { ...currentAssetsData, ...mergedAssets };
+  return { ...currentAssetsData, ...updatedAssets };
 }
