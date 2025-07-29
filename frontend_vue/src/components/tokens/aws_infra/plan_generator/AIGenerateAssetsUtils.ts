@@ -52,7 +52,9 @@ export function mergeAIGeneratedAssets(
           currentAssetsData[assetType as AssetTypesEnum] || [];
 
         const updatedCurrentAssets = currentAssets.map((asset) => {
-          const assetName = String((asset as any)[assetNameKey]);
+          const assetName = String(
+            (asset as AssetData)[assetNameKey as keyof AssetData]
+          );
           const fieldValues = generatedAssetsForType[assetName];
 
           return fieldValues
