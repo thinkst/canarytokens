@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
-from typing import List
 
 import re
 import json
 import random
-import secrets
 
+from canarytokens.aws_infra.utils import random_string
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
 import httpx
@@ -17,6 +16,14 @@ log = logging.getLogger("DataGenerator")
 log.setLevel(logging.INFO)
 
 settings = FrontendSettings()
+
+S3_BUCKET_NAME_REGEX = re.compile(
+    r"^(?!\d{1,3}(\.\d{1,3}){3}$)[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$"
+)
+DYNAMO_DB_TABLE_NAME_REGEX = re.compile(r"[A-Za-z0-9_.\-]{3,255}")
+SSM_PARAMETER_NAME_REGEX = re.compile(r"[A-Za-z0-9_.\-]+")
+SQS_QUEUE_NAME_REGEX = re.compile(r"[A-Za-z0-9_\-;]{1,80}")
+SECRETS_MANAGER_NAME_REGEX = re.compile(r"(?!.*\.\.)[A-Za-z0-9/_+=\.@\-]{1,512}")
 
 
 async def make_request(
@@ -40,7 +47,7 @@ async def make_request(
 @dataclass
 class Suggestion:
     asset_type: AWSInfraAssetType
-    suggested_names: List[str] = field(default_factory=list)
+    suggested_names: list[str] = field(default_factory=list)
 
 
 class GeminiDecoyNameGenerator:
@@ -83,6 +90,8 @@ class GeminiDecoyNameGenerator:
         """
         validated_names = []
         attempts = 0
+        if count <= 0:
+            raise ValueError("Count must be a positive integer.")
 
         while len(validated_names) < count:
             attempts += 1
@@ -96,7 +105,6 @@ class GeminiDecoyNameGenerator:
                 asset_type, inventory, count=overshoot
             )
             names = await self._finalize_list(asset_type, inventory, new_names, count)
-            print("generated names:", names)  # Debugging output
             validated_names.extend(names)
 
         random.shuffle(validated_names)
@@ -106,7 +114,7 @@ class GeminiDecoyNameGenerator:
 
     async def generate_children_names(
         self, parent_asset_type: AWSInfraAssetType, parent_name: str, count: int = 5
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Generate a list of child names for the specified AWS asset type.
         :param asset_type: The type of AWS asset to generate names for.
@@ -136,9 +144,7 @@ class GeminiDecoyNameGenerator:
         # Basic validation first
         if not (3 <= len(name) <= 63):
             return False
-        if not re.match(r"^[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$", name):
-            return False
-        if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", name):  # IP-style
+        if not re.match(S3_BUCKET_NAME_REGEX, name):
             return False
         reserved_prefixes = (
             "xn--",
@@ -154,7 +160,6 @@ class GeminiDecoyNameGenerator:
         ):
             return False
 
-        # Check if bucket exists using async HTTP request
         url = f"https://{name}.s3.amazonaws.com"
         try:
             status_code, _, _ = await make_request(url, method="HEAD")
@@ -170,7 +175,7 @@ class GeminiDecoyNameGenerator:
 
     def _validate_dynamodb_name(self, name: str) -> bool:
         # 3-255 chars, A-Z a-z 0-9 _ - .
-        return bool(re.fullmatch(r"[A-Za-z0-9_.\-]{3,255}", name))
+        return bool(re.fullmatch(DYNAMO_DB_TABLE_NAME_REGEX, name))
 
     def _validate_ssm_parameter_name(self, name: str) -> bool:
         # path segments of a-z A-Z 0-9 _ . - separated by "/"; no leading "aws" or "ssm"
@@ -182,18 +187,17 @@ class GeminiDecoyNameGenerator:
         for seg in segments:
             if not seg:
                 continue  # skip empty segments
-            if not re.fullmatch(r"[A-Za-z0-9_.\-]+", seg):
+            if not re.fullmatch(SSM_PARAMETER_NAME_REGEX, seg):
                 return False
         return True
 
     def _validate_sqs_name(self, name: str) -> bool:
         # 1-80 chars, A-Z a-z 0-9 _ - ;
-        return bool(re.fullmatch(r"[A-Za-z0-9_\-;]{1,80}", name))
+        return bool(re.fullmatch(SQS_QUEUE_NAME_REGEX, name))
 
     def _validate_secrets_manager_name(self, name: str) -> bool:
         # 1-512 chars, A-Z a-z 0-9 / _ + = . @ - .
-        # Disallow consecutive dots using negative lookahead
-        return bool(re.fullmatch(r"(?!.*\.\.)[A-Za-z0-9/_+=\.@\-]{1,512}", name))
+        return bool(re.fullmatch(SECRETS_MANAGER_NAME_REGEX, name))
 
     async def _validate_name(self, asset_type: AWSInfraAssetType, name: str) -> bool:
         """
@@ -222,7 +226,7 @@ class GeminiDecoyNameGenerator:
         if asset_type == AWSInfraAssetType.S3_BUCKET:
             max_length = 63
             min_random_suffix_length = 3
-            name = f"{name}-{secrets.token_hex(random.randint(min_random_suffix_length, len(name) // 3))}"
+            name = f"{name}-{random_string(random.randint(min_random_suffix_length, max_length // 3), lower_case_only=True)}"
             if len(name) > max_length:
                 name = name[:max_length]
 
@@ -238,8 +242,6 @@ class GeminiDecoyNameGenerator:
         """
         Get a list of validated names from the provided inventory.
         """
-        assert count > 0, "Count must be a positive integer."
-
         validated_names = []
         for name in suggested_names:
             name = self._augment_name(asset_type, name)
@@ -319,8 +321,6 @@ class GeminiDecoyNameGenerator:
         """
         Get suggested names from Gemini for the specified asset type based on the provided inventory.
         """
-        assert count > 0, "Count must be a positive integer."
-
         prompt = self._prompt_template.format(
             count=count, service=asset_type.value, inventory=",".join(inventory)
         )
