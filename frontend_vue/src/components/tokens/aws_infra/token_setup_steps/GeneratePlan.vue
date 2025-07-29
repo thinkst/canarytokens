@@ -215,7 +215,6 @@ async function fetchAIgeneratedAssets(
   const payload = formatDataForAIRequest(initialAssetData);
   let updatedPlanData = {};
 
-  // Update AI generation loading state
   isAiGenerateErrorMessage.value = '';
   Object.keys(payload.assets).forEach((assetType) => {
     isLoadingAssetCard.value[assetType as AssetTypesEnum] = true;
@@ -231,7 +230,6 @@ async function fetchAIgeneratedAssets(
     if (res.status === 429) {
       isAiGenerateErrorMessage.value =
         'You have reached your daily limit for AI-generated decoy names. You can continue with manual setup or try again later.';
-      resetAssetCardsLoadingState();
       return;
     }
 
@@ -239,7 +237,6 @@ async function fetchAIgeneratedAssets(
       isAiGenerateErrorMessage.value =
         res.data?.message ||
         'We encountered an issue while generating AI assets. You can continue setting up your decoys manually or try again.';
-      resetAssetCardsLoadingState();
       return;
     }
     const newAssets = res.data.assets;
@@ -249,11 +246,11 @@ async function fetchAIgeneratedAssets(
     }
 
     assetsData.value = { ...assetsData.value, ...updatedPlanData };
-    resetAssetCardsLoadingState();
   } catch (err: any) {
     isAiGenerateErrorMessage.value =
       err.data?.message ||
       'We encountered an issue while generating AI assets. You can continue setting up your decoys manually or try again.';
+  } finally {
     resetAssetCardsLoadingState();
   }
 }
