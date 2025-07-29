@@ -44,70 +44,57 @@ export function useFetchUserAccount(
 
       const handle = res.data.handle;
 
-      const startTime = Date.now();
-      const timeout = 5 * 60 * 1000;
-
       const pollInfraRoleCheck = async () => {
         try {
           const resWithHandle = await requestAWSInfraRoleCheck({
             handle,
-            // external_id: externalId.value,
           });
 
-          if (resWithHandle.data.error && retryAttempts < MAX_RETRIES) {
-            retryAttempts++;
-            console.log(
-              `Retrying AWS Infra Role Check (${retryAttempts}/${MAX_RETRIES})`
-            );
-            // setTimeout(() => {
-            //   clearInterval(pollingRoleInterval);
-            //   pollInfraRoleCheck();
-            // }, POLL_INTERVAL);
-            return;
-          }
-
-          if (resWithHandle.status !== 200) {
-            stateStatus.value = StepStateEnum.ERROR;
-            errorMessage.value = resWithHandle.data.error;
-            clearInterval(pollingRoleInterval);
-            return;
-          }
-
-          if (resWithHandle.data.error) {
-            stateStatus.value = StepStateEnum.ERROR;
-            errorMessage.value = resWithHandle.data.error;
-            clearInterval(pollingRoleInterval);
-            return;
-          }
-
-          // timeout
-          if (Date.now() - startTime >= timeout) {
-            stateStatus.value = StepStateEnum.ERROR;
-            errorMessage.value = 'The operation took too long. Try again.';
-            clearInterval(pollingRoleInterval);
-            return;
-          }
-
           // success
-          if (resWithHandle.data.session_credentials_retrieved) {
-            clearInterval(pollingRoleInterval);
+          if (
+            resWithHandle.status === 200 &&
+            resWithHandle.data.session_credentials_retrieved
+          ) {
             await handleInventory();
             return;
           }
+
+          if (retryAttempts >= MAX_RETRIES) {
+            stateStatus.value = StepStateEnum.ERROR;
+            errorMessage.value =
+              resWithHandle.data?.error ||
+              resWithHandle.data?.message ||
+              'Max retries reached';
+            return;
+          }
+
+          setTimeout(() => {
+            console.log(
+              `Retrying AWS Infra Role Check (${retryAttempts}/${MAX_RETRIES})`
+            );
+            retryAttempts++;
+            pollInfraRoleCheck();
+          }, POLL_INTERVAL);
         } catch (err: any) {
-          stateStatus.value = StepStateEnum.ERROR;
-          errorMessage.value =
-            err.message ||
-            'An error occurred while checking the Role. Try again';
-          clearInterval(pollingRoleInterval);
-          return;
+          if (retryAttempts >= MAX_RETRIES) {
+            stateStatus.value = StepStateEnum.ERROR;
+            errorMessage.value =
+              err.response?.data?.message ||
+              'An error occurred while checking the Role. Try again';
+            return;
+          }
+          console.log(
+            `Retrying AWS Infra Role Check (${retryAttempts}/${MAX_RETRIES})`
+          );
+
+          setTimeout(() => {
+            retryAttempts++;
+            pollInfraRoleCheck();
+          }, POLL_INTERVAL);
         }
       };
 
-      const pollingRoleInterval = setInterval(
-        pollInfraRoleCheck,
-        POLL_INTERVAL
-      );
+      await pollInfraRoleCheck();
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value = err.message;
@@ -131,9 +118,7 @@ export function useFetchUserAccount(
       }
 
       const handle = res.data.handle;
-
-      const startTime = Date.now();
-      const timeout = 5 * 60 * 1000; // 5 minutes
+      let retryAttempts = 0;
 
       const pollInventoryCustomerAccount = async () => {
         try {
@@ -141,49 +126,47 @@ export function useFetchUserAccount(
             handle,
           });
 
-          if (resWithHandle.status !== 200) {
-            stateStatus.value = StepStateEnum.ERROR;
-            errorMessage.value = resWithHandle.data.error;
-            clearInterval(pollingInventoringInterval);
-            return;
-          }
-
-          if (resWithHandle.data.error) {
-            stateStatus.value = StepStateEnum.ERROR;
-            errorMessage.value = resWithHandle.data.error;
-            clearInterval(pollingInventoringInterval);
-            return;
-          }
-
-          // timeout
-          if (Date.now() - startTime >= timeout) {
-            stateStatus.value = StepStateEnum.ERROR;
-            errorMessage.value = 'The operation took too long. Try again.';
-            clearInterval(pollingInventoringInterval);
-            return;
-          }
-
           // success
           if (resWithHandle.data.proposed_plan) {
             stateStatus.value = StepStateEnum.SUCCESS;
             proposedPlan.value = resWithHandle.data.proposed_plan;
-            clearInterval(pollingInventoringInterval);
             return;
           }
+
+          // retry
+          if (retryAttempts >= MAX_RETRIES) {
+            stateStatus.value = StepStateEnum.ERROR;
+            errorMessage.value = 'Max retries reached';
+            return;
+          }
+
+          // Retry after delay
+          setTimeout(() => {
+            console.log(
+              `Retrying Inventory Customer Account (${retryAttempts}/${MAX_RETRIES})`
+            );
+            retryAttempts++;
+            pollInventoryCustomerAccount();
+          }, POLL_INTERVAL);
         } catch (err: any) {
-          stateStatus.value = StepStateEnum.ERROR;
-          errorMessage.value =
-            err.message ||
-            'An error occurred while inventoring the account. Try again';
-          clearInterval(pollingInventoringInterval);
-          return;
+          if (retryAttempts >= MAX_RETRIES) {
+            stateStatus.value = StepStateEnum.ERROR;
+            errorMessage.value =
+              'An error occurred while inventoring the account. Try again';
+            return;
+          }
+
+          setTimeout(() => {
+            console.log(
+              `Retrying Inventory Customer Account (${retryAttempts}/${MAX_RETRIES})`
+            );
+            retryAttempts++;
+            pollInventoryCustomerAccount();
+          }, POLL_INTERVAL);
         }
       };
 
-      const pollingInventoringInterval = setInterval(
-        pollInventoryCustomerAccount,
-        POLL_INTERVAL
-      );
+      await pollInventoryCustomerAccount();
     } catch (err: any) {
       stateStatus.value = StepStateEnum.ERROR;
       errorMessage.value = err.message;
