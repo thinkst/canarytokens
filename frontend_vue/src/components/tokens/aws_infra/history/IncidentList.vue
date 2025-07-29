@@ -55,7 +55,7 @@ import type {
   AdditionalInfoType,
 } from '@/components/tokens/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
-import { getAssetLabel } from '@/components/tokens/aws_infra/assetService.ts';
+import { getAssetLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 import IncidentCardAsset from '@/components/tokens/aws_infra/history/IncidentCardAsset.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
