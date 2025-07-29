@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 import enum
 import json
 import math
 import random
 import string
+from typing import Optional
 
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
@@ -31,31 +33,26 @@ class AssetLabel(str, enum.Enum):
     TABLE_ITEM = "table_item"
 
 
+@dataclass
+class AssetTypeConfig:
+    max_assets: int
+    asset_label_key: AssetLabel
+    child_asset_label_key: Optional[AssetLabel] = None
+    max_child_items: Optional[int] = None
+
+
 _ASSET_TYPE_CONFIG = {
-    AWSInfraAssetType.S3_BUCKET: {
-        "max_assets": 10,
-        "asset_key": AssetLabel.BUCKET_NAME,
-        "child_asset_key": AssetLabel.OBJECTS,
-        "max_child_items": 20,
-    },
-    AWSInfraAssetType.SQS_QUEUE: {
-        "max_assets": 10,
-        "asset_key": AssetLabel.SQS_QUEUE_NAME,
-    },
-    AWSInfraAssetType.SSM_PARAMETER: {
-        "max_assets": 10,
-        "asset_key": AssetLabel.SSM_PARAMETER_NAME,
-    },
-    AWSInfraAssetType.SECRETS_MANAGER_SECRET: {
-        "max_assets": 10,
-        "asset_key": AssetLabel.SECRET_NAME,
-    },
-    AWSInfraAssetType.DYNAMO_DB_TABLE: {
-        "max_assets": 10,
-        "asset_key": AssetLabel.TABLE_NAME,
-        "child_asset_key": AssetLabel.TABLE_ITEMS,
-        "max_child_items": 20,
-    },
+    AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
+        10, AssetLabel.BUCKET_NAME, AssetLabel.OBJECTS, 20
+    ),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(10, AssetLabel.SQS_QUEUE_NAME),
+    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(10, AssetLabel.SSM_PARAMETER_NAME),
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
+        10, AssetLabel.SECRET_NAME
+    ),
+    AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
+        10, AssetLabel.TABLE_NAME, AssetLabel.TABLE_ITEMS, 20
+    ),
 }
 
 
@@ -105,44 +102,32 @@ async def _add_assets_for_type(
     """
     Add assets of a specific type to the plan.
     """
-    count = _get_decoy_asset_count(
-        aws_inventoried_assets,
-        asset_type,
-        aws_deployed_assets,
+    inventory_count = len(aws_inventoried_assets.get(asset_type, []))
+    scaled_decoy_count = math.ceil(math.log2(inventory_count + 1)) or 1
+    deployed_decoy_count_remaining = _ASSET_TYPE_CONFIG[asset_type].max_assets - len(
+        aws_deployed_assets.get(asset_type, [])
     )
-    if count <= 0:
+    decoy_asset_count = min(deployed_decoy_count_remaining, scaled_decoy_count)
+
+    if decoy_asset_count <= 0:
         return
 
-    asset_names = await data_generation.generate_names(
-        asset_type, aws_inventoried_assets.get(asset_type, []), count
-    )
+    asset_names = (
+        await data_generation.generate_names(
+            asset_type, aws_inventoried_assets.get(asset_type, []), decoy_asset_count
+        )
+    ).suggested_names
 
     config = _ASSET_TYPE_CONFIG[asset_type]
-    asset_name_key = config["asset_key"]
 
     assets = []
     for asset_name in asset_names:
-        asset = {asset_name_key: asset_name, "off_inventory": False}
+        asset = {config.asset_label_key: asset_name, "off_inventory": False}
         # Add type-specific child assets if they exist
-        if child_asset_name_key := config.get("child_asset_key"):
+        if child_asset_name_key := config.child_asset_label_key:
             asset[child_asset_name_key] = []
         assets.append(asset)
     plan[asset_type].extend(assets)
-
-
-def _get_decoy_asset_count(
-    aws_inventoried_assets,
-    asset_type: AWSInfraAssetType,
-    aws_deployed_assets,
-) -> int:
-    return min(
-        max(
-            math.ceil(math.log2(len(aws_inventoried_assets.get(asset_type, [])) + 1)),
-            1,
-        ),
-        _ASSET_TYPE_CONFIG[asset_type]["max_assets"]
-        - len(aws_deployed_assets.get(asset_type, [])),
-    )
 
 
 async def add_new_assets_to_plan(
@@ -173,7 +158,7 @@ def add_current_assets_to_plan(
     Add current deployed assets to the proposed plan.
     """
     for asset_type, config in _ASSET_TYPE_CONFIG.items():
-        asset_key = config["asset_key"]
+        asset_key = config.asset_labekkey
 
         for asset_name in aws_deployed_assets.get(asset_type, []):
             asset = {
@@ -183,7 +168,7 @@ def add_current_assets_to_plan(
             }
 
             # get the child assets (objects or table items) from the last saved plan
-            if child_asset_key := config.get("child_asset_key"):
+            if child_asset_key := config.child_asset_label_key:
                 for last_saved_parent_asset in current_plan.get(asset_type, [{}]):
                     if last_saved_parent_asset.get(asset_key) == asset_name:
                         asset[child_asset_key] = last_saved_parent_asset.get(
@@ -246,8 +231,8 @@ async def _generate_child_asset_name(
 async def generate_data_choice(
     canarydrop: Canarydrop,
     asset_type: AWSInfraAssetType,
-    asset_field: str,
-    parent_asset_name: str = None,
+    asset_field: AssetLabel,
+    parent_asset_name: AssetLabel = None,
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
     inventory = get_current_assets(canarydrop).get(asset_type, [])
@@ -292,9 +277,7 @@ async def generate_child_assets(
                 data_generation.generate_children_names(
                     asset_type,
                     asset_name,
-                    random.randint(
-                        1, _ASSET_TYPE_CONFIG[asset_type]["max_child_items"]
-                    ),
+                    random.randint(1, _ASSET_TYPE_CONFIG[asset_type].max_child_items),
                 )
             )
     all_names: list[list[str]] = await asyncio.gather(

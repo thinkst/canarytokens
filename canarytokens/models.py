@@ -2995,7 +2995,6 @@ class AWSInfraManagementResponseRequest(BaseModel):
     result: dict
 
 
-# TODO: might change if it doesn't work with the frontend
 class AWSInfraGenerateChildAssetsRequest(BaseModel):
     canarytoken: str
     auth_token: str

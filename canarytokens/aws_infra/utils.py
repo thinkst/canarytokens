@@ -3,7 +3,7 @@ import secrets
 import string
 
 
-def random_string(length: int, lower_case_only=False) -> str:
+def _random_alpha_numeric_string(length: int, lower_case_only=False) -> str:
     """
     Generate a random string of fixed length.
     """
@@ -14,7 +14,7 @@ def random_string(length: int, lower_case_only=False) -> str:
     return "".join(random.choice(characters) for _ in range(length))
 
 
-def _secret_string(length: int) -> str:
+def _secret_alpha_numeric_string(length: int) -> str:
     """
     Generate a random string of fixed length using secrets module.
     """
@@ -24,19 +24,26 @@ def _secret_string(length: int) -> str:
 
 
 def generate_external_id():
-    return _secret_string(21)
+    return _secret_alpha_numeric_string(21)
 
 
 def generate_tf_module_prefix():
-    return random_string(27)
+    return _random_alpha_numeric_string(27)
 
 
 def generate_inventory_role_name():
     """
     Generate a unique inventory role name for the canarydrop.
     """
-    return f"Canarytokens-Inventory-{random_string(10)}-ReadOnly-Role"
+    return f"Canarytokens-Inventory-{_random_alpha_numeric_string(10)}-ReadOnly-Role"
 
 
 def generate_handle_id():
     return secrets.token_hex(20)
+
+
+def generate_s3_bucket_suffix():
+    """
+    Generate a random suffix for S3 bucket names.
+    """
+    return _random_alpha_numeric_string(random.randint(6, 21), lower_case_only=True)

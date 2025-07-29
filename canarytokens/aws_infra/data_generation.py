@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 
@@ -5,7 +6,7 @@ import re
 import json
 import random
 
-from canarytokens.aws_infra.utils import random_string
+from canarytokens.aws_infra.utils import generate_s3_bucket_suffix
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
 import httpx
@@ -56,26 +57,8 @@ def _httpx_async_client_default():
     return httpx.AsyncClient(timeout=60)
 
 
-async def _make_async_http_request(
-    url: str, method: str = "GET", headers: dict = None, data: dict = None
-):
-    """
-    Generic HTTP request function using httpx.
-    """
-    try:
-        async with _httpx_async_client_default() as client:
-            response = await client.request(method, url, headers=headers, json=data)
-            return response.status_code, response.content
-    except Exception:
-        log.exception("Error making HTTP request")
-        return None, None
-
-
 async def _validate_s3_name(name: str) -> bool:
     """Validate S3 bucket name asynchronously."""
-    # Basic validation first
-    if not (3 <= len(name) <= 63):
-        return False
     if not re.match(_S3_BUCKET_NAME_REGEX, name):
         return False
     reserved_prefixes = (
@@ -94,8 +77,11 @@ async def _validate_s3_name(name: str) -> bool:
 
     url = f"https://{name}.s3.amazonaws.com"
     try:
-        status_code, _ = await _make_async_http_request(url, method="HEAD")
-        return status_code in (200, 403)
+        async with _httpx_async_client_default() as client:
+            response = await client.head(url)
+        return (
+            response.status_code == 404
+        )  # Not Found indicates the bucket does not exist
     except Exception:
         log.exception("Error checking S3 bucket existence")
 
@@ -103,13 +89,11 @@ async def _validate_s3_name(name: str) -> bool:
 
 
 def _validate_dynamodb_name(name: str) -> bool:
-    # 3-255 chars, A-Z a-z 0-9 _ - .
     return bool(re.fullmatch(_DYNAMO_DB_TABLE_NAME_REGEX, name))
 
 
 def _validate_ssm_parameter_name(name: str) -> bool:
-    # path segments of a-z A-Z 0-9 _ . - separated by "/"; no leading "aws" or "ssm"
-    if not name or len(name) > 2048:
+    if not (0 < len(name) <= 2048):
         return False
     segments = name.split("/")
     if segments[0].lower() in ("aws", "ssm"):
@@ -123,12 +107,10 @@ def _validate_ssm_parameter_name(name: str) -> bool:
 
 
 def _validate_sqs_name(name: str) -> bool:
-    # 1-80 chars, A-Z a-z 0-9 _ - ;
     return bool(re.fullmatch(_SQS_QUEUE_NAME_REGEX, name))
 
 
 def _validate_secrets_manager_name(name: str) -> bool:
-    # 1-512 chars, A-Z a-z 0-9 / _ + = . @ - .
     return bool(re.fullmatch(_SECRETS_MANAGER_NAME_REGEX, name))
 
 
@@ -162,8 +144,7 @@ def _augment_name(asset_type: AWSInfraAssetType, name: str) -> str:
     """
     if asset_type == AWSInfraAssetType.S3_BUCKET:
         max_length = 63
-        min_random_suffix_length = 3
-        name = f"{name}-{random_string(random.randint(min_random_suffix_length, max_length // 3), lower_case_only=True)}"
+        name = f"{name}-{generate_s3_bucket_suffix()}"
         if len(name) > max_length:
             name = name[:max_length]
 
@@ -180,17 +161,23 @@ async def _finalize_list(
     Get a list of validated names from the provided inventory.
     """
     validated_names = []
+    is_valid_tasks = []
     for name in suggested_names:
         name = _augment_name(asset_type, name)
-        is_valid = await _validate_name(asset_type, name)
+        is_valid_tasks.append(_validate_name(asset_type, name))
+
+    is_valid_results = await asyncio.gather(*is_valid_tasks)
+    for name, is_valid in zip(suggested_names, is_valid_results):
+        if not is_valid:
+            continue
         similarity_score = max(
             (SequenceMatcher(None, name, existing).ratio() for existing in inventory),
             default=0,
         )
-        if is_valid and similarity_score < _SIMILARITY_THRESHOLD:
-            validated_names.append(name)
 
-    return validated_names[:count] if len(validated_names) >= count else validated_names
+    if similarity_score < _SIMILARITY_THRESHOLD:
+        validated_names.append(name)
+    return validated_names[:count]
 
 
 async def _gemini_request(prompt: str):
@@ -215,20 +202,14 @@ async def _gemini_request(prompt: str):
     }
 
     try:
-        status_code, response_body = await _make_async_http_request(
-            _GEMINI_API_URL,
-            method="POST",
-            headers=headers,
-            data=data,
-        )
+        async with _httpx_async_client_default() as client:
+            response = await client.post(_GEMINI_API_URL, headers=headers, json=data)
 
-        if status_code != 200:
-            raise RuntimeError(f"Gemini API returned status {status_code}")
+        if response.status_code != 200:
+            raise RuntimeError(f"Gemini API returned status {response.status_code}")
 
-        result = json.loads(response_body.decode("utf-8"))
-        parts = (
-            result.get("candidates", [{}])[0].get(("content", {})).get("parts", [{}])
-        )
+        result = json.loads(response.content.decode("utf-8"))
+        parts = result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])
         text = parts[0].get("text", "")
         if not text:
             log.error(
@@ -239,7 +220,7 @@ async def _gemini_request(prompt: str):
         parsed_content = json.loads(text)
         return parsed_content.get("suggested_names", [])
 
-    except (KeyError, IndexError, json.JSONDecodeError):
+    except json.JSONDecodeError:
         log.exception("Error parsing Gemini API response.")
     except Exception:
         log.exception("Failed to get response from Gemini API.")

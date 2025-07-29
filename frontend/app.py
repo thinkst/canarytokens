@@ -59,7 +59,6 @@ from canarytokens.exceptions import (
 )
 from canarytokens.models import (
     PWA_APP_TITLES,
-    AWSInfraAssetType,
     AWSInfraGenerateChildAssetsRequest,
     AWSInfraGenerateChildAssetsResponse,
     AWSInfraHandleResponse,
@@ -1226,62 +1225,6 @@ async def api_awsinfra_generate_child_assets(
     aws_infra.mark_succeeded(canarydrop)
     queries.save_canarydrop(canarydrop)
     return AWSInfraGenerateChildAssetsResponse(assets=assets)
-
-
-# TODO: Remove or move later
-@api.post(
-    "/awsinfra/test/generate-child-assets",
-    dependencies=[Depends(validate_exclusive_handle)],
-)
-async def test_api_awsinfra_generate_child_assets(
-    request: AWSInfraGenerateChildAssetsRequest,
-    response: Response,
-) -> AWSInfraGenerateChildAssetsResponse:
-    result = await aws_infra.generate_child_assets(request.assets)
-    return AWSInfraGenerateChildAssetsResponse(assets=result)
-
-
-# TODO: Remove or move later
-@api.post(
-    "/awsinfra/test/inventory-customer-account",
-)
-async def test_api_awsinfra_inventory_customer_account():
-
-    proposed_plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
-    deployed_assets = {}
-    inventoried_assets = {
-        AWSInfraAssetType.S3_BUCKET.value: [
-            "coffee-bean-imports",
-            "coffee-bean-exports",
-            "roasting-recipes",
-            "product-catalog",
-        ],
-        AWSInfraAssetType.DYNAMO_DB_TABLE.value: ["test-table-1", "test-table-2"],
-        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
-            "test-secret-1",
-            "test-secret-2",
-        ],
-        AWSInfraAssetType.SQS_QUEUE.value: ["test-queue-1", "test-queue-2"],
-        AWSInfraAssetType.SSM_PARAMETER.value: ["test-parameter-1", "test-parameter-2"],
-    }
-    await aws_infra.add_new_assets_to_plan(
-        deployed_assets, inventoried_assets, proposed_plan
-    )
-    return JSONResponse({"plan": {"assets": proposed_plan}})
-
-
-# TODO: Remove or move later
-@api.post("/awsinfra/test/generate-data-choices")
-async def test_api_awsinfra_generate_data_choices(
-    request: AWSInfraGenerateDataChoiceRequest,
-):
-    result = await aws_infra.generate_data_choice(
-        canarydrop=None,
-        asset_type=request.asset_type,
-        asset_field=request.asset_field,
-        parent_asset_name=request.parent_asset_name,
-    )
-    return JSONResponse({"result": result})
 
 
 @api.post("/awsinfra/generate-data-choices")
