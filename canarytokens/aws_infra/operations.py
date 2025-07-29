@@ -176,8 +176,6 @@ async def _build_handle_response_payload(
         "handle": handle_id,
     }
 
-    print("Received payload: ", handle.response_content)
-
     if timeout:
         payload["message"] = "Handle response timed out."
     elif response_content.get("error", "") != "":
@@ -193,7 +191,8 @@ async def _build_handle_response_payload(
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if handle.operation == AWSInfraOperationType.INVENTORY:
         save_current_assets(canarydrop, response_content.get("assets", {}))
-        payload["proposed_plan"] = await generate_proposed_plan(canarydrop)
+        proposed_plan = await generate_proposed_plan(canarydrop)
+        payload["proposed_plan"] = {"assets": proposed_plan}
         if is_ingesting(canarydrop):
             filter_decoys_from_inventory(
                 canarydrop
@@ -220,10 +219,10 @@ def filter_decoys_from_inventory(canarydrop: Canarydrop):
     inventory = json.loads(canarydrop.aws_inventoried_assets)
     decoys = json.loads(canarydrop.aws_deployed_assets)
     for asset_type in AWSInfraAssetType:
-        if asset_type.value in inventory["assets"]:
-            inventory["assets"][asset_type.value] = [
+        if asset_type.value in inventory:
+            inventory[asset_type.value] = [
                 asset
-                for asset in inventory["assets"][asset_type.value]
+                for asset in inventory[asset_type.value]
                 if asset not in decoys.get(asset_type.value, [])
             ]
     save_current_assets(canarydrop, inventory)

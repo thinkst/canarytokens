@@ -80,7 +80,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
         "account_id": canarydrop.aws_account_id,
         "region": canarydrop.aws_region,
     }
-    for bucket in plan["assets"]["S3Bucket"]:
+    for bucket in plan["S3Bucket"]:
         tf_variables["s3_bucket_names"].append(bucket[AssetLabel.BUCKET_NAME])
         for s3_object in bucket.get("objects", []):
             tf_variables["s3_objects"].append(
@@ -138,7 +138,7 @@ async def _add_assets_for_type(
         if child_asset_name_key := config.get("child_asset_key"):
             asset[child_asset_name_key] = []
         assets.append(asset)
-    plan["assets"][asset_type].extend(assets)
+    plan[asset_type].extend(assets)
 
 
 def _get_decoy_asset_count(
@@ -193,15 +193,16 @@ def add_current_assets_to_plan(
                 not in aws_inventoried_assets.get(asset_type, []),
             }
 
+            # get the child assets (objects or table items) from the last saved plan
             if child_asset_key := config.get("child_asset_key"):
-                asset[child_asset_key] = list(
-                    filter(
-                        lambda parent_asset: parent_asset[asset_key] == asset_name,
-                        current_plan.get("assets", {}).get(asset_type, []),
-                    )
-                )[0].get(child_asset_key, [])
+                for last_saved_parent_asset in current_plan.get(asset_type, [{}]):
+                    if last_saved_parent_asset.get(asset_key) == asset_name:
+                        asset[child_asset_key] = last_saved_parent_asset.get(
+                            child_asset_key, []
+                        )
+                        break
 
-            proposed_plan["assets"][asset_type].append(asset)
+            proposed_plan[asset_type].append(asset)
 
 
 async def generate_proposed_plan(canarydrop: Canarydrop):
@@ -212,9 +213,7 @@ async def generate_proposed_plan(canarydrop: Canarydrop):
     aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
     aws_inventoried_assets = get_current_assets(canarydrop)
     current_plan = json.loads(canarydrop.aws_saved_plan or "{}")
-    proposed_plan = {
-        "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
-    }
+    proposed_plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
 
     if is_ingesting(canarydrop):
         return proposed_plan
@@ -268,36 +267,6 @@ async def _generate_child_asset_name(
     return names[0]
 
 
-async def _generate_asset_by_type_and_field(
-    asset_type: AWSInfraAssetType,
-    asset_field: str,
-    inventory: list,
-    parent_asset_name: str = None,
-) -> str:
-    """Generate asset name based on type and field."""
-    # Parent asset types (top-level resources)
-    parent_fields = {
-        AssetLabel.BUCKET_NAME,
-        AssetLabel.SQS_QUEUE_NAME,
-        AssetLabel.SSM_PARAMETER_NAME,
-        AssetLabel.SECRET_NAME,
-        AssetLabel.TABLE_NAME,
-    }
-
-    # Child asset types (nested resources)
-    child_fields = {
-        AssetLabel.OBJECT_PATH,
-        AssetLabel.TABLE_ITEM,
-    }
-
-    if asset_field in parent_fields:
-        return await _generate_parent_asset_name(asset_type, inventory)
-    elif asset_field in child_fields:
-        return await _generate_child_asset_name(asset_type, parent_asset_name)
-    else:
-        raise ValueError(f"Unsupported asset field: {asset_field}")
-
-
 async def generate_data_choice(
     canarydrop: Canarydrop,
     asset_type: AWSInfraAssetType,
@@ -307,12 +276,32 @@ async def generate_data_choice(
     """Generate a random data choice for the given asset type and field."""
     inventory = _get_inventory_for_asset_type(canarydrop, asset_type)
 
-    return await _generate_asset_by_type_and_field(
-        asset_type, asset_field, inventory, parent_asset_name
-    )
+    # Parent asset types (top-level resources)
+    PARENT_FIELDS = {
+        AssetLabel.BUCKET_NAME,
+        AssetLabel.SQS_QUEUE_NAME,
+        AssetLabel.SSM_PARAMETER_NAME,
+        AssetLabel.SECRET_NAME,
+        AssetLabel.TABLE_NAME,
+    }
+
+    # Child asset types (nested resources)
+    CHILD_FIELDS = {
+        AssetLabel.OBJECT_PATH,
+        AssetLabel.TABLE_ITEM,
+    }
+
+    if asset_field in PARENT_FIELDS:
+        return await _generate_parent_asset_name(asset_type, inventory)
+    elif asset_field in CHILD_FIELDS:
+        return await _generate_child_asset_name(asset_type, parent_asset_name)
+    else:
+        raise ValueError(f"Unsupported asset field: {asset_field}")
 
 
-async def generate_child_assets(assets: dict):
+async def generate_child_assets(
+    assets: dict[str, list[str]]
+) -> dict[str, dict[str, list[str]]]:
     """
     Generate child assets for the given assets.
     """
@@ -330,7 +319,9 @@ async def generate_child_assets(assets: dict):
                     random.randint(1, ASSET_TYPE_CONFIG[asset_type]["max_child_items"]),
                 )
             )
-    all_names = await asyncio.gather(*tasks)
+    all_names: list[list[str]] = await asyncio.gather(
+        *tasks
+    )  # each task returns a list of names
 
     i = 0
     for asset_type, asset_names in assets.items():
@@ -341,7 +332,7 @@ async def generate_child_assets(assets: dict):
     return result
 
 
-def save_plan(canarydrop: Canarydrop, plan: str):
+def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     """
     Save an AWS Infra plan and upload it to the tf modules S3 bucket.
     """
@@ -350,27 +341,23 @@ def save_plan(canarydrop: Canarydrop, plan: str):
         {
             AWSInfraAssetType.S3_BUCKET.value: [
                 bucket[AssetLabel.BUCKET_NAME]
-                for bucket in plan["assets"].get(AWSInfraAssetType.S3_BUCKET.value, [])
+                for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
             ],
             AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
                 table[AssetLabel.TABLE_NAME]
-                for table in plan["assets"].get(
-                    AWSInfraAssetType.DYNAMO_DB_TABLE.value, []
-                )
+                for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
             ],
             AWSInfraAssetType.SQS_QUEUE.value: [
                 queue[AssetLabel.SQS_QUEUE_NAME]
-                for queue in plan["assets"].get(AWSInfraAssetType.SQS_QUEUE.value, [])
+                for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
             ],
             AWSInfraAssetType.SSM_PARAMETER.value: [
                 param[AssetLabel.SSM_PARAMETER_NAME]
-                for param in plan["assets"].get(
-                    AWSInfraAssetType.SSM_PARAMETER.value, []
-                )
+                for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
             ],
             AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
                 secret[AssetLabel.SECRET_NAME]
-                for secret in plan["assets"].get(
+                for secret in plan.get(
                     AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
                 )
             ],

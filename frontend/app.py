@@ -1247,9 +1247,7 @@ async def test_api_awsinfra_generate_child_assets(
 )
 async def test_api_awsinfra_inventory_customer_account():
 
-    proposed_plan = {
-        "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
-    }
+    proposed_plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
     deployed_assets = {}
     inventoried_assets = {
         AWSInfraAssetType.S3_BUCKET.value: [
@@ -1269,7 +1267,7 @@ async def test_api_awsinfra_inventory_customer_account():
     await aws_infra.add_new_assets_to_plan(
         deployed_assets, inventoried_assets, proposed_plan
     )
-    return JSONResponse({"plan": proposed_plan})
+    return JSONResponse({"plan": {"assets": proposed_plan}})
 
 
 # TODO: Remove or move later
@@ -1321,7 +1319,7 @@ async def api_awsinfra_save_plan(
     )
     try:
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
-        aws_infra.setup_new_plan(canarydrop, request.plan)
+        aws_infra.setup_new_plan(canarydrop, request.plan["assets"])
         aws_infra.mark_succeeded(canarydrop)
         queries.save_canarydrop(canarydrop)
 
