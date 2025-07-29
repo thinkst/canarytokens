@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   hasAiGeneratedField,
   getAssetNameKey,
@@ -38,52 +37,6 @@ export function formatDataForAIRequest(
   return { assets: aiEnabledAssets };
 }
 
-// export function mergeAIGeneratedAssets(
-//   currentAssetsData: ProposedAWSInfraTokenPlanData,
-//   generatedAssets: Record<string, Record<string, string[]>>
-// ): ProposedAWSInfraTokenPlanData {
-//   const mergedAssets = Object.entries(generatedAssets).reduce(
-//     (acc, current) => {
-//       const assetType = current[0];
-//       const generatedAssetsForType = current[1];
-
-//       const fieldToPopulate = hasAiGeneratedField(
-//         assetType as AssetTypesEnum
-//       ).toString();
-//       const assetNameKey = getAssetNameKey(assetType as AssetTypesEnum);
-
-//       const currentAssets =
-//         currentAssetsData[assetType as AssetTypesEnum] || [];
-//       const updatedAssets = [...currentAssets];
-
-//       Object.entries(generatedAssetsForType).forEach(
-//         ([assetName, fieldValues]) => {
-//           console.log(updatedAssets, 'updatedAssets');
-//           const existingAsset = updatedAssets.find(
-//             (asset) => asset[assetNameKey] === assetName
-//           );
-
-//           if (!existingAsset) return;
-
-//           const existingAssetIndex = updatedAssets.indexOf(existingAsset);
-//           updatedAssets[existingAssetIndex] = {
-//             ...updatedAssets[existingAssetIndex],
-//             [fieldToPopulate]: fieldValues,
-//           };
-//         }
-//       );
-
-//       return {
-//         ...acc,
-//         [assetType]: updatedAssets,
-//       };
-//     },
-//     {}
-//   );
-
-//   return { ...currentAssetsData, ...mergedAssets };
-// // }
-
 export function mergeAIGeneratedAssets(
   currentAssetsData: ProposedAWSInfraTokenPlanData,
   generatedAssets: Record<string, Record<string, string[]>>
@@ -121,8 +74,6 @@ export function mergeAIGeneratedAssets(
         }
       );
 
-      console.log(`Updated assets for ${assetType}:`, updatedAssets);
-
       return {
         ...acc,
         [assetType]: updatedAssets,
@@ -130,8 +81,6 @@ export function mergeAIGeneratedAssets(
     },
     {}
   );
-
-  console.log('Merged assets:', mergedAssets);
 
   return { ...currentAssetsData, ...mergedAssets };
 }
