@@ -13,9 +13,19 @@
       v-if="isLoading || isError"
       :is-loading="isLoading"
       :is-error="isError"
-      loading-message="We are generating the terraform module, hold on"
       :error-message="errorMessage"
-    />
+    >
+      <template #loading>
+        <GenerateLoadingState
+          :instructions="[
+            'Preparing Decoys',
+            'Generating infrastructure',
+            'Generating module',
+          ]"
+          img-src="aws_infra_token_loading_folder.webp"
+        />
+      </template>
+    </StepState>
     <div
       v-if="isSuccess"
       class="flex flex-col items-center"
@@ -31,7 +41,7 @@
           >
         </div>
         <BaseCard
-          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]  xl:max-w-[40vw]  place-self-center"
+          class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw] place-self-center"
         >
           <div class="text-center mb-16 flex flex-col items-center">
             <img
@@ -61,7 +71,7 @@
             custom-height="100px"
           ></BaseCodeSnippet>
           <div
-            class="text-left sm:text-center flex mt-24 gap-8 items-center justify-center"
+            class="text-left lg:text-center flex mt-24 gap-8 items-center justify-center"
           >
             <p>How do I use this module?</p>
             <button
@@ -80,7 +90,7 @@
             </button>
           </div>
           <div
-            class="text-left sm:text-center flex mt-8 gap-8 items-center justify-center"
+            class="text-left lg:text-center flex mt-8 gap-8 items-center justify-center"
           >
             <p>How do I clean up IAM resources for Canarytokens Inventory?</p>
             <button
@@ -142,12 +152,13 @@ import type { TokenDataType } from '@/utils/dataService';
 import { TOKENS_TYPE } from '@/components/constants.ts';
 import { requestTerraformSnippet } from '@/api/awsInfra.ts';
 import { launchConfetti } from '@/utils/confettiEffect';
-import StepState from '../StepState.vue';
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 import { useModal } from 'vue-final-modal';
 import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+import GenerateLoadingState from './GenerateLoadingState.vue';
 
 const ModalInfoTerraformModule = defineAsyncComponent(
   () =>
@@ -175,6 +186,7 @@ const { isLoading, isError, isSuccess } = useStepState(stateStatus);
 const errorMessage = ref('');
 
 const terraformSnippet = ref('');
+const cleaupSnippet = ref('');
 
 const { token, auth_token } = props.initialStepData;
 
@@ -213,7 +225,7 @@ async function handleRequestTerraformSnippet() {
         if (resWithHandle.status !== 200) {
           stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value =
-            resWithHandle.data.error ||
+            resWithHandle.data.message ||
             'Error on requesting the Terraform Snippet';
           clearInterval(pollingTerraformSnippetInterval);
           return;
@@ -237,14 +249,26 @@ async function handleRequestTerraformSnippet() {
         // success
         if (resWithHandle.data.terraform_module_snippet) {
           stateStatus.value = StepStateEnum.SUCCESS;
-          const terraform_module_snippet =
-            resWithHandle.data.terraform_module_snippet;
 
-          terraformSnippet.value = terraform_module_snippet;
+          const source = resWithHandle.data.terraform_module_snippet.source;
+          const module = resWithHandle.data.terraform_module_snippet.module;
+
+          terraformSnippet.value = generateTerraformSnippet(source, module);
+
+          const roleName = resWithHandle.data.role_cleanup_commands.role_name;
+          const customerAwsAccount =
+            resWithHandle.data.role_cleanup_commands.customer_aws_account;
+
+          cleaupSnippet.value = generateCleanupSnippet(
+            roleName,
+            customerAwsAccount
+          );
+
           emits('storeCurrentStepData', {
             token,
             auth_token,
-            terraform_module_snippet,
+            terraformSnippet: terraformSnippet.value,
+            cleaupSnippet: cleaupSnippet.value,
           });
           clearInterval(pollingTerraformSnippetInterval);
           return;
@@ -252,7 +276,9 @@ async function handleRequestTerraformSnippet() {
       } catch (err: any) {
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value =
-          err.message || 'An error occurred while checking the Role. Try again';
+          err.response?.data?.message ||
+          err.message ||
+          'An error occurred while checking the Role. Try again';
         clearInterval(pollingTerraformSnippetInterval);
         return;
       }
@@ -264,7 +290,7 @@ async function handleRequestTerraformSnippet() {
     );
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value = err.message;
+    errorMessage.value = err.response?.data?.message || err.message;
   }
 }
 
@@ -282,13 +308,25 @@ function handleShowModalInfoModule() {
   open();
 }
 
+function generateTerraformSnippet(source: string, module: string) {
+  return `module "${module}" {
+  source = "${source}" }`;
+}
+
+function generateCleanupSnippet(roleName: string, customerAwsAccount: string) {
+  return `aws iam detach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+aws iam delete-policy --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
+
+aws iam delete-role --role-name  ${roleName}`;
+}
+
 function handleShowModalCleanup() {
   const { open, close } = useModal({
     component: ModalInfoCleanup,
     attrs: {
       closeModal: () => close(),
-      awsAccountNumber: props.initialStepData.aws_account_number,
-      roleName: 'something',
+      cleanupSnippetCommands: cleaupSnippet.value,
     },
   });
   open();

@@ -15,14 +15,22 @@
       />
       <StepState
         v-if="!isIdle && codeSnippetCommands"
-        class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw]"
+        class="mb-24 max-w-[100%] md:max-w-[70vw] lg:max-w-[50vw] xl:max-w-[50vw]"
         :is-loading="isLoading"
         :is-error="isError"
-        loading-message="This will take a couple of seconds for us to analyse your account, depending on network conditions, solar flare activity, and errant squirrels. Hold on…"
         :error-message="errorMessage"
-        :has-icon="false"
-        :has-error-title="false"
-      />
+      >
+        <template #loading>
+          <GenerateLoadingState
+            :instructions="[
+              'AWS account found',
+              'Verifying setup',
+              'Analysing cloud account',
+            ]"
+            img-src="aws_infra_token_loading_scanner.webp"
+          />
+        </template>
+      </StepState>
     </div>
     <div
       v-if="!isLoading && codeSnippetCommands"
@@ -43,8 +51,13 @@
             </div>
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
-              We need to inventory your account to suggest decoy resources to
-              deploy, execute these commands to give us read-only access.
+              Run these commands to grant read-only access so we can inventory
+              your accound and suggest decoy resources.
+            </p>
+            <p>
+              <span class="font-bold text-green-500">Plase note:</span> We send
+              limited inventory data to Google's Gemini to generate realistic
+              decoy names.
             </p>
           </div>
           <BaseLabelArrow
@@ -160,6 +173,7 @@ import {
 } from '@/components/tokens/aws_infra/useStepState.ts';
 import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 import { policyDocument } from '@/components/tokens/aws_infra/constants.ts';
+import GenerateLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GenerateLoadingState.vue';
 
 const ModalInfoSnippet = defineAsyncComponent(
   () => import('./ModalInfoSnippet.vue')
@@ -270,7 +284,7 @@ async function handleGetAwsSnippet() {
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value = err;
+    errorMessage.value = err.response?.data?.message || err;
   }
 }
 
@@ -278,12 +292,12 @@ function handleSaveEditData(data: GenericObject) {
   emits('storePreviousStepData', data);
   accountNumber.value = data.aws_account_number;
   accountRegion.value = data.aws_region;
-  codeSnippetCommands.value  = generateCodeSnippet();
+  codeSnippetCommands.value = generateCodeSnippet();
   emits('storeCurrentStepData', {
-      token,
-      auth_token,
-      code_snippet_command: codeSnippetCommands.value,
-    });
+    token,
+    auth_token,
+    code_snippet_command: codeSnippetCommands.value,
+  });
 }
 
 function handleSnippetChecked() {
@@ -343,8 +357,7 @@ function handleShowModalInfoSnippet() {
   open();
 }
 
-function generateCodeSnippet(
-) {
+function generateCodeSnippet() {
   return `aws iam create-role --no-cli-pager --role-name ${roleName.value} --assume-role-policy-document \'{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:sts::${managementAwsAccount.value}:assumed-role/InventoryManagerRole/${externalId.value}"}, "Action": "sts:AssumeRole", "Condition": {"StringEquals": {"sts:ExternalId": "${externalId.value}"}}}]}\'
 
 aws iam create-policy --no-cli-pager --policy-name Canarytokens-Inventory-ReadOnly-Policy --policy-document \'${policyDocument}\'
