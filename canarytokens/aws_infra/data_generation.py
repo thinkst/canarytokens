@@ -250,6 +250,15 @@ async def generate_names(
                 f"Failed to generate enough valid names for {asset_type.name} after {_NAME_GEN_MAX_ATTEMPTS} attempts."
             )
 
+        # Use a heuristic to calculate how many suggestions to ask for
+        #
+        # At the time of writing, only a few of the names Gemini generates
+        # are invalid. The heuristic aims to minimise the cost using Gemini
+        # which is based on both the number of input tokens sent, and output
+        # tokens received (with output being ~8x input). The heuristic here was
+        # chosen by playing around with the API trying to minimise the number
+        # of queries sent and the size of the result needed for enough valid names.
+        #
         overshoot = max(count + 5, 2 * count - len(validated_names))
         new_names = await _gemini_request(
             prompt=_prompt_template.format(
