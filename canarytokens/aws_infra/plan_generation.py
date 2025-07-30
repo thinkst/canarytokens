@@ -158,7 +158,7 @@ def add_current_assets_to_plan(
     Add current deployed assets to the proposed plan.
     """
     for asset_type, config in _ASSET_TYPE_CONFIG.items():
-        asset_key = config.asset_labekkey
+        asset_key = config.asset_label_key
 
         for asset_name in aws_deployed_assets.get(asset_type, []):
             asset = {
