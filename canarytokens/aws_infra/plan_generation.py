@@ -214,7 +214,7 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     add_current_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
     )
-    data_generation.update_gemini_usage(canarydrop, len(proposed_plan["assets"].keys()))
+    data_generation.update_gemini_usage(canarydrop, len(proposed_plan.keys()))
     return proposed_plan
 
 

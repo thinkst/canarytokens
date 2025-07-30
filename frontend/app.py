@@ -1181,9 +1181,6 @@ async def api_awsinfra_inventory_customer_account(
         )
         return AWSInfraHandleResponse(handle=handle_id)
 
-    handle_response = await aws_infra.get_handle_response(
-        request.handle, AWSInfraOperationType.INVENTORY
-    )
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
         handle_response = await aws_infra.get_handle_response(
