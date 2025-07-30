@@ -141,6 +141,7 @@ class Canarydrop(BaseModel):
     aws_infra_ingestion_bus_name: Optional[str]
     aws_infra_state: Optional[AWSInfraState]
     aws_infra_inventory_role: Optional[str] = None
+    aws_data_generation_requests_made: Optional[int] = 0
 
     # Azure key specific stuff
     app_id: Optional[str]

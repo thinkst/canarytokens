@@ -145,6 +145,7 @@ class FrontendSettings(BaseSettings):
     GEMINI_PROMPT_TEMPLATE: Optional[str]
     GEMINI_SYSTEM_PROMPT: Optional[str]
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
+    GEMINI_MAX_REQUESTS_PER_TOKEN: Optional[int] = 50
 
     # temporary
     AWS_ACCESS_KEY_ID: Optional[str]

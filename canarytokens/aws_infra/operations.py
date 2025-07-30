@@ -9,6 +9,7 @@ from canarytokens.aws_infra.aws_management import (
     queue_management_request,
     upload_tf_module,
 )
+from canarytokens.aws_infra.data_generation import usage_by_canarydrop
 from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
     generate_tf_variables,
@@ -198,6 +199,9 @@ async def _build_handle_response_payload(
         save_current_assets(canarydrop, inventory)
         proposed_plan = await generate_proposed_plan(canarydrop)
         payload["proposed_plan"] = {"assets": proposed_plan}
+        payload["data_generation_remaining"] = usage_by_canarydrop(
+            canarydrop
+        ).requests_remaining_percentage
         if is_ingesting(canarydrop):
             filter_decoys_from_inventory(
                 canarydrop

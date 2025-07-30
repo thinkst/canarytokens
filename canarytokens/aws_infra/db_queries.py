@@ -38,3 +38,21 @@ def delete_current_assets(canarydrop: Canarydrop) -> None:
     """
     with DB.get_db() as r:
         r.delete(_inventory_key(canarydrop))
+
+
+def update_data_generation_usage(canarydrop: Canarydrop, requests: int) -> None:
+    """
+    Update the data generation usage for a given canarydrop.
+    :param canarydrop: The canarydrop instance for which to update usage.
+    :param requests: The number of requests to add to the usage.
+    """
+    with DB.get_db() as r:
+        key = f"{canarydrop.canarytoken.value()}_data_generation_usage"
+        current_usage = r.get(key)
+        if current_usage is None:
+            current_usage = 0
+        else:
+            current_usage = int(current_usage)
+        r.set(
+            key, current_usage + requests, ex=INVENTORY_EXPIRY
+        )  # Reset expiry on update

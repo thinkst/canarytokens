@@ -44,3 +44,11 @@ class AWSInfraOperationNotAllowed(Exception):
     """
 
     pass
+
+
+class AWSInfraDataGenerationLimitReached(Exception):
+    """
+    Exception raised when the data generation limit for a canarytoken is reached.
+    """
+
+    pass
