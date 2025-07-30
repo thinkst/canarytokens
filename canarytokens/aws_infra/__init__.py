@@ -1,4 +1,4 @@
-from .state_management import (
+from canarytokens.aws_infra.state_management import (
     update_state,
     initialise,
     is_initialised,
@@ -7,7 +7,7 @@ from .state_management import (
     mark_ingesting,
     in_state,
 )
-from .operations import (
+from canarytokens.aws_infra.operations import (
     get_canarydrop_from_handle,
     get_role_create_commands,
     start_operation,
@@ -16,13 +16,16 @@ from .operations import (
     add_handle_response,
     setup_new_plan,
 )
-from .plan_generation import (
+from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
     generate_data_choice,
     add_new_assets_to_plan,
     generate_child_assets,
 )
-from .aws_management import get_shared_secret, get_current_ingestion_bus
+from canarytokens.aws_infra.aws_management import (
+    get_shared_secret,
+    get_current_ingestion_bus,
+)
 
 # Putting this here for the editor, not for * imports
 __all__ = [

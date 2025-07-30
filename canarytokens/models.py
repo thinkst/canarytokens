@@ -2971,6 +2971,7 @@ class AWSInfraSetupIngestionReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     terraform_module_snippet: dict = None
+    role_cleanup_commands: dict = None
 
 
 class AWSInfraTeardownReceivedResponse(BaseModel):
@@ -2994,7 +2995,6 @@ class AWSInfraManagementResponseRequest(BaseModel):
     result: dict
 
 
-# TODO: might change if it doesn't work with the frontend
 class AWSInfraGenerateChildAssetsRequest(BaseModel):
     canarytoken: str
     auth_token: str

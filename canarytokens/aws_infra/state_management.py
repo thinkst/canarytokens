@@ -34,7 +34,7 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
     it checks if the canarydrop has been initialised, i.e. has any state set.
     """
     print("current state:", canarydrop.aws_infra_state)
-    from_state_to_state_allow_map = {
+    state_transition_allow_map = {
         AWSInfraState.INITIAL: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE
@@ -69,7 +69,7 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
             AWSInfraState.CHECK_ROLE,
         ],
     }
-    return next_state in from_state_to_state_allow_map.get(
+    return next_state in state_transition_allow_map.get(
         get_base_state(canarydrop.aws_infra_state), []
     )
 
