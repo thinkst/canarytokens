@@ -34,14 +34,7 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
     it checks if the canarydrop has been initialised, i.e. has any state set.
     """
     print("current state:", canarydrop.aws_infra_state)
-    from_state_to_state_allow_map = {
-        None: [
-            AWSInfraState.INITIAL,
-            AWSInfraState.CHECK_ROLE,
-            AWSInfraState.INVENTORY,
-            AWSInfraState.PLAN,
-            AWSInfraState.SETUP_INGESTION,
-        ],
+    state_transition_allow_map = {
         AWSInfraState.INITIAL: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE
@@ -51,6 +44,16 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
         | AWSInfraState.SUCCEEDED: [
             AWSInfraState.INVENTORY,
             AWSInfraState.CHECK_ROLE,
+            AWSInfraState.GENERATE_CHILD_ASSETS,
+        ],
+        AWSInfraState.GENERATE_CHILD_ASSETS: [
+            AWSInfraState.INVENTORY,
+            AWSInfraState.GENERATE_CHILD_ASSETS,
+        ],
+        AWSInfraState.GENERATE_CHILD_ASSETS
+        | AWSInfraState.SUCCEEDED: [
+            AWSInfraState.INVENTORY,
+            AWSInfraState.GENERATE_CHILD_ASSETS,
             AWSInfraState.PLAN,
         ],
         AWSInfraState.PLAN: [AWSInfraState.PLAN],
@@ -66,7 +69,7 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
             AWSInfraState.CHECK_ROLE,
         ],
     }
-    return next_state in from_state_to_state_allow_map.get(
+    return next_state in state_transition_allow_map.get(
         get_base_state(canarydrop.aws_infra_state), []
     )
 
@@ -83,7 +86,10 @@ def update_state(canarydrop: Canarydrop, new_state: AWSInfraState, **kwargs) -> 
             "This operation is not allowed for the current Canarytoken state."
         )
 
-    if new_state == AWSInfraState.CHECK_ROLE and is_ingesting(canarydrop):
+    if (
+        new_state == AWSInfraState.CHECK_ROLE
+        and canarydrop.aws_customer_iam_access_external_id is None
+    ):
         canarydrop.aws_customer_iam_access_external_id = kwargs.get("external_id", None)
         if not canarydrop.aws_customer_iam_access_external_id:
             logging.error("Trying to set the CHECK_ROLE state without an external ID.")
@@ -98,6 +104,13 @@ def get_base_state(state: AWSInfraState) -> AWSInfraState:
     Return the base state of the given state.
     """
     return state & ~OVERLAY_STATES
+
+
+def in_state(canarydrop: Canarydrop, state: AWSInfraState) -> bool:
+    """
+    Check if the canarydrop is in the specified state.
+    """
+    return (canarydrop.aws_infra_state & state) == state
 
 
 def mark_succeeded(canarydrop: Canarydrop):

@@ -12,7 +12,9 @@ from canarytokens.aws_infra.aws_management import (
 from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
     generate_tf_variables,
+    save_plan,
 )
+from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
@@ -28,7 +30,11 @@ from canarytokens.models import (
 from canarytokens.settings import FrontendSettings
 from canarytokens.tokens import Canarytoken
 
-from canarytokens.aws_infra.db_queries import delete_current_assets, save_current_assets
+from canarytokens.aws_infra.db_queries import (
+    delete_current_assets,
+    get_current_assets,
+    save_current_assets,
+)
 
 settings = FrontendSettings()
 
@@ -131,7 +137,7 @@ def _build_operation_payload(
 
 
 # TODO: add handle exist for token validation
-def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
+async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
     """
@@ -153,17 +159,17 @@ def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
 
     current_time = datetime.now(timezone.utc).timestamp()
     if handle.requested_time - current_time > HANDLE_RESPONSE_TIMEOUT:
-        return _build_handle_response_payload(handle_id, handle, timeout=True)
+        return await _build_handle_response_payload(handle_id, handle, timeout=True)
 
     if handle.response_received != "True":
         return AWSInfraHandleResponse(
             handle=handle_id,
         )
 
-    return _build_handle_response_payload(handle_id, handle)
+    return await _build_handle_response_payload(handle_id, handle)
 
 
-def _build_handle_response_payload(
+async def _build_handle_response_payload(
     handle_id: str, handle: Handle, timeout: bool = False
 ):
     response_content = (
@@ -173,8 +179,6 @@ def _build_handle_response_payload(
         "result": not timeout and response_content.get("error", "") == "",
         "handle": handle_id,
     }
-
-    print("Received payload: ", handle.response_content)
 
     if timeout:
         payload["message"] = "Handle response timed out."
@@ -190,8 +194,14 @@ def _build_handle_response_payload(
 
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if handle.operation == AWSInfraOperationType.INVENTORY:
-        save_current_assets(canarydrop, response_content.get("assets", {}))
-        payload["proposed_plan"] = generate_proposed_plan(canarydrop)
+        inventory = response_content.get("assets", {})
+        save_current_assets(canarydrop, inventory)
+        proposed_plan = await generate_proposed_plan(canarydrop)
+        payload["proposed_plan"] = {"assets": proposed_plan}
+        if is_ingesting(canarydrop):
+            filter_decoys_from_inventory(
+                canarydrop
+            )  # remove decoys from inventory so that they don't influence calls to generate-data-choices
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
@@ -205,6 +215,22 @@ def _build_handle_response_payload(
 
     # this should never happen
     logging.error(f"Unknown operation type {handle.operation} for handle {handle_id}.")
+
+
+def filter_decoys_from_inventory(canarydrop: Canarydrop):
+    """
+    Filter out decoy assets from the inventory of the canarydrop.
+    """
+    inventory = get_current_assets(canarydrop)
+    decoys = json.loads(canarydrop.aws_deployed_assets)
+    for asset_type in AWSInfraAssetType:
+        if asset_type.value in inventory:
+            inventory[asset_type.value] = [
+                asset
+                for asset in inventory[asset_type.value]
+                if asset not in decoys.get(asset_type.value, [])
+            ]
+    save_current_assets(canarydrop, inventory)
 
 
 def get_handle_operation(handle_id):
@@ -224,21 +250,11 @@ def add_handle_response(handle_id, response):
     queries.update_aws_management_lambda_handle(handle_id, json.dumps(response))
 
 
-def save_plan(canarydrop: Canarydrop, plan: str):
+def setup_new_plan(canarydrop: Canarydrop, plan: str):
     """
     Save an AWS Infra plan and upload it to the tf modules S3 bucket.
     """
-    # TODO: validate plan
-    canarydrop.aws_saved_plan = json.dumps(plan)
-    # TODO: add other asset types
-    canarydrop.aws_deployed_assets = json.dumps(
-        {
-            AWSInfraAssetType.S3_BUCKET.value: [
-                bucket["bucket_name"]
-                for bucket in plan["assets"][AWSInfraAssetType.S3_BUCKET.value]
-            ]
-        }
-    )
+    save_plan(canarydrop, plan)
     queries.save_canarydrop(canarydrop)
     # Clear inventory
     delete_current_assets(canarydrop)
