@@ -1262,7 +1262,7 @@ async def api_awsinfra_save_plan(
     )
     try:
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
-        aws_infra.setup_new_plan(canarydrop, request.plan)
+        aws_infra.setup_new_plan(canarydrop, request.plan["assets"])
         aws_infra.mark_succeeded(canarydrop)
         queries.save_canarydrop(canarydrop)
 
