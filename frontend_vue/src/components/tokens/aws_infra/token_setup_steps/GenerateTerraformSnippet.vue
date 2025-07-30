@@ -16,7 +16,14 @@
       :error-message="errorMessage"
     >
       <template #loading>
-        <GenerateTerraformSnippetLoadingState />
+        <GenerateLoadingState
+          :instructions="[
+            'Preparing Decoys',
+            'Generating infrastructure',
+            'Generating module',
+          ]"
+          img-src="aws_infra_token_loading_folder.webp"
+        />
       </template>
     </StepState>
     <div
@@ -151,7 +158,7 @@ import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
-import GenerateTerraformSnippetLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GenerateTerraformSnippetLoadingState.vue';
+import GenerateLoadingState from './GenerateLoadingState.vue';
 
 const ModalInfoTerraformModule = defineAsyncComponent(
   () =>
@@ -246,10 +253,7 @@ async function handleRequestTerraformSnippet() {
           const source = resWithHandle.data.terraform_module_snippet.source;
           const module = resWithHandle.data.terraform_module_snippet.module;
 
-          terraformSnippet.value = generateTerraformSnippet(
-            source,
-            module
-          );
+          terraformSnippet.value = generateTerraformSnippet(source, module);
 
           const roleName = resWithHandle.data.role_cleanup_commands.role_name;
           const customerAwsAccount =
@@ -271,8 +275,10 @@ async function handleRequestTerraformSnippet() {
         }
       } catch (err: any) {
         stateStatus.value = StepStateEnum.ERROR;
-        errorMessage.value = err.response?.data?.message ||
-          err.message || 'An error occurred while checking the Role. Try again';
+        errorMessage.value =
+          err.response?.data?.message ||
+          err.message ||
+          'An error occurred while checking the Role. Try again';
         clearInterval(pollingTerraformSnippetInterval);
         return;
       }
@@ -304,7 +310,7 @@ function handleShowModalInfoModule() {
 
 function generateTerraformSnippet(source: string, module: string) {
   return `module "${module}" {
-  source = "${source}" }`
+  source = "${source}" }`;
 }
 
 function generateCleanupSnippet(roleName: string, customerAwsAccount: string) {
@@ -320,7 +326,7 @@ function handleShowModalCleanup() {
     component: ModalInfoCleanup,
     attrs: {
       closeModal: () => close(),
-      cleanupSnippetCommands: cleaupSnippet.value
+      cleanupSnippetCommands: cleaupSnippet.value,
     },
   });
   open();

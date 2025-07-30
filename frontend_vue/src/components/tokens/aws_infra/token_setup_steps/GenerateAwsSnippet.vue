@@ -21,7 +21,14 @@
         :error-message="errorMessage"
       >
         <template #loading>
-          <GeneratePlanLoadingState />
+          <GenerateLoadingState
+            :instructions="[
+              'AWS account found',
+              'Verifying setup',
+              'Analysing cloud account',
+            ]"
+            img-src="aws_infra_token_loading_scanner.webp"
+          />
         </template>
       </StepState>
     </div>
@@ -44,9 +51,14 @@
             </div>
             <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
-              Run these commands to grant read-only access so we can inventory your accound and suggest decoy resources.
+              Run these commands to grant read-only access so we can inventory
+              your accound and suggest decoy resources.
             </p>
-            <p><span class="font-bold text-green-500">Plase note:</span> We send limited inventory data to Google's Gemini to generate realistic decoy names.</p>
+            <p>
+              <span class="font-bold text-green-500">Plase note:</span> We send
+              limited inventory data to Google's Gemini to generate realistic
+              decoy names.
+            </p>
           </div>
           <BaseLabelArrow
             id="aws-snippet"
@@ -161,7 +173,7 @@ import {
 } from '@/components/tokens/aws_infra/useStepState.ts';
 import { useFetchUserAccount } from '@/components/tokens/aws_infra/token_setup_steps/useFetchUserAccount.ts';
 import { policyDocument } from '@/components/tokens/aws_infra/constants.ts';
-import GeneratePlanLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GeneratePlanLoadingState.vue';
+import GenerateLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GenerateLoadingState.vue';
 
 const ModalInfoSnippet = defineAsyncComponent(
   () => import('./ModalInfoSnippet.vue')

@@ -2,7 +2,7 @@
   <div class="my-16 flex flex-col items-center mt-24">
     <ul class="flex-row flex gap-24 checks-list">
       <li
-        v-for="(value, i) in instructions"
+        v-for="(value, i) in props.instructions"
         :key="i"
         class="flex items-center mb-4 gap-8"
       >
@@ -18,7 +18,7 @@
       </li>
     </ul>
     <img
-      :src="getImageUrl('aws_infra_token_loading_folder.webp')"
+      :src="getImageUrl(props.imgSrc)"
       alt="Loading"
       class="w-[15rem] h-[15rem] mt-40"
     />
@@ -27,14 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+
 import getImageUrl from '@/utils/getImageUrl';
 
-const instructions = ref([
-  'Preparing Decoys',
-  'Generating infrastructure',
-  'Generating module',
-]);
+const props = defineProps<{
+  instructions: string[];
+  imgSrc: string;
+}>();
 </script>
 
 <style lang="scss" scoped>
