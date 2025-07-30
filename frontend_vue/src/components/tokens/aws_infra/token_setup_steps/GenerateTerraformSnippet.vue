@@ -200,6 +200,9 @@ onMounted(async () => {
 
 async function handleRequestTerraformSnippet() {
   const POLL_INTERVAL = 2000;
+  const MAX_RETRIES = 5;
+  let retryAttempts = 0;
+
   errorMessage.value = '';
   stateStatus.value = StepStateEnum.LOADING;
 
@@ -215,39 +218,15 @@ async function handleRequestTerraformSnippet() {
 
     const handle = res.data.handle;
 
-    const startTime = Date.now();
-    const timeout = 5 * 60 * 1000; // 5 minutes
-
     const pollTerraformSnippet = async () => {
       try {
         const resWithHandle = await requestTerraformSnippet({ handle });
 
-        if (resWithHandle.status !== 200) {
-          stateStatus.value = StepStateEnum.ERROR;
-          errorMessage.value =
-            resWithHandle.data.message ||
-            'Error on requesting the Terraform Snippet';
-          clearInterval(pollingTerraformSnippetInterval);
-          return;
-        }
-
-        if (resWithHandle.data.message) {
-          stateStatus.value = StepStateEnum.ERROR;
-          errorMessage.value = resWithHandle.data.message;
-          clearInterval(pollingTerraformSnippetInterval);
-          return;
-        }
-
-        // timeout
-        if (Date.now() - startTime >= timeout) {
-          stateStatus.value = StepStateEnum.ERROR;
-          errorMessage.value = 'The operation took too long. Try again.';
-          clearInterval(pollingTerraformSnippetInterval);
-          return;
-        }
-
         // success
-        if (resWithHandle.data.terraform_module_snippet) {
+        if (
+          resWithHandle.status === 200 &&
+          resWithHandle.data.terraform_module_snippet
+        ) {
           stateStatus.value = StepStateEnum.SUCCESS;
 
           const source = resWithHandle.data.terraform_module_snippet.source;
@@ -270,27 +249,58 @@ async function handleRequestTerraformSnippet() {
             terraformSnippet: terraformSnippet.value,
             cleaupSnippet: cleaupSnippet.value,
           });
-          clearInterval(pollingTerraformSnippetInterval);
           return;
         }
+
+        if (retryAttempts >= MAX_RETRIES) {
+          stateStatus.value = StepStateEnum.ERROR;
+          errorMessage.value =
+            resWithHandle.data?.error ||
+            resWithHandle.data?.message ||
+            'Max retries reached';
+          return;
+        }
+
+        setTimeout(() => {
+          console.log(
+            `Retrying requesting the Terraform Snippet (${retryAttempts}/${MAX_RETRIES})`
+          );
+          retryAttempts++;
+          pollTerraformSnippet();
+        }, POLL_INTERVAL);
       } catch (err: any) {
+        if (retryAttempts >= MAX_RETRIES) {
+          stateStatus.value = StepStateEnum.ERROR;
+          errorMessage.value =
+            err.response?.data?.message ||
+            'An error occurred while generating your Terraform Snippet. Try again';
+          return;
+        }
+        console.log(
+          `Retrying requesting the Terraform Snippet (${retryAttempts}/${MAX_RETRIES})`
+        );
+
         stateStatus.value = StepStateEnum.ERROR;
         errorMessage.value =
           err.response?.data?.message ||
           err.message ||
-          'An error occurred while checking the Role. Try again';
-        clearInterval(pollingTerraformSnippetInterval);
+          'An error occurred while generating your Terraform Snippet. Try again';
         return;
       }
     };
 
-    const pollingTerraformSnippetInterval = setInterval(
-      pollTerraformSnippet,
-      POLL_INTERVAL
-    );
+    setTimeout(() => {
+      retryAttempts++;
+      pollTerraformSnippet();
+    }, POLL_INTERVAL);
+
+    await pollTerraformSnippet();
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value = err.response?.data?.message || err.message;
+    errorMessage.value =
+      err.response?.data?.message ||
+      err.message ||
+      'An error occurred while generating your Terraform Snippet. Try again';
   }
 }
 

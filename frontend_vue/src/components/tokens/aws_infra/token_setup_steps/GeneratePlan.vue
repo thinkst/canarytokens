@@ -31,8 +31,10 @@
       <BaseMessageBox
         variant="success"
         class="mb-24"
-        >We analyzed your AWS account. Below are the recommended decoys that have been generated to match your environment for each asset.
-        You can review or edit anything before we generate your canarytoken.</BaseMessageBox
+        >We analyzed your AWS account. Below are the recommended decoys that
+        have been generated to match your environment for each asset. You can
+        review or edit anything before we generate your
+        canarytoken.</BaseMessageBox
       >
       <BaseMessageBox
         v-if="isErrorMessage"
@@ -64,6 +66,7 @@
     <div class="flex flex-col items-center mt-32">
       <BaseButton
         :loading="isSavingPlan"
+        :disabled="getAnyLoadingAssetData()"
         @click="handleSubmit(proposed_plan)"
         >{{ isSavingPlan ? 'Saving...' : 'Save configuration' }}</BaseButton
       >
@@ -176,6 +179,10 @@ const assetWithMissingPermissionText = computed(() => {
 
 function getIsLoadingAssetData(assetType: AssetTypesEnum): boolean {
   return isLoadingAssetCard.value[assetType] || false;
+}
+
+function getAnyLoadingAssetData(): boolean {
+  return Object.values(isLoadingAssetCard.value).some((loading) => loading);
 }
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
@@ -301,8 +308,10 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
     emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
-    isSaveErrorMessage.value = err.response?.data?.message ||
-      err.message || 'We couldn`t save the plan. Please, try again';
+    isSaveErrorMessage.value =
+      err.response?.data?.message ||
+      err.message ||
+      'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
   } finally {
     isSavingPlan.value = false;
