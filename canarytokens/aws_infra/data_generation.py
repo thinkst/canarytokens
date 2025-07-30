@@ -138,15 +138,14 @@ async def _validate_name(asset_type: AWSInfraAssetType, name: str) -> bool:
         return validator(name)
 
 
-def _augment_name(asset_type: AWSInfraAssetType, name: str) -> str:
+def _augment_s3_bucket_name(name: str) -> str:
     """
     Augment a name with a random suffix to ensure uniqueness.
     """
-    if asset_type == AWSInfraAssetType.S3_BUCKET:
-        max_length = 63
-        name = f"{name}-{generate_s3_bucket_suffix()}"
-        if len(name) > max_length:
-            name = name[:max_length]
+    max_length = 63
+    name = f"{name}-{generate_s3_bucket_suffix()}"
+    if len(name) > max_length:
+        name = name[:max_length]
 
     return name
 
@@ -162,8 +161,11 @@ async def _finalize_list(
     validated_names = []
     is_valid_tasks = []
     asset_names = []
+
+    if asset_type == AWSInfraAssetType.S3_BUCKET:
+        suggested_names = list(map(_augment_s3_bucket_name, suggested_names))
+
     for name in suggested_names:
-        name = _augment_name(asset_type, name)
         is_valid_tasks.append(_validate_name(asset_type, name))
         asset_names.append(name)
 
