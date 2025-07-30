@@ -64,7 +64,7 @@
             custom-height="100px"
           ></BaseCodeSnippet>
           <div
-            class="text-left sm:text-center flex mt-24 gap-8 items-center justify-center"
+            class="text-left lg:text-center flex mt-24 gap-8 items-center justify-center"
           >
             <p>How do I use this module?</p>
             <button
@@ -83,7 +83,7 @@
             </button>
           </div>
           <div
-            class="text-left sm:text-center flex mt-8 gap-8 items-center justify-center"
+            class="text-left lg:text-center flex mt-8 gap-8 items-center justify-center"
           >
             <p>How do I clean up IAM resources for Canarytokens Inventory?</p>
             <button
@@ -307,7 +307,7 @@ function generateTerraformSnippet(source: string, module: string) {
   source = "${source}" }`
 }
 
-function generateCleanupSnippet(customerAwsAccount: string, roleName: string) {
+function generateCleanupSnippet(roleName: string, customerAwsAccount: string) {
   return `aws iam detach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy
 
 aws iam delete-policy --policy-arn arn:aws:iam::${customerAwsAccount}:policy/Canarytokens-Inventory-ReadOnly-Policy

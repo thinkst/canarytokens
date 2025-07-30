@@ -16,7 +16,7 @@ export function useFetchUserAccount(
   const proposedPlan = ref<any>(null);
   const externalId = ref(external_id || '');
 
-  const POLL_INTERVAL = 2000;
+  const POLL_INTERVAL = 5000;
   // If the first attempts fails, it could depend on the AWS account still being set up
   // so we retry a few times before giving up
   const MAX_RETRIES = 5;
