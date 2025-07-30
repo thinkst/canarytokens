@@ -2871,12 +2871,12 @@ class AWSInfraAssetType(str, enum.Enum):
 
 class AWSInfraAssetField(str, enum.Enum):
     BUCKET_NAME = "bucket_name"
-    OBJECT_PATH = "object_path"
+    OBJECTS = "objects"
     SQS_QUEUE_NAME = "sqs_queue_name"
     SSM_PARAMETER_NAME = "ssm_parameter_name"
     SECRET_NAME = "secret_name"
     TABLE_NAME = "table_name"
-    TABLE_ITEM = "table_item"
+    TABLE_ITEMS = "table_items"
 
 
 class AWSInfraConfigStartRequest(BaseModel):
