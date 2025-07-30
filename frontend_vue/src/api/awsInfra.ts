@@ -8,6 +8,12 @@ type AWSInfraRequestPayload = {
   external_id?: string;
 };
 
+type generatedAIAssetsPayload = {
+  canarytoken: string;
+  auth_token: string;
+  assets: Record<string, string[]>;
+};
+
 export function requestAWSInfraRoleSetupCommands(
   canarytoken: string,
   auth_token: string,
@@ -125,6 +131,21 @@ export function editAccountInfo(
     auth_token,
     account_number,
     region,
+  };
+  return axios.post(url, { ...params }).then((response) => response);
+}
+
+export function requestAIgeneratedAssets({
+  canarytoken,
+  auth_token,
+  assets,
+}: generatedAIAssetsPayload) {
+  const url =
+    '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-child-assets';
+  const params = {
+    canarytoken,
+    auth_token,
+    assets,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }

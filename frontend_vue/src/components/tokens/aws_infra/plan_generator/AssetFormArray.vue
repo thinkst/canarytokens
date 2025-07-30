@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
@@ -70,9 +70,6 @@ const props = defineProps<{
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 
-const itemKey = computed(() => {
-  return props.fields.length > 0 ? Object.keys(props.fields[0].value)[0] : '';
-});
 
 function iconURL() {
   return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
@@ -86,7 +83,7 @@ async function handleAddItem() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.assetType, itemKey.value);
+  } = useGenerateAssetName(props.assetType,props.assetKey);
 
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();
