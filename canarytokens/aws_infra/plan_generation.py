@@ -3,7 +3,6 @@ import enum
 import json
 import math
 import random
-import string
 from typing import Optional
 
 from canarytokens.aws_infra.db_queries import get_current_assets
@@ -54,43 +53,6 @@ _ASSET_TYPE_CONFIG = {
         10, AssetLabel.TABLE_NAME, AssetLabel.TABLE_ITEMS, 20
     ),
 }
-
-
-def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
-    """
-    Generate variables to be used in the terraform template.
-    """
-    tf_variables = {
-        "s3_bucket_names": [],
-        "s3_objects": [],
-        "sqs_queues": [],
-        "ssm_parameters": [],
-        "secrets": [],
-        "tables": [],
-        "table_items": [],
-        "canarytoken_id": canarydrop.canarytoken.value(),
-        "target_bus_arn": _get_ingestion_bus_arn(
-            canarydrop.aws_infra_ingestion_bus_name
-        ),
-        "account_id": canarydrop.aws_account_id,
-        "region": canarydrop.aws_region,
-    }
-    for bucket in plan["S3Bucket"]:
-        tf_variables["s3_bucket_names"].append(bucket[AssetLabel.BUCKET_NAME])
-        for s3_object in bucket.get("objects", []):
-            tf_variables["s3_objects"].append(
-                {
-                    "bucket": bucket[AssetLabel.BUCKET_NAME],
-                    "key": s3_object,
-                    "content": "".join(
-                        random.choice(
-                            string.ascii_letters + string.digits,
-                            k=random.randint(5, 1000),
-                        )
-                    ),
-                }
-            )
-    return tf_variables
 
 
 async def _add_assets_for_type(
