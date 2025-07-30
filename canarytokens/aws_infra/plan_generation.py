@@ -1,9 +1,10 @@
 import asyncio
-from dataclasses import dataclass
 import json
 import math
 import random
 import string
+
+from dataclasses import dataclass
 from typing import Optional
 
 from canarytokens.aws_infra.db_queries import get_current_assets
@@ -19,8 +20,8 @@ settings = FrontendSettings()
 @dataclass
 class AssetTypeConfig:
     max_assets: int
-    asset_label_key: AWSInfraAssetField
-    child_asset_label_key: Optional[AWSInfraAssetField] = None
+    asset_field_name: AWSInfraAssetField
+    child_asset_field_name: Optional[AWSInfraAssetField] = None
     max_child_items: Optional[int] = None
 
 
@@ -68,7 +69,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
                     "bucket": bucket[AWSInfraAssetField.BUCKET_NAME],
                     "key": s3_object,
                     "content": "".join(
-                        random.choice(
+                        random.choices(
                             string.ascii_letters + string.digits,
                             k=random.randint(5, 1000),
                         )
@@ -107,9 +108,9 @@ async def _add_assets_for_type(
 
     assets = []
     for asset_name in asset_names:
-        asset = {config.asset_label_key: asset_name, "off_inventory": False}
+        asset = {config.asset_field_name: asset_name, "off_inventory": False}
         # Add type-specific child assets if they exist
-        if child_asset_name_key := config.child_asset_label_key:
+        if child_asset_name_key := config.child_asset_field_name:
             asset[child_asset_name_key] = []
         assets.append(asset)
     plan[asset_type].extend(assets)
@@ -143,7 +144,7 @@ def add_current_assets_to_plan(
     Add current deployed assets to the proposed plan.
     """
     for asset_type, config in _ASSET_TYPE_CONFIG.items():
-        asset_key = config.asset_label_key
+        asset_key = config.asset_field_name
 
         for asset_name in aws_deployed_assets.get(asset_type, []):
             asset = {
@@ -153,7 +154,7 @@ def add_current_assets_to_plan(
             }
 
             # get the child assets (objects or table items) from the last saved plan
-            if child_asset_key := config.child_asset_label_key:
+            if child_asset_key := config.child_asset_field_name:
                 for last_saved_parent_asset in current_plan.get(asset_type, [{}]):
                     if last_saved_parent_asset.get(asset_key) == asset_name:
                         asset[child_asset_key] = last_saved_parent_asset.get(
@@ -221,20 +222,24 @@ async def generate_data_choice(
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
 
-    VALID_TYPE_AND_FIELD_PAIRS = [
-        (AWSInfraAssetType.S3_BUCKET, AWSInfraAssetField.BUCKET_NAME),
-        (AWSInfraAssetType.S3_BUCKET, AWSInfraAssetField.OBJECTS),
-        (AWSInfraAssetType.SQS_QUEUE, AWSInfraAssetField.SQS_QUEUE_NAME),
-        (AWSInfraAssetType.SSM_PARAMETER, AWSInfraAssetField.SSM_PARAMETER_NAME),
-        (AWSInfraAssetType.SECRETS_MANAGER_SECRET, AWSInfraAssetField.SECRET_NAME),
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, AWSInfraAssetField.TABLE_NAME),
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, AWSInfraAssetField.TABLE_ITEMS),
-    ]
-
-    if (asset_type, asset_field) not in VALID_TYPE_AND_FIELD_PAIRS:
+    VALID_FIELDS = {
+        AWSInfraAssetType.S3_BUCKET: [
+            AWSInfraAssetField.BUCKET_NAME,
+            AWSInfraAssetField.OBJECTS,
+        ],
+        AWSInfraAssetType.SQS_QUEUE: [AWSInfraAssetField.SQS_QUEUE_NAME],
+        AWSInfraAssetType.SSM_PARAMETER: [AWSInfraAssetField.SSM_PARAMETER_NAME],
+        AWSInfraAssetType.SECRETS_MANAGER_SECRET: [AWSInfraAssetField.SECRET_NAME],
+        AWSInfraAssetType.DYNAMO_DB_TABLE: [
+            AWSInfraAssetField.TABLE_NAME,
+            AWSInfraAssetField.TABLE_ITEMS,
+        ],
+    }
+    if asset_field not in VALID_FIELDS[asset_type]:
         raise ValueError(
             f"Invalid asset type and field combination: {asset_type}, {asset_field}"
         )
+
     inventory = get_current_assets(canarydrop).get(asset_type, [])
 
     # Parent asset types (top-level resources)
