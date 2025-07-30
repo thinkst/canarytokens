@@ -43,13 +43,12 @@ export function mergeAIGeneratedAssets(
 ): ProposedAWSInfraTokenPlanData {
   const updatedAssets = Object.fromEntries(
     Object.entries(generatedAssets).map(
-      ([assetType, generatedAssetsForType]) => {
-        const fieldToPopulate = hasAiGeneratedField(
-          assetType as AssetTypesEnum
-        );
-        const assetNameKey = getAssetNameKey(assetType as AssetTypesEnum);
-        const currentAssets =
-          currentAssetsData[assetType as AssetTypesEnum] || [];
+      ([assetTypeStr, generatedAssetsForType]) => {
+        const assetType = assetTypeStr as AssetTypesEnum;
+
+        const fieldToPopulate = hasAiGeneratedField(assetType);
+        const assetNameKey = getAssetNameKey(assetType);
+        const currentAssets = currentAssetsData[assetType] || [];
 
         const updatedCurrentAssets = currentAssets.map((asset) => {
           const assetName = String(
