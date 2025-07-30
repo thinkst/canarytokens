@@ -161,12 +161,14 @@ async def _finalize_list(
     """
     validated_names = []
     is_valid_tasks = []
+    asset_names = []
     for name in suggested_names:
         name = _augment_name(asset_type, name)
         is_valid_tasks.append(_validate_name(asset_type, name))
+        asset_names.append(name)
 
     is_valid_results = await asyncio.gather(*is_valid_tasks)
-    for name, is_valid in zip(suggested_names, is_valid_results):
+    for name, is_valid in zip(asset_names, is_valid_results):
         if not is_valid:
             continue
         similarity_score = max(
