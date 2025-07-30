@@ -7,7 +7,9 @@
         class="h-[2rem] w-[2rem]"
       />
       <legend class="flex flex-col">
-        <span class="text-grey-500">{{ getFieldLabel(props.assetType, props.assetKey) }}</span>
+        <span class="text-grey-500">{{
+          getFieldLabel(props.assetType, props.assetKey)
+        }}</span>
       </legend>
     </div>
     <BaseButton
@@ -31,18 +33,18 @@
       :key="fieldIndex"
       class="object_item pl-24"
     >
-        <AssetTextField
-          :id="`${props.assetKey}.${fieldIndex}`"
-          :value="field.value"
-          :label="getFieldLabel(props.assetType, props.assetKey as any)"
-          :field-type="props.assetKey"
-          variant="small"
-          :icon="`aws_infra_icons/${props.assetKey}.svg`"
-          :hide-label="true"
-          :has-remove="true"
-          :asset-type="props.assetType"
-          @handle-remove-instance="remove(fieldIndex)"
-        />
+      <AssetTextField
+        :id="`${props.assetKey}.${fieldIndex}`"
+        :value="field.value"
+        :label="getFieldLabel(props.assetType, props.assetKey as any)"
+        :field-type="props.assetKey"
+        variant="small"
+        :icon="`aws_infra_icons/${props.assetKey}.svg`"
+        :hide-label="true"
+        :has-remove="true"
+        :asset-type="props.assetType"
+        @handle-remove-instance="remove(fieldIndex)"
+      />
     </div>
   </AssetFormPagination>
 </template>
@@ -70,7 +72,6 @@ const props = defineProps<{
 const isLoading = ref(false);
 const isErrorMessage = ref('');
 
-
 function iconURL() {
   return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
 }
@@ -83,7 +84,7 @@ async function handleAddItem() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.assetType,props.assetKey);
+  } = useGenerateAssetName(props.assetType, props.assetKey);
 
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();

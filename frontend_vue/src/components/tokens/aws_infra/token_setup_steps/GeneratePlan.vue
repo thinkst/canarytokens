@@ -4,7 +4,7 @@
   </div>
   <div
     v-if="isLoadingUI"
-    class="mt-[20px] grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
+    class="mt-[20px] grid gap-16 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
   >
     <BaseSkeletonLoader
       v-for="i in 5"
@@ -29,12 +29,19 @@
     <div>
       <div class="flex justify-between mb-24"></div>
       <BaseMessageBox
+        variant="success"
+        class="mb-24"
+        >We analyzed your AWS account. Below are the recommended decoys that have been generated to match your environment for each asset.
+        You can review or edit anything before we generate your canarytoken.</BaseMessageBox
+      >
+      <BaseMessageBox
         v-if="isErrorMessage"
         variant="danger"
+        class="mb-24"
         >{{ isErrorMessage }}</BaseMessageBox
       >
       <ul
-        class="grid gap-16 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
+        class="grid gap-16 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
       >
         <AssetCategoryCard
           v-for="(assetValues, assetKey, index) in availableAssets"
@@ -58,10 +65,11 @@
       <BaseButton
         :loading="isSavingPlan"
         @click="handleSubmit(proposed_plan)"
-        >{{ isSavingPlan ? 'Saving the plan...' : 'Save Plan' }}</BaseButton
+        >{{ isSavingPlan ? 'Saving...' : 'Save configuration' }}</BaseButton
       >
       <BaseMessageBox
         v-if="isSaveError"
+        class="mt-24"
         variant="danger"
         >{{ isSaveErrorMessage }}</BaseMessageBox
       >
@@ -293,7 +301,7 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
     emits('updateStep');
   } catch (err: any) {
     isSaveError.value = true;
-    isSaveErrorMessage.value =
+    isSaveErrorMessage.value = err.response?.data?.message ||
       err.message || 'We couldn`t save the plan. Please, try again';
     isSaveSuccess.value = false;
   } finally {
