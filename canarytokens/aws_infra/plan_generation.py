@@ -1,27 +1,62 @@
+from dataclasses import dataclass
+import enum
 import json
+import math
 import random
 import string
+from typing import Optional
 
 from canarytokens.aws_infra.db_queries import get_current_assets
+from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
+import asyncio
 
 settings = FrontendSettings()
 
-NAME_ENVS = ["prod", "staging", "dev", "testing"]
-NAME_TARGETS = ["customer", "user", "admin", "audit"]
-MAX_S3_OBJECTS = 100
-MAX_S3_BUCKETS = 10
-MAX_DYNAMO_TABLES = 10
-MAX_DYNAMO_TABLES_ITEMS = 100
-MAX_SSM_PARAMETERS = 10
-MAX_SQS_QUEUES = 10
-MAX_SECRET_MANAGER_SECRETS = 10
+
+class AssetLabel(str, enum.Enum):
+    """
+    Enum for asset labels used in the AWS infrastructure.
+    """
+
+    BUCKET_NAME = "bucket_name"
+    OBJECTS = "objects"
+    OBJECT_PATH = "object_path"
+    SQS_QUEUE_NAME = "sqs_queue_name"
+    SSM_PARAMETER_NAME = "ssm_parameter_name"
+    SECRET_NAME = "secret_name"
+    TABLE_NAME = "table_name"
+    TABLE_ITEMS = "table_items"
+    TABLE_ITEM = "table_item"
 
 
-def generate_tf_variables(canarydrop: Canarydrop, plan):
+@dataclass
+class AssetTypeConfig:
+    max_assets: int
+    asset_label_key: AssetLabel
+    child_asset_label_key: Optional[AssetLabel] = None
+    max_child_items: Optional[int] = None
+
+
+_ASSET_TYPE_CONFIG = {
+    AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
+        10, AssetLabel.BUCKET_NAME, AssetLabel.OBJECTS, 20
+    ),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(10, AssetLabel.SQS_QUEUE_NAME),
+    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(10, AssetLabel.SSM_PARAMETER_NAME),
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
+        10, AssetLabel.SECRET_NAME
+    ),
+    AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
+        10, AssetLabel.TABLE_NAME, AssetLabel.TABLE_ITEMS, 20
+    ),
+}
+
+
+def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
     """
     Generate variables to be used in the terraform template.
     """
@@ -40,160 +75,77 @@ def generate_tf_variables(canarydrop: Canarydrop, plan):
         "account_id": canarydrop.aws_account_id,
         "region": canarydrop.aws_region,
     }
-    for bucket in plan["assets"]["S3Bucket"]:
-        tf_variables["s3_bucket_names"].append(bucket["bucket_name"])
-        for s3_object in bucket["objects"]:
+    for bucket in plan["S3Bucket"]:
+        tf_variables["s3_bucket_names"].append(bucket[AssetLabel.BUCKET_NAME])
+        for s3_object in bucket.get("objects", []):
             tf_variables["s3_objects"].append(
                 {
-                    "bucket": bucket["bucket_name"],
-                    "key": s3_object["object_path"],
+                    "bucket": bucket[AssetLabel.BUCKET_NAME],
+                    "key": s3_object,
                     "content": "".join(
-                        [
-                            random.choice(string.ascii_letters + string.digits)
-                            for _ in range(random.randint(5, 1000))
-                        ]
+                        random.choice(
+                            string.ascii_letters + string.digits,
+                            k=random.randint(5, 1000),
+                        )
                     ),
                 }
             )
     return tf_variables
 
 
-def generate_s3_bucket():
+async def _add_assets_for_type(
+    asset_type: AWSInfraAssetType,
+    aws_deployed_assets: dict,
+    aws_inventoried_assets: dict,
+    plan: dict,
+):
     """
-    Return a name for a S3 bucket.
+    Add assets of a specific type to the plan.
     """
-    separator = random.choice(["", "-"])
-    suffix = "".join(
-        [random.choice(string.ascii_lowercase + string.digits) for _ in range(10)]
+    inventory_count = len(aws_inventoried_assets.get(asset_type, []))
+    scaled_decoy_count = math.ceil(math.log2(inventory_count + 1)) or 1
+    deployed_decoy_count_remaining = _ASSET_TYPE_CONFIG[asset_type].max_assets - len(
+        aws_deployed_assets.get(asset_type, [])
     )
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}{suffix}"
+    decoy_asset_count = min(deployed_decoy_count_remaining, scaled_decoy_count)
 
+    if decoy_asset_count <= 0:
+        return
 
-def generate_s3_object():
-    """
-    Return a path for a S3 object.
-    """
-    objects = ["object", "data", "text", "passwords"]
-    directory = "".join(
-        [random.choice(string.ascii_letters + string.digits) for _ in range(10)]
-    )
-    return f"{random.randint(2000, 2025)}/{directory}/{random.choice(objects)}"
-
-
-def generate_sqs_queue():
-    """
-    Return a name for a SQS queue.
-    """
-    separator = random.choice(["", "-", "_"])
-
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_ssm_parameter():
-    separator = random.choice(["", "-", "_"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_secretsmanager_secret():
-    """
-    Return a name for a Secrets Manager secret.
-    """
-    separator = random.choice(["", "-", "_", "+", "=", "@"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_dynamo_table():
-    """
-    Return a name for a DynamoDB table.
-    """
-    separator = random.choice(["", "-", "_"])
-    return f"{separator.join([random.choice(s) for s in [NAME_ENVS, NAME_TARGETS]])}{separator}"
-
-
-def generate_dynamo_table_item():
-    """
-    Return a name for a DynamoDB table item.
-    """
-    separator = random.choice(["", "-", "_"])
-    items = ["object", "data", "text", "passwords"]
-    suffix = "".join(
-        [random.choice(string.ascii_lowercase + string.digits) for _ in range(5)]
-    )
-    return f"{random.choice(items)}{separator}{suffix}"
-
-
-def add_new_assets_to_plan(aws_deployed_assets: dict, plan: dict):
-    # generate new assets
-    for i in range(
-        random.randint(
-            1,
-            MAX_S3_BUCKETS
-            - len(aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, [])),
+    asset_names = (
+        await data_generation.generate_names(
+            asset_type, aws_inventoried_assets.get(asset_type, []), decoy_asset_count
         )
-    ):
-        plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
-            {"bucket_name": generate_s3_bucket(), "objects": [], "off_inventory": False}
-        )
-        for _ in range(random.randint(1, MAX_S3_OBJECTS)):
-            plan["assets"][AWSInfraAssetType.S3_BUCKET.value][i]["objects"].append(
-                {"object_path": generate_s3_object()}
+    ).suggested_names
+
+    config = _ASSET_TYPE_CONFIG[asset_type]
+
+    assets = []
+    for asset_name in asset_names:
+        asset = {config.asset_label_key: asset_name, "off_inventory": False}
+        # Add type-specific child assets if they exist
+        if child_asset_name_key := config.child_asset_label_key:
+            asset[child_asset_name_key] = []
+        assets.append(asset)
+    plan[asset_type].extend(assets)
+
+
+async def add_new_assets_to_plan(
+    aws_deployed_assets: dict, aws_inventoried_assets: dict, plan: dict
+):
+    """
+    Asynchronously add new decoy AWS assets to the plan based on the current deployed and inventoried assets.
+    """
+    # Create tasks for all asset types
+    tasks = []
+    for asset_type in _ASSET_TYPE_CONFIG:
+        tasks.append(
+            _add_assets_for_type(
+                asset_type, aws_deployed_assets, aws_inventoried_assets, plan
             )
-
-    for i in range(
-        random.randint(
-            1,
-            MAX_SQS_QUEUES
-            - len(aws_deployed_assets.get(AWSInfraAssetType.SQS_QUEUE.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.SQS_QUEUE.value].append(
-            {"sqs_queue_name": generate_sqs_queue(), "off_inventory": False}
         )
 
-    for i in range(
-        random.randint(
-            1,
-            MAX_SSM_PARAMETERS
-            - len(aws_deployed_assets.get(AWSInfraAssetType.SSM_PARAMETER.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value].append(
-            {"ssm_parameter_name": generate_ssm_parameter(), "off_inventory": False}
-        )
-
-    for i in range(
-        random.randint(
-            1,
-            MAX_SECRET_MANAGER_SECRETS
-            - len(
-                aws_deployed_assets.get(
-                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                )
-            ),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.SECRETS_MANAGER_SECRET.value].append(
-            {"secret_name": generate_secretsmanager_secret(), "off_inventory": False}
-        )
-
-    for i in range(
-        random.randint(
-            1,
-            MAX_DYNAMO_TABLES
-            - len(aws_deployed_assets.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])),
-        )
-    ):
-        plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value].append(
-            {
-                "table_name": generate_dynamo_table(),
-                "off_inventory": False,
-                "table_items": [],
-            }
-        )
-        for _ in range(random.randint(1, MAX_DYNAMO_TABLES_ITEMS)):
-            plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value][i][
-                "table_items"
-            ].append(generate_dynamo_table_item())
+    await asyncio.gather(*tasks)
 
 
 def add_current_assets_to_plan(
@@ -202,90 +154,32 @@ def add_current_assets_to_plan(
     proposed_plan: dict,
     current_plan: dict,
 ):
-    # add current assets
-    for bucket_name in aws_deployed_assets.get(AWSInfraAssetType.S3_BUCKET.value, []):
-        objects = list(
-            filter(
-                lambda bucket: bucket["bucket_name"] == bucket_name,
-                current_plan.get("assets", {}).get(
-                    AWSInfraAssetType.S3_BUCKET.value, []
-                ),
-            )
-        )[0].get("objects", [])
-        proposed_plan["assets"][AWSInfraAssetType.S3_BUCKET.value].append(
-            {
-                "bucket_name": bucket_name,
-                "objects": objects,
-                "off_inventory": bucket_name
-                not in aws_inventoried_assets.get(
-                    AWSInfraAssetType.S3_BUCKET.value, []
-                ),
+    """
+    Add current deployed assets to the proposed plan.
+    """
+    for asset_type, config in _ASSET_TYPE_CONFIG.items():
+        asset_key = config.asset_label_key
+
+        for asset_name in aws_deployed_assets.get(asset_type, []):
+            asset = {
+                asset_key: asset_name,
+                "off_inventory": asset_name
+                not in aws_inventoried_assets.get(asset_type, []),
             }
-        )
 
-    for sqs_queue_name in aws_deployed_assets.get(
-        AWSInfraAssetType.SQS_QUEUE.value, []
-    ):
-        proposed_plan["assets"][AWSInfraAssetType.SQS_QUEUE.value].append(
-            {
-                "sqs_queue_name": sqs_queue_name,
-                "off_inventory": sqs_queue_name
-                not in aws_inventoried_assets.get(
-                    AWSInfraAssetType.SQS_QUEUE.value, []
-                ),
-            }
-        )
+            # get the child assets (objects or table items) from the last saved plan
+            if child_asset_key := config.child_asset_label_key:
+                for last_saved_parent_asset in current_plan.get(asset_type, [{}]):
+                    if last_saved_parent_asset.get(asset_key) == asset_name:
+                        asset[child_asset_key] = last_saved_parent_asset.get(
+                            child_asset_key, []
+                        )
+                        break
 
-    for ssm_parameter_name in aws_deployed_assets.get(
-        AWSInfraAssetType.SSM_PARAMETER.value, []
-    ):
-        proposed_plan["assets"][AWSInfraAssetType.SSM_PARAMETER.value].append(
-            {
-                "ssm_parameter_name": ssm_parameter_name,
-                "off_inventory": ssm_parameter_name
-                not in aws_inventoried_assets.get(
-                    AWSInfraAssetType.SSM_PARAMETER.value, []
-                ),
-            }
-        )
-
-    for secret_name in aws_deployed_assets.get(
-        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-    ):
-        proposed_plan["assets"][AWSInfraAssetType.SECRETS_MANAGER_SECRET.value].append(
-            {
-                "secret_name": secret_name,
-                "off_inventory": secret_name
-                not in aws_inventoried_assets.get(
-                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                ),
-            }
-        )
-
-    for table_name in aws_deployed_assets.get(
-        AWSInfraAssetType.DYNAMO_DB_TABLE.value, []
-    ):
-        table_items = list(
-            filter(
-                lambda table: table["table_name"] == table_name,
-                current_plan.get("assets", {}).get(
-                    AWSInfraAssetType.DYNAMO_DB_TABLE.value, []
-                ),
-            )
-        )[0].get("table_items", [])
-        proposed_plan["assets"][AWSInfraAssetType.DYNAMO_DB_TABLE.value].append(
-            {
-                "table_name": table_name,
-                "off_inventory": table_name
-                not in aws_inventoried_assets.get(
-                    AWSInfraAssetType.DYNAMO_DB_TABLE.value, []
-                ),
-                "table_items": table_items,
-            }
-        )
+            proposed_plan[asset_type].append(asset)
 
 
-def generate_proposed_plan(canarydrop: Canarydrop):
+async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     """
     Return a proposed plan for decoy assets containing new and current assets.
     """
@@ -293,14 +187,14 @@ def generate_proposed_plan(canarydrop: Canarydrop):
     aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
     aws_inventoried_assets = get_current_assets(canarydrop)
     current_plan = json.loads(canarydrop.aws_saved_plan or "{}")
-    proposed_plan = {
-        "assets": {asset_type.value: [] for asset_type in AWSInfraAssetType}
-    }
+    proposed_plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
 
-    add_new_assets_to_plan(aws_deployed_assets, proposed_plan)
     if is_ingesting(canarydrop):
         return proposed_plan
 
+    await add_new_assets_to_plan(
+        aws_deployed_assets, aws_inventoried_assets, proposed_plan
+    )
     add_current_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
     )
@@ -311,44 +205,122 @@ def _get_ingestion_bus_arn(bus_name: str):
     return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
 
 
-def generate_data_choice(asset_type: AWSInfraAssetType, asset_field: str):
-    """
-    Generate a random data choice for the given asset type and field.
-    """
-    asset_map = {
-        (AWSInfraAssetType.S3_BUCKET, "bucket_name"): generate_s3_bucket,
-        (AWSInfraAssetType.S3_BUCKET, "object_path"): generate_s3_object,
-        (AWSInfraAssetType.SQS_QUEUE, "queue_name"): generate_sqs_queue,
-        (AWSInfraAssetType.SQS_QUEUE, "message_count"): lambda: str(
-            random.randint(0, 10)
-        ),
-        (AWSInfraAssetType.SSM_PARAMETER, "parameter_name"): generate_ssm_parameter,
-        (
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET,
-            "secretsmanager_secret_name",
-        ): generate_secretsmanager_secret,
-        (
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET,
-            "secretsmanager_secret_value",
-        ): lambda: "".join(
-            random.choice(string.ascii_letters + string.digits)
-            for _ in range(random.randint(5, 50))
-        ),
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_name"): generate_dynamo_table,
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_partition_key"): lambda: "".join(
-            random.choice(string.ascii_letters + string.digits)
-            for _ in range(random.randint(3, 10))
-        ),
-        (AWSInfraAssetType.DYNAMO_DB_TABLE, "dynamodb_row_count"): lambda: str(
-            random.randint(0, 100)
-        ),
+async def _generate_parent_asset_name(
+    asset_type: AWSInfraAssetType, inventory: list
+) -> str:
+    """Generate a parent asset name (S3 bucket, SQS queue, etc.)."""
+    names = (
+        await data_generation.generate_names(asset_type, inventory, 1)
+    ).suggested_names
+    return names[0]
+
+
+async def _generate_child_asset_name(
+    asset_type: AWSInfraAssetType, parent_name: str
+) -> str:
+    """Generate a child asset name (S3 object, DynamoDB item, etc.)."""
+    if not parent_name:
+        raise ValueError(
+            f"Parent asset name required for {asset_type.value} child generation"
+        )
+
+    names = await data_generation.generate_children_names(asset_type, parent_name, 1)
+    return names[0]
+
+
+async def generate_data_choice(
+    canarydrop: Canarydrop,
+    asset_type: AWSInfraAssetType,
+    asset_field: AssetLabel,
+    parent_asset_name: AssetLabel = None,
+) -> str:
+    """Generate a random data choice for the given asset type and field."""
+    inventory = get_current_assets(canarydrop).get(asset_type, [])
+
+    # Parent asset types (top-level resources)
+    PARENT_FIELDS = {
+        AssetLabel.BUCKET_NAME,
+        AssetLabel.SQS_QUEUE_NAME,
+        AssetLabel.SSM_PARAMETER_NAME,
+        AssetLabel.SECRET_NAME,
+        AssetLabel.TABLE_NAME,
     }
 
-    # Retrieve the corresponding function or value
-    _generate_data_choice = asset_map.get((asset_type, asset_field))
-    if _generate_data_choice:
-        return _generate_data_choice()
+    # Child asset types (nested resources)
+    CHILD_FIELDS = {
+        AssetLabel.OBJECT_PATH,
+        AssetLabel.TABLE_ITEM,
+    }
 
-    raise ValueError(
-        f"Invalid asset type and asset field pairing: {asset_type}, {asset_field}"
+    if asset_field in PARENT_FIELDS:
+        return await _generate_parent_asset_name(asset_type, inventory)
+    elif asset_field in CHILD_FIELDS:
+        return await _generate_child_asset_name(asset_type, parent_asset_name)
+    else:
+        raise ValueError(f"Unsupported asset field: {asset_field}")
+
+
+async def generate_child_assets(
+    assets: dict[str, list[str]]
+) -> dict[str, dict[str, list[str]]]:
+    """
+    Generate child assets for the given assets.
+    """
+    result = {
+        AWSInfraAssetType.S3_BUCKET.value: {},
+        AWSInfraAssetType.DYNAMO_DB_TABLE.value: {},
+    }
+    tasks = []
+    for asset_type, asset_names in assets.items():
+        for asset_name in asset_names:
+            tasks.append(
+                data_generation.generate_children_names(
+                    asset_type,
+                    asset_name,
+                    random.randint(1, _ASSET_TYPE_CONFIG[asset_type].max_child_items),
+                )
+            )
+    all_names: list[list[str]] = await asyncio.gather(
+        *tasks
+    )  # each task returns a list of names
+
+    i = 0
+    for asset_type, asset_names in assets.items():
+        for asset_name in asset_names:
+            result[asset_type][asset_name] = all_names[i]
+            i += 1
+
+    return result
+
+
+def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
+    """
+    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
+    """
+    canarydrop.aws_saved_plan = json.dumps(plan)
+    canarydrop.aws_deployed_assets = json.dumps(
+        {
+            AWSInfraAssetType.S3_BUCKET.value: [
+                bucket[AssetLabel.BUCKET_NAME]
+                for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
+            ],
+            AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
+                table[AssetLabel.TABLE_NAME]
+                for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
+            ],
+            AWSInfraAssetType.SQS_QUEUE.value: [
+                queue[AssetLabel.SQS_QUEUE_NAME]
+                for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
+            ],
+            AWSInfraAssetType.SSM_PARAMETER.value: [
+                param[AssetLabel.SSM_PARAMETER_NAME]
+                for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
+            ],
+            AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
+                secret[AssetLabel.SECRET_NAME]
+                for secret in plan.get(
+                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
+                )
+            ],
+        }
     )

@@ -2940,6 +2940,7 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
     auth_token: str
     asset_type: AWSInfraAssetType
     asset_field: AWSInfraAssetField
+    parent_asset_name: str = None
 
 
 class AWSInfraGenerateDataChoiceResponse(BaseModel):
@@ -2970,6 +2971,7 @@ class AWSInfraSetupIngestionReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     terraform_module_snippet: dict = None
+    role_cleanup_commands: dict = None
 
 
 class AWSInfraTeardownReceivedResponse(BaseModel):
@@ -2993,11 +2995,34 @@ class AWSInfraManagementResponseRequest(BaseModel):
     result: dict
 
 
+class AWSInfraGenerateChildAssetsRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        list[str],
+    ]
+
+
+class AWSInfraGenerateChildAssetsResponse(BaseModel):
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        dict[str, list[str]],
+    ]
+
+
 class AWSInfraState(enum.Flag):
     # Base states
     INITIAL = enum.auto()  # initial state, before any operation
     CHECK_ROLE = enum.auto()  # after config started
     INVENTORY = enum.auto()  # after check-role succeeded
+    GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
     PLAN = enum.auto()  # after inventorying
     SETUP_INGESTION = enum.auto()  # after plan saved
 
