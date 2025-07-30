@@ -2,35 +2,42 @@
   <li class="asset_category_card__wrapper">
     <button
       ref="assetCardRef"
-      class="asset_category_card group border group bg-white rounded-2xl top-[0px] border-grey-200 duration-100 ease-in-out"
+      v-tooltip="{
+        content: isLoadingData ? 'Generating decoys...' : '',
+        triggers: ['hover'],
+      }"
+      class="asset_category_card group"
+      :class="{ loading: isLoadingData }"
+      :aria-label="`Open ${assetCategoryName} assets`"
       @click.stop="handleAssetClick"
-      @mouseover="handleMouseOver"
-      @focus="handleMouseOver"
-      @mouseleave="handleMouseLeave"
-      @blur="handleMouseLeave"
     >
       <!-- Content -->
       <div class="asset_category_card__content">
         <img
+          v-if="!isLoadingData"
           :src="getImageUrl(`aws_infra_icons/${props.assetType}.svg`)"
           :alt="`logo-${assetType}`"
           class="rounded-full w-[5rem] h-[5rem]"
           :class="assetData?.length ? '' : 'grayscale opacity-50'"
         />
+        <span v-else>
+          <base-skeleton-loader
+            class="w-[5rem] h-[5rem] rounded-full"
+            :loading="isLoadingData"
+          />
+        </span>
         <p class="text-grey-600 text-pretty mt-8">
           {{ assetCategoryName }}
         </p>
       </div>
-      <ul class="asset_category_card__list-data list-none">
+      <ul class="asset_category_card__list-data">
         <li class="text-sm">
           <span class="label text-grey-400">Totaly decoys:</span>
           <span class="value"> {{ totalAssets }}</span>
         </li>
       </ul>
       <!--- Btn Edit --->
-      <div
-        class="asset_category_card__btn-edit text-sm w-full leading-5 font-semibold border-t-2 border-grey-50 text-grey-700 h-[2rem] rounded-b-2xl transition duration-100 shadow-solid-shadow-grey"
-      >
+      <div class="asset_category_card__btn-edit">
         {{ assetData?.length ? 'Review' : 'Add Decoys' }}
       </div>
     </button>
@@ -41,9 +48,7 @@
 import { ref, computed } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 import type { AssetData } from '../types';
-import {
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import { getAssetLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 
 const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
@@ -51,10 +56,11 @@ const emit = defineEmits(['openAsset', 'deleteAsset', 'selectAsset']);
 const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: AssetData[];
+  isLoadingData: boolean;
 }>();
 
-const isHoverCard = ref(false);
 const assetCardRef = ref();
+const isLoadingData = computed(() => props.isLoadingData);
 
 const assetCategoryName = computed(() => {
   return getAssetLabel(props.assetType);
@@ -68,34 +74,12 @@ const totalAssets = computed(() => {
 });
 
 function handleAssetClick() {
-  emit('openAsset');
-  // remove focus from selected card
-  if (assetCardRef.value) {
-    assetCardRef.value.blur();
+  if (isLoadingData.value) {
+    return;
   }
-}
-
-function handleMouseOver() {
-  isHoverCard.value = true;
-}
-
-function handleMouseLeave() {
-  isHoverCard.value = false;
+  emit('openAsset');
 }
 </script>
-
-<style>
-.asset_category_card.active,
-.asset_category_card:hover,
-.asset_category_card:focus,
-.asset_category_card:focus-within {
-  @apply border-green-600 shadow-solid-shadow-green-600-sm;
-
-  .asset_category_card__btn-edit {
-    @apply text-white border-b-green-600 shadow-solid-shadow-green-600-sm bg-green-500 outline-none;
-  }
-}
-</style>
 
 <style lang="scss" scoped>
 .asset_category_card__wrapper {
@@ -109,7 +93,15 @@ function handleMouseLeave() {
     flex-grow: 1;
     justify-content: space-between;
     align-items: stretch;
-    gap: 0.5rem;
+    border: 1px solid;
+    background-color: white;
+    transition-duration: 100ms;
+    transition-timing-function: ease-in-out;
+    @apply border-grey-300 rounded-2xl gap-8;
+
+    &.loading {
+      opacity: 0.7;
+    }
 
     &__content {
       display: flex;
@@ -148,9 +140,16 @@ function handleMouseLeave() {
       }
     }
     &__btn-edit {
+      height: 2rem;
       padding-block: 0.5rem;
       align-items: center;
       line-height: 0.8rem;
+      border-top: 2px solid;
+      height: 2rem;
+      border-bottom-left-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      transition: all 100ms linear;
+      @apply border-grey-50 text-grey-700 shadow-solid-shadow-grey  font-semibold;
     }
 
     &__options {
@@ -188,6 +187,19 @@ function handleMouseLeave() {
     .asset-card__options {
       display: flex;
     }
+  }
+}
+</style>
+
+<style>
+.asset_category_card.active:not(.loading),
+.asset_category_card:hover:not(.loading),
+.asset_category_card:focus:not(.loading),
+.asset_category_card:focus-within:not(.loading) {
+  @apply border-green-600 shadow-solid-shadow-green-600-sm;
+
+  .asset_category_card__btn-edit {
+    @apply text-white border-b-green-600 shadow-solid-shadow-green-600-sm bg-green-500 outline-none;
   }
 }
 </style>
