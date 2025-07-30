@@ -155,7 +155,6 @@ async def _finalize_list(
     asset_type: AWSInfraAssetType,
     inventory: list[str],
     suggested_names: list[str],
-    count: int,
 ) -> list[str]:
     """
     Get a list of validated names from the provided inventory.
@@ -175,9 +174,9 @@ async def _finalize_list(
             default=0,
         )
 
-    if similarity_score < _SIMILARITY_THRESHOLD:
-        validated_names.append(name)
-    return validated_names[:count]
+        if similarity_score < _SIMILARITY_THRESHOLD:
+            validated_names.append(name)
+    return validated_names
 
 
 async def _gemini_request(prompt: str):
@@ -234,7 +233,7 @@ async def generate_names(
     """
     Generate decoy names for the specified AWS asset type based on the provided inventory.
     :param asset_type: The type of AWS asset to generate names for.
-    :param inventory: A list of existing names foar the specified asset type.
+    :param inventory: A list of existing names for the specified asset type.
     :param count: The number of names to generate.
     :return: A Suggestion object containing the generated names.
     """
@@ -265,7 +264,7 @@ async def generate_names(
                 count=overshoot, service=asset_type.value, inventory=",".join(inventory)
             )
         )
-        names = await _finalize_list(asset_type, inventory, new_names, count)
+        names = await _finalize_list(asset_type, inventory, new_names)
         validated_names.extend(names)
 
     random.shuffle(validated_names)
