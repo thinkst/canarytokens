@@ -276,23 +276,16 @@ async function handleRequestTerraformSnippet() {
             'An error occurred while generating your Terraform Snippet. Try again';
           return;
         }
-        console.log(
-          `Retrying requesting the Terraform Snippet (${retryAttempts}/${MAX_RETRIES})`
-        );
 
-        stateStatus.value = StepStateEnum.ERROR;
-        errorMessage.value =
-          err.response?.data?.message ||
-          err.message ||
-          'An error occurred while generating your Terraform Snippet. Try again';
-        return;
+        setTimeout(() => {
+          console.log(
+            `Retrying requesting the Terraform Snippet (${retryAttempts}/${MAX_RETRIES})`
+          );
+          retryAttempts++;
+          pollTerraformSnippet();
+        }, POLL_INTERVAL);
       }
     };
-
-    setTimeout(() => {
-      retryAttempts++;
-      pollTerraformSnippet();
-    }, POLL_INTERVAL);
 
     await pollTerraformSnippet();
   } catch (err: any) {
