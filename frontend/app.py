@@ -1142,7 +1142,6 @@ async def api_awsinfra_check_role(
         return handle_response
 
     if handle_response.error:
-        handle_response.error = None  # Don't show error type in the response
         response.status_code = status.HTTP_400_BAD_REQUEST
         aws_infra.mark_failed(
             canarydrop
@@ -1211,7 +1210,6 @@ async def api_awsinfra_inventory_customer_account(
     canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     if handle_response.error:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        handle_response.error = None  # Don't show error type in the response
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful inventory
@@ -1358,7 +1356,6 @@ async def api_awsinfra_setup_ingestion(
 
     if handle_response.error:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        handle_response.error = None  # Don't show error type in the response
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful setup-ingestion
@@ -1393,7 +1390,6 @@ async def api_awsinfra_teardown(
         return handle_response
     if handle_response.error:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        handle_response.error = None  # Don't show error type in the response
     return handle_response
 
 
