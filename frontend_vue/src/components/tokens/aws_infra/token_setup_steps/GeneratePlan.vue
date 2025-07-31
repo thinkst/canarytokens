@@ -193,26 +193,12 @@ onMounted(() => {
 const styleAiNameCountProgressBar = computed(() => {
   const total = aiNameCountState.value.total;
   const available = aiNameCountState.value.available;
-  const progress =
-    total && !isNaN(total) ? Math.min((available / total) * 100, 100) : 0;
-  // if (progress > 70) {
-  //   // Red state
-  //   return `--bar-color: #ef4444; --progress: ${progress}%;`;
-  // } else if (progress > 50) {
-  //   // Warning state
-  //   return `--bar-color: #eab308; --progress: ${progress}%;`;
-  // }
-  // // Green state
-  // return ` --bar-color: #22c55e; --progress: ${progress}%;`;
-
+  const progress = total ? Math.min((available / total) * 100, 100) : 0;
   if (progress > 70) {
-    // Red state (should be green)
     return `--bar-color: #22c55e; --progress: ${progress}%;`;
-  } else if (progress > 50) {
-    // Warning state
+  } else if (progress > 40) {
     return `--bar-color: #eab308; --progress: ${progress}%;`;
   }
-  // Green state (should be red)
   return `--bar-color: #ef4444; --progress: ${progress}%;`;
 });
 
