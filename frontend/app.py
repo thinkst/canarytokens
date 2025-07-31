@@ -1299,7 +1299,7 @@ async def api_awsinfra_generate_data_choices(
                 canarydrop
             ).requests_remaining_percentage,
         )
-    except Exception as e:
+    except ValueError as e:
         log.error(f"Error generating data choice: {str(e)}")
         response.status_code = status.HTTP_400_BAD_REQUEST
         return AWSInfraGenerateDataChoiceResponse(
