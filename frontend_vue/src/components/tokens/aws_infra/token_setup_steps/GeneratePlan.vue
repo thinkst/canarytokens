@@ -6,7 +6,7 @@
       <div
         class="flex flex-row items-center md:justify-end gap-16 justify-center"
       >
-        <p>AI Generated Names</p>
+        <p>Name generation requests left</p>
         <BaseSkeletonLoader
           v-if="getAnyLoadingAssetData()"
           class="w-[2.5rem] h-[2.5rem]"
@@ -23,9 +23,9 @@
           role="progressbar"
           :aria-valuemax="aiNameCountState.total"
           aria-valuemin="0"
-          :aria-valuenow="aiNameCountState.current"
+          :aria-valuenow="aiNameCountState.available"
         >
-          <span>{{ aiNameCountState.total - aiNameCountState.current }} </span>
+          <span>{{ aiNameCountState.available }} </span>
         </div>
       </div>
     </div>
@@ -156,8 +156,8 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
 });
 const isAiGenerateErrorMessage = ref('');
 const aiNameCountState = ref({
-  total: NaN,
-  current: 0,
+  total: 0,
+  available: 0,
 });
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
@@ -177,7 +177,7 @@ onMounted(() => {
     isLoadingUI.value = false;
     aiNameCountState.value = props.currentStepData?.ai_name_state || {
       total: NaN,
-      current: 0,
+      available: 0,
     };
     return;
   }
@@ -192,26 +192,33 @@ onMounted(() => {
 
 const styleAiNameCountProgressBar = computed(() => {
   const total = aiNameCountState.value.total;
-  const current = aiNameCountState.value.current;
+  const available = aiNameCountState.value.available;
   const progress =
-    total && !isNaN(total)
-      ? Math.min(((total - current) / total) * 100, 100)
-      : 0;
+    total && !isNaN(total) ? Math.min((available / total) * 100, 100) : 0;
+  // if (progress > 70) {
+  //   // Red state
+  //   return `--bar-color: #ef4444; --progress: ${progress}%;`;
+  // } else if (progress > 50) {
+  //   // Warning state
+  //   return `--bar-color: #eab308; --progress: ${progress}%;`;
+  // }
+  // // Green state
+  // return ` --bar-color: #22c55e; --progress: ${progress}%;`;
 
   if (progress > 70) {
-    // Red state
-    return `--bar-color: #ef4444; --progress: ${progress}%;`;
+    // Red state (should be green)
+    return `--bar-color: #22c55e; --progress: ${progress}%;`;
   } else if (progress > 50) {
     // Warning state
     return `--bar-color: #eab308; --progress: ${progress}%;`;
   }
-  // Green state
-  return ` --bar-color: #22c55e; --progress: ${progress}%;`;
+  // Green state (should be red)
+  return `--bar-color: #ef4444; --progress: ${progress}%;`;
 });
 
 const aiCurrentAvailableNamesCountTootlip = computed(() => {
-  return aiNameCountState.value.current > 0
-    ? `We generate decoy names with AI. You have ${aiNameCountState.value.current} names available out of ${aiNameCountState.value.total}.`
+  return aiNameCountState.value.available > 0
+    ? `We generate decoy names with AI. You have ${aiNameCountState.value.available} names available out of ${aiNameCountState.value.total}.`
     : 'You have reached your limit for generated names. You can continue with manual setup.';
 });
 
@@ -251,11 +258,11 @@ function getAnyLoadingAssetData(): boolean {
 }
 
 function updateAiCurrentAvailableNamesCount(count: number) {
-  if (isNaN(aiNameCountState.value.total)) {
-    aiNameCountState.value.current = count;
+  if (aiNameCountState.value.total === 0) {
+    aiNameCountState.value.available = Math.floor(count) || 0;
     return;
   }
-  aiNameCountState.value.current = Math.floor(count) || 0;
+  aiNameCountState.value.available = Math.floor(count) || 0;
 }
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {

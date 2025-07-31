@@ -53,7 +53,7 @@ type TokenSetupData = {
   aws_account_number?: string;
   ai_name_state?: {
     total: number;
-    current: number;
+    available: number;
   };
 };
 
