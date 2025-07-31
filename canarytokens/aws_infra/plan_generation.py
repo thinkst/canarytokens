@@ -82,13 +82,6 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
     return tf_variables
 
 
-def _check_gemini_limit(canarydrop: Canarydrop):
-    if data_generation.usage_by_canarydrop(canarydrop).requests_exhausted:
-        raise AWSInfraDataGenerationLimitReached(
-            f"Gemini data generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
-        )
-
-
 async def _add_assets_for_type(
     asset_type: AWSInfraAssetType,
     aws_deployed_assets: dict,
@@ -98,7 +91,7 @@ async def _add_assets_for_type(
     """
     Add assets of a specific type to the plan.
     """
-    inventory_count = len(aws_inventoried_assets.get(asset_type, []))
+    inventory_count = len(aws_inventoried_assets.get(asset_type) or [])
     scaled_decoy_count = math.ceil(math.log2(inventory_count + 1)) or 1
     deployed_decoy_count_remaining = _ASSET_TYPE_CONFIG[asset_type].max_assets - len(
         aws_deployed_assets.get(asset_type, [])
@@ -190,7 +183,10 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
 
     # If multiple inventories have been performed, but the user has not saved the plan,
     # We should not use Gemini anymore, and stop the user from increasing our costs.
-    _check_gemini_limit(canarydrop)
+    if data_generation.name_generation_limit_usage(canarydrop).exhausted:
+        raise AWSInfraDataGenerationLimitReached(
+            f"Name generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
+        )
 
     await add_new_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan
@@ -198,7 +194,7 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     add_current_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
     )
-    data_generation.update_gemini_usage(canarydrop, len(proposed_plan.keys()))
+    data_generation.name_generation_usage_consume(canarydrop, len(proposed_plan.keys()))
     return proposed_plan
 
 
@@ -233,6 +229,11 @@ async def generate_data_choice(
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
 
+    if data_generation.name_generation_limit_usage(canarydrop).exhausted:
+        raise AWSInfraDataGenerationLimitReached(
+            f"Name generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
+        )
+
     VALID_FIELDS = {
         AWSInfraAssetType.S3_BUCKET: [
             AWSInfraAssetField.BUCKET_NAME,
@@ -251,7 +252,6 @@ async def generate_data_choice(
             f"Invalid asset type and field combination: {asset_type}, {asset_field}"
         )
 
-    _check_gemini_limit(canarydrop)
     inventory = get_current_assets(canarydrop).get(asset_type, [])
     # Parent asset types (top-level resources)
     PARENT_FIELDS = {
@@ -275,7 +275,7 @@ async def generate_data_choice(
     else:
         raise ValueError(f"Unsupported asset field: {asset_field}")
 
-    data_generation.update_gemini_usage(canarydrop)
+    data_generation.name_generation_usage_consume(canarydrop)
     return result
 
 
@@ -285,7 +285,11 @@ async def generate_child_assets(
     """
     Generate child assets for the given assets.
     """
-    _check_gemini_limit(canarydrop)
+    if data_generation.name_generation_limit_usage(canarydrop).exhausted:
+        raise AWSInfraDataGenerationLimitReached(
+            f"Name generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
+        )
+
     result = {
         AWSInfraAssetType.S3_BUCKET.value: {},
         AWSInfraAssetType.DYNAMO_DB_TABLE.value: {},
@@ -303,7 +307,7 @@ async def generate_child_assets(
     all_names: list[list[str]] = await asyncio.gather(
         *tasks
     )  # each task returns a list of names
-    data_generation.update_gemini_usage(canarydrop, len(all_names))
+    data_generation.name_generation_usage_consume(canarydrop, len(all_names))
 
     i = 0
     for asset_type, asset_names in assets.items():

@@ -27,7 +27,7 @@ from canarytokens.aws_infra.aws_management import (
     get_current_ingestion_bus,
 )
 from canarytokens.aws_infra.data_generation import (
-    usage_by_canarydrop,
+    name_generation_limit_usage,
 )
 
 # Putting this here for the editor, not for * imports
@@ -52,5 +52,5 @@ __all__ = [
     "generate_child_assets",
     "in_state",
     "setup_new_plan",
-    "usage_by_canarydrop",
+    "name_generation_limit_usage",
 ]

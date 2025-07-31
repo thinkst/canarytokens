@@ -1,19 +1,19 @@
 import asyncio
-from dataclasses import dataclass, field
-from difflib import SequenceMatcher
-
-import re
+import httpx
 import json
+import logging
 import random
+import re
 
 from canarytokens.aws_infra.utils import generate_s3_bucket_suffix
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings
-import httpx
+from dataclasses import dataclass, field
+from difflib import SequenceMatcher
+from functools import cached_property
 
-import logging
 
 log = logging.getLogger("DataGenerator")
 log.setLevel(logging.INFO)
@@ -243,6 +243,10 @@ async def generate_names(
     :param count: The number of names to generate.
     :return: A Suggestion object containing the generated names.
     """
+    if inventory is None:
+        # if inventory is None, we assume we don't have permissions to inventory, return empty suggestion
+        return _Suggestion(asset_type, [])
+
     validated_names = []
     attempts = 0
     if count <= 0:
@@ -309,50 +313,49 @@ async def generate_children_names(
     )
 
 
-@dataclass
-class _GeminiUsage:
-    requests_made: int = 0
-    requests_remaining: int = field(init=False)
-    requests_exhausted: bool = field(init=False)
+@dataclass(frozen=True)
+class _NameGenerationLimitUsage:
+    count: int
 
-    def __post_init__(self):
-        assert (
-            settings.GEMINI_MAX_REQUESTS_PER_TOKEN > 0
-        ), "Max Gemini requests allowed must be a positive integer."
-        self.requests_remaining = (
-            settings.GEMINI_MAX_REQUESTS_PER_TOKEN - self.requests_made
-        )
-        self.requests_exhausted = self.requests_remaining <= 0
-        self.requests_remaining = max(0, self.requests_remaining)
+    @cached_property
+    def remaining(self) -> int:
+        return max(settings.AWS_INFRA_NAME_GENERATION_LIMIT - self.count, 0)
+
+    @cached_property
+    def exhausted(self) -> bool:
+        return self.remaining == 0
 
 
-def usage_by_canarydrop(canarydrop: Canarydrop) -> _GeminiUsage:
+def name_generation_limit_usage(canarydrop: Canarydrop) -> _NameGenerationLimitUsage:
     """
     Get the Gemini usage statistics for the canarydrop.
     :param canarydrop: The canarydrop instance for which to retrieve usage statistics.
-    :return: A GeminiUsage object containing the usage statistics.
+    :return: An object containing the usage statistics.
     """
-    return _GeminiUsage(
-        requests_made=canarydrop.aws_data_generation_requests_made,
+    return _NameGenerationLimitUsage(
+        count=canarydrop.aws_data_generation_requests_made,
     )
 
 
-def update_gemini_usage(canarydrop: Canarydrop, value: int = 1) -> None:
+def name_generation_usage_consume(canarydrop: Canarydrop, count: int = 1) -> None:
     """
     Increment the Gemini usage count for the canarydrop and persist the change by calling canarydrop.save().
     :param canarydrop: The canarydrop instance for which to increment usage.
     :param value: The amount to increment the usage by (default is 1).
     :return: None
     """
-    if usage_by_canarydrop(canarydrop).requests_exhausted:
+    if count <= 0:
+        raise ValueError("Count must be a positive integer.")
+
+    if name_generation_limit_usage(canarydrop).exhausted:
         log.warning(
             f"Canarytoken {canarydrop.canarytoken.value()} has already reached the Gemini data generation limit."
         )
         return
-
-    incremented = canarydrop.aws_data_generation_requests_made + value
-    if incremented >= settings.GEMINI_MAX_REQUESTS_PER_TOKEN:
-        incremented = settings.GEMINI_MAX_REQUESTS_PER_TOKEN
-
-    canarydrop.aws_data_generation_requests_made = incremented
+    # The first request to exceed the limit is always allowed regardless of the count to consume.
+    # Later tries over the limit will always be rejected. So we cap the incremented value.
+    canarydrop.aws_data_generation_requests_made = min(
+        canarydrop.aws_data_generation_requests_made + count,
+        settings.AWS_INFRA_NAME_GENERATION_LIMIT,
+    )
     save_canarydrop(canarydrop)

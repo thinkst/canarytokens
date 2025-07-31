@@ -1189,9 +1189,9 @@ async def api_awsinfra_inventory_customer_account(
             handle=request.handle,
             result=False,
             message="Canarydrop not found.",
-            data_generation_remaining=data_generation.usage_by_canarydrop(
+            data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
 
     try:
@@ -1206,9 +1206,9 @@ async def api_awsinfra_inventory_customer_account(
             handle=request.handle,
             result=False,
             message=str(e),
-            data_generation_remaining=data_generation.usage_by_canarydrop(
+            data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
     # Reload canarydrop to ensure we have the latest state
     canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
@@ -1249,18 +1249,18 @@ async def api_awsinfra_generate_child_assets(
         assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
         result = AWSInfraGenerateChildAssetsResponse(
             assets=assets,
-            data_generation_remaining=data_generation.usage_by_canarydrop(
+            data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
     except AWSInfraDataGenerationLimitReached:
         aws_infra.mark_succeeded(canarydrop)
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
         result = AWSInfraGenerateChildAssetsResponse(
             assets=[],
-            data_generation_remaining=aws_infra.usage_by_canarydrop(
+            data_generation_remaining=aws_infra.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
     finally:
         aws_infra.mark_succeeded(canarydrop)
@@ -1286,18 +1286,18 @@ async def api_awsinfra_generate_data_choices(
                 request.asset_field,
                 request.parent_asset_name,
             ),
-            data_generation_remaining=data_generation.usage_by_canarydrop(
+            data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
     except AWSInfraDataGenerationLimitReached as e:
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
         return AWSInfraGenerateDataChoiceResponse(
             result=False,
             message=str(e),
-            data_generation_remaining=aws_infra.usage_by_canarydrop(
+            data_generation_remaining=aws_infra.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
     except ValueError as e:
         log.error(f"Error generating data choice: {str(e)}")
@@ -1305,9 +1305,9 @@ async def api_awsinfra_generate_data_choices(
         return AWSInfraGenerateDataChoiceResponse(
             result=False,
             message=f"Error generating data choice.: {str(e)}",
-            data_generation_remaining=data_generation.usage_by_canarydrop(
+            data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop
-            ).requests_remaining,
+            ).remaining,
         )
 
 
