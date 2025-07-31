@@ -11,7 +11,6 @@ from canarytokens.settings import FrontendSettings
 # Get the project root directory
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-AWS_INFRA_REGION = "eu-west-1"
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
@@ -23,7 +22,7 @@ def _get_session():
     return boto3.Session()
 
 
-def _get_client(service: str, region_name: str = AWS_INFRA_REGION):
+def _get_client(service: str, region_name: str = settings.AWS_INFRA_AWS_REGION):
     if settings.DOMAINS[0] == "127.0.0.1":
         return _get_session().client(
             service,
@@ -39,7 +38,7 @@ def _get_client(service: str, region_name: str = AWS_INFRA_REGION):
     )
 
 
-def _get_resource(service: str, region_name: str = AWS_INFRA_REGION):
+def _get_resource(service: str, region_name: str = settings.AWS_INFRA_AWS_REGION):
     if settings.DOMAINS[0] == "127.0.0.1":
         return _get_session().resource(
             service,

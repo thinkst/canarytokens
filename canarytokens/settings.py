@@ -140,9 +140,9 @@ class FrontendSettings(BaseSettings):
     CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
 
     AWS_INFRA_AWS_ACCOUNT: Optional[str]
+    AWS_INFRA_AWS_REGION: Optional[str]
     AWS_INFRA_SHARED_SECRET: Optional[str]
     AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str]
-    AWS_INFRA_INVENTORY_ROLE: Optional[str]
     AWS_INFRA_CALLBACK_DOMAIN: Optional[str] = "callback domain goes here"
     AWS_INFRA_INGESTION_BUS: Optional[str]
     AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
