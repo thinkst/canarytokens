@@ -2900,6 +2900,37 @@ class AWSInfraHandleRequest(BaseModel):
     handle: str
 
 
+class AWSInfraServiceError(enum.Enum):
+    FAILURE_CHECK_ROLE = enum.auto()
+    FAILURE_INGESTION_BUS_PROVISION = enum.auto()
+    FAILURE_INGESTION_SETUP = enum.auto()
+    FAILURE_INGESTION_TEARDOWN = enum.auto()
+    FAILURE_INVENTORY = enum.auto()
+    FAILURE_MGMT_RESPONSE = enum.auto()
+    FAILURE_TRIG_ALERT = enum.auto()
+    OP_MISSING_KEY = enum.auto()
+    REQ_HANDLE_INVALID = enum.auto()
+    REQ_OPERATION_INVALID = enum.auto()
+    REQ_PAYLOAD_INVALID_JSON = enum.auto()
+    REQ_PAYLOAD_UNSUPPORTED = enum.auto()
+    UNHANDLED_ERROR = enum.auto()
+    UNKNOWN = enum.auto()
+
+    @classmethod
+    def parse(cls, error: str):
+        if error == "":
+            return None, ""
+
+        try:
+            code, message = error.split("::")
+            return next(
+                ((e, message) for e in cls if e.name == code),
+                (cls.UNKNOWN, "Something went wrong."),
+            )
+        except Exception:
+            return cls.UNKNOWN, "Something went wrong."
+
+
 class AWSInfraHandleResponse(BaseModel):  # before response received
     handle: str
     message: str = ""
@@ -2911,7 +2942,7 @@ class AWSInfraCheckRoleReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     session_credentials_retrieved: bool
-    error: str = ""
+    error: AWSInfraServiceError = None
 
 
 class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
@@ -2919,7 +2950,7 @@ class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     proposed_plan: dict = {}
-    error: str = ""
+    error: AWSInfraServiceError = None
     data_generation_remaining: float = 100.0
 
 
