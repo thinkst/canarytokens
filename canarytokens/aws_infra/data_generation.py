@@ -96,11 +96,11 @@ def _validate_ssm_parameter_name(name: str) -> bool:
     if not (0 < len(name) <= 2048):
         return False
     segments = name.split("/")
-    if segments[0].lower() in ("aws", "ssm"):
-        return False
     for seg in segments:
         if not seg:
             continue  # skip empty segments
+        if seg.lower() in ("aws", "ssm"):
+            return False
         if not re.fullmatch(_SSM_PARAMETER_NAME_REGEX, seg):
             return False
     return True

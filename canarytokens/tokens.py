@@ -914,9 +914,7 @@ class Canarytoken(object):
                     "Account & Region": f'{event.get("account", "unknown account")}, {event.get("region", "unknown region")}',
                 },
                 decoy_resource={
-                    "asset_type": Canarytoken._get_asset_type(
-                        event_detail.get("resources", [{}])[0].get("type")
-                    ),
+                    "asset_type": Canarytoken._get_asset_type(event_detail),
                     "Asset Name": next(
                         (
                             v
