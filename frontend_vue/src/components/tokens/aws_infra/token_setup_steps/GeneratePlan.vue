@@ -1,6 +1,28 @@
 <template>
   <div class="infra-token__title-wrapper">
-    <h2>Design your Decoys</h2>
+    <div class="grid md:grid-cols-3 gap-16 justify-center items-center">
+      <span></span>
+      <h2>Design your Decoys</h2>
+      <div
+        class="flex flex-row items-center md:justify-end gap-16 justify-center"
+      >
+        <p>AI Generated Names</p>
+        <div
+          v-tooltip="{
+            content: aiCurrentAvailableNamesCountTootlip,
+            triggers: ['hover'],
+          }"
+          class="ai-name-count"
+          :style="styleAiNameCountProgressBar"
+          role="progressbar"
+          :aria-valuemax="aiTotalNamesCount"
+          aria-valuemin="0"
+          :aria-valuenow="aiCurrentAvailableNamesCount"
+        >
+          <span>{{ aiTotalNamesCount - aiCurrentAvailableNamesCount }} </span>
+        </div>
+      </div>
+    </div>
   </div>
   <div
     v-if="isLoadingUI"
@@ -123,6 +145,8 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   DynamoDBTable: false,
 });
 const isAiGenerateErrorMessage = ref('');
+const aiTotalNamesCount = ref(50);
+const aiCurrentAvailableNamesCount = ref(5);
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
@@ -148,6 +172,30 @@ onMounted(() => {
   setTimeout(() => {
     isLoadingUI.value = false;
   }, 300);
+});
+
+const styleAiNameCountProgressBar = computed(() => {
+  const progress = Math.min(
+    ((aiTotalNamesCount.value - aiCurrentAvailableNamesCount.value) /
+      aiTotalNamesCount.value) *
+      100,
+    100
+  );
+  if (progress > 70) {
+    // Green state
+    return `--bar-color: #ef4444; --progress: ${progress}%;`;
+  } else if (progress > 50) {
+    // Warning state
+    return `--bar-color: #eab308; --progress: ${progress}%;`;
+  }
+  // Red state
+  return ` --bar-color: #22c55e; --progress: ${progress}%;`;
+});
+
+const aiCurrentAvailableNamesCountTootlip = computed(() => {
+  return aiCurrentAvailableNamesCount.value > 0
+    ? `We generate decoy names with AI. You have ${aiCurrentAvailableNamesCount.value} names available out of ${aiTotalNamesCount.value}.`
+    : 'You have reached your limit for generated names. You can continue with manual setup.';
 });
 
 const availableAssets = computed(() => {
@@ -244,7 +292,7 @@ async function fetchAIgeneratedAssets(
 
     if (res.status === 429) {
       isAiGenerateErrorMessage.value =
-        'You have reached your daily limit for AI-generated decoy names. You can continue with manual setup or try again later.';
+        'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
       return;
     }
 
@@ -323,4 +371,37 @@ async function handleSubmit(formValues: { assets: AssetData[] | null }) {
 }
 </script>
 
-<style></style>
+<style>
+.ai-name-count {
+  --bar-color: #22c55e;
+  --progress: 0%;
+  font-weight: bold;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: conic-gradient(
+    var(--bar-color) var(--progress),
+    hsl(156, 9%, 89%) 0%
+  );
+
+  span {
+    position: absolute;
+    color: var(--bar-color);
+  }
+
+  &::after {
+    content: '';
+    width: 2rem;
+    height: 2rem;
+    border-radius: 1rem;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+</style>
