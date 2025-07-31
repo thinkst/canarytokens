@@ -44,7 +44,7 @@ HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
 # map to user-friendly error messages
 service_error_map = {
-    AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and the external ID is correct.",
+    AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
     AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
     AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
     AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
@@ -157,7 +157,7 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
         return AWSInfraHandleResponse(
             handle=handle_id,
             message="Handle not found.",
-            error=AWSInfraServiceError.REQ_HANDLE_INVALID,
+            error=AWSInfraServiceError.REQ_HANDLE_INVALID.name,
         )
 
     handle = Handle(**handle)
@@ -165,7 +165,7 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
         return AWSInfraHandleResponse(
             handle=handle_id,
             message="Handle operation does not match requested operation.",
-            error=AWSInfraServiceError.REQ_HANDLE_INVALID,
+            error=AWSInfraServiceError.REQ_OPERATION_INVALID.name,
         )
 
     current_time = datetime.now(timezone.utc).timestamp()
