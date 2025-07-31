@@ -42,6 +42,16 @@ settings = FrontendSettings()
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
 HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
+# map to user-friendly error messages
+service_error_map = {
+    AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and the external ID is correct.",
+    AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
+    AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
+    AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
+    AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
+    AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
+}
+
 
 class Handle(BaseModel):
     canarytoken: str
@@ -137,7 +147,6 @@ def _build_operation_payload(
     return payload
 
 
-# TODO: add handle exist for token validation
 async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
@@ -145,21 +154,22 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     handle = queries.get_aws_management_lambda_handle(handle_id)
 
     if not handle:
-        logging.error(f"Handle with ID {handle_id} not found.")
-        return AWSInfraHandleResponse(handle=handle_id, message="Handle not found.")
+        return AWSInfraHandleResponse(
+            handle=handle_id,
+            message="Handle not found.",
+            error=AWSInfraServiceError.REQ_HANDLE_INVALID,
+        )
 
     handle = Handle(**handle)
     if handle.operation != operation.value:
-        logging.error(
-            f"Handle operation {handle.operation} does not match requested operation {operation.value}."
-        )
         return AWSInfraHandleResponse(
             handle=handle_id,
             message="Handle operation does not match requested operation.",
+            error=AWSInfraServiceError.REQ_HANDLE_INVALID,
         )
 
     current_time = datetime.now(timezone.utc).timestamp()
-    if handle.requested_time - current_time > HANDLE_RESPONSE_TIMEOUT:
+    if current_time - handle.requested_time > HANDLE_RESPONSE_TIMEOUT:
         return await _build_handle_response_payload(handle_id, handle, timeout=True)
 
     if handle.response_received != "True":
@@ -183,10 +193,14 @@ async def _build_handle_response_payload(
 
     if timeout:
         payload["message"] = "Handle response timed out."
+        payload["error"] = AWSInfraServiceError.REQ_HANDLE_INVALID
+
     elif response_content.get("error", "") != "":
         error, message = AWSInfraServiceError.parse(response_content["error"])
-        payload["message"] = message
+        payload["message"] = service_error_map.get(error, "Something went wrong.")
+        logging.info(f"Handle {handle_id} encountered error: {message}")
         payload["error"] = error
+
     if handle.operation == AWSInfraOperationType.CHECK_ROLE:
         payload["session_credentials_retrieved"] = response_content.get(
             "session_credentials_retrieved", False
