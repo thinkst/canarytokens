@@ -883,8 +883,8 @@ class Canarytoken(object):
     @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
         event = request.get("cloudtrail_event")
-        event_detail = event["detail"]
-        user = event_detail["userIdentity"]
+        event_detail = event.get("detail", {})
+        user = event_detail.get("userIdentity", {})
         resource_name_keys = [
             "bucketName",
             "tableName",
@@ -893,10 +893,12 @@ class Canarytoken(object):
             "secretId",
             "name",
         ]
-        src_ip = event_detail["sourceIPAddress"]
-        time_of_hit = datetime.strptime(event_detail["eventTime"], "%Y-%m-%dT%H:%M:%SZ")
+        src_ip = event_detail.get("sourceIPAddress")
+        time_of_hit = datetime.strptime(
+            event_detail.get("eventTime"), "%Y-%m-%dT%H:%M:%SZ"
+        )
         if "arn" in user:
-            identity = f'{user.get("arn")} (type: {user["type"]})'
+            identity = f'{user.get("arn", "unknown arn")} (type: {user.get("type", "unknown type")})'
         else:
             identity = ", ".join(f"{k}: {v}" for k, v in user.items())
         hit_info = {
@@ -904,39 +906,41 @@ class Canarytoken(object):
             "is_tor_relay": queries.is_tor_relay(src_ip),
             "src_ip": src_ip,
             "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
-            "user_agent": event_detail["userAgent"],
+            "user_agent": event_detail.get("userAgent"),
             "additional_info": AwsInfraAdditionalInfo(
                 event={
-                    "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
+                    "Event Name": f'{event_detail.get("eventName", "unknown event")} (source: {event_detail.get("eventSource", "unknown source")})',
                     "Event Time": f"{time_of_hit.isoformat()} UTC+0:00",
-                    "Account & Region": f'{event["account"]}, {event["region"]}',
+                    "Account & Region": f'{event.get("account", "unknown account")}, {event.get("region", "unknown region")}',
                 },
                 decoy_resource={
                     "asset_type": Canarytoken._get_asset_type(
-                        event_detail["resources"][0]["type"]
+                        event_detail.get("resources", [{}])[0].get("type")
                     ),
                     "Asset Name": next(
                         (
                             v
-                            for k, v in event_detail["requestParameters"].items()
+                            for k, v in event_detail.get(
+                                "requestParameters", {}
+                            ).items()
                             if k in resource_name_keys
                         ),
                         "",
                     ),
                     "Request Parameters": ", ".join(
                         f"{k}: {v}"
-                        for k, v in event_detail["requestParameters"].items()
+                        for k, v in event_detail.get("requestParameters", {}).items()
                     ),
                 },
                 identity={
                     "User Identity": identity,
-                    "UserAgent": event_detail["userAgent"],
+                    "UserAgent": event_detail.get("userAgent"),
                 },
                 metadata={
-                    "Event ID": event_detail["eventID"],
-                    "ReadOnly Event": event_detail["readOnly"],
-                    "Event Category": event_detail["eventCategory"],
-                    "Classification": event["detail-type"],
+                    "Event ID": event_detail.get("eventID"),
+                    "ReadOnly Event": event_detail.get("readOnly"),
+                    "Event Category": event_detail.get("eventCategory"),
+                    "Classification": event.get("detail-type"),
                 },
             ),
         }
