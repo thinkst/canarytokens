@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
 import json
 import logging
 
+from datetime import datetime, timezone
 from pydantic import BaseModel
 
 from canarytokens import queries
@@ -11,10 +11,10 @@ from canarytokens.aws_infra.aws_management import (
 )
 from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
-    generate_tf_variables,
     save_plan,
 )
 from canarytokens.aws_infra.state_management import is_ingesting
+from canarytokens.aws_infra.terraform_generation import generate_tf_variables
 from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
