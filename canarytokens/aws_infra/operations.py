@@ -209,6 +209,8 @@ async def _build_handle_response_payload(
 
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if handle.operation == AWSInfraOperationType.INVENTORY:
+        if payload.get("error"):
+            return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
         inventory = response_content.get("assets", {})
         save_current_assets(canarydrop, inventory)
         proposed_plan = await generate_proposed_plan(canarydrop)
@@ -223,8 +225,10 @@ async def _build_handle_response_payload(
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
-        payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
         payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+        if payload.get("error"):
+            return AWSInfraSetupIngestionReceivedResponse(**payload)
+        payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
         return AWSInfraSetupIngestionReceivedResponse(**payload)
 
     if handle.operation == AWSInfraOperationType.TEARDOWN:

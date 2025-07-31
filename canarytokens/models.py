@@ -2903,7 +2903,7 @@ class AWSInfraHandleRequest(BaseModel):
 class AWSInfraHandleResponse(BaseModel):  # before response received
     handle: str
     message: str = ""
-    error: Optional[str]
+    error: str = ""
 
 
 class AWSInfraCheckRoleReceivedResponse(BaseModel):
@@ -2911,7 +2911,7 @@ class AWSInfraCheckRoleReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     session_credentials_retrieved: bool
-    error: Optional[str]
+    error: str = ""
 
 
 class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
@@ -2919,7 +2919,7 @@ class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     proposed_plan: dict = {}
-    error: Optional[str]
+    error: str = ""
     data_generation_remaining: float = 100.0
 
 
@@ -2961,7 +2961,7 @@ class AWSInfraSetupIngestionReceivedResponse(BaseModel):
     handle: str
     terraform_module_snippet: dict = None
     role_cleanup_commands: dict = None
-    error: Optional[str]
+    error: str = ""
 
 
 class AWSInfraTeardownReceivedResponse(BaseModel):
@@ -3041,7 +3041,7 @@ class AWSInfraServiceError(enum.Enum):
     @classmethod
     def parse(cls, error: str):
         if error == "":
-            return None, ""
+            return "", ""
 
         try:
             code, message = error.split("::")
