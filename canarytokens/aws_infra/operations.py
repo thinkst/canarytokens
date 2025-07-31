@@ -201,7 +201,7 @@ async def _build_handle_response_payload(
         payload["proposed_plan"] = {"assets": proposed_plan}
         payload["data_generation_remaining"] = usage_by_canarydrop(
             canarydrop
-        ).requests_remaining_percentage
+        ).requests_remaining
         if is_ingesting(canarydrop):
             filter_decoys_from_inventory(
                 canarydrop

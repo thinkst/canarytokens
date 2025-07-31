@@ -313,7 +313,6 @@ async def generate_children_names(
 class _GeminiUsage:
     requests_made: int = 0
     requests_remaining: int = field(init=False)
-    requests_remaining_percentage: float = field(init=False)
     requests_exhausted: bool = field(init=False)
 
     def __post_init__(self):
@@ -323,14 +322,8 @@ class _GeminiUsage:
         self.requests_remaining = (
             settings.GEMINI_MAX_REQUESTS_PER_TOKEN - self.requests_made
         )
-        self.requests_exhausted = False
-        if self.requests_remaining <= 0:
-            self.requests_remaining = 0
-            self.requests_exhausted = True
-
-        self.requests_remaining_percentage = (
-            self.requests_remaining / settings.GEMINI_MAX_REQUESTS_PER_TOKEN
-        ) * 100
+        self.requests_exhausted = self.requests_remaining <= 0
+        self.requests_remaining = max(0, self.requests_remaining)
 
 
 def usage_by_canarydrop(canarydrop: Canarydrop) -> _GeminiUsage:

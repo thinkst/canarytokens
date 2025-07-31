@@ -1191,7 +1191,7 @@ async def api_awsinfra_inventory_customer_account(
             message="Canarydrop not found.",
             data_generation_remaining=data_generation.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
 
     try:
@@ -1208,7 +1208,7 @@ async def api_awsinfra_inventory_customer_account(
             message=str(e),
             data_generation_remaining=data_generation.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
     # Reload canarydrop to ensure we have the latest state
     canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
@@ -1251,7 +1251,7 @@ async def api_awsinfra_generate_child_assets(
             assets=assets,
             data_generation_remaining=data_generation.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
     except AWSInfraDataGenerationLimitReached:
         aws_infra.mark_succeeded(canarydrop)
@@ -1260,7 +1260,7 @@ async def api_awsinfra_generate_child_assets(
             assets=[],
             data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
     finally:
         aws_infra.mark_succeeded(canarydrop)
@@ -1288,7 +1288,7 @@ async def api_awsinfra_generate_data_choices(
             ),
             data_generation_remaining=data_generation.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
     except AWSInfraDataGenerationLimitReached as e:
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
@@ -1297,7 +1297,7 @@ async def api_awsinfra_generate_data_choices(
             message=str(e),
             data_generation_remaining=aws_infra.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
     except ValueError as e:
         log.error(f"Error generating data choice: {str(e)}")
@@ -1307,7 +1307,7 @@ async def api_awsinfra_generate_data_choices(
             message=f"Error generating data choice.: {str(e)}",
             data_generation_remaining=data_generation.usage_by_canarydrop(
                 canarydrop
-            ).requests_remaining_percentage,
+            ).requests_remaining,
         )
 
 
