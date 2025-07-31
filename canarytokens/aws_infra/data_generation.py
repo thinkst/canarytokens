@@ -1,18 +1,19 @@
 import asyncio
-import httpx
 import json
 import logging
 import random
 import re
+from dataclasses import dataclass, field
+from difflib import SequenceMatcher
+from functools import cached_property
+
+import httpx
 
 from canarytokens.aws_infra.utils import generate_s3_bucket_suffix
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings
-from dataclasses import dataclass, field
-from difflib import SequenceMatcher
-from functools import cached_property
 
 
 log = logging.getLogger("DataGenerator")
