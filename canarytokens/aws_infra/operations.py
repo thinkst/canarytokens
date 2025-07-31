@@ -44,12 +44,12 @@ HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
 # map to user-friendly error messages
 service_error_map = {
-    AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
-    AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
-    AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
-    AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
-    AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
-    AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
+    AWSInfraServiceError.FAILURE_CHECK_ROLE.name: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
+    AWSInfraServiceError.FAILURE_INGESTION_SETUP.name: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
+    AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN.name: "Something went wrong while trying to delete the Canarytoken.",
+    AWSInfraServiceError.FAILURE_INVENTORY.name: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
+    AWSInfraServiceError.REQ_HANDLE_INVALID.name: "The handle ID provided is invalid.",
+    AWSInfraServiceError.UNHANDLED_ERROR.name: "Something went wrong while processing the request. Please try again later.",
 }
 
 
