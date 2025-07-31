@@ -842,15 +842,38 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
-    def _get_asset_type(resource_type: str):
-        mapping = {
+    def _get_asset_type(event_detail: dict) -> str:
+        resource_type_mapping = {
             "AWS::S3::Bucket": AWSInfraAssetType.S3_BUCKET.value,
             "AWS::DynamoDB::Table": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
             "AWS::SQS::Queue": AWSInfraAssetType.SQS_QUEUE.value,
             "AWS::SecretsManager::Secret": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
             "AWS::SSM::Parameter": AWSInfraAssetType.SSM_PARAMETER.value,
         }
-        asset_type = mapping.get(resource_type)
+
+        event_source_mapping = {
+            "s3.amazonaws.com": AWSInfraAssetType.S3_BUCKET.value,
+            "dynamodb.amazonaws.com": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
+            "sqs.amazonaws.com": AWSInfraAssetType.SQS_QUEUE.value,
+            "secretsmanager.amazonaws.com": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
+            "ssm.amazonaws.com": AWSInfraAssetType.SSM_PARAMETER.value,
+        }
+
+        if event_detail.get("resources", [{}])[0].get("type"):
+            resource_type = event_detail["resources"][0]["type"]
+            asset_type = resource_type_mapping.get(resource_type)
+
+        elif event_detail.get("eventSource"):
+            resource_type = event_detail["eventSource"]
+            asset_type = event_source_mapping.get(resource_type)
+
+        else:
+            logging.warning(
+                f"No resource type or event source found in AWS Infra Canarytoken event: {event_detail}"
+            )
+            resource_type = "Unknown"
+            asset_type = None
+
         if asset_type is None:
             logging.warning(
                 f"Unknown AWS asset type in AWS Infra Canarytoken event: {resource_type}"
