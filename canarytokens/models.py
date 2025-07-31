@@ -2919,6 +2919,7 @@ class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
     handle: str
     proposed_plan: dict = {}
     error: str = ""
+    data_generation_remaining: float = 100.0
 
 
 class AWSInfraGenerateDataChoiceRequest(BaseModel):
@@ -2933,6 +2934,7 @@ class AWSInfraGenerateDataChoiceResponse(BaseModel):
     result: bool
     message: str = ""
     proposed_data: str = None
+    data_generation_remaining: float = 100.0
 
 
 class AWSInfraSavePlanRequest(BaseModel):
@@ -3001,6 +3003,7 @@ class AWSInfraGenerateChildAssetsResponse(BaseModel):
         ],
         dict[str, list[str]],
     ]
+    data_generation_remaining: float = 100.0
 
 
 class AWSInfraState(enum.Flag):

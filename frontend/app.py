@@ -21,6 +21,7 @@ from urllib.parse import unquote
 import logging
 
 import requests
+from canarytokens.aws_infra import data_generation
 import segno
 import sentry_sdk
 from fastapi import (
@@ -53,6 +54,7 @@ from canarytokens.awskeys import get_aws_key
 from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import (
+    AWSInfraDataGenerationLimitReached,
     CanarydropAuthFailure,
     NoCanarydropFound,
     AWSInfraOperationNotAllowed,
@@ -1179,16 +1181,38 @@ async def api_awsinfra_inventory_customer_account(
         )
         return AWSInfraHandleResponse(handle=handle_id)
 
-    handle_response = await aws_infra.get_handle_response(
-        request.handle, AWSInfraOperationType.INVENTORY
-    )
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return handle_response
-    if handle_response.message != "":
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            handle=request.handle,
+            result=False,
+            message="Canarydrop not found.",
+            data_generation_remaining=data_generation.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        )
 
+    try:
+        handle_response = await aws_infra.get_handle_response(
+            request.handle, AWSInfraOperationType.INVENTORY
+        )
+    except AWSInfraDataGenerationLimitReached as e:
+        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
+        aws_infra.mark_succeeded(canarydrop)
+        queries.save_canarydrop(canarydrop)
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            handle=request.handle,
+            result=False,
+            message=str(e),
+            data_generation_remaining=data_generation.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        )
+    # Reload canarydrop to ensure we have the latest state
+    canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
+    if handle_response.message != "":
         response.status_code = status.HTTP_400_BAD_REQUEST
         log.error(
             f"Error in inventorying for {canarydrop.canarytoken.value()}: {handle_response.error} - {handle_response.message}",
@@ -1221,10 +1245,28 @@ async def api_awsinfra_generate_child_assets(
             status_code=400,
             detail=str(e),
         )
-    assets = await aws_infra.generate_child_assets(request.assets)
-    aws_infra.mark_succeeded(canarydrop)
-    queries.save_canarydrop(canarydrop)
-    return AWSInfraGenerateChildAssetsResponse(assets=assets)
+    try:
+        assets = await aws_infra.generate_child_assets(canarydrop, request.assets)
+        result = AWSInfraGenerateChildAssetsResponse(
+            assets=assets,
+            data_generation_remaining=data_generation.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        )
+    except AWSInfraDataGenerationLimitReached:
+        aws_infra.mark_succeeded(canarydrop)
+        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
+        result = AWSInfraGenerateChildAssetsResponse(
+            assets=[],
+            data_generation_remaining=aws_infra.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        )
+    finally:
+        aws_infra.mark_succeeded(canarydrop)
+        queries.save_canarydrop(canarydrop)
+
+    return result
 
 
 @api.post("/awsinfra/generate-data-choices")
@@ -1244,12 +1286,28 @@ async def api_awsinfra_generate_data_choices(
                 request.asset_field,
                 request.parent_asset_name,
             ),
+            data_generation_remaining=data_generation.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        )
+    except AWSInfraDataGenerationLimitReached as e:
+        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
+        return AWSInfraGenerateDataChoiceResponse(
+            result=False,
+            message=str(e),
+            data_generation_remaining=aws_infra.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
         )
     except ValueError as e:
         log.error(f"Error generating data choice: {str(e)}")
         response.status_code = status.HTTP_400_BAD_REQUEST
         return AWSInfraGenerateDataChoiceResponse(
-            result=False, message=f"Error generating data choice: {str(e)}"
+            result=False,
+            message=f"Error generating data choice.: {str(e)}",
+            data_generation_remaining=data_generation.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
         )
 
 

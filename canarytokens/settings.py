@@ -140,6 +140,7 @@ class FrontendSettings(BaseSettings):
     AWS_INFRA_CALLBACK_DOMAIN: Optional[str] = "callback domain goes here"
     AWS_INFRA_INGESTION_BUS: Optional[str]
     AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
+    AWS_INFRA_NAME_GENERATION_LIMIT: Optional[int] = 50
     GEMINI_API_KEY: Optional[str]
     GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
     GEMINI_PROMPT_TEMPLATE: Optional[str]
