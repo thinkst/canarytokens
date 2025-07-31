@@ -18,7 +18,7 @@ def get_current_assets(canarydrop: Canarydrop) -> dict:
     :param canarydrop: The canarydrop instance for which to retrieve assets.
     """
     with DB.get_db() as r:
-        return json.loads(r.get(_inventory_key(canarydrop))) or {}
+        return json.loads(r.get(_inventory_key(canarydrop)) or "{}")
 
 
 def save_current_assets(canarydrop: Canarydrop, assets: dict) -> None:

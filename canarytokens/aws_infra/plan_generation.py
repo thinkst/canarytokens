@@ -1,56 +1,42 @@
-from dataclasses import dataclass
-import enum
+import asyncio
 import json
 import math
 import random
+
+from dataclasses import dataclass
 from typing import Optional
 
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType
+from canarytokens.models import AWSInfraAssetField, AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
-import asyncio
 
 settings = FrontendSettings()
-
-
-class AssetLabel(str, enum.Enum):
-    """
-    Enum for asset labels used in the AWS infrastructure.
-    """
-
-    BUCKET_NAME = "bucket_name"
-    OBJECTS = "objects"
-    OBJECT_PATH = "object_path"
-    SQS_QUEUE_NAME = "sqs_queue_name"
-    SSM_PARAMETER_NAME = "ssm_parameter_name"
-    SECRET_NAME = "secret_name"
-    TABLE_NAME = "table_name"
-    TABLE_ITEMS = "table_items"
-    TABLE_ITEM = "table_item"
 
 
 @dataclass
 class AssetTypeConfig:
     max_assets: int
-    asset_label_key: AssetLabel
-    child_asset_label_key: Optional[AssetLabel] = None
+    asset_field_name: AWSInfraAssetField
+    child_asset_field_name: Optional[AWSInfraAssetField] = None
     max_child_items: Optional[int] = None
 
 
 _ASSET_TYPE_CONFIG = {
     AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        10, AssetLabel.BUCKET_NAME, AssetLabel.OBJECTS, 20
+        10, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
     ),
-    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(10, AssetLabel.SQS_QUEUE_NAME),
-    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(10, AssetLabel.SSM_PARAMETER_NAME),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(10, AWSInfraAssetField.SQS_QUEUE_NAME),
+    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
+        10, AWSInfraAssetField.SSM_PARAMETER_NAME
+    ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        10, AssetLabel.SECRET_NAME
+        10, AWSInfraAssetField.SECRET_NAME
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        10, AssetLabel.TABLE_NAME, AssetLabel.TABLE_ITEMS, 20
+        10, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
     ),
 }
 
@@ -84,9 +70,9 @@ async def _add_assets_for_type(
 
     assets = []
     for asset_name in asset_names:
-        asset = {config.asset_label_key: asset_name, "off_inventory": False}
+        asset = {config.asset_field_name: asset_name, "off_inventory": False}
         # Add type-specific child assets if they exist
-        if child_asset_name_key := config.child_asset_label_key:
+        if child_asset_name_key := config.child_asset_field_name:
             asset[child_asset_name_key] = []
         assets.append(asset)
     plan[asset_type].extend(assets)
@@ -120,7 +106,7 @@ def add_current_assets_to_plan(
     Add current deployed assets to the proposed plan.
     """
     for asset_type, config in _ASSET_TYPE_CONFIG.items():
-        asset_key = config.asset_label_key
+        asset_key = config.asset_field_name
 
         for asset_name in aws_deployed_assets.get(asset_type, []):
             asset = {
@@ -130,7 +116,7 @@ def add_current_assets_to_plan(
             }
 
             # get the child assets (objects or table items) from the last saved plan
-            if child_asset_key := config.child_asset_label_key:
+            if child_asset_key := config.child_asset_field_name:
                 for last_saved_parent_asset in current_plan.get(asset_type, [{}]):
                     if last_saved_parent_asset.get(asset_key) == asset_name:
                         asset[child_asset_key] = last_saved_parent_asset.get(
@@ -193,25 +179,44 @@ async def _generate_child_asset_name(
 async def generate_data_choice(
     canarydrop: Canarydrop,
     asset_type: AWSInfraAssetType,
-    asset_field: AssetLabel,
-    parent_asset_name: AssetLabel = None,
+    asset_field: AWSInfraAssetField,
+    parent_asset_name: AWSInfraAssetField = None,
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
+
+    VALID_FIELDS = {
+        AWSInfraAssetType.S3_BUCKET: [
+            AWSInfraAssetField.BUCKET_NAME,
+            AWSInfraAssetField.OBJECTS,
+        ],
+        AWSInfraAssetType.SQS_QUEUE: [AWSInfraAssetField.SQS_QUEUE_NAME],
+        AWSInfraAssetType.SSM_PARAMETER: [AWSInfraAssetField.SSM_PARAMETER_NAME],
+        AWSInfraAssetType.SECRETS_MANAGER_SECRET: [AWSInfraAssetField.SECRET_NAME],
+        AWSInfraAssetType.DYNAMO_DB_TABLE: [
+            AWSInfraAssetField.TABLE_NAME,
+            AWSInfraAssetField.TABLE_ITEMS,
+        ],
+    }
+    if asset_field not in VALID_FIELDS[asset_type]:
+        raise ValueError(
+            f"Invalid asset type and field combination: {asset_type}, {asset_field}"
+        )
+
     inventory = get_current_assets(canarydrop).get(asset_type, [])
 
     # Parent asset types (top-level resources)
     PARENT_FIELDS = {
-        AssetLabel.BUCKET_NAME,
-        AssetLabel.SQS_QUEUE_NAME,
-        AssetLabel.SSM_PARAMETER_NAME,
-        AssetLabel.SECRET_NAME,
-        AssetLabel.TABLE_NAME,
+        AWSInfraAssetField.BUCKET_NAME,
+        AWSInfraAssetField.SQS_QUEUE_NAME,
+        AWSInfraAssetField.SSM_PARAMETER_NAME,
+        AWSInfraAssetField.SECRET_NAME,
+        AWSInfraAssetField.TABLE_NAME,
     }
 
     # Child asset types (nested resources)
     CHILD_FIELDS = {
-        AssetLabel.OBJECT_PATH,
-        AssetLabel.TABLE_ITEM,
+        AWSInfraAssetField.OBJECTS,
+        AWSInfraAssetField.TABLE_ITEMS,
     }
 
     if asset_field in PARENT_FIELDS:
@@ -263,23 +268,23 @@ def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     canarydrop.aws_deployed_assets = json.dumps(
         {
             AWSInfraAssetType.S3_BUCKET.value: [
-                bucket[AssetLabel.BUCKET_NAME]
+                bucket[AWSInfraAssetField.BUCKET_NAME]
                 for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
             ],
             AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
-                table[AssetLabel.TABLE_NAME]
+                table[AWSInfraAssetField.TABLE_NAME]
                 for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
             ],
             AWSInfraAssetType.SQS_QUEUE.value: [
-                queue[AssetLabel.SQS_QUEUE_NAME]
+                queue[AWSInfraAssetField.SQS_QUEUE_NAME]
                 for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
             ],
             AWSInfraAssetType.SSM_PARAMETER.value: [
-                param[AssetLabel.SSM_PARAMETER_NAME]
+                param[AWSInfraAssetField.SSM_PARAMETER_NAME]
                 for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
             ],
             AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
-                secret[AssetLabel.SECRET_NAME]
+                secret[AWSInfraAssetField.SECRET_NAME]
                 for secret in plan.get(
                     AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
                 )
