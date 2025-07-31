@@ -224,7 +224,6 @@ from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
 
-logging.config.fileConfig("log.ini", disable_existing_loggers=False)
 log = logging.getLogger()
 
 frontend_settings = FrontendSettings()

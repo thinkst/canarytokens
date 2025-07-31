@@ -10,6 +10,8 @@ from pydantic import HttpUrl
 
 from canarytokens import canarydrop, models, queries, constants
 from canarytokens.models import (
+    AWSInfraTokenRequest,
+    AWSInfraTokenResponse,
     AnyDownloadRequest,
     AnyTokenRequest,
     AnyTokenResponse,
@@ -162,6 +164,7 @@ set_of_unsupported_request_classes = [
     CustomBinaryTokenRequest,
     PWATokenRequest,
     CreditCardV2TokenRequest,
+    AWSInfraTokenRequest,  # credentials not available
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -171,6 +174,7 @@ set_of_unsupported_response_classes = [
     CustomBinaryTokenResponse,
     PWATokenResponse,
     CreditCardV2TokenResponse,
+    AWSInfraTokenResponse,  # credentials not available
 ]
 
 [set_of_response_classes.remove(o) for o in set_of_unsupported_response_classes]

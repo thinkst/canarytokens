@@ -115,6 +115,7 @@ jobs:
           export CANARY_CLOUDFLARE_ACCOUNT_ID=test
           export CANARY_CLOUDFLARE_API_TOKEN=test
           export CANARY_CLOUDFLARE_NAMESPACE=test
+          export CANARY_TESTING=true
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
 

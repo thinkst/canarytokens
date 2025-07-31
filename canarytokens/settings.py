@@ -146,12 +146,12 @@ class FrontendSettings(BaseSettings):
     GEMINI_PROMPT_TEMPLATE: Optional[str]
     GEMINI_SYSTEM_PROMPT: Optional[str]
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
+    TESTING = False
 
     # temporary
     AWS_ACCESS_KEY_ID: Optional[str]
     AWS_SECRET_ACCESS_KEY: Optional[str]
     AWS_SESSION_TOKEN: Optional[str]
-    DEV = False
 
     class Config:
         allow_mutation = False
