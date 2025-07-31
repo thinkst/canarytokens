@@ -1,10 +1,11 @@
 import enum
-import random
 
-from canarytokens.aws_infra.plan_generation import AssetLabel, _get_ingestion_bus_arn
-from canarytokens.aws_infra.utils import random_string
+from canarytokens.aws_infra.utils import generate_content
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.models import AWSInfraAssetType
+from canarytokens.models import AWSInfraAssetField, AWSInfraAssetType
+from canarytokens.settings import FrontendSettings
+
+settings = FrontendSettings()
 
 
 class Variable(str, enum.Enum):
@@ -34,9 +35,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
         Variable.TABLES: [],
         Variable.TABLE_ITEMS: [],
         Variable.CANARYTOKEN_ID: canarydrop.canarytoken.value(),
-        Variable.TARGET_BUS_ARN: _get_ingestion_bus_arn(
-            canarydrop.aws_infra_ingestion_bus_name
-        ),
+        Variable.TARGET_BUS_ARN: f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{canarydrop.aws_infra_ingestion_bus_name}",
         Variable.ACCOUNT_ID: canarydrop.aws_account_id,
         Variable.REGION: canarydrop.aws_region,
     }
@@ -52,30 +51,32 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
 
 def _add_s3_buckets(tf_variables, plan):
     for bucket in plan["assets"].get(AWSInfraAssetType.S3_BUCKET, []):
-        tf_variables[Variable.S3_BUCKET_NAMES].append(bucket[AssetLabel.BUCKET_NAME])
+        tf_variables[Variable.S3_BUCKET_NAMES].append(
+            bucket[AWSInfraAssetField.BUCKET_NAME]
+        )
         for s3_object in bucket.get("objects", []):
             tf_variables[Variable.S3_OBJECTS].append(
                 {
-                    "bucket": bucket[AssetLabel.BUCKET_NAME],
+                    "bucket": bucket[AWSInfraAssetField.BUCKET_NAME],
                     "key": s3_object,
-                    "content": random_string(
-                        random.randint(5, 1000)
-                    ),  # Random content for the object
+                    "content": generate_content(),
                 }
             )
 
 
 def _add_sqs_queues(tf_variables, plan):
     for queue in plan["assets"].get(AWSInfraAssetType.SQS_QUEUE, []):
-        tf_variables[Variable.SQS_QUEUES].append(queue[AssetLabel.SQS_QUEUE_NAME])
+        tf_variables[Variable.SQS_QUEUES].append(
+            queue[AWSInfraAssetField.SQS_QUEUE_NAME]
+        )
 
 
 def _add_ssm_parameters(tf_variables, plan):
     for param in plan["assets"].get(AWSInfraAssetType.SSM_PARAMETER, []):
         tf_variables[Variable.SSM_PARAMETERS].append(
             {
-                "name": param[AssetLabel.SSM_PARAMETER_NAME],
-                "value": random_string(random.randint(5, 1000)),
+                "name": param[AWSInfraAssetField.SSM_PARAMETER_NAME],
+                "value": generate_content(),
             }
         )
 
@@ -83,17 +84,17 @@ def _add_ssm_parameters(tf_variables, plan):
 def _add_secrets(tf_variables, plan):
     for secret in plan["assets"].get(AWSInfraAssetType.SECRETS_MANAGER_SECRET, []):
         tf_variables[Variable.SECRETS].append(
-            secret[AssetLabel.SECRET_NAME],
+            secret[AWSInfraAssetField.SECRET_NAME],
         )
 
 
 def _add_dynamodb_tables(tf_variables, plan):
     for table in plan["assets"].get(AWSInfraAssetType.DYNAMO_DB_TABLE, []):
-        tf_variables[Variable.TABLES].append(table[AssetLabel.TABLE_NAME])
+        tf_variables[Variable.TABLES].append(table[AWSInfraAssetField.TABLE_NAME])
         for item in table.get("table_items", []):
             tf_variables[Variable.TABLE_ITEMS].append(
                 {
-                    "table_name": table[AssetLabel.TABLE_NAME],
+                    "table_name": table[AWSInfraAssetField.TABLE_NAME],
                     "key": "id",
                     "value": item,  # Assuming 'id' is the primary key
                 }

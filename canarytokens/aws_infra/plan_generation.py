@@ -149,10 +149,6 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     return proposed_plan
 
 
-def _get_ingestion_bus_arn(bus_name: str):
-    return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
-
-
 async def _generate_parent_asset_name(
     asset_type: AWSInfraAssetType, inventory: list
 ) -> str:
