@@ -859,32 +859,34 @@ class Canarytoken(object):
             "ssm.amazonaws.com": AWSInfraAssetType.SSM_PARAMETER.value,
         }
 
-        if event_detail.get("resources", [{}])[0].get("type"):
-            resource_type = event_detail["resources"][0]["type"]
-            asset_type = resource_type_mapping.get(resource_type)
+        if resource_type := event_detail.get("resources", [{}])[0].get("type"):
+            if asset_type := resource_type_mapping.get(resource_type):
+                return asset_type
 
-        elif event_detail.get("eventSource"):
-            resource_type = event_detail["eventSource"]
-            asset_type = event_source_mapping.get(resource_type)
-
-        else:
-            logging.warning(
-                f"No resource type or event source found in AWS Infra Canarytoken event: {event_detail}"
+            # Whenever this exception is thrown, update resource_type_mapping with missing value
+            logging.error(
+                f"Cloudtrail resource type {resource_type} is missing", exc_info=True
             )
-            resource_type = "Unknown"
-            asset_type = None
 
-        if asset_type is None:
-            logging.warning(
-                f"Unknown AWS asset type in AWS Infra Canarytoken event: {resource_type}"
+        if event_source := event_detail.get("eventSource"):
+            if asset_type := event_source_mapping.get(event_source):
+                return asset_type
+            # Whenever this exception is thrown, update event_source_mapping with missing value
+            logging.error(
+                f"Cloudtrail event source {event_source} is missing", exc_info=True
             )
-        return asset_type or resource_type
+
+        logging.error(
+            "Could not match AWS Infra Canarytoken event (resource type or event source) to asset type",
+            exc_info=True,
+        )
+        return "Unknown"
 
     @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
-        event = request.get("cloudtrail_event")
-        event_detail = event.get("detail", {})
-        user = event_detail.get("userIdentity", {})
+        event = request["cloudtrail_event"]
+        event_detail = event["detail"]
+        user = event_detail["userIdentity"]
         resource_name_keys = [
             "bucketName",
             "tableName",
@@ -893,12 +895,10 @@ class Canarytoken(object):
             "secretId",
             "name",
         ]
-        src_ip = event_detail.get("sourceIPAddress")
-        time_of_hit = datetime.strptime(
-            event_detail.get("eventTime"), "%Y-%m-%dT%H:%M:%SZ"
-        )
+        src_ip = event_detail["sourceIPAddress"]
+        time_of_hit = datetime.strptime(event_detail["eventTime"], "%Y-%m-%dT%H:%M:%SZ")
         if "arn" in user:
-            identity = f'{user.get("arn", "unknown arn")} (type: {user.get("type", "unknown type")})'
+            identity = f'{user.get("arn")} (type: {user["type"]})'
         else:
             identity = ", ".join(f"{k}: {v}" for k, v in user.items())
         hit_info = {
@@ -909,25 +909,23 @@ class Canarytoken(object):
             "user_agent": event_detail.get("userAgent"),
             "additional_info": AwsInfraAdditionalInfo(
                 event={
-                    "Event Name": f'{event_detail.get("eventName", "unknown event")} (source: {event_detail.get("eventSource", "unknown source")})',
+                    "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
                     "Event Time": f"{time_of_hit.isoformat()} UTC+0:00",
-                    "Account & Region": f'{event.get("account", "unknown account")}, {event.get("region", "unknown region")}',
+                    "Account & Region": f'{event["account"]}, {event["region"]}',
                 },
                 decoy_resource={
                     "asset_type": Canarytoken._get_asset_type(event_detail),
                     "Asset Name": next(
                         (
                             v
-                            for k, v in event_detail.get(
-                                "requestParameters", {}
-                            ).items()
+                            for k, v in event_detail["requestParameters"].items()
                             if k in resource_name_keys
                         ),
                         "",
                     ),
                     "Request Parameters": ", ".join(
                         f"{k}: {v}"
-                        for k, v in event_detail.get("requestParameters", {}).items()
+                        for k, v in event_detail["requestParameters"].items()
                     ),
                 },
                 identity={
@@ -935,10 +933,10 @@ class Canarytoken(object):
                     "UserAgent": event_detail.get("userAgent"),
                 },
                 metadata={
-                    "Event ID": event_detail.get("eventID"),
+                    "Event ID": event_detail["eventID"],
                     "ReadOnly Event": event_detail.get("readOnly"),
-                    "Event Category": event_detail.get("eventCategory"),
-                    "Classification": event.get("detail-type"),
+                    "Event Category": event_detail["eventCategory"],
+                    "Classification": event["detail-type"],
                 },
             ),
         }
