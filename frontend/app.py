@@ -1183,12 +1183,21 @@ async def api_awsinfra_inventory_customer_account(
 
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
+    except NoCanarydropFound:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return AWSInfraInventoryCustomerAccountReceivedResponse(
+            handle=request.handle,
+            result=False,
+            message="Canarydrop not found.",
+            data_generation_remaining=data_generation.usage_by_canarydrop(
+                canarydrop
+            ).requests_remaining_percentage,
+        )
+
+    try:
         handle_response = await aws_infra.get_handle_response(
             request.handle, AWSInfraOperationType.INVENTORY
         )
-    except NoCanarydropFound:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return handle_response
     except AWSInfraDataGenerationLimitReached as e:
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
         aws_infra.mark_succeeded(canarydrop)
