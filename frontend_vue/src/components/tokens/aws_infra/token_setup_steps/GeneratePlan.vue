@@ -176,7 +176,7 @@ onMounted(() => {
       .proposed_plan as ProposedAWSInfraTokenPlanData;
     isLoadingUI.value = false;
     aiNameCountState.value = props.currentStepData?.ai_name_state || {
-      total: NaN,
+      total: 0,
       available: 0,
     };
     return;
