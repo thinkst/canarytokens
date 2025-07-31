@@ -55,9 +55,7 @@ def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
         "tables": [],
         "table_items": [],
         "canarytoken_id": canarydrop.canarytoken.value(),
-        "target_bus_arn": _get_ingestion_bus_arn(
-            canarydrop.aws_infra_ingestion_bus_name
-        ),
+        "target_bus_arn": f"arn:aws:events:{settings.AWS_INFRA_AWS_REGION}:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{canarydrop.aws_infra_ingestion_bus_name}",
         "account_id": canarydrop.aws_account_id,
         "region": canarydrop.aws_region,
     }
