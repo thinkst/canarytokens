@@ -51,15 +51,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import {
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import type { AssetData } from '../types';
 import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import AssetFormPagination from '@/components/tokens/aws_infra/plan_generator/AssetFormPagination.vue';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
+
+const emit = defineEmits(['updateAiAvailableNamesCount']);
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -84,7 +84,9 @@ async function handleAddItem() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.assetType, props.assetKey);
+  } = useGenerateAssetName(props.assetType, props.assetKey, (count: number) => {
+    emit('updateAiAvailableNamesCount', count);
+  });
 
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();

@@ -7,7 +7,13 @@
         class="flex flex-row items-center md:justify-end gap-16 justify-center"
       >
         <p>AI Generated Names</p>
+        <BaseSkeletonLoader
+          v-if="getAnyLoadingAssetData()"
+          class="w-[2.5rem] h-[2.5rem]"
+          type="circle"
+        />
         <div
+          v-else
           v-tooltip="{
             content: aiCurrentAvailableNamesCountTootlip,
             triggers: ['hover'],
@@ -15,11 +21,11 @@
           class="ai-name-count"
           :style="styleAiNameCountProgressBar"
           role="progressbar"
-          :aria-valuemax="aiTotalNamesCount"
+          :aria-valuemax="aiNameCountState.total"
           aria-valuemin="0"
-          :aria-valuenow="aiCurrentAvailableNamesCount"
+          :aria-valuenow="aiNameCountState.current"
         >
-          <span>{{ aiTotalNamesCount - aiCurrentAvailableNamesCount }} </span>
+          <span>{{ aiNameCountState.total - aiNameCountState.current }} </span>
         </div>
       </div>
     </div>
@@ -127,9 +133,13 @@ const props = defineProps<{
   currentStepData: TokenSetupData;
 }>();
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { token, auth_token, code_snippet_command, proposed_plan } =
-  props.initialStepData;
+const {
+  token,
+  auth_token,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  code_snippet_command,
+  proposed_plan,
+} = props.initialStepData;
 
 const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
@@ -145,8 +155,10 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   DynamoDBTable: false,
 });
 const isAiGenerateErrorMessage = ref('');
-const aiTotalNamesCount = ref(50);
-const aiCurrentAvailableNamesCount = ref(5);
+const aiNameCountState = ref({
+  total: NaN,
+  current: 0,
+});
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
@@ -163,6 +175,10 @@ onMounted(() => {
     assetsData.value = props.currentStepData
       .proposed_plan as ProposedAWSInfraTokenPlanData;
     isLoadingUI.value = false;
+    aiNameCountState.value = props.currentStepData?.ai_name_state || {
+      total: NaN,
+      current: 0,
+    };
     return;
   }
 
@@ -175,26 +191,27 @@ onMounted(() => {
 });
 
 const styleAiNameCountProgressBar = computed(() => {
-  const progress = Math.min(
-    ((aiTotalNamesCount.value - aiCurrentAvailableNamesCount.value) /
-      aiTotalNamesCount.value) *
-      100,
-    100
-  );
+  const total = aiNameCountState.value.total;
+  const current = aiNameCountState.value.current;
+  const progress =
+    total && !isNaN(total)
+      ? Math.min(((total - current) / total) * 100, 100)
+      : 0;
+
   if (progress > 70) {
-    // Green state
+    // Red state
     return `--bar-color: #ef4444; --progress: ${progress}%;`;
   } else if (progress > 50) {
     // Warning state
     return `--bar-color: #eab308; --progress: ${progress}%;`;
   }
-  // Red state
+  // Green state
   return ` --bar-color: #22c55e; --progress: ${progress}%;`;
 });
 
 const aiCurrentAvailableNamesCountTootlip = computed(() => {
-  return aiCurrentAvailableNamesCount.value > 0
-    ? `We generate decoy names with AI. You have ${aiCurrentAvailableNamesCount.value} names available out of ${aiTotalNamesCount.value}.`
+  return aiNameCountState.value.current > 0
+    ? `We generate decoy names with AI. You have ${aiNameCountState.value.current} names available out of ${aiNameCountState.value.total}.`
     : 'You have reached your limit for generated names. You can continue with manual setup.';
 });
 
@@ -233,6 +250,14 @@ function getAnyLoadingAssetData(): boolean {
   return Object.values(isLoadingAssetCard.value).some((loading) => loading);
 }
 
+function updateAiCurrentAvailableNamesCount(count: number) {
+  if (isNaN(aiNameCountState.value.total)) {
+    aiNameCountState.value.current = count;
+    return;
+  }
+  aiNameCountState.value.current = Math.floor(count) || 0;
+}
+
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
   assetsData.value[assetType]!.splice(index, 1);
 }
@@ -255,6 +280,9 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
       },
       'onAdd-asset': (newValues) => {
         handleSaveAsset(assetType, newValues, -1);
+      },
+      'onUpdate-ai-available-names-count': (count: number) => {
+        updateAiCurrentAvailableNamesCount(count);
       },
     },
   });
@@ -304,6 +332,11 @@ async function fetchAIgeneratedAssets(
     }
     const newAssets = res.data.assets;
 
+    aiNameCountState.value.total = Math.floor(
+      res.data.data_generation_remaining
+    );
+    updateAiCurrentAvailableNamesCount(aiNameCountState.value.total);
+
     if (Object.keys(newAssets).length > 0) {
       updatedPlanData = mergeAIGeneratedAssets(assetsData.value, newAssets);
     }
@@ -352,6 +385,7 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
       token,
       auth_token,
       proposed_plan: assetsData.value,
+      ai_name_state: aiNameCountState.value,
     });
     emits('updateStep');
   } catch (err: any) {
@@ -382,6 +416,7 @@ async function handleSubmit(formValues: { assets: AssetData[] | null }) {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 
   background-image: conic-gradient(
     var(--bar-color) var(--progress),
