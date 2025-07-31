@@ -2911,7 +2911,7 @@ class AWSInfraCheckRoleReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     session_credentials_retrieved: bool
-    error: Optional[str]
+    error: str = ""
 
 
 class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
@@ -2919,7 +2919,7 @@ class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     proposed_plan: dict = {}
-    error: Optional[str]
+    error: str = ""
     data_generation_remaining: float = 100.0
 
 
