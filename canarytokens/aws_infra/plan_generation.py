@@ -183,7 +183,7 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
 
     # If multiple inventories have been performed, but the user has not saved the plan,
     # We should not use Gemini anymore, and stop the user from increasing our costs.
-    if data_generation.name_generation_limit_usage(canarydrop).exhausted:
+    if not data_generation.name_generation_limit_usage(canarydrop).remaining:
         raise AWSInfraDataGenerationLimitReached(
             f"Name generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
         )
@@ -229,7 +229,7 @@ async def generate_data_choice(
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
 
-    if data_generation.name_generation_limit_usage(canarydrop).exhausted:
+    if not data_generation.name_generation_limit_usage(canarydrop).remaining:
         raise AWSInfraDataGenerationLimitReached(
             f"Name generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
         )
@@ -285,7 +285,7 @@ async def generate_child_assets(
     """
     Generate child assets for the given assets.
     """
-    if data_generation.name_generation_limit_usage(canarydrop).exhausted:
+    if not data_generation.name_generation_limit_usage(canarydrop).remaining:
         raise AWSInfraDataGenerationLimitReached(
             f"Name generation limit reached for canarytoken {canarydrop.canarytoken.value()}."
         )

@@ -322,10 +322,6 @@ class _NameGenerationLimitUsage:
     def remaining(self) -> int:
         return max(settings.AWS_INFRA_NAME_GENERATION_LIMIT - self.count, 0)
 
-    @cached_property
-    def exhausted(self) -> bool:
-        return self.remaining == 0
-
 
 def name_generation_limit_usage(canarydrop: Canarydrop) -> _NameGenerationLimitUsage:
     """
@@ -348,7 +344,7 @@ def name_generation_usage_consume(canarydrop: Canarydrop, count: int = 1) -> Non
     if count <= 0:
         raise ValueError("Count must be a positive integer.")
 
-    if name_generation_limit_usage(canarydrop).exhausted:
+    if not name_generation_limit_usage(canarydrop).remaining:
         log.warning(
             f"Canarytoken {canarydrop.canarytoken.value()} has already reached the Gemini data generation limit."
         )
