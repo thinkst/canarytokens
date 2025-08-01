@@ -95,7 +95,7 @@
       <BaseButton
         :loading="isSavingPlan"
         :disabled="getAnyLoadingAssetData()"
-        @click="handleSubmit(proposed_plan)"
+        @click="handleSavePlan()"
         >{{ isSavingPlan ? 'Saving...' : 'Save configuration' }}</BaseButton
       >
       <BaseMessageBox
@@ -358,14 +358,18 @@ function handleSaveAsset(
   }
 }
 
-async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
+async function handleSavePlan() {
   isSavingPlan.value = true;
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
   isSaveSuccess.value = false;
 
+  const planValues = {
+    assets: assetsData.value,
+  };
+
   try {
-    const res = await savePlan(token, auth_token, formValues);
+    const res = await savePlan(token, auth_token, planValues);
     if (res.status !== 200) {
       isSavingPlan.value = false;
       isSaveError.value = true;
@@ -392,9 +396,7 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
   }
 }
 
-async function handleSubmit(formValues: { assets: AssetData[] | null }) {
-  await handleSavePlan(formValues);
-}
+
 </script>
 
 <style>
