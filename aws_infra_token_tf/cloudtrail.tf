@@ -52,7 +52,7 @@ locals {
     source = ["aws.ssm"]
     detail = {
       requestParameters = {
-        name = [for param in local.safe_ssm_parameters : param.name]
+        name = [for param in aws_ssm_parameter.fake-ssm-parameters : param.arn]
       }
     }
   } : null

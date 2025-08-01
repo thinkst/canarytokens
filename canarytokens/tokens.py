@@ -842,24 +842,49 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
-    def _get_asset_type(resource_type: str):
-        mapping = {
+    def _get_asset_type(event_detail: dict) -> str:
+        resource_type_mapping = {
             "AWS::S3::Bucket": AWSInfraAssetType.S3_BUCKET.value,
             "AWS::DynamoDB::Table": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
             "AWS::SQS::Queue": AWSInfraAssetType.SQS_QUEUE.value,
             "AWS::SecretsManager::Secret": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
             "AWS::SSM::Parameter": AWSInfraAssetType.SSM_PARAMETER.value,
         }
-        asset_type = mapping.get(resource_type)
-        if asset_type is None:
-            logging.warning(
-                f"Unknown AWS asset type in AWS Infra Canarytoken event: {resource_type}"
+
+        event_source_mapping = {
+            "s3.amazonaws.com": AWSInfraAssetType.S3_BUCKET.value,
+            "dynamodb.amazonaws.com": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
+            "sqs.amazonaws.com": AWSInfraAssetType.SQS_QUEUE.value,
+            "secretsmanager.amazonaws.com": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
+            "ssm.amazonaws.com": AWSInfraAssetType.SSM_PARAMETER.value,
+        }
+
+        if resource_type := event_detail.get("resources", [{}])[0].get("type"):
+            if asset_type := resource_type_mapping.get(resource_type):
+                return asset_type
+
+            # Whenever this exception is thrown, update resource_type_mapping with missing value
+            logging.error(
+                f"Cloudtrail resource type {resource_type} is missing", exc_info=True
             )
-        return asset_type or resource_type
+
+        if event_source := event_detail.get("eventSource"):
+            if asset_type := event_source_mapping.get(event_source):
+                return asset_type
+            # Whenever this exception is thrown, update event_source_mapping with missing value
+            logging.error(
+                f"Cloudtrail event source {event_source} is missing", exc_info=True
+            )
+
+        logging.error(
+            "Could not match AWS Infra Canarytoken event (resource type or event source) to asset type",
+            exc_info=True,
+        )
+        return "Unknown"
 
     @staticmethod
     def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
-        event = request.get("cloudtrail_event")
+        event = request["cloudtrail_event"]
         event_detail = event["detail"]
         user = event_detail["userIdentity"]
         resource_name_keys = [
@@ -881,7 +906,7 @@ class Canarytoken(object):
             "is_tor_relay": queries.is_tor_relay(src_ip),
             "src_ip": src_ip,
             "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
-            "user_agent": event_detail["userAgent"],
+            "user_agent": event_detail.get("userAgent"),
             "additional_info": AwsInfraAdditionalInfo(
                 event={
                     "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
@@ -889,9 +914,7 @@ class Canarytoken(object):
                     "Account & Region": f'{event["account"]}, {event["region"]}',
                 },
                 decoy_resource={
-                    "asset_type": Canarytoken._get_asset_type(
-                        event_detail["resources"][0]["type"]
-                    ),
+                    "asset_type": Canarytoken._get_asset_type(event_detail),
                     "Asset Name": next(
                         (
                             v
@@ -907,11 +930,11 @@ class Canarytoken(object):
                 },
                 identity={
                     "User Identity": identity,
-                    "UserAgent": event_detail["userAgent"],
+                    "UserAgent": event_detail.get("userAgent"),
                 },
                 metadata={
                     "Event ID": event_detail["eventID"],
-                    "ReadOnly Event": event_detail["readOnly"],
+                    "ReadOnly Event": event_detail.get("readOnly"),
                     "Event Category": event_detail["eventCategory"],
                     "Classification": event["detail-type"],
                 },
