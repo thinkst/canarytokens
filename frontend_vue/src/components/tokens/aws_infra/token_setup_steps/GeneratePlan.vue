@@ -62,7 +62,7 @@
         >We analyzed your AWS account. Below are the recommended decoys that
         have been generated to match your environment for each asset. You can
         review or edit anything before we generate your
-        canarytoken.</BaseMessageBox
+        Canarytoken.</BaseMessageBox
       >
       <BaseMessageBox
         v-if="isErrorMessage"

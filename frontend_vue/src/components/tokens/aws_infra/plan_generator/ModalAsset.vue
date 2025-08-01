@@ -153,8 +153,8 @@ const assetLabel = computed(() => getAssetLabel(props.assetType));
 
 const subtitle = computed(() => {
   return !isEmptyAssetData.value
-    ? `We generated names for your ${assetLabel.value} is based on your current deployment.`
-    : `You can add new decoys to your ${assetLabel.value} list.`;
+    ? `We generated ${assetLabel.value} names based on your current deployment.`
+    : `You can add new decoys to your ${assetLabel.value}.`;
 });
 
 function handleShowAssetDetails(selectedItem: AssetData, index: number) {
