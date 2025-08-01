@@ -15,6 +15,7 @@ export function useFetchUserAccount(
   const stateStatus = ref<StepStateEnum>();
   const proposedPlan = ref<any>(null);
   const externalId = ref(external_id || '');
+  const availableAiNames = ref<number>(0);
 
   const POLL_INTERVAL = 5000;
   // If the first attempts fails, it could depend on the AWS account still being set up
@@ -132,6 +133,8 @@ export function useFetchUserAccount(
           if (resWithHandle.data.proposed_plan) {
             stateStatus.value = StepStateEnum.SUCCESS;
             proposedPlan.value = resWithHandle.data.proposed_plan;
+            availableAiNames.value =
+              resWithHandle.data.data_generation_remaining;
             return;
           }
 
@@ -190,5 +193,6 @@ export function useFetchUserAccount(
     stateStatus,
     handleFetchUserAccount,
     proposedPlan,
+    availableAiNames,
   };
 }

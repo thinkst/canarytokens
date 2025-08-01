@@ -37,7 +37,13 @@
         >.
       </BaseMessageBox>
       <div class="text-left max-w-[100%]">
+        <BaseSkeletonLoader
+          v-if="isLoadingSnippet"
+          class="w-[100%] h-[300px] mb-24"
+          type="text"
+        />
         <BaseCard
+          v-else
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
           <div class="text-center mb-24">
@@ -145,6 +151,7 @@ const accountNumber = ref('');
 const accountRegion = ref('');
 const roleName = ref('');
 const managementAwsAccount = ref('');
+const isLoadingSnippet = ref(false);
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
@@ -154,10 +161,12 @@ const {
   stateStatus: stateStatusFetch,
   handleFetchUserAccount,
   proposedPlan,
+  availableAiNames,
 } = useFetchUserAccount(
   token,
   auth_token,
-  computed(() => values.external_id)
+  computed(() => values.external_id
+)
 );
 
 onMounted(async () => {
@@ -165,6 +174,7 @@ onMounted(async () => {
 });
 
 async function initializeRoleData() {
+
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 
@@ -197,7 +207,7 @@ const { handleSubmit, setFieldValue, values } = useForm({
 });
 
 async function handleGetRoleName() {
-  stateStatus.value = StepStateEnum.LOADING;
+  isLoadingSnippet.value = true;
   errorMessage.value = '';
   try {
     const res = await requestAWSInfraRoleSetupCommands(
@@ -228,6 +238,8 @@ async function handleGetRoleName() {
     stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value =
       err.data?.message || 'Failed to generate setup commands';
+  } finally {
+    isLoadingSnippet.value = false;
   }
 }
 
@@ -274,6 +286,7 @@ watch(
           aws_account: managementAwsAccount.value,
           aws_account_number: accountNumber.value,
           proposed_plan: proposedPlan.value,
+          available_ai_names: availableAiNames.value,
         });
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {

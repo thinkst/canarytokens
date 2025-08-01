@@ -9,7 +9,7 @@
         <p>Name generation requests left</p>
         <BaseSkeletonLoader
           v-if="getAnyLoadingAssetData()"
-          class="w-[2.5rem] h-[2.5rem]"
+          class="w-[2.5rem] h-[2.5rem] shrink-0"
           type="circle"
         />
         <div
@@ -133,11 +133,8 @@ const props = defineProps<{
   currentStepData: TokenSetupData;
 }>();
 
-const {
-  token,
-  auth_token,
-  proposed_plan,
-} = props.initialStepData;
+const { token, auth_token, proposed_plan, available_ai_names } =
+  props.initialStepData;
 
 const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
@@ -167,9 +164,9 @@ const assetsData = ref<ProposedAWSInfraTokenPlanData>({
 });
 
 onMounted(() => {
-  const isExistingPlan = props.currentStepData?.proposed_plan;
+  const isExistingSession = props.currentStepData?.proposed_plan;
 
-  if (isExistingPlan) {
+  if (isExistingSession) {
     assetsData.value = props.currentStepData
       .proposed_plan as ProposedAWSInfraTokenPlanData;
     isLoadingUI.value = false;
@@ -181,7 +178,12 @@ onMounted(() => {
   }
 
   assetsData.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
-  fetchAIgeneratedAssets(assetsData.value);
+  // available_ai_names exists only for existing plans
+  // If a plan exists, we don't want to fetch AI assets again
+  !available_ai_names
+    ? fetchAIgeneratedAssets(assetsData.value)
+    : updateAiCurrentAvailableNamesCount(available_ai_names);
+
   // Set loading state to allow UI to render
   setTimeout(() => {
     isLoadingUI.value = false;
@@ -243,8 +245,7 @@ function getAnyLoadingAssetData(): boolean {
 
 function updateAiCurrentAvailableNamesCount(count: number) {
   if (aiNameCountState.value.total === 0) {
-    aiNameCountState.value.available = Math.floor(count) || 0;
-    return;
+    aiNameCountState.value.total = Math.floor(count) || 0;
   }
   aiNameCountState.value.available = Math.floor(count) || 0;
 }
@@ -408,6 +409,7 @@ async function handleSubmit(formValues: { assets: AssetData[] | null }) {
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-shrink: 0;
 
   background-image: conic-gradient(
     var(--bar-color) var(--progress),
