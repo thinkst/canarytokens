@@ -91,15 +91,21 @@ def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
         canarytoken=canarydrop.canarytoken.value(),
         operation=operation.value,
         requested_time=datetime.now(timezone.utc).timestamp(),
-        response_received="False",
+        response_received=str(
+            not (
+                is_ingesting(canarydrop)
+                and operation == AWSInfraOperationType.SETUP_INGESTION
+            )
+        ),
         response_content="",
     )
     queries.add_aws_management_lambda_handle(
         handle_id,
         handle.dict(),
     )
-    payload = _build_operation_payload(operation, handle_id, canarydrop)
-    queue_management_request(payload)
+    if handle.response_received == "False":
+        payload = _build_operation_payload(operation, handle_id, canarydrop)
+        queue_management_request(payload)
     return handle_id
 
 

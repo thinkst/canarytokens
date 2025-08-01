@@ -3025,7 +3025,6 @@ class AWSInfraState(enum.Flag):
     GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
     PLAN = enum.auto()  # after inventorying
     SETUP_INGESTION = enum.auto()  # after plan saved
-
     # Overlay states
     INGESTING = enum.auto()
     SUCCEEDED = enum.auto()
