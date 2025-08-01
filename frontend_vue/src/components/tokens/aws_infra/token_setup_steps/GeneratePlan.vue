@@ -302,8 +302,6 @@ async function fetchAIgeneratedAssets(
     isLoadingAssetCard.value[assetType as AssetTypesEnum] = true;
   });
 
-  console.log(payload,'payload')
-
   try {
     const res = await requestAIgeneratedAssets({
       canarytoken: token,
@@ -332,7 +330,6 @@ async function fetchAIgeneratedAssets(
 
     if (Object.keys(newAssets).length > 0) {
       updatedPlanData = mergeAIGeneratedAssets(assetsData.value, newAssets);
-      console.log('Updated plan data:', updatedPlanData);
     }
 
     assetsData.value = { ...assetsData.value, ...updatedPlanData };
@@ -398,10 +395,7 @@ async function handleSavePlan() {
   }
 }
 
-// async function handleSubmit() {
-//   await handleSavePlan({ assets: assetsData.value});
-//   console.log('Form values to save:',  assetsData.value);
-// }
+
 </script>
 
 <style>
