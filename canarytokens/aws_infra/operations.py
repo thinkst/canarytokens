@@ -159,7 +159,7 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     if not handle:
         return AWSInfraHandleResponse(
             handle=handle_id,
-            error=default_error,
+            error=default_error.value,
             message=default_error_message,
         )
 
@@ -168,7 +168,7 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
         return AWSInfraHandleResponse(
             handle=handle_id,
             message=default_error_message,
-            error=default_error,
+            error=default_error.value,
         )
 
     if handle.response_received != "True":
