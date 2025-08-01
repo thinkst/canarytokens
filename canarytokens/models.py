@@ -2968,15 +2968,8 @@ class AWSInfraTeardownReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
-<<<<<<< HEAD
-<<<<<<< HEAD
     role_cleanup_commands: Optional[dict] = None
-=======
-    role_cleanup_commands: dict = None
->>>>>>> 5ce89d1e (Cleanup)
-=======
     role_cleanup_commands: Optional[dict] = None
->>>>>>> 617fa703 (Use strs instead of auto)
     error: str = ""
 
 
@@ -3031,10 +3024,6 @@ class AWSInfraState(enum.Flag):
 
 
 class AWSInfraServiceError(enum.Enum):
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 617fa703 (Use strs instead of auto)
     FAILURE_CHECK_ROLE = "FAILURE_CHECK_ROLE"
     FAILURE_INGESTION_BUS_PROVISION = "FAILURE_INGESTION_BUS_PROVISION"
     FAILURE_INGESTION_SETUP = "FAILURE_INGESTION_SETUP"
@@ -3051,51 +3040,14 @@ class AWSInfraServiceError(enum.Enum):
     UNHANDLED_ERROR = "UNHANDLED_ERROR"
     UNKNOWN = "UNKNOWN"
     NO_ERROR = ""
-<<<<<<< HEAD
 
     @classmethod
     def parse(cls, error: Optional[str] = None) -> AWSInfraServiceError:
-=======
-    FAILURE_CHECK_ROLE = enum.auto()
-    FAILURE_INGESTION_BUS_PROVISION = enum.auto()
-    FAILURE_INGESTION_SETUP = enum.auto()
-    FAILURE_INGESTION_TEARDOWN = enum.auto()
-    FAILURE_INVENTORY = enum.auto()
-    FAILURE_MGMT_RESPONSE = enum.auto()
-    FAILURE_TRIG_ALERT = enum.auto()
-    OP_MISSING_KEY = enum.auto()
-    REQ_HANDLE_INVALID = enum.auto()
-    REQ_HANDLE_TIMEOUT = enum.auto()
-    REQ_OPERATION_INVALID = enum.auto()
-    REQ_PAYLOAD_INVALID_JSON = enum.auto()
-    REQ_PAYLOAD_UNSUPPORTED = enum.auto()
-    UNHANDLED_ERROR = enum.auto()
-    UNKNOWN = enum.auto()
-    NO_ERROR = enum.auto()
-
-    @classmethod
-    def parse(cls, error: Optional[str]) -> AWSInfraServiceError:
->>>>>>> 5ce89d1e (Cleanup)
-=======
-
-    @classmethod
-    def parse(cls, error: Optional[str] = None) -> AWSInfraServiceError:
->>>>>>> 617fa703 (Use strs instead of auto)
         if not error:
             return cls.NO_ERROR
 
         try:
             code = error.split("::")[0]
-<<<<<<< HEAD
-<<<<<<< HEAD
             return cls(code)
         except ValueError:
-=======
-            return next((e for e in cls if e.name == code), cls.UNKNOWN)
-        except Exception:
->>>>>>> 5ce89d1e (Cleanup)
-=======
-            return cls(code)
-        except ValueError:
->>>>>>> 617fa703 (Use strs instead of auto)
             return cls.UNKNOWN
