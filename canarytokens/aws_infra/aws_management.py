@@ -23,9 +23,7 @@ def _get_session():
 
 
 def _get_client(service: str, region_name: str = settings.AWS_INFRA_AWS_REGION):
-    if settings.TESTING:
-        return None
-    if settings.DOMAINS[0] == "127.0.0.1":
+    if settings.DOMAINS[0] == "127.0.0.1" and not settings.TESTING:
         return _get_session().client(
             service,
             region_name=region_name,
