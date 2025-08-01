@@ -2893,7 +2893,7 @@ class AWSInfraConfigStartResponse(BaseModel):
 class AWSInfraTriggerOperationRequest(BaseModel):  # before handle id created
     canarytoken: str
     auth_token: str
-    external_id: str = None
+    external_id: Optional[str] = None
 
 
 class AWSInfraHandleRequest(BaseModel):
@@ -2903,6 +2903,7 @@ class AWSInfraHandleRequest(BaseModel):
 class AWSInfraHandleResponse(BaseModel):  # before response received
     handle: str
     message: str = ""
+    error: str = ""
 
 
 class AWSInfraCheckRoleReceivedResponse(BaseModel):
@@ -2927,13 +2928,13 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
     auth_token: str
     asset_type: AWSInfraAssetType
     asset_field: AWSInfraAssetField
-    parent_asset_name: str = None
+    parent_asset_name: Optional[str] = None
 
 
 class AWSInfraGenerateDataChoiceResponse(BaseModel):
     result: bool
     message: str = ""
-    proposed_data: str = None
+    proposed_data: Optional[str] = None
     data_generation_remaining: float = 100.0
 
 
@@ -2958,15 +2959,17 @@ class AWSInfraSetupIngestionReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
-    terraform_module_snippet: dict = None
-    role_cleanup_commands: dict = None
+    terraform_module_snippet: Optional[dict] = None
+    role_cleanup_commands: Optional[dict] = None
+    error: str = ""
 
 
 class AWSInfraTeardownReceivedResponse(BaseModel):
     result: bool
     message: str = ""
     handle: str
-    role_cleanup_commands: dict = None
+    role_cleanup_commands: Optional[dict] = None
+    error: str = ""
 
 
 class AWSInfraOperationType(str, enum.Enum):
@@ -3021,32 +3024,30 @@ class AWSInfraState(enum.Flag):
 
 
 class AWSInfraServiceError(enum.Enum):
-    FAILURE_CHECK_ROLE = enum.auto()
-    FAILURE_INGESTION_BUS_PROVISION = enum.auto()
-    FAILURE_INGESTION_SETUP = enum.auto()
-    FAILURE_INGESTION_TEARDOWN = enum.auto()
-    FAILURE_INVENTORY = enum.auto()
-    FAILURE_MGMT_RESPONSE = enum.auto()
-    FAILURE_TRIG_ALERT = enum.auto()
-    OP_MISSING_KEY = enum.auto()
-    REQ_HANDLE_INVALID = enum.auto()
-    REQ_OPERATION_INVALID = enum.auto()
-    REQ_PAYLOAD_INVALID_JSON = enum.auto()
-    REQ_PAYLOAD_UNSUPPORTED = enum.auto()
-    UNHANDLED_ERROR = enum.auto()
-    UNKNOWN = enum.auto()
-    NO_ERROR = enum.auto()
+    FAILURE_CHECK_ROLE = "FAILURE_CHECK_ROLE"
+    FAILURE_INGESTION_BUS_PROVISION = "FAILURE_INGESTION_BUS_PROVISION"
+    FAILURE_INGESTION_SETUP = "FAILURE_INGESTION_SETUP"
+    FAILURE_INGESTION_TEARDOWN = "FAILURE_INGESTION_TEARDOWN"
+    FAILURE_INVENTORY = "FAILURE_INVENTORY"
+    FAILURE_MGMT_RESPONSE = "FAILURE_MGMT_RESPONSE"
+    FAILURE_TRIG_ALERT = "FAILURE_TRIG_ALERT"
+    OP_MISSING_KEY = "OP_MISSING_KEY"
+    REQ_HANDLE_INVALID = "REQ_HANDLE_INVALID"
+    REQ_HANDLE_TIMEOUT = "REQ_HANDLE_TIMEOUT"
+    REQ_OPERATION_INVALID = "REQ_OPERATION_INVALID"
+    REQ_PAYLOAD_INVALID_JSON = "REQ_PAYLOAD_INVALID_JSON"
+    REQ_PAYLOAD_UNSUPPORTED = "REQ_PAYLOAD_UNSUPPORTED"
+    UNHANDLED_ERROR = "UNHANDLED_ERROR"
+    UNKNOWN = "UNKNOWN"
+    NO_ERROR = ""
 
     @classmethod
-    def parse(cls, error: str):
-        if error == "":
-            return cls.NO_ERROR.name, ""
+    def parse(cls, error: Optional[str] = None) -> AWSInfraServiceError:
+        if not error:
+            return cls.NO_ERROR
 
         try:
-            code, message = error.split("::")
-            return next(
-                ((e.name, message) for e in cls if e.name == code),
-                (cls.UNKNOWN.name, "Something went wrong."),
-            )
-        except Exception:
-            return cls.UNKNOWN.name, "Something went wrong."
+            code = error.split("::")[0]
+            return cls(code)
+        except ValueError:
+            return cls.UNKNOWN
