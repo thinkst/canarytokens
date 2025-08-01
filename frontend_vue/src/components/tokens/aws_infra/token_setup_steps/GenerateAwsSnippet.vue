@@ -201,7 +201,7 @@ const { token, auth_token, aws_region, aws_account_number } =
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.LOADING);
 const errorMessage = ref('');
-// TODO: Remove when the lambda is fixed to handle the poll correctly
+// TODO: Remove when we clarify why the polling is not working correctly
 const isWaitingForSetup = ref(false);
 
 const { isLoading, isError } = useStepState(stateStatus);
@@ -315,7 +315,7 @@ async function handleGoToNextStep() {
   } else {
     showWarningSnipeptCheck.value = false;
     isWaitingForSetup.value = true;
-    // TODO: Remove when the lambda is fixed to handle the poll correctly
+    // TODO: Remove when we clarify why the polling is not working correctly
     // Forces waiting time expected for the AWS account to be ready
     setTimeout(async () => {
       isWaitingForSetup.value = false;
