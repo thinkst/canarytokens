@@ -42,8 +42,7 @@ settings = FrontendSettings()
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
 HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
-# map to user-friendly error messages
-service_error_map = {
+SERVICE_ERROR_MESSAGE_MAP = {
     AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
     AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
     AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
