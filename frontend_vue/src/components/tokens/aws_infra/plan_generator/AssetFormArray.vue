@@ -65,6 +65,7 @@ const props = defineProps<{
   assetType: AssetTypesEnum;
   assetKey: keyof AssetData;
   fields: any;
+  parentAssetName: string;
   prepend: (value: any) => void;
   remove: (value: number) => void;
 }>();
@@ -75,6 +76,7 @@ const isErrorMessage = ref('');
 function iconURL() {
   return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
 }
+
 async function handleAddItem() {
   isLoading.value = true;
   isErrorMessage.value = '';
@@ -87,7 +89,7 @@ async function handleAddItem() {
   } = useGenerateAssetName(props.assetType, props.assetKey);
 
   isLoading.value = isGenerateNameLoading.value;
-  await handleGenerateName();
+  await handleGenerateName(props.parentAssetName);
   isErrorMessage.value = isGenerateNameError.value;
   if (isErrorMessage.value) {
     isLoading.value = false;

@@ -19,6 +19,7 @@
             :asset-type="props.assetType"
             :asset-key="key"
             :fields="fields"
+            :parent-asset-name="parentAssetName"
             :prepend="prepend"
             :remove="remove"
           />
@@ -38,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
@@ -47,7 +48,7 @@ import {
   AssetTypesEnum,
 } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
+import { getFieldLabel, getAssetNameKey } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import AssetFormArray from '@/components/tokens/aws_infra/plan_generator/AssetFormArray.vue';
 
 const props = defineProps<{
@@ -68,6 +69,11 @@ onMounted(() => {
   const firstInput = formAssetRef.value?.$el.getElementsByTagName('input')[0];
   firstInput.focus();
 });
+
+const parentAssetName = computed(():string => {
+  const assetNameKey = getAssetNameKey(props.assetType) as keyof AssetData;
+  return String(props.assetData[assetNameKey]) || '';
+})
 
 function onSubmit(values: GenericObject) {
   emits('update-asset', values);
