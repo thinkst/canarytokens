@@ -33,7 +33,6 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
     Check if the next state is allowed based on the current state of the canarydrop. If the next state is None,
     it checks if the canarydrop has been initialised, i.e. has any state set.
     """
-    print("current state:", canarydrop.aws_infra_state.name)
     state_transition_allow_map = {
         AWSInfraState.INITIAL: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE: [AWSInfraState.CHECK_ROLE],
@@ -129,18 +128,14 @@ def mark_succeeded(canarydrop: Canarydrop):
     """
     Mark the state as succeeded by adding the overlay states.
     """
-    print("Marking as succeeded")
     canarydrop.aws_infra_state = canarydrop.aws_infra_state | AWSInfraState.SUCCEEDED
-    print(canarydrop.aws_infra_state)
 
 
 def mark_failed(canarydrop: Canarydrop):
     """
     Mark the state as failed by removing the SUCCEEDED overlay state.
     """
-    print("Marking as failed")
     canarydrop.aws_infra_state = canarydrop.aws_infra_state & ~AWSInfraState.SUCCEEDED
-    print(canarydrop.aws_infra_state)
 
 
 def mark_ingesting(canarydrop: Canarydrop):
