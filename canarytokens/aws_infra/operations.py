@@ -47,7 +47,7 @@ service_error_map = {
     AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
     AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
     AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
-    AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
+    AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the inventory role.",
     AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
     AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
     AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
@@ -153,20 +153,22 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     Check if a response has been added to the specified handle in the redis DB and return it.
     """
     handle = queries.get_aws_management_lambda_handle(handle_id)
+    default_error = AWSInfraServiceError.REQ_HANDLE_INVALID
+    default_error_message = service_error_map.get(default_error)
 
     if not handle:
         return AWSInfraHandleResponse(
             handle=handle_id,
-            message="Handle not found.",
-            error=AWSInfraServiceError.REQ_HANDLE_INVALID.name,
+            message=default_error,
+            error=default_error_message,
         )
 
     handle = Handle(**handle)
     if handle.operation != operation.value:
         return AWSInfraHandleResponse(
             handle=handle_id,
-            message="Handle operation does not match requested operation.",
-            error=AWSInfraServiceError.REQ_OPERATION_INVALID.name,
+            message=default_error,
+            error=default_error_message,
         )
 
     if handle.response_received != "True":
