@@ -138,7 +138,12 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     current_plan = json.loads(canarydrop.aws_saved_plan or "{}")
     proposed_plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
 
+    # If the plan of an existing canarytoken is being edited, return the previous plan,
+    # but check if assets part of previous plan have been deleted.
     if is_ingesting(canarydrop):
+        add_current_assets_to_plan(
+            aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
+        )
         return proposed_plan
 
     # If multiple inventories have been performed, but the user has not saved the plan,
@@ -150,9 +155,6 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
 
     await add_new_assets_to_plan(
         aws_deployed_assets, aws_inventoried_assets, proposed_plan
-    )
-    add_current_assets_to_plan(
-        aws_deployed_assets, aws_inventoried_assets, proposed_plan, current_plan
     )
     data_generation.name_generation_usage_consume(canarydrop, len(proposed_plan.keys()))
     return proposed_plan
