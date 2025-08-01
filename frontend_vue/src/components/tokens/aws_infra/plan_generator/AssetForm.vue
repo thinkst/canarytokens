@@ -31,6 +31,11 @@
           :label="getFieldLabel(props.assetType, key)"
           :field-type="key"
           :asset-type="props.assetType"
+          @update-ai-available-names-count="
+            (count) => {
+              emit('updateAiAvailableNamesCount', count);
+            }
+          "
         />
       </template>
     </div>
@@ -43,9 +48,7 @@ import type { Ref } from 'vue';
 import { Form, FieldArray } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import type { AssetData } from '../types';
-import {
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import AssetFormArray from '@/components/tokens/aws_infra/plan_generator/AssetFormArray.vue';
@@ -58,7 +61,11 @@ const props = defineProps<{
   triggerCancel: boolean;
 }>();
 
-const emits = defineEmits(['update-asset', 'invalid-submit']);
+const emit = defineEmits([
+  'update-asset',
+  'invalid-submit',
+  'updateAiAvailableNamesCount',
+]);
 const initialValues = ref({});
 const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
 const tempFields: Ref<AssetData | []> = ref([]);
@@ -70,11 +77,11 @@ onMounted(() => {
 });
 
 function onSubmit(values: GenericObject) {
-  emits('update-asset', values);
+  emit('update-asset', values);
 }
 
 function onInvalidSubmit(values: any) {
-  emits('invalid-submit', values);
+  emit('invalid-submit', values);
 }
 
 function handleProgramaticSubmit() {
@@ -84,7 +91,7 @@ function handleProgramaticSubmit() {
 }
 
 function handleRestoreFields() {
-  emits('update-asset', tempFields);
+  emit('update-asset', tempFields);
 }
 
 watch(

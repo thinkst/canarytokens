@@ -120,6 +120,7 @@ const emit = defineEmits([
   'update:modelValue',
   'handleRemoveInstance',
   'handleRegenerateInstance',
+  'updateAiAvailableNamesCount',
 ]);
 const id = toRef(props, 'id');
 const { value, handleChange, errorMessage, resetField } = useField(
@@ -143,7 +144,13 @@ async function handleGenerateValue() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.assetType, props.fieldType);
+  } = useGenerateAssetName(
+    props.assetType,
+    props.fieldType,
+    (count: number) => {
+      emit('updateAiAvailableNamesCount', count);
+    }
+  );
 
   isGenerateValueLoading.value = isGenerateNameLoading.value;
   await handleGenerateName();

@@ -70,6 +70,11 @@
           handleUpdateAsset(values);
         }
       "
+      @update-ai-available-names-count="
+        (count) => {
+          emit('update-ai-available-names-count', count);
+        }
+      "
     />
     <template #footer>
       <BaseButton
@@ -99,14 +104,13 @@
 
 <script setup lang="ts">
 import { ref, nextTick, computed } from 'vue';
-import {
-  AssetTypesEnum,
-} from '@/components/tokens/aws_infra/constants.ts';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import type { ComputedRef } from 'vue';
-import type {
-  AssetData,
-} from '../types';
-import { getAssetLabel, getAssetDefaultValues } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
+import type { AssetData } from '../types';
+import {
+  getAssetLabel,
+  getAssetDefaultValues,
+} from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
@@ -117,7 +121,12 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
-const emit = defineEmits(['update-asset', 'delete-asset', 'add-asset']);
+const emit = defineEmits([
+  'update-asset',
+  'delete-asset',
+  'add-asset',
+  'update-ai-available-names-count',
+]);
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
@@ -135,7 +144,9 @@ const currentAssetData = computed(() => {
 });
 
 const isEmptyAssetData = computed(() => {
-  return Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0;
+  return (
+    Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0
+  );
 });
 
 const assetLabel = computed(() => getAssetLabel(props.assetType));
@@ -145,7 +156,6 @@ const subtitle = computed(() => {
     ? `We generated names for your ${assetLabel.value} is based on your current deployment.`
     : `You can add new decoys to your ${assetLabel.value} list.`;
 });
-
 
 function handleShowAssetDetails(selectedItem: AssetData, index: number) {
   isErrorMessage.value = '';
@@ -170,7 +180,7 @@ function handleUpdateAsset(values: any) {
 }
 
 async function handleAddNewAsset() {
-  const newAssetFields = () => getAssetDefaultValues(props.assetType)
+  const newAssetFields = () => getAssetDefaultValues(props.assetType);
 
   const newAssetValues: Record<string, any> = { ...newAssetFields() };
 
@@ -189,7 +199,9 @@ async function handleAddNewAsset() {
             isGenerateNameError,
             isGenerateNameLoading,
             generatedName,
-          } = useGenerateAssetName(props.assetType, key);
+          } = useGenerateAssetName(props.assetType, key, (count: number) => {
+            emit('update-ai-available-names-count', count);
+          });
 
           isLoading.value = isGenerateNameLoading.value;
           await handleGenerateName();

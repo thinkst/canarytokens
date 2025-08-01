@@ -6,7 +6,8 @@ import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
 export function useGenerateAssetName(
   assetType: AssetTypesEnum,
-  fieldType: string
+  fieldType: string,
+  updateAiAvailableNames: (count: number) => void
 ) {
   const isGenerateNameError = ref('');
   const isGenerateNameLoading = ref(false);
@@ -29,11 +30,11 @@ export function useGenerateAssetName(
 
   async function handleGenerateName() {
     if (isPreviewMode) {
-      const res = await generateDataChoiceTest()
+      const res = await generateDataChoiceTest();
       //@ts-ignore
       generatedName.value = res.proposed_data;
       isGenerateNameLoading.value = false;
-      return
+      return;
     }
     try {
       const res = await generateDataChoice(
@@ -42,10 +43,20 @@ export function useGenerateAssetName(
         assetType,
         fieldType
       );
+
+      if (res.status === 429) {
+        isGenerateNameError.value =
+          'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
+        return;
+      }
+
       if (!res.data.result) {
         isGenerateNameError.value = res.data.message;
       }
+
       generatedName.value = res.data.proposed_data;
+      const availableAiNamesCount = res.data.data_generation_remaining || 0;
+      updateAiAvailableNames(availableAiNamesCount);
     } catch (err: any) {
       isGenerateNameError.value = err.message || 'An error occurred';
     } finally {

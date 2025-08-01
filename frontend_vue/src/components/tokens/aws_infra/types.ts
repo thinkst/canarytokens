@@ -51,6 +51,10 @@ type TokenSetupData = {
   external_id?: string;
   aws_account?: string;
   aws_account_number?: string;
+  ai_name_state?: {
+    total: number;
+    available: number;
+  };
 };
 
 export type {

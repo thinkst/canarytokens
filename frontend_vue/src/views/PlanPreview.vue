@@ -53,3 +53,15 @@ function handleSelectOption(value) {
   selectedPlanKey.value++;
 }
 </script>
+
+<style>
+.infra-token__title-wrapper {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
+}
+</style>
