@@ -33,7 +33,6 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
     Check if the next state is allowed based on the current state of the canarydrop. If the next state is None,
     it checks if the canarydrop has been initialised, i.e. has any state set.
     """
-    print("current state:", canarydrop.aws_infra_state)
     state_transition_allow_map = {
         AWSInfraState.INITIAL: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE: [AWSInfraState.CHECK_ROLE],
@@ -62,11 +61,13 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
         AWSInfraState.SETUP_INGESTION: [
             AWSInfraState.SETUP_INGESTION,
             AWSInfraState.CHECK_ROLE,
+            AWSInfraState.PLAN,
         ],  # if setup-ingestion fails, we can retry from check-role
         AWSInfraState.SETUP_INGESTION
         | AWSInfraState.SUCCEEDED: [
             AWSInfraState.SETUP_INGESTION,
             AWSInfraState.CHECK_ROLE,
+            AWSInfraState.PLAN,
         ],
     }
     return next_state in state_transition_allow_map.get(
@@ -96,7 +97,9 @@ def update_state(canarydrop: Canarydrop, new_state: AWSInfraState, **kwargs) -> 
             logging.error("Trying to set the CHECK_ROLE state without an external ID.")
             raise AWSInfraOperationNotAllowed("Please provide an external ID.")
 
-    canarydrop.aws_infra_state = new_state
+    canarydrop.aws_infra_state = (
+        get_overlay_state(canarydrop.aws_infra_state) | new_state
+    )
     queries.save_canarydrop(canarydrop)
 
 
@@ -105,6 +108,13 @@ def get_base_state(state: AWSInfraState) -> AWSInfraState:
     Return the base state of the given state.
     """
     return state & ~OVERLAY_STATES
+
+
+def get_overlay_state(state: AWSInfraState) -> AWSInfraState:
+    """
+    Return the overlay state of the given state.
+    """
+    return state & OVERLAY_STATES
 
 
 def in_state(canarydrop: Canarydrop, state: AWSInfraState) -> bool:
@@ -118,18 +128,14 @@ def mark_succeeded(canarydrop: Canarydrop):
     """
     Mark the state as succeeded by adding the overlay states.
     """
-    print("Marking as succeeded")
     canarydrop.aws_infra_state = canarydrop.aws_infra_state | AWSInfraState.SUCCEEDED
-    print(canarydrop.aws_infra_state)
 
 
 def mark_failed(canarydrop: Canarydrop):
     """
     Mark the state as failed by removing the SUCCEEDED overlay state.
     """
-    print("Marking as failed")
     canarydrop.aws_infra_state = canarydrop.aws_infra_state & ~AWSInfraState.SUCCEEDED
-    print(canarydrop.aws_infra_state)
 
 
 def mark_ingesting(canarydrop: Canarydrop):

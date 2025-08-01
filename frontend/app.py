@@ -1185,9 +1185,6 @@ async def api_awsinfra_inventory_customer_account(
             handle=request.handle,
             result=False,
             message="Canarydrop not found.",
-            data_generation_remaining=data_generation.name_generation_limit_usage(
-                canarydrop
-            ).remaining,
         )
 
     try:
