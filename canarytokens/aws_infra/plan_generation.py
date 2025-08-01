@@ -2,7 +2,6 @@ import asyncio
 import json
 import math
 import random
-import string
 
 from dataclasses import dataclass
 from typing import Optional
@@ -41,45 +40,6 @@ _ASSET_TYPE_CONFIG = {
         10, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
     ),
 }
-
-
-def _get_ingestion_bus_arn(bus_name: str):
-    return f"arn:aws:events:eu-west-1:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{bus_name}"
-
-
-def generate_tf_variables(canarydrop: Canarydrop, plan: dict) -> dict:
-    """
-    Generate variables to be used in the terraform template.
-    """
-    tf_variables = {
-        "s3_bucket_names": [],
-        "s3_objects": [],
-        "sqs_queues": [],
-        "ssm_parameters": [],
-        "secrets": [],
-        "tables": [],
-        "table_items": [],
-        "canarytoken_id": canarydrop.canarytoken.value(),
-        "target_bus_arn": f"arn:aws:events:{settings.AWS_INFRA_AWS_REGION}:{settings.AWS_INFRA_AWS_ACCOUNT}:event-bus/{canarydrop.aws_infra_ingestion_bus_name}",
-        "account_id": canarydrop.aws_account_id,
-        "region": canarydrop.aws_region,
-    }
-    for bucket in plan["S3Bucket"]:
-        tf_variables["s3_bucket_names"].append(bucket[AWSInfraAssetField.BUCKET_NAME])
-        for s3_object in bucket.get("objects", []):
-            tf_variables["s3_objects"].append(
-                {
-                    "bucket": bucket[AWSInfraAssetField.BUCKET_NAME],
-                    "key": s3_object,
-                    "content": "".join(
-                        random.choices(
-                            string.ascii_letters + string.digits,
-                            k=random.randint(5, 1000),
-                        )
-                    ),
-                }
-            )
-    return tf_variables
 
 
 async def _add_assets_for_type(

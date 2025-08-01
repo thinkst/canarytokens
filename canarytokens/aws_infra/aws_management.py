@@ -2,10 +2,14 @@ import json
 import logging
 import os
 import shutil
+from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
 
 from canarytokens.settings import FrontendSettings
+
+# Get the project root directory
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
@@ -118,8 +122,9 @@ def upload_tf_module(canarytoken_id, prefix, variables):
     """
     Upload a new terraform module to the terraform module bucket.
     """
+    tf_template_dir = PROJECT_ROOT / "aws_infra_token_tf"
     new_dir = shutil.copytree(
-        "../aws_infra_token_tf",
+        str(tf_template_dir),
         f"/tmp/canarytoken_infra{canarytoken_id}",
         dirs_exist_ok=True,
     )

@@ -11,7 +11,7 @@ def _random_alpha_numeric_string(length: int, lower_case_only=False) -> str:
         characters = string.ascii_lowercase + string.digits
     else:
         characters = string.ascii_letters + string.digits
-    return "".join(random.choice(characters) for _ in range(length))
+    return "".join(random.choices(characters, k=length))
 
 
 def _secret_alpha_numeric_string(length: int) -> str:
@@ -47,3 +47,10 @@ def generate_s3_bucket_suffix():
     Generate a random suffix for S3 bucket names.
     """
     return _random_alpha_numeric_string(random.randint(6, 21), lower_case_only=True)
+
+
+def generate_content():
+    """
+    Generate random content for S3 objects.
+    """
+    return _random_alpha_numeric_string(random.randint(5, 1000))
