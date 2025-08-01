@@ -197,7 +197,7 @@ async def _build_handle_response_payload(
         "result": error == AWSInfraServiceError.NO_ERROR,
         "handle": handle_id,
         "message": service_error_map.get(error, "An unknown error occurred."),
-        "error": error.name,
+        "error": error.name if error != AWSInfraServiceError.NO_ERROR else "",
     }
 
     operation = AWSInfraOperationType(handle.operation)
