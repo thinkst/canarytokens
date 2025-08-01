@@ -211,21 +211,21 @@ async def _build_handle_response_payload(
 
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if operation == AWSInfraOperationType.INVENTORY:
-        if payload["result"]:  # No errors
-            save_current_assets(canarydrop, response_content.get("assets", {}))
-            if is_ingesting(canarydrop):
-                # remove decoys from inventory so that they don't influence calls to generate-data-choices
-                filter_decoys_from_inventory(canarydrop)
-            payload.update(
-                {
-                    "proposed_plan": {
-                        "assets": await generate_proposed_plan(canarydrop)
-                    },
-                    "data_generation_remaining": name_generation_limit_usage(
-                        canarydrop
-                    ).remaining,
-                }
-            )
+        if not payload["result"]:
+            return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
+
+        save_current_assets(canarydrop, response_content.get("assets", {}))
+        payload.update(
+            {
+                "proposed_plan": {"assets": await generate_proposed_plan(canarydrop)},
+                "data_generation_remaining": name_generation_limit_usage(
+                    canarydrop
+                ).remaining,
+            }
+        )
+        # remove decoys from inventory so that they don't influence calls to generate-data-choices
+        if is_ingesting(canarydrop):
+            filter_decoys_from_inventory(canarydrop)
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
     payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
