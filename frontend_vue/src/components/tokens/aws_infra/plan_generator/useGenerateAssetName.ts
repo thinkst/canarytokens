@@ -28,7 +28,7 @@ export function useGenerateAssetName(
 
   const isPreviewMode = window.location.pathname.includes('/nest/plan-preview');
 
-  async function handleGenerateName() {
+  async function handleGenerateName(parentAssetName: string = '') {
     if (isPreviewMode) {
       const res = await generateDataChoiceTest();
       //@ts-ignore
@@ -41,7 +41,8 @@ export function useGenerateAssetName(
         tokenId.value,
         authId.value,
         assetType,
-        fieldType
+        fieldType,
+        parentAssetName
       );
 
       if (res.status === 429) {

@@ -77,7 +77,8 @@ export function generateDataChoice(
   canarytoken: string,
   auth_token: string,
   asset_type: string,
-  asset_field: string
+  asset_field: string,
+  parent_asset_name: string = ''
 ) {
   const url =
     '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-data-choices';
@@ -86,6 +87,7 @@ export function generateDataChoice(
     auth_token,
     asset_type,
     asset_field,
+    parent_asset_name,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }
