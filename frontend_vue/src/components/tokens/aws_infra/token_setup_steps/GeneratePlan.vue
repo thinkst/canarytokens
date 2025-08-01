@@ -95,7 +95,7 @@
       <BaseButton
         :loading="isSavingPlan"
         :disabled="getAnyLoadingAssetData()"
-        @click="handleSubmit(proposed_plan)"
+        @click="handleSavePlan()"
         >{{ isSavingPlan ? 'Saving...' : 'Save configuration' }}</BaseButton
       >
       <BaseMessageBox
@@ -302,6 +302,8 @@ async function fetchAIgeneratedAssets(
     isLoadingAssetCard.value[assetType as AssetTypesEnum] = true;
   });
 
+  console.log(payload,'payload')
+
   try {
     const res = await requestAIgeneratedAssets({
       canarytoken: token,
@@ -330,6 +332,7 @@ async function fetchAIgeneratedAssets(
 
     if (Object.keys(newAssets).length > 0) {
       updatedPlanData = mergeAIGeneratedAssets(assetsData.value, newAssets);
+      console.log('Updated plan data:', updatedPlanData);
     }
 
     assetsData.value = { ...assetsData.value, ...updatedPlanData };
@@ -357,14 +360,18 @@ function handleSaveAsset(
   }
 }
 
-async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
+async function handleSavePlan() {
   isSavingPlan.value = true;
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
   isSaveSuccess.value = false;
 
+  const planValues = {
+    assets: assetsData.value,
+  };
+
   try {
-    const res = await savePlan(token, auth_token, formValues);
+    const res = await savePlan(token, auth_token, planValues);
     if (res.status !== 200) {
       isSavingPlan.value = false;
       isSaveError.value = true;
@@ -391,9 +398,10 @@ async function handleSavePlan(formValues: { assets: AssetData[] | null }) {
   }
 }
 
-async function handleSubmit(formValues: { assets: AssetData[] | null }) {
-  await handleSavePlan(formValues);
-}
+// async function handleSubmit() {
+//   await handleSavePlan({ assets: assetsData.value});
+//   console.log('Form values to save:',  assetsData.value);
+// }
 </script>
 
 <style>
