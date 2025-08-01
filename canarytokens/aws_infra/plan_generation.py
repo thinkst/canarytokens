@@ -136,7 +136,9 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     aws_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
     aws_inventoried_assets = get_current_assets(canarydrop)
     current_plan = json.loads(canarydrop.aws_saved_plan or "{}")
-    proposed_plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
+    proposed_plan = current_plan or {
+        asset_type.value: [] for asset_type in AWSInfraAssetType
+    }
 
     # If the plan of an existing canarytoken is being edited, return the previous plan,
     # but check if assets part of previous plan have been deleted.
