@@ -216,7 +216,9 @@ async def _build_handle_response_payload(
                 filter_decoys_from_inventory(canarydrop)
             payload.update(
                 {
-                    "proposed_plan": await generate_proposed_plan(canarydrop),
+                    "proposed_plan": {
+                        "assets": await generate_proposed_plan(canarydrop)
+                    },
                     "data_generation_remaining": name_generation_limit_usage(
                         canarydrop
                     ).remaining,
