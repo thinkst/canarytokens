@@ -92,10 +92,8 @@ def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
         operation=operation.value,
         requested_time=datetime.now(timezone.utc).timestamp(),
         response_received=str(
-            not (
-                is_ingesting(canarydrop)
-                and operation == AWSInfraOperationType.SETUP_INGESTION
-            )
+            is_ingesting(canarydrop)
+            and operation == AWSInfraOperationType.SETUP_INGESTION
         ),
         response_content="",
     )
