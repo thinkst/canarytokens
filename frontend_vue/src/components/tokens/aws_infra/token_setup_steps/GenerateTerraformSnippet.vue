@@ -314,8 +314,9 @@ function handleShowModalInfoModule() {
 
 function generateTerraformSnippet(source: string, module: string) {
   return `module "${module}" {
-  source = "${source}"
-  }`;
+    source = "${source}"
+  }
+`;
 }
 
 function generateCleanupSnippet(roleName: string, customerAwsAccount: string) {
