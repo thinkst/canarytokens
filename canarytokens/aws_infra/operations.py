@@ -44,12 +44,13 @@ HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
 # map to user-friendly error messages
 service_error_map = {
-    AWSInfraServiceError.FAILURE_CHECK_ROLE.name: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
-    AWSInfraServiceError.FAILURE_INGESTION_SETUP.name: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
-    AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN.name: "Something went wrong while trying to delete the Canarytoken.",
-    AWSInfraServiceError.FAILURE_INVENTORY.name: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
-    AWSInfraServiceError.REQ_HANDLE_INVALID.name: "The handle ID provided is invalid.",
-    AWSInfraServiceError.UNHANDLED_ERROR.name: "Something went wrong while processing the request. Please try again later.",
+    AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
+    AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
+    AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
+    AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the role and that the role exists.",
+    AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
+    AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
+    AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
 }
 
 
@@ -168,16 +169,17 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
             error=AWSInfraServiceError.REQ_OPERATION_INVALID.name,
         )
 
-    current_time = datetime.now(timezone.utc).timestamp()
-    if current_time - handle.requested_time > HANDLE_RESPONSE_TIMEOUT:
-        return await _build_handle_response_payload(handle_id, handle, timeout=True)
-
     if handle.response_received != "True":
         return AWSInfraHandleResponse(
             handle=handle_id,
         )
 
-    return await _build_handle_response_payload(handle_id, handle)
+    current_time = datetime.now(timezone.utc).timestamp()
+    return await _build_handle_response_payload(
+        handle_id,
+        handle,
+        timeout=current_time - handle.requested_time > HANDLE_RESPONSE_TIMEOUT,
+    )
 
 
 async def _build_handle_response_payload(
@@ -186,57 +188,53 @@ async def _build_handle_response_payload(
     response_content = (
         json.loads(handle.response_content) if handle.response_content else {}
     )
+    error = (
+        AWSInfraServiceError.parse(response_content.get("error", ""))
+        if not timeout
+        else AWSInfraServiceError.REQ_HANDLE_TIMEOUT
+    )
     payload = {
-        "result": not timeout and response_content.get("error", "") == "",
+        "result": error == AWSInfraServiceError.NO_ERROR,
         "handle": handle_id,
+        "message": service_error_map.get(error, "An unknown error occurred."),
+        "error": error.name,
     }
 
-    if timeout:
-        payload["message"] = "Handle response timed out."
-        payload["error"] = AWSInfraServiceError.REQ_HANDLE_INVALID
-
-    elif response_content.get("error", "") != "":
-        error, message = AWSInfraServiceError.parse(response_content["error"])
-        payload["message"] = service_error_map.get(error, "Something went wrong.")
-        logging.info(f"Handle {handle_id} encountered error: {message}")
-        payload["error"] = error
-
-    if handle.operation == AWSInfraOperationType.CHECK_ROLE:
+    operation = AWSInfraOperationType(handle.operation)
+    if operation == AWSInfraOperationType.CHECK_ROLE:
         payload["session_credentials_retrieved"] = response_content.get(
             "session_credentials_retrieved", False
         )
         return AWSInfraCheckRoleReceivedResponse(**payload)
 
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
-    if handle.operation == AWSInfraOperationType.INVENTORY:
-        if payload.get("error"):
-            return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
-        inventory = response_content.get("assets", {})
-        save_current_assets(canarydrop, inventory)
-        proposed_plan = await generate_proposed_plan(canarydrop)
-        payload["proposed_plan"] = {"assets": proposed_plan}
-        payload["data_generation_remaining"] = name_generation_limit_usage(
-            canarydrop
-        ).remaining
-        if is_ingesting(canarydrop):
-            filter_decoys_from_inventory(
-                canarydrop
-            )  # remove decoys from inventory so that they don't influence calls to generate-data-choices
+    if operation == AWSInfraOperationType.INVENTORY:
+        if payload["result"]:  # No errors
+            save_current_assets(canarydrop, response_content.get("assets", {}))
+            if is_ingesting(canarydrop):
+                # remove decoys from inventory so that they don't influence calls to generate-data-choices
+                filter_decoys_from_inventory(canarydrop)
+            payload.update(
+                {
+                    "proposed_plan": await generate_proposed_plan(canarydrop),
+                    "data_generation_remaining": name_generation_limit_usage(
+                        canarydrop
+                    ).remaining,
+                }
+            )
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
-    if handle.operation == AWSInfraOperationType.SETUP_INGESTION:
-        payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
-        if payload.get("error"):
-            return AWSInfraSetupIngestionReceivedResponse(**payload)
-        payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
+    payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+    if operation == AWSInfraOperationType.SETUP_INGESTION:
+        if payload["result"]:
+            payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
         return AWSInfraSetupIngestionReceivedResponse(**payload)
 
-    if handle.operation == AWSInfraOperationType.TEARDOWN:
-        payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+    if operation == AWSInfraOperationType.TEARDOWN:
         return AWSInfraTeardownReceivedResponse(**payload)
 
-    # this should never happen
-    logging.error(f"Unknown operation type {handle.operation} for handle {handle_id}.")
+    # Fallback for unknown operations, this should never happen
+    logging.error(f"Unknown operation type {operation} for handle {handle_id}.")
 
 
 def filter_decoys_from_inventory(canarydrop: Canarydrop):

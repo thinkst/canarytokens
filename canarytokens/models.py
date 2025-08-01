@@ -2969,6 +2969,7 @@ class AWSInfraTeardownReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     role_cleanup_commands: dict = None
+    error: str = ""
 
 
 class AWSInfraOperationType(str, enum.Enum):
@@ -3032,22 +3033,21 @@ class AWSInfraServiceError(enum.Enum):
     FAILURE_TRIG_ALERT = enum.auto()
     OP_MISSING_KEY = enum.auto()
     REQ_HANDLE_INVALID = enum.auto()
+    REQ_HANDLE_TIMEOUT = enum.auto()
     REQ_OPERATION_INVALID = enum.auto()
     REQ_PAYLOAD_INVALID_JSON = enum.auto()
     REQ_PAYLOAD_UNSUPPORTED = enum.auto()
     UNHANDLED_ERROR = enum.auto()
     UNKNOWN = enum.auto()
+    NO_ERROR = enum.auto()
 
     @classmethod
-    def parse(cls, error: str):
-        if error == "":
-            return "", ""
+    def parse(cls, error: Optional[str]) -> AWSInfraServiceError:
+        if not error:
+            return cls.NO_ERROR
 
         try:
-            code, message = error.split("::")
-            return next(
-                ((e.name, message) for e in cls if e.name == code),
-                (cls.UNKNOWN.name, "Something went wrong."),
-            )
+            code = error.split("::")[0]
+            return next((e for e in cls if e.name == code), cls.UNKNOWN)
         except Exception:
-            return cls.UNKNOWN.name, "Something went wrong."
+            return cls.UNKNOWN
