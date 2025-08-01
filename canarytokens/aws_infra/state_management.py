@@ -88,7 +88,7 @@ def update_state(canarydrop: Canarydrop, new_state: AWSInfraState, **kwargs) -> 
 
     if (
         new_state == AWSInfraState.CHECK_ROLE
-        and canarydrop.aws_customer_iam_access_external_id is None
+        and not canarydrop.aws_customer_iam_access_external_id
     ):
         canarydrop.aws_customer_iam_access_external_id = kwargs.get("external_id", None)
         if not canarydrop.aws_customer_iam_access_external_id:
