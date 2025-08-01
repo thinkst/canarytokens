@@ -136,8 +136,6 @@ const props = defineProps<{
 const {
   token,
   auth_token,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  code_snippet_command,
   proposed_plan,
 } = props.initialStepData;
 
