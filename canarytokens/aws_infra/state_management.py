@@ -135,7 +135,7 @@ def mark_ingesting(canarydrop: Canarydrop):
     """
     Mark the state as ingesting by adding the INGESTING overlay state.
     """
-    canarydrop.aws_customer_iam_access_external_id = None
+    canarydrop.aws_customer_iam_access_external_id = ""
     canarydrop.aws_infra_state = canarydrop.aws_infra_state | AWSInfraState.INGESTING
 
 
