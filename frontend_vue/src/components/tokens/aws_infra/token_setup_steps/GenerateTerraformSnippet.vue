@@ -3,7 +3,7 @@
     <div class="infra-token__title-wrapper text-center">
       <h2>
         {{
-          isLoading || isError
+          isLoading
             ? 'Preparing the Terraform module...'
             : 'Deploy your decoys'
         }}
@@ -117,22 +117,6 @@
         alert.
       </h2>
     </div>
-    <div class="flex flex-row mt-40 gap-16">
-      <BaseButton
-        v-if="!isLoading"
-        variant="secondary"
-        @click="router.push('/')"
-      >
-        Back Home</BaseButton
-      >
-      <BaseButton
-        v-if="!isLoading"
-        variant="secondary"
-        @click="handleManageTokenButton"
-      >
-        Manage Token</BaseButton
-      >
-    </div>
     <BaseButton
       v-if="isError"
       class="mt-40"
@@ -141,6 +125,23 @@
     >
       Try again
     </BaseButton>
+    <div class="flex flex-row mt-40 gap-16">
+      <BaseButton
+        v-if="!isLoading && !isError"
+        variant="secondary"
+        @click="router.push('/')"
+      >
+        Back Home</BaseButton
+      >
+      <BaseButton
+        v-if="!isLoading && !isError"
+        variant="secondary"
+        @click="handleManageTokenButton"
+      >
+        Manage Token</BaseButton
+      >
+    </div>
+
   </section>
 </template>
 
@@ -255,8 +256,8 @@ async function handleRequestTerraformSnippet() {
         if (retryAttempts >= MAX_RETRIES) {
           stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value =
-            resWithHandle.data?.error ||
             resWithHandle.data?.message ||
+            resWithHandle.data?.error ||
             'Max retries reached';
           return;
         }
@@ -313,7 +314,9 @@ function handleShowModalInfoModule() {
 
 function generateTerraformSnippet(source: string, module: string) {
   return `module "${module}" {
-  source = "${source}" }`;
+    source = "${source}"
+  }
+`;
 }
 
 function generateCleanupSnippet(roleName: string, customerAwsAccount: string) {

@@ -18,6 +18,7 @@ export type TokenDataType = {
   ingesting: boolean;
   proposed_plan: { assets: AssetData[] | null };
   code_snippet_command: string;
+  available_ai_names: number;
 };
 
 let tokenData: TokenDataType | null = null;

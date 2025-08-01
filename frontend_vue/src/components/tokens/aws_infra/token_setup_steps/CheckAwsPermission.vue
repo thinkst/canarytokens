@@ -8,12 +8,21 @@
     <div class="flex justify-center">
       <StepState
         v-if="isLoading || isError"
+        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         :is-loading="isLoading"
         :is-error="isError"
-        loading-message="We are checking the permissions, hold on"
         :error-message="errorMessage"
-        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
-      />
+      >
+        <template #loading>
+          <GenerateLoadingState
+            :instructions="[
+              'AWS account found',
+              'Verifying permissions',
+              'Analysing cloud account',
+            ]"
+            img-src="aws_infra_token_loading_scanner.webp"
+          />
+        </template></StepState>
     </div>
     <div
       v-if="!isLoading"
@@ -28,7 +37,13 @@
         >.
       </BaseMessageBox>
       <div class="text-left max-w-[100%]">
+        <BaseSkeletonLoader
+          v-if="isLoadingSnippet"
+          class="w-[100%] h-[300px] mb-24"
+          type="text"
+        />
         <BaseCard
+          v-else
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
           <div class="text-center mb-24">
@@ -113,6 +128,7 @@ import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+import GenerateLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GenerateLoadingState.vue';
 
 const ModalSetupRolePolicySnippet = defineAsyncComponent(
   () =>
@@ -135,6 +151,7 @@ const accountNumber = ref('');
 const accountRegion = ref('');
 const roleName = ref('');
 const managementAwsAccount = ref('');
+const isLoadingSnippet = ref(false);
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
@@ -144,10 +161,12 @@ const {
   stateStatus: stateStatusFetch,
   handleFetchUserAccount,
   proposedPlan,
+  availableAiNames,
 } = useFetchUserAccount(
   token,
   auth_token,
-  computed(() => values.external_id)
+  computed(() => values.external_id
+)
 );
 
 onMounted(async () => {
@@ -155,6 +174,7 @@ onMounted(async () => {
 });
 
 async function initializeRoleData() {
+
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 
@@ -187,7 +207,7 @@ const { handleSubmit, setFieldValue, values } = useForm({
 });
 
 async function handleGetRoleName() {
-  stateStatus.value = StepStateEnum.LOADING;
+  isLoadingSnippet.value = true;
   errorMessage.value = '';
   try {
     const res = await requestAWSInfraRoleSetupCommands(
@@ -217,7 +237,9 @@ async function handleGetRoleName() {
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value =
-      err.data.message || 'Failed to generate setup commands';
+      err.data?.message || 'Failed to generate setup commands';
+  } finally {
+    isLoadingSnippet.value = false;
   }
 }
 
@@ -264,6 +286,7 @@ watch(
           aws_account: managementAwsAccount.value,
           aws_account_number: accountNumber.value,
           proposed_plan: proposedPlan.value,
+          available_ai_names: availableAiNames.value,
         });
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
