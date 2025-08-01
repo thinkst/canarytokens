@@ -86,11 +86,12 @@ def update_state(canarydrop: Canarydrop, new_state: AWSInfraState, **kwargs) -> 
             "This operation is not allowed for the current Canarytoken state."
         )
 
-    if (
-        new_state == AWSInfraState.CHECK_ROLE
-        and not canarydrop.aws_customer_iam_access_external_id
-    ):
-        canarydrop.aws_customer_iam_access_external_id = kwargs.get("external_id", None)
+    if new_state == AWSInfraState.CHECK_ROLE:
+
+        new_external_id = kwargs.get("external_id")
+        canarydrop.aws_customer_iam_access_external_id = (
+            new_external_id or canarydrop.aws_customer_iam_access_external_id
+        )
         if not canarydrop.aws_customer_iam_access_external_id:
             logging.error("Trying to set the CHECK_ROLE state without an external ID.")
             raise AWSInfraOperationNotAllowed("Please provide an external ID.")
