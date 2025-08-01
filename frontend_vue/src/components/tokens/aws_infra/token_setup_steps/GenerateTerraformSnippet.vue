@@ -255,8 +255,8 @@ async function handleRequestTerraformSnippet() {
         if (retryAttempts >= MAX_RETRIES) {
           stateStatus.value = StepStateEnum.ERROR;
           errorMessage.value =
-            resWithHandle.data?.error ||
             resWithHandle.data?.message ||
+            resWithHandle.data?.error ||
             'Max retries reached';
           return;
         }

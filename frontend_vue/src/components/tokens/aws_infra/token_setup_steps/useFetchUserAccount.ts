@@ -154,6 +154,7 @@ export function useFetchUserAccount(
           if (retryAttempts >= MAX_RETRIES) {
             stateStatus.value = StepStateEnum.ERROR;
             errorMessage.value =
+              err.response?.data?.message ||
               'An error occurred while inventoring the account. Try again';
             return;
           }

@@ -8,12 +8,21 @@
     <div class="flex justify-center">
       <StepState
         v-if="isLoading || isError"
+        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         :is-loading="isLoading"
         :is-error="isError"
-        loading-message="We are checking the permissions, hold on"
         :error-message="errorMessage"
-        class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
-      />
+      >
+        <template #loading>
+          <GenerateLoadingState
+            :instructions="[
+              'AWS account found',
+              'Verifying permissions',
+              'Analysing cloud account',
+            ]"
+            img-src="aws_infra_token_loading_scanner.webp"
+          />
+        </template></StepState>
     </div>
     <div
       v-if="!isLoading"
@@ -113,6 +122,7 @@ import {
   StepStateEnum,
   useStepState,
 } from '@/components/tokens/aws_infra/useStepState.ts';
+import GenerateLoadingState from '@/components/tokens/aws_infra/token_setup_steps/GenerateLoadingState.vue';
 
 const ModalSetupRolePolicySnippet = defineAsyncComponent(
   () =>
@@ -217,7 +227,7 @@ async function handleGetRoleName() {
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
     errorMessage.value =
-      err.data.message || 'Failed to generate setup commands';
+      err.data?.message || 'Failed to generate setup commands';
   }
 }
 
