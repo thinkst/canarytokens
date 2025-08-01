@@ -50,6 +50,7 @@ SERVICE_ERROR_MESSAGE_MAP = {
     AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
     AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
     AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
+    AWSInfraServiceError.NO_ERROR: "",
 }
 
 
@@ -153,21 +154,21 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     handle = queries.get_aws_management_lambda_handle(handle_id)
     default_error = AWSInfraServiceError.REQ_HANDLE_INVALID
-    default_error_message = service_error_map.get(default_error)
+    default_error_message = SERVICE_ERROR_MESSAGE_MAP[default_error]
 
     if not handle:
         return AWSInfraHandleResponse(
             handle=handle_id,
-            message=default_error,
-            error=default_error_message,
+            error=default_error,
+            message=default_error_message,
         )
 
     handle = Handle(**handle)
     if handle.operation != operation.value:
         return AWSInfraHandleResponse(
             handle=handle_id,
-            message=default_error,
-            error=default_error_message,
+            message=default_error_message,
+            error=default_error,
         )
 
     if handle.response_received != "True":
@@ -197,8 +198,8 @@ async def _build_handle_response_payload(
     payload = {
         "result": error == AWSInfraServiceError.NO_ERROR,
         "handle": handle_id,
-        "message": service_error_map.get(error, "An unknown error occurred."),
-        "error": error.name if error != AWSInfraServiceError.NO_ERROR else "",
+        "message": SERVICE_ERROR_MESSAGE_MAP.get(error, "An unknown error occurred."),
+        "error": error.value,
     }
 
     operation = AWSInfraOperationType(handle.operation)
