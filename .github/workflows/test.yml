@@ -165,6 +165,6 @@ jobs:
           copy .\frontend\frontend.env.dist .\frontend\frontend.env
           copy .\switchboard\switchboard.env.dist .\switchboard\switchboard.env
           cd tests
-          export CANARY_AWS_INFRA_AWS_REGION=eu-west-1
-          export CANARY_TESTING=True
+          $env:CANARY_AWS_INFRA_AWS_REGION = 'eu-west-1'
+          $env:CANARY_TESTING='True'
           $env:PSModulePath = ''; poetry run pytest .\integration\test_custom_binary.py --runv3 -v
