@@ -2969,7 +2969,6 @@ class AWSInfraTeardownReceivedResponse(BaseModel):
     message: str = ""
     handle: str
     role_cleanup_commands: Optional[dict] = None
-    role_cleanup_commands: Optional[dict] = None
     error: str = ""
 
 
@@ -3018,6 +3017,7 @@ class AWSInfraState(enum.Flag):
     GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
     PLAN = enum.auto()  # after inventorying
     SETUP_INGESTION = enum.auto()  # after plan saved
+
     # Overlay states
     INGESTING = enum.auto()
     SUCCEEDED = enum.auto()
