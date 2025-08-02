@@ -120,6 +120,14 @@ async function deleteTokenFnc() {
           return;
         }
 
+        if (resWithHandle.data.message) {
+          isLoading.value = false;
+          isError.value = true;
+          isErrorMessage.value = resWithHandle.data.message;
+          clearInterval(pollingDeleteTokenInterval);
+          return;
+        }
+
         // timeout
         if (Date.now() - startTime >= timeout) {
           isLoading.value = false;
