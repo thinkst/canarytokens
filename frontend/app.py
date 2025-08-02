@@ -1381,6 +1381,7 @@ async def api_awsinfra_teardown(
     handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.TEARDOWN
     )
+
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     except NoCanarydropFound:
@@ -1392,6 +1393,8 @@ async def api_awsinfra_teardown(
         != AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN.value
     ):
         response.status_code = status.HTTP_400_BAD_REQUEST
+    if not isinstance(handle_response, AWSInfraHandleResponse):
+        queries.delete_canarydrop(canarydrop)
     return handle_response
 
 
