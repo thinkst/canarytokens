@@ -1388,7 +1388,8 @@ async def api_awsinfra_teardown(
         return handle_response
     if (
         handle_response.error
-        and handle_response.error != AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN
+        and handle_response.error
+        != AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN.value
     ):
         response.status_code = status.HTTP_400_BAD_REQUEST
     return handle_response
