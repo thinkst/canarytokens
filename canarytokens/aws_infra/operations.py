@@ -42,17 +42,6 @@ settings = FrontendSettings()
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
 HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
-SERVICE_ERROR_MESSAGE_MAP = {
-    AWSInfraServiceError.FAILURE_CHECK_ROLE: "Could not assume the role in the account. Please make sure the role exists and that the external ID is correct.",
-    AWSInfraServiceError.FAILURE_INGESTION_SETUP: "Could not setup alerting. Please make sure that you do not already have a Canarytoken in the same AWS region for this account.",
-    AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "",
-    AWSInfraServiceError.FAILURE_INVENTORY: "Could not retrieve the inventory of the account. Please make sure the policy is attached to the inventory role.",
-    AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
-    AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
-    AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
-    AWSInfraServiceError.NO_ERROR: "",
-}
-
 
 class Handle(BaseModel):
     canarytoken: str
@@ -152,13 +141,33 @@ def _build_operation_payload(
     return payload
 
 
+def _get_error_message(
+    error: AWSInfraServiceError, canarydrop: Canarydrop = None
+) -> str:
+    """
+    Return the error message associated with the given AWSInfraServiceError.
+    """
+    SERVICE_ERROR_MESSAGE_MAP = {
+        AWSInfraServiceError.FAILURE_CHECK_ROLE: f"Could not assume the role, {canarydrop.aws_infra_inventory_role}, in the account. Please make sure the role exists and that the external ID is correct.",
+        AWSInfraServiceError.FAILURE_INGESTION_SETUP: f"Could not setup alerting. If you have previously created an AWS Infra Canarytoken in account with ID {canarydrop.aws_account_id} in the same region ({canarydrop.aws_region}), then you need to delete the existing Canarytoken before creating a new one. Alternatively, you can rather edit the decoys in the existing Canarytoken.",
+        AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
+        AWSInfraServiceError.FAILURE_INVENTORY: f"Could not retrieve the inventory of the account with ID {canarydrop.aws_account_id}. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role, {canarydrop.aws_infra_inventory_role}.",
+        AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
+        AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
+        AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
+        AWSInfraServiceError.NO_ERROR: "",
+    }
+
+    return SERVICE_ERROR_MESSAGE_MAP.get(error, "An unknown error occurred.")
+
+
 async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
     """
     handle = queries.get_aws_management_lambda_handle(handle_id)
     default_error = AWSInfraServiceError.REQ_HANDLE_INVALID
-    default_error_message = SERVICE_ERROR_MESSAGE_MAP[default_error]
+    default_error_message = _get_error_message(default_error)
 
     if not handle:
         return AWSInfraHandleResponse(
@@ -199,12 +208,16 @@ async def _build_handle_response_payload(
         if not timeout
         else AWSInfraServiceError.REQ_HANDLE_TIMEOUT
     )
+    canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
+
     payload = {
         "result": error == AWSInfraServiceError.NO_ERROR,
         "handle": handle_id,
-        "message": SERVICE_ERROR_MESSAGE_MAP.get(error, "An unknown error occurred."),
+        "message": _get_error_message(error, canarydrop),
         "error": error.value,
     }
+
+    print("response_content", response_content)
 
     operation = AWSInfraOperationType(handle.operation)
     if operation == AWSInfraOperationType.CHECK_ROLE:
@@ -213,7 +226,6 @@ async def _build_handle_response_payload(
         )
         return AWSInfraCheckRoleReceivedResponse(**payload)
 
-    canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
     if operation == AWSInfraOperationType.INVENTORY:
         if not payload["result"]:
             return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
