@@ -72,6 +72,7 @@ from canarytokens.models import (
     AWSInfraManagementResponseRequest,
     AWSInfraOperationType,
     AWSInfraSavePlanRequest,
+    AWSInfraServiceError,
     AWSInfraSetupIngestionReceivedResponse,
     AWSInfraState,
     AWSInfraTeardownReceivedResponse,
@@ -1385,7 +1386,10 @@ async def api_awsinfra_teardown(
     except NoCanarydropFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return handle_response
-    if handle_response.error:
+    if (
+        handle_response.error
+        and handle_response.error != AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN
+    ):
         response.status_code = status.HTTP_400_BAD_REQUEST
     return handle_response
 
