@@ -1353,7 +1353,9 @@ async def api_awsinfra_setup_ingestion(
     handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.SETUP_INGESTION
     )
-
+    response.status_code = (
+        status.HTTP_200_OK if not handle_response.error else status.HTTP_400_BAD_REQUEST
+    )
     if isinstance(handle_response, AWSInfraHandleResponse):
         # Return early if this is a handle response (a response from the management account hasn't been received yet)
         return handle_response
@@ -1364,7 +1366,6 @@ async def api_awsinfra_setup_ingestion(
         return handle_response
 
     if handle_response.error:
-        response.status_code = status.HTTP_400_BAD_REQUEST
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful setup-ingestion
