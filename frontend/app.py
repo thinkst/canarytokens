@@ -1267,6 +1267,16 @@ async def api_awsinfra_generate_data_choices(
     )
     try:
         aws_infra.update_state(canarydrop, AWSInfraState.PLAN)
+    except AWSInfraOperationNotAllowed as e:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return AWSInfraGenerateDataChoiceResponse(
+            result=False,
+            message=str(e),
+            data_generation_remaining=data_generation.name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        )
+    try:
         return AWSInfraGenerateDataChoiceResponse(
             result=True,
             proposed_data=await aws_infra.generate_data_choice(
