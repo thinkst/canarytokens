@@ -144,14 +144,19 @@ def _build_operation_payload(
 def _get_error_message(
     error: AWSInfraServiceError, canarydrop: Canarydrop = None
 ) -> str:
+
+    role = f" ({canarydrop.aws_infra_inventory_role})" if canarydrop else ""
+    account = f" ({canarydrop.aws_account_id})" if canarydrop else ""
+    region = f" ({canarydrop.aws_region})" if canarydrop else ""
+
     """
     Return the error message associated with the given AWSInfraServiceError.
     """
     SERVICE_ERROR_MESSAGE_MAP = {
-        AWSInfraServiceError.FAILURE_CHECK_ROLE: f"Could not assume the role, {canarydrop.aws_infra_inventory_role}, in the account. Please make sure the role exists and that the external ID is correct.",
-        AWSInfraServiceError.FAILURE_INGESTION_SETUP: f"Could not setup alerting. If you have previously created an AWS Infra Canarytoken in account with ID {canarydrop.aws_account_id} in the same region ({canarydrop.aws_region}), then you need to delete the existing Canarytoken before creating a new one. Alternatively, you can rather edit the decoys in the existing Canarytoken.",
+        AWSInfraServiceError.FAILURE_CHECK_ROLE: f"Could not assume the role{role} in the account. Please make sure the role exists and that the external ID is correct.",
+        AWSInfraServiceError.FAILURE_INGESTION_SETUP: f"Could not setup alerting. If you have previously created an AWS Infra Canarytoken in this AWS account{account} in the same region{region}, then you need to delete the existing Canarytoken before creating a new one. Alternatively, you can rather edit the decoys in the existing Canarytoken.",
         AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
-        AWSInfraServiceError.FAILURE_INVENTORY: f"Could not retrieve the inventory of the account with ID {canarydrop.aws_account_id}. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role, {canarydrop.aws_infra_inventory_role}.",
+        AWSInfraServiceError.FAILURE_INVENTORY: f"Could not retrieve the inventory of the AWS account{account}. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role{role}.",
         AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
         AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
         AWSInfraServiceError.UNHANDLED_ERROR: "Something went wrong while processing the request. Please try again later.",
