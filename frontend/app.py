@@ -1135,6 +1135,9 @@ async def api_awsinfra_check_role(
     handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.CHECK_ROLE
     )
+    if isinstance(handle_response, AWSInfraHandleResponse):
+        # Return early if this is a handle response (a response from the management account hasn't been received yet)
+        return handle_response
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     except NoCanarydropFound:
@@ -1203,6 +1206,10 @@ async def api_awsinfra_inventory_customer_account(
                 canarydrop
             ).remaining,
         )
+    if isinstance(handle_response, AWSInfraHandleResponse):
+        # Return early if this is a handle response (a response from the management account hasn't been received yet)
+        return handle_response
+
     # Reload canarydrop to ensure we have the latest state
     canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     if handle_response.error:
@@ -1345,6 +1352,10 @@ async def api_awsinfra_setup_ingestion(
     handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.SETUP_INGESTION
     )
+
+    if isinstance(handle_response, AWSInfraHandleResponse):
+        # Return early if this is a handle response (a response from the management account hasn't been received yet)
+        return handle_response
     try:
         canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     except NoCanarydropFound:
