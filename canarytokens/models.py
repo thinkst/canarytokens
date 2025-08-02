@@ -3011,16 +3011,16 @@ class AWSInfraGenerateChildAssetsResponse(BaseModel):
 
 class AWSInfraState(enum.Flag):
     # Base states
-    INITIAL = enum.auto()  # initial state, before any operation
-    CHECK_ROLE = enum.auto()  # after config started
-    INVENTORY = enum.auto()  # after check-role succeeded
-    GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
-    PLAN = enum.auto()  # after inventorying
-    SETUP_INGESTION = enum.auto()  # after plan saved
+    INITIAL = enum.auto()  # initial state, before any operation 1
+    CHECK_ROLE = enum.auto()  # after config started 2
+    INVENTORY = enum.auto()  # after check-role succeeded 4
+    GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying 8
+    PLAN = enum.auto()  # after inventorying 16
+    SETUP_INGESTION = enum.auto()  # after plan saved 32
 
     # Overlay states
-    INGESTING = enum.auto()
-    SUCCEEDED = enum.auto()
+    INGESTING = enum.auto()  # 64
+    SUCCEEDED = enum.auto()  # 128
 
 
 class AWSInfraServiceError(enum.Enum):
