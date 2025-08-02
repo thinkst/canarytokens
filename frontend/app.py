@@ -1136,6 +1136,9 @@ async def api_awsinfra_check_role(
     handle_response = await aws_infra.get_handle_response(
         request.handle, AWSInfraOperationType.CHECK_ROLE
     )
+    response.status_code = (
+        status.HTTP_200_OK if not handle_response.error else status.HTTP_400_BAD_REQUEST
+    )
     if isinstance(handle_response, AWSInfraHandleResponse):
         # Return early if this is a handle response (a response from the management account hasn't been received yet)
         return handle_response
@@ -1146,7 +1149,6 @@ async def api_awsinfra_check_role(
         return handle_response
 
     if handle_response.error:
-        response.status_code = status.HTTP_400_BAD_REQUEST
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful check-role
@@ -1207,6 +1209,9 @@ async def api_awsinfra_inventory_customer_account(
                 canarydrop
             ).remaining,
         )
+    response.status_code = (
+        status.HTTP_200_OK if not handle_response.error else status.HTTP_400_BAD_REQUEST
+    )
     if isinstance(handle_response, AWSInfraHandleResponse):
         # Return early if this is a handle response (a response from the management account hasn't been received yet)
         return handle_response
@@ -1214,7 +1219,6 @@ async def api_awsinfra_inventory_customer_account(
     # Reload canarydrop to ensure we have the latest state
     canarydrop = aws_infra.get_canarydrop_from_handle(request.handle)
     if handle_response.error:
-        response.status_code = status.HTTP_400_BAD_REQUEST
         aws_infra.mark_failed(
             canarydrop
         )  # mark fail for in case this is coming from a successful inventory
