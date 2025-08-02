@@ -114,7 +114,7 @@ async function deleteTokenFnc() {
           isLoading.value = false;
           isError.value = true;
           isErrorMessage.value =
-            resWithHandle.data.error ||
+            resWithHandle.data.message ||
             'Error on requesting to delete the token. Try again';
           clearInterval(pollingDeleteTokenInterval);
           return;
