@@ -222,8 +222,6 @@ async def _build_handle_response_payload(
         "error": error.value,
     }
 
-    print("response_content", response_content)
-
     operation = AWSInfraOperationType(handle.operation)
     if operation == AWSInfraOperationType.CHECK_ROLE:
         payload["session_credentials_retrieved"] = response_content.get(
