@@ -6,7 +6,7 @@
       :class="{ 'mb-8': lastKey }"
       @click.stop="handleClickAsset"
     >
-      <span class="flex flex-row items-center flex-1 gap-16">
+      <span class="flex flex-row items-center flex-1 gap-16 ">
         <div
           :alt="`icon-${assetType}`"
           :style="{
@@ -14,7 +14,7 @@
           }"
           class="bg-cover w-[2rem] h-[2rem] duration-100 rounded-full hidden @xs:block min-w-[2rem]"
         ></div>
-        <span class="text-left">
+        <span class="text-left break-all">
           <span
             v-for="(val, key) in assetPreviewInfo"
             :key="key"
