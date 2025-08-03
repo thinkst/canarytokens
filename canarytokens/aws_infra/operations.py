@@ -154,8 +154,8 @@ def _get_error_message(
     """
     SERVICE_ERROR_MESSAGE_MAP = {
         AWSInfraServiceError.FAILURE_CHECK_ROLE: f"Could not assume the role{role} in the account. Please make sure the role exists and that the external ID is correct.",
-        AWSInfraServiceError.FAILURE_INGESTION_SETUP: f"Could not setup alerting. If you have previously created an AWS Infra Canarytoken in this AWS account{account} in the same region{region}, then you need to delete the existing Canarytoken before creating a new one. Alternatively, you can rather edit the decoys in the existing Canarytoken.",
-        AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "Something went wrong while trying to delete the Canarytoken.",
+        AWSInfraServiceError.FAILURE_INGESTION_SETUP: f"Could not setup alerting. If you have previously created an AWS Infra Canarytoken in this AWS account{account} in the same region{region}, then you need to delete the existing Canarytoken before creating a new one. Alternatively, you can rather edit the decoys in the existing Canarytoken. Hint: look in you inbox for a previous Infrastructure Canarytoken email to get the Manage link.",
+        AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "",
         AWSInfraServiceError.FAILURE_INVENTORY: f"Could not retrieve the inventory of the AWS account{account}. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role{role} that you created for us to inventory your resources.",
         AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
         AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
