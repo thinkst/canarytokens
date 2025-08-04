@@ -8,12 +8,13 @@
       :id="id"
       >{{ props.label }}</BaseLabel
     >
-    <span
+    <img
       v-if="icon"
+      alt="icon"
       class="icon"
-      :class="[{ 'top-[2rem]': !hideLabel }, { 'top-[0.5rem]': hideLabel }]"
-      :style="{ 'background-image': `url(${iconURL})` }"
-    ></span>
+      :class="[{ 'top-[2rem]': !hideLabel }, { 'top-[0.3rem]': hideLabel }]"
+      :src="iconURL"
+    />
     <input
       :id="id"
       :value="value"
@@ -177,9 +178,6 @@ watch(
 
 .textfield-wrapper.large {
   @apply flex flex-col relative  text-grey-800;
-
-  .icon {
-  }
 
   input {
     @apply px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:ring-green-600 focus-visible:ring-1;

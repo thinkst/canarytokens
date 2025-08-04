@@ -88,9 +88,9 @@ async function handleAddItem() {
     generatedName,
   } = useGenerateAssetName(props.assetType, props.assetKey);
 
-  isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName(props.parentAssetName);
   isErrorMessage.value = isGenerateNameError.value;
+  isLoading.value = isGenerateNameLoading.value;
   if (isErrorMessage.value) {
     isLoading.value = false;
     return;

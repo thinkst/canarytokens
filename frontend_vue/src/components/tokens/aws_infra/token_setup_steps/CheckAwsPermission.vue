@@ -7,11 +7,9 @@
     </div>
     <div class="flex justify-center">
       <StepState
-        v-if="isLoading || isError"
+        v-if="isLoading"
         class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         :is-loading="isLoading"
-        :is-error="isError"
-        :error-message="errorMessage"
       >
         <template #loading>
           <GenerateLoadingState
@@ -91,6 +89,12 @@
               :arrow-word-position="2"
               class="flex-grow external-id-input"
             />
+            <BaseMessageBox
+              v-if="isError"
+              class="mb-24 mt-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+              variant="danger"
+              >{{ errorMessage }}
+            </BaseMessageBox>
             <BaseButton
               type="submit"
               variant="primary"
