@@ -109,7 +109,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useModal } from 'vue-final-modal';
 import { savePlan, requestAIgeneratedAssets } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
@@ -125,6 +125,7 @@ import {
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
+import { setTempAssetsData } from '@/components/tokens/aws_infra/plan_generator/planTempService.ts';
 import {
   getAIQuotaState,
   setTotalAIQuota,
@@ -398,6 +399,14 @@ async function handleSavePlan() {
     isSavingPlan.value = false;
   }
 }
+
+watch(
+  assetsData,
+  (newAssets) => {
+    setTempAssetsData(newAssets);
+  },
+  { deep: true }
+);
 </script>
 
 <style>

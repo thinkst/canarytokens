@@ -9,6 +9,7 @@ import {
   getAIQuotaState,
 } from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
 import { generateRandomString } from '@/utils/utils.ts';
+import { getTempAssetsData } from '@/components/tokens/aws_infra/plan_generator/planTempService.ts';
 
 export function useGenerateAssetName(
   assetType: AssetTypesEnum,
@@ -35,6 +36,7 @@ export function useGenerateAssetName(
 
   async function handleGenerateName(parentAssetName: string = '') {
     const { aiQuotaErrorShown } = getAIQuotaState();
+    const tempPlanData = { assets: getTempAssetsData() };
 
     if (isPreviewMode) {
       const res = await generateDataChoiceTest();
@@ -56,7 +58,8 @@ export function useGenerateAssetName(
         authId.value,
         assetType,
         fieldType,
-        parentAssetName
+        parentAssetName,
+        tempPlanData
       );
 
       if (!res.data.result) {

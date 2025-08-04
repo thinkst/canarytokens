@@ -62,12 +62,17 @@
     <ModalAssetContentItem
       v-else
       :asset-type="props.assetType"
-      :asset-data="removeManageInfo(selectedAssetDetails.assetData)"
+      :asset-data="removeManageInfo(currentAssetDetails.assetData)"
       :trigger-submit="triggerSubmit"
       :trigger-cancel="triggerCancel"
       @update-asset="
         (values) => {
           handleUpdateAsset(values);
+        }
+      "
+      @update-temporary-asset="
+        (values) => {
+          handleUpdateTemporaryAsset(values);
         }
       "
     />
@@ -110,6 +115,7 @@ import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generat
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
 import { errorMessageMapper } from '@/utils/errorMessageMapper.ts';
+import { setTempAssetsFields } from '@/components/tokens/aws_infra/plan_generator/planTempService.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -117,10 +123,15 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
-const emit = defineEmits(['update-asset', 'delete-asset', 'add-asset']);
+const emit = defineEmits([
+  'update-asset',
+  'delete-asset',
+  'add-asset',
+  'update-temporary-asset',
+]);
 const showAssetDetails = ref(false);
-const selectedAssetDetails = ref({
-  assetType: '',
+const currentAssetDetails = ref({
+  assetType: '' as AssetTypesEnum,
   assetData: {} as AssetData,
   index: -1,
 });
@@ -134,11 +145,10 @@ const currentAssetData = computed(() => {
   return props.assetData?.value ?? props.assetData;
 });
 
-const isEmptyAssetData = computed(() => {
-  return (
+const isEmptyAssetData = computed(
+  () =>
     Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0
-  );
-});
+);
 
 const assetLabel = computed(() => getAssetLabel(props.assetType));
 
@@ -151,7 +161,7 @@ const subtitle = computed(() => {
 function handleShowAssetDetails(selectedItem: AssetData, index: number) {
   isErrorMessage.value = '';
   showAssetDetails.value = true;
-  selectedAssetDetails.value = {
+  currentAssetDetails.value = {
     assetType: props.assetType,
     assetData: selectedItem,
     index: index,
@@ -165,9 +175,16 @@ function removeManageInfo(assetData: any) {
 }
 
 function handleUpdateAsset(values: any) {
-  selectedAssetDetails.value.assetData = values;
-  emit('update-asset', selectedAssetDetails.value);
+  currentAssetDetails.value.assetData = values;
+  emit('update-asset', currentAssetDetails.value);
   showAssetDetails.value = false;
+}
+
+function handleUpdateTemporaryAsset(values: AssetData) {
+  setTempAssetsFields({
+    ...currentAssetDetails.value,
+    assetData: values,
+  });
 }
 
 async function handleAddNewAsset() {
