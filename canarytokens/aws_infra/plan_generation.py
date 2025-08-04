@@ -160,16 +160,6 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     return proposed_plan
 
 
-async def _generate_parent_asset_name(
-    asset_type: AWSInfraAssetType, inventory: list
-) -> str:
-    """Generate a parent asset name (S3 bucket, SQS queue, etc.)."""
-    names = (
-        await data_generation.generate_names(asset_type, inventory, 1)
-    ).suggested_names
-    return names[0]
-
-
 async def _generate_child_asset_name(
     asset_type: AWSInfraAssetType, parent_name: str, inventory: list[str] = None
 ) -> str:
@@ -185,11 +175,24 @@ async def _generate_child_asset_name(
     return names[0]
 
 
+def _get_non_duplicate_name(
+    current_names: list[str], suggested_names: list[str]
+) -> str:
+    """
+    Get a non-duplicate name from the suggested names that is not in the current names.
+    """
+    for name in suggested_names:
+        if name not in current_names:
+            return name
+    return None
+
+
 async def generate_data_choice(
     canarydrop: Canarydrop,
     asset_type: AWSInfraAssetType,
     asset_field: AWSInfraAssetField,
     parent_asset_name: AWSInfraAssetField = None,
+    current_plan: dict = None,
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
 
@@ -232,14 +235,43 @@ async def generate_data_choice(
         AWSInfraAssetField.TABLE_ITEMS,
     }
 
-    if asset_field in PARENT_FIELDS:
-        result = await _generate_parent_asset_name(asset_type, inventory)
-    elif asset_field in CHILD_FIELDS:
-        result = await _generate_child_asset_name(
-            asset_type, parent_asset_name, inventory=inventory
+    if asset_field in CHILD_FIELDS and parent_asset_name is None:
+        raise ValueError(
+            f"Parent asset name required for {asset_type.value} child generation"
         )
+    current_plan = current_plan or {}
+
+    current_names = []
+    if asset_field in PARENT_FIELDS:
+        current_names = [
+            asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
+            for asset in current_plan.get(asset_type, [{}])
+        ]
     else:
-        raise ValueError(f"Unsupported asset field: {asset_field}")
+        for asset in current_plan.get(asset_type, []):
+            if (
+                asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
+                == parent_asset_name
+            ):
+                current_names = asset.get(
+                    _ASSET_TYPE_CONFIG[asset_type].child_asset_field_name, []
+                )
+                break
+
+    result = None
+    while not result:  # unlikely to repeat more than once
+        if asset_field in PARENT_FIELDS:
+            names = (
+                await data_generation.generate_names(
+                    asset_type, inventory, trim_list=False
+                )
+            ).suggested_names
+            result = _get_non_duplicate_name(current_names, names)
+        else:
+            names = await data_generation.generate_children_names(
+                asset_type, parent_asset_name, trim_list=False
+            )
+            result = _get_non_duplicate_name(current_names, names)
 
     data_generation.name_generation_usage_consume(canarydrop)
     return result
