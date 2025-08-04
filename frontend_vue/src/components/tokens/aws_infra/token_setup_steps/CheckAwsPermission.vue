@@ -21,8 +21,8 @@
               'Analysing cloud account',
             ]"
             img-src="aws_infra_token_loading_scanner.webp"
-          />
-        </template></StepState>
+          /> </template
+      ></StepState>
     </div>
     <div
       v-if="!isLoading"
@@ -165,8 +165,7 @@ const {
 } = useFetchUserAccount(
   token,
   auth_token,
-  computed(() => values.external_id
-)
+  computed(() => values.external_id)
 );
 
 onMounted(async () => {
@@ -174,7 +173,6 @@ onMounted(async () => {
 });
 
 async function initializeRoleData() {
-
   accountNumber.value = aws_account_number;
   accountRegion.value = aws_region;
 
@@ -233,6 +231,7 @@ async function handleGetRoleName() {
       role_name: roleName.value,
       aws_account: managementAwsAccount.value,
       aws_account_number: accountNumber.value,
+      is_managing_token: true,
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
@@ -287,6 +286,7 @@ watch(
           aws_account_number: accountNumber.value,
           proposed_plan: proposedPlan.value,
           available_ai_names: availableAiNames.value,
+          is_managing_token: true,
         });
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {

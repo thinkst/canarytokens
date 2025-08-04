@@ -133,8 +133,13 @@ const props = defineProps<{
   currentStepData: TokenSetupData;
 }>();
 
-const { token, auth_token, proposed_plan, available_ai_names } =
-  props.initialStepData;
+const {
+  token,
+  auth_token,
+  proposed_plan,
+  available_ai_names,
+  is_managing_token,
+} = props.initialStepData;
 
 const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
@@ -178,9 +183,7 @@ onMounted(() => {
   }
 
   assetsData.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
-  // available_ai_names exists only for existing plans
-  // If a plan exists, we don't want to fetch AI assets again
-  !available_ai_names
+  !is_managing_token
     ? fetchAIgeneratedAssets(assetsData.value)
     : updateAiCurrentAvailableNamesCount(available_ai_names);
 
@@ -194,9 +197,10 @@ const styleAiNameCountProgressBar = computed(() => {
   const total = aiNameCountState.value.total;
   const available = aiNameCountState.value.available;
   const progress = total ? Math.min((available / total) * 100, 100) : 0;
-  if (progress > 70) {
+
+  if (available > 20) {
     return `--bar-color: #22c55e; --progress: ${progress}%;`;
-  } else if (progress > 40) {
+  } else if (available > 8) {
     return `--bar-color: #eab308; --progress: ${progress}%;`;
   }
   return `--bar-color: #ef4444; --progress: ${progress}%;`;
@@ -244,6 +248,9 @@ function getAnyLoadingAssetData(): boolean {
 }
 
 function updateAiCurrentAvailableNamesCount(count: number) {
+  if (is_managing_token) {
+    aiNameCountState.value.total = 50;
+  }
   if (aiNameCountState.value.total === 0) {
     aiNameCountState.value.total = Math.floor(count) || 0;
   }
@@ -382,6 +389,7 @@ async function handleSavePlan() {
       auth_token,
       proposed_plan: assetsData.value,
       ai_name_state: aiNameCountState.value,
+      is_managing_token,
     });
     emits('updateStep');
   } catch (err: any) {
@@ -395,8 +403,6 @@ async function handleSavePlan() {
     isSavingPlan.value = false;
   }
 }
-
-
 </script>
 
 <style>

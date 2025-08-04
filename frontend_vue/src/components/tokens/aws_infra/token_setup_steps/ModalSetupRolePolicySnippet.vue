@@ -5,7 +5,6 @@
     :content-class="`items-stretch`"
   >
     <template #default>
-      <h2 class="mb-24 text-center">Run the AWS CLI command below</h2>
       <div class="place-self-center w-full">
         <Form
           class="flex flex-col justify-center items-center mb-24"
@@ -32,6 +31,9 @@
             class="mt-24 h-[10svh] w-full"
           />
           <template v-else>
+            <h2 class="mb-24 mt-16 text-center">
+              Run the AWS CLI command below
+            </h2>
             <div class="text-right">
               <BaseLabelArrow
                 id="aws-snippet"

@@ -1,6 +1,6 @@
 <template>
   <BaseModal
-    :title="`${props.assetType} Decoys`"
+    :title="`${assetLabel} Decoys`"
     :has-close-button="true"
     class="flex flex-row items-stretch"
   >
@@ -219,7 +219,13 @@ async function handleAddNewAsset() {
       if (isErrorMessage.value) return null;
       emit('add-asset', newAssetValues);
     } catch (err: any) {
-      isErrorMessage.value = err.message || 'An error occurred';
+      if (err.response.status === 429) {
+        isErrorMessage.value =
+          err.response.data.message ||
+          'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
+        return;
+      }
+      isErrorMessage.value = err.response.data.message || 'An error occurred';
     } finally {
       isLoading.value = false;
     }

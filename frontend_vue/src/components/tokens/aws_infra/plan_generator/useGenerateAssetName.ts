@@ -45,12 +45,6 @@ export function useGenerateAssetName(
         parentAssetName
       );
 
-      if (res.status === 429) {
-        isGenerateNameError.value =
-          'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
-        return;
-      }
-
       if (!res.data.result) {
         isGenerateNameError.value = res.data.message;
       }
@@ -59,7 +53,15 @@ export function useGenerateAssetName(
       const availableAiNamesCount = res.data.data_generation_remaining || 0;
       updateAiAvailableNames(availableAiNamesCount);
     } catch (err: any) {
-      isGenerateNameError.value = err.message || 'An error occurred';
+      if (err.response.status === 429) {
+        isGenerateNameError.value =
+          err.response.data.message ||
+          'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
+        return;
+      }
+      isGenerateNameError.value =
+        err.response.data.message ||
+        'An error occurred while generating the asset name.';
     } finally {
       isGenerateNameLoading.value = false;
     }
