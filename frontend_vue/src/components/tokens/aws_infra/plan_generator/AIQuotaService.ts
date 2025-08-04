@@ -6,11 +6,11 @@ const AIQuotaState = reactive({
   aiQuotaErrorShown: false,
 });
 
-export function setTotalAiQuota(total: number) {
+export function setTotalAIQuota(total: number) {
   AIQuotaState.totalAiQuota = total;
 }
 
-export function setAvailableAiQuota(available: number) {
+export function setAvailableAIQuota(available: number) {
   AIQuotaState.availableAiQuota = available;
 }
 
@@ -18,6 +18,6 @@ export function getAIQuotaState() {
   return toRefs(AIQuotaState);
 }
 
-export function setAiQuotaErrorShown(shown: boolean) {
+export function setAIQuotaErrorShown(shown: boolean) {
   AIQuotaState.aiQuotaErrorShown = shown;
 }

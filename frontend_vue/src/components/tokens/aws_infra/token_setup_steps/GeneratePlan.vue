@@ -127,8 +127,8 @@ import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import {
   getAIQuotaState,
-  setTotalAiQuota,
-  setAvailableAiQuota,
+  setTotalAIQuota,
+  setAvailableAIQuota,
 } from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
@@ -247,12 +247,12 @@ function getAnyLoadingAssetData(): boolean {
 
 function updateAiCurrentAvailableNamesCount(count: number) {
   if (is_managing_token) {
-    setTotalAiQuota(50);
+    setTotalAIQuota(50);
   }
   if (totalAiQuota.value === 0) {
-    setTotalAiQuota(Math.floor(count) || 0);
+    setTotalAIQuota(Math.floor(count) || 0);
   }
-  setAvailableAiQuota(Math.floor(count) || 0);
+  setAvailableAIQuota(Math.floor(count) || 0);
 }
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
