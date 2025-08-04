@@ -22,11 +22,6 @@
             :parent-asset-name="parentAssetName"
             :prepend="prepend"
             :remove="remove"
-            @update-ai-available-names-count="
-              (count) => {
-                emit('updateAiAvailableNamesCount', count);
-              }
-            "
           />
         </FieldArray>
       </template>
@@ -37,11 +32,6 @@
           :label="getFieldLabel(props.assetType, key)"
           :field-type="key"
           :asset-type="props.assetType"
-          @update-ai-available-names-count="
-            (count) => {
-              emit('updateAiAvailableNamesCount', count);
-            }
-          "
         />
       </template>
     </div>
@@ -70,11 +60,7 @@ const props = defineProps<{
   triggerCancel: boolean;
 }>();
 
-const emit = defineEmits([
-  'update-asset',
-  'invalid-submit',
-  'updateAiAvailableNamesCount',
-]);
+const emit = defineEmits(['update-asset', 'invalid-submit']);
 const initialValues = ref({});
 const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
 const tempFields: Ref<AssetData | []> = ref([]);

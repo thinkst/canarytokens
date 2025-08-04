@@ -10,11 +10,6 @@
       :trigger-cancel="props.triggerCancel"
       @update-asset="handleUpdateAsset"
       @invalid-submit="handleInvalidSubmit"
-      @update-ai-available-names-count="
-        (count) => {
-          emit('update-ai-available-names-count', count);
-        }
-      "
     />
   </div>
 </template>
@@ -40,7 +35,7 @@ const props = defineProps<{
   triggerCancel: boolean;
 }>();
 
-const emit = defineEmits(['update-asset', 'update-ai-available-names-count']);
+const emit = defineEmits(['update-asset']);
 
 function handleUpdateAsset(values: any) {
   emit('update-asset', values);
