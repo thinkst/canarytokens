@@ -21,11 +21,11 @@
           class="ai-name-count"
           :style="styleAiNameCountProgressBar"
           role="progressbar"
-          :aria-valuemax="aiNameCountState.total"
+          :aria-valuemax="totalAiQuota"
           aria-valuemin="0"
-          :aria-valuenow="aiNameCountState.available"
+          :aria-valuenow="availableAiQuota"
         >
-          <span>{{ aiNameCountState.available }} </span>
+          <span>{{ availableAiQuota }} </span>
         </div>
       </div>
     </div>
@@ -125,6 +125,11 @@ import {
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
+import {
+  getAIQuotaState,
+  setTotalAiQuota,
+  setAvailableAiQuota,
+} from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
 
@@ -155,10 +160,7 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   DynamoDBTable: false,
 });
 const isAiGenerateErrorMessage = ref('');
-const aiNameCountState = ref({
-  total: 0,
-  available: 0,
-});
+const { totalAiQuota, availableAiQuota } = getAIQuotaState();
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
@@ -175,10 +177,6 @@ onMounted(() => {
     assetsData.value = props.currentStepData
       .proposed_plan as ProposedAWSInfraTokenPlanData;
     isLoadingUI.value = false;
-    aiNameCountState.value = props.currentStepData?.ai_name_state || {
-      total: 0,
-      available: 0,
-    };
     return;
   }
 
@@ -194,8 +192,8 @@ onMounted(() => {
 });
 
 const styleAiNameCountProgressBar = computed(() => {
-  const total = aiNameCountState.value.total;
-  const available = aiNameCountState.value.available;
+  const total = totalAiQuota.value;
+  const available = availableAiQuota.value;
   const progress = total ? Math.min((available / total) * 100, 100) : 0;
 
   if (available > 20) {
@@ -207,8 +205,8 @@ const styleAiNameCountProgressBar = computed(() => {
 });
 
 const aiCurrentAvailableNamesCountTootlip = computed(() => {
-  return aiNameCountState.value.available > 0
-    ? `We generate decoy names with AI. You have ${aiNameCountState.value.available} names available out of ${aiNameCountState.value.total}.`
+  return availableAiQuota.value > 0
+    ? `We generate decoy names with AI. You have ${availableAiQuota.value} names available out of ${totalAiQuota.value}.`
     : 'You have reached your limit for generated names. You can continue with manual setup.';
 });
 
@@ -249,12 +247,12 @@ function getAnyLoadingAssetData(): boolean {
 
 function updateAiCurrentAvailableNamesCount(count: number) {
   if (is_managing_token) {
-    aiNameCountState.value.total = 50;
+    setTotalAiQuota(50);
   }
-  if (aiNameCountState.value.total === 0) {
-    aiNameCountState.value.total = Math.floor(count) || 0;
+  if (totalAiQuota.value === 0) {
+    setTotalAiQuota(Math.floor(count) || 0);
   }
-  aiNameCountState.value.available = Math.floor(count) || 0;
+  setAvailableAiQuota(Math.floor(count) || 0);
 }
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
@@ -279,9 +277,6 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
       },
       'onAdd-asset': (newValues) => {
         handleSaveAsset(assetType, newValues, -1);
-      },
-      'onUpdate-ai-available-names-count': (count: number) => {
-        updateAiCurrentAvailableNamesCount(count);
       },
     },
   });
@@ -331,10 +326,10 @@ async function fetchAIgeneratedAssets(
     }
     const newAssets = res.data.assets;
 
-    aiNameCountState.value.total = Math.floor(
+    const dataGenerationRemaining = Math.floor(
       res.data.data_generation_remaining
     );
-    updateAiCurrentAvailableNamesCount(aiNameCountState.value.total);
+    updateAiCurrentAvailableNamesCount(dataGenerationRemaining);
 
     if (Object.keys(newAssets).length > 0) {
       updatedPlanData = mergeAIGeneratedAssets(assetsData.value, newAssets);
@@ -388,7 +383,6 @@ async function handleSavePlan() {
       token,
       auth_token,
       proposed_plan: assetsData.value,
-      ai_name_state: aiNameCountState.value,
       is_managing_token,
     });
     emits('updateStep');

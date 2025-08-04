@@ -25,7 +25,7 @@
   <BaseMessageBox
     v-if="isErrorMessage"
     variant="danger"
-    >{{ isErrorMessage }}
+    >{{ errorMessageMapper(isErrorMessage) }}
   </BaseMessageBox>
   <AssetFormPagination :fields="props.fields">
     <div
@@ -58,8 +58,7 @@ import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/asse
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import AssetFormPagination from '@/components/tokens/aws_infra/plan_generator/AssetFormPagination.vue';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-
-const emit = defineEmits(['updateAiAvailableNamesCount']);
+import { errorMessageMapper } from '@/utils/errorMessageMapper.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -78,6 +77,7 @@ function iconURL() {
 }
 
 async function handleAddItem() {
+  if (isLoading.value) return;
   isLoading.value = true;
   isErrorMessage.value = '';
 
@@ -86,9 +86,7 @@ async function handleAddItem() {
     isGenerateNameError,
     isGenerateNameLoading,
     generatedName,
-  } = useGenerateAssetName(props.assetType, props.assetKey, (count: number) => {
-    emit('updateAiAvailableNamesCount', count);
-  });
+  } = useGenerateAssetName(props.assetType, props.assetKey);
 
   isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName(props.parentAssetName);

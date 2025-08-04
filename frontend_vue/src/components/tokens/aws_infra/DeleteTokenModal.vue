@@ -41,7 +41,7 @@
         label="AWS CLI snippet"
         :code="codeSnippetCommands"
         custom-height="100px"
-        class="md:max-w-[600px] max-w-[350px] mt-24 wrap-code"
+        class="mt-24 wrap-code"
       />
     </div>
     <div

@@ -3,11 +3,16 @@ import { generateDataChoice } from '@/api/awsInfra';
 import { generateDataChoice as generateDataChoiceTest } from '@/views/planPreviewUtils.ts';
 import { getTokenData } from '@/utils/dataService';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
+import {
+  setAvailableAiQuota,
+  setAiQuotaErrorShown,
+  getAIQuotaState,
+} from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
+import { generateRandomString } from '@/utils/utils.ts';
 
 export function useGenerateAssetName(
   assetType: AssetTypesEnum,
-  fieldType: string,
-  updateAiAvailableNames: (count: number) => void
+  fieldType: string
 ) {
   const isGenerateNameError = ref('');
   const isGenerateNameLoading = ref(false);
@@ -29,6 +34,8 @@ export function useGenerateAssetName(
   const isPreviewMode = window.location.pathname.includes('/nest/plan-preview');
 
   async function handleGenerateName(parentAssetName: string = '') {
+    const { aiQuotaErrorShown } = getAIQuotaState();
+
     if (isPreviewMode) {
       const res = await generateDataChoiceTest();
       //@ts-ignore
@@ -36,6 +43,13 @@ export function useGenerateAssetName(
       isGenerateNameLoading.value = false;
       return;
     }
+
+    if (aiQuotaErrorShown.value) {
+      const randomName = generateRandomString(20);
+      generatedName.value = randomName;
+      return;
+    }
+
     try {
       const res = await generateDataChoice(
         tokenId.value,
@@ -51,9 +65,10 @@ export function useGenerateAssetName(
 
       generatedName.value = res.data.proposed_data;
       const availableAiNamesCount = res.data.data_generation_remaining || 0;
-      updateAiAvailableNames(availableAiNamesCount);
+      setAvailableAiQuota(availableAiNamesCount);
     } catch (err: any) {
       if (err.response.status === 429) {
+        setAiQuotaErrorShown(true);
         isGenerateNameError.value =
           err.response.data.message ||
           'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';

@@ -43,7 +43,7 @@
       v-if="isErrorMessage"
       variant="danger"
       class="mb-16"
-      >{{ isErrorMessage }}
+      >{{ errorMessageMapper(isErrorMessage) }}
     </BaseMessageBox>
     <ModalAssetContentList
       v-if="!showAssetDetails"
@@ -68,11 +68,6 @@
       @update-asset="
         (values) => {
           handleUpdateAsset(values);
-        }
-      "
-      @update-ai-available-names-count="
-        (count) => {
-          emit('update-ai-available-names-count', count);
         }
       "
     />
@@ -114,6 +109,7 @@ import {
 import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generator/useGenerateAssetName.ts';
 import ModalAssetContentList from './ModalAssetContentList.vue';
 import ModalAssetContentItem from './ModalAssetContentItem.vue';
+import { errorMessageMapper } from '@/utils/errorMessageMapper.ts';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -121,12 +117,7 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
-const emit = defineEmits([
-  'update-asset',
-  'delete-asset',
-  'add-asset',
-  'update-ai-available-names-count',
-]);
+const emit = defineEmits(['update-asset', 'delete-asset', 'add-asset']);
 const showAssetDetails = ref(false);
 const selectedAssetDetails = ref({
   assetType: '',
@@ -180,6 +171,7 @@ function handleUpdateAsset(values: any) {
 }
 
 async function handleAddNewAsset() {
+  if (isLoading.value) return;
   const newAssetFields = () => getAssetDefaultValues(props.assetType);
 
   const newAssetValues: Record<string, any> = { ...newAssetFields() };
@@ -199,9 +191,7 @@ async function handleAddNewAsset() {
             isGenerateNameError,
             isGenerateNameLoading,
             generatedName,
-          } = useGenerateAssetName(props.assetType, key, (count: number) => {
-            emit('update-ai-available-names-count', count);
-          });
+          } = useGenerateAssetName(props.assetType, key);
 
           isLoading.value = isGenerateNameLoading.value;
           await handleGenerateName();
