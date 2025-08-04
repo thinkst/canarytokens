@@ -49,16 +49,22 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
         AWSInfraState.GENERATE_CHILD_ASSETS: [
             AWSInfraState.INVENTORY,
             AWSInfraState.GENERATE_CHILD_ASSETS,
+            AWSInfraState.CHECK_ROLE,
         ],
         AWSInfraState.GENERATE_CHILD_ASSETS
         | AWSInfraState.SUCCEEDED: [
             AWSInfraState.INVENTORY,
             AWSInfraState.GENERATE_CHILD_ASSETS,
             AWSInfraState.PLAN,
+            AWSInfraState.CHECK_ROLE,
         ],
-        AWSInfraState.PLAN: [AWSInfraState.PLAN],
+        AWSInfraState.PLAN: [AWSInfraState.PLAN, AWSInfraState.CHECK_ROLE],
         AWSInfraState.PLAN
-        | AWSInfraState.SUCCEEDED: [AWSInfraState.SETUP_INGESTION, AWSInfraState.PLAN],
+        | AWSInfraState.SUCCEEDED: [
+            AWSInfraState.SETUP_INGESTION,
+            AWSInfraState.PLAN,
+            AWSInfraState.CHECK_ROLE,
+        ],
         AWSInfraState.SETUP_INGESTION: [
             AWSInfraState.SETUP_INGESTION,
             AWSInfraState.CHECK_ROLE,
