@@ -235,7 +235,10 @@ async def _gemini_request(prompt: str):
 
 
 async def generate_names(
-    asset_type: AWSInfraAssetType, inventory: list[str], count=5
+    asset_type: AWSInfraAssetType,
+    inventory: list[str],
+    count=5,
+    duplicates_inventory: list[str] = None,
 ) -> _Suggestion:
     """
     Generate decoy names for the specified AWS asset type based on the provided inventory.
@@ -276,7 +279,9 @@ async def generate_names(
             )
         )
         names = await _finalize_list(asset_type, inventory, new_names)
-        validated_names.extend(names)
+        validated_names.extend(
+            [name for name in names if name not in duplicates_inventory]
+        ) if duplicates_inventory else validated_names.extend(names)
 
     random.shuffle(validated_names)
     suggested_names = validated_names[:count]
@@ -285,7 +290,10 @@ async def generate_names(
 
 
 async def generate_children_names(
-    parent_asset_type: AWSInfraAssetType, parent_name: str, count: int = 5
+    parent_asset_type: AWSInfraAssetType,
+    parent_name: str,
+    count: int = 5,
+    duplicates_inventory: list[str] = None,
 ) -> list[str]:
     """
     Generate a list of child names for the specified AWS asset type.
@@ -309,9 +317,21 @@ async def generate_children_names(
     else:
         child_description = "items"
 
-    return await _gemini_request(
-        prompt=f"Generate {count} names for {child_description} in the {parent_asset_type.name} called {parent_name}."
-    )
+    if duplicates_inventory is None:
+        result = await _gemini_request(
+            prompt=f"Generate {count} names for {child_description} in the {parent_asset_type.name} called {parent_name}."
+        )
+    else:
+        overshoot = max(count + 5, 2 * count)
+        result = []
+        while len(result) < count:
+            generated_names = await _gemini_request(
+                prompt=f"Generate {overshoot} names for {child_description} in the {parent_asset_type.name} called {parent_name}."
+            )
+            result.extend(
+                [name for name in generated_names if name not in duplicates_inventory]
+            )
+    return result[:count]
 
 
 @dataclass(frozen=True)

@@ -171,7 +171,7 @@ async def _generate_parent_asset_name(
 
 
 async def _generate_child_asset_name(
-    asset_type: AWSInfraAssetType, parent_name: str
+    asset_type: AWSInfraAssetType, parent_name: str, inventory: list[str] = None
 ) -> str:
     """Generate a child asset name (S3 object, DynamoDB item, etc.)."""
     if not parent_name:
@@ -179,7 +179,9 @@ async def _generate_child_asset_name(
             f"Parent asset name required for {asset_type.value} child generation"
         )
 
-    names = await data_generation.generate_children_names(asset_type, parent_name, 1)
+    names = await data_generation.generate_children_names(
+        asset_type, parent_name, 1, duplicates_inventory=inventory
+    )
     return names[0]
 
 
@@ -233,7 +235,9 @@ async def generate_data_choice(
     if asset_field in PARENT_FIELDS:
         result = await _generate_parent_asset_name(asset_type, inventory)
     elif asset_field in CHILD_FIELDS:
-        result = await _generate_child_asset_name(asset_type, parent_asset_name)
+        result = await _generate_child_asset_name(
+            asset_type, parent_asset_name, inventory=inventory
+        )
     else:
         raise ValueError(f"Unsupported asset field: {asset_field}")
 
