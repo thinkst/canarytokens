@@ -22,6 +22,11 @@
             :parent-asset-name="parentAssetName"
             :prepend="prepend"
             :remove="remove"
+            @update-ai-available-names-count="
+              (count) => {
+                emit('updateAiAvailableNamesCount', count);
+              }
+            "
           />
         </FieldArray>
       </template>
@@ -51,7 +56,10 @@ import type { GenericObject } from 'vee-validate';
 import type { AssetData } from '../types';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
-import { getFieldLabel, getAssetNameKey } from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
+import {
+  getFieldLabel,
+  getAssetNameKey,
+} from '@/components/tokens/aws_infra/plan_generator/assetService.ts';
 import AssetFormArray from '@/components/tokens/aws_infra/plan_generator/AssetFormArray.vue';
 
 const props = defineProps<{
@@ -77,10 +85,10 @@ onMounted(() => {
   firstInput.focus();
 });
 
-const parentAssetName = computed(():string => {
+const parentAssetName = computed((): string => {
   const assetNameKey = getAssetNameKey(props.assetType) as keyof AssetData;
   return String(props.assetData[assetNameKey]) || '';
-})
+});
 
 function onSubmit(values: GenericObject) {
   emit('update-asset', values);

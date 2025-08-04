@@ -3,9 +3,7 @@
     <div class="infra-token__title-wrapper text-center">
       <h2>
         {{
-          isLoading
-            ? 'Preparing the Terraform module...'
-            : 'Deploy your decoys'
+          isLoading ? 'Preparing the Terraform module...' : 'Deploy your decoys'
         }}
       </h2>
     </div>
@@ -33,12 +31,20 @@
       <div class="text-left max-w-[100%]">
         <div>
           <BaseMessageBox
+            v-if="!isManagingToken"
             class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]"
             variant="success"
             >Your decoy infrastructure design has been generated and stored. All
             that remains is to include it into your Terraform configuration, and
             apply it.</BaseMessageBox
           >
+          <BaseMessageBox
+            v-else
+            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]"
+            variant="success"
+            >Your decoy infrastructure design has been updated. All that remains
+            is to re-initialise the Terraform module and deploy it.
+          </BaseMessageBox>
         </div>
         <BaseCard
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw] place-self-center"
@@ -49,11 +55,24 @@
               alt="terraform-icon"
               class="w-[2.5rem] h-[2.5rem] mb-8"
             />
-            <h2 class="textmd mb-16">
+            <h2
+              v-if="!isManagingToken"
+              class="textmd mb-16"
+            >
               Add this snippet to your Terraform configuration file then run<br />
               <span class="monospace">$ terraform init</span> to import the
               module, and <span class="monospace">$terraform apply</span> to
               create the resources.
+            </h2>
+            <h2
+              v-else
+              class="textmd mb-16"
+            >
+              Your Terraform should already include this snippet, but you will
+              need to re-run<br />
+              <span class="monospace">terraform init --upgrade</span> to update
+              the module, and<span class="monospace">$terraform apply</span> to
+              make the changes.
             </h2>
           </div>
           <BaseLabelArrow
@@ -141,12 +160,11 @@
         Manage Token</BaseButton
       >
     </div>
-
   </section>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, defineAsyncComponent } from 'vue';
+import { ref, onMounted, watch, defineAsyncComponent, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import getImageUrl from '@/utils/getImageUrl';
 import type { TokenDataType } from '@/utils/dataService';
@@ -189,7 +207,7 @@ const errorMessage = ref('');
 const terraformSnippet = ref('');
 const cleaupSnippet = ref('');
 
-const { token, auth_token } = props.initialStepData;
+const { token, auth_token, is_managing_token } = props.initialStepData;
 
 onMounted(async () => {
   await handleRequestTerraformSnippet();
@@ -197,6 +215,10 @@ onMounted(async () => {
     top: 0,
     behavior: 'smooth',
   });
+});
+
+const isManagingToken = computed(() => {
+  return is_managing_token;
 });
 
 async function handleRequestTerraformSnippet() {
