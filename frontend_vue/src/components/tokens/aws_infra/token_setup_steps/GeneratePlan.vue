@@ -129,6 +129,7 @@ import {
   getAIQuotaState,
   setTotalAIQuota,
   setAvailableAIQuota,
+  INITIAL_AI_QUOTA,
 } from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
 
 const emits = defineEmits(['updateStep', 'storeCurrentStepData']);
@@ -247,7 +248,7 @@ function getAnyLoadingAssetData(): boolean {
 
 function updateAiCurrentAvailableNamesCount(count: number) {
   if (is_managing_token) {
-    setTotalAIQuota(50);
+    setTotalAIQuota(INITIAL_AI_QUOTA);
   }
   if (totalAiQuota.value === 0) {
     setTotalAIQuota(Math.floor(count) || 0);
