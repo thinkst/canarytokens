@@ -169,12 +169,6 @@ def _extract_current_names(
     """
     Extract current names from the plan for the given asset type and field.
     """
-    print("extracting names")
-    print(
-        current_plan.get(asset_type, [])[0].get(
-            _ASSET_TYPE_CONFIG[asset_type].asset_field_name
-        )
-    )
     if not is_child_asset:
         return [
             asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
