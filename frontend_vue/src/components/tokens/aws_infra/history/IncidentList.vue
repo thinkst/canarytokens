@@ -92,14 +92,14 @@ const labelSelectedAssetType = computed(
 );
 
 const groupedIncidentsList = computed((): groupedIncidentsListType => {
-  const listToProcess = getFilteredIncidentsListByAsseType();
+  const listToProcess = getFilteredIncidentsListByAssetType();
   const groupedList = getGroupListByAssetName(listToProcess);
   const orderedTimeList = getOrderListByTimeStamp(groupedList);
 
   return orderedTimeList;
 });
 
-function getFilteredIncidentsListByAsseType() {
+function getFilteredIncidentsListByAssetType() {
   return selectedAssetType.value === ALL_DECOYS
     ? hitsList
     : hitsList.filter((hit) => getAssetType(hit) === selectedAssetType.value);
