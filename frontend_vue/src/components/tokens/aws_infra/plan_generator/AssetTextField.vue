@@ -113,6 +113,7 @@ const props = defineProps<{
   assetType: AssetTypesEnum;
   fieldType: string;
   value?: string;
+  parentAssetName?: string;
 }>();
 
 const { variant = 'large', hasRemove = false, hideLabel = false } = props;
@@ -147,7 +148,7 @@ async function handleGenerateValue() {
   } = useGenerateAssetName(props.assetType, props.fieldType);
 
   isGenerateValueLoading.value = isGenerateNameLoading.value;
-  await handleGenerateName();
+  await handleGenerateName(props.parentAssetName);
   isGenerateValueError.value = isGenerateNameError.value;
   resetField({ value: generatedName.value });
   isGenerateValueLoading.value = false;

@@ -44,6 +44,12 @@
           v-else
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
+          <BaseMessageBox
+            v-if="isErrorSnippet"
+            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+            variant="danger"
+            >{{ isErrorSnippet }}
+          </BaseMessageBox>
           <div class="text-center mb-24">
             <h2 class="text-2xl mb-16">
               Run the AWS CLI command below to
@@ -111,7 +117,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
+import {
+  ref,
+  onMounted,
+  watch,
+  computed,
+  defineAsyncComponent,
+  nextTick,
+} from 'vue';
 import * as Yup from 'yup';
 import { useForm } from 'vee-validate';
 import { useModal } from 'vue-final-modal';
@@ -148,6 +161,7 @@ const accountRegion = ref('');
 const roleName = ref('');
 const managementAwsAccount = ref('');
 const isLoadingSnippet = ref(false);
+const isErrorSnippet = ref('');
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
@@ -202,7 +216,7 @@ const { handleSubmit, setFieldValue, values } = useForm({
 
 async function handleGetRoleName() {
   isLoadingSnippet.value = true;
-  errorMessage.value = '';
+  isErrorSnippet.value = '';
   try {
     const res = await requestAWSInfraRoleSetupCommands(
       token,
@@ -212,7 +226,7 @@ async function handleGetRoleName() {
 
     if (res.status !== 200 || !res.data.role_setup_commands) {
       stateStatus.value = StepStateEnum.ERROR;
-      errorMessage.value =
+      isErrorSnippet.value =
         res.data.error_message || 'Failed to generate setup commands';
       return;
     }
@@ -231,7 +245,7 @@ async function handleGetRoleName() {
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value =
+    isErrorSnippet.value =
       err.data?.message || 'Failed to generate setup commands';
   } finally {
     isLoadingSnippet.value = false;
@@ -287,6 +301,12 @@ watch(
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
         errorMessage.value = errorMessageFetch.value;
+        nextTick(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth',
+          });
+        });
       }
     }
   }

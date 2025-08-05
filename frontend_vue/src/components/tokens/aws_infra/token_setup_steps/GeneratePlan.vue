@@ -193,8 +193,8 @@ onMounted(() => {
     return;
   }
 
-  if (Object.keys(proposed_plan).length > 0) {
-    assetsData.value = proposed_plan as ProposedAWSInfraTokenPlanData;
+  if (proposed_plan.assets && Object.keys(proposed_plan.assets).length > 0) {
+    assetsData.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
   } else {
     assetsData.value = {
       S3Bucket: [],
@@ -205,7 +205,8 @@ onMounted(() => {
     };
   }
 
-  if (!is_managing_token) fetchAIgeneratedAssets(assetsData.value);
+  if (!is_managing_token && totalAiQuota.value > 0)
+    fetchAIgeneratedAssets(assetsData.value);
   else updateAiCurrentAvailableNamesCount(available_ai_names);
 
   // Set loading state to allow UI to render
