@@ -1296,6 +1296,7 @@ async def api_awsinfra_generate_data_choices(
                 request.asset_type,
                 request.asset_field,
                 request.parent_asset_name,
+                request.plan.get("assets", []) if request.plan else None,
             ),
             data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop

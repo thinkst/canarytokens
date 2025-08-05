@@ -171,7 +171,7 @@ def _extract_current_names(
     """
     print("extracting names")
     print(
-        current_plan.get(asset_type, [{}])[0].get(
+        current_plan.get(asset_type, [])[0].get(
             _ASSET_TYPE_CONFIG[asset_type].asset_field_name
         )
     )
