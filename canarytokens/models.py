@@ -2929,6 +2929,7 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
     asset_type: AWSInfraAssetType
     asset_field: AWSInfraAssetField
     parent_asset_name: Optional[str] = None
+    plan: Optional[dict] = None
 
 
 class AWSInfraGenerateDataChoiceResponse(BaseModel):

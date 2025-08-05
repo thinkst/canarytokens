@@ -160,27 +160,30 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     return proposed_plan
 
 
-async def _generate_parent_asset_name(
-    asset_type: AWSInfraAssetType, inventory: list
-) -> str:
-    """Generate a parent asset name (S3 bucket, SQS queue, etc.)."""
-    names = (
-        await data_generation.generate_names(asset_type, inventory, 1)
-    ).suggested_names
-    return names[0]
-
-
-async def _generate_child_asset_name(
-    asset_type: AWSInfraAssetType, parent_name: str
-) -> str:
-    """Generate a child asset name (S3 object, DynamoDB item, etc.)."""
-    if not parent_name:
-        raise ValueError(
-            f"Parent asset name required for {asset_type.value} child generation"
-        )
-
-    names = await data_generation.generate_children_names(asset_type, parent_name, 1)
-    return names[0]
+def _extract_current_names(
+    current_plan: dict,
+    asset_type: AWSInfraAssetType,
+    parent_asset_name: str = None,
+    is_child_asset: bool = False,
+) -> list[str]:
+    """
+    Extract current names from the plan for the given asset type and field.
+    """
+    if not is_child_asset:
+        return [
+            asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
+            for asset in current_plan.get(asset_type, [])
+        ]
+    else:
+        for asset in current_plan.get(asset_type, []):
+            if (
+                asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
+                == parent_asset_name
+            ):
+                return asset.get(
+                    _ASSET_TYPE_CONFIG[asset_type].child_asset_field_name, []
+                )
+    return []
 
 
 async def generate_data_choice(
@@ -188,6 +191,7 @@ async def generate_data_choice(
     asset_type: AWSInfraAssetType,
     asset_field: AWSInfraAssetField,
     parent_asset_name: AWSInfraAssetField = None,
+    current_plan: dict = None,
 ) -> str:
     """Generate a random data choice for the given asset type and field."""
 
@@ -215,14 +219,6 @@ async def generate_data_choice(
         )
 
     inventory = get_current_assets(canarydrop).get(asset_type, [])
-    # Parent asset types (top-level resources)
-    PARENT_FIELDS = {
-        AWSInfraAssetField.BUCKET_NAME,
-        AWSInfraAssetField.SQS_QUEUE_NAME,
-        AWSInfraAssetField.SSM_PARAMETER_NAME,
-        AWSInfraAssetField.SECRET_NAME,
-        AWSInfraAssetField.TABLE_NAME,
-    }
 
     # Child asset types (nested resources)
     CHILD_FIELDS = {
@@ -230,13 +226,40 @@ async def generate_data_choice(
         AWSInfraAssetField.TABLE_ITEMS,
     }
 
-    if asset_field in PARENT_FIELDS:
-        result = await _generate_parent_asset_name(asset_type, inventory)
-    elif asset_field in CHILD_FIELDS:
-        result = await _generate_child_asset_name(asset_type, parent_asset_name)
-    else:
-        raise ValueError(f"Unsupported asset field: {asset_field}")
+    is_child_asset = asset_field in CHILD_FIELDS
 
+    if is_child_asset and not parent_asset_name:
+        raise ValueError(
+            f"Parent asset name required for {asset_type.value} child generation"
+        )
+    current_plan = current_plan or {}
+
+    current_names = _extract_current_names(
+        current_plan,
+        asset_type,
+        parent_asset_name,
+        is_child_asset=is_child_asset,
+    )
+
+    max_attempts = 3
+    for _ in range(max_attempts):
+        if not is_child_asset:
+            names = (
+                await data_generation.generate_names(
+                    asset_type, inventory, trim_list=False
+                )
+            ).suggested_names
+        else:
+            names = await data_generation.generate_children_names(
+                asset_type, parent_asset_name, trim_list=False
+            )
+        result = next((name for name in names if name not in current_names), None)
+        if result:
+            break
+    if result is None:
+        raise ValueError(
+            f"Could not generate a unique name for {asset_type.value} with field {asset_field.value} after {max_attempts} attempts."
+        )
     data_generation.name_generation_usage_consume(canarydrop)
     return result
 

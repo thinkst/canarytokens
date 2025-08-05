@@ -234,8 +234,20 @@ async def _gemini_request(prompt: str):
     return []
 
 
+def _overshoot_count(count: int, validated_count: int = 0) -> int:
+    """
+    Calculate the overshoot count based on the provided count.
+    :param count: The number of names to generate.
+    :param validated_count: The number of already validated names.
+    :return: The overshoot count.
+    """
+    if count <= 0:
+        raise ValueError("Count must be a positive integer.")
+    return max(count + 5, 2 * count - validated_count)
+
+
 async def generate_names(
-    asset_type: AWSInfraAssetType, inventory: list[str], count=5
+    asset_type: AWSInfraAssetType, inventory: list[str], count=5, trim_list: bool = True
 ) -> _Suggestion:
     """
     Generate decoy names for the specified AWS asset type based on the provided inventory.
@@ -269,23 +281,27 @@ async def generate_names(
         # chosen by playing around with the API trying to minimise the number
         # of queries sent and the size of the result needed for enough valid names.
         #
-        overshoot = max(count + 5, 2 * count - len(validated_names))
         new_names = await _gemini_request(
             prompt=_prompt_template.format(
-                count=overshoot, service=asset_type.value, inventory=",".join(inventory)
+                count=_overshoot_count(count, len(validated_names)),
+                service=asset_type.value,
+                inventory=",".join(inventory),
             )
         )
         names = await _finalize_list(asset_type, inventory, new_names)
         validated_names.extend(names)
 
     random.shuffle(validated_names)
-    suggested_names = validated_names[:count]
+    suggested_names = validated_names[:count] if trim_list else validated_names
 
     return _Suggestion(asset_type, suggested_names)
 
 
 async def generate_children_names(
-    parent_asset_type: AWSInfraAssetType, parent_name: str, count: int = 5
+    parent_asset_type: AWSInfraAssetType,
+    parent_name: str,
+    count: int = 5,
+    trim_list: bool = True,
 ) -> list[str]:
     """
     Generate a list of child names for the specified AWS asset type.
@@ -309,9 +325,10 @@ async def generate_children_names(
     else:
         child_description = "items"
 
-    return await _gemini_request(
-        prompt=f"Generate {count} names for {child_description} in the {parent_asset_type.name} called {parent_name}."
+    result = await _gemini_request(
+        prompt=f"Generate {_overshoot_count(count)} names for {child_description} in the {parent_asset_type.name} called {parent_name}."
     )
+    return result[:count] if trim_list else result
 
 
 @dataclass(frozen=True)
