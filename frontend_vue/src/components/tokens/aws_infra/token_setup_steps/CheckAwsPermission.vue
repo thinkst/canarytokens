@@ -73,7 +73,9 @@
           @click="handleModalSetupRolePolicySnippet"
           >Canarytoken IAM role and policy needed. Did you remove them?
         </BaseMessageBox>
-        <BaseCard class="p-40 text-left place-self-center w-full mt-24">
+        <BaseCard
+          class="p-40 text-left place-self-center w-full mt-24 sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+        >
           <form
             class="flex flex-col gap-16 items-center"
             @submit="onSubmit"

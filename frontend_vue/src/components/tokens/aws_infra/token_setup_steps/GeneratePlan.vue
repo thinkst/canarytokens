@@ -49,8 +49,6 @@
       v-if="isAiGenerateErrorMessage"
       variant="warning"
       class="mt-16"
-      text-link="Try again"
-      @click="handleRetryAIAssets"
     >
       {{ isAiGenerateErrorMessage }}
     </BaseMessageBox>
@@ -111,19 +109,17 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useModal } from 'vue-final-modal';
-import { savePlan, requestAIgeneratedAssets } from '@/api/awsInfra.ts';
+import { savePlan } from '@/api/awsInfra.ts';
 import type { TokenDataType } from '@/utils/dataService';
 import type { TokenSetupData } from '@/components/tokens/aws_infra/types.ts';
 import type {
   ProposedAWSInfraTokenPlanData,
   AssetData,
 } from '@/components/tokens/aws_infra/types.ts';
-import {
-  formatDataForAIRequest,
-  mergeAIGeneratedAssets,
-} from '../plan_generator/AIGenerateAssetsUtils';
+import { useAIGeneratedAssets } from '@/components/tokens/aws_infra/plan_generator/useAIGenerateAssets.ts';
+
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
-import AssetCategoryCard from '../plan_generator/AssetCategoryCard.vue';
+import AssetCategoryCard from '@/components/tokens/aws_infra/plan_generator/AssetCategoryCard.vue';
 import ModalAsset from '@/components/tokens/aws_infra/plan_generator/ModalAsset.vue';
 import { setTempAssetsData } from '@/components/tokens/aws_infra/plan_generator/planTempService.ts';
 import {
@@ -161,7 +157,6 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   SecretsManagerSecret: false,
   DynamoDBTable: false,
 });
-const isAiGenerateErrorMessage = ref('');
 const { totalAiQuota, availableAiQuota } = getAIQuotaState();
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
@@ -171,6 +166,22 @@ const assetsData = ref<ProposedAWSInfraTokenPlanData>({
   SecretsManagerSecret: [],
   DynamoDBTable: [],
 });
+
+const resetAssetCardsLoadingState = () => {
+  Object.keys(isLoadingAssetCard.value).forEach((assetType) => {
+    isLoadingAssetCard.value[assetType as AssetTypesEnum] = false;
+  });
+};
+
+const { isAiGenerateErrorMessage, fetchAIgeneratedAssets } =
+  useAIGeneratedAssets(
+    token,
+    auth_token,
+    assetsData,
+    updateAiCurrentAvailableNamesCount,
+    resetAssetCardsLoadingState,
+    isLoadingAssetCard
+  );
 
 onMounted(() => {
   const isExistingSession = props.currentStepData?.proposed_plan;
@@ -182,10 +193,20 @@ onMounted(() => {
     return;
   }
 
-  assetsData.value = proposed_plan.assets as ProposedAWSInfraTokenPlanData;
-  !is_managing_token
-    ? fetchAIgeneratedAssets(assetsData.value)
-    : updateAiCurrentAvailableNamesCount(available_ai_names);
+  if (Object.keys(proposed_plan).length > 0) {
+    assetsData.value = proposed_plan as ProposedAWSInfraTokenPlanData;
+  } else {
+    assetsData.value = {
+      S3Bucket: [],
+      SQSQueue: [],
+      SSMParameter: [],
+      SecretsManagerSecret: [],
+      DynamoDBTable: [],
+    };
+  }
+
+  if (!is_managing_token) fetchAIgeneratedAssets(assetsData.value);
+  else updateAiCurrentAvailableNamesCount(available_ai_names);
 
   // Set loading state to allow UI to render
   setTimeout(() => {
@@ -198,11 +219,8 @@ const styleAiNameCountProgressBar = computed(() => {
   const available = availableAiQuota.value;
   const progress = total ? Math.min((available / total) * 100, 100) : 0;
 
-  if (available > 20) {
-    return `--bar-color: #22c55e; --progress: ${progress}%;`;
-  } else if (available > 8) {
-    return `--bar-color: #eab308; --progress: ${progress}%;`;
-  }
+  if (available > 20) return `--bar-color: #22c55e; --progress: ${progress}%;`;
+  if (available > 8) return `--bar-color: #eab308; --progress: ${progress}%;`;
   return `--bar-color: #ef4444; --progress: ${progress}%;`;
 });
 
@@ -248,12 +266,8 @@ function getAnyLoadingAssetData(): boolean {
 }
 
 function updateAiCurrentAvailableNamesCount(count: number) {
-  if (is_managing_token) {
-    setTotalAIQuota(INITIAL_AI_QUOTA);
-  }
-  if (totalAiQuota.value === 0) {
-    setTotalAIQuota(Math.floor(count) || 0);
-  }
+  if (is_managing_token) setTotalAIQuota(INITIAL_AI_QUOTA);
+  if (totalAiQuota.value === 0) setTotalAIQuota(Math.floor(count) || 0);
   setAvailableAIQuota(Math.floor(count) || 0);
 }
 
@@ -283,68 +297,6 @@ function handleOpenAssetCategoryModal(assetType: AssetTypesEnum) {
     },
   });
   open();
-}
-
-const resetAssetCardsLoadingState = () => {
-  Object.keys(isLoadingAssetCard.value).forEach((assetType) => {
-    isLoadingAssetCard.value[assetType as AssetTypesEnum] = false;
-  });
-};
-
-function handleRetryAIAssets() {
-  isAiGenerateErrorMessage.value = '';
-  fetchAIgeneratedAssets(assetsData.value);
-}
-
-async function fetchAIgeneratedAssets(
-  initialAssetData: ProposedAWSInfraTokenPlanData
-) {
-  const payload = formatDataForAIRequest(initialAssetData);
-  let updatedPlanData = {};
-
-  isAiGenerateErrorMessage.value = '';
-  Object.keys(payload.assets).forEach((assetType) => {
-    isLoadingAssetCard.value[assetType as AssetTypesEnum] = true;
-  });
-
-  try {
-    const res = await requestAIgeneratedAssets({
-      canarytoken: token,
-      auth_token: auth_token,
-      assets: payload.assets,
-    });
-
-    if (res.status === 429) {
-      isAiGenerateErrorMessage.value =
-        'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
-      return;
-    }
-
-    if (res.status !== 200) {
-      isAiGenerateErrorMessage.value =
-        res.data?.message ||
-        'We encountered an issue while generating AI assets. You can continue setting up your decoys manually or try again.';
-      return;
-    }
-    const newAssets = res.data.assets;
-
-    const dataGenerationRemaining = Math.floor(
-      res.data.data_generation_remaining
-    );
-    updateAiCurrentAvailableNamesCount(dataGenerationRemaining);
-
-    if (Object.keys(newAssets).length > 0) {
-      updatedPlanData = mergeAIGeneratedAssets(assetsData.value, newAssets);
-    }
-
-    assetsData.value = { ...assetsData.value, ...updatedPlanData };
-  } catch (err: any) {
-    isAiGenerateErrorMessage.value =
-      err.data?.message ||
-      'We encountered an issue while generating AI assets. You can continue setting up your decoys manually or try again.';
-  } finally {
-    resetAssetCardsLoadingState();
-  }
 }
 
 function handleSaveAsset(
