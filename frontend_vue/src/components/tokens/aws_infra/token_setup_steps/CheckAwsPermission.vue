@@ -91,7 +91,7 @@
             />
             <BaseMessageBox
               v-if="isError"
-              class="mb-24 mt-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+              class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
               variant="danger"
               >{{ errorMessage }}
             </BaseMessageBox>
@@ -99,21 +99,11 @@
               type="submit"
               variant="primary"
               class="self-center"
-              >Check permissions</BaseButton
+              >{{ isError ? 'Try Again' : `Check permissions` }}</BaseButton
             >
           </form>
         </BaseCard>
       </div>
-    </div>
-    <div class="flex justify-center">
-      <BaseButton
-        v-if="isError"
-        class="mt-40"
-        variant="secondary"
-        @click="handleCheckPermission"
-      >
-        Try again
-      </BaseButton>
     </div>
   </section>
 </template>
@@ -295,7 +285,6 @@ watch(
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
         errorMessage.value = errorMessageFetch.value;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   }

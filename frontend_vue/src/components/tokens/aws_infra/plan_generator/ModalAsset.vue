@@ -11,7 +11,7 @@
         type="button"
         :aria-label="`Back`"
         class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white text-grey-300 border-grey-300 hover:bg-green-600 hover:border-green-300"
-        @click="handleBackButton"
+        @click="handleCancelButton"
       >
         <font-awesome-icon
           icon="angle-left"
@@ -248,7 +248,6 @@ function handleDeleteAsset(index: any) {
 
 function handleCloseModal() {
   props.closeModal();
-  showAssetDetails.value = false;
 }
 
 function handleSaveButton() {
@@ -260,14 +259,10 @@ function handleSaveButton() {
 
 function handleCancelButton() {
   triggerCancel.value = true;
+  isErrorMessage.value = '';
   nextTick(() => {
     triggerCancel.value = false;
   });
-}
-
-function handleBackButton() {
-  isErrorMessage.value = '';
-  showAssetDetails.value = false;
 }
 </script>
 
