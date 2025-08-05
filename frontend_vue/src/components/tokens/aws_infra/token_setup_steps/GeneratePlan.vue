@@ -55,11 +55,21 @@
     <div>
       <div class="flex justify-between mb-24"></div>
       <BaseMessageBox
+        v-if="totalAiQuota > 0 && availableAiQuota > 0"
         variant="success"
         class="mb-24"
         >We analyzed your AWS account. Below are the recommended decoys that
         have been generated to match your environment for each asset. You can
         review or edit anything before we generate your
+        Canarytoken.</BaseMessageBox
+      >
+      <BaseMessageBox
+        v-else
+        variant="success"
+        class="mb-24"
+        >We analyzed your AWS account. It's not possible to generate decoys for
+        your AWS account because you've run out of credits. However, you can
+        still manually set up the decoys and then generate your
         Canarytoken.</BaseMessageBox
       >
       <BaseMessageBox
@@ -205,8 +215,7 @@ onMounted(() => {
     };
   }
 
-  if (!is_managing_token && totalAiQuota.value > 0)
-    fetchAIgeneratedAssets(assetsData.value);
+  if (!is_managing_token) fetchAIgeneratedAssets(assetsData.value);
   else updateAiCurrentAvailableNamesCount(available_ai_names);
 
   // Set loading state to allow UI to render
