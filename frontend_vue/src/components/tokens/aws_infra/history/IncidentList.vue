@@ -60,15 +60,15 @@ import { convertUnixTimeStampToDate } from '@/utils/utils';
 import IncidentCardAsset from '@/components/tokens/aws_infra/history/IncidentCardAsset.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
 
-const props = defineProps<{
-  hitsList: HitsType[];
-}>();
-
 type groupedIncidentsListType = {
   [key: string]: HitsType[];
 };
 
 const ALL_DECOYS = 'all_decoys';
+
+const props = defineProps<{
+  hitsList: HitsType[];
+}>();
 
 const emits = defineEmits(['select-alert']);
 
@@ -85,23 +85,30 @@ const getAssetType = (hit: HitsType) =>
   (hit.additional_info as AdditionalInfoType).decoy_resource?.asset_type ||
   'Unknown';
 
-const labelSelectedAssetType = computed(() => {
-   return getAssetLabel(selectedAssetType.value as AssetTypesEnum) ||
-    'All alerting decoys';
-});
+const labelSelectedAssetType = computed(
+  () =>
+    getAssetLabel(selectedAssetType.value as AssetTypesEnum) ||
+    'All alerting decoys'
+);
 
 const groupedIncidentsList = computed((): groupedIncidentsListType => {
-  const listToProcess = getFilteredIncidentsListByAssetName();
+  const listToProcess = getFilteredIncidentsListByAsseType();
   const groupedList = getGroupListByAssetName(listToProcess);
   const orderedTimeList = getOrderListByTimeStamp(groupedList);
 
   return orderedTimeList;
 });
 
+function getFilteredIncidentsListByAsseType() {
+  return selectedAssetType.value === ALL_DECOYS
+    ? hitsList
+    : hitsList.filter((hit) => getAssetType(hit) === selectedAssetType.value);
+}
 
-function getFilteredIncidentsListByAssetName(){
-  return selectedAssetType.value === ALL_DECOYS ? hitsList :
-  hitsList.filter((hit) => getAssetType(hit) === selectedAssetType.value);
+function getFilteredIncidentsListByAssetName() {
+  return hitsList.filter(
+    (hit) => getAssetName(hit) === selectedAssetName.value
+  );
 }
 
 function getGroupListByAssetName(list: HitsType[]) {
@@ -137,8 +144,6 @@ function getAssetPreviewInfo(hit: HitsType) {
   const assetName = getAssetName(hit) || '';
   const assetType = getAssetType(hit) || 'Unknown';
 
-  //@ts-ignore-error
-  // TODO: we are refactoring the constants on another diff, so this will be fixed
   const label = assetType && getAssetLabel(assetType as AssetTypesEnum);
 
   return {
