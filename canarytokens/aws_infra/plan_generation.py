@@ -178,7 +178,7 @@ def _extract_current_names(
     if not is_child_asset:
         return [
             asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
-            for asset in current_plan.get(asset_type, [{}])
+            for asset in current_plan.get(asset_type, [])
         ]
     else:
         for asset in current_plan.get(asset_type, []):
