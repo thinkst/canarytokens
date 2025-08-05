@@ -3,20 +3,18 @@ import { getFieldLabel } from '@/components/tokens/aws_infra/plan_generator/asse
 import type { AssetData } from '@/components/tokens/aws_infra/types.ts';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 
-// Bucket name must contain only lowercase letters, numbers, dots, or hyphens, and must not be an IPv4 address
-const regexS3BucketNameCore =
-  /^(?!\d{1,3}(\.\d{1,3}){3}$)[a-z0-9][a-z0-9.\-]*[a-z0-9]$/;
+const regexIsIPV4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+const regexS3BucketNameChars = /^[a-z0-9][a-z0-9.\-]*[a-z0-9]$/;
 
-// Must NOT start with forbidden prefixes
 const regexS3BucketNameForbiddenPrefixes =
   /^(?!(xn--|sthree-|sthree-configurator|s3alias|s3-|s3control-))/;
 
 const regexS3Objects = /^[a-zA-Z0-9!_.\-~*'()/]+$/;
-const regexSQSQueueName = /^[A-Za-z0-9_\-;]$/;
+const regexSQSQueueName = /^[A-Za-z0-9_\-]+$/;
+const regexSSMParameterForbiddenPrefixes = /^(?!aws|ssm|\/aws|\/ssm)/;
+const regexSSMParameterChars = /^(\/[a-zA-Z0-9./_-]+|[a-zA-Z0-9._-]+)$/;
+const regexSecretsManagerSecretName = /^[a-zA-Z0-9_.-]+$/;
 const regexDynamoDBasset = /^[a-zA-Z0-9_.-]+$/;
-const regexSSMParameterName =
-  /^(?!aws|ssm|\/aws|\/ssm)(\/[a-zA-Z0-9./_-]+|[a-zA-Z0-9._-]+)$/;
-const regexSecretsManagerSecretName = /^(?!.*\.\.)[A-Za-z0-9/_+=\.@\-]$/;
 
 const requiredString = (assetType: AssetTypesEnum, labelKey: string) =>
   yup
@@ -33,8 +31,13 @@ export const S3Bucket_schema = yup.object().shape({
       'S3 Bucket can`t start with xn--, sthree-, sthree-configurator, s3alias, s3-, or s3control-'
     )
     .matches(
-      regexS3BucketNameCore,
+      regexS3BucketNameChars,
       'S3 Bucket name must contain only lowercase letters, numbers, dots, or hyphens'
+    )
+    .test(
+      'not-an-ipv4',
+      'S3 Bucket name cannot be formatted as an IP address.',
+      (val) => (val ? !regexIsIPV4.test(val) : true)
     )
     .test(
       'not-end-with-ol-s3',
@@ -72,13 +75,18 @@ export const SSMParameter_schema = yup.object().shape({
   )
     .max(2048, 'SSM Parameter name must be max 2048 characters')
     .matches(
-      regexSSMParameterName,
-      'SSM Parameter name must not start with aws, ssm, /aws, or /ssm. "/" are only allowed if "/" it is the first character'
+      regexSSMParameterForbiddenPrefixes,
+      "Name must not start with 'aws', 'ssm', '/aws', or '/ssm'."
+    )
+    .matches(
+      regexSSMParameterChars,
+      "If the name starts with '/', it may contain slashes. Otherwise, slashes are not allowed. Only letters, numbers, and '._-' are permitted."
     ),
 });
 
 export const SecretsManagerSecret_schema = yup.object().shape({
   secret_name: requiredString(AssetTypesEnum.SECRETMANAGERSECRET, 'secret_name')
+    .min(1, 'Secret name must be at least 1 character')
     .max(512, 'Secret name must be max 512 characters')
     .matches(
       regexSecretsManagerSecretName,
