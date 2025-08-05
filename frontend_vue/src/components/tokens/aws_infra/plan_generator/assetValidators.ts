@@ -12,13 +12,10 @@ const regexS3BucketNameForbiddenPrefixes =
   /^(?!(xn--|sthree-|sthree-configurator|s3alias|s3-|s3control-))/;
 
 const regexS3Objects = /^[a-zA-Z0-9!_.\-~*'()/]+$/;
-
 const regexSQSQueueName = /^[A-Za-z0-9_\-;]$/;
-const regexDBassets = /^[a-zA-Z0-9_.-]+$/;
-
+const regexDynamoDBasset = /^[a-zA-Z0-9_.-]+$/;
 const regexSSMParameterName =
   /^(?!aws|ssm|\/aws|\/ssm)(\/[a-zA-Z0-9./_-]+|[a-zA-Z0-9._-]+)$/;
-
 const regexSecretsManagerSecretName = /^(?!.*\.\.)[A-Za-z0-9/_+=\.@\-]$/;
 
 const requiredString = (assetType: AssetTypesEnum, labelKey: string) =>
@@ -93,7 +90,7 @@ export const DynamoDBTable_schema = yup.object().shape({
   table_name: requiredString(AssetTypesEnum.DYNAMODBTABLE, 'table_name')
     .max(255, 'Table name must be max 255 characters')
     .matches(
-      regexDBassets,
+      regexDynamoDBasset,
       'Table name must contain only letters, numbers, underscores, hyphens, or semicolons'
     ),
   table_items: yup
@@ -104,7 +101,7 @@ export const DynamoDBTable_schema = yup.object().shape({
         .required()
         .max(255, 'Table item must be max 200 characters')
         .matches(
-          regexDBassets,
+          regexDynamoDBasset,
           'Table item must contain only letters, numbers, underscores, hyphens, or semicolons'
         )
         .label(getFieldLabel(AssetTypesEnum.DYNAMODBTABLE, 'table_items'))
