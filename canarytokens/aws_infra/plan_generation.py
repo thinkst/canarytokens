@@ -160,28 +160,21 @@ async def generate_proposed_plan(canarydrop: Canarydrop) -> dict:
     return proposed_plan
 
 
-def _get_non_duplicate_name(
-    current_names: list[str], suggested_names: list[str]
-) -> str:
-    """
-    Get a non-duplicate name from the suggested names that is not in the current names.
-    """
-    for name in suggested_names:
-        if name not in current_names:
-            return name
-    return None
-
-
 def _extract_current_names(
     current_plan: dict,
     asset_type: AWSInfraAssetType,
-    asset_field: AWSInfraAssetField,
     parent_asset_name: str = None,
     is_child_asset: bool = False,
 ) -> list[str]:
     """
     Extract current names from the plan for the given asset type and field.
     """
+    print("extracting names")
+    print(
+        current_plan.get(asset_type, [{}])[0].get(
+            _ASSET_TYPE_CONFIG[asset_type].asset_field_name
+        )
+    )
     if not is_child_asset:
         return [
             asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
@@ -241,7 +234,7 @@ async def generate_data_choice(
 
     is_child_asset = asset_field in CHILD_FIELDS
 
-    if is_child_asset and parent_asset_name is None:
+    if is_child_asset and not parent_asset_name:
         raise ValueError(
             f"Parent asset name required for {asset_type.value} child generation"
         )
@@ -250,13 +243,12 @@ async def generate_data_choice(
     current_names = _extract_current_names(
         current_plan,
         asset_type,
-        asset_field,
         parent_asset_name,
         is_child_asset=is_child_asset,
     )
 
-    result = None
-    while not result:  # unlikely to repeat more than once
+    max_attempts = 3
+    for _ in range(max_attempts):
         if not is_child_asset:
             names = (
                 await data_generation.generate_names(
@@ -267,8 +259,13 @@ async def generate_data_choice(
             names = await data_generation.generate_children_names(
                 asset_type, parent_asset_name, trim_list=False
             )
-        result = _get_non_duplicate_name(current_names, names)
-
+        result = next((name for name in names if name not in current_names), None)
+        if result:
+            break
+    if result is None:
+        raise ValueError(
+            f"Could not generate a unique name for {asset_type.value} with field {asset_field.value} after {max_attempts} attempts."
+        )
     data_generation.name_generation_usage_consume(canarydrop)
     return result
 
