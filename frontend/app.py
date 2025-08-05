@@ -1198,12 +1198,12 @@ async def api_awsinfra_inventory_customer_account(
             request.handle, AWSInfraOperationType.INVENTORY
         )
     except AWSInfraDataGenerationLimitReached as e:
-        response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
         aws_infra.mark_succeeded(canarydrop)
         queries.save_canarydrop(canarydrop)
         return AWSInfraInventoryCustomerAccountReceivedResponse(
             handle=request.handle,
             result=False,
+            proposed_plan={},
             message=str(e),
             data_generation_remaining=data_generation.name_generation_limit_usage(
                 canarydrop
