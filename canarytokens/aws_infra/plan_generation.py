@@ -172,6 +172,33 @@ def _get_non_duplicate_name(
     return None
 
 
+def _extract_current_names(
+    current_plan: dict,
+    asset_type: AWSInfraAssetType,
+    asset_field: AWSInfraAssetField,
+    parent_asset_name: str = None,
+    is_child_asset: bool = False,
+) -> list[str]:
+    """
+    Extract current names from the plan for the given asset type and field.
+    """
+    if not is_child_asset:
+        return [
+            asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
+            for asset in current_plan.get(asset_type, [{}])
+        ]
+    else:
+        for asset in current_plan.get(asset_type, []):
+            if (
+                asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
+                == parent_asset_name
+            ):
+                return asset.get(
+                    _ASSET_TYPE_CONFIG[asset_type].child_asset_field_name, []
+                )
+    return []
+
+
 async def generate_data_choice(
     canarydrop: Canarydrop,
     asset_type: AWSInfraAssetType,
@@ -205,14 +232,6 @@ async def generate_data_choice(
         )
 
     inventory = get_current_assets(canarydrop).get(asset_type, [])
-    # Parent asset types (top-level resources)
-    PARENT_FIELDS = {
-        AWSInfraAssetField.BUCKET_NAME,
-        AWSInfraAssetField.SQS_QUEUE_NAME,
-        AWSInfraAssetField.SSM_PARAMETER_NAME,
-        AWSInfraAssetField.SECRET_NAME,
-        AWSInfraAssetField.TABLE_NAME,
-    }
 
     # Child asset types (nested resources)
     CHILD_FIELDS = {
@@ -220,43 +239,35 @@ async def generate_data_choice(
         AWSInfraAssetField.TABLE_ITEMS,
     }
 
-    if asset_field in CHILD_FIELDS and parent_asset_name is None:
+    is_child_asset = asset_field in CHILD_FIELDS
+
+    if is_child_asset and parent_asset_name is None:
         raise ValueError(
             f"Parent asset name required for {asset_type.value} child generation"
         )
     current_plan = current_plan or {}
 
-    current_names = []
-    if asset_field in PARENT_FIELDS:
-        current_names = [
-            asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
-            for asset in current_plan.get(asset_type, [{}])
-        ]
-    else:
-        for asset in current_plan.get(asset_type, []):
-            if (
-                asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
-                == parent_asset_name
-            ):
-                current_names = asset.get(
-                    _ASSET_TYPE_CONFIG[asset_type].child_asset_field_name, []
-                )
-                break
+    current_names = _extract_current_names(
+        current_plan,
+        asset_type,
+        asset_field,
+        parent_asset_name,
+        is_child_asset=is_child_asset,
+    )
 
     result = None
     while not result:  # unlikely to repeat more than once
-        if asset_field in PARENT_FIELDS:
+        if not is_child_asset:
             names = (
                 await data_generation.generate_names(
                     asset_type, inventory, trim_list=False
                 )
             ).suggested_names
-            result = _get_non_duplicate_name(current_names, names)
         else:
             names = await data_generation.generate_children_names(
                 asset_type, parent_asset_name, trim_list=False
             )
-            result = _get_non_duplicate_name(current_names, names)
+        result = _get_non_duplicate_name(current_names, names)
 
     data_generation.name_generation_usage_consume(canarydrop)
     return result
