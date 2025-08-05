@@ -7,11 +7,9 @@
     </div>
     <div class="flex justify-center">
       <StepState
-        v-if="isLoading || isError"
+        v-if="isLoading"
         class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
         :is-loading="isLoading"
-        :is-error="isError"
-        :error-message="errorMessage"
       >
         <template #loading>
           <GenerateLoadingState
@@ -46,6 +44,12 @@
           v-else
           class="p-40 flex items-center flex-col text-left sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw] place-self-center"
         >
+          <BaseMessageBox
+            v-if="isErrorSnippet"
+            class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+            variant="danger"
+            >{{ isErrorSnippet }}
+          </BaseMessageBox>
           <div class="text-center mb-24">
             <h2 class="text-2xl mb-16">
               Run the AWS CLI command below to
@@ -75,7 +79,9 @@
           @click="handleModalSetupRolePolicySnippet"
           >Canarytoken IAM role and policy needed. Did you remove them?
         </BaseMessageBox>
-        <BaseCard class="p-40 text-left place-self-center w-full mt-24">
+        <BaseCard
+          class="p-40 text-left place-self-center w-full mt-24 sm:max-w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+        >
           <form
             class="flex flex-col gap-16 items-center"
             @submit="onSubmit"
@@ -91,31 +97,34 @@
               :arrow-word-position="2"
               class="flex-grow external-id-input"
             />
+            <BaseMessageBox
+              v-if="isError"
+              class="mb-24 sm:w-[100%] md:max-w-[60vw] lg:max-w-[50vw]"
+              variant="danger"
+              >{{ errorMessage }}
+            </BaseMessageBox>
             <BaseButton
               type="submit"
               variant="primary"
               class="self-center"
-              >Check permissions</BaseButton
+              >{{ isError ? 'Try Again' : `Check permissions` }}</BaseButton
             >
           </form>
         </BaseCard>
       </div>
     </div>
-    <div class="flex justify-center">
-      <BaseButton
-        v-if="isError"
-        class="mt-40"
-        variant="secondary"
-        @click="handleCheckPermission"
-      >
-        Try again
-      </BaseButton>
-    </div>
   </section>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
+import {
+  ref,
+  onMounted,
+  watch,
+  computed,
+  defineAsyncComponent,
+  nextTick,
+} from 'vue';
 import * as Yup from 'yup';
 import { useForm } from 'vee-validate';
 import { useModal } from 'vue-final-modal';
@@ -152,6 +161,7 @@ const accountRegion = ref('');
 const roleName = ref('');
 const managementAwsAccount = ref('');
 const isLoadingSnippet = ref(false);
+const isErrorSnippet = ref('');
 
 const stateStatus = ref<StepStateEnum>(StepStateEnum.SUCCESS);
 const errorMessage = ref('');
@@ -206,7 +216,7 @@ const { handleSubmit, setFieldValue, values } = useForm({
 
 async function handleGetRoleName() {
   isLoadingSnippet.value = true;
-  errorMessage.value = '';
+  isErrorSnippet.value = '';
   try {
     const res = await requestAWSInfraRoleSetupCommands(
       token,
@@ -216,7 +226,7 @@ async function handleGetRoleName() {
 
     if (res.status !== 200 || !res.data.role_setup_commands) {
       stateStatus.value = StepStateEnum.ERROR;
-      errorMessage.value =
+      isErrorSnippet.value =
         res.data.error_message || 'Failed to generate setup commands';
       return;
     }
@@ -235,7 +245,7 @@ async function handleGetRoleName() {
     });
   } catch (err: any) {
     stateStatus.value = StepStateEnum.ERROR;
-    errorMessage.value =
+    isErrorSnippet.value =
       err.data?.message || 'Failed to generate setup commands';
   } finally {
     isLoadingSnippet.value = false;
@@ -291,7 +301,12 @@ watch(
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
         errorMessage.value = errorMessageFetch.value;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        nextTick(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth',
+          });
+        });
       }
     }
   }

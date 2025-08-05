@@ -43,6 +43,7 @@
         :hide-label="true"
         :has-remove="true"
         :asset-type="props.assetType"
+        :parent-asset-name="props.parentAssetName"
         @handle-remove-instance="remove(fieldIndex)"
       />
     </div>
@@ -88,9 +89,9 @@ async function handleAddItem() {
     generatedName,
   } = useGenerateAssetName(props.assetType, props.assetKey);
 
-  isLoading.value = isGenerateNameLoading.value;
   await handleGenerateName(props.parentAssetName);
   isErrorMessage.value = isGenerateNameError.value;
+  isLoading.value = isGenerateNameLoading.value;
   if (isErrorMessage.value) {
     isLoading.value = false;
     return;

@@ -1,10 +1,9 @@
 <template>
-  <Form
+  <form
     ref="formAssetRef"
     :initial-values="initialValues"
     :validation-schema="props.validationSchema"
     @submit="onSubmit"
-    @invalid-submit="onInvalidSubmit"
   >
     <div
       v-for="(value, key) in initialValues"
@@ -35,13 +34,13 @@
         />
       </template>
     </div>
-  </Form>
+  </form>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted, computed, useTemplateRef } from 'vue';
 import type { Ref } from 'vue';
-import { Form, FieldArray } from 'vee-validate';
+import { FieldArray, useForm } from 'vee-validate';
 import type { GenericObject } from 'vee-validate';
 import type { AssetData } from '../types';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
@@ -60,15 +59,23 @@ const props = defineProps<{
   triggerCancel: boolean;
 }>();
 
-const emit = defineEmits(['update-asset', 'invalid-submit']);
+const emit = defineEmits([
+  'update-asset',
+  'invalid-submit',
+  'update-temporary-asset',
+]);
 const initialValues = ref({});
-const formAssetRef: Ref<HTMLFormElement | null> = ref(null);
-const tempFields: Ref<AssetData | []> = ref([]);
+const formAssetRef: Ref<HTMLFormElement | null> =
+  useTemplateRef('formAssetRef');
+
+const { values, handleSubmit } = useForm({
+  initialValues: props.assetData,
+  validationSchema: props.validationSchema,
+});
 
 onMounted(() => {
-  tempFields.value = { ...props.assetData };
-  const firstInput = formAssetRef.value?.$el.getElementsByTagName('input')[0];
-  firstInput.focus();
+  const firstInput = formAssetRef.value?.querySelector('input');
+  firstInput?.focus();
 });
 
 const parentAssetName = computed((): string => {
@@ -77,21 +84,17 @@ const parentAssetName = computed((): string => {
 });
 
 function onSubmit(values: GenericObject) {
-  emit('update-asset', values);
-}
-
-function onInvalidSubmit(values: any) {
-  emit('invalid-submit', values);
+  handleSubmit(() => {
+    emit('update-asset', values);
+  })();
 }
 
 function handleProgramaticSubmit() {
-  if (formAssetRef.value) {
-    formAssetRef.value.$el.requestSubmit();
-  }
+  handleSubmit(onSubmit)();
 }
 
 function handleRestoreFields() {
-  emit('update-asset', tempFields);
+  emit('update-asset', initialValues.value);
 }
 
 watch(
@@ -116,5 +119,13 @@ watch(
     if (newVal === true) return handleRestoreFields();
   },
   { immediate: true }
+);
+
+watch(
+  values,
+  (newValues) => {
+    emit('update-temporary-asset', newValues);
+  },
+  { deep: true }
 );
 </script>

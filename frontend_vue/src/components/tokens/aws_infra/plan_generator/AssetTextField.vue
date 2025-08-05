@@ -8,12 +8,13 @@
       :id="id"
       >{{ props.label }}</BaseLabel
     >
-    <span
+    <img
       v-if="icon"
+      alt="icon"
       class="icon"
-      :class="[{ 'top-[2rem]': !hideLabel }, { 'top-[0.5rem]': hideLabel }]"
-      :style="{ 'background-image': `url(${iconURL})` }"
-    ></span>
+      :class="[{ 'top-[2rem]': !hideLabel }, { 'top-[0.3rem]': hideLabel }]"
+      :src="iconURL"
+    />
     <input
       :id="id"
       :value="value"
@@ -112,6 +113,7 @@ const props = defineProps<{
   assetType: AssetTypesEnum;
   fieldType: string;
   value?: string;
+  parentAssetName?: string;
 }>();
 
 const { variant = 'large', hasRemove = false, hideLabel = false } = props;
@@ -146,7 +148,7 @@ async function handleGenerateValue() {
   } = useGenerateAssetName(props.assetType, props.fieldType);
 
   isGenerateValueLoading.value = isGenerateNameLoading.value;
-  await handleGenerateName();
+  await handleGenerateName(props.parentAssetName);
   isGenerateValueError.value = isGenerateNameError.value;
   resetField({ value: generatedName.value });
   isGenerateValueLoading.value = false;
@@ -177,9 +179,6 @@ watch(
 
 .textfield-wrapper.large {
   @apply flex flex-col relative  text-grey-800;
-
-  .icon {
-  }
 
   input {
     @apply px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400 focus:ring-green-600 focus-visible:ring-1;
