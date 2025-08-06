@@ -120,7 +120,7 @@ class AWSInfraAsset(BaseModel):
         if names is not None:
             if len(names) != len(set(names)):
                 raise ValueError(
-                    f"S3Bucket objects must be unique within a bucket, duplicates found: {set(name for name in names if names.count(name) > 1)}"
+                    f"S3Bucket objects must be unique within a bucket, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
                 )
             for name in names:
                 if not re.match(S3_OBJECT_REGEX, name):
@@ -134,7 +134,7 @@ class AWSInfraAsset(BaseModel):
         if names is not None:
             if len(names) != len(set(names)):
                 raise ValueError(
-                    f"DynamoDB table items must be unique within a table, duplicates found: {set(name for name in names if names.count(name) > 1)}"
+                    f"DynamoDB table items must be unique within a table, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
                 )
             for name in names:
                 if not re.match(TABLE_ITEM_REGEX, name):
@@ -182,7 +182,7 @@ class AWSInfraPlan(BaseModel):
             ]
             if len(new_names) != len(set(new_names)):
                 validation_errors.append(
-                    f"Duplicate {asset_type} names found in plan: {set(name for name in new_names if new_names.count(name) > 1)}"
+                    f"Duplicate {asset_type} names found in plan: {', '.join(set(name for name in new_names if new_names.count(name) > 1))}"
                 )
 
             if account_assets := account_inventory.get(asset_type):
