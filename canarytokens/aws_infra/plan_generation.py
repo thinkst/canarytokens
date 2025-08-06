@@ -38,8 +38,8 @@ class AWSInfraAsset(BaseModel):
     ssm_parameter_name: Optional[str] = None
     secret_name: Optional[str] = None
     table_name: Optional[str] = None
-    objects: Optional[list[str]] = []
-    table_items: Optional[list[str]] = []
+    objects: Optional[list[str]] = Field(default_factory=list)
+    table_items: Optional[list[str]] = Field(default_factory=list)
     off_inventory: bool = False
 
     @validator("bucket_name")
@@ -156,17 +156,17 @@ class AWSInfraPlan(BaseModel):
         validation_errors = []
 
         # Access the context from the validator using the 'config' argument
-        config = values.get("config")
-        if config is None or not hasattr(config, "canarydrop"):
+        canarydrop = values.get("_canarydrop")
+        if canarydrop is None:
             account_inventory = {}
         else:
-            account_inventory = get_current_assets(config.canarydrop)
+            account_inventory = get_current_assets(canarydrop)
 
         for asset_type in AWSInfraAssetType:
             new_names = [
                 asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
                 for asset in values.get(asset_type, [])
-                if asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
+                if getattr(asset, _ASSET_TYPE_CONFIG[asset_type].asset_field_name.value)
             ]
             if len(new_names) != len(set(new_names)):
                 validation_errors.append(f"Duplicate {asset_type} names found in plan")
@@ -192,8 +192,9 @@ class AWSInfraPlan(BaseModel):
         Create an AWSInfraPlan from a dictionary with canarydrop context for validation.
         """
         try:
-            config = type("Config", (), {"canarydrop": canarydrop})()
-            return cls.parse_obj(plan_dict, config=config)
+            # Attach canarydrop context to the plan_dict for validation
+            plan_dict["_canarydrop"] = canarydrop
+            return cls.parse_obj(plan_dict)
         except ValidationError as e:
             plan = cls()
             plan.validation_errors = [f"{error['msg']}" for error in e.errors()]
@@ -201,7 +202,6 @@ class AWSInfraPlan(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
-        extra = "forbid"  # Don't allow extra fields
 
 
 @dataclass
@@ -532,8 +532,6 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
         raise ValueError(
             f"Plan validation errors found: {'; '.join(plan_object.validation_errors)}"
         )
-    else:
-        print("No errors in the plan validation.")
 
     tasks = []
     for bucket in plan_object.S3Bucket:
