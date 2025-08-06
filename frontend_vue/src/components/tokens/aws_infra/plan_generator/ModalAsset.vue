@@ -30,6 +30,7 @@
       <BaseButton
         v-if="!showAssetDetails"
         :loading="isLoading"
+        :disabled="isMaxAssetsReached"
         class="self-end"
         variant="text"
         icon="plus"
@@ -39,6 +40,13 @@
       </BaseButton>
     </div>
     <!-- Asset List -->
+    <BaseMessageBox
+      v-if="isMaxAssetsReached && !showAssetDetails"
+      variant="warning"
+      class="mb-16"
+      >You have reached the maximum of {{ MAX_DECOY_ASSETS }} decoys for
+      {{ assetLabel }}.
+    </BaseMessageBox>
     <BaseMessageBox
       v-if="isErrorMessage"
       variant="danger"
@@ -117,6 +125,8 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 import { errorMessageMapper } from '@/utils/errorMessageMapper.ts';
 import { setTempAssetsFields } from '@/components/tokens/aws_infra/plan_generator/planTempService.ts';
 
+const MAX_DECOY_ASSETS = 5;
+
 const props = defineProps<{
   assetType: AssetTypesEnum;
   assetData: ComputedRef<AssetData[] | [] | null>;
@@ -148,6 +158,12 @@ const currentAssetData = computed(() => {
 const isEmptyAssetData = computed(
   () =>
     Array.isArray(currentAssetData.value) && currentAssetData.value.length === 0
+);
+
+const isMaxAssetsReached = computed(
+  () =>
+    Array.isArray(currentAssetData.value) &&
+    currentAssetData.value.length >= MAX_DECOY_ASSETS
 );
 
 const assetLabel = computed(() => getAssetLabel(props.assetType));

@@ -30,6 +30,12 @@
       </div>
     </div>
   </div>
+  <BaseSkeletonLoader
+    v-if="getAnyLoadingAssetData() || isLoadingUI"
+    class="mb-24"
+    type="rectangle"
+    style="height: 100px; width: 100%"
+  />
   <div
     v-if="isLoadingUI"
     class="mt-[20px] grid gap-16 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
@@ -53,25 +59,26 @@
       {{ isAiGenerateErrorMessage }}
     </BaseMessageBox>
     <div>
-      <div class="flex justify-between mb-24"></div>
-      <BaseMessageBox
-        v-if="totalAiQuota > 0 && availableAiQuota > 0"
-        variant="success"
-        class="mb-24"
-        >We analyzed your AWS account. Below are the recommended decoys that
-        have been generated to match your environment for each asset. You can
-        review or edit anything before we generate your
-        Canarytoken.</BaseMessageBox
-      >
-      <BaseMessageBox
-        v-else
-        variant="success"
-        class="mb-24"
-        >We analyzed your AWS account. It's not possible to generate decoys for
-        your AWS account because you've run out of credits. However, you can
-        still manually set up the decoys and then generate your
-        Canarytoken.</BaseMessageBox
-      >
+      <div v-if="!getAnyLoadingAssetData()">
+        <BaseMessageBox
+          v-if="totalAiQuota > 0 && availableAiQuota > 0"
+          variant="success"
+          class="mb-24"
+          >We analyzed your AWS account. Below are the recommended decoys that
+          have been generated to match your environment for each asset. You can
+          review or edit anything before we generate your
+          Canarytoken.</BaseMessageBox
+        >
+        <BaseMessageBox
+          v-else
+          variant="success"
+          class="mb-24"
+          >We analyzed your AWS account. It's not possible to generate decoys
+          for your AWS account because you've run out of credits. However, you
+          can still manually set up the decoys and then generate your
+          Canarytoken.</BaseMessageBox
+        >
+      </div>
       <BaseMessageBox
         v-if="isErrorMessage"
         variant="danger"
@@ -79,7 +86,7 @@
         >{{ isErrorMessage }}</BaseMessageBox
       >
       <ul
-        class="grid gap-16 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 auto-rows-fr"
+        class="grid gap-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 auto-rows-fr"
       >
         <AssetCategoryCard
           v-for="(assetValues, assetKey, index) in availableAssets"
@@ -93,7 +100,7 @@
       <BaseMessageBox
         v-if="assetsWithMissingPermissions.length > 0"
         variant="warning"
-        class="mt-16"
+        class="mt-16 mb-16"
       >
         {{ assetWithMissingPermissionText }}
       </BaseMessageBox>
