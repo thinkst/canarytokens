@@ -115,17 +115,21 @@ class AWSInfraAsset(BaseModel):
     def validate_objects_list(cls, names: list[str]):
         if names is not None:
             if len(names) != len(set(names)):
-                raise ValueError("S3Bucket objects must be unique")
+                raise ValueError(
+                    f"S3Bucket objects must be unique within a bucket, duplicates found: {set(name for name in names if names.count(name) > 1)}"
+                )
             for name in names:
                 if not re.match(S3_OBJECT_REGEX, name):
-                    raise ValueError("S3 object key must be 1-1024 characters")
+                    raise ValueError("S3 object must be 1-1024 characters")
         return names
 
     @validator("table_items")
     def validate_table_items_list(cls, names: list[str]):
         if names is not None:
             if len(names) != len(set(names)):
-                raise ValueError("DynamoDB table items must be unique")
+                raise ValueError(
+                    f"DynamoDB table items must be unique within a table, duplicates found: {set(name for name in names if names.count(name) > 1)}"
+                )
             for name in names:
                 if not re.match(TABLE_ITEM_REGEX, name):
                     raise ValueError("DynamoDB table item must be 1-1024 characters")
@@ -155,7 +159,6 @@ class AWSInfraPlan(BaseModel):
         """Ensure no duplicate asset names within each type."""
         validation_errors = []
 
-        # Access the context from the validator using the 'config' argument
         canarydrop = values.get("_canarydrop")
         if canarydrop is None:
             account_inventory = {}
@@ -163,10 +166,11 @@ class AWSInfraPlan(BaseModel):
             account_inventory = get_current_assets(canarydrop)
 
         for asset_type in AWSInfraAssetType:
+            field_name = _ASSET_TYPE_CONFIG[asset_type].asset_field_name.value
             new_names = [
-                asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
-                for asset in values.get(asset_type, [])
-                if getattr(asset, _ASSET_TYPE_CONFIG[asset_type].asset_field_name.value)
+                asset.get(field_name)
+                for asset in values.get(asset_type.value, [])
+                if asset.get(field_name)
             ]
             if len(new_names) != len(set(new_names)):
                 validation_errors.append(f"Duplicate {asset_type} names found in plan")
