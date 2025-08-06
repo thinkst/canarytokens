@@ -68,7 +68,7 @@ export const assetsExample = ref<ProposedAWSInfraTokenPlanData>({
       off_inventory: false,
     },
     {
-      secret_name: 'emergency-access-role-key',
+      secret_name: 'legacy-app/crm-system/aws-role-key',
       off_inventory: false,
     },
   ],

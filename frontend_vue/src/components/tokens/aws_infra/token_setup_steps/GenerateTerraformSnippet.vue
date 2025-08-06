@@ -70,8 +70,8 @@
             >
               Your Terraform should already include this snippet, but you will
               need to re-run<br />
-              <span class="monospace">terraform init --upgrade</span> to update
-              the module, and
+              <span class="monospace">$ terraform init --upgrade</span> to
+              update the module,<br />and
               <span class="monospace">$ terraform apply</span> to make the
               changes.
             </h2>
