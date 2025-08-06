@@ -59,9 +59,9 @@
               v-if="!isManagingToken"
               class="textmd mb-16"
             >
-              Add this snippet to your Terraform configuration file then run<br />
+              Add this snippet to your Terraform configuration file then run
               <span class="monospace">$ terraform init</span> to import the
-              module, and <span class="monospace">$ terraform apply</span> to
+              module, and <span class="monospace">$ terraform apply </span> to
               create the resources.
             </h2>
             <h2
@@ -69,9 +69,9 @@
               class="textmd mb-16"
             >
               Your Terraform should already include this snippet, but you will
-              need to re-run<br />
+              need to re-run
               <span class="monospace">$ terraform init --upgrade</span> to
-              update the module,<br />and
+              update the module, and
               <span class="monospace">$ terraform apply</span> to make the
               changes.
             </h2>
@@ -379,5 +379,6 @@ watch(isSuccess, (newVal) => {
 
 .monospace {
   font-family: 'Courier New', Courier, monospace;
+  white-space: nowrap;
 }
 </style>
