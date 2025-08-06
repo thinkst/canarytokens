@@ -559,4 +559,7 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
     if unavailable_buckets:
         canarydrop.aws_deployed_assets = json.dumps(current_deployed_assets)
         raise ValueError(f"S3 buckets not available: {', '.join(unavailable_buckets)}")
-    canarydrop.aws_saved_plan = json.dumps(plan)
+
+    # Remove canarydrop from plan before serializing
+    plan_to_save = {k: v for k, v in plan.items() if k != "_canarydrop"}
+    canarydrop.aws_saved_plan = json.dumps(plan_to_save)
