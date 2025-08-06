@@ -16,7 +16,11 @@ from twisted.logger import Logger
 
 from canarytokens import canarydrop as cand
 from canarytokens import models, tokens, constants
-from canarytokens.exceptions import CanarydropAuthFailure, NoCanarydropFound
+from canarytokens.exceptions import (
+    CanarydropAuthFailure,
+    NoCanarydropFound,
+    NoCanarytokenFound,
+)
 from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACCOUNTS,; KEY_CANARY_NXDOMAINS,; KEY_CANARYTOKEN_ALERT_COUNT,; KEY_CLONEDSITE_TOKEN,; KEY_CLONEDSITE_TOKENS,; KEY_IMGUR_TOKEN,; KEY_IMGUR_TOKENS,; KEY_KUBECONFIG_CERTS,; KEY_KUBECONFIG_HITS,; KEY_KUBECONFIG_SERVEREP,; KEY_LINKEDIN_ACCOUNT,; KEY_LINKEDIN_ACCOUNTS,; KEY_USER_ACCOUNT,
     DB,
     KEY_AUTH_IDX,
@@ -90,6 +94,8 @@ def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop
         canarydrop = get_canarydrop(tokens.Canarytoken(token))
     except NoCanarydropFound:
         raise CanarydropAuthFailure("Canarydrop associated with token is missing.")
+    except NoCanarytokenFound:
+        raise CanarydropAuthFailure("Canarytoken doesn't exist.")
     if not secrets.compare_digest(token, canarydrop.canarytoken.value()):
         raise CanarydropAuthFailure(
             "Canarydrop associated with this auth has inconsistent token."
@@ -302,6 +308,8 @@ def get_canarydrop_triggered_details(
     else:
         triggered_details = json.loads(triggered_details)
         token_type = triggered_details.pop("token_type")
+        if token_type == models.TokenTypes.AWS_INFRA:
+            max_history = 50  # AWS Infra tokens can have more hits
         triggered_details = {
             k: v
             for k, v in triggered_details.items()

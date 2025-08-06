@@ -1,5 +1,6 @@
 import { TOKENS_TYPE } from '@/components/constants';
 import axios from 'axios';
+import type { ProposedAWSInfraTokenPlanData } from '@/components/tokens/aws_infra/types.ts';
 
 type AWSInfraRequestPayload = {
   canarytoken?: string;
@@ -78,7 +79,8 @@ export function generateDataChoice(
   auth_token: string,
   asset_type: string,
   asset_field: string,
-  parent_asset_name: string = ''
+  parent_asset_name: string = '',
+  plan: { assets: ProposedAWSInfraTokenPlanData }
 ) {
   const url =
     '/d3aece8093b71007b5ccfedad91ebb11/awsinfra/generate-data-choices';
@@ -88,6 +90,7 @@ export function generateDataChoice(
     asset_type,
     asset_field,
     parent_asset_name,
+    plan,
   };
   return axios.post(url, { ...params }).then((response) => response);
 }

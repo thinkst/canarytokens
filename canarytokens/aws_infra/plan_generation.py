@@ -489,51 +489,56 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
     """
     Save an AWS Infra plan with validation using canarydrop context.
     """
-    # Validate the plan with canarydrop context
-    aws_plan = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
-    if aws_plan.validation_errors:
+    current_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
+    try:
+        canarydrop.aws_deployed_assets = json.dumps(
+            {
+                AWSInfraAssetType.S3_BUCKET.value: [
+                    bucket[AWSInfraAssetField.BUCKET_NAME]
+                    for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
+                ],
+                AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
+                    table[AWSInfraAssetField.TABLE_NAME]
+                    for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
+                ],
+                AWSInfraAssetType.SQS_QUEUE.value: [
+                    queue[AWSInfraAssetField.SQS_QUEUE_NAME]
+                    for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
+                ],
+                AWSInfraAssetType.SSM_PARAMETER.value: [
+                    param[AWSInfraAssetField.SSM_PARAMETER_NAME]
+                    for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
+                ],
+                AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
+                    secret[AWSInfraAssetField.SECRET_NAME]
+                    for secret in plan.get(
+                        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
+                    )
+                ],
+            }
+        )
+    except KeyError:
         raise ValueError(
-            f"Plan validation errors found: {'; '.join(aws_plan.validation_errors)}"
+            "Invalid plan structure. Ensure all required fields are present in the plan."
+        )
+    plan_object = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
+    if plan_object.validation_errors:
+        canarydrop.aws_deployed_assets = json.dumps(current_deployed_assets)
+        raise ValueError(
+            f"Plan validation errors found: {'; '.join(plan_object.validation_errors)}"
         )
 
     tasks = []
-    for bucket in aws_plan.S3Bucket:
+    for bucket in plan_object.S3Bucket:
         tasks.append(s3_bucket_is_available(bucket.bucket_name))
 
     results = await asyncio.gather(*tasks)
     unavailable_buckets = []
-    for bucket, is_available in zip(aws_plan.S3Bucket, results):
+    for bucket, is_available in zip(plan_object.S3Bucket, results):
         if not is_available:
             unavailable_buckets.append(bucket.bucket_name)
 
     if unavailable_buckets:
+        canarydrop.aws_deployed_assets = json.dumps(current_deployed_assets)
         raise ValueError(f"S3 buckets not available: {', '.join(unavailable_buckets)}")
-
-    # Continue with existing save logic
     canarydrop.aws_saved_plan = json.dumps(plan)
-    canarydrop.aws_deployed_assets = json.dumps(
-        {
-            AWSInfraAssetType.S3_BUCKET.value: [
-                bucket[AWSInfraAssetField.BUCKET_NAME]
-                for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
-            ],
-            AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
-                table[AWSInfraAssetField.TABLE_NAME]
-                for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
-            ],
-            AWSInfraAssetType.SQS_QUEUE.value: [
-                queue[AWSInfraAssetField.SQS_QUEUE_NAME]
-                for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
-            ],
-            AWSInfraAssetType.SSM_PARAMETER.value: [
-                param[AWSInfraAssetField.SSM_PARAMETER_NAME]
-                for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
-            ],
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
-                secret[AWSInfraAssetField.SECRET_NAME]
-                for secret in plan.get(
-                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                )
-            ],
-        }
-    )

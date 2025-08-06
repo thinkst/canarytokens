@@ -2,14 +2,14 @@
   <div
     class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16"
   >
-    <FormAsset
+    <AssetForm
       :asset-type="props.assetType"
       :asset-data="props.assetData"
       :validation-schema="validationSchema"
       :trigger-submit="props.triggerSubmit"
       :trigger-cancel="props.triggerCancel"
       @update-asset="handleUpdateAsset"
-      @invalid-submit="handleInvalidSubmit"
+      @update-temporary-asset="handleUpdateTemporaryAsset"
     />
   </div>
 </template>
@@ -26,7 +26,7 @@ import {
   DynamoDBTable_schema,
   Default_schema,
 } from './assetValidators';
-import FormAsset from './AssetForm.vue';
+import AssetForm from './AssetForm.vue';
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -35,14 +35,14 @@ const props = defineProps<{
   triggerCancel: boolean;
 }>();
 
-const emit = defineEmits(['update-asset']);
+const emit = defineEmits(['update-asset', 'update-temporary-asset']);
 
 function handleUpdateAsset(values: any) {
   emit('update-asset', values);
 }
 
-function handleInvalidSubmit() {
-  console.log('handleInvalidSubmit');
+function handleUpdateTemporaryAsset(values: any) {
+  emit('update-temporary-asset', values);
 }
 
 const validationSchema = computed(() => {
