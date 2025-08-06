@@ -85,6 +85,10 @@ class AWSInfraAsset(BaseModel):
                     f"SSM parameter name must be 1-2048 characters, invalid name: {name}"
                 )
 
+            if not name.startswith("/") and name.count("/") > 0:
+                raise ValueError(
+                    f"If SSM parameter name contains '/', it must start with '/', invalid name: {name}"
+                )
             segments = name.split("/")
             for seg in segments:
                 if seg and seg.lower() in ("aws", "ssm"):
@@ -547,12 +551,18 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
         raise ValueError(f"{'; '.join(plan_object.validation_errors)}")
 
     tasks = []
-    for bucket in plan_object.S3Bucket:
+    new_buckets = [
+        bucket
+        for bucket in plan_object.S3Bucket
+        if bucket.bucket_name
+        not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
+    ]
+    for bucket in new_buckets:
         tasks.append(s3_bucket_is_available(bucket.bucket_name))
 
     results = await asyncio.gather(*tasks)
     unavailable_buckets = []
-    for bucket, is_available in zip(plan_object.S3Bucket, results):
+    for bucket, is_available in zip(new_buckets, results):
         if not is_available:
             unavailable_buckets.append(bucket.bucket_name)
 
