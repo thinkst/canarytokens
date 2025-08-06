@@ -2,14 +2,16 @@
 // Remove this file when the Plan will be merged
 import { ref } from 'vue';
 import type { ProposedAWSInfraTokenPlanData } from '@/components/tokens/aws_infra/types.ts';
+import { generateRandomString } from '@/utils/utils.ts';
 
 export function generateDataChoice() {
+  const randomData = generateRandomString(20);
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
         result: 'true',
         message: '',
-        proposed_data: 'Lorem ipsum data',
+        proposed_data: randomData,
       });
     }, 200);
   });

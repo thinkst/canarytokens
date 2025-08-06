@@ -86,7 +86,6 @@ export const SSMParameter_schema = yup.object().shape({
 
 export const SecretsManagerSecret_schema = yup.object().shape({
   secret_name: requiredString(AssetTypesEnum.SECRETMANAGERSECRET, 'secret_name')
-    .min(1, 'Secret name must be at least 1 character')
     .max(512, 'Secret name must be max 512 characters')
     .matches(
       regexSecretsManagerSecretName,
