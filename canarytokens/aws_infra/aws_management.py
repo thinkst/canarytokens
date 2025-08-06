@@ -5,15 +5,16 @@ import shutil
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
+import httpx
 
 from canarytokens.settings import FrontendSettings
 
 # Get the project root directory
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
+log = logging.getLogger()
 
 
 def _get_session():
@@ -141,3 +142,18 @@ def upload_tf_module(canarytoken_id, prefix, variables):
     )
     shutil.rmtree(new_dir)
     os.remove(archive)
+
+
+async def s3_bucket_is_available(bucket_name: str) -> bool:
+    """
+    Check if an S3 bucket is available.
+    """
+    url = f"https://{bucket_name}.s3.amazonaws.com"
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.head(url)
+        return (
+            response.status_code == 404
+        )  # Not Found indicates the bucket does not exist
+    except Exception:
+        log.exception("Error checking S3 bucket existence")

@@ -9,6 +9,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, root_validator, validator, ValidationError
 
+from canarytokens.aws_infra.aws_management import s3_bucket_is_available
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
@@ -113,6 +114,8 @@ class AWSInfraAsset(BaseModel):
     @validator("objects")
     def validate_objects_list(cls, names: list[str]):
         if names is not None:
+            if len(names) != len(set(names)):
+                raise ValueError("S3Bucket objects must be unique")
             for name in names:
                 if not re.match(S3_OBJECT_REGEX, name):
                     raise ValueError("S3 object key must be 1-1024 characters")
@@ -121,6 +124,8 @@ class AWSInfraAsset(BaseModel):
     @validator("table_items")
     def validate_table_items_list(cls, names: list[str]):
         if names is not None:
+            if len(names) != len(set(names)):
+                raise ValueError("DynamoDB table items must be unique")
             for name in names:
                 if not re.match(TABLE_ITEM_REGEX, name):
                     raise ValueError("DynamoDB table item must be 1-1024 characters")
@@ -142,46 +147,37 @@ class AWSInfraPlan(BaseModel):
         default_factory=list, alias="DynamoDBTable"
     )
 
-    # Store validation errors as a string
-    validation_errors: Optional[str] = None
+    # Store validation errors as a list
+    validation_errors: Optional[list[str]] = None
 
     @root_validator
-    def validate_unique_names(cls, values):
+    def validate_unique_names(cls, values, config):
         """Ensure no duplicate asset names within each type."""
         validation_errors = []
 
+        account_inventory = get_current_assets(config.canarydrop)
+
         for asset_type in AWSInfraAssetType:
-            names = [
+            new_names = [
                 asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
-                for asset in values.get(asset_type.value, [])
+                for asset in values.get(asset_type, [])
                 if asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
             ]
-            if len(names) != len(set(names)):
-                validation_errors.append(f"Duplicate {asset_type.value} names found")
+            if len(new_names) != len(set(new_names)):
+                validation_errors.append(f"Duplicate {asset_type} names found in plan")
+
+            if account_assets := account_inventory.get(asset_type):
+                inventory_plan_intersection = set(new_names) & set(account_assets)
+                if len(inventory_plan_intersection) > 0:
+                    validation_errors.append(
+                        f"{asset_type} names ({', '.join(inventory_plan_intersection)}) already exists in AWS account"
+                    )
 
         if validation_errors:
-            values["validation_errors"] = "; ".join(validation_errors)
-
+            values["validation_errors"] = list(
+                set(validation_errors)
+            )  # Remove duplicates
         return values
-
-    def validate_and_capture_errors(self) -> bool:
-        """
-        Validate the plan and capture any errors as a string.
-        Returns True if valid, False if there are validation errors.
-        """
-        try:
-            # Re-validate the model to trigger all validators
-            self.__class__.parse_obj(self.dict())
-            self.validation_errors = None
-            return True
-        except ValidationError as e:
-            error_messages = []
-            for error in e.errors():
-                field = ".".join(str(loc) for loc in error["loc"])
-                message = error["msg"]
-                error_messages.append(f"{field}: {message}")
-            self.validation_errors = "; ".join(error_messages)
-            return False
 
     @classmethod
     def from_dict_with_canarydrop(
@@ -191,20 +187,11 @@ class AWSInfraPlan(BaseModel):
         Create an AWSInfraPlan from a dictionary with canarydrop context for validation.
         """
         try:
-            # Create a custom config with canarydrop
             config = type("Config", (), {"canarydrop": canarydrop})()
-
-            # Parse with context
             return cls.parse_obj(plan_dict, config=config)
         except ValidationError as e:
-            # Create an instance with validation errors
             plan = cls()
-            error_messages = []
-            for error in e.errors():
-                field = ".".join(str(loc) for loc in error["loc"])
-                message = error["msg"]
-                error_messages.append(f"{field}: {message}")
-            plan.validation_errors = "; ".join(error_messages)
+            plan.validation_errors = [f"{error['msg']}" for error in e.errors()]
             return plan
 
     class Config:
@@ -498,14 +485,29 @@ async def generate_child_assets(
     return result
 
 
-def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
+async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     """
     Save an AWS Infra plan with validation using canarydrop context.
     """
     # Validate the plan with canarydrop context
     aws_plan = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
     if aws_plan.validation_errors:
-        raise ValueError(f"Plan validation errors found: {aws_plan.validation_errors}")
+        raise ValueError(
+            f"Plan validation errors found: {'; '.join(aws_plan.validation_errors)}"
+        )
+
+    tasks = []
+    for bucket in aws_plan.S3Bucket:
+        tasks.append(s3_bucket_is_available(bucket.bucket_name))
+
+    results = await asyncio.gather(*tasks)
+    unavailable_buckets = []
+    for bucket, is_available in zip(aws_plan.S3Bucket, results):
+        if not is_available:
+            unavailable_buckets.append(bucket.bucket_name)
+
+    if unavailable_buckets:
+        raise ValueError(f"S3 buckets not available: {', '.join(unavailable_buckets)}")
 
     # Continue with existing save logic
     canarydrop.aws_saved_plan = json.dumps(plan)

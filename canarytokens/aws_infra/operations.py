@@ -293,11 +293,11 @@ def add_handle_response(handle_id, response):
     queries.update_aws_management_lambda_handle(handle_id, json.dumps(response))
 
 
-def setup_new_plan(canarydrop: Canarydrop, plan: str):
+async def setup_new_plan(canarydrop: Canarydrop, plan: str):
     """
     Save an AWS Infra plan and upload it to the tf modules S3 bucket.
     """
-    save_plan(canarydrop, plan)
+    await save_plan(canarydrop, plan)
     queries.save_canarydrop(canarydrop)
     # Clear inventory
     delete_current_assets(canarydrop)

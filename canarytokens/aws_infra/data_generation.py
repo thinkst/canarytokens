@@ -9,6 +9,7 @@ from functools import cached_property
 
 import httpx
 
+from canarytokens.aws_infra.aws_management import s3_bucket_is_available
 from canarytokens.aws_infra.utils import (
     DYNAMO_DB_TABLE_NAME_REGEX,
     S3_BUCKET_NAME_REGEX,
@@ -77,17 +78,7 @@ async def _validate_s3_name(name: str) -> bool:
     ):
         return False
 
-    url = f"https://{name}.s3.amazonaws.com"
-    try:
-        async with _httpx_async_client_default() as client:
-            response = await client.head(url)
-        return (
-            response.status_code == 404
-        )  # Not Found indicates the bucket does not exist
-    except Exception:
-        log.exception("Error checking S3 bucket existence")
-
-    return False
+    return await s3_bucket_is_available(name)
 
 
 def _validate_dynamodb_name(name: str) -> bool:
