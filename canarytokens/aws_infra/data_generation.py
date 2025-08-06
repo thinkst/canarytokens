@@ -86,17 +86,14 @@ def _validate_dynamodb_name(name: str) -> bool:
 
 
 def _validate_ssm_parameter_name(name: str) -> bool:
+    name = name.split("/")[-1]
     if not (0 < len(name) <= 2048):
         return False
-    segments = name.split("/")
-    for seg in segments:
-        if not seg:
-            continue  # skip empty segments
-        if seg.lower() in ("aws", "ssm"):
-            return False
-        if not re.fullmatch(SSM_PARAMETER_NAME_REGEX, seg):
-            return False
-    return True
+    if name.lower() in ("aws", "ssm"):
+        return False
+    if re.fullmatch(SSM_PARAMETER_NAME_REGEX, name):
+        return True
+    return False
 
 
 def _validate_sqs_name(name: str) -> bool:

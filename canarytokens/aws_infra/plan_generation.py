@@ -85,20 +85,14 @@ class AWSInfraAsset(BaseModel):
                     f"SSM parameter name must be 1-2048 characters, invalid name: {name}"
                 )
 
-            if not name.startswith("/") and name.count("/") > 0:
+            if name in ("aws", "ssm"):
                 raise ValueError(
-                    f"If SSM parameter name contains '/', it must start with '/', invalid name: {name}"
+                    f'SSM parameter name cannot contain reserved words "aws" or "ssm", invalid name: {name}'
                 )
-            segments = name.split("/")
-            for seg in segments:
-                if seg and seg.lower() in ("aws", "ssm"):
-                    raise ValueError(
-                        f'SSM parameter name cannot contain reserved words "aws" or "ssm", invalid name: {name}'
-                    )
-                if seg and not re.match(SSM_PARAMETER_NAME_REGEX, seg):
-                    raise ValueError(
-                        f"SSM parameter name segments must be alphanumeric, underscore, dot, hyphen only, invalid segment: {seg}"
-                    )
+            if not re.fullmatch(SSM_PARAMETER_NAME_REGEX, name):
+                raise ValueError(
+                    f"SSM parameter name segments must be alphanumeric, underscore, dot, hyphen only, invalid segment: {name}"
+                )
         return name
 
     @validator("secret_name")
@@ -247,17 +241,17 @@ class AssetTypeConfig:
 
 _ASSET_TYPE_CONFIG = {
     AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        10, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
+        5, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
     ),
     AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(10, AWSInfraAssetField.SQS_QUEUE_NAME),
     AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
-        10, AWSInfraAssetField.SSM_PARAMETER_NAME
+        5, AWSInfraAssetField.SSM_PARAMETER_NAME
     ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        10, AWSInfraAssetField.SECRET_NAME
+        5, AWSInfraAssetField.SECRET_NAME
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        10, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+        5, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
     ),
 }
 

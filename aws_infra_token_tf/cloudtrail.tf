@@ -51,8 +51,8 @@ locals {
   ssm_pattern = length(local.safe_ssm_parameters) > 0 ? {
     source = ["aws.ssm"]
     detail = {
-      resources = {
-        ARN = [for param in aws_ssm_parameter.fake-ssm-parameters : param.arn]
+      requestParameters = {
+        name = [for param in aws_ssm_parameter.fake-ssm-parameters : param.name]
       }
     }
   } : null
