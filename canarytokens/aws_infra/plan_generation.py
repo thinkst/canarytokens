@@ -168,9 +168,9 @@ class AWSInfraPlan(BaseModel):
         for asset_type in AWSInfraAssetType:
             field_name = _ASSET_TYPE_CONFIG[asset_type].asset_field_name.value
             new_names = [
-                asset.get(field_name)
+                getattr(asset, field_name)
                 for asset in values.get(asset_type.value, [])
-                if asset.get(field_name)
+                if getattr(asset, field_name, None)
             ]
             if len(new_names) != len(set(new_names)):
                 validation_errors.append(f"Duplicate {asset_type} names found in plan")
