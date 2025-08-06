@@ -202,6 +202,17 @@ class AWSInfraPlan(BaseModel):
             )  # Remove duplicates
         return values
 
+    @root_validator
+    def validate_max_number_assets(cls, values):
+        """Ensure the number of assets does not exceed the maximum allowed."""
+        for asset_type, config in _ASSET_TYPE_CONFIG.items():
+            current_count = len(values.get(asset_type.value, []))
+            if current_count > config.max_assets:
+                values["validation_errors"].append(
+                    f"Exceeded maximum number of {asset_type} decoy assets: {current_count} > {config.max_assets}"
+                )
+        return values
+
     @classmethod
     def from_dict_with_canarydrop(
         cls, plan_dict: dict, canarydrop: Canarydrop
