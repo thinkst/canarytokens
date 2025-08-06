@@ -151,11 +151,16 @@ class AWSInfraPlan(BaseModel):
     validation_errors: Optional[list[str]] = None
 
     @root_validator
-    def validate_unique_names(cls, values, config):
+    def validate_unique_names(cls, values):
         """Ensure no duplicate asset names within each type."""
         validation_errors = []
 
-        account_inventory = get_current_assets(config.canarydrop)
+        # Access the context from the validator using the 'config' argument
+        config = values.get("config")
+        if config is None or not hasattr(config, "canarydrop"):
+            account_inventory = {}
+        else:
+            account_inventory = get_current_assets(config.canarydrop)
 
         for asset_type in AWSInfraAssetType:
             new_names = [
@@ -527,6 +532,8 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
         raise ValueError(
             f"Plan validation errors found: {'; '.join(plan_object.validation_errors)}"
         )
+    else:
+        print("No errors in the plan validation.")
 
     tasks = []
     for bucket in plan_object.S3Bucket:
