@@ -47,7 +47,7 @@ class AWSInfraAsset(BaseModel):
         if name is not None:
             if not re.match(S3_BUCKET_NAME_REGEX, name):
                 raise ValueError(
-                    "S3 bucket name must be 3-63 characters, lowercase letters, numbers, dots, and hyphens only"
+                    f"S3 bucket name must be 3-63 characters, lowercase letters, numbers, dots, and hyphens only, invalid name: {name}"
                 )
 
             reserved_prefixes = (
@@ -62,7 +62,9 @@ class AWSInfraAsset(BaseModel):
             if any(name.startswith(p) for p in reserved_prefixes) or any(
                 name.endswith(s) for s in reserved_suffixes
             ):
-                raise ValueError("S3 bucket name uses reserved prefix or suffix")
+                raise ValueError(
+                    f"S3 bucket name uses reserved prefix or suffix, invalid name: {name}"
+                )
 
         return name
 
@@ -71,7 +73,7 @@ class AWSInfraAsset(BaseModel):
         if name is not None:
             if not re.match(SQS_QUEUE_NAME_REGEX, name):
                 raise ValueError(
-                    "SQS queue name must be 1-80 characters, alphanumeric, underscore, hyphen, semicolon only"
+                    f"SQS queue name must be 1-80 characters, alphanumeric, underscore, hyphen, semicolon only, invalid name: {name}"
                 )
         return name
 
@@ -79,17 +81,19 @@ class AWSInfraAsset(BaseModel):
     def validate_ssm_parameter_name(cls, name: str):
         if name is not None:
             if not (1 <= len(name) <= 2048):
-                raise ValueError("SSM parameter name must be 1-2048 characters")
+                raise ValueError(
+                    f"SSM parameter name must be 1-2048 characters, invalid name: {name}"
+                )
 
             segments = name.split("/")
             for seg in segments:
                 if seg and seg.lower() in ("aws", "ssm"):
                     raise ValueError(
-                        'SSM parameter name cannot contain reserved words "aws" or "ssm"'
+                        f'SSM parameter name cannot contain reserved words "aws" or "ssm", invalid name: {name}'
                     )
                 if seg and not re.match(SSM_PARAMETER_NAME_REGEX, seg):
                     raise ValueError(
-                        "SSM parameter name segments must be alphanumeric, underscore, dot, hyphen only"
+                        f"SSM parameter name segments must be alphanumeric, underscore, dot, hyphen only, invalid segment: {seg}"
                     )
         return name
 
@@ -98,7 +102,7 @@ class AWSInfraAsset(BaseModel):
         if name is not None:
             if not re.match(SECRETS_MANAGER_NAME_REGEX, name):
                 raise ValueError(
-                    "Secrets Manager name must be 1-512 characters, no consecutive dots"
+                    f"Secrets Manager name must be 1-512 characters, no consecutive dots, invalid name: {name}"
                 )
         return name
 
@@ -107,7 +111,7 @@ class AWSInfraAsset(BaseModel):
         if name is not None:
             if not re.match(DYNAMO_DB_TABLE_NAME_REGEX, name):
                 raise ValueError(
-                    "DynamoDB table name must be 3-255 characters, alphanumeric, underscore, dot, hyphen only"
+                    f"DynamoDB table name must be 3-255 characters, alphanumeric, underscore, dot, hyphen only, invalid name: {name}"
                 )
         return name
 
@@ -120,7 +124,9 @@ class AWSInfraAsset(BaseModel):
                 )
             for name in names:
                 if not re.match(S3_OBJECT_REGEX, name):
-                    raise ValueError("S3 object must be 1-1024 characters")
+                    raise ValueError(
+                        f"S3 object must be 1-1024 characters, invalid name: {name}"
+                    )
         return names
 
     @validator("table_items")
@@ -132,7 +138,9 @@ class AWSInfraAsset(BaseModel):
                 )
             for name in names:
                 if not re.match(TABLE_ITEM_REGEX, name):
-                    raise ValueError("DynamoDB table item must be 1-1024 characters")
+                    raise ValueError(
+                        f"DynamoDB table item must be 1-1024 characters, invalid name: {name}"
+                    )
         return names
 
 
