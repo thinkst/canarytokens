@@ -305,32 +305,37 @@ async def generate_child_assets(
 
 def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     """
-    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
+    Save an AWS Infra plan
     """
+    try:
+        canarydrop.aws_deployed_assets = json.dumps(
+            {
+                AWSInfraAssetType.S3_BUCKET.value: [
+                    bucket[AWSInfraAssetField.BUCKET_NAME]
+                    for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
+                ],
+                AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
+                    table[AWSInfraAssetField.TABLE_NAME]
+                    for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
+                ],
+                AWSInfraAssetType.SQS_QUEUE.value: [
+                    queue[AWSInfraAssetField.SQS_QUEUE_NAME]
+                    for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
+                ],
+                AWSInfraAssetType.SSM_PARAMETER.value: [
+                    param[AWSInfraAssetField.SSM_PARAMETER_NAME]
+                    for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
+                ],
+                AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
+                    secret[AWSInfraAssetField.SECRET_NAME]
+                    for secret in plan.get(
+                        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
+                    )
+                ],
+            }
+        )
+    except KeyError:
+        raise ValueError(
+            "Invalid plan structure. Ensure all required fields are present in the plan."
+        )
     canarydrop.aws_saved_plan = json.dumps(plan)
-    canarydrop.aws_deployed_assets = json.dumps(
-        {
-            AWSInfraAssetType.S3_BUCKET.value: [
-                bucket[AWSInfraAssetField.BUCKET_NAME]
-                for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
-            ],
-            AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
-                table[AWSInfraAssetField.TABLE_NAME]
-                for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
-            ],
-            AWSInfraAssetType.SQS_QUEUE.value: [
-                queue[AWSInfraAssetField.SQS_QUEUE_NAME]
-                for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
-            ],
-            AWSInfraAssetType.SSM_PARAMETER.value: [
-                param[AWSInfraAssetField.SSM_PARAMETER_NAME]
-                for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
-            ],
-            AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
-                secret[AWSInfraAssetField.SECRET_NAME]
-                for secret in plan.get(
-                    AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                )
-            ],
-        }
-    )
