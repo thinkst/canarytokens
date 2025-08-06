@@ -72,9 +72,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-    border: {
+  border: {
     type: Boolean,
-    default: true
+    default: true,
   },
 });
 
@@ -116,6 +116,10 @@ const spinnerVariant = computed(() => {
 <style scoped>
 .base-button {
   @apply w-fit relative font-semibold rounded-full px-16 py-8 disabled:pointer-events-none transition duration-100;
+}
+
+.base-button[disabled] {
+  @apply cursor-not-allowed opacity-70;
 }
 
 .primary {
