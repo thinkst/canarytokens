@@ -2,19 +2,214 @@ import asyncio
 import json
 import math
 import random
+import re
 
 from dataclasses import dataclass
 from typing import Optional
 
+from pydantic import BaseModel, Field, root_validator, validator, ValidationError
+
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
+from canarytokens.aws_infra.utils import (
+    DYNAMO_DB_TABLE_NAME_REGEX,
+    S3_BUCKET_NAME_REGEX,
+    S3_OBJECT_REGEX,
+    SECRETS_MANAGER_NAME_REGEX,
+    SQS_QUEUE_NAME_REGEX,
+    SSM_PARAMETER_NAME_REGEX,
+    TABLE_ITEM_REGEX,
+)
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import AWSInfraDataGenerationLimitReached
 from canarytokens.models import AWSInfraAssetField, AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
+
+
+class AWSInfraAsset(BaseModel):
+    """Individual asset within an AWS infrastructure plan."""
+
+    bucket_name: Optional[str] = None
+    sqs_queue_name: Optional[str] = None
+    ssm_parameter_name: Optional[str] = None
+    secret_name: Optional[str] = None
+    table_name: Optional[str] = None
+    objects: Optional[list[str]] = []
+    table_items: Optional[list[str]] = []
+    off_inventory: bool = False
+
+    @validator("bucket_name")
+    def validate_bucket_name(cls, name: str):
+        if name is not None:
+            if not re.match(S3_BUCKET_NAME_REGEX, name):
+                raise ValueError(
+                    "S3 bucket name must be 3-63 characters, lowercase letters, numbers, dots, and hyphens only"
+                )
+
+            reserved_prefixes = (
+                "xn--",
+                "sthree-",
+                "sthree-configurator",
+                "s3alias",
+                "s3-",
+                "s3control-",
+            )
+            reserved_suffixes = ("--ol-s3",)
+            if any(name.startswith(p) for p in reserved_prefixes) or any(
+                name.endswith(s) for s in reserved_suffixes
+            ):
+                raise ValueError("S3 bucket name uses reserved prefix or suffix")
+
+        return name
+
+    @validator("sqs_queue_name")
+    def validate_sqs_queue_name(cls, name: str):
+        if name is not None:
+            if not re.match(SQS_QUEUE_NAME_REGEX, name):
+                raise ValueError(
+                    "SQS queue name must be 1-80 characters, alphanumeric, underscore, hyphen, semicolon only"
+                )
+        return name
+
+    @validator("ssm_parameter_name")
+    def validate_ssm_parameter_name(cls, name: str):
+        if name is not None:
+            if not (1 <= len(name) <= 2048):
+                raise ValueError("SSM parameter name must be 1-2048 characters")
+
+            segments = name.split("/")
+            for seg in segments:
+                if seg and seg.lower() in ("aws", "ssm"):
+                    raise ValueError(
+                        'SSM parameter name cannot contain reserved words "aws" or "ssm"'
+                    )
+                if seg and not re.match(SSM_PARAMETER_NAME_REGEX, seg):
+                    raise ValueError(
+                        "SSM parameter name segments must be alphanumeric, underscore, dot, hyphen only"
+                    )
+        return name
+
+    @validator("secret_name")
+    def validate_secret_name(cls, name: str):
+        if name is not None:
+            if not re.match(SECRETS_MANAGER_NAME_REGEX, name):
+                raise ValueError(
+                    "Secrets Manager name must be 1-512 characters, no consecutive dots"
+                )
+        return name
+
+    @validator("table_name")
+    def validate_table_name(cls, name: str):
+        if name is not None:
+            if not re.match(DYNAMO_DB_TABLE_NAME_REGEX, name):
+                raise ValueError(
+                    "DynamoDB table name must be 3-255 characters, alphanumeric, underscore, dot, hyphen only"
+                )
+        return name
+
+    @validator("objects")
+    def validate_objects_list(cls, names: list[str]):
+        if names is not None:
+            for name in names:
+                if not re.match(S3_OBJECT_REGEX, name):
+                    raise ValueError("S3 object key must be 1-1024 characters")
+        return names
+
+    @validator("table_items")
+    def validate_table_items_list(cls, names: list[str]):
+        if names is not None:
+            for name in names:
+                if not re.match(TABLE_ITEM_REGEX, name):
+                    raise ValueError("DynamoDB table item must be 1-1024 characters")
+        return names
+
+
+class AWSInfraPlan(BaseModel):
+    """AWS Infrastructure plan containing assets by type."""
+
+    S3Bucket: list[AWSInfraAsset] = Field(default_factory=list, alias="S3Bucket")
+    SQSQueue: list[AWSInfraAsset] = Field(default_factory=list, alias="SQSQueue")
+    SSMParameter: list[AWSInfraAsset] = Field(
+        default_factory=list, alias="SSMParameter"
+    )
+    SecretsManagerSecret: list[AWSInfraAsset] = Field(
+        default_factory=list, alias="SecretsManagerSecret"
+    )
+    DynamoDBTable: list[AWSInfraAsset] = Field(
+        default_factory=list, alias="DynamoDBTable"
+    )
+
+    # Store validation errors as a string
+    validation_errors: Optional[str] = None
+
+    @root_validator
+    def validate_unique_names(cls, values):
+        """Ensure no duplicate asset names within each type."""
+        validation_errors = []
+
+        for asset_type in AWSInfraAssetType:
+            names = [
+                asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name]
+                for asset in values.get(asset_type.value, [])
+                if asset.get(_ASSET_TYPE_CONFIG[asset_type].asset_field_name)
+            ]
+            if len(names) != len(set(names)):
+                validation_errors.append(f"Duplicate {asset_type.value} names found")
+
+        if validation_errors:
+            values["validation_errors"] = "; ".join(validation_errors)
+
+        return values
+
+    def validate_and_capture_errors(self) -> bool:
+        """
+        Validate the plan and capture any errors as a string.
+        Returns True if valid, False if there are validation errors.
+        """
+        try:
+            # Re-validate the model to trigger all validators
+            self.__class__.parse_obj(self.dict())
+            self.validation_errors = None
+            return True
+        except ValidationError as e:
+            error_messages = []
+            for error in e.errors():
+                field = ".".join(str(loc) for loc in error["loc"])
+                message = error["msg"]
+                error_messages.append(f"{field}: {message}")
+            self.validation_errors = "; ".join(error_messages)
+            return False
+
+    @classmethod
+    def from_dict_with_canarydrop(
+        cls, plan_dict: dict, canarydrop: Canarydrop
+    ) -> "AWSInfraPlan":
+        """
+        Create an AWSInfraPlan from a dictionary with canarydrop context for validation.
+        """
+        try:
+            # Create a custom config with canarydrop
+            config = type("Config", (), {"canarydrop": canarydrop})()
+
+            # Parse with context
+            return cls.parse_obj(plan_dict, config=config)
+        except ValidationError as e:
+            # Create an instance with validation errors
+            plan = cls()
+            error_messages = []
+            for error in e.errors():
+                field = ".".join(str(loc) for loc in error["loc"])
+                message = error["msg"]
+                error_messages.append(f"{field}: {message}")
+            plan.validation_errors = "; ".join(error_messages)
+            return plan
+
+    class Config:
+        allow_population_by_field_name = True
+        extra = "forbid"  # Don't allow extra fields
 
 
 @dataclass
@@ -305,8 +500,14 @@ async def generate_child_assets(
 
 def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     """
-    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
+    Save an AWS Infra plan with validation using canarydrop context.
     """
+    # Validate the plan with canarydrop context
+    aws_plan = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
+    if aws_plan.validation_errors:
+        raise ValueError(f"Plan validation errors found: {aws_plan.validation_errors}")
+
+    # Continue with existing save logic
     canarydrop.aws_saved_plan = json.dumps(plan)
     canarydrop.aws_deployed_assets = json.dumps(
         {

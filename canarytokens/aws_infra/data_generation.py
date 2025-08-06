@@ -9,7 +9,14 @@ from functools import cached_property
 
 import httpx
 
-from canarytokens.aws_infra.utils import generate_s3_bucket_suffix
+from canarytokens.aws_infra.utils import (
+    DYNAMO_DB_TABLE_NAME_REGEX,
+    S3_BUCKET_NAME_REGEX,
+    SECRETS_MANAGER_NAME_REGEX,
+    SQS_QUEUE_NAME_REGEX,
+    SSM_PARAMETER_NAME_REGEX,
+    generate_s3_bucket_suffix,
+)
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
 from canarytokens.queries import save_canarydrop
@@ -20,14 +27,6 @@ log = logging.getLogger("DataGenerator")
 log.setLevel(logging.INFO)
 
 settings = FrontendSettings()
-
-_S3_BUCKET_NAME_REGEX = re.compile(
-    r"^(?!\d{1,3}(\.\d{1,3}){3}$)[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$"
-)
-_DYNAMO_DB_TABLE_NAME_REGEX = re.compile(r"[A-Za-z0-9_.\-]{3,255}")
-_SSM_PARAMETER_NAME_REGEX = re.compile(r"[A-Za-z0-9_.\-]+")
-_SQS_QUEUE_NAME_REGEX = re.compile(r"[A-Za-z0-9_\-;]{1,80}")
-_SECRETS_MANAGER_NAME_REGEX = re.compile(r"(?!.*\.\.)[A-Za-z0-9/_+=\.@\-]{1,512}")
 
 _GEMINI_CONFIG = {
     "temperature": settings.GEMINI_TEMPERATURE,
@@ -62,7 +61,7 @@ def _httpx_async_client_default():
 
 async def _validate_s3_name(name: str) -> bool:
     """Validate S3 bucket name asynchronously."""
-    if not re.match(_S3_BUCKET_NAME_REGEX, name):
+    if not re.match(S3_BUCKET_NAME_REGEX, name):
         return False
     reserved_prefixes = (
         "xn--",
@@ -92,7 +91,7 @@ async def _validate_s3_name(name: str) -> bool:
 
 
 def _validate_dynamodb_name(name: str) -> bool:
-    return bool(re.fullmatch(_DYNAMO_DB_TABLE_NAME_REGEX, name))
+    return bool(re.fullmatch(DYNAMO_DB_TABLE_NAME_REGEX, name))
 
 
 def _validate_ssm_parameter_name(name: str) -> bool:
@@ -104,17 +103,17 @@ def _validate_ssm_parameter_name(name: str) -> bool:
             continue  # skip empty segments
         if seg.lower() in ("aws", "ssm"):
             return False
-        if not re.fullmatch(_SSM_PARAMETER_NAME_REGEX, seg):
+        if not re.fullmatch(SSM_PARAMETER_NAME_REGEX, seg):
             return False
     return True
 
 
 def _validate_sqs_name(name: str) -> bool:
-    return bool(re.fullmatch(_SQS_QUEUE_NAME_REGEX, name))
+    return bool(re.fullmatch(SQS_QUEUE_NAME_REGEX, name))
 
 
 def _validate_secrets_manager_name(name: str) -> bool:
-    return bool(re.fullmatch(_SECRETS_MANAGER_NAME_REGEX, name))
+    return bool(re.fullmatch(SECRETS_MANAGER_NAME_REGEX, name))
 
 
 _VALIDATORS = {
