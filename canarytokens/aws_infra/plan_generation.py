@@ -205,12 +205,15 @@ class AWSInfraPlan(BaseModel):
     @root_validator
     def validate_max_number_assets(cls, values):
         """Ensure the number of assets does not exceed the maximum allowed."""
+        validation_errors = []
         for asset_type, config in _ASSET_TYPE_CONFIG.items():
             current_count = len(values.get(asset_type.value, []))
             if current_count > config.max_assets:
-                values["validation_errors"].append(
+                validation_errors.append(
                     f"Exceeded maximum number of {asset_type} decoy assets: {current_count} > {config.max_assets}"
                 )
+        if validation_errors:
+            values["validation_errors"] = validation_errors
         return values
 
     @classmethod
