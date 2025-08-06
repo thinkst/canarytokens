@@ -302,6 +302,8 @@ def get_canarydrop_triggered_details(
     else:
         triggered_details = json.loads(triggered_details)
         token_type = triggered_details.pop("token_type")
+        if token_type == models.TokenTypes.AWS_INFRA:
+            max_history = 50  # AWS Infra tokens can have more hits
         triggered_details = {
             k: v
             for k, v in triggered_details.items()
