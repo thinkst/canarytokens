@@ -305,9 +305,8 @@ async def generate_child_assets(
 
 def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     """
-    Save an AWS Infra plan and upload it to the tf modules S3 bucket.
+    Save an AWS Infra plan
     """
-    canarydrop.aws_saved_plan = json.dumps(plan)
     try:
         canarydrop.aws_deployed_assets = json.dumps(
             {
@@ -339,3 +338,4 @@ def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
         raise ValueError(
             "Invalid plan structure. Ensure all required fields are present in the plan."
         )
+    canarydrop.aws_saved_plan = json.dumps(plan)
