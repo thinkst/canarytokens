@@ -205,8 +205,9 @@ class AWSInfraPlan(BaseModel):
         """
         try:
             # Attach canarydrop context to the plan_dict for validation
-            plan_dict["_canarydrop"] = canarydrop
-            return cls.parse_obj(plan_dict)
+            plan_extended = plan_dict.copy()
+            plan_extended["_canarydrop"] = canarydrop
+            return cls.parse_obj(plan_extended)
         except ValidationError as e:
             plan = cls()
             plan.validation_errors = [f"{error['msg']}" for error in e.errors()]
