@@ -181,7 +181,9 @@ class AWSInfraPlan(BaseModel):
                 if getattr(asset, field_name, None)
             ]
             if len(new_names) != len(set(new_names)):
-                validation_errors.append(f"Duplicate {asset_type} names found in plan")
+                validation_errors.append(
+                    f"Duplicate {asset_type} names found in plan: {set(name for name in new_names if new_names.count(name) > 1)}"
+                )
 
             if account_assets := account_inventory.get(asset_type):
                 inventory_plan_intersection = set(new_names) & set(account_assets)
@@ -542,9 +544,7 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
     plan_object = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
     if plan_object.validation_errors:
         canarydrop.aws_deployed_assets = json.dumps(current_deployed_assets)
-        raise ValueError(
-            f"Plan validation errors found: {'; '.join(plan_object.validation_errors)}"
-        )
+        raise ValueError(f"{'; '.join(plan_object.validation_errors)}")
 
     tasks = []
     for bucket in plan_object.S3Bucket:
