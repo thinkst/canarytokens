@@ -82,16 +82,16 @@ class AWSInfraAsset(BaseModel):
         if name is not None:
             if not (1 <= len(name) <= 2048):
                 raise ValueError(
-                    f"SSM parameter name must be 1-2048 characters, invalid name: {name}"
+                    f"SSM parameter name must be 1-2011 characters, invalid name: {name}"
                 )
 
-            if name in ("aws", "ssm"):
+            if name.lower().startswith(("aws", "ssm")):
                 raise ValueError(
-                    f'SSM parameter name cannot contain reserved words "aws" or "ssm", invalid name: {name}'
+                    f'SSM parameter name cannot start with reserved words "aws" or "ssm", invalid name: {name}'
                 )
             if not re.fullmatch(SSM_PARAMETER_NAME_REGEX, name):
                 raise ValueError(
-                    f"SSM parameter name segments must be alphanumeric, underscore, dot, hyphen only, invalid segment: {name}"
+                    f"SSM parameter names must be alphanumeric, underscore, dot, hyphen only, invalid name: {name}"
                 )
         return name
 
