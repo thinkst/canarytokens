@@ -56,11 +56,11 @@ export const assetsExample = ref<ProposedAWSInfraTokenPlanData>({
   ],
   SSMParameter: [
     {
-      ssm_parameter_name: '/analytics/warehouse/tableau-access-password',
+      ssm_parameter_name: 'tableau-access-password',
       off_inventory: false,
     },
     {
-      ssm_parameter_name: '/dev/payroll_service/api_key_private',
+      ssm_parameter_name: 'api_key_private',
       off_inventory: false,
     },
   ],
