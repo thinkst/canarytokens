@@ -54,7 +54,7 @@
     <BaseMessageBox
       v-if="isAiGenerateErrorMessage"
       variant="warning"
-      class="mt-16"
+      class="mt-16 mb-16"
     >
       {{ isAiGenerateErrorMessage }}
     </BaseMessageBox>
