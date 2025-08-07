@@ -17,6 +17,7 @@
       variant="text"
       icon="plus"
       :loading="isLoading"
+      :disabled="isMaxItemsReached"
       @click="handleAddItem"
     >
       Add Decoy
@@ -26,6 +27,13 @@
     v-if="isErrorMessage"
     variant="danger"
     >{{ errorMessageMapper(isErrorMessage) }}
+  </BaseMessageBox>
+  <BaseMessageBox
+    v-if="isMaxItemsReached"
+    variant="warning"
+    class="mb-16"
+    >You have reached the maximum of {{ MAX_ITEMS }}
+    {{ getFieldLabel(props.assetType, props.assetKey) }}.
   </BaseMessageBox>
   <AssetFormPagination :fields="props.fields">
     <div
@@ -51,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import getImageUrl from '@/utils/getImageUrl';
 import type { AssetData } from '../types';
@@ -60,6 +68,8 @@ import { useGenerateAssetName } from '@/components/tokens/aws_infra/plan_generat
 import AssetFormPagination from '@/components/tokens/aws_infra/plan_generator/AssetFormPagination.vue';
 import AssetTextField from '@/components/tokens/aws_infra/plan_generator/AssetTextField.vue';
 import { errorMessageMapper } from '@/utils/errorMessageMapper.ts';
+
+const MAX_ITEMS = 20;
 
 const props = defineProps<{
   assetType: AssetTypesEnum;
@@ -76,6 +86,10 @@ const isErrorMessage = ref('');
 function iconURL() {
   return getImageUrl(`aws_infra_icons/${props.assetKey}.svg`);
 }
+
+const isMaxItemsReached = computed(
+  () => Array.isArray(props.fields) && props.fields.length >= MAX_ITEMS
+);
 
 async function handleAddItem() {
   if (isLoading.value) return;
