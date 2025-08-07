@@ -11,8 +11,8 @@ const regexS3BucketNameForbiddenPrefixes =
 
 const regexS3Objects = /^[a-zA-Z0-9!_.\-~*'()/]+$/;
 const regexSQSQueueName = /^[A-Za-z0-9_\-]+$/;
-const regexSSMParameterForbiddenPrefixes = /^(?!aws|ssm|\/aws|\/ssm)/;
-const regexSSMParameterChars = /^(\/[a-zA-Z0-9./_-]+|[a-zA-Z0-9._-]+)$/;
+const regexSSMParameterForbiddenPrefixes = /^(?!aws|ssm)/i;
+const regexSSMParameterChars = /^[a-zA-Z0-9_.-]+$/;
 const regexSecretsManagerSecretName = /^[a-zA-Z0-9_.-]+$/;
 const regexDynamoDBasset = /^[a-zA-Z0-9_.-]+$/;
 
@@ -76,11 +76,11 @@ export const SSMParameter_schema = yup.object().shape({
     .max(2048, 'SSM Parameter name must be max 2048 characters')
     .matches(
       regexSSMParameterForbiddenPrefixes,
-      "Name must not start with 'aws', 'ssm', '/aws', or '/ssm'."
+      "SSM Parameter name can't be equal or start with 'aws' and 'ssm'"
     )
     .matches(
       regexSSMParameterChars,
-      "If the name starts with '/', it may contain slashes. Otherwise, slashes are not allowed. Only letters, numbers, and '._-' are permitted."
+      "SSM Parameter name must contain only letters, numbers, and '._-'."
     ),
 });
 
