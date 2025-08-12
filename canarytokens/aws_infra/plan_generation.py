@@ -5,7 +5,7 @@ import random
 import re
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, Optional
 
 from pydantic import BaseModel, Field, root_validator, validator, ValidationError
 
@@ -252,6 +252,40 @@ _ASSET_TYPE_CONFIG = {
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
         10, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+    ),
+}
+
+
+_EVENT_PATTERN_EMPTY = 16
+_EVENT_PATTERN_LIMIT = 2048
+
+
+@dataclass
+class EventPatternLength:
+    EMPTY_LEN: int  # length of empty event pattern for asset
+    PER_ASSET_FUN: Callable[[str, str], int]  # length added per asset name
+
+
+_EVENT_PATTERN_LENGTH = {
+    AWSInfraAssetType.S3_BUCKET: EventPatternLength(
+        91,
+        lambda asset_name, _: len(asset_name) + 2,
+    ),
+    AWSInfraAssetType.SQS_QUEUE: EventPatternLength(
+        179,
+        lambda asset_name, region: 2 * len(asset_name) + len(region) + 44,
+    ),
+    AWSInfraAssetType.SSM_PARAMETER: EventPatternLength(
+        110,
+        lambda asset_name, _: len(asset_name) + 2,
+    ),
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: EventPatternLength(
+        89,
+        lambda asset_name, region: 2 * len(asset_name) + 44 + len(region),
+    ),
+    AWSInfraAssetType.DYNAMO_DB_TABLE: EventPatternLength(
+        76,
+        lambda asset_name, region: len(asset_name) + 39 + len(region),
     ),
 }
 
@@ -525,59 +559,65 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
     try:
         canarydrop.aws_deployed_assets = json.dumps(
             {
-                AWSInfraAssetType.S3_BUCKET.value: [
-                    bucket[AWSInfraAssetField.BUCKET_NAME]
-                    for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
-                ],
-                AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
-                    table[AWSInfraAssetField.TABLE_NAME]
-                    for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
-                ],
-                AWSInfraAssetType.SQS_QUEUE.value: [
-                    queue[AWSInfraAssetField.SQS_QUEUE_NAME]
-                    for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
-                ],
-                AWSInfraAssetType.SSM_PARAMETER.value: [
-                    param[AWSInfraAssetField.SSM_PARAMETER_NAME]
-                    for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
-                ],
-                AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
-                    secret[AWSInfraAssetField.SECRET_NAME]
-                    for secret in plan.get(
-                        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                    )
-                ],
+                asset_type: [
+                    asset[config.asset_field_name] for asset in plan.get(asset_type, [])
+                ]
+                for asset_type, config in _ASSET_TYPE_CONFIG.items()
             }
         )
     except KeyError:
         raise ValueError(
             "Invalid plan structure. Ensure all required fields are present in the plan."
         )
-    plan_object = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
-    if plan_object.validation_errors:
-        canarydrop.aws_deployed_assets = json.dumps(current_deployed_assets)
-        raise ValueError(f"{'; '.join(plan_object.validation_errors)}")
+    try:
+        plan_object = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
+        if plan_object.validation_errors:
+            raise ValueError(f"{'; '.join(plan_object.validation_errors)}")
 
-    tasks = []
-    new_buckets = [
-        bucket
-        for bucket in plan_object.S3Bucket
-        if bucket.bucket_name
-        not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
-    ]
-    for bucket in new_buckets:
-        tasks.append(s3_bucket_is_available(bucket.bucket_name))
+        # check bucket availability, #TODO share with data generation
+        new_buckets = [
+            bucket
+            for bucket in plan_object.S3Bucket
+            if bucket.bucket_name
+            not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
+        ]
+        if new_buckets:
+            unavailable = [
+                bucket.bucket_name
+                for bucket, available in zip(
+                    new_buckets,
+                    await asyncio.gather(
+                        *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
+                    ),
+                )
+                if not available
+            ]
+            if unavailable:
+                raise ValueError(f"S3 buckets not available: {', '.join(unavailable)}")
 
-    results = await asyncio.gather(*tasks)
-    unavailable_buckets = []
-    for bucket, is_available in zip(new_buckets, results):
-        if not is_available:
-            unavailable_buckets.append(bucket.bucket_name)
+        # check that event pattern will be within character limit of 2048
+        total_length = _EVENT_PATTERN_EMPTY + sum(
+            pattern.EMPTY_LEN
+            + sum(
+                pattern.PER_ASSET_FUN(
+                    asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
+                    canarydrop.aws_region,
+                )
+                + 2
+                for asset in assets
+            )
+            - 2
+            for asset_type, assets in plan.items()
+            if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
+        )
+        if total_length > _EVENT_PATTERN_LIMIT:
+            raise ValueError(
+                f"The current plan will exceed the event pattern character limit in the generated Terraform module by {total_length - _EVENT_PATTERN_LIMIT} characters. Please reduce the number of assets or the name lengths."
+            )
+    except ValueError:
+        canarydrop.aws_deployed_assets = json.dumps(
+            current_deployed_assets
+        )  # restore previous state
+        raise
 
-    if unavailable_buckets:
-        canarydrop.aws_deployed_assets = json.dumps(current_deployed_assets)
-        raise ValueError(f"S3 buckets not available: {', '.join(unavailable_buckets)}")
-
-    # Remove canarydrop from plan before serializing
-    plan_to_save = {k: v for k, v in plan.items() if k != "_canarydrop"}
-    canarydrop.aws_saved_plan = json.dumps(plan_to_save)
+    canarydrop.aws_saved_plan = json.dumps(plan)
