@@ -31,8 +31,8 @@ locals {
 
   dynamodb_pattern = length(local.safe_tables) > 0 ? {
     detail = {
-      requestParameters = {
-        tableName = local.safe_tables
+      resources = {
+        ARN = [for table in aws_dynamodb_table.fake-tables : table.arn]
       }
     }
   } : null

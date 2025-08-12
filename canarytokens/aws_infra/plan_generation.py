@@ -281,7 +281,7 @@ _EVENT_PATTERN_LENGTH = {
     ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: EventPatternLength(
         49,
-        lambda asset_name, region: 2 * len(asset_name) + 44 + len(region),
+        lambda asset_name, region: 2 * len(asset_name) + 56 + len(region),
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: EventPatternLength(
         36,
@@ -603,10 +603,10 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
                     asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
                     canarydrop.aws_region,
                 )
-                + 1
+                + 1  # +1 for the comma between names
                 for asset in assets
             )
-            - 1
+            - 1  # -1 for the last comma
             for asset_type, assets in plan.items()
             if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
         )
