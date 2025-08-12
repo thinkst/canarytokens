@@ -256,7 +256,7 @@ _ASSET_TYPE_CONFIG = {
 }
 
 
-_EVENT_PATTERN_EMPTY = 16
+_EVENT_PATTERN_EMPTY = 10
 _EVENT_PATTERN_LIMIT = 2048
 
 
@@ -268,23 +268,23 @@ class EventPatternLength:
 
 _EVENT_PATTERN_LENGTH = {
     AWSInfraAssetType.S3_BUCKET: EventPatternLength(
-        91,
+        51,
         lambda asset_name, _: len(asset_name) + 2,
     ),
     AWSInfraAssetType.SQS_QUEUE: EventPatternLength(
-        179,
+        99,
         lambda asset_name, region: 2 * len(asset_name) + len(region) + 44,
     ),
     AWSInfraAssetType.SSM_PARAMETER: EventPatternLength(
-        110,
+        67,
         lambda asset_name, _: len(asset_name) + 2,
     ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: EventPatternLength(
-        89,
+        49,
         lambda asset_name, region: 2 * len(asset_name) + 44 + len(region),
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: EventPatternLength(
-        76,
+        36,
         lambda asset_name, region: len(asset_name) + 39 + len(region),
     ),
 }
@@ -603,10 +603,10 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
                     asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
                     canarydrop.aws_region,
                 )
-                + 2
+                + 1
                 for asset in assets
             )
-            - 2
+            - 1
             for asset_type, assets in plan.items()
             if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
         )
