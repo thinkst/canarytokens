@@ -273,7 +273,7 @@ _EVENT_PATTERN_LENGTH = {
     ),
     AWSInfraAssetType.SQS_QUEUE: EventPatternLength(
         99,
-        lambda asset_name, region: 2 * len(asset_name) + len(region) + 44,
+        lambda asset_name, region: 2 * len(asset_name) + len(region) + 45,
     ),
     AWSInfraAssetType.SSM_PARAMETER: EventPatternLength(
         67,
@@ -603,16 +603,20 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
                     asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
                     canarydrop.aws_region,
                 )
-                + 1  # +1 for the comma between names
+                + (
+                    2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
+                )  # for the comma between names
                 for asset in assets
             )
-            - 1  # -1 for the last comma
+            - (
+                2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
+            )  # remove last comma
             for asset_type, assets in plan.items()
             if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
         )
         if total_length > _EVENT_PATTERN_LIMIT:
             raise ValueError(
-                f"The current plan will exceed the event pattern character limit in the generated Terraform module by {total_length - _EVENT_PATTERN_LIMIT} characters. Please reduce the number of assets or the name lengths."
+                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off {total_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
             )
     except ValueError:
         canarydrop.aws_deployed_assets = json.dumps(
