@@ -9,13 +9,13 @@ from typing import Callable, Optional
 
 from pydantic import BaseModel, Field, root_validator, validator, ValidationError
 
-from canarytokens.aws_infra.aws_management import s3_bucket_is_available
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.aws_infra.utils import (
     S3_OBJECT_REGEX,
     TABLE_ITEM_REGEX,
+    s3_bucket_is_available,
     validate_dynamodb_name,
     validate_s3_name,
     validate_secrets_manager_name,
