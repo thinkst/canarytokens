@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Callable, Optional
 
 from pydantic import BaseModel, Field, root_validator, validator, ValidationError
-
+from pydantic.fields import ModelField
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
@@ -49,7 +49,7 @@ class AWSInfraAsset(BaseModel):
         "secret_name",
         "table_name",
     )
-    def validate_asset_names(cls, name: str, field: str):
+    def validate_asset_names(cls, name: str, field: ModelField):
         if name is not None:
             validators = {
                 "bucket_name": validate_s3_name,
@@ -58,7 +58,7 @@ class AWSInfraAsset(BaseModel):
                 "secret_name": validate_secrets_manager_name,
                 "table_name": validate_dynamodb_name,
             }
-            is_valid, error_message = validators[field](name)
+            is_valid, error_message = validators[field.name](name)
             if not is_valid:
                 raise ValueError(error_message)
         return name
