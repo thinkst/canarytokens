@@ -551,6 +551,58 @@ async def generate_child_assets(
     return result
 
 
+def _get_event_pattern_length(plan: dict[str, list[dict]], region: str) -> bool:
+    """
+    Return True if the event pattern length is within the limit, False otherwise.
+    """
+    total_length = _EVENT_PATTERN_EMPTY + sum(
+        pattern.EMPTY_LEN
+        + sum(
+            pattern.PER_ASSET_FUN(
+                asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
+                region,
+            )
+            + (
+                2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
+            )  # for the comma between names
+            for asset in assets
+        )
+        - (
+            2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
+        )  # remove last comma
+        for asset_type, assets in plan.items()
+        if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
+    )
+    return total_length
+
+
+async def _get_unavailable_buckets(
+    plan_object: AWSInfraPlan, current_deployed_assets: dict[str, list[str]]
+) -> list[str]:
+    """
+    Check if any S3 bucket names are unavailable.
+    """
+    unavailable_buckets = []
+    new_buckets = [
+        bucket
+        for bucket in plan_object.S3Bucket
+        if bucket.bucket_name
+        not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
+    ]
+    if new_buckets:
+        unavailable_buckets = [
+            bucket.bucket_name
+            for bucket, available in zip(
+                new_buckets,
+                await asyncio.gather(
+                    *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
+                ),
+            )
+            if not available
+        ]
+    return unavailable_buckets
+
+
 async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
     """
     Save an AWS Infra plan with validation using canarydrop context.
@@ -574,49 +626,21 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
         if plan_object.validation_errors:
             raise ValueError(f"{'; '.join(plan_object.validation_errors)}")
 
-        # check bucket availability, #TODO share with data generation
-        new_buckets = [
-            bucket
-            for bucket in plan_object.S3Bucket
-            if bucket.bucket_name
-            not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
-        ]
-        if new_buckets:
-            unavailable = [
-                bucket.bucket_name
-                for bucket, available in zip(
-                    new_buckets,
-                    await asyncio.gather(
-                        *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
-                    ),
-                )
-                if not available
-            ]
-            if unavailable:
-                raise ValueError(f"S3 buckets not available: {', '.join(unavailable)}")
-
-        # check that event pattern will be within character limit of 2048
-        total_length = _EVENT_PATTERN_EMPTY + sum(
-            pattern.EMPTY_LEN
-            + sum(
-                pattern.PER_ASSET_FUN(
-                    asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
-                    canarydrop.aws_region,
-                )
-                + (
-                    2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
-                )  # for the comma between names
-                for asset in assets
-            )
-            - (
-                2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
-            )  # remove last comma
-            for asset_type, assets in plan.items()
-            if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
-        )
-        if total_length > _EVENT_PATTERN_LIMIT:
+        if unavailable := await _get_unavailable_buckets(
+            plan_object, current_deployed_assets
+        ):
             raise ValueError(
-                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off {total_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
+                f"S3 bucket names are not available: {', '.join(unavailable)}"
+            )
+
+        if (
+            event_pattern_length := _get_event_pattern_length(
+                plan, canarydrop.aws_region
+            )
+            > _EVENT_PATTERN_LIMIT
+        ):
+            raise ValueError(
+                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
             )
     except ValueError:
         canarydrop.aws_deployed_assets = json.dumps(
