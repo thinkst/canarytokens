@@ -98,7 +98,7 @@ async def s3_bucket_is_available(bucket_name: str) -> bool:
         return False
 
 
-async def validate_s3_name(name: str) -> AssetNameValidation:
+def validate_s3_name(name: str) -> AssetNameValidation:
     """Validate S3 bucket name asynchronously."""
     if not re.fullmatch(S3_BUCKET_NAME_REGEX, name):
         return AssetNameValidation(
@@ -120,11 +120,6 @@ async def validate_s3_name(name: str) -> AssetNameValidation:
         return AssetNameValidation(
             result=False,
             error_message=f"S3 bucket name cannot start with reserved prefixes or end with reserved suffixes: {name}",
-        )
-
-    if not await s3_bucket_is_available(name):
-        return AssetNameValidation(
-            result=False, error_message=f"S3 bucket does not exist: {name}"
         )
 
     return AssetNameValidation(result=True)

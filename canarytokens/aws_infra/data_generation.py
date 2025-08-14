@@ -9,7 +9,9 @@ from functools import cached_property
 import httpx
 
 from canarytokens.aws_infra.utils import (
+    AssetNameValidation,
     generate_s3_bucket_suffix,
+    s3_bucket_is_available,
     validate_dynamodb_name,
     validate_s3_name,
     validate_secrets_manager_name,
@@ -58,8 +60,26 @@ def _httpx_async_client_default():
     return httpx.AsyncClient(timeout=60)
 
 
+async def _validate_s3_name_and_availability(name: str) -> AssetNameValidation:
+    """
+    Validate an S3 bucket name and check its availability.
+    """
+    is_valid = validate_s3_name(name).result
+    if not is_valid:
+        return AssetNameValidation(
+            result=False, error_message=f"Invalid S3 bucket name: {name}"
+        )
+
+    if not await s3_bucket_is_available(name):
+        return AssetNameValidation(
+            result=False, error_message=f"S3 bucket does not exist: {name}"
+        )
+
+    return AssetNameValidation(result=True)
+
+
 _VALIDATORS = {
-    AWSInfraAssetType.S3_BUCKET: validate_s3_name,
+    AWSInfraAssetType.S3_BUCKET: _validate_s3_name_and_availability,
     AWSInfraAssetType.DYNAMO_DB_TABLE: validate_dynamodb_name,
     AWSInfraAssetType.SSM_PARAMETER: validate_ssm_parameter_name,
     AWSInfraAssetType.SQS_QUEUE: validate_sqs_name,

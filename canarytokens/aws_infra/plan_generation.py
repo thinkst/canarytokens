@@ -58,9 +58,9 @@ class AWSInfraAsset(BaseModel):
                 "secret_name": validate_secrets_manager_name,
                 "table_name": validate_dynamodb_name,
             }
-            is_valid, error_message = validators[field.name](name)
-            if not is_valid:
-                raise ValueError(error_message)
+            validation = validators[field.name](name)
+            if not validation.result:
+                raise ValueError(validation.error_message)
         return name
 
     @validator("objects")
