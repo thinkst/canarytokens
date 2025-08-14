@@ -6,6 +6,7 @@ import string
 import httpx
 
 from attr import dataclass
+from typing import Optional
 
 
 log = logging.getLogger()
@@ -25,7 +26,7 @@ TABLE_ITEM_REGEX = re.compile(r"^[a-zA-Z0-9\-\._~!$&'()*+,;=:@/]{1,1024}$")
 @dataclass
 class AssetNameValidation:
     result: bool
-    error_message: str = None
+    error_message: Optional[str] = None
 
 
 def _random_alpha_numeric_string(length: int, lower_case_only=False) -> str:
@@ -94,11 +95,12 @@ async def s3_bucket_is_available(bucket_name: str) -> bool:
         )  # Not Found indicates the bucket does not exist
     except Exception:
         log.exception("Error checking S3 bucket existence")
+        return False
 
 
 async def validate_s3_name(name: str) -> AssetNameValidation:
     """Validate S3 bucket name asynchronously."""
-    if not re.match(S3_BUCKET_NAME_REGEX, name):
+    if not re.fullmatch(S3_BUCKET_NAME_REGEX, name):
         return AssetNameValidation(
             result=False,
             error_message=f"S3 bucket names must be 3-63 characters, lowercase letters, numbers, dots, and hyphens only: {name}",
@@ -138,7 +140,7 @@ def validate_dynamodb_name(name: str) -> AssetNameValidation:
 
 
 def validate_ssm_parameter_name(name: str) -> AssetNameValidation:
-    if name.lower().startswith((("aws", "ssm"))):
+    if name.lower().startswith(("aws", "ssm")):
         return AssetNameValidation(
             result=False,
             error_message=f"SSM parameter name cannot start with reserved prefixes: {name}",
