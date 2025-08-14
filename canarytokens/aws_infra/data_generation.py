@@ -2,21 +2,19 @@ import asyncio
 import json
 import logging
 import random
-import re
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from functools import cached_property
 
 import httpx
 
-from canarytokens.aws_infra.aws_management import s3_bucket_is_available
 from canarytokens.aws_infra.utils import (
-    DYNAMO_DB_TABLE_NAME_REGEX,
-    S3_BUCKET_NAME_REGEX,
-    SECRETS_MANAGER_NAME_REGEX,
-    SQS_QUEUE_NAME_REGEX,
-    SSM_PARAMETER_NAME_REGEX,
     generate_s3_bucket_suffix,
+    validate_dynamodb_name,
+    validate_s3_name,
+    validate_secrets_manager_name,
+    validate_sqs_name,
+    validate_ssm_parameter_name,
 )
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
@@ -60,53 +58,12 @@ def _httpx_async_client_default():
     return httpx.AsyncClient(timeout=60)
 
 
-async def _validate_s3_name(name: str) -> bool:
-    """Validate S3 bucket name asynchronously."""
-    if not re.match(S3_BUCKET_NAME_REGEX, name):
-        return False
-    reserved_prefixes = (
-        "xn--",
-        "sthree-",
-        "sthree-configurator",
-        "s3alias",
-        "s3-",
-        "s3control-",
-    )
-    reserved_suffixes = ("--ol-s3",)
-    if any(name.startswith(p) for p in reserved_prefixes) or any(
-        name.endswith(s) for s in reserved_suffixes
-    ):
-        return False
-
-    return await s3_bucket_is_available(name)
-
-
-def _validate_dynamodb_name(name: str) -> bool:
-    return bool(re.fullmatch(DYNAMO_DB_TABLE_NAME_REGEX, name))
-
-
-def _validate_ssm_parameter_name(name: str) -> bool:
-    if name.lower().startswith((("aws", "ssm"))):
-        return False
-    if re.fullmatch(SSM_PARAMETER_NAME_REGEX, name):
-        return True
-    return False
-
-
-def _validate_sqs_name(name: str) -> bool:
-    return bool(re.fullmatch(SQS_QUEUE_NAME_REGEX, name))
-
-
-def _validate_secrets_manager_name(name: str) -> bool:
-    return bool(re.fullmatch(SECRETS_MANAGER_NAME_REGEX, name))
-
-
 _VALIDATORS = {
-    AWSInfraAssetType.S3_BUCKET: _validate_s3_name,
-    AWSInfraAssetType.DYNAMO_DB_TABLE: _validate_dynamodb_name,
-    AWSInfraAssetType.SSM_PARAMETER: _validate_ssm_parameter_name,
-    AWSInfraAssetType.SQS_QUEUE: _validate_sqs_name,
-    AWSInfraAssetType.SECRETS_MANAGER_SECRET: _validate_secrets_manager_name,
+    AWSInfraAssetType.S3_BUCKET: validate_s3_name,
+    AWSInfraAssetType.DYNAMO_DB_TABLE: validate_dynamodb_name,
+    AWSInfraAssetType.SSM_PARAMETER: validate_ssm_parameter_name,
+    AWSInfraAssetType.SQS_QUEUE: validate_sqs_name,
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: validate_secrets_manager_name,
 }
 
 
@@ -120,9 +77,9 @@ async def _validate_name(asset_type: AWSInfraAssetType, name: str) -> bool:
 
     # Handle async validators (like S3) vs sync validators
     if asset_type == AWSInfraAssetType.S3_BUCKET:
-        return await validator(name)
+        return (await validator(name)).result
     else:
-        return validator(name)
+        return validator(name).result
 
 
 def _augment_s3_bucket_name(name: str) -> str:

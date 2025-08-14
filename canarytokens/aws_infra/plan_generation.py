@@ -14,13 +14,13 @@ from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
 from canarytokens.aws_infra.utils import (
-    DYNAMO_DB_TABLE_NAME_REGEX,
-    S3_BUCKET_NAME_REGEX,
     S3_OBJECT_REGEX,
-    SECRETS_MANAGER_NAME_REGEX,
-    SQS_QUEUE_NAME_REGEX,
-    SSM_PARAMETER_NAME_REGEX,
     TABLE_ITEM_REGEX,
+    validate_dynamodb_name,
+    validate_s3_name,
+    validate_secrets_manager_name,
+    validate_sqs_name,
+    validate_ssm_parameter_name,
 )
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import AWSInfraDataGenerationLimitReached
@@ -42,75 +42,25 @@ class AWSInfraAsset(BaseModel):
     table_items: Optional[list[str]] = Field(default_factory=list)
     off_inventory: bool = False
 
-    @validator("bucket_name")
-    def validate_bucket_name(cls, name: str):
+    @validator(
+        "bucket_name",
+        "sqs_queue_name",
+        "ssm_parameter_name",
+        "secret_name",
+        "table_name",
+    )
+    def validate_asset_names(cls, name: str, field: str):
         if name is not None:
-            if not re.match(S3_BUCKET_NAME_REGEX, name):
-                raise ValueError(
-                    f"S3 bucket name must be 3-63 characters, lowercase letters, numbers, dots, and hyphens only, invalid name: {name}"
-                )
-
-            reserved_prefixes = (
-                "xn--",
-                "sthree-",
-                "sthree-configurator",
-                "s3alias",
-                "s3-",
-                "s3control-",
-            )
-            reserved_suffixes = ("--ol-s3",)
-            if any(name.startswith(p) for p in reserved_prefixes) or any(
-                name.endswith(s) for s in reserved_suffixes
-            ):
-                raise ValueError(
-                    f"S3 bucket name uses reserved prefix or suffix, invalid name: {name}"
-                )
-
-        return name
-
-    @validator("sqs_queue_name")
-    def validate_sqs_queue_name(cls, name: str):
-        if name is not None:
-            if not re.match(SQS_QUEUE_NAME_REGEX, name):
-                raise ValueError(
-                    f"SQS queue name must be 1-80 characters, alphanumeric, underscore, hyphen, semicolon only, invalid name: {name}"
-                )
-        return name
-
-    @validator("ssm_parameter_name")
-    def validate_ssm_parameter_name(cls, name: str):
-        if name is not None:
-            if not (1 <= len(name) <= 2048):
-                raise ValueError(
-                    f"SSM parameter name must be 1-2011 characters, invalid name: {name}"
-                )
-
-            if name.lower().startswith(("aws", "ssm")):
-                raise ValueError(
-                    f'SSM parameter name cannot start with reserved words "aws" or "ssm", invalid name: {name}'
-                )
-            if not re.fullmatch(SSM_PARAMETER_NAME_REGEX, name):
-                raise ValueError(
-                    f"SSM parameter names must be alphanumeric, underscore, dot, hyphen only, invalid name: {name}"
-                )
-        return name
-
-    @validator("secret_name")
-    def validate_secret_name(cls, name: str):
-        if name is not None:
-            if not re.match(SECRETS_MANAGER_NAME_REGEX, name):
-                raise ValueError(
-                    f"Secrets Manager name must be 1-512 characters, no consecutive dots, invalid name: {name}"
-                )
-        return name
-
-    @validator("table_name")
-    def validate_table_name(cls, name: str):
-        if name is not None:
-            if not re.match(DYNAMO_DB_TABLE_NAME_REGEX, name):
-                raise ValueError(
-                    f"DynamoDB table name must be 3-255 characters, alphanumeric, underscore, dot, hyphen only, invalid name: {name}"
-                )
+            validators = {
+                "bucket_name": validate_s3_name,
+                "sqs_queue_name": validate_sqs_name,
+                "ssm_parameter_name": validate_ssm_parameter_name,
+                "secret_name": validate_secrets_manager_name,
+                "table_name": validate_dynamodb_name,
+            }
+            is_valid, error_message = validators[field](name)
+            if not is_valid:
+                raise ValueError(error_message)
         return name
 
     @validator("objects")

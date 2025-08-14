@@ -10,7 +10,7 @@ const regexS3BucketNameForbiddenPrefixes =
   /^(?!(xn--|sthree-|sthree-configurator|s3alias|s3-|s3control-))/;
 
 const regexS3Objects = /^[a-zA-Z0-9!_.\-~*'()/]+$/;
-const regexSQSQueueName = /^[A-Za-z0-9_\-]+$/;
+const regexSQSQueueName = /^[A-Za-z0-9_\-;]+$/;
 const regexSSMParameterForbiddenPrefixes = /^(?!aws|ssm)/i;
 const regexSSMParameterChars = /^[a-zA-Z0-9_.-]+$/;
 const regexSecretsManagerSecretName = /^[A-Za-z0-9/_+=.@-]+$/;
