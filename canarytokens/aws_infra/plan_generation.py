@@ -29,6 +29,14 @@ from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
 
+FIELD_VALIDATORS = {
+    "bucket_name": validate_s3_name,
+    "sqs_queue_name": validate_sqs_name,
+    "ssm_parameter_name": validate_ssm_parameter_name,
+    "secret_name": validate_secrets_manager_name,
+    "table_name": validate_dynamodb_name,
+}
+
 
 class AWSInfraAsset(BaseModel):
     """Individual asset within an AWS infrastructure plan."""
@@ -43,22 +51,11 @@ class AWSInfraAsset(BaseModel):
     off_inventory: bool = False
 
     @validator(
-        "bucket_name",
-        "sqs_queue_name",
-        "ssm_parameter_name",
-        "secret_name",
-        "table_name",
+        *FIELD_VALIDATORS.keys(),
     )
     def validate_asset_names(cls, name: str, field: ModelField):
         if name is not None:
-            validators = {
-                "bucket_name": validate_s3_name,
-                "sqs_queue_name": validate_sqs_name,
-                "ssm_parameter_name": validate_ssm_parameter_name,
-                "secret_name": validate_secrets_manager_name,
-                "table_name": validate_dynamodb_name,
-            }
-            validation = validators[field.name](name)
+            validation = FIELD_VALIDATORS[field.name](name)
             if not validation.result:
                 raise ValueError(validation.error_message)
         return name
