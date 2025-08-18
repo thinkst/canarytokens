@@ -10,10 +10,10 @@ from canarytokens.settings import FrontendSettings
 
 # Get the project root directory
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
+log = logging.getLogger()
 
 
 def _get_session():

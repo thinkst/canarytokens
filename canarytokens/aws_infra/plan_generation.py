@@ -2,19 +2,180 @@ import asyncio
 import json
 import math
 import random
+import re
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, Optional
 
+from pydantic import BaseModel, Field, root_validator, validator, ValidationError
+from pydantic.fields import ModelField
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
+from canarytokens.aws_infra.utils import (
+    S3_OBJECT_REGEX,
+    TABLE_ITEM_REGEX,
+    s3_bucket_is_available,
+    validate_dynamodb_name,
+    validate_s3_name,
+    validate_secrets_manager_name,
+    validate_sqs_name,
+    validate_ssm_parameter_name,
+)
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import AWSInfraDataGenerationLimitReached
 from canarytokens.models import AWSInfraAssetField, AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
+
+FIELD_VALIDATORS = {
+    "bucket_name": validate_s3_name,
+    "sqs_queue_name": validate_sqs_name,
+    "ssm_parameter_name": validate_ssm_parameter_name,
+    "secret_name": validate_secrets_manager_name,
+    "table_name": validate_dynamodb_name,
+}
+
+
+class AWSInfraAsset(BaseModel):
+    """Individual asset within an AWS infrastructure plan."""
+
+    bucket_name: Optional[str] = None
+    sqs_queue_name: Optional[str] = None
+    ssm_parameter_name: Optional[str] = None
+    secret_name: Optional[str] = None
+    table_name: Optional[str] = None
+    objects: Optional[list[str]] = Field(default_factory=list)
+    table_items: Optional[list[str]] = Field(default_factory=list)
+    off_inventory: bool = False
+
+    @validator(
+        *FIELD_VALIDATORS.keys(),
+    )
+    def validate_asset_names(cls, name: str, field: ModelField):
+        if name is not None:
+            validation = FIELD_VALIDATORS[field.name](name)
+            if not validation.result:
+                raise ValueError(validation.error_message)
+        return name
+
+    @validator("objects")
+    def validate_objects_list(cls, names: list[str]):
+        if names is not None:
+            if len(names) != len(set(names)):
+                raise ValueError(
+                    f"S3Bucket objects must be unique within a bucket, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
+                )
+            for name in names:
+                if not re.match(S3_OBJECT_REGEX, name):
+                    raise ValueError(
+                        f"S3 object must be 1-1024 characters, invalid name: {name}"
+                    )
+        return names
+
+    @validator("table_items")
+    def validate_table_items_list(cls, names: list[str]):
+        if names is not None:
+            if len(names) != len(set(names)):
+                raise ValueError(
+                    f"DynamoDB table items must be unique within a table, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
+                )
+            for name in names:
+                if not re.match(TABLE_ITEM_REGEX, name):
+                    raise ValueError(
+                        f"DynamoDB table item must be 1-1024 characters, invalid name: {name}"
+                    )
+        return names
+
+
+class AWSInfraPlan(BaseModel):
+    """AWS Infrastructure plan containing assets by type."""
+
+    S3Bucket: list[AWSInfraAsset] = Field(default_factory=list, alias="S3Bucket")
+    SQSQueue: list[AWSInfraAsset] = Field(default_factory=list, alias="SQSQueue")
+    SSMParameter: list[AWSInfraAsset] = Field(
+        default_factory=list, alias="SSMParameter"
+    )
+    SecretsManagerSecret: list[AWSInfraAsset] = Field(
+        default_factory=list, alias="SecretsManagerSecret"
+    )
+    DynamoDBTable: list[AWSInfraAsset] = Field(
+        default_factory=list, alias="DynamoDBTable"
+    )
+
+    # Store validation errors as a list
+    validation_errors: Optional[list[str]] = None
+
+    @root_validator
+    def validate_unique_names(cls, values):
+        """Ensure no duplicate asset names within each type."""
+        validation_errors = []
+
+        canarydrop = values.get("_canarydrop")
+        if canarydrop is None:
+            account_inventory = {}
+        else:
+            account_inventory = get_current_assets(canarydrop)
+
+        for asset_type in AWSInfraAssetType:
+            field_name = _ASSET_TYPE_CONFIG[asset_type].asset_field_name.value
+            new_names = [
+                getattr(asset, field_name)
+                for asset in values.get(asset_type.value, [])
+                if getattr(asset, field_name, None)
+            ]
+            if len(new_names) != len(set(new_names)):
+                validation_errors.append(
+                    f"Duplicate {asset_type} names found in plan: {', '.join(set(name for name in new_names if new_names.count(name) > 1))}"
+                )
+
+            if account_assets := account_inventory.get(asset_type):
+                inventory_plan_intersection = set(new_names) & set(account_assets)
+                if len(inventory_plan_intersection) > 0:
+                    validation_errors.append(
+                        f"{asset_type} names ({', '.join(inventory_plan_intersection)}) already exists in AWS account"
+                    )
+
+        if validation_errors:
+            values["validation_errors"] = list(
+                set(validation_errors)
+            )  # Remove duplicates
+        return values
+
+    @root_validator
+    def validate_max_number_assets(cls, values):
+        """Ensure the number of assets does not exceed the maximum allowed."""
+        validation_errors = []
+        for asset_type, config in _ASSET_TYPE_CONFIG.items():
+            current_count = len(values.get(asset_type.value, []))
+            if current_count > config.max_assets:
+                validation_errors.append(
+                    f"Exceeded maximum number of {asset_type} decoy assets: {current_count} > {config.max_assets}"
+                )
+        if validation_errors:
+            values["validation_errors"] = validation_errors
+        return values
+
+    @classmethod
+    def from_dict_with_canarydrop(
+        cls, plan_dict: dict, canarydrop: Canarydrop
+    ) -> "AWSInfraPlan":
+        """
+        Create an AWSInfraPlan from a dictionary with canarydrop context for validation.
+        """
+        try:
+            # Attach canarydrop context to the plan_dict for validation
+            plan_extended = plan_dict.copy()
+            plan_extended["_canarydrop"] = canarydrop
+            return cls.parse_obj(plan_extended)
+        except ValidationError as e:
+            plan = cls()
+            plan.validation_errors = [f"{error['msg']}" for error in e.errors()]
+            return plan
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 @dataclass
@@ -27,17 +188,51 @@ class AssetTypeConfig:
 
 _ASSET_TYPE_CONFIG = {
     AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        10, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
+        5, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
     ),
-    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(10, AWSInfraAssetField.SQS_QUEUE_NAME),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(5, AWSInfraAssetField.SQS_QUEUE_NAME),
     AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
-        10, AWSInfraAssetField.SSM_PARAMETER_NAME
+        5, AWSInfraAssetField.SSM_PARAMETER_NAME
     ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        10, AWSInfraAssetField.SECRET_NAME
+        5, AWSInfraAssetField.SECRET_NAME
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        10, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+        5, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+    ),
+}
+
+
+_EVENT_PATTERN_EMPTY = 10
+_EVENT_PATTERN_LIMIT = 2048
+
+
+@dataclass
+class EventPatternLength:
+    EMPTY_LEN: int  # length of empty event pattern for asset
+    PER_ASSET_FUN: Callable[[str, str], int]  # length added per asset name
+
+
+_EVENT_PATTERN_LENGTH = {
+    AWSInfraAssetType.S3_BUCKET: EventPatternLength(
+        51,
+        lambda asset_name, _: len(asset_name) + 2,
+    ),
+    AWSInfraAssetType.SQS_QUEUE: EventPatternLength(
+        99,
+        lambda asset_name, region: 2 * len(asset_name) + len(region) + 45,
+    ),
+    AWSInfraAssetType.SSM_PARAMETER: EventPatternLength(
+        67,
+        lambda asset_name, _: len(asset_name) + 2,
+    ),
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: EventPatternLength(
+        49,
+        lambda asset_name, region: 2 * len(asset_name) + 56 + len(region),
+    ),
+    AWSInfraAssetType.DYNAMO_DB_TABLE: EventPatternLength(
+        36,
+        lambda asset_name, region: len(asset_name) + 39 + len(region),
     ),
 }
 
@@ -303,39 +498,101 @@ async def generate_child_assets(
     return result
 
 
-def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
+def _get_event_pattern_length(plan: dict[str, list[dict]], region: str) -> bool:
     """
-    Save an AWS Infra plan
+    Return True if the event pattern length is within the limit, False otherwise.
     """
+    total_length = _EVENT_PATTERN_EMPTY + sum(
+        pattern.EMPTY_LEN
+        + sum(
+            pattern.PER_ASSET_FUN(
+                asset[_ASSET_TYPE_CONFIG[asset_type].asset_field_name],
+                region,
+            )
+            + (
+                2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
+            )  # for the comma between names
+            for asset in assets
+        )
+        - (
+            2 if asset_type == AWSInfraAssetType.SSM_PARAMETER else 1
+        )  # remove last comma
+        for asset_type, assets in plan.items()
+        if assets and (pattern := _EVENT_PATTERN_LENGTH[asset_type])
+    )
+    return total_length
+
+
+async def _get_unavailable_buckets(
+    plan_object: AWSInfraPlan, current_deployed_assets: dict[str, list[str]]
+) -> list[str]:
+    """
+    Check if any S3 bucket names are unavailable.
+    """
+    unavailable_buckets = []
+    new_buckets = [
+        bucket
+        for bucket in plan_object.S3Bucket
+        if bucket.bucket_name
+        not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
+    ]
+    if new_buckets:
+        unavailable_buckets = [
+            bucket.bucket_name
+            for bucket, available in zip(
+                new_buckets,
+                await asyncio.gather(
+                    *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
+                ),
+            )
+            if not available
+        ]
+    return unavailable_buckets
+
+
+async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None:
+    """
+    Save an AWS Infra plan with validation using canarydrop context.
+    """
+    current_deployed_assets = json.loads(canarydrop.aws_deployed_assets or "{}")
     try:
         canarydrop.aws_deployed_assets = json.dumps(
             {
-                AWSInfraAssetType.S3_BUCKET.value: [
-                    bucket[AWSInfraAssetField.BUCKET_NAME]
-                    for bucket in plan.get(AWSInfraAssetType.S3_BUCKET.value, [])
-                ],
-                AWSInfraAssetType.DYNAMO_DB_TABLE.value: [
-                    table[AWSInfraAssetField.TABLE_NAME]
-                    for table in plan.get(AWSInfraAssetType.DYNAMO_DB_TABLE.value, [])
-                ],
-                AWSInfraAssetType.SQS_QUEUE.value: [
-                    queue[AWSInfraAssetField.SQS_QUEUE_NAME]
-                    for queue in plan.get(AWSInfraAssetType.SQS_QUEUE.value, [])
-                ],
-                AWSInfraAssetType.SSM_PARAMETER.value: [
-                    param[AWSInfraAssetField.SSM_PARAMETER_NAME]
-                    for param in plan.get(AWSInfraAssetType.SSM_PARAMETER.value, [])
-                ],
-                AWSInfraAssetType.SECRETS_MANAGER_SECRET.value: [
-                    secret[AWSInfraAssetField.SECRET_NAME]
-                    for secret in plan.get(
-                        AWSInfraAssetType.SECRETS_MANAGER_SECRET.value, []
-                    )
-                ],
+                asset_type: [
+                    asset[config.asset_field_name] for asset in plan.get(asset_type, [])
+                ]
+                for asset_type, config in _ASSET_TYPE_CONFIG.items()
             }
         )
     except KeyError:
         raise ValueError(
             "Invalid plan structure. Ensure all required fields are present in the plan."
         )
+    try:
+        plan_object = AWSInfraPlan.from_dict_with_canarydrop(plan, canarydrop)
+        if plan_object.validation_errors:
+            raise ValueError(f"{'; '.join(plan_object.validation_errors)}")
+
+        if unavailable := await _get_unavailable_buckets(
+            plan_object, current_deployed_assets
+        ):
+            raise ValueError(
+                f"S3 bucket names are not available: {', '.join(unavailable)}"
+            )
+
+        if (
+            event_pattern_length := _get_event_pattern_length(
+                plan, canarydrop.aws_region
+            )
+            > _EVENT_PATTERN_LIMIT
+        ):
+            raise ValueError(
+                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
+            )
+    except ValueError:
+        canarydrop.aws_deployed_assets = json.dumps(
+            current_deployed_assets
+        )  # restore previous state
+        raise
+
     canarydrop.aws_saved_plan = json.dumps(plan)
