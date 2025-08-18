@@ -154,7 +154,7 @@ def _get_error_message(
     """
     SERVICE_ERROR_MESSAGE_MAP = {
         AWSInfraServiceError.FAILURE_CHECK_ROLE: f"Could not assume the role{role} in the account. Please make sure the role exists and that the external ID is correct.",
-        AWSInfraServiceError.FAILURE_INVENTORY_REGION_DISABLED: f"The region{region} is not enabled in the AWS account{account}. Please enable it and try again in a few hours or choose a different region.",
+        AWSInfraServiceError.FAILURE_INVENTORY_REGION_DISABLED: f"The region{region} is not enabled in the AWS account{account}. Please enable it and try again or choose a different region.",
         AWSInfraServiceError.FAILURE_INGESTION_SETUP: f"Could not setup alerting. If you have previously created an AWS Infra Canarytoken in this AWS account{account} in the same region{region}, then you need to delete the existing Canarytoken before creating a new one. Alternatively, you can rather edit the decoys in the existing Canarytoken. Hint: look in your inbox for a previous Infrastructure Canarytoken email to get the Manage link.",
         AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "",  # UI does not show this error
         AWSInfraServiceError.FAILURE_INVENTORY_ACCESS_DENIED: f"Could not retrieve the inventory of the AWS account{account} because access was denied. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role{role} that you created for us to inventory your resources.",
