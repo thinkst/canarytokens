@@ -14,6 +14,11 @@ from canarytokens.aws_infra.data_generation import (
     name_generation_usage_consume,
 )
 
+from canarytokens.aws_infra.plan_generation import (
+    AWSInfraAsset,
+    AWSInfraPlan,
+    _get_event_pattern_length,
+)
 from canarytokens.aws_infra.state_management import (
     update_state,
 )
@@ -40,8 +45,7 @@ def mock_canarydrop():
     canarydrop.aws_region = "us-east-1"
     canarydrop.aws_customer_iam_access_external_id = "external_id_123"
     canarydrop.aws_infra_inventory_role = "CanarytokensInventoryRole"
-    canarydrop.aws_deployed_assets = '{"s3_bucket": ["bucket1", "bucket2"]}'
-    canarydrop.aws_saved_plan = '{"s3_bucket": []}'
+    canarydrop.aws_deployed_assets = '{"S3Bucket": ["bucket1", "bucket2"]}'
     canarydrop.aws_tf_module_prefix = "prefix123"
     canarydrop.aws_infra_state = AWSInfraState.INITIAL
     canarydrop.aws_data_generation_requests_made = 0
@@ -49,23 +53,20 @@ def mock_canarydrop():
     return canarydrop
 
 
-@pytest.fixture
-def sample_inventory():
-    """Sample AWS inventory for testing."""
-    return {
-        AWSInfraAssetType.S3_BUCKET: [
-            "employee_data_1234",
-            "project_files_1234",
-            "password_storage_1234",
-        ],
-        AWSInfraAssetType.SQS_QUEUE: ["PaymentProcessingQueue", "NotificationQueue"],
-        AWSInfraAssetType.SSM_PARAMETER: [
-            "/app/config/db_password",
-            "/app/config/api_key",
-        ],
-        AWSInfraAssetType.SECRETS_MANAGER_SECRET: ["prod/db/password"],
-        AWSInfraAssetType.DYNAMO_DB_TABLE: ["UserSessions", "TransactionHistory"],
-    }
+MOCK_INVENTORY_DATA = {
+    AWSInfraAssetType.S3_BUCKET: [
+        "employee-data-1234",
+        "project-files-1234",
+        "password-storage-1234",
+    ],
+    AWSInfraAssetType.SQS_QUEUE: ["PaymentProcessingQueue", "NotificationQueue"],
+    AWSInfraAssetType.SSM_PARAMETER: [
+        "db_password",
+        "api_key",
+    ],
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: ["password"],
+    AWSInfraAssetType.DYNAMO_DB_TABLE: ["UserSessions", "TransactionHistory"],
+}
 
 
 class TestOperations:
@@ -141,12 +142,15 @@ class TestDataGeneration:
     )
     @pytest.mark.asyncio
     async def test_generate_names(self, asset_type):
-        """Test generating asset names."""
+        """
+        Test the generate_names function to ensure it returns the correct asset type and the expected number of unique suggested names.
+        """
 
-        result = await generate_names(asset_type, ["nameforasset"], 10)
+        count = 10
+        result = await generate_names(asset_type, ["fakename"], count)
 
         assert result.asset_type == asset_type
-        assert len(result.suggested_names) == 10
+        assert len(set(result.suggested_names)) == count
 
     @pytest.mark.skip("Skipping this to avoid incurring costs")
     @pytest.mark.parametrize(
@@ -154,17 +158,19 @@ class TestDataGeneration:
     )
     @pytest.mark.asyncio
     async def test_generate_children_names(self, parent_asset_type):
-        """Test generating child asset names."""
-
+        """Test generate_children_names function to ensure it returns the correct number of unique names."""
+        count = 10
         if parent_asset_type not in [
             AWSInfraAssetType.S3_BUCKET,
             AWSInfraAssetType.DYNAMO_DB_TABLE,
         ]:
             with pytest.raises(ValueError):
-                await generate_children_names(parent_asset_type, "parentname", 10)
+                await generate_children_names(parent_asset_type, "parentname", count)
         else:
-            result = await generate_children_names(parent_asset_type, "parentname", 10)
-            assert len(result) == 10
+            result = await generate_children_names(
+                parent_asset_type, "parentname", count
+            )
+            assert len(set(result)) == count
 
     @patch("canarytokens.aws_infra.data_generation.save_canarydrop")
     def test_name_generation_usage(self, mock_save, mock_canarydrop):
@@ -210,7 +216,7 @@ class TestStateManagement:
             (
                 AWSInfraState.CHECK_ROLE | AWSInfraState.SUCCEEDED,
                 AWSInfraState.SETUP_INGESTION,
-                True,
+                False,
             ),
             (AWSInfraState.INVENTORY, AWSInfraState.SETUP_INGESTION, False),
             (
@@ -236,7 +242,7 @@ class TestStateManagement:
             (
                 AWSInfraState.SETUP_INGESTION | AWSInfraState.SUCCEEDED,
                 AWSInfraState.CHECK_ROLE,
-                False,
+                True,
             ),
         ],
     )
@@ -255,3 +261,77 @@ class TestStateManagement:
         else:
             with pytest.raises(AWSInfraOperationNotAllowed):
                 update_state(mock_canarydrop, next_state)
+
+
+VALID_PLAN = {
+    "S3Bucket": [
+        {
+            "bucket_name": "test-bucket-123",
+            "objects": ["file1.txt", "file2.pdf"],
+            "off_inventory": False,
+        }
+    ],
+    "SQSQueue": [{"sqs_queue_name": "test-queue-456", "off_inventory": False}],
+    "SSMParameter": [{"ssm_parameter_name": "test-param", "off_inventory": False}],
+    "SecretsManagerSecret": [{"secret_name": "test-secret", "off_inventory": False}],
+    "DynamoDBTable": [
+        {
+            "table_name": "TestTable",
+            "table_items": ["item1", "item2"],
+            "off_inventory": False,
+        }
+    ],
+}
+
+
+class TestPlanGenerationValidation:
+    """Test cases for AWS Infrastructure Plan validation."""
+
+    @pytest.mark.parametrize(
+        "asset",
+        [
+            {"bucket_name": "Bucket-name-123"},
+            {"bucket_name": "xn--invalid-bucket"},
+            {"sqs_queue_name": "invalid-queue.name"},
+            {"ssm_parameter_name": "aws-invalid-param"},
+            {"ssm_parameter_name": "/invalid/param"},
+            {"secret_name": "invalid..secret"},
+            {"table_name": "ab"},
+        ],
+    )
+    def test_asset_name_invalid(self, asset):
+        """Test invalid asset name."""
+        with pytest.raises(ValueError):
+            AWSInfraAsset(**asset)
+
+    def test_aws_infra_plan_valid_creation(self):
+        """Test creating a valid AWS infrastructure plan."""
+        plan = AWSInfraPlan.parse_obj(VALID_PLAN)
+        assert plan.validation_errors is None
+
+    @patch("canarytokens.aws_infra.plan_generation.get_current_assets")
+    def test_aws_infra_plan_with_canarydrop_context(
+        self, mock_get_assets, mock_canarydrop
+    ):
+        """Test plan validation with canarydrop context."""
+
+        mock_get_assets.return_value = MOCK_INVENTORY_DATA
+
+        plan_data = {
+            "S3Bucket": [
+                {
+                    "bucket_name": MOCK_INVENTORY_DATA["S3Bucket"][0],
+                    "off_inventory": False,
+                }  # Exists in inventory
+            ]
+        }
+
+        plan = AWSInfraPlan.from_dict_with_canarydrop(plan_data, mock_canarydrop)
+        assert plan.validation_errors is not None
+        assert "already exists in AWS account" in plan.validation_errors[0]
+
+    def test_event_pattern_length_calculation(self):
+        """Test event pattern length calculation function."""
+
+        length = _get_event_pattern_length(VALID_PLAN, "us-east-1")
+        assert length == 567
