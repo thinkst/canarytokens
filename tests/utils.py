@@ -703,8 +703,10 @@ def trigger_http_token(
     if version.live:
         token_url: HttpUrl = token_info.token_url
     else:
-        turl: HttpUrl = token_info.token_url
-        token_url = f"{turl.scheme}://{version.canarytokens_domain}:8083{turl.path}"
+        if isinstance(token_info.token_url, HttpUrl):
+            token_url = f"{token_info.token_url.scheme}://{version.canarytokens_domain}:8083{token_info.token_url.path}"
+        else:
+            token_url = token_info.token_url
 
     _method_func = getattr(requests, method.lower())
     return _method_func(
