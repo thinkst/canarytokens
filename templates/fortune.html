@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />{% if redirect_url %}
-    <noscript><meta http-equiv="refresh" content="0; {{redirect_url|e}}"></noscript>
-{% endif %}{% if include_pale_blue_dot %}{% include 'pale_blue_dot/head.html' %}{% endif %}
+    <meta charset="UTF-8" />
+{% if redirect_url %}    <noscript><meta http-equiv="refresh" content="0; {{redirect_url|e}}"></noscript>{% endif %}
+{% if include_pale_blue_dot %}{% include 'pale_blue_dot/head.html' %}{% endif %}
   </head>
   {{'<body class="stars"></body>'if include_pale_blue_dot else '<body>'}}
 {% if include_pale_blue_dot %}{% include 'pale_blue_dot/body.html' %}{% endif %}
