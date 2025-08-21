@@ -151,7 +151,6 @@ class FrontendSettings(BaseSettings):
     AWS_ACCESS_KEY_ID: Optional[str]
     AWS_SECRET_ACCESS_KEY: Optional[str]
     AWS_SESSION_TOKEN: Optional[str]
-    DEV = False
 
     class Config:
         allow_mutation = False

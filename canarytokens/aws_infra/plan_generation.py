@@ -176,6 +176,7 @@ class AWSInfraPlan(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+        extra = "allow"
 
 
 @dataclass
