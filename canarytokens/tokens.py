@@ -713,7 +713,6 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
-            # set response mimetype
             request.setHeader("Content-Type", "text/html")
             if canarydrop.browser_scanner_enabled:
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
@@ -724,9 +723,8 @@ class Canarytoken(object):
                     "include_browser_scanner": True,
                     "include_pale_blue_dot": True,
                 }
-            elif queries.get_return_for_token() == "fortune":  # gif
+            elif queries.get_return_for_token() == "fortune":
                 template_params = {
-                    # "request": request,
                     "include_pale_blue_dot": True,
                 }
             template = get_template_env().get_template("fortune.html")
@@ -806,10 +804,8 @@ class Canarytoken(object):
         _check_and_add_cors_headers(request)
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
-            # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
-            # read custom image
             with canarydrop.web_image_path.open(mode="rb") as fp:
                 contents = fp.read()
             return contents
@@ -866,7 +862,6 @@ class Canarytoken(object):
             return template.render(**template_params).encode()
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
-            # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
             # read custom image
