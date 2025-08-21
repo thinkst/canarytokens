@@ -1437,8 +1437,8 @@ def _(
 def _(
     token_request_details: WebBugTokenRequest, canarydrop: Canarydrop
 ) -> WebBugTokenResponse:
-    canarydrop.browser_scanner_enabled = True
-    save_canarydrop(canarydrop)
+    # TODO: add browser_scanner_enabled to WebBugTokenRequest
+    # canarydrop.browser_scanner_enabled = True
 
     return WebBugTokenResponse(
         email=canarydrop.alert_email_recipient or "",
@@ -2113,7 +2113,8 @@ def _(
 ) -> IdPAppTokenResponse:
     canarydrop.idp_app_entity_id = canarydrop.generated_url.removesuffix("/saml/sso")
     canarydrop.idp_app_type = token_request_details.app_type
-    canarydrop.browser_scanner_enabled = True
+    if not canarydrop.redirect_url:
+        canarydrop.browser_scanner_enabled = True
     save_canarydrop(canarydrop)
 
     return IdPAppTokenResponse(
