@@ -800,7 +800,7 @@ class Canarytoken(object):
                 request.setHeader("Content-Type", "text/html")
                 template_params = {
                     "request": request,
-                    "include_pale_blue_dot.html": True,
+                    "include_pale_blue_dot": True,
                 }
             template = get_template_env().get_template("fortune.html")
             return template.render(**template_params).encode()
