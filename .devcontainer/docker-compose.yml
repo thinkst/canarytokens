@@ -18,8 +18,6 @@ services:
       # Update this to wherever you want VS Code to mount the folder of your project
       - ..:/workspace:cached
       # ignore directories not needed by the container
-      - /workspace/cypress-tests
-      - /workspace/.github
       - $HOME/Work/.gitconfig:/workspace/.gitconfig:ro
       - uploads:/uploads/
     ports:
