@@ -20,8 +20,6 @@ services:
       # ignore directories not needed by the container
       - /workspace/cypress-tests
       - /workspace/.github
-      - /workspace/dist
-      - /workspace/frontend_vue/node_modules
       - $HOME/Work/.gitconfig:/workspace/.gitconfig:ro
       - uploads:/uploads/
     ports:

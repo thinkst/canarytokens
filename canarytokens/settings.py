@@ -117,7 +117,7 @@ class FrontendSettings(BaseSettings):
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
-    CLOUDFRONT_URL: Optional[HttpUrl]
+    CLOUDFRONT_URL: HttpUrl = "https://SET-CLOUDFRONT-URL-IN-FRONTEND-DOT-ENV.invalid"
     CLOUDFLARE_ACCOUNT_ID: Optional[str] = ""
     CLOUDFLARE_NAMESPACE: Optional[str] = ""
     CLOUDFLARE_API_TOKEN: Optional[str] = ""
