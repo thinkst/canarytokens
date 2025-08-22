@@ -723,12 +723,14 @@ class Canarytoken(object):
                     "include_browser_scanner": True,
                     "include_pale_blue_dot": True,
                 }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
             elif queries.get_return_for_token() == "fortune":
                 template_params = {
                     "include_pale_blue_dot": True,
                 }
-            template = get_template_env().get_template("fortune.html")
-            return template.render(**template_params).encode()
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         request.setHeader("Content-Type", "image/gif")
         return GIF
@@ -792,14 +794,16 @@ class Canarytoken(object):
                     "include_browser_scanner": True,
                     "include_pale_blue_dot": True,
                 }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
             elif queries.get_return_for_token() == "fortune":
                 request.setHeader("Content-Type", "text/html")
                 template_params = {
                     "request": request,
                     "include_pale_blue_dot": True,
                 }
-            template = get_template_env().get_template("fortune.html")
-            return template.render(**template_params).encode()
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         _check_and_add_cors_headers(request)
 
@@ -852,14 +856,16 @@ class Canarytoken(object):
                     "include_browser_scanner": True,
                     "include_pale_blue_dot": True,
                 }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
             elif queries.get_return_for_token() == "fortune":
                 request.setHeader("Content-Type", "text/html")
                 template_params = {
                     "request": request,
                     "include_pale_blue_dot": True,
                 }
-            template = get_template_env().get_template("fortune.html")
-            return template.render(**template_params).encode()
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
