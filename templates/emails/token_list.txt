@@ -1,0 +1,11 @@
+Your Canarytokens
+-----------------
+
+Here are the Canarytokens registered to your email address.
+{% if token_list_length > LIMIT %}You have more than {{LIMIT}} Canarytokens, so only the latest {{LIMIT}} are included.{% endif %}
+{% for canarydrop in token_list %}
+  Date: {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC
+  Type: {{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}
+  Token ID: {{canarydrop.canarytoken.value()}}
+  Link: {{canarydrop.build_manage_url(switchboard_scheme, public_domain)}}
+{% endfor %}

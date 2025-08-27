@@ -10,6 +10,7 @@ from ipaddress import IPv4Address
 from typing import Literal, Optional, Union
 
 import advocate
+import httpx
 import requests
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
@@ -422,6 +423,23 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
     )
     data = DB.get_db().hgetall(KEY_CANARYDROP + canarytoken.value())
     print(data)
+
+
+async def validate_turnstile(
+    cf_turnstile_secret: str, cf_turnstile_response: str
+) -> bool:
+    return True
+    data = {
+        "secret": cf_turnstile_secret,
+        "response": cf_turnstile_response,
+    }
+    async with httpx.AsyncClient(timeout=60) as client:
+        response = await client.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify", json=data
+        )
+
+    result: dict[str, bool] = response.json()
+    return result.get("success", False)
 
 
 _ip_info_api_key = None

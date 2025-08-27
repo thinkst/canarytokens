@@ -11,7 +11,7 @@ from pydantic import BaseModel, HttpUrl, parse_obj_as, validator
 from canarytokens import constants
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
 from canarytokens.models import (
-    readable_token_type_names,
+    READABLE_TOKEN_TYPE_NAMES,
     Memo,
     TokenTypes,
     TokenAlertDetails,
@@ -881,5 +881,5 @@ class TokenExposedDetailGeneric(TokenExposedDetails):
 
 def _get_exposed_token_description(token_type: TokenTypes) -> str:
     return TOKEN_EXPOSED_DESCRIPTION.format(
-        readable_type=readable_token_type_names[token_type]
+        readable_type=READABLE_TOKEN_TYPE_NAMES[token_type]
     )
