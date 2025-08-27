@@ -312,7 +312,7 @@ class TokenTypes(str, enum.Enum):
         return str(self.value)
 
 
-token_types_with_article_an = [
+TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.ADOBE_PDF,
     TokenTypes.AWS_KEYS,
     TokenTypes.AZURE_ID,
@@ -322,7 +322,7 @@ token_types_with_article_an = [
     TokenTypes.SVN,
 ]
 
-readable_token_type_names = {
+READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.WEB: "Web bug",
     TokenTypes.DNS: "DNS",
     TokenTypes.WEB_IMAGE: "Custom image",
@@ -2697,6 +2697,11 @@ class DownloadGetRequestModel(BaseModel):
     fmt: str
 
 
+class FetchLinksRequest(BaseModel):
+    email: str
+    cf_turnstile_response: str
+
+
 class CanarydropSettingsTypes(str, enum.Enum):
     """Enumerates all supported canarydrop settings types"""
 
@@ -2758,6 +2763,10 @@ class SettingsResponse(BaseModel):
 
 
 class DeleteResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
+class FetchLinksResponse(BaseModel):
     message: Literal["success", "failure"]
 
 
