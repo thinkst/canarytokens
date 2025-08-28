@@ -45,7 +45,7 @@
     <mj-section padding="10px 0 0px 0px" border-radius="30px 30px 0 0" background-color="#ec4f41">
       <!--Logo -->
       <mj-column width="40%">
-        <mj-image src="http://{{ public_domain }}/resources/notification-email/token_logo.png" alt="Canarytokens" align="center" border="none" padding="0px" height="94px" />
+        <mj-image src="https://{{ public_domain }}/resources/notification-email/token_logo.png" alt="Canarytokens" align="center" border="none" padding="0px" height="94px" />
       </mj-column>
     </mj-section>
 
@@ -56,7 +56,7 @@
       <!--Alert Top details -->
       <mj-section padding="20px 0px 0px" border-radius="16px 16px" background-color="#F6F7FA">
         <mj-column background-color="#f6f8fb" padding-bottom="30px" border-radius="0 0 16px 16px">
-          <mj-image src="http://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/web.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
+          <mj-image src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/web.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
           <mj-text color="#060606" font-weight="bold" align="center" font-size="24px">
             Your Canarytokens</mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center">
@@ -80,7 +80,7 @@
           <mj-table>
             <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="http://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="40px" />
+                <img align="center" src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="40px" />
               </td>
               <td style="vertical-align: top;">
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Date</p>
