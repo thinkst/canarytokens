@@ -976,7 +976,7 @@ async def api_download(
     tags=["Fetch Canarytokens"],
     response_model=FetchLinksResponse,
 )
-async def mail_token_list(request: FetchLinksRequest) -> JSONResponse:
+async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
     if not request.cf_turnstile_response:
         return JSONResponse(content={"message": "failure"}, status_code=UNAUTHORIZED)
     if not is_valid_email(request.email):
@@ -988,7 +988,7 @@ async def mail_token_list(request: FetchLinksRequest) -> JSONResponse:
         return JSONResponse(content={"message": "failure"}, status_code=UNAUTHORIZED)
 
     token_set = queries.list_email_tokens(request.email)
-    LIMIT = 3
+    LIMIT = frontend_settings.TOKENS_FETCH_LIMIT
     if token_set:
         drops = map(lambda token: queries.get_canarydrop(Canarytoken(token)), token_set)
         token_list = sorted(
