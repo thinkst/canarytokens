@@ -417,7 +417,6 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
 async def validate_turnstile(
     cf_turnstile_secret: str, cf_turnstile_response: str
 ) -> bool:
-    return True
     data = {
         "secret": cf_turnstile_secret,
         "response": cf_turnstile_response,
