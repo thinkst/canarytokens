@@ -2,6 +2,7 @@
   <BaseGenerateTokenSettings
     ref="awsFormRef"
     setting-type="Canarytoken"
+    class="aws_infra_token_form"
   >
     <BaseFormTextField
       id="aws_account_number"
@@ -34,3 +35,9 @@ import GenerateTokenFormInyoni from './GenerateTokenFormInyoni.vue';
 
 const awsFormRef = ref();
 </script>
+
+<style>
+.aws_infra_token_form {
+  anchor-name: --aws-form;
+}
+</style>

@@ -18,6 +18,7 @@ const props = defineProps<{
 const showInyoni = ref(true);
 const isSmallScreen = ref(false);
 const awsFormRef = toRef(props, 'awsFormRef');
+const supportsAnchorPositioning = CSS.supports('anchor-name', '--value');
 
 onMounted(() => {
   updateInyoniPosition();
@@ -34,6 +35,13 @@ const updateInyoniPosition = debounce(() => {
   } else {
     isSmallScreen.value = false;
   }
+
+  if (!supportsAnchorPositioning) {
+    setStyleForInyoni();
+  }
+}, 200);
+
+const setStyleForInyoni = () => {
   const currentFormWidth = awsFormRef.value?.$el.offsetWidth;
   const currentFormTopDistance =
     awsFormRef.value?.$el.getBoundingClientRect().top + window.scrollY;
@@ -48,7 +56,7 @@ const updateInyoniPosition = debounce(() => {
     '--inyoni-top-position',
     `calc(${currentFormTopDistance}px - 120px)`
   );
-}, 200);
+};
 </script>
 
 <style scoped lang="scss">
@@ -58,8 +66,12 @@ const updateInyoniPosition = debounce(() => {
   position: absolute;
   top: var(--inyoni-top-position);
   left: var(--inyoni-left-position);
-  width: 100%;
   max-width: 400px;
-  z-index: 10;
+
+  @supports (anchor-name: --value) {
+    position-anchor: --aws-form;
+    left: calc(anchor(--aws-form left) - 400px);
+    top: calc(anchor(--aws-form top) - 110px);
+  }
 }
 </style>
