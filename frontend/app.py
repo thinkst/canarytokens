@@ -1065,17 +1065,17 @@ async def api_download(
 async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
     if frontend_settings.CLOUDFLARE_TURNSTILE_SECRET is None:
         return JSONResponse(
-            content={"message": FetchLinksMessage.NOT_CONFIGURED},
+            content={"message": FetchLinksMessage.NOT_CONFIGURED.value},
             status_code=SERVICE_UNAVAILABLE,
         )
     if not request.cf_turnstile_response:
         return JSONResponse(
-            content={"message": FetchLinksMessage.TURNSTILE_REQUIRED},
+            content={"message": FetchLinksMessage.TURNSTILE_REQUIRED.value},
             status_code=UNAUTHORIZED,
         )
     if not is_valid_email(request.email):
         return JSONResponse(
-            content={"message": FetchLinksMessage.INVALID_EMAIL},
+            content={"message": FetchLinksMessage.INVALID_EMAIL.value},
             status_code=BAD_REQUEST,
         )
     if not await queries.validate_turnstile(
@@ -1083,7 +1083,7 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
         cf_turnstile_response=request.cf_turnstile_response,
     ):
         return JSONResponse(
-            content={"message": FetchLinksMessage.INVALID_TURNSTILE},
+            content={"message": FetchLinksMessage.INVALID_TURNSTILE.value},
             status_code=UNAUTHORIZED,
         )
 
@@ -1126,10 +1126,12 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
             or email_response_status == EmailResponseStatuses.ERROR
         ):
             return JSONResponse(
-                content={"message": FetchLinksMessage.SEND_FAIL},
+                content={"message": FetchLinksMessage.SEND_FAIL.value},
                 status_code=SERVICE_UNAVAILABLE,
             )
-    return JSONResponse(content={"message": FetchLinksMessage.SUCCESS}, status_code=OK)
+    return JSONResponse(
+        content={"message": FetchLinksMessage.SUCCESS.value}, status_code=OK
+    )
 
 
 @api.get("/commitsha")
