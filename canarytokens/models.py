@@ -2835,8 +2835,17 @@ class EditResponse(BaseModel):
     message: Literal["success", "failure"]
 
 
+class FetchLinksMessage(enum.Enum):
+    NOT_CONFIGURED = "failed: cloudflare turnstile not configured"
+    TURNSTILE_REQUIRED = "failed: turnstile required"
+    INVALID_EMAIL = "failed: invalid email"
+    INVALID_TURNSTILE = "failed: invalid turnstile"
+    SEND_FAIL = "failed: could not send mail"
+    SUCCESS = "success"
+
+
 class FetchLinksResponse(BaseModel):
-    message: Literal["success", "failure"]
+    message: FetchLinksMessage
 
 
 class ManageTokenSettingsRequest(BaseModel):
