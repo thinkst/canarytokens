@@ -1088,7 +1088,6 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
         )
 
     token_set = queries.list_email_tokens(request.email)
-    LIMIT = frontend_settings.TOKENS_FETCH_LIMIT
     if token_set:
         drops = filter(
             None,
@@ -1099,8 +1098,10 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
         )
         template_params = {
             "READABLE_TOKEN_TYPE_NAMES": READABLE_TOKEN_TYPE_NAMES,
-            "LIMIT": LIMIT,
-            "token_list": list(islice(token_list, LIMIT)),
+            "LIMIT": frontend_settings.TOKENS_FETCH_LIMIT,
+            "token_list": list(
+                islice(token_list, frontend_settings.TOKENS_FETCH_LIMIT)
+            ),
             "token_list_length": len(token_list),
             "public_domain": frontend_settings.DOMAINS[0],
             "switchboard_scheme": switchboard_settings.SWITCHBOARD_SCHEME,
