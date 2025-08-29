@@ -10,7 +10,12 @@ import base64
 import datetime
 import errno
 import hashlib
-from http.client import BAD_REQUEST, OK, UNAUTHORIZED
+from http.client import (
+    BAD_REQUEST,
+    OK,
+    SERVICE_UNAVAILABLE,
+    UNAUTHORIZED,
+)
 from itertools import islice
 import os
 import textwrap
@@ -66,6 +71,7 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    FetchLinksMessage,
     FetchLinksRequest,
     FetchLinksResponse,
     WindowsFakeFSTokenRequest,
@@ -977,20 +983,37 @@ async def api_download(
     response_model=FetchLinksResponse,
 )
 async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
+    if frontend_settings.CLOUDFLARE_TURNSTILE_SECRET is None:
+        return JSONResponse(
+            content={"message": FetchLinksMessage.NOT_CONFIGURED},
+            status_code=SERVICE_UNAVAILABLE,
+        )
     if not request.cf_turnstile_response:
-        return JSONResponse(content={"message": "failure"}, status_code=UNAUTHORIZED)
+        return JSONResponse(
+            content={"message": FetchLinksMessage.TURNSTILE_REQUIRED},
+            status_code=UNAUTHORIZED,
+        )
     if not is_valid_email(request.email):
-        return JSONResponse(content={"message": "failure"}, status_code=BAD_REQUEST)
+        return JSONResponse(
+            content={"message": FetchLinksMessage.INVALID_EMAIL},
+            status_code=BAD_REQUEST,
+        )
     if not await queries.validate_turnstile(
         cf_turnstile_secret=frontend_settings.CLOUDFLARE_TURNSTILE_SECRET,
         cf_turnstile_response=request.cf_turnstile_response,
     ):
-        return JSONResponse(content={"message": "failure"}, status_code=UNAUTHORIZED)
+        return JSONResponse(
+            content={"message": FetchLinksMessage.INVALID_TURNSTILE},
+            status_code=UNAUTHORIZED,
+        )
 
     token_set = queries.list_email_tokens(request.email)
     LIMIT = frontend_settings.TOKENS_FETCH_LIMIT
     if token_set:
-        drops = map(lambda token: queries.get_canarydrop(Canarytoken(token)), token_set)
+        drops = filter(
+            None,
+            map(lambda token: queries.get_canarydrop(Canarytoken(token)), token_set),
+        )
         token_list = sorted(
             drops, key=lambda canarydrop: canarydrop.created_at, reverse=True
         )
@@ -1007,9 +1030,9 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
             f"emails/_generated_dont_edit_{html_template_name}"
         )
         txt_template = get_template_env().get_template("emails/token_list.txt")
-        html_body = html_template.render(**template_params).encode()
-        txt_body = txt_template.render(**template_params).encode()
-        email_response_status, message_id = send_email(
+        html_body = html_template.render(**template_params)
+        txt_body = txt_template.render(**template_params)
+        email_response_status, _ = send_email(
             switchboard_settings=switchboard_settings,
             email_recipient=request.email,
             email_subject="Thinkst Canary: Your Canarytokens",
@@ -1022,10 +1045,11 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
             email_response_status is None
             or email_response_status == EmailResponseStatuses.ERROR
         ):
-            print(
-                f"Failed to deliver token list mail for {request.email}: {email_response_status=}; {message_id=}"
+            return JSONResponse(
+                content={"message": FetchLinksMessage.SEND_FAIL},
+                status_code=SERVICE_UNAVAILABLE,
             )
-    return JSONResponse(content={"message": "success"}, status_code=OK)
+    return JSONResponse(content={"message": FetchLinksMessage.SUCCESS}, status_code=OK)
 
 
 @api.get("/commitsha")
