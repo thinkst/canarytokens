@@ -72,7 +72,8 @@ class EmailTemplates(str, enum.Enum):
     NOTIFICATION_TOKEN_EXPOSED = (
         "emails/_generated_dont_edit_notification_token_exposed.html"
     )
-    NOTIFICATION = "emails/_generated_dont_edit_notification.html"
+    NOTIFICATION_HTML = "emails/_generated_dont_edit_notification.html"
+    NOTIFICATION_TXT = "emails/notification.txt"
 
 
 class EmailResponse(object):
@@ -389,24 +390,68 @@ class EmailOutputChannel(OutputChannel):
         return minify_html.minify(rendered_html)
 
     @staticmethod
-    def format_report_text(details: TokenAlertDetails):
+    def format_report_text(
+        details: TokenAlertDetails,
+        template_path: Path,
+    ):
         """Returns a string containing an incident report in text,
         suitable for emailing"""
 
-        additional_data = "\n" + "\n".join(
-            f"{k}: {v}" for k, v in details.additional_data.items()
+        # Use the Flask app context to render the emails
+        # (this generates the urls + schemes correctly)
+        readable_type = readable_token_type_names[details.token_type]
+        BasicDetails = details.dict()
+        BasicDetails["readable_type"] = readable_type
+        BasicDetails["token_type"] = details.token_type.value
+
+        if (
+            BasicDetails["additional_data"]
+            and "src_data" in BasicDetails["additional_data"]
+        ):
+            BasicDetails["src_data"] = BasicDetails["additional_data"].pop("src_data")
+
+        additional_data_keys = (
+            list(BasicDetails["additional_data"].keys())
+            if BasicDetails["additional_data"]
+            else []
         )
-        body = textwrap.dedent(
-            f"""
-            One of your canarydrops was triggered.
-            Channel: {details.channel}
-            Time   : {details.time}
-            Memo   : {details.memo}{additional_data}
-            Manage your settings for this Canarydrop:
-            {details.manage_url}
-            """
-        ).strip()
-        return body
+        src_data_keys = (
+            list(BasicDetails["src_data"].keys()) if BasicDetails["src_data"] else []
+        )
+
+        for field_name in additional_data_keys:
+            if BasicDetails["additional_data"][field_name]:
+                BasicDetails[field_name] = BasicDetails["additional_data"].pop(
+                    field_name
+                )
+        BasicDetails.pop("additional_data")
+
+        for field_name in src_data_keys:
+            if BasicDetails["src_data"][field_name]:
+                BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
+        BasicDetails.pop("src_data")
+
+        if "useragent" in BasicDetails and not BasicDetails["useragent"]:
+            BasicDetails.pop("useragent")
+        if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
+            BasicDetails.pop("src_ip")
+        if details.token_type == TokenTypes.PWA and "location" in BasicDetails:
+            BasicDetails["pwa_location"] = BasicDetails.pop("location")
+            latitude = BasicDetails["pwa_location"]["coords"].get("latitude")
+            longitude = BasicDetails["pwa_location"]["coords"].get("longitude")
+            if latitude and longitude:
+                BasicDetails["pwa_location"][
+                    "google_maps_link"
+                ] = f"https://google.com/maps?q={latitude},{longitude}"
+                BasicDetails["pwa_location"][
+                    "apple_maps_link"
+                ] = f"https://maps.apple.com/?q={latitude},{longitude}"
+        return Template(template_path.open().read()).render(
+            Intro=EmailOutputChannel.format_report_intro(details),
+            BasicDetails=BasicDetails,
+            ManageLink=details.manage_url,
+            HistoryLink=details.history_url,
+        )
 
     @staticmethod
     def format_token_exposed_text(details: TokenExposedDetails):
@@ -518,10 +563,16 @@ class EmailOutputChannel(OutputChannel):
                 details,
                 Path(
                     self.switchboard_settings.TEMPLATES_PATH,
-                    f"{EmailTemplates.NOTIFICATION}",
+                    f"{EmailTemplates.NOTIFICATION_HTML}",
                 ),
             )
-            email_content_text = EmailOutputChannel.format_report_text(details)
+            email_content_text = EmailOutputChannel.format_report_text(
+                details,
+                Path(
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION_TXT}",
+                ),
+            )
             email_subject = self.email_subject
 
         if self.switchboard_settings.MAILGUN_API_KEY:
