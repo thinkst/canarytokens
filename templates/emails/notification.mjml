@@ -160,7 +160,7 @@
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Identity</p>
                 <p style="font-weight:400;color:#060606;margin:0;">
-                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['identity']| e}}</a>
+                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['identity'] | e}}</a>
                 </p>
               </td>
             </tr>
@@ -186,7 +186,7 @@
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">User agent</p>
                 <p style="font-weight:400;color:#060606;margin:0;">
-                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['useragent']| e}}</a>
+                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['useragent'] | e}}</a>
                 </p>
               </td>
             </tr>
@@ -282,7 +282,7 @@
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Log4Shell hostname</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['log4_shell_computer_name']| e}}
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['log4_shell_computer_name'] | e}}
                 </p>
               </td>
             </tr>
@@ -307,7 +307,7 @@
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">SQL Server username</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['sql_username']| e}}</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['sql_username'] | e}}</p>
               </td>
             </tr>
 
@@ -359,15 +359,15 @@
               <td>
                 {% if BasicDetails['cmd_process'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Sensitive command</p>
-                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['cmd_process']}}</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['cmd_process'] | e}}</p>
                 {% endif %}
                 {% if BasicDetails['cmd_computer_name'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Executed on</p>
-                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['cmd_computer_name']}}</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['cmd_computer_name'] | e}}</p>
                 {% endif %}
                 {% if BasicDetails['cmd_user_name'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Run by</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['cmd_user_name']}}</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['cmd_user_name'] | e}}</p>
                 {% endif %}
               </td>
             </tr>
@@ -394,11 +394,11 @@
               <td>
                 {% if BasicDetails['windows_fake_fs_file_name'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">File opened</p>
-                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['windows_fake_fs_file_name']}}</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['windows_fake_fs_file_name'] | e}}</p>
                 {% endif %}
                 {% if BasicDetails['windows_fake_fs_process_name'] %}
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Opened by</p>
-                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['windows_fake_fs_process_name']}}</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">{{BasicDetails['windows_fake_fs_process_name'] | e}}</p>
                 {% endif %}
               </td>
             </tr>
