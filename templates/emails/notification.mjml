@@ -11,7 +11,7 @@
   Or install MJML globally and compile your MJML files into HTML files:
   1. Install MJML: `npm install -g mjml`.
   2. Create an MJML file: Write your email template using MJML tags.
-  3. Compile the MJML file: Use the command `mjml input.mjml -o output.html` to compile your MJML file into an HTML file.
+  3. Compile the MJML file: Use the command `mjml notification.mjml -o _generated_dont_edit_notification.html` to compile your MJML file into an HTML file.
   4. Use the generated HTML: The output HTML file can be used in your email campaigns.
 
 
