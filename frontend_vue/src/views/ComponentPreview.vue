@@ -1,4 +1,13 @@
 <template>
+  <div class="relative">
+    <h1>Inyoni chirping</h1>
+    <div class="w-[50vw] m-24">
+      <BaseInyoniMessage
+        v-model="showInyoni"
+        text="Here's an example of the Inyoni component in action! You can close me by clicking the 'X' button."
+      />
+    </div>
+  </div>
   <div>
     <hr class="my-24" />
     <h1>Bullet List</h1>
@@ -468,6 +477,7 @@ const currentStep = ref(1);
 const checkBoxValue = ref(false);
 const checkBoxDisabledValue = ref(false);
 const checkBoxTooltipValue = ref(false);
+const showInyoni = ref(true);
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;

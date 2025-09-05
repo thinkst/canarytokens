@@ -1,5 +1,9 @@
 <template>
-  <BaseGenerateTokenSettings setting-type="Canarytoken">
+  <BaseGenerateTokenSettings
+    ref="awsFormRef"
+    setting-type="Canarytoken"
+    class="aws_infra_token_form"
+  >
     <BaseFormTextField
       id="aws_account_number"
       type="text"
@@ -17,12 +21,23 @@
       searchable
     />
   </BaseGenerateTokenSettings>
+  <GenerateTokenFormInyoni :aws-form-ref="awsFormRef" />
   <GenerateTokenSettingsNotifications
     memo-helper-example="A memo placeholder"
   />
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 import { AWS_REGIONS } from './constants';
+import GenerateTokenFormInyoni from './GenerateTokenFormInyoni.vue';
+
+const awsFormRef = ref();
 </script>
+
+<style>
+.aws_infra_token_form {
+  anchor-name: --aws-form;
+}
+</style>
