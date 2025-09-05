@@ -1106,12 +1106,12 @@
                                               <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
                                                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px">
                                               </td>
-                                              <td style="vertical-align: top;"> {% if BasicDetails['decoy_resource']['asset_type'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Asset Type</p>
+                                              <td style="vertical-align: top;"> {% if BasicDetails['additional_info']['decoy_resource']['asset_type'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Asset Type</p>
                                                 <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
-                                                  <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['decoy_resource']['asset_type']}}</a>
-                                                </p> {% endif %} {% if BasicDetails['decoy_resource']['Asset Name'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Asset Name</p>
+                                                  <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['decoy_resource']['asset_type']}}</a>
+                                                </p> {% endif %} {% if BasicDetails['additional_info']['decoy_resource']['Asset Name'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Asset Name</p>
                                                 <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
-                                                  <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['decoy_resource']['Asset Name']}}</a>
+                                                  <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['decoy_resource']['Asset Name']}}</a>
                                                 </p> {% endif %}
                                               </td>
                                             </tr>
