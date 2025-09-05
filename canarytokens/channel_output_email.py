@@ -379,6 +379,9 @@ class EmailOutputChannel(OutputChannel):
                 BasicDetails["pwa_location"][
                     "apple_maps_link"
                 ] = f"https://maps.apple.com/?q={latitude},{longitude}"
+
+        print("** basic details")
+        print(BasicDetails)
         rendered_html = Template(template_path.open().read()).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),
@@ -497,6 +500,8 @@ class EmailOutputChannel(OutputChannel):
                 host=self.switchboard_settings.PUBLIC_DOMAIN,
                 protocol=self.switchboard_scheme,
             )
+        print("** details")
+        print(details)
 
         queries.add_mail_to_send_status(
             recipient=canarydrop.alert_email_recipient,
@@ -523,6 +528,9 @@ class EmailOutputChannel(OutputChannel):
             )
             email_content_text = EmailOutputChannel.format_report_text(details)
             email_subject = self.email_subject
+
+        print("** html")
+        print(email_content_html)
 
         if self.switchboard_settings.MAILGUN_API_KEY:
             email_response_status, message_id = mailgun_send(
