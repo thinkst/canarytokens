@@ -120,6 +120,7 @@ def _build_operation_payload(
             "role_name": canarydrop.aws_infra_inventory_role,
             "region": canarydrop.aws_region,
             "assets_types": [asset_type.value for asset_type in AWSInfraAssetType],
+            "plan_mode": "create" if not is_ingesting(canarydrop) else "edit",
         }
 
     elif operation == AWSInfraOperationType.SETUP_INGESTION:
