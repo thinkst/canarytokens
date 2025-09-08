@@ -11,7 +11,7 @@
   Or install MJML globally and compile your MJML files into HTML files:
   1. Install MJML: `npm install -g mjml`.
   2. Create an MJML file: Write your email template using MJML tags.
-  3. Compile the MJML file: Use the command `mjml input.mjml -o output.html` to compile your MJML file into an HTML file.
+  3. Compile the MJML file: Use the command `mjml notification.mjml -o _generated_dont_edit_notification.html` to compile your MJML file into an HTML file.
   4. Use the generated HTML: The output HTML file can be used in your email campaigns.
 
 
@@ -495,6 +495,41 @@
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">WebDAV Client User-Agent</p>
                 <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
                   <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['useragent'] | e}}</a>
+                </p>
+              {% endif %}
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-raw>{% endif %}</mj-raw>
+
+
+
+    <!-- AWS Infra asset type and name -->
+    <mj-raw>{% if BasicDetails['token_type'] == 'aws_infra' %}</mj-raw>
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+              </td>
+              <td style="vertical-align: top;">
+              {% if BasicDetails['additional_info']['decoy_resource']['asset_type'] %}
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Asset Type</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
+                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['decoy_resource']['asset_type']}}</a>
+                </p>
+              {% endif %}
+              {% if BasicDetails['additional_info']['decoy_resource']['Asset Name'] %}
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Asset Name</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
+                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['decoy_resource']['Asset Name']}}</a>
                 </p>
               {% endif %}
               </td>
