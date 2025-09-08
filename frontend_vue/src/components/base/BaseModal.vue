@@ -11,7 +11,7 @@
   >
     <div
       class="absolute inset-[0px] h-full overflow-auto sm:flex p-16"
-      @click.self="() => emit('update:modelValue', false)"
+      @click.self="handleOverlayClick"
     >
       <div
         class="md:w-[60vw] lg:w-[50vw] mx-auto bg-white rounded-3xl max-w-screen-lg sm:self-center my-auto"
@@ -56,7 +56,7 @@
         <div
           v-bind="$attrs"
           class="flex flex-col items-center justify-center px-16 py-16 sm:px-32 bg-grey-50 text-grey-800"
-          :class="[{ 'pb-24 rounded-b-3xl': hideFooter }, contentSlotClasses]"
+          :class="[{ 'pb-24 rounded-b-3xl': hideFooter }, props.contentClass]"
         >
           <!-- Default slot -->
           <slot></slot>
@@ -77,24 +77,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { VueFinalModal } from 'vue-final-modal';
 
-const props = defineProps<{
-  hasCloseButton: boolean;
-  title: string;
-  hideFooter?: boolean;
-  contentClass?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    hasCloseButton: boolean;
+    title: string;
+    hideFooter?: boolean;
+    contentClass?: string;
+    clickToClose?: boolean;
+  }>(),
+  {
+    clickToClose: true,
+    contentClass: '',
+  }
+);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'handleBackButton', value: false): void;
 }>();
 
-const contentSlotClasses = computed(() => {
-  return props.contentClass ? props.contentClass : '';
-});
+function handleOverlayClick() {
+  if (props.clickToClose) {
+    emit('update:modelValue', false);
+  }
+}
 
 const modalCustomTransition = {
   'enter-active-class': 'ease-out duration-300',
