@@ -22,12 +22,11 @@
       alt="Loading"
       class="w-[15rem] h-[15rem] mt-40"
     />
-    <p class="mt-40">Please, don't close this window</p>
+    <p class="mt-40">Please, don't close this window.</p>
   </div>
 </template>
 
 <script setup lang="ts">
-
 import getImageUrl from '@/utils/getImageUrl';
 
 const props = defineProps<{

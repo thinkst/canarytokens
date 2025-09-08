@@ -3,6 +3,7 @@
     :title="`${assetLabel} Decoys`"
     :has-close-button="true"
     class="flex flex-row items-stretch"
+    @update:model-value="handleCloseModal"
   >
     <!-- Back Button-->
     <template #header-btn-left>
