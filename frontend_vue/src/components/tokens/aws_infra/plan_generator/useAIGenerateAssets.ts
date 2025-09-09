@@ -17,6 +17,17 @@ export function useAIGeneratedAssets(
   isLoadingAssetCard: Ref<Record<AssetTypesEnum, boolean>>
 ) {
   const isAiGenerateErrorMessage = ref('');
+  const aiGeneratedAssetsCount = ref(0);
+
+  function countAIGeneratedAssets(planData: ProposedAWSInfraTokenPlanData) {
+    let totalAssets = 0;
+    Object.values(planData).forEach((assets) => {
+      if (assets) {
+        totalAssets += assets.length;
+      }
+    });
+    aiGeneratedAssetsCount.value = totalAssets;
+  }
 
   async function fetchAIgeneratedAssets(
     initialAssetData: ProposedAWSInfraTokenPlanData
@@ -39,6 +50,12 @@ export function useAIGeneratedAssets(
       if (res.status === 429) {
         isAiGenerateErrorMessage.value =
           'You have reached your limit for AI-generated decoy names. You can continue with manual setup.';
+
+        const dataGenerationRemaining = Math.floor(
+        res.data.data_generation_remaining
+        );
+        updateAiCurrentAvailableNamesCount(dataGenerationRemaining);
+
         return;
       }
 
@@ -60,6 +77,7 @@ export function useAIGeneratedAssets(
       }
 
       assetsData.value = { ...assetsData.value, ...updatedPlanData };
+      countAIGeneratedAssets(assetsData.value);
     } catch (err: any) {
       isAiGenerateErrorMessage.value =
         err.data?.message ||
@@ -72,5 +90,6 @@ export function useAIGeneratedAssets(
   return {
     isAiGenerateErrorMessage,
     fetchAIgeneratedAssets,
+    aiGeneratedAssetsCount,
   };
 }

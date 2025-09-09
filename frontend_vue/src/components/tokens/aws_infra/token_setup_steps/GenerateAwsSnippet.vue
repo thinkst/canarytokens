@@ -49,15 +49,14 @@
                 class="w-[5rem]"
               />
             </div>
-            <h2 class="text-2xl mb-16">Execute the AWS CLI snippet below</h2>
             <p>
-              Run these commands to grant read-only access so we can inventory
-              your accound and suggest decoy resources.
-            </p>
-            <p>
-              <span class="font-bold text-green-500">Plase note:</span> We send
-              limited inventory data to Google's Gemini to generate realistic
-              decoy names.
+              Execute the AWS CLI snippet below. These commands create a
+              read-only IAM role (
+              <span class="monospace">{{ roleName }}</span> ) and policy (
+              <span class="monospace"
+                >Canarytokens-Inventory-ReadOnly-Policy</span
+              >
+              ).
             </p>
           </div>
           <BaseLabelArrow
@@ -382,5 +381,9 @@ aws iam attach-role-policy --role-name ${roleName.value} --policy-arn arn:aws:ia
   :deep(pre) > code {
     white-space: pre-wrap;
   }
+}
+
+.monospace {
+  font-family: 'Courier New', Courier, monospace;
 }
 </style>

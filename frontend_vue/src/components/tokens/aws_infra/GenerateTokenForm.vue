@@ -23,7 +23,7 @@
   </BaseGenerateTokenSettings>
   <GenerateTokenFormInyoni :aws-form-ref="awsFormRef" />
   <GenerateTokenSettingsNotifications
-    memo-helper-example="A memo placeholder"
+    memo-helper-example="Production Account"
   />
 </template>
 

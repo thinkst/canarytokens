@@ -2,7 +2,7 @@
   <div class="infra-token__title-wrapper">
     <div class="grid md:grid-cols-3 gap-16 justify-center items-center">
       <span></span>
-      <h2>Design your Decoys</h2>
+      <h2>Review your Decoys</h2>
       <div
         class="flex flex-row items-center md:justify-end gap-16 justify-center"
       >
@@ -59,32 +59,14 @@
       {{ isAiGenerateErrorMessage }}
     </BaseMessageBox>
     <div>
-      <div v-if="!getAnyLoadingAssetData()">
+      <div v-if="!getAnyLoadingAssetData() && !isAiGenerateErrorMessage">
         <BaseMessageBox
-          v-if="totalAiQuota > 0 && availableAiQuota > 0"
-          variant="success"
+          :variant="getPlanIntroMessageVariant"
           class="mb-24"
-          >We analyzed your AWS account. Below are the recommended decoys that
-          have been generated to match your environment for each asset. You can
-          review or edit anything before we generate your
-          Canarytoken.</BaseMessageBox
         >
-        <BaseMessageBox
-          v-else
-          variant="success"
-          class="mb-24"
-          >We analyzed your AWS account. It's not possible to generate decoys
-          for your AWS account because you've run out of credits. However, you
-          can still manually set up the decoys and then generate your
-          Canarytoken.</BaseMessageBox
-        >
+          {{ getPlanIntroMessage }}
+        </BaseMessageBox>
       </div>
-      <BaseMessageBox
-        v-if="isErrorMessage"
-        variant="danger"
-        class="mb-24"
-        >{{ isErrorMessage }}</BaseMessageBox
-      >
       <ul
         class="grid gap-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 auto-rows-fr"
       >
@@ -161,7 +143,6 @@ const {
   is_managing_token,
 } = props.initialStepData;
 
-const isErrorMessage = ref('');
 const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveErrorMessage = ref('');
@@ -190,15 +171,18 @@ const resetAssetCardsLoadingState = () => {
   });
 };
 
-const { isAiGenerateErrorMessage, fetchAIgeneratedAssets } =
-  useAIGeneratedAssets(
-    token,
-    auth_token,
-    assetsData,
-    updateAiCurrentAvailableNamesCount,
-    resetAssetCardsLoadingState,
-    isLoadingAssetCard
-  );
+const {
+  isAiGenerateErrorMessage,
+  fetchAIgeneratedAssets,
+  aiGeneratedAssetsCount,
+} = useAIGeneratedAssets(
+  token,
+  auth_token,
+  assetsData,
+  updateAiCurrentAvailableNamesCount,
+  resetAssetCardsLoadingState,
+  isLoadingAssetCard
+);
 
 onMounted(() => {
   const isExistingSession = props.currentStepData?.proposed_plan;
@@ -245,6 +229,33 @@ const aiCurrentAvailableNamesCountTootlip = computed(() => {
   return availableAiQuota.value > 0
     ? `We generate decoy names with AI. You have ${availableAiQuota.value} names available out of ${totalAiQuota.value}.`
     : 'You have reached your limit for generated names. You can continue with manual setup.';
+});
+
+const getPlanIntroMessageVariant = computed(() => {
+  if (
+    totalAiQuota.value <= 0 &&
+    availableAiQuota.value <= 0 &&
+    !is_managing_token
+  ) {
+    return 'warning';
+  }
+  return 'success';
+});
+
+const getPlanIntroMessage = computed(() => {
+  if (
+    totalAiQuota.value <= 0 &&
+    availableAiQuota.value <= 0 &&
+    !is_managing_token
+  ) {
+    return "We analyzed your AWS account. It's not possible to generate decoys for your AWS account because you've run out of credits. However, you can still manually set up the decoys and then generate your Canarytoken.";
+  }
+
+  if (is_managing_token) {
+    return 'We analysed your account. You can review or edit the decoy resources before we generate your Terraform module.';
+  }
+
+  return `We analysed your account. Based on the names (and quantities) of your existing resources, we suggest adding the following ${aiGeneratedAssetsCount.value} decoy resources into your account. You can review or edit this before we generate your Terraform module.`;
 });
 
 const availableAssets = computed(() => {

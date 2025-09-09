@@ -1,8 +1,10 @@
 <template>
   <BaseModal
     :title="`${assetLabel} Decoys`"
-    :has-close-button="true"
+    :has-close-button="!showAssetDetails ? true : false"
     class="flex flex-row items-stretch"
+    :click-to-close="false"
+    @update:model-value="handleCloseModal"
   >
     <!-- Back Button-->
     <template #header-btn-left>
