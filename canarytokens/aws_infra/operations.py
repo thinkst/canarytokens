@@ -160,7 +160,7 @@ def _get_error_message(
         AWSInfraServiceError.FAILURE_INGESTION_TEARDOWN: "",  # UI does not show this error
         AWSInfraServiceError.FAILURE_INVENTORY_ACCESS_DENIED: f"Could not retrieve the inventory of the AWS account{account} because access was denied. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role{role} that you created for us to inventory your resources.",
         AWSInfraServiceError.FAILURE_INVENTORY_REGION_DISABLED: f"The region{region} is not enabled in the AWS account{account}. Please enable it and try again or choose a different region.",
-        AWSInfraServiceError.FAILURE_INVENTORY_TOKEN_EXISTS: f"There's already a Canarytoken setup in{region} for {account}, so you won't be able to continue. Either edit or delete that Canarytoken through it's Manage link (if you no longer have the Manage link, you can obtain it from the \"My Canarytokens\" link above). If you do delete the Canarytoken, we recommend first running `$ terraform destroy` on the decoy Terraform plan, to remove the decoys from your AWS account before the Canarytoken is removed.",
+        AWSInfraServiceError.FAILURE_INVENTORY_TOKEN_EXISTS: f"There's already a Canarytoken setup in{region} for {account}, so you won't be able to continue. Either edit or delete that Canarytoken through it's Manage link. If you do delete the Canarytoken, we recommend first running `$ terraform destroy` on the decoy Terraform plan, to remove the decoys from your AWS account before the Canarytoken is removed.",
         AWSInfraServiceError.NO_ERROR: "",
         AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
         AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
