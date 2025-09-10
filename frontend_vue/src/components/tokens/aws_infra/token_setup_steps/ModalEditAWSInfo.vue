@@ -110,14 +110,15 @@ async function onSubmit(values: GenericObject) {
 
     if (res.status !== 200) {
       isError.value = true;
-      isErrorMessage.value = res.data.message || 'Could not edit token!';
+      isErrorMessage.value = res.data.message || "Canarytoken can't be edited.";
     }
 
     props.saveData(values);
     props.closeModal();
   } catch (err: any) {
     isError.value = true;
-    isErrorMessage.value = err || 'Could not edit token!';
+    isErrorMessage.value =
+      err.response?.data?.message || "Canarytoken can't be edited.";
   } finally {
     isLoading.value = false;
   }

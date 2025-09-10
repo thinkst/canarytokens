@@ -47,6 +47,7 @@
       </p>
     </div>
     <BaseButton
+      ref="startButtonRef"
       class="mb-24"
       @click="emits('startTokenSetup')"
       >Good to go?</BaseButton
@@ -55,11 +56,18 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, useTemplateRef } from 'vue';
 import getImageUrl from '@/utils/getImageUrl';
 
 const emits = defineEmits<{
   (e: 'startTokenSetup'): void;
 }>();
+
+const startButton = useTemplateRef('startButtonRef');
+
+onMounted(() => {
+  startButton.value?.$el?.focus();
+});
 
 const steps = [
   {

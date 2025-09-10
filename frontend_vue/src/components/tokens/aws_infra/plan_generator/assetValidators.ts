@@ -28,7 +28,7 @@ export const S3Bucket_schema = yup.object().shape({
     .max(63, 'S3 Bucket name must be max 63 characters')
     .matches(
       regexS3BucketNameForbiddenPrefixes,
-      'S3 Bucket can`t start with xn--, sthree-, sthree-configurator, s3alias, s3-, or s3control-'
+      'S3 Bucket can\'t start with xn--, sthree-, sthree-configurator, s3alias, s3-, or s3control-'
     )
     .matches(
       regexS3BucketNameChars,

@@ -89,6 +89,13 @@
     </div>
 
     <div class="flex flex-col items-center mt-32">
+      <BaseMessageBox
+        v-if="isEmptyPlanMessage"
+        class="mb-24"
+        variant="danger"
+        >You haven't added any decoys to your plan. You must have at least one
+        decoy to be able to get alerts.</BaseMessageBox
+      >
       <BaseButton
         :loading="isSavingPlan"
         :disabled="getAnyLoadingAssetData()"
@@ -147,6 +154,7 @@ const isSavingPlan = ref(false);
 const isSaveError = ref(false);
 const isSaveErrorMessage = ref('');
 const isSaveSuccess = ref(false);
+const isEmptyPlanMessage = ref(false);
 const isLoadingUI = ref(true);
 const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   S3Bucket: false,
@@ -272,6 +280,16 @@ const availableAssets = computed(() => {
   );
 });
 
+const isEmptyPlan = computed(() => {
+  return (
+    !assetsData.value.S3Bucket?.length &&
+    !assetsData.value.SQSQueue?.length &&
+    !assetsData.value.SSMParameter?.length &&
+    !assetsData.value.SecretsManagerSecret?.length &&
+    !assetsData.value.DynamoDBTable?.length
+  );
+});
+
 const assetsWithMissingPermissions = computed(() => {
   return Object.entries(assetsData.value)
     .filter(([, assets]) => assets === null)
@@ -347,10 +365,17 @@ async function handleSavePlan() {
   isSaveError.value = false;
   isSaveErrorMessage.value = '';
   isSaveSuccess.value = false;
+  isEmptyPlanMessage.value = false;
 
   const planValues = {
     assets: assetsData.value,
   };
+
+  if (isEmptyPlan.value) {
+    isSavingPlan.value = false;
+    isEmptyPlanMessage.value = true;
+    return;
+  }
 
   try {
     const res = await savePlan(token, auth_token, planValues);
