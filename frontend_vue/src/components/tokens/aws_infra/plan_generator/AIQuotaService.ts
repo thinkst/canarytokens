@@ -14,7 +14,7 @@ export function setTotalAIQuota(total: number) {
 }
 
 export function setAvailableAIQuota(available: number) {
-    AIQuotaState.availableAiQuota = available;
+  AIQuotaState.availableAiQuota = available;
 }
 
 export function getAIQuotaState() {
