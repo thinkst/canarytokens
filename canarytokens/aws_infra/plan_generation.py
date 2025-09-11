@@ -189,17 +189,17 @@ class AssetTypeConfig:
 
 _ASSET_TYPE_CONFIG = {
     AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        5, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
+        4, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
     ),
     AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(5, AWSInfraAssetField.SQS_QUEUE_NAME),
     AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
-        5, AWSInfraAssetField.SSM_PARAMETER_NAME
+        4, AWSInfraAssetField.SSM_PARAMETER_NAME
     ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        5, AWSInfraAssetField.SECRET_NAME
+        4, AWSInfraAssetField.SECRET_NAME
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        5, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+        4, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
     ),
 }
 
@@ -499,9 +499,9 @@ async def generate_child_assets(
     return result
 
 
-def _get_event_pattern_length(plan: dict[str, list[dict]], region: str) -> bool:
+def _get_event_pattern_length(plan: dict[str, list[dict]], region: str) -> int:
     """
-    Return True if the event pattern length is within the limit, False otherwise.
+    Return the length of the event pattern for the given plan and region.
     """
     total_length = _EVENT_PATTERN_EMPTY + sum(
         pattern.EMPTY_LEN
@@ -588,7 +588,7 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
             > _EVENT_PATTERN_LIMIT
         ):
             raise ValueError(
-                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
+                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off more than {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
             )
     except ValueError:
         canarydrop.aws_deployed_assets = json.dumps(
