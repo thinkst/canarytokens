@@ -323,6 +323,7 @@ class Canarydrop(BaseModel):
         if (
             edit_request.token_type == TokenTypes.AWS_INFRA
             and self.aws_infra_state == AWSInfraState.INITIAL
+            or self.aws_infra_state == AWSInfraState.CHECK_ROLE
         ):
             for field in edit_request:
                 if field in ["token", "auth"]:
