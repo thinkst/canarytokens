@@ -14,7 +14,10 @@ export function setTotalAIQuota(total: number) {
 }
 
 export function setAvailableAIQuota(available: number) {
-  AIQuotaState.availableAiQuota = available;
+  // Only update if it's less than the current quota as async calls may return out of order
+  if (AIQuotaState.availableAiQuota > available) {
+    AIQuotaState.availableAiQuota = available;
+  }
 }
 
 export function getAIQuotaState() {
