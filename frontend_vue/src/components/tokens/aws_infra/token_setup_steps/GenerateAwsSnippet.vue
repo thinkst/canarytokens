@@ -97,7 +97,7 @@
         </BaseCard>
         <div class="mt-24 flex flex-col items-center">
           <BaseMessageBox
-            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw] text-justify"
+            class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw] md:text-justify text-pretty"
             variant="info"
             >Please ensure you have run the above commands on the
             <span class="font-bold">{{ accountNumber }}</span> AWS account

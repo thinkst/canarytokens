@@ -27,7 +27,7 @@
 
           <!-- Modal title -->
           <h1
-            class="flex items-center justify-center px-40 text-2xl font-semibold text-center"
+            class="flex items-center justify-center px-16 md:px-40 text-xl md:text-2xl font-semibold text-center"
           >
             {{ title }}
           </h1>

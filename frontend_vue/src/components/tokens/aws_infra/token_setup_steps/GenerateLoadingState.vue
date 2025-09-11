@@ -1,6 +1,6 @@
 <template>
   <div class="my-16 flex flex-col items-center mt-24">
-    <ul class="flex-row flex gap-24 checks-list">
+    <ul class="flex-col md:flex-row flex gap-16 md:gap-24 checks-list">
       <li
         v-for="(value, i) in props.instructions"
         :key="i"

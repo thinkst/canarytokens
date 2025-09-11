@@ -116,7 +116,7 @@ const showBackButton = computed(() => {
 
 const stepsValues = [
   { label: 'AWS Setup' },
-  { label: 'Design your decoys' },
+  { label: 'Review your decoys' },
   { label: 'Deploy your decoys' },
 ];
 

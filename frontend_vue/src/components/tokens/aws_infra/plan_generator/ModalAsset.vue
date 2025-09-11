@@ -127,7 +127,7 @@ import ModalAssetContentItem from './ModalAssetContentItem.vue';
 import { errorMessageMapper } from '@/utils/errorMessageMapper.ts';
 import { setTempAssetsFields } from '@/components/tokens/aws_infra/plan_generator/planTempService.ts';
 
-const MAX_DECOY_ASSETS = 5;
+const MAX_DECOY_ASSETS = 4;
 
 const props = defineProps<{
   assetType: AssetTypesEnum;

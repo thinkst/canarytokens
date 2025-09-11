@@ -90,43 +90,43 @@
             class="w-full wrap-code"
             custom-height="100px"
           ></BaseCodeSnippet>
-          <div
-            class="text-left lg:text-center flex mt-24 gap-8 items-center justify-center"
-          >
-            <p>How do I use this module?</p>
-            <button
-              v-tooltip="{
-                content: 'Check details',
-                triggers: ['hover'],
-              }"
-              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
-              aria-label="What's this snippet doing?"
-              @click="handleShowModalInfoModule"
-            >
-              <font-awesome-icon
-                icon="question"
-                aria-hidden="true"
-              />
-            </button>
-          </div>
-          <div
-            class="text-left lg:text-center flex mt-8 gap-8 items-center justify-center"
-          >
-            <p>How do I clean up IAM resources for Canarytokens Inventory?</p>
-            <button
-              v-tooltip="{
-                content: 'Check details',
-                triggers: ['hover'],
-              }"
-              class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
-              aria-label="How do I cleanup my AWS accont?"
-              @click="handleShowModalCleanup"
-            >
-              <font-awesome-icon
-                icon="question"
-                aria-hidden="true"
-              />
-            </button>
+          <div class="flex flex-col gap-16 mt-32">
+            <div class="flex flex-row justify-start lg:justify-center gap-16">
+              <p>How do I use this module?</p>
+              <button
+                v-tooltip="{
+                  content: 'Check details',
+                  triggers: ['hover'],
+                }"
+                class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
+                aria-label="What's this snippet doing?"
+                @click="handleShowModalInfoModule"
+              >
+                <font-awesome-icon
+                  icon="question"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+            <div class="flex flex-row justify-center gap-16 items-center">
+              <p class="text-wrap">
+                How do I clean up IAM resources for Canarytokens Inventory?
+              </p>
+              <button
+                v-tooltip="{
+                  content: 'Check details',
+                  triggers: ['hover'],
+                }"
+                class="w-24 h-24 text-sm duration-150 bg-transparent border border-solid rounded-full hover:text-white hover:bg-green-600 hover:border-green-300 shrink-0"
+                aria-label="How do I cleanup my AWS accont?"
+                @click="handleShowModalCleanup"
+              >
+                <font-awesome-icon
+                  icon="question"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
           </div>
         </BaseCard>
       </div>
