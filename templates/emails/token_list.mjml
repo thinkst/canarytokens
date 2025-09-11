@@ -27,11 +27,8 @@
       <mj-all font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
       <mj-text font-weight="400" font-size="16px" color="#4D4D4D" line-height="24px" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-text>
     </mj-attributes>
-    <mj-style inline="inline">
-      .center-image {
-        display: block;
-        margin: 0 auto;
-      }
+    <mj-style>
+
     </mj-style>
   </mj-head>
 
@@ -51,60 +48,63 @@
 
 
     <mj-wrapper padding="30px 30px 20px" background-color="#FFF">
-      <!--Alert icon -->
-
       <!--Alert Top details -->
       <mj-section padding="20px 0px 0px" border-radius="16px 16px" background-color="#F6F7FA">
         <mj-column background-color="#f6f8fb" padding-bottom="30px" border-radius="0 0 16px 16px">
-          <mj-image src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/web.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
           <mj-text color="#060606" font-weight="bold" align="center" font-size="24px">
             Your Canarytokens</mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center">
-            Here are the Canarytokens registered to your email address.
-            <br>
+            You asked us for a list of your Canarytokens, so here it is! These are
             {% if token_list_length > LIMIT %}
-            You have more than {{LIMIT}} Canarytokens, so only the latest {{LIMIT}} are included.
+            the most recent {{LIMIT}} Canarytokens registered to your address.
             {% else %}
-            You have {{token_list_length}} Canarytoken(s).
+            all the Canarytokens registered to your address.
             {% endif %}
+            Next to each is a Manage link, where you can configure or delete the Canarytoken.
           </mj-text>
+          <mj-text color="#818a8e" padding="0px 20px" align="center" padding-top="20px">
+            If you didn't request this email, you can ignore or delete it.
           </mj-text>
         </mj-column>
       </mj-section>
-
     </mj-wrapper>
 
     <mj-raw>{% for canarydrop in token_list %}</mj-raw>
     <!-- Token Link -->
-    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
-      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
-        <mj-column width="100%" padding="0px">
-          <mj-table>
-            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
-              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
-                <img align="center" src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="40px" />
-              </td>
-              <td style="vertical-align: top;">
-                <p style="font-weight:600;display:block;line-height:1;margin:0;">Date</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC</p>
-              </td>
-              <td style="vertical-align: top;">
-                <p style="font-weight:600;display:block;line-height:1;margin:0;">Type</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}</p>
-              </td>
-              <td style="vertical-align: top;">
-                <p style="font-weight:600;display:block;line-height:1;margin:0;">Token ID</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{canarydrop.canarytoken.value()}}</p>
-              </td>
-              <td style="vertical-align: top;">
-                <p style="font-weight:600;display:block;line-height:1;margin:0;">Link</p>
-                <p style="font-weight:400;color:#060606;margin:0;"><a href="{{canarydrop.build_manage_url(switchboard_scheme, public_domain)}}" style="text-decoration:none;color:#33c480">Click here</a></p>
-              </td>
-            </tr>
-          </mj-table>
+    <mj-wrapper padding="0px 30px 8px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="12px" padding="20px">
+        <mj-column width="100%">
+          <mj-text padding="0" align="center">
+            <img src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="32" height="32" />
+          </mj-text>
+
+          <mj-text padding="0" font-size="14px" font-weight="600" color="#060606" align="center">
+            {{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}
+          </mj-text>
+
+          <mj-text padding="0" padding-top="2px" font-size="12px" color="#818a8e" align="center">
+            Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC
+          </mj-text>
+
+          <mj-text padding="0" padding-top="3px" font-size="12px" color="#818a8e" align="center">
+            ({{canarydrop.canarytoken.value()}})
+          </mj-text>
+
+          <mj-text padding="0" padding-top="3px" font-size="12px" color="#666" font-family="monospace, 'Courier New', Courier" font-weight="bold" align="center">
+            {{canarydrop.memo}}
+          </mj-text>
+        </mj-column>
+
+        <mj-column vertical-align="middle" width="100%">
+          <mj-button background-color="#33c480" color="white" font-size="14px" font-weight="600" border-radius="6px" padding="0px" href="{{canarydrop.build_manage_url(switchboard_scheme, public_domain)}}"
+          padding-top="10px"
+          >
+            Manage →
+          </mj-button>
         </mj-column>
       </mj-section>
     </mj-wrapper>
+
     <mj-raw>{% endfor %}</mj-raw>
 
     <!-- Banner ad -->
@@ -118,7 +118,7 @@
             Some of the <span style="font-weight:600">best security teams</span> in the world run <span style="font-weight:600">Thinkst Canary</span>.
           </mj-text>
           <mj-text align="center" color="white">
-            <a href="https://canary.tools/" style="color:white">Find out why<a>
+            <a href="https://canary.tools/why" style="color:white">Find out why<a>
           </mj-text>
         </mj-column>
       </mj-section>

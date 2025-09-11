@@ -1116,7 +1116,7 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
         email_response_status, _ = send_email(
             switchboard_settings=switchboard_settings,
             email_recipient=request.email,
-            email_subject="Thinkst Canary: Your Canarytokens",
+            email_subject="Your Canarytokens",
             email_content_html=html_body,
             email_content_text=txt_body,
             from_email=switchboard_settings.ALERT_EMAIL_FROM_ADDRESS,
