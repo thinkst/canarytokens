@@ -3,14 +3,14 @@
     role="navigation"
     :class="
       !props.isMobile
-        ? 'items-center justify-end hidden w-full pr-32 md:flex'
+        ? 'items-center justify-end hidden w-full pr-32 md:flex gap-16 flex-wrap lg:gap-x-32'
         : 'shadow-xl absolute transition-left ease-in-out duration-300 w-[80vw] text-right md:hidden bg-white/90 backdrop-blur-sm top-[93px] right-0 py-32 pr-32 h-auto z-50 motion-reduce:transition-none motion-reduce:hover:transform-none rounded-xl mr-8'
     "
   >
     <ul
       :class="
         !props.isMobile
-          ? 'flex items-end pt-8 text-sm uppercase gap-x-16 lg:gap-x-32 font-regular'
+          ? 'flex items-end text-sm uppercase gap-x-16 lg:gap-x-32 font-regular'
           : 'flex flex-col gap-16 uppercase text-right'
       "
     >
@@ -51,6 +51,7 @@
         >
       </li>
     </ul>
+    <EnterManageLinkEmailModal />
   </nav>
 </template>
 
@@ -58,6 +59,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { ENV_MODE } from '@/constants.ts';
+import EnterManageLinkEmailModal from '../EnterManageLinkEmailModal.vue';
 
 const props = defineProps({
   isMobile: Boolean,
