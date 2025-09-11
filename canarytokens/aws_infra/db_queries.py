@@ -4,11 +4,19 @@ from datetime import timedelta
 
 import json
 
+from canarytokens.settings import FrontendSettings
+
+
+settings = FrontendSettings()
 INVENTORY_EXPIRY = timedelta(hours=3).seconds  # 3 hours
 
 
 def _inventory_key(canarydrop: Canarydrop):
     return f"{canarydrop.canarytoken.value()}_aws_inventoried_assets"
+
+
+def _data_generation_requests_key(canarydrop: Canarydrop):
+    return f"{canarydrop.canarytoken.value()}_data_generation_requests"
 
 
 def get_current_assets(canarydrop: Canarydrop) -> dict:
@@ -38,3 +46,22 @@ def delete_current_assets(canarydrop: Canarydrop) -> None:
     """
     with DB.get_db() as r:
         r.delete(_inventory_key(canarydrop))
+
+
+def get_data_generation_requests(canarydrop: Canarydrop) -> int:
+    with DB.get_db() as r:
+        count = r.get(_data_generation_requests_key(canarydrop)) or 0
+        return int(count)
+
+
+def update_data_generation_requests(canarydrop: Canarydrop, count: int):
+    def update(pipe):
+        current_request_count = pipe.get(_data_generation_requests_key(canarydrop)) or 0
+        pipe.multi()
+        new_request_count = min(
+            current_request_count + count, settings.AWS_INFRA_NAME_GENERATION_LIMIT
+        )
+        pipe.set(_data_generation_requests_key(canarydrop), new_request_count)
+
+    with DB.get_db() as r:
+        r.transaction(update, _data_generation_requests_key(canarydrop))

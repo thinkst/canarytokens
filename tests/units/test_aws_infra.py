@@ -48,7 +48,6 @@ def mock_canarydrop():
     canarydrop.aws_deployed_assets = '{"S3Bucket": ["bucket1", "bucket2"]}'
     canarydrop.aws_tf_module_prefix = "prefix123"
     canarydrop.aws_infra_state = AWSInfraState.INITIAL
-    canarydrop.aws_data_generation_requests_made = 0
     canarydrop.aws_infra_ingestion_bus_name = "test-bus"
     return canarydrop
 
@@ -172,35 +171,37 @@ class TestDataGeneration:
             )
             assert len(set(result)) == count
 
-    @patch("canarytokens.aws_infra.data_generation.save_canarydrop")
-    def test_name_generation_usage(self, mock_save, mock_canarydrop):
+    def test_name_generation_usage(self, mock_canarydrop, setup_db):
         """Test consuming name generation usage."""
-        mock_canarydrop.aws_data_generation_requests_made = 5
-
+        LIMIT = 50
+        CONSUME_COUNT = 2
         with patch("canarytokens.aws_infra.data_generation.settings") as mock_settings:
-            mock_settings.AWS_INFRA_NAME_GENERATION_LIMIT = 50
+            mock_settings.AWS_INFRA_NAME_GENERATION_LIMIT = LIMIT
+            initial_count = name_generation_limit_usage(mock_canarydrop).count
+            assert initial_count == 0
 
-            name_generation_usage_consume(mock_canarydrop, 2)
-
-            assert mock_canarydrop.aws_data_generation_requests_made == 7
-            mock_save.assert_called_once()
-
+            name_generation_usage_consume(mock_canarydrop, CONSUME_COUNT)
             usage = name_generation_limit_usage(mock_canarydrop)
 
-            assert usage.count == 7
-            assert usage.remaining == 43
+            assert usage.count == initial_count + CONSUME_COUNT
+            assert usage.remaining == LIMIT - CONSUME_COUNT
 
-    def test_name_generation_usage_consume_exceeds_limit(self, mock_canarydrop):
+    def test_name_generation_usage_consume_exceeds_limit(
+        self, mock_canarydrop, setup_db
+    ):
         """Test consuming usage when exceeding limit."""
-        mock_canarydrop.aws_data_generation_requests_made = 50
-
+        LIMIT = 10
         with patch("canarytokens.aws_infra.data_generation.settings") as mock_settings:
-            mock_settings.AWS_INFRA_NAME_GENERATION_LIMIT = 50
+            mock_settings.AWS_INFRA_NAME_GENERATION_LIMIT = LIMIT
 
-            name_generation_usage_consume(mock_canarydrop, 10)
+            name_generation_usage_consume(mock_canarydrop, LIMIT)
             usage = name_generation_limit_usage(mock_canarydrop)
-            assert mock_canarydrop.aws_data_generation_requests_made == 50
-            assert usage.count == 50
+            assert usage.count == LIMIT
+            assert usage.remaining == 0
+
+            name_generation_usage_consume(mock_canarydrop, 1)
+            usage = name_generation_limit_usage(mock_canarydrop)
+            assert usage.count == LIMIT
             assert usage.remaining == 0
 
 
