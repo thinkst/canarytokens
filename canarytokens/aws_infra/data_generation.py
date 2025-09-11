@@ -328,6 +328,4 @@ def name_generation_usage_consume(canarydrop: Canarydrop, count: int = 1) -> Non
             f"Canarytoken {canarydrop.canarytoken.value()} has already reached the Gemini data generation limit."
         )
         return
-    # The first request to exceed the limit is always allowed regardless of the count to consume.
-    # Later tries over the limit will always be rejected. So we cap the incremented value.
     update_data_generation_requests(canarydrop, count)

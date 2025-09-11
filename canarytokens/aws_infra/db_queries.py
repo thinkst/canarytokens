@@ -60,6 +60,8 @@ def update_data_generation_requests(canarydrop: Canarydrop, count: int):
             pipe.get(_data_generation_requests_key(canarydrop)) or 0
         )
         pipe.multi()
+        # The first request to exceed the limit is always allowed regardless of the count to consume.
+        # Later tries over the limit will always be rejected. So we cap the incremented value.
         new_request_count = min(
             current_request_count + count, settings.AWS_INFRA_NAME_GENERATION_LIMIT
         )
