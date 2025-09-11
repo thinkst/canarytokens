@@ -969,8 +969,8 @@ class TokenEditRequest(BaseModel):
 
 class AWSInfraTokenEditRequest(TokenEditRequest):
     token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
-    aws_account_number: Optional[str]
-    aws_region: Optional[str]
+    account_number: Optional[str]
+    region: Optional[str]
 
 
 AnyTokenEditRequest = Annotated[
