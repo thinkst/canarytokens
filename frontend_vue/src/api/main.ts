@@ -87,3 +87,14 @@ export function triggerDemoCreditCardAlert(card_id: string, card_number: string)
     .post(url, { card_id, card_number })
     .then((response) => response);
 }
+
+export function sendUserTokenFetchLinks(
+  cf_turnstile_response: string,
+  email: string
+) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/fetchlinks';
+
+  return axios
+    .post(url, { cf_turnstile_response, email })
+    .then((response) => response);
+}
