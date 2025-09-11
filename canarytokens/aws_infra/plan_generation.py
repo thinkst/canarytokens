@@ -38,6 +38,10 @@ FIELD_VALIDATORS = {
 }
 
 
+MAX_ASSETS_PER_TYPE = 4
+MAX_CHILDREN_PER_ASSET = 20
+
+
 @dataclass
 class AssetTypeConfig:
     max_assets: int
@@ -48,17 +52,25 @@ class AssetTypeConfig:
 
 _ASSET_TYPE_CONFIG = {
     AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        4, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
+        MAX_ASSETS_PER_TYPE,
+        AWSInfraAssetField.BUCKET_NAME,
+        AWSInfraAssetField.OBJECTS,
+        MAX_CHILDREN_PER_ASSET,
     ),
-    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(5, AWSInfraAssetField.SQS_QUEUE_NAME),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(
+        MAX_ASSETS_PER_TYPE, AWSInfraAssetField.SQS_QUEUE_NAME
+    ),
     AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
-        4, AWSInfraAssetField.SSM_PARAMETER_NAME
+        MAX_ASSETS_PER_TYPE, AWSInfraAssetField.SSM_PARAMETER_NAME
     ),
     AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        4, AWSInfraAssetField.SECRET_NAME
+        MAX_ASSETS_PER_TYPE, AWSInfraAssetField.SECRET_NAME
     ),
     AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        4, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+        MAX_ASSETS_PER_TYPE,
+        AWSInfraAssetField.TABLE_NAME,
+        AWSInfraAssetField.TABLE_ITEMS,
+        MAX_CHILDREN_PER_ASSET,
     ),
 }
 
