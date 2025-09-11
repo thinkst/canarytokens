@@ -8,6 +8,10 @@ from functools import cached_property
 
 import httpx
 
+from canarytokens.aws_infra.db_queries import (
+    get_data_generation_requests,
+    update_data_generation_requests,
+)
 from canarytokens.aws_infra.utils import (
     AssetNameValidation,
     generate_s3_bucket_suffix,
@@ -20,7 +24,6 @@ from canarytokens.aws_infra.utils import (
 )
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import AWSInfraAssetType
-from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings
 
 
@@ -307,9 +310,7 @@ def name_generation_limit_usage(canarydrop: Canarydrop) -> _NameGenerationLimitU
     :param canarydrop: The canarydrop instance for which to retrieve usage statistics.
     :return: An object containing the usage statistics.
     """
-    return _NameGenerationLimitUsage(
-        count=canarydrop.aws_data_generation_requests_made,
-    )
+    return _NameGenerationLimitUsage(count=get_data_generation_requests(canarydrop))
 
 
 def name_generation_usage_consume(canarydrop: Canarydrop, count: int = 1) -> None:
@@ -327,10 +328,4 @@ def name_generation_usage_consume(canarydrop: Canarydrop, count: int = 1) -> Non
             f"Canarytoken {canarydrop.canarytoken.value()} has already reached the Gemini data generation limit."
         )
         return
-    # The first request to exceed the limit is always allowed regardless of the count to consume.
-    # Later tries over the limit will always be rejected. So we cap the incremented value.
-    canarydrop.aws_data_generation_requests_made = min(
-        canarydrop.aws_data_generation_requests_made + count,
-        settings.AWS_INFRA_NAME_GENERATION_LIMIT,
-    )
-    save_canarydrop(canarydrop)
+    update_data_generation_requests(canarydrop, count)
