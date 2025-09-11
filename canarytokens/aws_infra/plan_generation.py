@@ -38,6 +38,31 @@ FIELD_VALIDATORS = {
 }
 
 
+@dataclass
+class AssetTypeConfig:
+    max_assets: int
+    asset_field_name: AWSInfraAssetField
+    child_asset_field_name: Optional[AWSInfraAssetField] = None
+    max_child_items: Optional[int] = None
+
+
+_ASSET_TYPE_CONFIG = {
+    AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
+        4, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
+    ),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(5, AWSInfraAssetField.SQS_QUEUE_NAME),
+    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
+        4, AWSInfraAssetField.SSM_PARAMETER_NAME
+    ),
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
+        4, AWSInfraAssetField.SECRET_NAME
+    ),
+    AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
+        4, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
+    ),
+}
+
+
 class AWSInfraAsset(BaseModel):
     """Individual asset within an AWS infrastructure plan."""
 
@@ -63,6 +88,13 @@ class AWSInfraAsset(BaseModel):
     @validator("objects")
     def validate_objects_list(cls, names: list[str]):
         if names is not None:
+            if (
+                len(names)
+                > _ASSET_TYPE_CONFIG[AWSInfraAssetType.S3_BUCKET].max_child_items
+            ):
+                raise ValueError(
+                    f"Exceeded maximum number of S3 objects per bucket: {len(names)} > {_ASSET_TYPE_CONFIG[AWSInfraAssetType.S3_BUCKET].max_child_items}"
+                )
             if len(names) != len(set(names)):
                 raise ValueError(
                     f"S3Bucket objects must be unique within a bucket, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
@@ -77,6 +109,13 @@ class AWSInfraAsset(BaseModel):
     @validator("table_items")
     def validate_table_items_list(cls, names: list[str]):
         if names is not None:
+            if (
+                len(names)
+                > _ASSET_TYPE_CONFIG[AWSInfraAssetType.DYNAMO_DB_TABLE].max_child_items
+            ):
+                raise ValueError(
+                    f"Exceeded maximum number of DynamoDB table items per table: {len(names)} > {_ASSET_TYPE_CONFIG[AWSInfraAssetType.DYNAMO_DB_TABLE].max_child_items}"
+                )
             if len(names) != len(set(names)):
                 raise ValueError(
                     f"DynamoDB table items must be unique within a table, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
@@ -177,31 +216,6 @@ class AWSInfraPlan(BaseModel):
     class Config:
         allow_population_by_field_name = True
         extra = "allow"
-
-
-@dataclass
-class AssetTypeConfig:
-    max_assets: int
-    asset_field_name: AWSInfraAssetField
-    child_asset_field_name: Optional[AWSInfraAssetField] = None
-    max_child_items: Optional[int] = None
-
-
-_ASSET_TYPE_CONFIG = {
-    AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        4, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
-    ),
-    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(5, AWSInfraAssetField.SQS_QUEUE_NAME),
-    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
-        4, AWSInfraAssetField.SSM_PARAMETER_NAME
-    ),
-    AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        4, AWSInfraAssetField.SECRET_NAME
-    ),
-    AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        4, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
-    ),
-}
 
 
 _EVENT_PATTERN_EMPTY = 10
