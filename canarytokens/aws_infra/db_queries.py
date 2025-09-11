@@ -56,7 +56,9 @@ def get_data_generation_requests(canarydrop: Canarydrop) -> int:
 
 def update_data_generation_requests(canarydrop: Canarydrop, count: int):
     def update(pipe):
-        current_request_count = pipe.get(_data_generation_requests_key(canarydrop)) or 0
+        current_request_count = int(
+            pipe.get(_data_generation_requests_key(canarydrop)) or 0
+        )
         pipe.multi()
         new_request_count = min(
             current_request_count + count, settings.AWS_INFRA_NAME_GENERATION_LIMIT
