@@ -38,6 +38,43 @@ FIELD_VALIDATORS = {
 }
 
 
+MAX_ASSETS_PER_TYPE = 4
+MAX_CHILDREN_PER_ASSET = 20
+
+
+@dataclass
+class AssetTypeConfig:
+    max_assets: int
+    asset_field_name: AWSInfraAssetField
+    child_asset_field_name: Optional[AWSInfraAssetField] = None
+    max_child_items: Optional[int] = None
+
+
+_ASSET_TYPE_CONFIG = {
+    AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
+        MAX_ASSETS_PER_TYPE,
+        AWSInfraAssetField.BUCKET_NAME,
+        AWSInfraAssetField.OBJECTS,
+        MAX_CHILDREN_PER_ASSET,
+    ),
+    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(
+        MAX_ASSETS_PER_TYPE, AWSInfraAssetField.SQS_QUEUE_NAME
+    ),
+    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
+        MAX_ASSETS_PER_TYPE, AWSInfraAssetField.SSM_PARAMETER_NAME
+    ),
+    AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
+        MAX_ASSETS_PER_TYPE, AWSInfraAssetField.SECRET_NAME
+    ),
+    AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
+        MAX_ASSETS_PER_TYPE,
+        AWSInfraAssetField.TABLE_NAME,
+        AWSInfraAssetField.TABLE_ITEMS,
+        MAX_CHILDREN_PER_ASSET,
+    ),
+}
+
+
 class AWSInfraAsset(BaseModel):
     """Individual asset within an AWS infrastructure plan."""
 
@@ -63,6 +100,13 @@ class AWSInfraAsset(BaseModel):
     @validator("objects")
     def validate_objects_list(cls, names: list[str]):
         if names is not None:
+            if (
+                len(names)
+                > _ASSET_TYPE_CONFIG[AWSInfraAssetType.S3_BUCKET].max_child_items
+            ):
+                raise ValueError(
+                    f"Exceeded maximum number of S3 objects per bucket: {len(names)} > {_ASSET_TYPE_CONFIG[AWSInfraAssetType.S3_BUCKET].max_child_items}"
+                )
             if len(names) != len(set(names)):
                 raise ValueError(
                     f"S3Bucket objects must be unique within a bucket, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
@@ -77,6 +121,13 @@ class AWSInfraAsset(BaseModel):
     @validator("table_items")
     def validate_table_items_list(cls, names: list[str]):
         if names is not None:
+            if (
+                len(names)
+                > _ASSET_TYPE_CONFIG[AWSInfraAssetType.DYNAMO_DB_TABLE].max_child_items
+            ):
+                raise ValueError(
+                    f"Exceeded maximum number of DynamoDB table items per table: {len(names)} > {_ASSET_TYPE_CONFIG[AWSInfraAssetType.DYNAMO_DB_TABLE].max_child_items}"
+                )
             if len(names) != len(set(names)):
                 raise ValueError(
                     f"DynamoDB table items must be unique within a table, duplicates found: {', '.join(set(name for name in names if names.count(name) > 1))}"
@@ -177,31 +228,6 @@ class AWSInfraPlan(BaseModel):
     class Config:
         allow_population_by_field_name = True
         extra = "allow"
-
-
-@dataclass
-class AssetTypeConfig:
-    max_assets: int
-    asset_field_name: AWSInfraAssetField
-    child_asset_field_name: Optional[AWSInfraAssetField] = None
-    max_child_items: Optional[int] = None
-
-
-_ASSET_TYPE_CONFIG = {
-    AWSInfraAssetType.S3_BUCKET: AssetTypeConfig(
-        5, AWSInfraAssetField.BUCKET_NAME, AWSInfraAssetField.OBJECTS, 20
-    ),
-    AWSInfraAssetType.SQS_QUEUE: AssetTypeConfig(5, AWSInfraAssetField.SQS_QUEUE_NAME),
-    AWSInfraAssetType.SSM_PARAMETER: AssetTypeConfig(
-        5, AWSInfraAssetField.SSM_PARAMETER_NAME
-    ),
-    AWSInfraAssetType.SECRETS_MANAGER_SECRET: AssetTypeConfig(
-        5, AWSInfraAssetField.SECRET_NAME
-    ),
-    AWSInfraAssetType.DYNAMO_DB_TABLE: AssetTypeConfig(
-        5, AWSInfraAssetField.TABLE_NAME, AWSInfraAssetField.TABLE_ITEMS, 20
-    ),
-}
 
 
 _EVENT_PATTERN_EMPTY = 10
@@ -499,9 +525,9 @@ async def generate_child_assets(
     return result
 
 
-def _get_event_pattern_length(plan: dict[str, list[dict]], region: str) -> bool:
+def _get_event_pattern_length(plan: dict[str, list[dict]], region: str) -> int:
     """
-    Return True if the event pattern length is within the limit, False otherwise.
+    Return the length of the event pattern for the given plan and region.
     """
     total_length = _EVENT_PATTERN_EMPTY + sum(
         pattern.EMPTY_LEN
@@ -585,10 +611,9 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
             event_pattern_length := _get_event_pattern_length(
                 plan, canarydrop.aws_region
             )
-            > _EVENT_PATTERN_LIMIT
-        ):
+        ) > _EVENT_PATTERN_LIMIT:
             raise ValueError(
-                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
+                f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off more than {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
             )
     except ValueError:
         canarydrop.aws_deployed_assets = json.dumps(

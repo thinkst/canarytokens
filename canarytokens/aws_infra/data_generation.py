@@ -51,6 +51,8 @@ _GEMINI_API_KEY = settings.GEMINI_API_KEY
 _prompt_template = settings.GEMINI_PROMPT_TEMPLATE
 _GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{_GEMINI_MODEL}:generateContent"
 _SIMILARITY_THRESHOLD = 0.9
+# to make sure that event pattern character length won't be exceeded (this was calculated based on a maximum of 4 assets per type)
+_MAX_ASSET_NAME_LENGTH = 36
 
 
 @dataclass
@@ -139,6 +141,8 @@ async def _finalize_list(
     is_valid_results = await asyncio.gather(*is_valid_tasks)
     for name, is_valid in zip(asset_names, is_valid_results):
         if not is_valid:
+            continue
+        if len(name) > _MAX_ASSET_NAME_LENGTH:
             continue
         similarity_score = max(
             (SequenceMatcher(None, name, existing).ratio() for existing in inventory),
