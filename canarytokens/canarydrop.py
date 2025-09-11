@@ -319,9 +319,14 @@ class Canarydrop(BaseModel):
         """
         Change one or more canarydrop fields to a new value.
         """
-        if (
-            edit_request.token_type == TokenTypes.AWS_INFRA
-            and self.aws_infra_state == AWSInfraState.INITIAL
+        # can only edit for new aws infra tokens or if check-role/inventory failed on a new token
+        if edit_request.token_type == TokenTypes.AWS_INFRA and (
+            self.aws_infra_state
+            in [
+                AWSInfraState.INITIAL,
+                AWSInfraState.CHECK_ROLE,
+                AWSInfraState.INVENTORY,
+            ]
         ):
             for field in edit_request:
                 if field in ["token", "auth"]:
