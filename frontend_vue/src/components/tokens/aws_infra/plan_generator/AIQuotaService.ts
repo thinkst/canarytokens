@@ -7,15 +7,33 @@ const AIQuotaState = reactive({
   totalAiQuota: 0,
   availableAiQuota: 0,
   aiQuotaErrorShown: false,
+  isTotalQuotaInitialized: false,
+  isAvailableQuotaInitialized: false,
 });
 
+
 export function setTotalAIQuota(total: number) {
+  AIQuotaState.isTotalQuotaInitialized = true;
   AIQuotaState.totalAiQuota = total;
 }
 
-export function setAvailableAIQuota(available: number) {
-  // Only update if it's less than the current quota as async calls may return out of order
-  if (AIQuotaState.availableAiQuota > available) {
+export function setInitialAvailableAIQuota(available: number) {
+  AIQuotaState.isAvailableQuotaInitialized = true;
+  AIQuotaState.availableAiQuota = available;
+}
+
+
+// We need to set the initial available quota once after the first /generate-asset API response
+// to show in the UI a meaningful starting quota after the plan loads.
+
+export function updateAvailableAIQuota(available: number) {
+  if (!AIQuotaState.isAvailableQuotaInitialized) {
+    setInitialAvailableAIQuota(available);
+    return;
+  }
+
+  // If the new value is smaller, update the quota.
+  if (available < AIQuotaState.availableAiQuota) {
     AIQuotaState.availableAiQuota = available;
   }
 }

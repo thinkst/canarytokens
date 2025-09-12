@@ -131,7 +131,8 @@ import { setTempAssetsData } from '@/components/tokens/aws_infra/plan_generator/
 import {
   getAIQuotaState,
   setTotalAIQuota,
-  setAvailableAIQuota,
+  updateAvailableAIQuota,
+  setInitialAvailableAIQuota,
   INITIAL_AI_QUOTA,
 } from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
 
@@ -163,7 +164,8 @@ const isLoadingAssetCard = ref<Record<AssetTypesEnum, boolean>>({
   SecretsManagerSecret: false,
   DynamoDBTable: false,
 });
-const { totalAiQuota, availableAiQuota } = getAIQuotaState();
+const { totalAiQuota, availableAiQuota, isTotalQuotaInitialized } =
+  getAIQuotaState();
 
 const assetsData = ref<ProposedAWSInfraTokenPlanData>({
   S3Bucket: [],
@@ -187,7 +189,7 @@ const {
   token,
   auth_token,
   assetsData,
-  updateAiCurrentAvailableNamesCount,
+  updateAvailableAiNamesCount,
   resetAssetCardsLoadingState,
   isLoadingAssetCard
 );
@@ -214,8 +216,12 @@ onMounted(() => {
     };
   }
 
-  if (!is_managing_token) fetchAIgeneratedAssets(assetsData.value);
-  else updateAiCurrentAvailableNamesCount(available_ai_names);
+  if (is_managing_token) {
+    setTotalAIQuota(INITIAL_AI_QUOTA);
+    setInitialAvailableAIQuota(available_ai_names);
+  } else {
+    fetchAIgeneratedAssets(assetsData.value);
+  }
 
   // Set loading state to allow UI to render
   setTimeout(() => {
@@ -311,10 +317,12 @@ function getAnyLoadingAssetData(): boolean {
   return Object.values(isLoadingAssetCard.value).some((loading) => loading);
 }
 
-function updateAiCurrentAvailableNamesCount(count: number) {
-  if (is_managing_token) setTotalAIQuota(INITIAL_AI_QUOTA);
-  if (totalAiQuota.value === 0) setTotalAIQuota(Math.floor(count) || 0);
-  setAvailableAIQuota(Math.floor(count) || 0);
+function updateAvailableAiNamesCount(count: number) {
+  // On first generate-child-asset, set total AI quota to the available names from backend
+  if (!isTotalQuotaInitialized.value) {
+    setTotalAIQuota(Math.floor(count) || 0);
+  }
+  updateAvailableAIQuota(Math.floor(count) || 0);
 }
 
 function handleDeleteAsset(assetType: AssetTypesEnum, index: number) {
@@ -350,6 +358,8 @@ function handleSaveAsset(
   newValues: AssetData,
   index: number
 ) {
+  isEmptyPlanMessage.value = false;
+
   if (!assetsData.value[assetType]) {
     assetsData.value[assetType] = [];
   }
