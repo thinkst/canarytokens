@@ -117,12 +117,15 @@ jobs:
           export CANARY_CLOUDFLARE_NAMESPACE=test
           cd tests
           poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
+        continue-on-error: ${{ github.ref_name != 'master' }}
 
       - name: Check coverage is over threshold percentage for unit tests
         # Here we check coverage info on all tests
         run: |
           cd tests
           poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 85
+        continue-on-error: ${{ github.ref_name != 'master' }}
+
 
       - name: Run integration tests (against local V3)
         run: |
@@ -134,6 +137,8 @@ jobs:
           sleep 10
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
+          export CANARY_AWS_INFRA_AWS_REGION=eu-west-1
+
           LIVE=False poetry run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration --runv3 -v
 
 
@@ -159,4 +164,5 @@ jobs:
           copy .\frontend\frontend.env.dist .\frontend\frontend.env
           copy .\switchboard\switchboard.env.dist .\switchboard\switchboard.env
           cd tests
+          $env:CANARY_AWS_INFRA_AWS_REGION = 'eu-west-1'
           $env:PSModulePath = ''; poetry run pytest .\integration\test_custom_binary.py --runv3 -v

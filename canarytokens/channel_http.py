@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from pydantic import ValidationError, parse_obj_as
@@ -264,6 +265,13 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 )
                 # TODO: These returns are not really needed
                 return b"failed"
+        elif canarydrop.type == TokenTypes.AWS_INFRA:
+            content = json.load(request.content)
+            # log.debug(content)
+            token_hit = Canarytoken._parse_aws_infra_trigger(content)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
         return self.render_GET(request)
 
 

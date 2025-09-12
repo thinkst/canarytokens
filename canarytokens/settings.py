@@ -133,6 +133,25 @@ class FrontendSettings(BaseSettings):
     CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
     CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
 
+    AWS_INFRA_AWS_ACCOUNT: Optional[str]
+    AWS_INFRA_AWS_REGION: Optional[str]
+    AWS_INFRA_SHARED_SECRET: Optional[str]
+    AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str]
+    AWS_INFRA_CALLBACK_DOMAIN: Optional[str] = "callback domain goes here"
+    AWS_INFRA_INGESTION_BUS: Optional[str]
+    AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
+    AWS_INFRA_NAME_GENERATION_LIMIT: Optional[int] = 50
+    GEMINI_API_KEY: Optional[str]
+    GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
+    GEMINI_PROMPT_TEMPLATE: Optional[str]
+    GEMINI_SYSTEM_PROMPT: Optional[str]
+    GEMINI_TEMPERATURE: Optional[str] = "1.8"
+
+    # temporary
+    AWS_ACCESS_KEY_ID: Optional[str]
+    AWS_SECRET_ACCESS_KEY: Optional[str]
+    AWS_SESSION_TOKEN: Optional[str]
+
     class Config:
         allow_mutation = False
         env_file = "../frontend/frontend.env"

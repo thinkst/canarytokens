@@ -1,4 +1,38 @@
 <template>
+  <div class="relative">
+    <h1>Inyoni chirping</h1>
+    <div class="w-[50vw] m-24">
+      <BaseInyoniMessage
+        v-model="showInyoni"
+        text="Here's an example of the Inyoni component in action! You can close me by clicking the 'X' button."
+      />
+    </div>
+  </div>
+  <div>
+    <hr class="my-24" />
+    <h1>Bullet List</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <BaseBulletList
+        :list="['element number 1', 'element number 2', 'element number 3']"
+      />
+    </div>
+  </div>
+  <div>
+    <hr class="my-24" />
+    <h1>Step State</h1>
+    <div class="flex flex-col gap-16 mt-24 mb-32">
+      <p>Loading State</p>
+      <StepState
+        loading-message="Hold on, we are doing things"
+        :is-loading="true"
+      />
+      <p>Error State</p>
+      <StepState
+        :is-error="true"
+        error-message="Oh snap, an error :("
+      />
+    </div>
+  </div>
   <div>
     <hr class="my-24" />
     <h1>Checkbox input</h1>
@@ -426,6 +460,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import BannerBirdCanarytools from '@/components/ui/BannerBirdCanarytools.vue';
 import BannerTextCanarytools from '@/components/ui/BannerTextCanarytools.vue';
 import getImageUrl from '@/utils/getImageUrl';
+import StepState from '@/components/tokens/aws_infra/StepState.vue';
 
 const { open } = useModal({
   component: ModalToken,
@@ -442,6 +477,7 @@ const currentStep = ref(1);
 const checkBoxValue = ref(false);
 const checkBoxDisabledValue = ref(false);
 const checkBoxTooltipValue = ref(false);
+const showInyoni = ref(true);
 
 function handleFileSelected(event: DragEvent) {
   fileSelected.value = event;
