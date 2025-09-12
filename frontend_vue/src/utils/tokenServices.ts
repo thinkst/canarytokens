@@ -17,21 +17,6 @@ export type TokenServicesType = {
 };
 
 export const tokenServices: TokenServicesType = {
-  [TOKENS_TYPE.AWS_INFRA]: {
-    label: 'AWS Infra',
-    description: 'Get an alert when an attacker explores your AWS Infrastructure',
-    documentationLink: 'https://docs.canarytokens.org/guide/#',
-    icon: `${TOKENS_TYPE.AWS_INFRA}.png`,
-    instruction: 'Here goes the instruction for this token',
-    howItWorksInstructions: [
-      'We guide you through creating a Terraform configuration for decoy AWS resources',
-      'You apply the Terraform plan to your AWS account, creating the decoy resources',
-      'We send you an alert if any of the decoy resources are accessed',
-    ],
-    category: TOKEN_CATEGORY.OTHER,
-    keywords: ['aws', 'infra', 'bucket'],
-    isCustomGenerateFlow: true,
-  },
   [TOKENS_TYPE.WEB_BUG]: {
     label: 'Web bug',
     description: 'Get an alert when an attacker visits your URL.',
@@ -59,6 +44,21 @@ export const tokenServices: TokenServicesType = {
     ],
     category: TOKEN_CATEGORY.OTHER,
     keywords: ['domain'],
+  },
+  [TOKENS_TYPE.AWS_INFRA]: {
+    label: 'AWS Infra',
+    description: 'Get an alert when an attacker explores your AWS Infrastructure',
+    documentationLink: 'https://docs.canarytokens.org/guide/#',
+    icon: `${TOKENS_TYPE.AWS_INFRA}.png`,
+    instruction: 'Here goes the instruction for this token',
+    howItWorksInstructions: [
+      'We guide you through creating a Terraform configuration for decoy AWS resources',
+      'You apply the Terraform plan to your AWS account, creating the decoy resources',
+      'We send you an alert if any of the decoy resources are accessed',
+    ],
+    category: TOKEN_CATEGORY.OTHER,
+    keywords: ['aws', 'infra', 'bucket', 'cloud'],
+    isCustomGenerateFlow: true,
   },
   [TOKENS_TYPE.CREDIT_CARD_V2]: {
     label: 'Credit Card',
