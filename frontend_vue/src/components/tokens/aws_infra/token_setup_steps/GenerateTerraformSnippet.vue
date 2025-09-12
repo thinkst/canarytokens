@@ -91,7 +91,7 @@
             custom-height="100px"
           ></BaseCodeSnippet>
           <div class="flex flex-col gap-16 mt-32">
-            <div class="flex flex-row justify-start lg:justify-center gap-16">
+            <div class="flex flex-row justify-start xl:justify-center gap-16">
               <p>How do I use this module?</p>
               <button
                 v-tooltip="{
@@ -109,7 +109,7 @@
               </button>
             </div>
             <div class="flex flex-row justify-center gap-16 items-center">
-              <p class="text-wrap">
+              <p class="text-wrap lg:text-nowrap">
                 How do I clean up IAM resources for Canarytokens Inventory?
               </p>
               <button

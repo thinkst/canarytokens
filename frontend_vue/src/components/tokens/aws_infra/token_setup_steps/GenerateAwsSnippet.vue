@@ -120,7 +120,7 @@
             class="mb-24 max-w-[100%] md:max-w-[60vw] lg:max-w-[40vw] xl:max-w-[40vw] text-justify"
           >
             Make sure to run the command above. Otherwise, we won't be able to
-            generate your canarytoken.
+            generate your Canarytoken.
           </BaseMessageBox>
           <BaseButton
             v-if="!showWarningSnipeptCheck"
