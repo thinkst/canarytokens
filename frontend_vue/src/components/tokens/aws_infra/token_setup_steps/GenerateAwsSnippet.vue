@@ -209,7 +209,6 @@ const {
   stateStatus: stateStatusFetch,
   handleFetchUserAccount,
   proposedPlan,
-  availableAiNames,
 } = useFetchUserAccount(token, auth_token);
 
 const isIdle = computed(
@@ -347,7 +346,6 @@ watch(
           auth_token,
           code_snippet_command: codeSnippetCommands.value,
           proposed_plan: proposedPlan.value,
-          available_ai_names: availableAiNames.value,
         });
         emits('updateStep');
       } else if (newValue === StepStateEnum.ERROR) {
