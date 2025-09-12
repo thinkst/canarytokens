@@ -4,7 +4,7 @@ import { generateDataChoice as generateDataChoiceTest } from '@/views/planPrevie
 import { getTokenData } from '@/utils/dataService';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
 import {
-  setAvailableAIQuota,
+  updateAvailableAIQuota,
   setAIQuotaErrorShown,
   getAIQuotaState,
 } from '@/components/tokens/aws_infra/plan_generator/AIQuotaService.ts';
@@ -68,7 +68,7 @@ export function useGenerateAssetName(
 
       generatedName.value = res.data.proposed_data;
       const availableAiNamesCount = res.data.data_generation_remaining || 0;
-      setAvailableAIQuota(availableAiNamesCount);
+      updateAvailableAIQuota(availableAiNamesCount);
     } catch (err: any) {
       if (err.response.status === 429) {
         setAIQuotaErrorShown(true);

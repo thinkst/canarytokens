@@ -12,7 +12,7 @@ export function useAIGeneratedAssets(
   token: string,
   auth_token: string,
   assetsData: Ref<ProposedAWSInfraTokenPlanData>,
-  updateAiCurrentAvailableNamesCount: (count: number) => void,
+  updateAvailableAiNamesCount: (count: number) => void,
   resetAssetCardsLoadingState: () => void,
   isLoadingAssetCard: Ref<Record<AssetTypesEnum, boolean>>
 ) {
@@ -54,7 +54,7 @@ export function useAIGeneratedAssets(
         const dataGenerationRemaining = Math.floor(
         res.data.data_generation_remaining
         );
-        updateAiCurrentAvailableNamesCount(dataGenerationRemaining);
+        updateAvailableAiNamesCount(dataGenerationRemaining);
 
         return;
       }
@@ -70,7 +70,7 @@ export function useAIGeneratedAssets(
       const dataGenerationRemaining = Math.floor(
         res.data.data_generation_remaining
       );
-      updateAiCurrentAvailableNamesCount(dataGenerationRemaining);
+      updateAvailableAiNamesCount(dataGenerationRemaining);
 
       if (Object.keys(newAssets).length > 0) {
         updatedPlanData = mergeAIGeneratedAssets(assetsData.value, newAssets);
