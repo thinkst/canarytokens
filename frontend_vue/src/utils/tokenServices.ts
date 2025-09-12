@@ -56,7 +56,7 @@ export const tokenServices: TokenServicesType = {
       'You apply the Terraform plan to your AWS account, creating the decoy resources',
       'We send you an alert if any of the decoy resources are accessed',
     ],
-    category: TOKEN_CATEGORY.OTHER,
+    category: TOKEN_CATEGORY.CLOUD,
     keywords: ['aws', 'infra', 'bucket', 'cloud'],
     isCustomGenerateFlow: true,
   },
