@@ -1,6 +1,7 @@
 export type BaseFormValuesType = {
   email: string;
   memo: string;
+  [key: string]: string | number | undefined;
 };
 
 export interface QRCodeTokenBackendType extends NewTokenBackendType {
@@ -115,6 +116,8 @@ export type ManageTokenBackendType = {
   cc_v2_expiry_month: string;
   cc_v2_expiry_year: string;
   cc_v2_name_on_card: string;
+  aws_region: string;
+  aws_account_id: string;
 };
 
 export type NewTokenBackendType = {
@@ -203,6 +206,30 @@ export type AWSLogDataType = {
   eventName?: string[] | null;
 };
 
+export type DecoyResourceType = {
+  asset_type: string;
+  'Asset Name': string;
+  'Request Parameters': string;
+};
+
+export type EventType = {
+  'Event Name': string;
+  'Event Time': string;
+  'Account & Region': string;
+};
+
+export type IdentityType = {
+  'User Identity': string;
+  UserAgent: string;
+};
+
+export type MetadataType = {
+  'Event ID'?: string;
+  'ReadOnly Event'?: boolean;
+  'Event Category'?: string;
+  Classification?: string;
+};
+
 export type AdditionalInfoType = {
   javascript?: null | string;
   browser?: null | string;
@@ -219,25 +246,12 @@ export type AdditionalInfoType = {
   transaction_date?: string;
   transaction_type?: string;
   status?: string;
+  event?: EventType;
+  decoy_resource?: DecoyResourceType;
+  identity?: IdentityType;
+  metadata?: MetadataType;
 };
 
-type BasicInfoType = {
-  token_type: string;
-  input_channel: string;
-  src_data: string;
-  useragent: string | null;
-  last4: string | null;
-  amount: string | null;
-  merchant: string | null;
-  mail: string | null;
-  referer: string | null;
-  location:
-    | string
-    | GeolocationPosition
-    | GeolocationCoordinates
-    | CoordsType
-    | null;
-};
 
 export type HitsType = {
   time_of_hit: number;
@@ -258,15 +272,6 @@ export type HitsType = {
   referer?: string | null;
   referrer?: string | null;
   location?: string | GeolocationPosition | CoordsType | null;
-};
-
-export type FormattedHitsType = {
-  time_of_hit: string;
-  src_ip?: string | null;
-  geo_info?: GeoInfo | null;
-  is_tor_relay: boolean | null;
-  basic_info: BasicInfoType;
-  additional_info: AdditionalInfoType;
 };
 
 export type HistoryType = {

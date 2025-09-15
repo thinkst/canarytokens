@@ -307,6 +307,7 @@ class TokenTypes(str, enum.Enum):
     IDP_APP = "idp_app"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
+    AWS_INFRA = "aws_infra"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -315,6 +316,7 @@ class TokenTypes(str, enum.Enum):
 token_types_with_article_an = [
     TokenTypes.ADOBE_PDF,
     TokenTypes.AWS_KEYS,
+    TokenTypes.AWS_INFRA,
     TokenTypes.AZURE_ID,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
@@ -354,6 +356,7 @@ readable_token_type_names = {
     TokenTypes.SLACK_API: "Slack API",
     TokenTypes.LEGACY: "Legacy",
     TokenTypes.IDP_APP: "SAML2 IdP App",
+    TokenTypes.AWS_INFRA: "AWS Infrastructure",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -913,6 +916,12 @@ class IdPAppTokenRequest(TokenRequest):
         }
 
 
+class AWSInfraTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    aws_account_number: str
+    aws_region: str
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
@@ -944,8 +953,28 @@ AnyTokenRequest = Annotated[
         KubeconfigTokenRequest,
         CreditCardV2TokenRequest,
         IdPAppTokenRequest,
+        AWSInfraTokenRequest,
     ],
     Field(discriminator="token_type"),
+]
+
+
+class TokenEditRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    email: Optional[EmailStr]
+    webhook_url: Optional[HttpUrl]
+    memo: Optional[Memo]
+
+
+class AWSInfraTokenEditRequest(TokenEditRequest):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    aws_account_number: Optional[str]
+    aws_region: Optional[str]
+
+
+AnyTokenEditRequest = Annotated[
+    Union[AWSInfraTokenEditRequest], Field(discriminator="token_type")
 ]
 
 
@@ -1254,6 +1283,14 @@ class IdPAppTokenResponse(TokenResponse):
     app_type: IdPAppType
 
 
+class AWSInfraTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    aws_region: str
+    aws_account_number: str
+    tf_module_prefix: str
+    ingesting: bool  # TODO: remove
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
@@ -1295,6 +1332,7 @@ AnyTokenResponse = Annotated[
         KubeconfigTokenResponse,
         CreditCardV2TokenResponse,
         IdPAppTokenResponse,
+        AWSInfraTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1953,6 +1991,25 @@ class IdPAppTokenHit(TokenHit):
     additional_info: AdditionalInfo = AdditionalInfo()
 
 
+class AwsInfraAdditionalInfo(BaseModel):
+    event: Optional[dict[str, Any]]
+    decoy_resource: Optional[dict[str, Any]]
+    identity: Optional[dict[str, Any]]
+    metadata: Optional[dict[str, Any]]
+
+    def serialize_for_v2(self) -> dict:
+        return self.dict()
+
+
+class AWSInfraTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    input_channel: str = "HTTP"
+    additional_info: Optional[AwsInfraAdditionalInfo]
+
+    def serialize_for_v2(self) -> dict:
+        return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
@@ -1987,6 +2044,7 @@ AnyTokenHit = Annotated[
         LegacyTokenHit,
         CreditCardV2TokenHit,
         IdPAppTokenHit,
+        AWSInfraTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2027,6 +2085,7 @@ class TokenHistory(GenericModel, Generic[TH]):
         for hit in self.hits:
             if (
                 isinstance(hit, AWSKeyTokenHit)
+                or isinstance(hit, AWSInfraTokenHit)
                 or isinstance(hit, SlackAPITokenHit)
                 or isinstance(hit, CreditCardV2TokenHit)
             ):
@@ -2216,6 +2275,11 @@ class IdPAppTokenHistory(TokenHistory[IdPAppTokenHit]):
     hits: List[IdPAppTokenHit] = []
 
 
+class AWSInfraTokenHistory(TokenHistory[AWSInfraTokenHit]):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    hits: List[AWSInfraTokenHit] = []
+
+
 # AnyTokenHistory is used to type annotate functions that
 # handle any token history. It makes use of an annotated type
 # that discriminates on `token_type` so pydantic can parse
@@ -2254,6 +2318,7 @@ AnyTokenHistory = Annotated[
         LegacyTokenHistory,
         CreditCardV2TokenHistory,
         IdPAppTokenHistory,
+        AWSInfraTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2761,6 +2826,10 @@ class DeleteResponse(BaseModel):
     message: Literal["success", "failure"]
 
 
+class EditResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
 class ManageTokenSettingsRequest(BaseModel):
     token: str
     auth: str
@@ -2790,3 +2859,199 @@ class HistoryResponse(BaseModel):
     canarydrop: Dict
     history: AnyTokenHistory
     google_api_key: Optional[str]
+
+
+class AWSInfraAssetType(str, enum.Enum):
+    S3_BUCKET = "S3Bucket"
+    SQS_QUEUE = "SQSQueue"
+    SSM_PARAMETER = "SSMParameter"
+    SECRETS_MANAGER_SECRET = "SecretsManagerSecret"
+    DYNAMO_DB_TABLE = "DynamoDBTable"
+
+
+class AWSInfraAssetField(str, enum.Enum):
+    BUCKET_NAME = "bucket_name"
+    OBJECTS = "objects"
+    SQS_QUEUE_NAME = "sqs_queue_name"
+    SSM_PARAMETER_NAME = "ssm_parameter_name"
+    SECRET_NAME = "secret_name"
+    TABLE_NAME = "table_name"
+    TABLE_ITEMS = "table_items"
+
+
+class AWSInfraConfigStartRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+
+
+class AWSInfraConfigStartResponse(BaseModel):
+    result: bool
+    message: str = ""
+    role_setup_commands: dict
+
+
+class AWSInfraTriggerOperationRequest(BaseModel):  # before handle id created
+    canarytoken: str
+    auth_token: str
+    external_id: Optional[str] = None
+
+
+class AWSInfraHandleRequest(BaseModel):
+    handle: str
+
+
+class AWSInfraHandleResponse(BaseModel):  # before response received
+    handle: str
+    message: str = ""
+    error: str = ""
+
+
+class AWSInfraCheckRoleReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    session_credentials_retrieved: bool
+    error: str = ""
+
+
+class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    proposed_plan: dict = {}
+    error: str = ""
+    data_generation_remaining: int = 0
+
+
+class AWSInfraGenerateDataChoiceRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    asset_type: AWSInfraAssetType
+    asset_field: AWSInfraAssetField
+    parent_asset_name: Optional[str] = None
+    plan: Optional[dict] = None
+
+
+class AWSInfraGenerateDataChoiceResponse(BaseModel):
+    result: bool
+    message: str = ""
+    proposed_data: Optional[str] = None
+    data_generation_remaining: int = 0
+
+
+class AWSInfraSavePlanRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    plan: Any
+
+
+class AWSInfraSavePlanResponse(BaseModel):
+    result: bool
+    message: str = ""
+    terraform_module_source: str = ""
+
+
+class DefaultResponse(BaseModel):
+    result: bool
+    message: str = ""
+
+
+class AWSInfraSetupIngestionReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    terraform_module_snippet: Optional[dict] = None
+    role_cleanup_commands: Optional[dict] = None
+    error: str = ""
+
+
+class AWSInfraTeardownReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    role_cleanup_commands: Optional[dict] = None
+    error: str = ""
+
+
+class AWSInfraOperationType(str, enum.Enum):
+    CHECK_ROLE = "Check-Role"
+    INVENTORY = "Inventory"
+    SETUP_INGESTION = "Setup-Ingestion"
+    PROVISION_INGESTION_BUS = "Provision-Ingestion-Bus"
+    TEARDOWN = "Teardown"
+
+
+class AWSInfraManagementResponseRequest(BaseModel):
+    handle: str
+    operation: AWSInfraOperationType
+    result: dict
+
+
+class AWSInfraGenerateChildAssetsRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        list[str],
+    ]
+
+
+class AWSInfraGenerateChildAssetsResponse(BaseModel):
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        dict[str, list[str]],
+    ]
+    data_generation_remaining: int = 0
+
+
+class AWSInfraState(enum.Flag):
+    # Base states
+    INITIAL = enum.auto()  # initial state, before any operation
+    CHECK_ROLE = enum.auto()  # after config started
+    INVENTORY = enum.auto()  # after check-role succeeded
+    GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
+    PLAN = enum.auto()  # after inventorying
+    SETUP_INGESTION = enum.auto()  # after plan saved
+
+    # Overlay states
+    INGESTING = enum.auto()
+    SUCCEEDED = enum.auto()
+
+
+class AWSInfraServiceError(enum.Enum):
+    FAILURE_CHECK_ROLE = "FAILURE_CHECK_ROLE"
+    FAILURE_INGESTION_BUS_PROVISION = "FAILURE_INGESTION_BUS_PROVISION"
+    FAILURE_INGESTION_SETUP = "FAILURE_INGESTION_SETUP"
+    FAILURE_INGESTION_TEARDOWN = "FAILURE_INGESTION_TEARDOWN"
+    FAILURE_INVENTORY = "FAILURE_INVENTORY"
+    FAILURE_MGMT_RESPONSE = "FAILURE_MGMT_RESPONSE"
+    FAILURE_TRIG_ALERT = "FAILURE_TRIG_ALERT"
+    FAILURE_INVENTORY_REGION_DISABLED = "FAILURE_INVENTORY_REGION_DISABLED"
+    FAILURE_INVENTORY_ACCESS_DENIED = "FAILURE_INVENTORY_ACCESS_DENIED"
+    FAILURE_INVENTORY_TOKEN_EXISTS = "FAILURE_INVENTORY_TOKEN_EXISTS"
+    OP_MISSING_KEY = "OP_MISSING_KEY"
+    REQ_HANDLE_INVALID = "REQ_HANDLE_INVALID"
+    REQ_HANDLE_TIMEOUT = "REQ_HANDLE_TIMEOUT"
+    REQ_OPERATION_INVALID = "REQ_OPERATION_INVALID"
+    REQ_PAYLOAD_INVALID_JSON = "REQ_PAYLOAD_INVALID_JSON"
+    REQ_PAYLOAD_UNSUPPORTED = "REQ_PAYLOAD_UNSUPPORTED"
+    UNHANDLED_ERROR = "UNHANDLED_ERROR"
+    UNKNOWN = "UNKNOWN"
+    NO_ERROR = ""
+
+    @classmethod
+    def parse(cls, error: Optional[str] = None) -> AWSInfraServiceError:
+        if not error:
+            return cls.NO_ERROR
+
+        try:
+            code = error.split("::")[0]
+            return cls(code)
+        except ValueError:
+            return cls.UNKNOWN

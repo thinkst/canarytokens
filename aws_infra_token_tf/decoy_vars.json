@@ -1,0 +1,66 @@
+{
+    "s3_bucket_names": [
+        "decoy-bucket-5",
+        "decoy-bucket-3"
+    ],
+    "s3_objects": [
+        {
+            "bucket": "decoy-bucket-5",
+            "key": "foo/bar/object1",
+            "content": "blahchangedagain"
+        },
+        {
+            "bucket": "decoy-bucket-5",
+            "key": "foo/baz/object2",
+            "content": "blahblah"
+        },
+        {
+            "bucket": "decoy-bucket-3",
+            "key": "moo/bar/object1",
+            "content": "blahblahblahblah"
+        },
+        {
+            "bucket": "decoy-bucket-3",
+            "key": "moo/baz/object2",
+            "content": "blahblahblah"
+        }
+    ],
+    "sqs_queues": [
+        "decoy-queue-5",
+        "decoy-queue-3"
+    ],
+    "ssm_parameters": [
+        {
+            "name": "decoy-parameter-5",
+            "value": "blahchangedagain"
+        },
+        {
+            "name": "decoy-parameter-3",
+            "value": "blahblahblah"
+        }
+    ],
+    "secrets": [
+        "decoy-secret-50",
+        "decoy-secret-30"
+    ],
+    "tables": [
+        "decoy-table-5",
+        "decoy-table-3"
+    ],
+    "table_items": [
+        {
+            "table_name": "decoy-table-5",
+            "key": "id",
+            "value": "13123912"
+        },
+        {
+            "table_name": "decoy-table-3",
+            "key": "id",
+            "value": "2523453"
+        }
+    ],
+    "canarytoken_id": "",
+    "target_bus_name": "",
+    "account_id": "",
+    "region": ""
+}

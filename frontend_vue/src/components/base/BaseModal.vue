@@ -11,7 +11,7 @@
   >
     <div
       class="absolute inset-[0px] h-full overflow-auto sm:flex p-16"
-      @click.self="() => emit('update:modelValue', false)"
+      @click.self="handleOverlayClick"
     >
       <div
         class="md:w-[60vw] lg:w-[50vw] mx-auto bg-white rounded-3xl max-w-screen-lg sm:self-center my-auto"
@@ -27,7 +27,7 @@
 
           <!-- Modal title -->
           <h1
-            class="flex items-center justify-center px-40 text-2xl font-semibold text-center"
+            class="flex items-center justify-center px-16 md:px-40 text-xl md:text-2xl font-semibold text-center"
           >
             {{ title }}
           </h1>
@@ -54,7 +54,9 @@
 
         <!-- Content -->
         <div
+          v-bind="$attrs"
           class="flex flex-col items-center justify-center px-16 py-16 sm:px-32 bg-grey-50 text-grey-800"
+          :class="[{ 'pb-24 rounded-b-3xl': hideFooter }, props.contentClass]"
         >
           <!-- Default slot -->
           <slot></slot>
@@ -64,6 +66,7 @@
         </div>
         <!-- Footer -->
         <div
+          v-if="!hideFooter"
           class="flex items-center justify-center gap-8 py-24 bg-white rounded-b-3xl mb-16text-center"
         >
           <slot name="footer"></slot>
@@ -76,15 +79,30 @@
 <script setup lang="ts">
 import { VueFinalModal } from 'vue-final-modal';
 
-defineProps<{
-  hasCloseButton: boolean;
-  title: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    hasCloseButton: boolean;
+    title: string;
+    hideFooter?: boolean;
+    contentClass?: string;
+    clickToClose?: boolean;
+  }>(),
+  {
+    clickToClose: true,
+    contentClass: '',
+  }
+);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'handleBackButton', value: false): void;
 }>();
+
+function handleOverlayClick() {
+  if (props.clickToClose) {
+    emit('update:modelValue', false);
+  }
+}
 
 const modalCustomTransition = {
   'enter-active-class': 'ease-out duration-300',

@@ -1,0 +1,64 @@
+<template>
+  <div
+    class="border bg-white rounded-2xl shadow-solid-shadow-grey border-grey-200 p-16 mx-24 my-16"
+  >
+    <AssetForm
+      :asset-type="props.assetType"
+      :asset-data="props.assetData"
+      :validation-schema="validationSchema"
+      :trigger-submit="props.triggerSubmit"
+      :trigger-cancel="props.triggerCancel"
+      @update-asset="handleUpdateAsset"
+      @update-temporary-asset="handleUpdateTemporaryAsset"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { AssetData } from '../types';
+import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
+import {
+  S3Bucket_schema,
+  SQSQueue_schema,
+  SSMParameter_schema,
+  SecretsManagerSecret_schema,
+  DynamoDBTable_schema,
+  Default_schema,
+} from './assetValidators';
+import AssetForm from './AssetForm.vue';
+
+const props = defineProps<{
+  assetType: AssetTypesEnum;
+  assetData: AssetData;
+  triggerSubmit: boolean;
+  triggerCancel: boolean;
+}>();
+
+const emit = defineEmits(['update-asset', 'update-temporary-asset']);
+
+function handleUpdateAsset(values: any) {
+  emit('update-asset', values);
+}
+
+function handleUpdateTemporaryAsset(values: any) {
+  emit('update-temporary-asset', values);
+}
+
+const validationSchema = computed(() => {
+  switch (props.assetType) {
+    case AssetTypesEnum.S3BUCKET:
+      return S3Bucket_schema;
+    case AssetTypesEnum.SQSQUEUE:
+      return SQSQueue_schema;
+    case AssetTypesEnum.SSMPARAMETER:
+      return SSMParameter_schema;
+    case AssetTypesEnum.SECRETMANAGERSECRET:
+      return SecretsManagerSecret_schema;
+    case AssetTypesEnum.DYNAMODBTABLE:
+      return DynamoDBTable_schema;
+    default:
+      return Default_schema;
+  }
+});
+</script>

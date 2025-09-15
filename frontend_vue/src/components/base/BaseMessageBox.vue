@@ -3,9 +3,7 @@
     class="flex flex-col items-center justify-start flex-grow w-full gap-8 px-24 py-16 rounded-2xl md:flex-row"
     :class="boxClasses"
   >
-    <div
-      class="flex flex-col items-center self-start flex-grow gap-16 lg:flex-row md:gap-16 md:self-center"
-    >
+    <div class="flex flex-col items-center gap-16 lg:flex-row md:gap-16">
       <AlertShieldIcon
         v-if="variant !== 'info'"
         class="min-w-[40px]"

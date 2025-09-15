@@ -1,4 +1,4 @@
-import type { FormattedHitsType } from '@/components/tokens/types.ts';
+import type { FormattedIncidentDetailsType } from '@/utils/IncidentTypes';
 import { tokenServices } from './tokenServices';
 import {
   TOKENS_TYPE,
@@ -24,7 +24,7 @@ export function hasChannelCustomLabel(channel: string, tokenType: string) {
  * Formats the incident details object by applying custom labels and formatting keys.
  */
 export function formatLabels(
-  incidentDetails: FormattedHitsType | keyof FormattedHitsType
+  incidentDetails: FormattedIncidentDetailsType | keyof FormattedIncidentDetailsType
 ) {
   try {
     return Object.entries(incidentDetails).reduce(
@@ -37,7 +37,7 @@ export function formatLabels(
 
         if (typeof val === 'object' && val !== null) {
           acc[formattedKey] = formatLabels(
-            val as unknown as keyof FormattedHitsType
+            val as unknown as keyof FormattedIncidentDetailsType
           );
         } else {
           acc[formattedKey] = val;
