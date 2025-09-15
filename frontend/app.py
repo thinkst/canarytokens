@@ -2357,7 +2357,7 @@ def _(
     with open(filepath, "wb") as fp:
         fp.write(filebody)
     # save to canarydrop
-    canarydrop.browser_scanner_enabled = False
+    canarydrop.browser_scanner_enabled = True
     canarydrop.web_image_enabled = True
     canarydrop.web_image_path = filepath
 
