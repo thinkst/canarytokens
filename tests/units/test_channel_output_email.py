@@ -191,6 +191,9 @@ def test_sendgrid_send(
     email: str,
     expected_result_type: EmailResponseStatuses,
 ):
+    pytest.skip(
+        "This test is broken because of a quota issue. It is disabled until that gets resolved."
+    )
     if not settings.SENDGRID_API_KEY:
         pytest.skip("No SendGrid API key found; skipping...")
     details = _get_send_token_details()
