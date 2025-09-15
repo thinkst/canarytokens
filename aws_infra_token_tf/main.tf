@@ -35,7 +35,3 @@ resource "null_resource" "region_validator" {
     }
   }
 }
-
-provider "aws" {
-  region = local.expected_region
-}

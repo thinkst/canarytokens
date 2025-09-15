@@ -73,6 +73,51 @@ locals {
   )
 }
 
+resource "aws_s3_bucket" "trail_bucket" {
+  bucket        = "trail-bucket-${random_string.trail_name.result}"
+  force_destroy = true
+  depends_on    = [aws_cloudwatch_event_target.decoy_events_target, null_resource.decoys_anchor]
+}
+
+data "aws_iam_policy_document" "trail_bucket_policy" {
+  statement {
+    sid    = "AWSCloudTrailAclCheck"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:GetBucketAcl"]
+    resources = [aws_s3_bucket.trail_bucket.arn]
+  }
+
+  statement {
+    sid    = "AWSCloudTrailWrite"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.trail_bucket.arn}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "trail_bucket_policy" {
+  bucket = aws_s3_bucket.trail_bucket.id
+  policy = data.aws_iam_policy_document.trail_bucket_policy.json
+}
+
 resource "aws_cloudwatch_event_rule" "decoy_events" {
   count         = length(local.valid_patterns) > 0 ? 1 : 0
   name          = "trail-events-${local.decoy_config.canarytoken_id}"
@@ -138,51 +183,6 @@ resource "random_string" "trail_name" {
   special = false
 }
 
-resource "aws_s3_bucket" "trail_bucket" {
-  bucket        = "trail-bucket-${random_string.trail_name.result}"
-  force_destroy = true
-  depends_on    = [aws_cloudwatch_event_target.decoy_events_target, null_resource.decoys_anchor]
-}
-
-data "aws_iam_policy_document" "trail_bucket_policy" {
-  statement {
-    sid    = "AWSCloudTrailAclCheck"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-
-    actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.trail_bucket.arn]
-  }
-
-  statement {
-    sid    = "AWSCloudTrailWrite"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.trail_bucket.arn}/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "trail_bucket_policy" {
-  bucket = aws_s3_bucket.trail_bucket.id
-  policy = data.aws_iam_policy_document.trail_bucket_policy.json
-}
-
 resource "aws_cloudtrail" "trail_with_data_events" {
   count          = local.has_resources_to_monitor ? 1 : 0
   name           = "trail-${random_string.trail_name.result}"
@@ -193,7 +193,7 @@ resource "aws_cloudtrail" "trail_with_data_events" {
   enable_logging                = true
   is_multi_region_trail         = false
 
-  depends_on = [aws_s3_bucket.trail_bucket, null_resource.decoys_anchor]
+  depends_on = [aws_s3_bucket.trail_bucket, aws_s3_bucket_policy.trail_bucket_policy, aws_cloudwatch_event_target.decoy_events_target, null_resource.decoys_anchor]
 
   dynamic "advanced_event_selector" {
     for_each = local.has_s3_resources ? [1] : []
@@ -273,5 +273,5 @@ resource "aws_cloudtrail" "trail_management_only" {
   enable_logging                = true
   is_multi_region_trail         = false
 
-  depends_on = [aws_s3_bucket.trail_bucket, null_resource.decoys_anchor]
+  depends_on = [aws_s3_bucket.trail_bucket, aws_s3_bucket_policy.trail_bucket_policy, aws_cloudwatch_event_target.decoy_events_target, null_resource.decoys_anchor]
 }
