@@ -324,13 +324,7 @@ class EmailOutputChannel(OutputChannel):
         return minify_html.minify(rendered_html)
 
     @staticmethod
-    def format_report_html(
-        details: TokenAlertDetails,
-        template_path: Path,
-    ):
-        """Returns a string containing an incident report in HTML,
-        suitable for emailing"""
-
+    def extract_basic_details(details: TokenAlertDetails) -> dict:
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
         readable_type = readable_token_type_names[details.token_type]
@@ -380,78 +374,30 @@ class EmailOutputChannel(OutputChannel):
                 BasicDetails["pwa_location"][
                     "apple_maps_link"
                 ] = f"https://maps.apple.com/?q={latitude},{longitude}"
-        rendered_html = Template(template_path.open().read()).render(
+
+        return BasicDetails
+
+    @staticmethod
+    def format_token_alert_mail(
+        details: TokenAlertDetails,
+        template_path: Path,
+    ):
+        """
+        Returns a string containing an incident report in HTML / text
+        suitable for emailing
+        """
+
+        BasicDetails = EmailOutputChannel.extract_basic_details(details)
+        rendered_text = Template(template_path.open().read(), trim_blocks=True).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),
             BasicDetails=BasicDetails,
             ManageLink=details.manage_url,
             HistoryLink=details.history_url,
         )
-        return minify_html.minify(rendered_html)
-
-    @staticmethod
-    def format_report_text(
-        details: TokenAlertDetails,
-        template_path: Path,
-    ):
-        """Returns a string containing an incident report in text,
-        suitable for emailing"""
-
-        # Use the Flask app context to render the emails
-        # (this generates the urls + schemes correctly)
-        readable_type = readable_token_type_names[details.token_type]
-        BasicDetails = details.dict()
-        BasicDetails["readable_type"] = readable_type
-        BasicDetails["token_type"] = details.token_type.value
-
-        if (
-            BasicDetails["additional_data"]
-            and "src_data" in BasicDetails["additional_data"]
-        ):
-            BasicDetails["src_data"] = BasicDetails["additional_data"].pop("src_data")
-
-        additional_data_keys = (
-            list(BasicDetails["additional_data"].keys())
-            if BasicDetails["additional_data"]
-            else []
-        )
-        src_data_keys = (
-            list(BasicDetails["src_data"].keys()) if BasicDetails["src_data"] else []
-        )
-
-        for field_name in additional_data_keys:
-            if BasicDetails["additional_data"][field_name]:
-                BasicDetails[field_name] = BasicDetails["additional_data"].pop(
-                    field_name
-                )
-        BasicDetails.pop("additional_data")
-
-        for field_name in src_data_keys:
-            if BasicDetails["src_data"][field_name]:
-                BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
-        BasicDetails.pop("src_data")
-
-        if "useragent" in BasicDetails and not BasicDetails["useragent"]:
-            BasicDetails.pop("useragent")
-        if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
-            BasicDetails.pop("src_ip")
-        if details.token_type == TokenTypes.PWA and "location" in BasicDetails:
-            BasicDetails["pwa_location"] = BasicDetails.pop("location")
-            latitude = BasicDetails["pwa_location"]["coords"].get("latitude")
-            longitude = BasicDetails["pwa_location"]["coords"].get("longitude")
-            if latitude and longitude:
-                BasicDetails["pwa_location"][
-                    "google_maps_link"
-                ] = f"https://google.com/maps?q={latitude},{longitude}"
-                BasicDetails["pwa_location"][
-                    "apple_maps_link"
-                ] = f"https://maps.apple.com/?q={latitude},{longitude}"
-        return Template(template_path.open().read()).render(
-            Intro=EmailOutputChannel.format_report_intro(details),
-            BasicDetails=BasicDetails,
-            ManageLink=details.manage_url,
-            HistoryLink=details.history_url,
-        )
+        if template_path.suffix == ".html":
+            return minify_html.minify(rendered_text)
+        return rendered_text
 
     @staticmethod
     def format_token_exposed_text(details: TokenExposedDetails):
@@ -559,14 +505,14 @@ class EmailOutputChannel(OutputChannel):
             email_content_text = EmailOutputChannel.format_token_exposed_text(details)
             email_subject = "Canarytoken Exposed"
         else:
-            email_content_html = EmailOutputChannel.format_report_html(
+            email_content_html = EmailOutputChannel.format_token_alert_mail(
                 details,
                 Path(
                     self.switchboard_settings.TEMPLATES_PATH,
                     f"{EmailTemplates.NOTIFICATION_HTML}",
                 ),
             )
-            email_content_text = EmailOutputChannel.format_report_text(
+            email_content_text = EmailOutputChannel.format_token_alert_mail(
                 details,
                 Path(
                     self.switchboard_settings.TEMPLATES_PATH,

@@ -41,7 +41,7 @@ def test_dns_rendered_html(settings: SwitchboardSettings):
         manage_url="https://some.link/manage/here",
         additional_data={},
     )
-    email_template = EmailOutputChannel.format_report_html(
+    email_template = EmailOutputChannel.format_token_alert_mail(
         details,
         Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
@@ -63,7 +63,7 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
             "location": "https://fake.your/domain/stuff",
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
+    email_template = EmailOutputChannel.format_token_alert_mail(
         details,
         Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
@@ -85,7 +85,7 @@ def test_cloned_site_rendered_html(settings: SwitchboardSettings):
             "location": "https://fake.your/domain/stuff/loc",
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
+    email_template = EmailOutputChannel.format_token_alert_mail(
         details,
         Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
@@ -106,7 +106,7 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
             "log4_shell_computer_name": "SRV01",
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
+    email_template = EmailOutputChannel.format_token_alert_mail(
         details,
         Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
@@ -127,7 +127,7 @@ def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
             "aws_key_log_data": {"safety_net": ["True"], "service_used": ["ses"]}
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
+    email_template = EmailOutputChannel.format_token_alert_mail(
         details,
         Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
@@ -197,7 +197,7 @@ def test_sendgrid_send(
 
     result, message_id = sendgrid_send(
         api_key=settings.SENDGRID_API_KEY,
-        email_content_html=EmailOutputChannel.format_report_html(
+        email_content_html=EmailOutputChannel.format_token_alert_mail(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
@@ -233,11 +233,11 @@ def test_mailgun_send(
         pytest.skip("No Mailgun API key found; skipping...")
     details = _get_send_token_details()
     result, message_id = mailgun_send(
-        email_content_html=EmailOutputChannel.format_report_html(
+        email_content_html=EmailOutputChannel.format_token_alert_mail(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_content_text=EmailOutputChannel.format_report_text(details),
+        email_content_text=EmailOutputChannel.format_token_alert_mail(details),
         email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
@@ -261,11 +261,11 @@ def test_smtp_send(
 ):
     details = _get_send_token_details()
     result, message_id = smtp_send(
-        email_content_html=EmailOutputChannel.format_report_html(
+        email_content_html=EmailOutputChannel.format_token_alert_mail(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_content_text=EmailOutputChannel.format_report_text(details),
+        email_content_text=EmailOutputChannel.format_token_alert_mail(details),
         email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
