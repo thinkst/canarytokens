@@ -213,6 +213,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             TokenTypes.SLOW_REDIRECT,
             TokenTypes.WEB_IMAGE,
             TokenTypes.WEB,
+            TokenTypes.LEGACY,
         ]:
             key = request.args.get(b"key", [None])[0]
             if (key := coerce_to_float(key)) and token:

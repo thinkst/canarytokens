@@ -395,6 +395,7 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
             models.CustomImageTokenHit,
             models.WebBugTokenHit,
             models.IdPAppTokenHit,
+            models.LegacyTokenHit,
         ),
     ):
         info = enriched_hit.additional_info.dict(exclude_unset=True, exclude_none=None)
