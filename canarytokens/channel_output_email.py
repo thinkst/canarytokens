@@ -437,17 +437,19 @@ class EmailOutputChannel(OutputChannel):
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
-                f"""{intro}
-                    Please note that the source IP refers to a DNS server, rather than the host that triggered the token.
-                    """
-            )
+                f"""
+                {intro}
+                Please note that the source IP refers to a DNS server, rather than the host that triggered the token.
+                """
+            ).strip()
 
         if (details.channel == "DNS") and (details.token_type == TokenTypes.MY_SQL):
             intro = dedent(
-                f"""{intro}
-                    Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
-                    """
-            )
+                f"""
+                {intro}
+                Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
+                """
+            ).strip()
 
         if (
             (details.token_type == TokenTypes.AWS_KEYS)
@@ -456,10 +458,11 @@ class EmailOutputChannel(OutputChannel):
             and (details.additional_data["aws_key_log_data"]["safety_net"])
         ):
             intro = dedent(
-                f"""{intro}
-                    This AWS activity was caught using our safetynet feature so it may contain limited information.
-                    """
-            )
+                f"""
+                {intro}
+                This AWS activity was caught using our safetynet feature so it may contain limited information.
+                """
+            ).strip()
 
         return intro
 
