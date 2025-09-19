@@ -38,7 +38,7 @@
           ref="emailInput"
           type="text"
           required
-          placeholder="your-email@email.com"
+          placeholder="your-email@example.com"
           label="Email Address"
           helper-message="We'll send you links to manage all your tokens."
           full-width
