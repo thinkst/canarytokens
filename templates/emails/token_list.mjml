@@ -115,8 +115,8 @@
       <mj-section background-color="#f6f8fb" border-radius="12px" padding="20px 20px">
         <mj-column padding="0" vertical-align="middle" css-class="content-section" width="80%">
           <mj-text padding="0 0 4px 0" font-size="14px" font-weight="600" color="#060606">
-          <img src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="32" height="32" style="vertical-align:middle;margin-right:8px;" />
-          <span class="token-type-name">{{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}</span>
+          <img src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="32" height="32" style="vertical-align:middle;" />
+          <span class="token-type-name" style="vertical-align:middle;">{{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}</span>
         </mj-text>
           
           <mj-text padding="0 0 4px 0" font-size="12px" color="#818a8e">
