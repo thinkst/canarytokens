@@ -42,8 +42,7 @@
       @media only screen and (max-width: 480px) {
         .responsive-button table {
           padding-top: 20px !important;
-          display: flex;
-          justify-content: center;
+          margin: 0 auto !important;
         }
 
         .content-section td div {
