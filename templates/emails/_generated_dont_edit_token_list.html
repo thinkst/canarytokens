@@ -68,6 +68,16 @@
         width: 40% !important;
         max-width: 40%;
       }
+
+      .mj-column-per-80 {
+        width: 80% !important;
+        max-width: 80%;
+      }
+
+      .mj-column-per-20 {
+        width: 20% !important;
+        max-width: 20%;
+      }
     }
 
   </style>
@@ -80,6 +90,16 @@
     .moz-text-html .mj-column-per-40 {
       width: 40% !important;
       max-width: 40%;
+    }
+
+    .moz-text-html .mj-column-per-80 {
+      width: 80% !important;
+      max-width: 80%;
+    }
+
+    .moz-text-html .mj-column-per-20 {
+      width: 20% !important;
+      max-width: 20%;
     }
 
   </style>
@@ -96,6 +116,49 @@
 
   </style>
   <style type="text/css">
+    @media only screen and (max-width: 768px) {
+      .content-section {
+        width: 50% !important;
+        max-width: 50%;
+      }
+
+      .manage-section {
+        width: 50% !important;
+        max-width: 50%;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      .responsive-button table {
+        padding-top: 20px !important;
+        display: flex;
+        justify-content: center;
+      }
+
+      .content-section td div {
+        text-align: center !important;
+      }
+
+      .content-section {
+        width: 100% !important;
+        max-width: 100%;
+      }
+
+      .manage-section {
+        width: 100% !important;
+        max-width: 100%;
+      }
+
+      .token-type-name {
+        display: block !important;
+      }
+
+      .token-value {
+        display: block !important;
+        margin-top: 4px !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -185,7 +248,7 @@
                                       </tr>
                                       <tr>
                                         <td align="center" style="font-size:0px;padding:0px 20px;word-break:break-word;">
-                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">You asked us for a list of your Canarytokens, so here it is! These are {% if token_list_length > LIMIT %} the most recent {{LIMIT}} Canarytokens registered to your email address. {% else %} all the Canarytokens registered to your email address. {% endif %} Next to each is a Manage link, where you can configure or delete the Canarytoken.</div>
+                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">You asked us for a list of your Canarytokens, so here it is! These are {% if token_list_length > LIMIT %} the most recent {{LIMIT}} Canarytokens registered to your address. {% else %} all the Canarytokens registered to your address. {% endif %} Next to each is a Manage link, where you can configure or delete the Canarytoken.</div>
                                         </td>
                                       </tr>
                                       <tr>
@@ -224,45 +287,45 @@
                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#f6f8fb;background-color:#f6f8fb;width:100%;border-radius:12px;">
                   <tbody>
                     <tr>
-                      <td style="direction:ltr;font-size:0px;padding:20px;text-align:center;">
-                        <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:700px;" ><![endif]-->
-                        <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                          <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                      <td style="direction:ltr;font-size:0px;padding:20px 20px;text-align:center;">
+                        <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="content-section-outlook" style="vertical-align:middle;width:560px;" ><![endif]-->
+                        <div class="mj-column-per-80 mj-outlook-group-fix content-section" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;">
+                          <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
                             <tbody>
                               <tr>
-                                <td align="center" style="font-size:0px;padding:0;word-break:break-word;">
-                                  <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#4D4D4D;"><img src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="32" height="32" /></div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td align="center" style="font-size:0px;padding:0;word-break:break-word;">
-                                  <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:14px;font-weight:600;line-height:24px;text-align:center;color:#060606;">{{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}</div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td align="center" style="font-size:0px;padding:0;padding-top:2px;word-break:break-word;">
-                                  <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC</div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td align="center" style="font-size:0px;padding:0;padding-top:3px;word-break:break-word;">
-                                  <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">({{canarydrop.canarytoken.value()}})</div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td align="center" style="font-size:0px;padding:0;padding-top:3px;word-break:break-word;">
-                                  <div style="font-family:monospace, 'Courier New', Courier;font-size:12px;font-weight:bold;line-height:24px;text-align:center;color:#666666;">{{canarydrop.memo}}</div>
+                                <td style="vertical-align:middle;padding:0;">
+                                  <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%">
+                                    <tbody>
+                                      <tr>
+                                        <td align="left" style="font-size:0px;padding:0 0 4px 0;word-break:break-word;">
+                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:14px;font-weight:600;line-height:24px;text-align:left;color:#060606;"><img src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="32" height="32" style="vertical-align:middle;margin-right:8px;" />
+                                            <span class="token-type-name">{{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}</span>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td align="left" style="font-size:0px;padding:0 0 4px 0;word-break:break-word;">
+                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;font-weight:400;line-height:24px;text-align:left;color:#818a8e;">Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">(id: {{canarydrop.canarytoken.value()}})</span></div>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td align="left" style="font-size:0px;padding:0;word-break:break-word;">
+                                          <div style="font-family:monospace, 'Courier New', Courier;font-size:12px;font-weight:bold;line-height:24px;text-align:left;color:#666666;">{{canarydrop.memo}}</div>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
                                 </td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
-                        <!--[if mso | IE]></td><td class="" style="vertical-align:middle;width:700px;" ><![endif]-->
-                        <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;">
+                        <!--[if mso | IE]></td><td class="manage-section-outlook" style="vertical-align:middle;width:140px;" ><![endif]-->
+                        <div class="mj-column-per-20 mj-outlook-group-fix manage-section" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;">
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%">
                             <tbody>
                               <tr>
-                                <td align="center" style="font-size:0px;padding:0px;padding-top:10px;word-break:break-word;">
+                                <td align="right" class="responsive-button" style="font-size:0px;padding:0px;word-break:break-word;">
                                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">
                                     <tbody>
                                       <tr>
