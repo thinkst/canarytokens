@@ -56,7 +56,7 @@
           <mj-text color="#818a8e" padding="0px 20px" align="center">
             You asked us for a list of your Canarytokens, so here it is! These are
             {% if token_list_length > LIMIT %}
-            the most recent {{LIMIT}} Canarytokens registered to your address.
+            the most recent {{LIMIT}} Canarytokens registered to your email address.
             {% else %}
             all the Canarytokens registered to your address.
             {% endif %}
