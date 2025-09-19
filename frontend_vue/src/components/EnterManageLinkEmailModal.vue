@@ -43,6 +43,7 @@
           helper-message="We'll send you links to manage all your tokens."
           full-width
           :disabled="disabled"
+          @keydown.enter.prevent="handleEnterKey"
         />
 
         <vue-turnstile
@@ -126,6 +127,18 @@ watch(showModal, (newValue) => {
     }
   }
 });
+
+const handleEnterKey = (event: KeyboardEvent) => {
+  // Force update the field value first
+  const input = event.target as HTMLInputElement;
+  if (formRef.value && input.value) {
+    formRef.value.setFieldValue('email', input.value);
+    // Then submit
+    nextTick(() => {
+      programaticSubmit();
+    });
+  }
+};
 
 const programaticSubmit = () => {
   if (formRef.value) {
