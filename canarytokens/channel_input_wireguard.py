@@ -20,7 +20,7 @@ from canarytokens.models import TokenTypes, WireguardTokenHit
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
-from canarytokens.exceptions import NoCanarytokenFound
+from canarytokens.exceptions import NoCanarydropFound
 from canarytokens.wireguard import (
     AEAD,
     KDF2,
@@ -64,10 +64,14 @@ class WireGuardProtocol(DatagramProtocol):
             f"Console public key: {device.privateKey.public_key.encode(encoder=nacl.encoding.Base64Encoder)!r}"
         )
 
-    def datagramReceived(
+    def datagramReceived(  # noqa: C901
         self, data: bytes, src: Tuple[str, int]
     ) -> None:  # pragma: no cover
-        log.debug(f"received data: {data!r} from src: {src}")
+        log.debug(
+            f"received data: {data!r} from src: {src}".replace("{", "{{").replace(
+                "}", "}}"
+            )
+        )
         # Supports only the Initiation message of WireGuard protocol
         #
         # All other message types and non-conforming data are dropped
@@ -132,16 +136,21 @@ class WireGuardProtocol(DatagramProtocol):
         public_key = base64.b64encode(peerPK)
         token_value = queries.wireguard_keymap_get(public_key)
         if not token_value:
-            raise NoCanarytokenFound
-        canarytoken = Canarytoken(value=token_value)
-        if not canarytoken:
-            log.debug(
-                f"No matching token for valid handshake with client key {public_key!r} from {src}. Expected when Canarytoken is deleted, but WG client config still in use."
+            log.info(
+                f"No token found for public_key {public_key.decode()} from {src}. It either does not correspond to a token, or the token was deleted."
             )
             return
 
-        # TODO: If canarydrop no longer exists, delete key -> canarytoken mapping in WireGuard keymap
-        canarydrop: Optional[Canarydrop] = queries.get_canarydrop(canarytoken)
+        canarytoken = Canarytoken(value=token_value)
+
+        try:
+            canarydrop: Optional[Canarydrop] = queries.get_canarydrop(canarytoken)
+        except NoCanarydropFound:
+            log.info(
+                f"No canarydrop found for public key {public_key.decode()}. Expected when the Canarytoken was deleted but not removed from the map, so it is being removed now."
+            )
+            queries.wireguard_keymap_del(public_key)
+            return
 
         src_host = src[0]
         src_data = {
