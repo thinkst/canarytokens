@@ -14,8 +14,13 @@ import requests
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
 
-from canarytokens import canarydrop as cand
-from canarytokens import models, tokens, constants
+from canarytokens import (
+    canarydrop as cand,
+    constants,
+    models,
+    tokens,
+    wireguard,
+)
 from canarytokens.exceptions import (
     CanarydropAuthFailure,
     NoCanarydropFound,
@@ -259,6 +264,9 @@ def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
         remove_webhook_token_idx(canarydrop.alert_webhook_url, token)
 
     remove_auth_token_idx(canarydrop.auth, token)
+
+    if canarydrop.type == models.TokenTypes.WIREGUARD:
+        wireguard.deleteCanarytokenPrivateKey(canarydrop.wg_key)
 
 
 # def _v2_compatibility_serialize_canarydrop(serialized_drop:dict[str, str], canarydrop:cand.Canarydrop)->dict[str, str]:
