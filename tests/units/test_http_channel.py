@@ -29,6 +29,7 @@ switchboard = Switchboard()
     [
         TokenTypes.FAST_REDIRECT,
         TokenTypes.WEB,
+        TokenTypes.WEB_IMAGE,
     ],
 )
 def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
@@ -152,6 +153,58 @@ def test_channel_http_GET_and_POST_back(
             cd_updated.triggered_details.hits[0].additional_info.browser.browser[0]
             == data_1[b"browser"][0].decode()
         )
+
+
+@pytest.mark.parametrize(
+    "token_type",
+    [
+        TokenTypes.WEB,
+        TokenTypes.WEB_IMAGE,
+        TokenTypes.SLOW_REDIRECT,
+    ],
+)
+def test_channel_http_POST(setup_db, frontend_settings, settings, token_type):
+    """
+    Test canarytokens http (POST) channel.
+    """
+    from twisted.web.test.requesthelper import DummyChannel
+
+    http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+        switchboard=switchboard,
+    )
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_type,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        browser_scanner_enabled=False,
+        redirect_url="https://youtube.com",
+    )
+    queries.save_canarydrop(cd)
+
+    request = Request(channel=DummyChannel())
+    request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
+    request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
+
+    request.args = {
+        b"browser": [b"Chrome"],
+        b"something1": [b"value1"],
+        b"something2": [b"1234"],
+    }
+
+    request.method = b"POST"
+    http_channel.site.resource.render(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd.type == cd_updated.type
 
 
 def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings):
