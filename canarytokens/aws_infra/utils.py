@@ -8,10 +8,21 @@ import httpx
 from attr import dataclass
 from typing import Optional
 
+from canarytokens.settings import FrontendSettings
+
+settings = FrontendSettings()
 
 log = logging.getLogger()
 
-
+AWS_INFRA_ENABLED = (
+    settings.AWS_INFRA_AWS_ACCOUNT
+    and settings.AWS_INFRA_AWS_REGION
+    and settings.AWS_INFRA_SHARED_SECRET
+    and settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
+    and settings.AWS_INFRA_CALLBACK_DOMAIN
+    and settings.AWS_INFRA_INGESTION_BUS
+    and settings.AWS_INFRA_TF_MODULE_BUCKET
+)
 S3_BUCKET_NAME_REGEX = re.compile(
     r"^(?!\d{1,3}(\.\d{1,3}){3}$)[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$"
 )

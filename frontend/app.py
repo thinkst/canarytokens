@@ -56,6 +56,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import (
     AWSInfraDataGenerationLimitReached,
     CanarydropAuthFailure,
+    CanarytokenTypeNotEnabled,
     NoCanarydropFound,
     AWSInfraOperationNotAllowed,
 )
@@ -2563,6 +2564,8 @@ def _(
     canarydrop.aws_region = token_request_details.aws_region
     try:
         aws_infra.initialise(canarydrop)
+    except CanarytokenTypeNotEnabled as e:
+        return JSONResponse({"message": str(e)})
     except Exception:
         return JSONResponse(
             {"message": "Failed to generate AWS Infra Canarytoken."}, status_code=500

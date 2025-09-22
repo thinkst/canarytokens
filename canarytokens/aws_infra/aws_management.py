@@ -6,6 +6,7 @@ from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
 
+from canarytokens.aws_infra.utils import AWS_INFRA_ENABLED
 from canarytokens.settings import FrontendSettings
 
 # Get the project root directory
@@ -54,9 +55,9 @@ def _get_resource(service: str, region_name: str = settings.AWS_INFRA_AWS_REGION
     )
 
 
-S3_RESOURCE = _get_resource("s3")
-SQS_CLIENT = _get_client("sqs")
-SSM_CLIENT = _get_client("ssm")
+S3_RESOURCE = _get_resource("s3") if AWS_INFRA_ENABLED else None
+SQS_CLIENT = _get_client("sqs") if AWS_INFRA_ENABLED else None
+SSM_CLIENT = _get_client("ssm") if AWS_INFRA_ENABLED else None
 
 
 def queue_management_request(payload: dict):

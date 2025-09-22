@@ -147,7 +147,7 @@ class FrontendSettings(BaseSettings):
     GEMINI_SYSTEM_PROMPT: Optional[str]
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
 
-    # temporary
+    # for local aws infra testing
     AWS_ACCESS_KEY_ID: Optional[str]
     AWS_SECRET_ACCESS_KEY: Optional[str]
     AWS_SESSION_TOKEN: Optional[str]
