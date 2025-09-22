@@ -1,22 +1,137 @@
-======================================================================
-                                ALERT
-======================================================================
+Your Canarytoken was triggered!
+-------------------------------
 
 {{Intro}}
 
-Basic Information:
-  Incident: {{Description}}
-  Time    : {{Timestamp}}
-{%if SourceIP %}
-  Source  : {{SourceIP}}
-{%endif%}
-  Target  : {{CanaryIP}} ({{CanaryName}}, id {{CanaryID}})
+Reminder:
+  {{BasicDetails['memo']}}
+{% if BasicDetails['src_ip'] +%}
+Source IP:
+  {{BasicDetails['src_ip']}}
+{% endif %}
 
-{% if AdditionalDetails %}
-Additional Details:
-  {% for add_det in AdditionalDetails %}
-  {{add_det[0]}}: {{add_det[1]}}
-  {% endfor %}
-{%endif%}
+Date:
+  {{BasicDetails['time_ymd']}}
 
-======================================================================
+Time:
+  {{BasicDetails['time_hm']}} UTC
+{% if BasicDetails['identity'] +%}
+Identity:
+  {{BasicDetails['identity']}}
+{% endif %}
+{% if BasicDetails['useragent'] +%}
+User agent:
+  {{BasicDetails['useragent']}}
+{% endif %}
+{% if BasicDetails['pwa_location'] +%}
+Location:
+  Latitude: {{BasicDetails['pwa_location']['coords'].get('latitude', '-')}}
+  Longitude: {{BasicDetails['pwa_location']['coords'].get('longitude', '-')}}
+  Accuracy (m): {{BasicDetails['pwa_location']['coords'].get('accuracy', '-')}}
+{% if BasicDetails['pwa_location'].get('google_maps_link') %}
+  Google Maps link: {{ BasicDetails['pwa_location']['google_maps_link'] }}
+  Apple Maps link: {{ BasicDetails['pwa_location']['apple_maps_link'] }}
+{% endif %}
+{% endif %}
+{% if BasicDetails['location'] +%}
+Location:
+  {{BasicDetails.get('location', None)}}
+{% endif %}
+{% if BasicDetails['log4_shell_computer_name'] +%}
+Log4Shell hostname:
+  {{BasicDetails['log4_shell_computer_name']}}
+{% endif %}
+{% if BasicDetails['sql_username'] +%}
+SQL Server username:
+  {{BasicDetails['sql_username']}}
+{% endif %}
+{% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] +%}
+Service Used:
+  {{ BasicDetails['aws_key_log_data']['service_used'][0].upper()}}
+{% endif %}
+{% if BasicDetails['cmd_process'] or BasicDetails['cmd_computer_name'] or BasicDetails['cmd_user_name'] +%}
+{% if BasicDetails['cmd_process'] +%}
+Sensitive command:
+  {{BasicDetails['cmd_process']}}
+{% endif %}
+{% if BasicDetails['cmd_computer_name'] +%}
+Executed on:
+  {{BasicDetails['cmd_computer_name']}}
+{% endif %}
+{% if BasicDetails['cmd_user_name'] +%}
+Run by:
+  {{BasicDetails['cmd_user_name']}}
+{% endif %}
+{% endif %}
+{% if BasicDetails['windows_fake_fs_file_name'] or BasicDetails['windows_fake_fs_process_name'] +%}
+{% if BasicDetails['windows_fake_fs_file_name'] +%}
+File opened:
+  {{BasicDetails['windows_fake_fs_file_name']}}
+{% endif %}
+{% if BasicDetails['windows_fake_fs_process_name'] +%}
+Opened by:
+  {{BasicDetails['windows_fake_fs_process_name']}}
+{% endif %}
+{% endif %}
+{% if BasicDetails['merchant'] or BasicDetails['amount'] +%}
+{% if BasicDetails['merchant'] +%}
+Authorizing merchant:
+  {{BasicDetails['merchant']}}
+{% endif %}
+{% if BasicDetails['amount'] +%}
+Transaction amount:
+  {{BasicDetails['amount']}}
+{% endif %}
+{% endif %}
+{% if BasicDetails['token_type'] == 'credit_card_v2' +%}
+{% if BasicDetails['additional_info']['merchant'] +%}
+Authorizing merchant:
+  {{BasicDetails['additional_info']['merchant']}}
+{% endif %}
+{% if BasicDetails['additional_info']['transaction_amount'] +%}
+Transaction amount:
+  {{BasicDetails['additional_info']['transaction_amount']}} {{BasicDetails['additional_info']['transaction_currency']}}
+{% endif %}
+{% endif %}
+{% if BasicDetails['token_type'] == 'webdav' +%}
+{% if BasicDetails['additional_info']['file_path'] +%}
+File Path:
+  {{BasicDetails['additional_info']['file_path']}}
+{% endif %}
+{% if BasicDetails['additional_info']['useragent'] +%}
+WebDAV Client User-Agent:
+  {{BasicDetails['additional_info']['useragent']}}
+{% endif %}
+{% endif %}
+{% if BasicDetails['generic_data'] +%}
+Generic data:
+  {{ BasicDetails['generic_data']}}
+{% endif %}
+{% if BasicDetails['referer'] +%}
+Referer:
+  {{ BasicDetails['referer']}}
+{% endif %}
+{% if BasicDetails['referrer'] +%}
+Referer:
+  {{ BasicDetails['referrer']}}
+{% endif %}
+{% if BasicDetails['request_args'] +%}
+Request arguments:
+  {{ BasicDetails['request_args']}}
+{% endif %}
+{% if BasicDetails['token'] +%}
+Canarytoken ID:
+  {{ BasicDetails['token']}}
+{% endif %}
+
+Alert History:
+  {{ HistoryLink }}
+
+Manage Alert:
+  {{ ManageLink }}
+
+More info on this Canarytoken?
+  https://docs.canarytokens.org/guide/
+
+Some of the best security teams in the world run Thinkst Canary.
+Find out why (https://canary.tools/)

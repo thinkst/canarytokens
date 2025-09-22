@@ -72,7 +72,8 @@ class EmailTemplates(str, enum.Enum):
     NOTIFICATION_TOKEN_EXPOSED = (
         "emails/_generated_dont_edit_notification_token_exposed.html"
     )
-    NOTIFICATION = "emails/_generated_dont_edit_notification.html"
+    NOTIFICATION_HTML = "emails/_generated_dont_edit_notification.html"
+    NOTIFICATION_TXT = "emails/notification.txt"
 
 
 class EmailResponse(object):
@@ -323,13 +324,7 @@ class EmailOutputChannel(OutputChannel):
         return minify_html.minify(rendered_html)
 
     @staticmethod
-    def format_report_html(
-        details: TokenAlertDetails,
-        template_path: Path,
-    ):
-        """Returns a string containing an incident report in HTML,
-        suitable for emailing"""
-
+    def extract_basic_details(details: TokenAlertDetails) -> dict:
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
         readable_type = readable_token_type_names[details.token_type]
@@ -379,34 +374,30 @@ class EmailOutputChannel(OutputChannel):
                 BasicDetails["pwa_location"][
                     "apple_maps_link"
                 ] = f"https://maps.apple.com/?q={latitude},{longitude}"
-        rendered_html = Template(template_path.open().read()).render(
+
+        return BasicDetails
+
+    @staticmethod
+    def format_token_alert_mail(
+        details: TokenAlertDetails,
+        template_path: Path,
+    ):
+        """
+        Returns a string containing an incident report in HTML / text
+        suitable for emailing
+        """
+
+        BasicDetails = EmailOutputChannel.extract_basic_details(details)
+        rendered_text = Template(template_path.open().read(), trim_blocks=True).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),
             BasicDetails=BasicDetails,
             ManageLink=details.manage_url,
             HistoryLink=details.history_url,
         )
-        return minify_html.minify(rendered_html)
-
-    @staticmethod
-    def format_report_text(details: TokenAlertDetails):
-        """Returns a string containing an incident report in text,
-        suitable for emailing"""
-
-        additional_data = "\n" + "\n".join(
-            f"{k}: {v}" for k, v in details.additional_data.items()
-        )
-        body = textwrap.dedent(
-            f"""
-            One of your canarydrops was triggered.
-            Channel: {details.channel}
-            Time   : {details.time}
-            Memo   : {details.memo}{additional_data}
-            Manage your settings for this Canarydrop:
-            {details.manage_url}
-            """
-        ).strip()
-        return body
+        if template_path.suffix == ".html":
+            return minify_html.minify(rendered_text)
+        return rendered_text
 
     @staticmethod
     def format_token_exposed_text(details: TokenExposedDetails):
@@ -446,17 +437,19 @@ class EmailOutputChannel(OutputChannel):
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
-                f"""{intro}
-                    Please note that the source IP refers to a DNS server, rather than the host that triggered the token.
-                    """
-            )
+                f"""
+                {intro}
+                Please note that the source IP refers to a DNS server, rather than the host that triggered the token.
+                """
+            ).strip()
 
         if (details.channel == "DNS") and (details.token_type == TokenTypes.MY_SQL):
             intro = dedent(
-                f"""{intro}
-                    Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
-                    """
-            )
+                f"""
+                {intro}
+                Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
+                """
+            ).strip()
 
         if (
             (details.token_type == TokenTypes.AWS_KEYS)
@@ -465,10 +458,11 @@ class EmailOutputChannel(OutputChannel):
             and (details.additional_data["aws_key_log_data"]["safety_net"])
         ):
             intro = dedent(
-                f"""{intro}
-                    This AWS activity was caught using our safetynet feature so it may contain limited information.
-                    """
-            )
+                f"""
+                {intro}
+                This AWS activity was caught using our safetynet feature so it may contain limited information.
+                """
+            ).strip()
 
         return intro
 
@@ -514,14 +508,20 @@ class EmailOutputChannel(OutputChannel):
             email_content_text = EmailOutputChannel.format_token_exposed_text(details)
             email_subject = "Canarytoken Exposed"
         else:
-            email_content_html = EmailOutputChannel.format_report_html(
+            email_content_html = EmailOutputChannel.format_token_alert_mail(
                 details,
                 Path(
                     self.switchboard_settings.TEMPLATES_PATH,
-                    f"{EmailTemplates.NOTIFICATION}",
+                    f"{EmailTemplates.NOTIFICATION_HTML}",
                 ),
             )
-            email_content_text = EmailOutputChannel.format_report_text(details)
+            email_content_text = EmailOutputChannel.format_token_alert_mail(
+                details,
+                Path(
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION_TXT}",
+                ),
+            )
             email_subject = self.email_subject
 
         if self.switchboard_settings.MAILGUN_API_KEY:
