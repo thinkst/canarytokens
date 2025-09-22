@@ -32,7 +32,7 @@ class SwitchboardSettings(BaseSettings):
     USING_NGINX: bool = True
     TEMPLATES_PATH: str = "../templates"
 
-    ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("illegal@email.com")
+    ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("your-email@example.com")
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
     MAX_ALERTS_PER_MINUTE: int = 1
