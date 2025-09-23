@@ -2565,7 +2565,7 @@ def _(
     try:
         aws_infra.initialise(canarydrop)
     except CanarytokenTypeNotEnabled as e:
-        return JSONResponse({"message": str(e)})
+        return JSONResponse({"message": str(e)}, status_code=500)
     except Exception:
         return JSONResponse(
             {"message": "Failed to generate AWS Infra Canarytoken."}, status_code=500
