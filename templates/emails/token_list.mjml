@@ -96,9 +96,9 @@
           <mj-text color="#818a8e" padding="0px 20px" align="center">
             You asked us for a list of your Canarytokens, so here it is! These are
             {% if token_list_length > LIMIT %}
-            the most recent {{LIMIT}} Canarytokens registered to your address.
+            the most recent {{LIMIT}} Canarytokens registered to your email address.
             {% else %}
-            all the Canarytokens registered to your address.
+            all the Canarytokens registered to your email address.
             {% endif %}
             With each is a Manage link, where you can configure or delete the Canarytoken.
           </mj-text>
@@ -120,7 +120,7 @@
         </mj-text>
           
           <mj-text padding="0 0 4px 0" font-size="12px" color="#818a8e">
-            Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">({{canarydrop.canarytoken.value()}})</span>
+            Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">(id: {{canarydrop.canarytoken.value()}})</span>
           </mj-text>
           
           <mj-text padding="0" font-size="12px" color="#666" font-family="monospace, 'Courier New', Courier"
