@@ -4,7 +4,7 @@
     :class="
       !props.isMobile
         ? 'items-center justify-end hidden w-full pr-32 md:flex gap-16 flex-wrap lg:gap-x-32'
-        : 'shadow-xl absolute transition-left ease-in-out duration-300 w-[80vw] text-right md:hidden bg-white/90 backdrop-blur-sm top-[93px] right-0 py-32 pr-32 h-auto z-50 motion-reduce:transition-none motion-reduce:hover:transform-none rounded-xl mr-8'
+        : 'w-max-content shadow-xl absolute transition-left ease-in-out duration-300 text-right md:hidden bg-white/90 backdrop-blur-sm top-[93px] right-0 p-32 h-auto z-50 motion-reduce:transition-none motion-reduce:hover:transform-none rounded-xl mr-8'
     "
   >
     <ul
@@ -51,7 +51,7 @@
         >
       </li>
     </ul>
-    <EnterManageLinkEmailModal />
+    <EnterManageLinkEmailModal @closeMobileMenu="$emit('closeMobileMenu')" />
   </nav>
 </template>
 
