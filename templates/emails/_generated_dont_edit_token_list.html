@@ -247,7 +247,7 @@
                                       </tr>
                                       <tr>
                                         <td align="center" style="font-size:0px;padding:0px 20px;word-break:break-word;">
-                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">You asked us for a list of your Canarytokens, so here it is! These are {% if token_list_length > LIMIT %} the most recent {{LIMIT}} Canarytokens registered to your address. {% else %} all the Canarytokens registered to your address. {% endif %} With each is a Manage link, where you can configure or delete the Canarytoken.</div>
+                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;font-weight:400;line-height:24px;text-align:center;color:#818a8e;">You asked us for a list of your Canarytokens, so here it is! These are {% if token_list_length > LIMIT %} the most recent {{LIMIT}} Canarytokens registered to your email address. {% else %} all the Canarytokens registered to your email address. {% endif %} With each is a Manage link, where you can configure or delete the Canarytoken.</div>
                                         </td>
                                       </tr>
                                       <tr>
@@ -304,7 +304,7 @@
                                       </tr>
                                       <tr>
                                         <td align="left" style="font-size:0px;padding:0 0 4px 0;word-break:break-word;">
-                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;font-weight:400;line-height:24px;text-align:left;color:#818a8e;">Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">({{canarydrop.canarytoken.value()}})</span></div>
+                                          <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;font-weight:400;line-height:24px;text-align:left;color:#818a8e;">Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">(id: {{canarydrop.canarytoken.value()}})</span></div>
                                         </td>
                                       </tr>
                                       <tr>
