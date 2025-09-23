@@ -3,12 +3,16 @@ import logging
 from canarytokens import queries
 from canarytokens.aws_infra.aws_management import get_current_ingestion_bus
 from canarytokens.aws_infra.utils import (
+    AWS_INFRA_ENABLED,
     generate_external_id,
     generate_inventory_role_name,
     generate_tf_module_prefix,
 )
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.exceptions import AWSInfraOperationNotAllowed
+from canarytokens.exceptions import (
+    AWSInfraOperationNotAllowed,
+    CanarytokenTypeNotEnabled,
+)
 from canarytokens.models import AWSInfraState
 from canarytokens.settings import FrontendSettings
 
@@ -21,6 +25,14 @@ def initialise(canarydrop: Canarydrop) -> bool:
     Initialize the AWS infrastructure state for the canarydrop.
     This sets the initial state and generates an external ID if not already set.
     """
+
+    if not AWS_INFRA_ENABLED:
+        logging.error(
+            "The required settings have not been configured on the server for the AWS Infra Canarytoken."
+        )
+        raise CanarytokenTypeNotEnabled(
+            "The required settings have not been set for the AWS Infra Canarytoken in frontend.env. See settings.py for required settings."
+        )
     canarydrop.aws_tf_module_prefix = generate_tf_module_prefix()
     canarydrop.aws_infra_ingestion_bus_name = get_current_ingestion_bus()
     canarydrop.aws_customer_iam_access_external_id = generate_external_id()

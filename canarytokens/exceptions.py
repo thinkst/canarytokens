@@ -52,3 +52,11 @@ class AWSInfraDataGenerationLimitReached(Exception):
     """
 
     pass
+
+
+class CanarytokenTypeNotEnabled(Exception):
+    """
+    Exception raised when a canarytoken type is not enabled.
+    """
+
+    pass
