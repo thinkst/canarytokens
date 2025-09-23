@@ -100,7 +100,7 @@
             {% else %}
             all the Canarytokens registered to your address.
             {% endif %}
-            Next to each is a Manage link, where you can configure or delete the Canarytoken.
+            With each is a Manage link, where you can configure or delete the Canarytoken.
           </mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center" padding-top="20px">
           If you didn't request this email, you can ignore or delete it.
@@ -120,7 +120,7 @@
         </mj-text>
           
           <mj-text padding="0 0 4px 0" font-size="12px" color="#818a8e">
-            Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">(id: {{canarydrop.canarytoken.value()}})</span>
+            Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">({{canarydrop.canarytoken.value()}})</span>
           </mj-text>
           
           <mj-text padding="0" font-size="12px" color="#666" font-family="monospace, 'Courier New', Courier"

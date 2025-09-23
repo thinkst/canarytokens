@@ -21,6 +21,9 @@
         If the email you provided is associated with any tokens, you will
         receive an email shortly with links to manage them.
       </p>
+      <p class="text-sm text-blue-700">
+        <strong>Don't see the email?</strong> Check your spam folder if you have many tokens.
+      </p>
     </div>
 
     <template v-else>
