@@ -1,11 +1,11 @@
 Your Canarytokens
 -----------------
 
-Here are the Canarytokens registered to your email address.
-{% if token_list_length > LIMIT %}You have more than {{LIMIT}} Canarytokens, so only the latest {{LIMIT}} are included.{% else %}You have {{token_list_length}} Canarytoken(s).{% endif %}
+You asked us for a list of your Canarytokens, so here it is! These are
+{% if token_list_length > LIMIT %}the most recent {{LIMIT}} Canarytokens registered to your email address.{% else %}all the Canarytokens registered to your email address.{% endif %} With each is a Manage link, where you can configure or delete the Canarytoken.
 {% for canarydrop in token_list %}
-  Date: {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC
   Type: {{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}
+  Date: {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC
   Token ID: {{canarydrop.canarytoken.value()}}
   Link: {{canarydrop.build_manage_url(switchboard_scheme, public_domain)}}
 {% endfor %}
