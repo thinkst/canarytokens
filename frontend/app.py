@@ -10,6 +10,13 @@ import base64
 import datetime
 import errno
 import hashlib
+from http.client import (
+    BAD_REQUEST,
+    OK,
+    SERVICE_UNAVAILABLE,
+    UNAUTHORIZED,
+)
+from itertools import islice
 import logging.config
 import os
 import textwrap
@@ -45,6 +52,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 import canarytokens
+from canarytokens.channel_output_email import EmailResponseStatuses, send_email
 import canarytokens.credit_card_v2 as credit_card_infra
 from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
@@ -62,6 +70,7 @@ from canarytokens.exceptions import (
 )
 from canarytokens.models import (
     PWA_APP_TITLES,
+    READABLE_TOKEN_TYPE_NAMES,
     AWSInfraGenerateChildAssetsRequest,
     AWSInfraGenerateChildAssetsResponse,
     AWSInfraHandleResponse,
@@ -103,6 +112,9 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    FetchLinksMessage,
+    FetchLinksRequest,
+    FetchLinksResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -220,7 +232,7 @@ from canarytokens.queries import (
 )
 from canarytokens.redismanager import DB
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
-from canarytokens.tokens import Canarytoken
+from canarytokens.tokens import Canarytoken, get_template_env, set_template_env
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
@@ -229,6 +241,7 @@ log = logging.getLogger()
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
+set_template_env(Path(switchboard_settings.TEMPLATES_PATH))
 protocol = "https" if switchboard_settings.FORCE_HTTPS else "http"
 if switchboard_settings.USING_NGINX:
     canary_http_channel = f"{protocol}://{frontend_settings.DOMAINS[0]}"
@@ -1043,6 +1056,84 @@ async def api_download(
         token=download_request.token, auth=download_request.auth
     )
     return create_download_response(download_request, canarydrop=canarydrop)
+
+
+@api.post(
+    "/fetchlinks",
+    tags=["Fetch Canarytokens"],
+    response_model=FetchLinksResponse,
+)
+async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
+    if frontend_settings.CLOUDFLARE_TURNSTILE_SECRET is None:
+        return JSONResponse(
+            content={"message": FetchLinksMessage.NOT_CONFIGURED.value},
+            status_code=SERVICE_UNAVAILABLE,
+        )
+    if not request.cf_turnstile_response:
+        return JSONResponse(
+            content={"message": FetchLinksMessage.TURNSTILE_REQUIRED.value},
+            status_code=UNAUTHORIZED,
+        )
+    if not is_valid_email(request.email):
+        return JSONResponse(
+            content={"message": FetchLinksMessage.INVALID_EMAIL.value},
+            status_code=BAD_REQUEST,
+        )
+    if not await queries.validate_turnstile(
+        cf_turnstile_secret=frontend_settings.CLOUDFLARE_TURNSTILE_SECRET,
+        cf_turnstile_response=request.cf_turnstile_response,
+    ):
+        return JSONResponse(
+            content={"message": FetchLinksMessage.INVALID_TURNSTILE.value},
+            status_code=UNAUTHORIZED,
+        )
+
+    token_set = queries.list_email_tokens(request.email)
+    if token_set:
+        drops = filter(
+            None,
+            map(lambda token: queries.get_canarydrop(Canarytoken(token)), token_set),
+        )
+        token_list = sorted(
+            drops, key=lambda canarydrop: canarydrop.created_at, reverse=True
+        )
+        template_params = {
+            "READABLE_TOKEN_TYPE_NAMES": READABLE_TOKEN_TYPE_NAMES,
+            "LIMIT": frontend_settings.TOKENS_FETCH_LIMIT,
+            "token_list": list(
+                islice(token_list, frontend_settings.TOKENS_FETCH_LIMIT)
+            ),
+            "token_list_length": len(token_list),
+            "public_domain": frontend_settings.DOMAINS[0],
+            "switchboard_scheme": switchboard_settings.SWITCHBOARD_SCHEME,
+        }
+        html_template_name = "token_list.html"
+        html_template = get_template_env().get_template(
+            f"emails/_generated_dont_edit_{html_template_name}"
+        )
+        txt_template = get_template_env().get_template("emails/token_list.txt")
+        html_body = html_template.render(**template_params)
+        txt_body = txt_template.render(**template_params)
+        email_response_status, _ = send_email(
+            switchboard_settings=switchboard_settings,
+            email_recipient=request.email,
+            email_subject="Your Canarytokens",
+            email_content_html=html_body,
+            email_content_text=txt_body,
+            from_email=switchboard_settings.ALERT_EMAIL_FROM_ADDRESS,
+            from_display=switchboard_settings.ALERT_EMAIL_FROM_DISPLAY,
+        )
+        if (
+            email_response_status is None
+            or email_response_status == EmailResponseStatuses.ERROR
+        ):
+            return JSONResponse(
+                content={"message": FetchLinksMessage.SEND_FAIL.value},
+                status_code=SERVICE_UNAVAILABLE,
+            )
+    return JSONResponse(
+        content={"message": FetchLinksMessage.SUCCESS.value}, status_code=OK
+    )
 
 
 @api.get("/commitsha")

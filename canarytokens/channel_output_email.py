@@ -29,10 +29,10 @@ from canarytokens.models import (
     AnyTokenExposedHit,
     Memo,
     TokenExposedHit,
-    readable_token_type_names,
+    READABLE_TOKEN_TYPE_NAMES,
     TokenAlertDetails,
     TokenExposedDetails,
-    token_types_with_article_an,
+    TOKEN_TYPES_WITH_ARTICLE_AN,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -276,6 +276,57 @@ def smtp_send(
     return email_response, message_id
 
 
+def send_email(
+    *,
+    switchboard_settings: SwitchboardSettings,
+    email_recipient: EmailStr,
+    email_subject: str,
+    email_content_html: str,
+    email_content_text: str,
+    from_email: EmailStr,
+    from_display: str,
+) -> tuple[Optional[EmailResponseStatuses], Optional[str]]:
+    if switchboard_settings.MAILGUN_API_KEY:
+        email_response_status, message_id = mailgun_send(
+            email_address=email_recipient,
+            email_subject=email_subject,
+            email_content_html=email_content_html,
+            email_content_text=email_content_text,
+            from_email=EmailStr(from_email),
+            from_display=from_display,
+            api_key=switchboard_settings.MAILGUN_API_KEY,
+            base_url=switchboard_settings.MAILGUN_BASE_URL,
+            mailgun_domain=switchboard_settings.MAILGUN_DOMAIN_NAME,
+        )
+    elif switchboard_settings.SENDGRID_API_KEY:
+        email_response_status, message_id = sendgrid_send(
+            api_key=switchboard_settings.SENDGRID_API_KEY,
+            email_address=email_recipient,
+            email_content_html=email_content_html,
+            from_email=EmailStr(from_email),
+            email_subject=email_subject,
+            from_display=from_display,
+            sandbox_mode=False,
+        )
+    elif switchboard_settings.SMTP_SERVER:
+        email_response_status, message_id = smtp_send(
+            email_address=email_recipient,
+            email_content_html=email_content_html,
+            email_content_text=email_content_text,
+            email_subject=email_subject,
+            from_email=EmailStr(from_email),
+            from_display=from_display,
+            smtp_password=switchboard_settings.SMTP_PASSWORD,
+            smtp_username=switchboard_settings.SMTP_USERNAME,
+            smtp_server=switchboard_settings.SMTP_SERVER,
+            smtp_port=switchboard_settings.SMTP_PORT,
+        )
+    else:
+        log.error("No email settings found")
+        email_response_status, message_id = None, None
+    return email_response_status, message_id
+
+
 class EmailOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_EMAIL
 
@@ -307,7 +358,7 @@ class EmailOutputChannel(OutputChannel):
     ):
         """Returns a string containing an incident report in HTML,
         suitable for emailing"""
-        readable_type = readable_token_type_names[details.token_type]
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
         BasicDetails["token_type"] = details.token_type.value
@@ -327,7 +378,7 @@ class EmailOutputChannel(OutputChannel):
     def extract_basic_details(details: TokenAlertDetails) -> dict:
         # Use the Flask app context to render the emails
         # (this generates the urls + schemes correctly)
-        readable_type = readable_token_type_names[details.token_type]
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
         BasicDetails["token_type"] = details.token_type.value
@@ -417,8 +468,8 @@ class EmailOutputChannel(OutputChannel):
 
     @staticmethod
     def format_token_exposed_intro(details: TokenExposedDetails):
-        article = "An" if details.token_type in token_types_with_article_an else "A"
-        readable_type = readable_token_type_names[details.token_type]
+        article = "An" if details.token_type in TOKEN_TYPES_WITH_ARTICLE_AN else "A"
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
         intro = (
             f"{article} {readable_type} Canarytoken has been exposed on the internet."
         )
@@ -428,8 +479,8 @@ class EmailOutputChannel(OutputChannel):
     def format_report_intro(details: TokenAlertDetails):
         details.channel
         details.token_type
-        article = "An" if details.token_type in token_types_with_article_an else "A"
-        readable_type = readable_token_type_names[details.token_type]
+        article = "An" if details.token_type in TOKEN_TYPES_WITH_ARTICLE_AN else "A"
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
         if details.src_ip:
             intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
         else:
@@ -524,43 +575,15 @@ class EmailOutputChannel(OutputChannel):
             )
             email_subject = self.email_subject
 
-        if self.switchboard_settings.MAILGUN_API_KEY:
-            email_response_status, message_id = mailgun_send(
-                email_address=canarydrop.alert_email_recipient,
-                email_subject=email_subject,
-                email_content_html=email_content_html,
-                email_content_text=email_content_text,
-                from_email=EmailStr(self.from_email),
-                from_display=self.from_display,
-                api_key=self.switchboard_settings.MAILGUN_API_KEY,
-                base_url=self.switchboard_settings.MAILGUN_BASE_URL,
-                mailgun_domain=self.switchboard_settings.MAILGUN_DOMAIN_NAME,
-            )
-        elif self.switchboard_settings.SENDGRID_API_KEY:
-            email_response_status, message_id = sendgrid_send(
-                api_key=self.switchboard_settings.SENDGRID_API_KEY,
-                email_address=canarydrop.alert_email_recipient,
-                email_content_html=email_content_html,
-                from_email=EmailStr(self.from_email),
-                email_subject=email_subject,
-                from_display=self.from_display,
-                sandbox_mode=False,
-            )
-        elif self.switchboard_settings.SMTP_SERVER:
-            email_response_status, message_id = smtp_send(
-                email_address=canarydrop.alert_email_recipient,
-                email_content_html=email_content_html,
-                email_content_text=email_content_text,
-                email_subject=email_subject,
-                from_email=EmailStr(self.from_email),
-                from_display=self.from_display,
-                smtp_password=self.switchboard_settings.SMTP_PASSWORD,
-                smtp_username=self.switchboard_settings.SMTP_USERNAME,
-                smtp_server=self.switchboard_settings.SMTP_SERVER,
-                smtp_port=self.switchboard_settings.SMTP_PORT,
-            )
-        else:
-            log.error("No email settings found")
+        email_response_status, message_id = send_email(
+            switchboard_settings=self.switchboard_settings,
+            email_recipient=canarydrop.alert_email_recipient,
+            email_subject=email_subject,
+            email_content_html=email_content_html,
+            email_content_text=email_content_text,
+            from_email=EmailStr(self.from_email),
+            from_display=self.from_display,
+        )
 
         self.handle_email_response(
             EmailResponse(
