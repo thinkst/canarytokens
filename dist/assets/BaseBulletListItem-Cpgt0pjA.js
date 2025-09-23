@@ -1,0 +1,1 @@
+import{H as t,e as r,h as o,k as s,J as n}from"./index-C8tSFf5z.js";const a={},c={class:"grid justify-start grid-flow-col gap-8 px-16 py-8 text-left bg-white border rounded-2xl border-grey-200 text-grey-500"};function d(e,_){return r(),o("li",c,[s("p",null,[n(e.$slots,"default",{},void 0,!0)])])}const i=t(a,[["render",d],["__scopeId","data-v-23bb8b49"]]);export{i as _};
