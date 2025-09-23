@@ -28,10 +28,10 @@ def initialise(canarydrop: Canarydrop) -> bool:
 
     if not AWS_INFRA_ENABLED:
         logging.error(
-            "The required settings have not been set for the AWS Infra Canarytoken in settings.py."
+            "The required settings have not been configured on the server for the AWS Infra Canarytoken."
         )
         raise CanarytokenTypeNotEnabled(
-            "The required settings have not been set for AWS Infrastructure Canarytoken."
+            "The required settings have not been set for the AWS Infra Canarytoken in frontend.env. See settings.py for required settings."
         )
     canarydrop.aws_tf_module_prefix = generate_tf_module_prefix()
     canarydrop.aws_infra_ingestion_bus_name = get_current_ingestion_bus()

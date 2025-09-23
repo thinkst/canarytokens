@@ -55,9 +55,10 @@ def _get_resource(service: str, region_name: str = settings.AWS_INFRA_AWS_REGION
     )
 
 
-S3_RESOURCE = _get_resource("s3") if AWS_INFRA_ENABLED else None
-SQS_CLIENT = _get_client("sqs") if AWS_INFRA_ENABLED else None
-SSM_CLIENT = _get_client("ssm") if AWS_INFRA_ENABLED else None
+if AWS_INFRA_ENABLED:
+    S3_RESOURCE = _get_resource("s3")
+    SQS_CLIENT = _get_client("sqs")
+    SSM_CLIENT = _get_client("ssm")
 
 
 def queue_management_request(payload: dict):
