@@ -1,8 +1,10 @@
 Your Canarytokens
 -----------------
 
-You asked us for a list of your Canarytokens, so here it is! These are
-{% if token_list_length > LIMIT %}the most recent {{LIMIT}} Canarytokens registered to your email address.{% else %}all the Canarytokens registered to your email address.{% endif %} With each is a Manage link, where you can configure or delete the Canarytoken.
+You asked us for a list of your Canarytokens, so here it is! These are {% if token_list_length > LIMIT %}the most recent {{LIMIT}} Canarytokens registered to your email address.{% else %}all the Canarytokens registered to your email address.{% endif %} With each is a Manage link, where you can configure or delete the Canarytoken.
+
+If you didn't request this email, you can ignore or delete it.
+
 {% for canarydrop in token_list %}
   Type: {{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}
   Date: {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC
