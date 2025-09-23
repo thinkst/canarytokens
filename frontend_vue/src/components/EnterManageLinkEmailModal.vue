@@ -2,7 +2,7 @@
   <BaseButton
     class="mt-16 md:mt-0 uppercase my-token-btn text-sm"
     variant="primary"
-    @click.stop="showModal = true"
+    @click.stop="showModal = true; $emit('closeMobileMenu')"
   >
     My Tokens
   </BaseButton>

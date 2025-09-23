@@ -24,8 +24,9 @@
   </button>
   <Transition>
     <AppNavbarLinks
-      v-if="showMobileMenu"
+      v-show="showMobileMenu"
       is-mobile
+      @closeMobileMenu="showMobileMenu = false"
     />
   </Transition>
 </template>
