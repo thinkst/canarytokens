@@ -60,6 +60,8 @@ const validationNotificationSettings = {
   webhook_url: Yup.string().url(validationMessages.validURL),
 };
 
+const validDnsRegexPattern = /^([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/;
+
 //@ts-expect-error comment out for POC
 export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.WEB_BUG]: {
@@ -197,13 +199,17 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.CLONED_WEBSITE]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
-      clonedsite: Yup.string().required('Domain is required'),
+      clonedsite: Yup.string()
+        .required('Domain is required')
+        .matches(validDnsRegexPattern, 'Must be valid domain eg: example.com'),
     }),
   },
   [TOKENS_TYPE.CSS_CLONED_SITE]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
-      expected_referrer: Yup.string().required('Domain is required'),
+      expected_referrer: Yup.string()
+        .required('Domain is required')
+        .matches(validDnsRegexPattern, 'Must be valid domain eg: example.com'),
     }),
   },
   [TOKENS_TYPE.KUBECONFIG]: {
