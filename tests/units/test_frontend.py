@@ -177,6 +177,11 @@ set_of_unsupported_response_classes = [
     AWSInfraTokenResponse,  # no download
 ]
 
+if not FrontendSettings("../frontend/frontend.env").WEBDAV_SERVER:
+    # The Cloudflare settings for webdav aren't present
+    set_of_unsupported_request_classes += [WebDavTokenRequest]
+    set_of_unsupported_response_classes += [WebDavTokenResponse]
+
 [set_of_response_classes.remove(o) for o in set_of_unsupported_response_classes]
 [set_of_request_classes.remove(o) for o in set_of_unsupported_request_classes]
 
