@@ -300,7 +300,7 @@
           id="email"
           type="text"
           required
-          placeholder="your-email@email.com"
+          placeholder="your-email@example.com"
           label="Arrow in third position"
           full-width
           :has-arrow="true"

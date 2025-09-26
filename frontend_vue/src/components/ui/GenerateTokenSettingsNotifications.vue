@@ -5,7 +5,7 @@
         id="email"
         type="text"
         required
-        placeholder="your-email@email.com"
+        placeholder="your-email@example.com"
         label="Mail me here when the alert fires"
         full-width
         :has-arrow="true"
