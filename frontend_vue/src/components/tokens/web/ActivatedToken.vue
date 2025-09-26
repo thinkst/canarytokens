@@ -6,7 +6,7 @@
   <base-message-box
     class="mt-24"
     variant="info"
-    :message="`If the URL is requested as an image (e.g. <img src=''>) then your custom image is served. If the URL is surfed in a browser then a blank page is served with fingerprinting Javascript.`"
+    :message="`If the URL is requested as an image (e.g. <img src=''>) then a 1px square GIF is served. If the URL is surfed in a browser then a page is served with fingerprinting Javascript.`"
     text-link="More tips?"
     @click="() => $emit('howToUse')"
   />

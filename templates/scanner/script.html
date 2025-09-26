@@ -1,14 +1,4 @@
-<html>
-    {% if redirect_url %}
-    <head>
-        <link rel="shortcut icon" href="/resources/favicon.ico">
-        <noscript><meta http-equiv="refresh" content="0; {{redirect_url|e}}"></noscript>
-    </head>
-    {% endif %}    
-<body>
-  <link rel="icon" href="data:;base64,=">
-  <iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
-  <script type="text/javascript">/*
+<script type="text/javascript">/*
 * PluginDetect v0.9.1
 * www.pinlady.net/PluginDetect/license/
 * [ QuickTime Java DevalVR Flash Shockwave WindowsMediaPlayer Silverlight VLC AdobeReader PDFReader RealPlayer IEcomponent ActiveX PDFjs ]
@@ -512,4 +502,4 @@
       results.textContent += 'pdfreader_version = '+ pdfreader_version + ' ';
   }
    PluginDetect.onWindowLoaded(drdetector.godetect);
-}( window.drdetector = window.drdetector || {} ));</script></body></html>
+}( window.drdetector = window.drdetector || {} ));</script>

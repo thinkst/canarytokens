@@ -1954,8 +1954,8 @@ def _(
 def _(
     token_request_details: WebBugTokenRequest, canarydrop: Canarydrop
 ) -> WebBugTokenResponse:
-    # TODO: add browser_scanner_enabled to WebBugTokenRequest
-    # canarydrop.browser_scanner_enabled = True
+    canarydrop.browser_scanner_enabled = True
+    save_canarydrop(canarydrop)
 
     return WebBugTokenResponse(
         email=canarydrop.alert_email_recipient or "",
@@ -2449,7 +2449,7 @@ def _(
     with open(filepath, "wb") as fp:
         fp.write(filebody)
     # save to canarydrop
-    canarydrop.browser_scanner_enabled = False
+    canarydrop.browser_scanner_enabled = True
     canarydrop.web_image_enabled = True
     canarydrop.web_image_path = filepath
 
@@ -2630,8 +2630,7 @@ def _(
 ) -> IdPAppTokenResponse:
     canarydrop.idp_app_entity_id = canarydrop.generated_url.removesuffix("/saml/sso")
     canarydrop.idp_app_type = token_request_details.app_type
-    if not canarydrop.redirect_url:
-        canarydrop.browser_scanner_enabled = True
+    canarydrop.browser_scanner_enabled = True
     save_canarydrop(canarydrop)
 
     return IdPAppTokenResponse(

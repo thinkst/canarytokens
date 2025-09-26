@@ -698,12 +698,14 @@ class Canarytoken(object):
             "https://"
         ):
             redirect_url = "http://" + redirect_url
-        template = get_template_env().get_template("browser_scanner.html")
-        return template.render(
-            key=canarydrop.triggered_details.hits[-1].time_of_hit,
-            canarytoken=canarydrop.canarytoken.value(),
-            redirect_url=redirect_url,
-        ).encode()
+        template_params = {
+            "key": canarydrop.triggered_details.hits[-1].time_of_hit,
+            "canarytoken": canarydrop.canarytoken.value(),
+            "redirect_url": redirect_url,
+            "include_browser_scanner": True,
+        }
+        template = get_template_env().get_template("fortune.html")
+        return template.render(**template_params).encode()
 
     @staticmethod
     def _get_info_for_web(request):
@@ -715,35 +717,24 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            request.setHeader("Content-Type", "text/html")
             if canarydrop.browser_scanner_enabled:
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-                # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up response template
-                browser_scanner_template_params = {
+                template_params = {
                     "key": latest_hit_time,
                     "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
+                    "include_browser_scanner": True,
+                    "include_pale_blue_dot": True,
                 }
-                template = get_template_env().get_template("browser_scanner.html")
-                # render template
-                return template.render(**browser_scanner_template_params).encode()
-
-            elif queries.get_return_for_token() == "fortune":  # gif
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-
-                # get fortune
-                # fortune = subprocess.check_output('/usr/games/fortune')
-                fortune = "fortune favours the brave"
-
-                # set-up response template
-                fortune_template_params = {"request": request, "fortune": fortune}
                 template = get_template_env().get_template("fortune.html")
-
-                # render template
-                return template.render(**fortune_template_params).encode()
+                return template.render(**template_params).encode()
+            elif queries.get_return_for_token() == "fortune":
+                template_params = {
+                    "include_pale_blue_dot": True,
+                }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         request.setHeader("Content-Type", "image/gif")
         return GIF
@@ -798,42 +789,31 @@ class Canarytoken(object):
 
         if html_accepted and not image_accepted:
             if canarydrop.browser_scanner_enabled:
-                # set response mimetype
                 request.setHeader("Content-Type", "text/html")
-                # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up response template
-                browser_scanner_template_params = {
+                template_params = {
                     "key": latest_hit_time,
                     "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
+                    "include_browser_scanner": True,
+                    "include_pale_blue_dot": True,
                 }
-                template = get_template_env().get_template("browser_scanner.html")
-                # render template
-                return template.render(**browser_scanner_template_params).encode()
-
-            elif queries.get_return_for_token() == "fortune":  # gif
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-
-                # get fortune
-                # fortune = subprocess.check_output('/usr/games/fortune')
-                fortune = "fortune favours the brave"
-
-                # set-up response template
-                fortune_template_params = {"request": request, "fortune": fortune}
                 template = get_template_env().get_template("fortune.html")
-
-                # render template
-                return template.render(**fortune_template_params).encode()
+                return template.render(**template_params).encode()
+            elif queries.get_return_for_token() == "fortune":
+                request.setHeader("Content-Type", "text/html")
+                template_params = {
+                    "request": request,
+                    "include_pale_blue_dot": True,
+                }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         _check_and_add_cors_headers(request)
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
-            # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
-            # read custom image
             with canarydrop.web_image_path.open(mode="rb") as fp:
                 contents = fp.read()
             return contents
@@ -972,38 +952,28 @@ class Canarytoken(object):
         """
 
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            request.setHeader("Content-Type", "text/html")
             if canarydrop.browser_scanner_enabled:
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-                # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up response template
-                browser_scanner_template_params = {
+                template_params = {
                     "key": latest_hit_time,
                     "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
+                    "include_browser_scanner": True,
+                    "include_pale_blue_dot": True,
                 }
-                template = get_template_env().get_template("browser_scanner.html")
-                # render template
-                return template.render(**browser_scanner_template_params).encode()
-
-            elif queries.get_return_for_token() == "fortune":  # gif
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-
-                # get fortune
-                # fortune = subprocess.check_output('/usr/games/fortune')
-                fortune = "fortune favours the brave"
-
-                # set-up response template
-                fortune_template_params = {"request": request, "fortune": fortune}
                 template = get_template_env().get_template("fortune.html")
-
-                # render template
-                return template.render(**fortune_template_params).encode()
+                return template.render(**template_params).encode()
+            elif queries.get_return_for_token() == "fortune":
+                request.setHeader("Content-Type", "text/html")
+                template_params = {
+                    "request": request,
+                    "include_pale_blue_dot": True,
+                }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
-            # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
             # read custom image
