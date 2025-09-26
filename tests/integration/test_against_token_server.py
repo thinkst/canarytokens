@@ -405,6 +405,11 @@ def test_web_bug_token(
 @pytest.mark.parametrize(
     "location, referrer, version",
     [
+        (
+            b"https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml",
+            b"",
+            v3,
+        ),
         (b"http://test.com/testloc", b"http://test.com/testref", v3),
         (b"http://test.com/testloc2", b"about:blank", v3),
     ],

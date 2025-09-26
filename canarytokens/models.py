@@ -53,7 +53,7 @@ from canarytokens.utils import (
 )
 
 CANARYTOKEN_RE = re.compile(
-    ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
+    f"[{CANARYTOKEN_ALPHABET}]{{{CANARYTOKEN_LENGTH}}}",
     re.IGNORECASE,
 )
 

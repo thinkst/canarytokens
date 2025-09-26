@@ -9,6 +9,23 @@ from canarytokens.models import TokenTypes
 
 
 @pytest.mark.parametrize(
+    "haystack, expected_token",
+    [
+        (
+            "username1.hostname2.ini.saxbvc7d7e2fwgnhta9aka6ae.canarytokens.org",
+            "saxbvc7d7e2fwgnhta9aka6ae",
+        ),
+        (
+            "https://canarytokens.org/about/static/ato5z8rhusrlc7pjq6lnx6or2/payments.js?l=https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml&amp;r=",
+            "ato5z8rhusrlc7pjq6lnx6or2",
+        ),
+    ],
+)
+def test_find_canarytoken(haystack, expected_token):
+    assert t.Canarytoken.find_canarytoken(haystack) == expected_token
+
+
+@pytest.mark.parametrize(
     "query, username, hostname, domain, should_match,",
     [
         (
