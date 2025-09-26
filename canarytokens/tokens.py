@@ -143,11 +143,14 @@ class Canarytoken(object):
         Exceptions:
         NoCanarytokenFound
         """
-        m = CANARYTOKEN_RE.search(haystack)
+        should_reverse = "/" not in haystack
+        m = CANARYTOKEN_RE.search(haystack[::-1] if should_reverse else haystack)
+
         if not m:
             raise NoCanarytokenFound(haystack)
 
-        return m.group(0)
+        result = m.group(0)
+        return result[::-1] if should_reverse else result
 
     def value(
         self,
