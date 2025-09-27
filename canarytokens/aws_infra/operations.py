@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from canarytokens import queries
 from canarytokens.aws_infra.aws_management import (
+    provision_ingestion_bus,
     queue_management_request,
     upload_tf_module,
 )
@@ -14,7 +15,7 @@ from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
     save_plan,
 )
-from canarytokens.aws_infra.state_management import is_ingesting
+from canarytokens.aws_infra.state_management import is_ingesting, set_ingestion_bus
 from canarytokens.aws_infra.terraform_generation import generate_tf_variables
 from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
@@ -92,7 +93,18 @@ def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
     )
     if handle.response_received == "False":
         payload = _build_operation_payload(operation, handle_id, canarydrop)
-        queue_management_request(payload)
+        response = queue_management_request(payload)
+
+        if operation == AWSInfraOperationType.SETUP_INGESTION and response.get(
+            "error", ""
+        ).contains("can't accommodate any more rules"):
+            logging.info("Provisioning new ingestion bus...")
+            new_bus_name = provision_ingestion_bus()
+            set_ingestion_bus(canarydrop, new_bus_name)
+            start_operation(
+                operation, canarydrop
+            )  # restart operation with new ingestion bus
+
     return handle_id
 
 

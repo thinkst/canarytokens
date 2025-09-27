@@ -7,6 +7,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 from canarytokens.aws_infra.utils import AWS_INFRA_ENABLED
+from canarytokens.models import AWSInfraOperationType
 from canarytokens.settings import FrontendSettings
 
 # Get the project root directory
@@ -14,6 +15,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
+MARKED_FULL = "MARKED_FULL"
 log = logging.getLogger()
 
 
@@ -65,9 +67,10 @@ def queue_management_request(payload: dict):
     """
     Send a message to the management request queue.
     """
-    SQS_CLIENT.send_message(
+    response = SQS_CLIENT.send_message(
         QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
     )
+    return response
 
 
 def get_shared_secret():
@@ -93,6 +96,18 @@ def get_shared_secret():
     return AWS_INFRA_SHARED_SECRET
 
 
+def provision_ingestion_bus():
+    try:
+        response = queue_management_request(
+            {"handle": "_", "operation": AWSInfraOperationType.PROVISION_INGESTION_BUS}
+        )
+        return response["result"]["bus_name"]
+    except KeyError:
+        error_message = f"Management request failed to provision a new ingestion bus: {response.get('result', {}).get('error', 'No error message returned')}"
+        logging.error(error_message)
+        raise RuntimeError(error_message)
+
+
 def get_current_ingestion_bus():
     bus_ssm_parameter = settings.AWS_INFRA_INGESTION_BUS
     if bus_ssm_parameter is None:
@@ -109,6 +124,14 @@ def get_current_ingestion_bus():
             error_message = f"Could not get the current ingestion bus name stored in: {bus_ssm_parameter}"
             logging.error(error_message)
             raise RuntimeError(error_message)
+
+        # check that bus isn't full
+        tags = SSM_CLIENT.list_tags_for_resource(
+            ResourceType="Parameter", ResourceId=bus_ssm_parameter
+        ).get("TagList", [])
+        is_full = any(tag.get("Key") == MARKED_FULL for tag in tags)
+        if is_full:
+            bus_name = provision_ingestion_bus()
         return bus_name
     except ClientError as e:
         logging.error(
