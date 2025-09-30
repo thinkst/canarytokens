@@ -32,7 +32,7 @@
       </div>
       <ul class="asset_category_card__list-data">
         <li class="text-sm">
-          <span class="label text-grey-400">Totaly decoys:</span>
+          <span class="label text-grey-400">Total decoys:</span>
           <span class="value"> {{ totalAssets }}</span>
         </li>
       </ul>
