@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-B-kYHRXN.js";import{d as a,e as o,f as r}from"./index-BnvNKgg5.js";const p=a({__name:"GenerateTokenForm",setup(n){return(s,t)=>(o(),r(e,{"memo-helper-example":"Email address in Events database"}))}});export{p as default};
