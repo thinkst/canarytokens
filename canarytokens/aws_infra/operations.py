@@ -95,9 +95,11 @@ def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
         payload = _build_operation_payload(operation, handle_id, canarydrop)
         response = queue_management_request(payload)
 
-        if operation == AWSInfraOperationType.SETUP_INGESTION and response.get(
-            "error", ""
-        ).contains("can't accommodate any more rules"):
+        if (
+            operation == AWSInfraOperationType.SETUP_INGESTION
+            and AWSInfraServiceError.parse(response.get("error", ""))
+            == AWSInfraServiceError.FAILURE_INGESTION_BUS_IS_FULL
+        ):
             logging.info("Provisioning new ingestion bus...")
             new_bus_name = provision_ingestion_bus()
             set_ingestion_bus(canarydrop, new_bus_name)

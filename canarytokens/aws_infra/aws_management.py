@@ -15,7 +15,6 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 AWS_INFRA_SHARED_SECRET = None
 settings = FrontendSettings()
 MANAGEMENT_REQUEST_URL = settings.AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL
-MARKED_FULL = "MARKED_FULL"
 log = logging.getLogger()
 
 
@@ -124,14 +123,6 @@ def get_current_ingestion_bus():
             error_message = f"Could not get the current ingestion bus name stored in: {bus_ssm_parameter}"
             logging.error(error_message)
             raise RuntimeError(error_message)
-
-        # check that bus isn't full
-        tags = SSM_CLIENT.list_tags_for_resource(
-            ResourceType="Parameter", ResourceId=bus_ssm_parameter
-        ).get("TagList", [])
-        is_full = any(tag.get("Key") == MARKED_FULL for tag in tags)
-        if is_full:
-            bus_name = provision_ingestion_bus()
         return bus_name
     except ClientError as e:
         logging.error(
