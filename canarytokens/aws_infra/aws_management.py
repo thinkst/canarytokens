@@ -7,7 +7,6 @@ import boto3
 from botocore.exceptions import ClientError
 
 from canarytokens.aws_infra.utils import AWS_INFRA_ENABLED
-from canarytokens.models import AWSInfraOperationType
 from canarytokens.settings import FrontendSettings
 
 # Get the project root directory
@@ -93,18 +92,6 @@ def get_shared_secret():
         )
 
     return AWS_INFRA_SHARED_SECRET
-
-
-def provision_ingestion_bus():
-    try:
-        response = queue_management_request(
-            {"handle": "_", "operation": AWSInfraOperationType.PROVISION_INGESTION_BUS}
-        )
-        return response["result"]["bus_name"]
-    except KeyError:
-        error_message = f"Management request failed to provision a new ingestion bus: {response.get('result', {}).get('error', 'No error message returned')}"
-        logging.error(error_message)
-        raise RuntimeError(error_message)
 
 
 def get_current_ingestion_bus():
