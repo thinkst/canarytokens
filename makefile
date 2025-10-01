@@ -10,7 +10,7 @@ switchboard-debug:
 
 .PHONY: frontend
 frontend:
-	cd frontend; poetry run uvicorn app:app --reload  --reload-dir="./" --reload-dir="../canarytokens" --log-config log.ini --host 0.0.0.0 --port 8082
+	cd frontend; poetry run uvicorn app:app --reload  --reload-dir="./" --reload-dir="../canarytokens" --host 0.0.0.0 --port 8082
 
 
 .PHONY: testv3

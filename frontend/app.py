@@ -237,7 +237,7 @@ from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
 
-log = logging.getLogger()
+log = logging.getLogger("uvicorn")
 
 frontend_settings = FrontendSettings()
 switchboard_settings = SwitchboardSettings()
@@ -322,7 +322,7 @@ if frontend_settings.NEW_UI:
             name="Vue Frontend Dist",
         )
     except RuntimeError:
-        print("Error: No Vue dist found. Is this the test Action?")
+        log.warning("Error: No Vue dist found. Is this the test Action?")
 
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
@@ -333,7 +333,7 @@ if (
 ):
     # Add sentry when running on a domain.
     app.add_middleware(SentryAsgiMiddleware)
-    print(f"Sentry enabled. Environment: {frontend_settings.SENTRY_ENVIRONMENT}")
+    log.info(f"Sentry enabled. Environment: {frontend_settings.SENTRY_ENVIRONMENT}")
 
 
 def capture_exception(error: BaseException, context: tuple[str, Any]):
@@ -811,6 +811,7 @@ async def api_generate(  # noqa: C901  # gen is large
         token_request_data["token_type"] = token_request_data.pop(
             "type", token_request_data.get("token_type", None)
         )
+    log.info(f"Token generate request received: {token_request_data}")
 
     try:
         token_request_details = parse_obj_as(AnyTokenRequest, token_request_data)
