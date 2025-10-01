@@ -93,19 +93,7 @@ def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
     )
     if handle.response_received == "False":
         payload = _build_operation_payload(operation, handle_id, canarydrop)
-        response = queue_management_request(payload)
-
-        if (
-            operation == AWSInfraOperationType.SETUP_INGESTION
-            and AWSInfraServiceError.parse(response.get("error", ""))
-            == AWSInfraServiceError.FAILURE_INGESTION_BUS_IS_FULL
-        ):
-            logging.info("Provisioning new ingestion bus...")
-            new_bus_name = provision_ingestion_bus()
-            set_ingestion_bus(canarydrop, new_bus_name)
-            start_operation(
-                operation, canarydrop
-            )  # restart operation with new ingestion bus
+        queue_management_request(payload)
 
     return handle_id
 
@@ -232,6 +220,15 @@ async def _build_handle_response_payload(
         else AWSInfraServiceError.REQ_HANDLE_TIMEOUT
     )
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
+
+    if error == AWSInfraServiceError.FAILURE_INGESTION_BUS_IS_FULL:
+        logging.info("Provisioning new ingestion bus...")
+        new_bus_name = provision_ingestion_bus()
+        set_ingestion_bus(canarydrop, new_bus_name)
+        new_handle_id = start_operation(
+            AWSInfraOperationType.SETUP_INGESTION, canarydrop
+        )  # restart operation with new ingestion bus
+        return AWSInfraHandleResponse(handle=new_handle_id)
 
     payload = {
         "result": error == AWSInfraServiceError.NO_ERROR,

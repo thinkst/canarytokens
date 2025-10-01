@@ -240,7 +240,7 @@ async function handleRequestTerraformSnippet() {
       errorMessage.value = res.data.message;
     }
 
-    const handle = res.data.handle;
+    let handle = res.data.handle;
 
     const pollTerraformSnippet = async () => {
       try {
@@ -285,6 +285,7 @@ async function handleRequestTerraformSnippet() {
           return;
         }
 
+        handle = resWithHandle.data.handle;
         setTimeout(() => {
           console.log(
             `Retrying requesting the Terraform Snippet (${retryAttempts}/${MAX_RETRIES})`
