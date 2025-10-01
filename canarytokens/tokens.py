@@ -26,6 +26,7 @@ from canarytokens.constants import (
 )
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
+    CANARYTOKEN_RE,
     AnyTokenHit,
     AwsInfraAdditionalInfo,
     AWSInfraTokenHit,
@@ -104,15 +105,6 @@ def get_template_env():
 
 
 class Canarytoken(object):
-    CANARY_RE = re.compile(
-        ".*(["
-        + "".join(CANARYTOKEN_ALPHABET)
-        + "]{"
-        + str(CANARYTOKEN_LENGTH)
-        + "}).*",
-        re.IGNORECASE,
-    )
-
     def __init__(self, value: Optional[AnyStr] = None):
         """Create a new Canarytoken instance. If no value was provided,
         generate a new canarytoken.
@@ -151,11 +143,14 @@ class Canarytoken(object):
         Exceptions:
         NoCanarytokenFound
         """
-        m = Canarytoken.CANARY_RE.match(haystack)
+        should_reverse = "/" not in haystack
+        m = CANARYTOKEN_RE.search(haystack[::-1] if should_reverse else haystack)
+
         if not m:
             raise NoCanarytokenFound(haystack)
 
-        return m.group(1)
+        result = m.group(0)
+        return result[::-1] if should_reverse else result
 
     def value(
         self,

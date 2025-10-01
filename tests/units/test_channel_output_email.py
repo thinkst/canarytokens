@@ -240,7 +240,9 @@ def test_mailgun_send(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_content_text=EmailOutputChannel.format_token_alert_mail(details),
+        email_content_text=EmailOutputChannel.format_token_alert_mail(
+            details, Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}")
+        ),
         email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
@@ -268,7 +270,9 @@ def test_smtp_send(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_content_text=EmailOutputChannel.format_token_alert_mail(details),
+        email_content_text=EmailOutputChannel.format_token_alert_mail(
+            details, Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}")
+        ),
         email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,

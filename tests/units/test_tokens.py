@@ -5,7 +5,35 @@ import random
 import base64
 
 from canarytokens import tokens as t
+from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import TokenTypes
+
+
+@pytest.mark.parametrize(
+    "haystack, expected_token",
+    [
+        (
+            "username1.hostname2.ini.h6jmkykjd2rrd2ahnkl6v6zdb.canarytokens.org",
+            "h6jmkykjd2rrd2ahnkl6v6zdb",
+        ),
+        (
+            "cleighton-thinkst.UN.uthisisaveryloongusername.abcd1234.h6jmkykjd2rrd2ahnkl6v6zdb.canarytoken.org",
+            "h6jmkykjd2rrd2ahnkl6v6zdb",
+        ),
+        (
+            "https://canarytokens.org/about/static/h6jmkykjd2rrd2ahnkl6v6zdb/payments.js?l=https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml&amp;r=",
+            "h6jmkykjd2rrd2ahnkl6v6zdb",
+        ),
+        ("", ""),
+        ("no.token.in.this.domain.invalid", ""),
+    ],
+)
+def test_find_canarytoken(haystack, expected_token):
+    if expected_token:
+        assert t.Canarytoken.find_canarytoken(haystack) == expected_token
+    else:
+        with pytest.raises(NoCanarytokenFound):
+            t.Canarytoken.find_canarytoken(haystack)
 
 
 @pytest.mark.parametrize(
