@@ -88,6 +88,9 @@ def start_operation(
     operation: AWSInfraOperationType, canarydrop: Canarydrop, handle_id=None
 ):
     "Create a new handle entry in the redis DB and trigger the specified operation"
+    initial_response_received_status = (
+        is_ingesting(canarydrop) and operation == AWSInfraOperationType.SETUP_INGESTION
+    )
     if handle_id is None:
         print(f"Starting operation without existing handle_id {operation.name}")
         handle_id = generate_handle_id()
@@ -95,10 +98,7 @@ def start_operation(
             canarytoken=canarydrop.canarytoken.value(),
             operation=operation.value,
             requested_time=datetime.now(timezone.utc).timestamp(),
-            response_received=str(
-                is_ingesting(canarydrop)
-                and operation == AWSInfraOperationType.SETUP_INGESTION
-            ),
+            response_received=str(initial_response_received_status),
             response_content="",
         )
         queries.add_aws_management_lambda_handle(
@@ -112,7 +112,7 @@ def start_operation(
         # reset existing handle to allow setup-ingestion retry after ingestion bus provisioning
         queries.reset_aws_management_lambda_handle_received(handle_id)
 
-    if handle.response_received == "False":
+    if initial_response_received_status is False:
         payload = _build_operation_payload(operation, handle_id, canarydrop)
         queue_management_request(payload)
 
