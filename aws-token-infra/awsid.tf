@@ -186,6 +186,14 @@ resource "aws_api_gateway_deployment" "create_user_api_tokens" {
 
    rest_api_id = aws_api_gateway_rest_api.create_user_api_tokens.id
 }
+
+resource "aws_api_gateway_stage" "create_user_api_tokens" {
+  deployment_id = aws_api_gateway_deployment.create_user_api_tokens.id
+  rest_api_id   = aws_api_gateway_rest_api.create_user_api_tokens.id
+  stage_name    = "prod"
+}
+
+
 resource "aws_lambda_permission" "create_user_api_tokens" {
    statement_id  = "AllowAPIGatewayInvoke"
    action        = "lambda:InvokeFunction"
@@ -199,7 +207,7 @@ resource "aws_lambda_permission" "create_user_api_tokens" {
 
 
 output "aws_api_key_creation_url" {
-  value = "https://${aws_api_gateway_rest_api.create_user_api_tokens.id}.execute-api.us-east-2.amazonaws.com/prod/${aws_api_gateway_resource.create_user_api_tokens.path_part}"
+  value = "https://${aws_api_gateway_rest_api.create_user_api_tokens.id}.execute-api.us-east-2.amazonaws.com/${aws_api_gateway_stage.create_user_api_tokens.stage_name}/${aws_api_gateway_resource.create_user_api_tokens.path_part}"
 }
 
 
