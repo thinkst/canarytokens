@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 
 from datetime import datetime, timezone
 from pydantic import BaseModel
@@ -39,6 +40,16 @@ from canarytokens.aws_infra.db_queries import (
 
 settings = FrontendSettings()
 
+# Configure logging for Docker containers without log.ini
+log = logging.getLogger(__name__)
+if not log.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
+    log.addHandler(handler)
+    log.setLevel(logging.INFO)
+
 AWS_INFRA_AWS_ACCOUNT = settings.AWS_INFRA_AWS_ACCOUNT
 HANDLE_RESPONSE_TIMEOUT = 300  # seconds
 
@@ -73,23 +84,34 @@ def get_role_cleanup_commands(canarydrop: Canarydrop):
     }
 
 
-def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
+def start_operation(
+    operation: AWSInfraOperationType, canarydrop: Canarydrop, handle_id=None
+):
     "Create a new handle entry in the redis DB and trigger the specified operation"
-    handle_id = generate_handle_id()
-    handle = Handle(
-        canarytoken=canarydrop.canarytoken.value(),
-        operation=operation.value,
-        requested_time=datetime.now(timezone.utc).timestamp(),
-        response_received=str(
-            is_ingesting(canarydrop)
-            and operation == AWSInfraOperationType.SETUP_INGESTION
-        ),
-        response_content="",
-    )
-    queries.add_aws_management_lambda_handle(
-        handle_id,
-        handle.dict(),
-    )
+    if handle_id is None:
+        print(f"Starting operation without existing handle_id {operation.name}")
+        handle_id = generate_handle_id()
+        handle = Handle(
+            canarytoken=canarydrop.canarytoken.value(),
+            operation=operation.value,
+            requested_time=datetime.now(timezone.utc).timestamp(),
+            response_received=str(
+                is_ingesting(canarydrop)
+                and operation == AWSInfraOperationType.SETUP_INGESTION
+            ),
+            response_content="",
+        )
+        queries.add_aws_management_lambda_handle(
+            handle_id,
+            handle.dict(),
+        )
+    else:
+        print(
+            f"Starting operation with existing handle_id: {handle_id} {operation.name}"
+        )
+        # reset existing handle to allow setup-ingestion retry after ingestion bus provisioning
+        queries.reset_aws_management_lambda_handle_received(handle_id)
+
     if handle.response_received == "False":
         payload = _build_operation_payload(operation, handle_id, canarydrop)
         queue_management_request(payload)
@@ -208,19 +230,20 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
 
 
 def _handle_provision_ingestion_bus(
-    handle_id: str, payload: dict, response_content: dict, canarydrop: Canarydrop
+    payload: dict, response_content: dict, canarydrop: Canarydrop
 ):
     if payload["result"]:
         bus_name = response_content.get("bus_name")
+        print(f"Provisioned new ingestion bus: {bus_name}")
         set_ingestion_bus(canarydrop, bus_name)
         # restart the original operation that needed a new ingestion bus
-        handle_id = start_operation(AWSInfraOperationType.SETUP_INGESTION, canarydrop)
-    return AWSInfraHandleResponse(**payload, handle=handle_id)
+        start_operation(
+            AWSInfraOperationType.SETUP_INGESTION, canarydrop, payload["handle"]
+        )
+    return AWSInfraHandleResponse(**payload)
 
 
-def _handle_check_role(
-    handle_id: str, payload: dict, response_content: dict, canarydrop: Canarydrop
-):
+def _handle_check_role(payload: dict, response_content: dict, canarydrop: Canarydrop):
     payload["session_credentials_retrieved"] = response_content.get(
         "session_credentials_retrieved", False
     )
@@ -228,7 +251,7 @@ def _handle_check_role(
 
 
 async def _handle_inventory(
-    handle_id: str, payload: dict, response_content: dict, canarydrop: Canarydrop
+    payload: dict, response_content: dict, canarydrop: Canarydrop
 ):
     if not payload["result"]:
         return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
@@ -249,7 +272,7 @@ async def _handle_inventory(
 
 
 def _handle_setup_ingestion(
-    handle_id: str, payload: dict, response_content: dict, canarydrop: Canarydrop
+    payload: dict, response_content: dict, canarydrop: Canarydrop
 ):
     payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
     if payload["result"]:
@@ -257,9 +280,7 @@ def _handle_setup_ingestion(
     return AWSInfraSetupIngestionReceivedResponse(**payload)
 
 
-def _handle_teardown(
-    handle_id: str, payload: dict, response_content: dict, canarydrop: Canarydrop
-):
+def _handle_teardown(payload: dict, response_content: dict, canarydrop: Canarydrop):
     payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
     return AWSInfraTeardownReceivedResponse(**payload)
 
@@ -278,11 +299,12 @@ async def _build_handle_response_payload(
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
 
     if error == AWSInfraServiceError.FAILURE_INGESTION_BUS_IS_FULL:
-        logging.info("Provisioning new ingestion bus...")
-        new_handle_id = start_operation(
-            AWSInfraOperationType.PROVISION_INGESTION_BUS, canarydrop
+        log.info("Provisioning new ingestion bus...")
+        print("Provisioning new ingestion bus...")
+        start_operation(
+            AWSInfraOperationType.PROVISION_INGESTION_BUS, canarydrop, handle_id
         )
-        return AWSInfraHandleResponse(handle=new_handle_id)
+        return AWSInfraHandleResponse(handle=handle_id)
 
     payload = {
         "result": error == AWSInfraServiceError.NO_ERROR,
@@ -303,10 +325,10 @@ async def _build_handle_response_payload(
 
     handler = operation_handlers.get(operation)
     if handler:
-        return await handler(handle_id, payload, response_content, canarydrop)
+        return await handler(payload, response_content, canarydrop)
 
     # Fallback for unknown operations, this should never happen
-    logging.error(f"Unknown operation type {operation} for handle {handle_id}.")
+    log.error(f"Unknown operation type {operation} for handle {handle_id}.")
 
 
 def filter_decoys_from_inventory(canarydrop: Canarydrop):
