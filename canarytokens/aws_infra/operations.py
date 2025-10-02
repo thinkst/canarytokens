@@ -193,6 +193,16 @@ def _get_error_message(
     return SERVICE_ERROR_MESSAGE_MAP.get(error, "An unknown error occurred.")
 
 
+def _allowed_handle_operation(handle: Handle, operation: AWSInfraOperationType):
+    if handle.operation == AWSInfraOperationType.PROVISION_INGESTION_BUS:
+        # the UI doesn't know about provisioning ingestion buses, so allow both operations
+        return operation in [
+            AWSInfraOperationType.PROVISION_INGESTION_BUS,
+            AWSInfraOperationType.SETUP_INGESTION,
+        ]
+    return handle.operation == operation.value
+
+
 async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     """
     Check if a response has been added to the specified handle in the redis DB and return it.
@@ -209,7 +219,7 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
         )
 
     handle = Handle(**handle)
-    if handle.operation != operation.value:
+    if not _allowed_handle_operation(handle, operation):
         return AWSInfraHandleResponse(
             handle=handle_id,
             message=default_error_message,
