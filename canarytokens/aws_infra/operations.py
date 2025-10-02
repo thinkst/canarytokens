@@ -16,7 +16,6 @@ from canarytokens.aws_infra.plan_generation import (
     save_plan,
 )
 from canarytokens.aws_infra.state_management import is_ingesting, set_ingestion_bus
-from canarytokens.aws_infra.terraform_generation import generate_tf_variables
 from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
@@ -239,13 +238,16 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     )
 
 
-def _handle_provision_ingestion_bus(
+async def _handle_provision_ingestion_bus(
     payload: dict, response_content: dict, canarydrop: Canarydrop
 ):
     if payload["result"]:
         bus_name = response_content.get("bus_name")
         print(f"Provisioned new ingestion bus: {bus_name}")
         set_ingestion_bus(canarydrop, bus_name)
+        if canarydrop.aws_saved_plan:
+            # reupload the tf module with the new bus name
+            upload_tf_module(canarydrop, json.loads(canarydrop.aws_saved_plan))
         # restart the original operation that needed a new ingestion bus
         start_operation(
             AWSInfraOperationType.SETUP_INGESTION, canarydrop, payload["handle"]
@@ -253,7 +255,9 @@ def _handle_provision_ingestion_bus(
     return AWSInfraHandleResponse(**payload)
 
 
-def _handle_check_role(payload: dict, response_content: dict, canarydrop: Canarydrop):
+async def _handle_check_role(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
     payload["session_credentials_retrieved"] = response_content.get(
         "session_credentials_retrieved", False
     )
@@ -281,7 +285,7 @@ async def _handle_inventory(
     return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
 
 
-def _handle_setup_ingestion(
+async def _handle_setup_ingestion(
     payload: dict, response_content: dict, canarydrop: Canarydrop
 ):
     payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
@@ -290,7 +294,9 @@ def _handle_setup_ingestion(
     return AWSInfraSetupIngestionReceivedResponse(**payload)
 
 
-def _handle_teardown(payload: dict, response_content: dict, canarydrop: Canarydrop):
+async def _handle_teardown(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
     payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
     return AWSInfraTeardownReceivedResponse(**payload)
 
@@ -382,10 +388,7 @@ async def setup_new_plan(canarydrop: Canarydrop, plan: str):
     queries.save_canarydrop(canarydrop)
     # Clear inventory
     delete_current_assets(canarydrop)
-    variables = generate_tf_variables(canarydrop, plan)
-    upload_tf_module(
-        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
-    )
+    upload_tf_module(canarydrop, plan)
 
 
 def get_canarydrop_from_handle(handle_id: str):
