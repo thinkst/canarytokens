@@ -110,7 +110,7 @@ def start_operation(
             f"Starting operation with existing handle_id: {handle_id} {operation.name}"
         )
         # reset existing handle to allow setup-ingestion retry after ingestion bus provisioning
-        queries.reset_aws_management_lambda_handle_received(handle_id)
+        queries.reset_aws_management_lambda_handle_received(handle_id, operation.value)
 
     if initial_response_received_status is False:
         payload = _build_operation_payload(operation, handle_id, canarydrop)
