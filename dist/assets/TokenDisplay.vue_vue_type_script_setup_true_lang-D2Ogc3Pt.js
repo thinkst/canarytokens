@@ -1,0 +1,1 @@
+import{_ as a}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-DL9GGpEP.js";import{d as n,e as t,f as s}from"./index-MEdnovcy.js";const m=n({__name:"TokenDisplay",props:{tokenData:{}},setup(p){return(e,_)=>{const o=a;return t(),s(o,{lang:"javascript",label:"Email",code:e.tokenData},null,8,["code"])}}});export{m as _};
