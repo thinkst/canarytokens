@@ -53,12 +53,14 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_WEBHOOK_IDX,
     KEY_WIREGUARD_KEYMAP,
 )
+from canarytokens.settings import SwitchboardSettings
 from canarytokens.webhook_formatting import (
     generate_webhook_test_payload,
     get_webhook_type,
 )
 
 log = Logger()
+settings = SwitchboardSettings()
 
 
 def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]:
@@ -304,11 +306,11 @@ def _v2_compatibility_loading_triggered_details(key: str) -> str:
 
 def get_canarydrop_triggered_details(
     canarytoken: tokens.Canarytoken,
-    max_history: int = 10,
 ) -> models.AnyTokenHistory:
     """
     Returns the triggered list for a Canarydrop, or {} if it does not exist
     """
+    max_history = settings.MAX_HISTORY
     key = KEY_CANARYDROP + canarytoken.value()
     triggered_details = _v2_compatibility_loading_triggered_details(key=key)
 
@@ -317,8 +319,6 @@ def get_canarydrop_triggered_details(
     else:
         triggered_details = json.loads(triggered_details)
         token_type = triggered_details.pop("token_type")
-        if token_type == models.TokenTypes.AWS_INFRA:
-            max_history = 50  # AWS Infra tokens can have more hits
         triggered_details = {
             k: v
             for k, v in triggered_details.items()
@@ -347,6 +347,10 @@ def add_canarydrop_hit(token_hit: models.AnyTokenHit, canarytoken):
         )
 
     token_history.hits.append(token_hit)
+    if len(token_history.hits) > settings.MAX_HISTORY:
+        token_history.hits[
+            -min(len(token_history.hits), settings.MAX_HISTORY) :  # noqa: E203
+        ]
 
     DB.get_db().hset(
         KEY_CANARYDROP + canarytoken.value(),
