@@ -216,6 +216,11 @@ class CanarytokenPage(InputChannel, resource.Resource):
             TokenTypes.LEGACY,
         ]:
             key = request.args.get(b"key", [None])[0]
+            # if key is present then do special handling arguments,
+            # otherwise just use render_GET()
+            if not key:
+                return self.render_GET(request)
+
             if (key := coerce_to_float(key)) and token:
                 additional_info = {
                     k.decode(): v
