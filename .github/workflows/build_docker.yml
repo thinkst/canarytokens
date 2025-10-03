@@ -191,6 +191,16 @@ jobs:
         run: |
           echo "Just making sure this happens for a trigger"
 
+      - name: Checking out repo for the actions
+        uses: actions/checkout@v4.2.0
+
+
+  trigger_cypress:
+      needs: fake-deploy
+      uses: ./.github/workflows/cypress.yml
+      with:
+        branch: "${{ github.ref_name }}"
+
   dev2-deploy:
     if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev2'
     runs-on: [self-hosted, dev2]

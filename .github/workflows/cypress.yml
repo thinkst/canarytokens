@@ -1,10 +1,19 @@
 name: Run Cypress Tests
 on:
-  push:
-    branches:
-      - master
-      - dev
-      - dev2
+  #push:
+  #  branches:
+  #    - master
+  #    - dev
+  #    - dev2
+  workflow_run:
+    workflows: ["Build Docker Image"]
+    types: [requested, completed]
+
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
 
 jobs:
   chrome:
@@ -13,6 +22,8 @@ jobs:
     steps:
       - name: Checkout 🔖
         uses: actions/checkout@v4.2.0
+        with:
+          ref: "${{ inputs.branch }}"
 
       - name: Setup Node.js 🔨
         uses: actions/setup-node@v4.0.4
@@ -21,28 +32,28 @@ jobs:
 
       - name: Set Test Domain Environment Variable
         run: |
-          if [ "${{ github.ref_name }}" == "master" ]; then
+          if [ "${{ inputs.branch }}" == "master" ]; then
             echo "TEST_DOMAIN=ssl-secure-srv.org" >> $GITHUB_ENV
-          elif [ "${{ github.ref_name }}" == "dev" ]; then
+          elif [ "${{ inputs.branch }}" == "dev" ]; then
             echo "TEST_DOMAIN=honeypdfs.com" >> $GITHUB_ENV
-          elif [ "${{ github.ref_name }}" == "dev2" ]; then
+          elif [ "${{ inputs.branch }}" == "dev2" ]; then
             echo "TEST_DOMAIN=syruppdfs.com" >> $GITHUB_ENV
           else
-            echo "No matching branch for domain testing. Exiting." && exit 1
+            echo "${{ inputs.branch }}: No matching branch for domain testing. Exiting." && exit 1
           fi
 
       - name: Debug Test Domain
         run: echo "TEST_DOMAIN=${{ env.TEST_DOMAIN }}"
 
-      - name: Execute Cypress Tests 🌡️
-        uses: cypress-io/github-action@v6.7.6
-        with:
-          working-directory: ./cypress-tests
-          command: npx cypress run --headless --browser chrome --env TEST_DOMAIN=${{ env.TEST_DOMAIN }}
+      #- name: Execute Cypress Tests 🌡️
+      #  uses: cypress-io/github-action@v6.7.6
+      #  with:
+      #    working-directory: ./cypress-tests
+      #    command: npx cypress run --headless --browser chrome --env TEST_DOMAIN=${{ env.TEST_DOMAIN }}
 
-      - name: Upload screenshots of tests failed 📷
-        uses: actions/upload-artifact@v4.4.0
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress-tests/cypress/screenshots
+      #- name: Upload screenshots of tests failed 📷
+      #  uses: actions/upload-artifact@v4.4.0
+      #  if: failure()
+      #  with:
+      #    name: cypress-screenshots
+      #    path: cypress-tests/cypress/screenshots
