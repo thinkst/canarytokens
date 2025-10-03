@@ -6,6 +6,7 @@ on:
       - "master"
       - "dev"
       - "dev2"
+      - "T11086_trigger_cypress_tests_after_deploy"
 
   workflow_dispatch:
     inputs:
@@ -25,71 +26,71 @@ jobs:
     steps:
     - uses: actions/checkout@v4.2.0
 
-    - name: Record author
-      run: |
-        echo "# Owners" >> $GITHUB_STEP_SUMMARY
-        echo "Author: ${{ github.event.head_commit.author.name }} (${{ github.event.head_commit.author.email }})" >> $GITHUB_STEP_SUMMARY
-        echo "Committer: ${{ github.event.head_commit.committer.name }} (${{ github.event.head_commit.committer.email }})" >> $GITHUB_STEP_SUMMARY
+    #- name: Record author
+    #  run: |
+    #    echo "# Owners" >> $GITHUB_STEP_SUMMARY
+    #    echo "Author: ${{ github.event.head_commit.author.name }} (${{ github.event.head_commit.author.email }})" >> $GITHUB_STEP_SUMMARY
+    #    echo "Committer: ${{ github.event.head_commit.committer.name }} (${{ github.event.head_commit.committer.email }})" >> $GITHUB_STEP_SUMMARY
 
-    - name: Restore Frontend Dist from Cache
-      uses: actions/cache@v4.2.0
-      id: cache-frontend-dist
-      with:
-        path: dist
-        key: frontend-dist-${{ hashFiles('frontend_vue/**') }}
+    #- name: Restore Frontend Dist from Cache
+    #  uses: actions/cache@v4.2.0
+    #  id: cache-frontend-dist
+    #  with:
+    #    path: dist
+    #    key: frontend-dist-${{ hashFiles('frontend_vue/**') }}
 
-    - uses: actions/setup-node@v4.0.4
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+    #- uses: actions/setup-node@v4.0.4
+    #  if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
+    #  with:
+    #    node-version: ${{ env.NODE_VERSION }}
 
-    - name: Install node modules
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
-      working-directory: frontend_vue
-      run: |
-        npm config set "@fortawesome:registry" https://npm.fontawesome.com/
-        npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
-        npm ci
+    #- name: Install node modules
+    #  if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
+    #  working-directory: frontend_vue
+    #  run: |
+    #    npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+    #    npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
+    #    npm ci
 
-    - name: Include git commit SHA and Google Maps Key for Frontend Development release
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && ( github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/dev2' )
-      working-directory: frontend_vue
-      run: |
-        touch .env
-        echo VITE_GITHUB_SHA=${GITHUB_SHA} >> .env
-        echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_DEV }}" >> .env
-        echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}" >> .env
-        cat .env
+    #- name: Include git commit SHA and Google Maps Key for Frontend Development release
+    #  if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && ( github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/dev2' )
+    #  working-directory: frontend_vue
+    #  run: |
+    #    touch .env
+    #    echo VITE_GITHUB_SHA=${GITHUB_SHA} >> .env
+    #    echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_DEV }}" >> .env
+    #    echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}" >> .env
+    #    cat .env
 
-    - name: Include git Google Maps Key for Frontend Production release
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && github.ref == 'refs/heads/master'
-      working-directory: frontend_vue
-      run: |
-        touch .env
-        echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_PROD }}" >> .env
-        echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD }}" >> .env
-        cat .env
+    #- name: Include git Google Maps Key for Frontend Production release
+    #  if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && github.ref == 'refs/heads/master'
+    #  working-directory: frontend_vue
+    #  run: |
+    #    touch .env
+    #    echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_PROD }}" >> .env
+    #    echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD }}" >> .env
+    #    cat .env
 
-    - name: Build Frontend Dist
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
-      working-directory: frontend_vue
-      env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-      run: |
-        rm -rf dist
-        npm run build
+    #- name: Build Frontend Dist
+    #  if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
+    #  working-directory: frontend_vue
+    #  env:
+    #      NODE_OPTIONS: "--max_old_space_size=4096"
+    #  run: |
+    #    rm -rf dist
+    #    npm run build
 
-    - name: Commit report
-      run: |
-        git config --global user.name "Frontend Github Action"
-        git config --global user.email "max@thinkst.com"
-        git add -f dist
-        # Only commit if any files have changed
-        # git status --porcelain is empty if there are no changes
-        if [ -n "$(git status --porcelain)" ]; then
-          git commit -am "Add Frontend Dist"
-          git push
-        fi
+    #- name: Commit report
+    #  run: |
+    #    git config --global user.name "Frontend Github Action"
+    #    git config --global user.email "max@thinkst.com"
+    #    git add -f dist
+    #    # Only commit if any files have changed
+    #    # git status --porcelain is empty if there are no changes
+    #    if [ -n "$(git status --porcelain)" ]; then
+    #      git commit -am "Add Frontend Dist"
+    #      git push
+    #    fi
 
   build:
     needs: build-and-commit-frontend-dist
@@ -114,50 +115,50 @@ jobs:
           path: canarytokens-docker
           ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.3.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #- name: Login to DockerHub
+      #  uses: docker/login-action@v3.3.0
+      #  with:
+      #    username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Fixup the build branch
-        run: |
-          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
-          sed -i'' "s/_COMMIT_HASH_/${GITHUB_SHA##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
-          echo "Building for ${GITHUB_REF##*/}"
-          cat /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
+      #- name: Fixup the build branch
+      #  run: |
+      #    sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
+      #    sed -i'' "s/_COMMIT_HASH_/${GITHUB_SHA##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
+      #    echo "Building for ${GITHUB_REF##*/}"
+      #    cat /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5.5.1
-        with:
-          images: |
-            thinkst/canarytokens
-          tags: |
-            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
+      #- name: Docker meta
+      #  id: meta
+      #  uses: docker/metadata-action@v5.5.1
+      #  with:
+      #    images: |
+      #      thinkst/canarytokens
+      #    tags: |
+      #      type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+      #      type=schedule
+      #      type=ref,event=branch
+      #      type=ref,event=pr
+      #      type=semver,pattern={{version}}
+      #      type=semver,pattern={{major}}.{{minor}}
+      #      type=semver,pattern={{major}}
+      #      type=sha
 
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v6.8.0
-        with:
-          context: /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            CACHE_BUSTER_COMMIT=${{ github.sha }}
+      #- name: Build and push
+      #  id: docker_build
+      #  uses: docker/build-push-action@v6.8.0
+      #  with:
+      #    context: /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens
+      #    push: true
+      #    platforms: linux/amd64,linux/arm64
+      #    tags: ${{ steps.meta.outputs.tags }}
+      #    cache-from: type=gha
+      #    cache-to: type=gha,mode=max
+      #    build-args: |
+      #      CACHE_BUSTER_COMMIT=${{ github.sha }}
 
     outputs:
       canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
@@ -180,6 +181,15 @@ jobs:
           sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml pull
           sudo docker compose -f docker-compose-letsencrypt-${GITHUB_REF##*/}.yml up -d
           sudo docker system prune -f -a
+
+  fake-deploy:
+    if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/T11086_trigger_cypress_tests_after_deploy'
+    runs-on: [self-hosted, dev]
+    needs: build
+    steps:
+      - name: Fake Deploying to machine
+        run: |
+          echo "Just making sure this happens for a trigger"
 
   dev2-deploy:
     if: github.repository == 'thinkst/canarytokens' && github.ref == 'refs/heads/dev2'
