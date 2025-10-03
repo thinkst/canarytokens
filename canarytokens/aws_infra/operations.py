@@ -14,8 +14,7 @@ from canarytokens.aws_infra.plan_generation import (
     generate_proposed_plan,
     save_plan,
 )
-from canarytokens.aws_infra.state_management import is_ingesting
-from canarytokens.aws_infra.terraform_generation import generate_tf_variables
+from canarytokens.aws_infra.state_management import is_ingesting, set_ingestion_bus
 from canarytokens.aws_infra.utils import generate_handle_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
@@ -73,24 +72,31 @@ def get_role_cleanup_commands(canarydrop: Canarydrop):
     }
 
 
-def start_operation(operation: AWSInfraOperationType, canarydrop: Canarydrop):
+def start_operation(
+    operation: AWSInfraOperationType, canarydrop: Canarydrop, handle_id=None
+):
     "Create a new handle entry in the redis DB and trigger the specified operation"
-    handle_id = generate_handle_id()
-    handle = Handle(
-        canarytoken=canarydrop.canarytoken.value(),
-        operation=operation.value,
-        requested_time=datetime.now(timezone.utc).timestamp(),
-        response_received=str(
-            is_ingesting(canarydrop)
-            and operation == AWSInfraOperationType.SETUP_INGESTION
-        ),
-        response_content="",
+    initial_response_received_status = (
+        is_ingesting(canarydrop) and operation == AWSInfraOperationType.SETUP_INGESTION
     )
-    queries.add_aws_management_lambda_handle(
-        handle_id,
-        handle.dict(),
-    )
-    if handle.response_received == "False":
+    if handle_id is None:
+        handle_id = generate_handle_id()
+        handle = Handle(
+            canarytoken=canarydrop.canarytoken.value(),
+            operation=operation.value,
+            requested_time=datetime.now(timezone.utc).timestamp(),
+            response_received=str(initial_response_received_status),
+            response_content="",
+        )
+        queries.add_aws_management_lambda_handle(
+            handle_id,
+            handle.dict(),
+        )
+    else:
+        # reset existing handle to allow setup-ingestion retry after ingestion bus provisioning
+        queries.reset_aws_management_lambda_handle_received(handle_id, operation.value)
+
+    if initial_response_received_status is False:
         payload = _build_operation_payload(operation, handle_id, canarydrop)
         queue_management_request(payload)
     return handle_id
@@ -161,6 +167,7 @@ def _get_error_message(
         AWSInfraServiceError.FAILURE_INVENTORY_ACCESS_DENIED: f"Could not retrieve the inventory of the AWS account{account} because access was denied. Please make sure the policy, Canarytokens-Inventory-ReadOnly-Policy, is attached to the inventory role{role} that you created for us to inventory your resources.",
         AWSInfraServiceError.FAILURE_INVENTORY_REGION_DISABLED: f"The region{region} is not enabled in the AWS account{account}. Please enable it and try again or choose a different region.",
         AWSInfraServiceError.FAILURE_INVENTORY_TOKEN_EXISTS: f"There's already a Canarytoken setup in{region} for {account}, so you won't be able to continue. Either edit or delete that Canarytoken through it's Manage link. If you do delete the Canarytoken, we recommend first running `$ terraform destroy` on the decoy Terraform plan, to remove the decoys from your AWS account before the Canarytoken is removed.",
+        AWSInfraServiceError.FAILURE_INGESTION_BUS_PROVISION: "Something went wrong while trying to setup alerting. Please try again later.",
         AWSInfraServiceError.NO_ERROR: "",
         AWSInfraServiceError.REQ_HANDLE_INVALID: "The handle ID provided is invalid.",
         AWSInfraServiceError.REQ_HANDLE_TIMEOUT: "Handle response timed out.",
@@ -168,6 +175,16 @@ def _get_error_message(
     }
 
     return SERVICE_ERROR_MESSAGE_MAP.get(error, "An unknown error occurred.")
+
+
+def _allowed_handle_operation(handle: Handle, operation: AWSInfraOperationType):
+    if handle.operation == AWSInfraOperationType.PROVISION_INGESTION_BUS:
+        # the UI doesn't know about provisioning ingestion buses, so allow both operations
+        return operation in [
+            AWSInfraOperationType.PROVISION_INGESTION_BUS,
+            AWSInfraOperationType.SETUP_INGESTION,
+        ]
+    return handle.operation == operation.value
 
 
 async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
@@ -186,7 +203,7 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
         )
 
     handle = Handle(**handle)
-    if handle.operation != operation.value:
+    if not _allowed_handle_operation(handle, operation):
         return AWSInfraHandleResponse(
             handle=handle_id,
             message=default_error_message,
@@ -206,6 +223,69 @@ async def get_handle_response(handle_id: str, operation: AWSInfraOperationType):
     )
 
 
+async def _handle_provision_ingestion_bus(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
+    if payload["result"]:
+        bus_name = response_content.get("bus_name")
+        print(f"Provisioned new ingestion bus: {bus_name}")
+        set_ingestion_bus(canarydrop, bus_name)
+        if canarydrop.aws_saved_plan:
+            # reupload the tf module with the new bus name
+            upload_tf_module(canarydrop, json.loads(canarydrop.aws_saved_plan))
+        # restart the original operation that needed a new ingestion bus
+        start_operation(
+            AWSInfraOperationType.SETUP_INGESTION, canarydrop, payload["handle"]
+        )
+    return AWSInfraHandleResponse(**payload)
+
+
+async def _handle_check_role(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
+    payload["session_credentials_retrieved"] = response_content.get(
+        "session_credentials_retrieved", False
+    )
+    return AWSInfraCheckRoleReceivedResponse(**payload)
+
+
+async def _handle_inventory(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
+    if not payload["result"]:
+        return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
+
+    save_current_assets(canarydrop, response_content.get("assets", {}))
+    payload.update(
+        {
+            "proposed_plan": {"assets": await generate_proposed_plan(canarydrop)},
+            "data_generation_remaining": name_generation_limit_usage(
+                canarydrop
+            ).remaining,
+        }
+    )
+    # remove decoys from inventory so that they don't influence calls to generate-data-choices
+    if is_ingesting(canarydrop):
+        filter_decoys_from_inventory(canarydrop)
+    return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
+
+
+async def _handle_setup_ingestion(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
+    payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+    if payload["result"]:
+        payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
+    return AWSInfraSetupIngestionReceivedResponse(**payload)
+
+
+async def _handle_teardown(
+    payload: dict, response_content: dict, canarydrop: Canarydrop
+):
+    payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
+    return AWSInfraTeardownReceivedResponse(**payload)
+
+
 async def _build_handle_response_payload(
     handle_id: str, handle: Handle, timeout: bool = False
 ):
@@ -219,6 +299,13 @@ async def _build_handle_response_payload(
     )
     canarydrop = queries.get_canarydrop(Canarytoken(value=handle.canarytoken))
 
+    if error == AWSInfraServiceError.FAILURE_INGESTION_BUS_IS_FULL:
+        logging.info("Provisioning new ingestion bus...")
+        start_operation(
+            AWSInfraOperationType.PROVISION_INGESTION_BUS, canarydrop, handle_id
+        )
+        return AWSInfraHandleResponse(handle=handle_id)
+
     payload = {
         "result": error == AWSInfraServiceError.NO_ERROR,
         "handle": handle_id,
@@ -227,38 +314,18 @@ async def _build_handle_response_payload(
     }
 
     operation = AWSInfraOperationType(handle.operation)
-    if operation == AWSInfraOperationType.CHECK_ROLE:
-        payload["session_credentials_retrieved"] = response_content.get(
-            "session_credentials_retrieved", False
-        )
-        return AWSInfraCheckRoleReceivedResponse(**payload)
 
-    if operation == AWSInfraOperationType.INVENTORY:
-        if not payload["result"]:
-            return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
+    operation_handlers = {
+        AWSInfraOperationType.PROVISION_INGESTION_BUS: _handle_provision_ingestion_bus,
+        AWSInfraOperationType.CHECK_ROLE: _handle_check_role,
+        AWSInfraOperationType.INVENTORY: _handle_inventory,
+        AWSInfraOperationType.SETUP_INGESTION: _handle_setup_ingestion,
+        AWSInfraOperationType.TEARDOWN: _handle_teardown,
+    }
 
-        save_current_assets(canarydrop, response_content.get("assets", {}))
-        payload.update(
-            {
-                "proposed_plan": {"assets": await generate_proposed_plan(canarydrop)},
-                "data_generation_remaining": name_generation_limit_usage(
-                    canarydrop
-                ).remaining,
-            }
-        )
-        # remove decoys from inventory so that they don't influence calls to generate-data-choices
-        if is_ingesting(canarydrop):
-            filter_decoys_from_inventory(canarydrop)
-        return AWSInfraInventoryCustomerAccountReceivedResponse(**payload)
-
-    payload["role_cleanup_commands"] = get_role_cleanup_commands(canarydrop)
-    if operation == AWSInfraOperationType.SETUP_INGESTION:
-        if payload["result"]:
-            payload["terraform_module_snippet"] = get_module_snippet(canarydrop)
-        return AWSInfraSetupIngestionReceivedResponse(**payload)
-
-    if operation == AWSInfraOperationType.TEARDOWN:
-        return AWSInfraTeardownReceivedResponse(**payload)
+    handler = operation_handlers.get(operation)
+    if handler:
+        return await handler(payload, response_content, canarydrop)
 
     # Fallback for unknown operations, this should never happen
     logging.error(f"Unknown operation type {operation} for handle {handle_id}.")
@@ -305,10 +372,7 @@ async def setup_new_plan(canarydrop: Canarydrop, plan: str):
     queries.save_canarydrop(canarydrop)
     # Clear inventory
     delete_current_assets(canarydrop)
-    variables = generate_tf_variables(canarydrop, plan)
-    upload_tf_module(
-        canarydrop.canarytoken.value(), canarydrop.aws_tf_module_prefix, variables
-    )
+    upload_tf_module(canarydrop, plan)
 
 
 def get_canarydrop_from_handle(handle_id: str):

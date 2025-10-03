@@ -1091,12 +1091,19 @@ def add_aws_management_lambda_handle(
     DB.get_db().expire(key, handle_lifetime)
 
 
+def reset_aws_management_lambda_handle_received(handle_id: str, operation: str):
+    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle_id}"
+    DB.get_db().hset(
+        key, mapping={"response_received": "False", "operation": operation}
+    )
+
+
 def get_aws_management_lambda_handle(handle):
     return DB.get_db().hgetall(f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle}")
 
 
-def update_aws_management_lambda_handle(handle: str, response: str):
-    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle}"
+def update_aws_management_lambda_handle(handle_id: str, response: str):
+    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle_id}"
     DB.get_db().hset(
         key, mapping={"response_content": response, "response_received": "True"}
     )

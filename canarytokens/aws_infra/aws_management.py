@@ -6,7 +6,9 @@ from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
 
+from canarytokens.aws_infra.terraform_generation import generate_tf_variables
 from canarytokens.aws_infra.utils import AWS_INFRA_ENABLED
+from canarytokens.canarydrop import Canarydrop
 from canarytokens.settings import FrontendSettings
 
 # Get the project root directory
@@ -65,7 +67,7 @@ def queue_management_request(payload: dict):
     """
     Send a message to the management request queue.
     """
-    SQS_CLIENT.send_message(
+    return SQS_CLIENT.send_message(
         QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
     )
 
@@ -120,10 +122,12 @@ def get_current_ingestion_bus():
         raise e
 
 
-def upload_tf_module(canarytoken_id, prefix, variables):
+def upload_tf_module(canarydrop: Canarydrop, plan: dict):
     """
     Upload a new terraform module to the terraform module bucket.
     """
+    variables = generate_tf_variables(canarydrop, plan)
+    canarytoken_id = canarydrop.canarytoken.value()
     tf_template_dir = PROJECT_ROOT / "aws_infra_token_tf"
     new_dir = shutil.copytree(
         str(tf_template_dir),
@@ -139,7 +143,7 @@ def upload_tf_module(canarytoken_id, prefix, variables):
     archive = shutil.make_archive(f"module_tf_{canarytoken_id}", "zip", new_dir)
 
     S3_RESOURCE.Bucket(settings.AWS_INFRA_TF_MODULE_BUCKET).upload_file(
-        archive, f"{prefix}/{canarytoken_id}/tf.zip"
+        archive, f"{canarydrop.aws_tf_module_prefix}/{canarytoken_id}/tf.zip"
     )
     shutil.rmtree(new_dir)
     os.remove(archive)

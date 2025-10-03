@@ -189,3 +189,17 @@ def is_initialised(canarydrop: Canarydrop) -> bool:
     Check if the canarydrop has been initialised, i.e. has any state set.
     """
     return canarydrop.aws_infra_state is not None
+
+
+def set_ingestion_bus(canarydrop: Canarydrop, bus_name: str) -> None:
+    """
+    Set the ingestion bus name for the canarydrop.
+    """
+    if is_ingesting(canarydrop):
+        error_message = (
+            "Cannot set ingestion bus after canarydrop has started ingesting."
+        )
+        logging.error(error_message)
+        raise RuntimeError(error_message)
+    canarydrop.aws_infra_ingestion_bus_name = bus_name
+    queries.save_canarydrop(canarydrop)
