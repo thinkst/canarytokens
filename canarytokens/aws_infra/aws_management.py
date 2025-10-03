@@ -67,10 +67,9 @@ def queue_management_request(payload: dict):
     """
     Send a message to the management request queue.
     """
-    response = SQS_CLIENT.send_message(
+    return SQS_CLIENT.send_message(
         QueueUrl=MANAGEMENT_REQUEST_URL, MessageBody=json.dumps(payload)
     )
-    return response
 
 
 def get_shared_secret():
