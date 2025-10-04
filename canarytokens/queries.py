@@ -7,6 +7,7 @@ import json
 import re
 import secrets
 from ipaddress import IPv4Address
+import textwrap
 from typing import Literal, Optional, Union
 
 import advocate
@@ -60,7 +61,7 @@ from canarytokens.webhook_formatting import (
 )
 
 log = Logger()
-settings = SwitchboardSettings()
+switchboard_settings = SwitchboardSettings()
 
 
 def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]:
@@ -310,7 +311,6 @@ def get_canarydrop_triggered_details(
     """
     Returns the triggered list for a Canarydrop, or {} if it does not exist
     """
-    max_history = settings.MAX_HISTORY
     key = KEY_CANARYDROP + canarytoken.value()
     triggered_details = _v2_compatibility_loading_triggered_details(key=key)
 
@@ -323,41 +323,12 @@ def get_canarydrop_triggered_details(
             k: v
             for k, v in triggered_details.items()
             if k
-            in sorted(
-                triggered_details.keys(),
-            )[-(max_history):]
+            in sorted(triggered_details.keys(),)[
+                -(switchboard_settings.MAX_HISTORY) :  # noqa: E203
+            ]
         }
         triggered_details["token_type"] = token_type
     return parse_obj_as(models.AnyTokenHistory, triggered_details)
-
-
-def add_canarydrop_hit(token_hit: models.AnyTokenHit, canarytoken):
-    """
-    Add a hit to a canarydrop. A hit will capture the
-    Arguments:
-    canarytoken -- canarytoken object.
-    **kwargs   -- Additional details about the hit.
-    """
-    token_history = get_canarydrop_triggered_details(canarytoken)
-
-    if token_history.token_type != token_hit.token_type:
-        # Design: This might not hold in the future but for now this is true.
-        raise ValueError(
-            f"All hits must be of a single type. Given {token_hit.token_type}; existing {token_history.token_type}"
-        )
-
-    token_history.hits.append(token_hit)
-    if len(token_history.hits) > settings.MAX_HISTORY:
-        token_history.hits[
-            -min(len(token_history.hits), settings.MAX_HISTORY) :  # noqa: E203
-        ]
-
-    DB.get_db().hset(
-        KEY_CANARYDROP + canarytoken.value(),
-        "triggered_list",
-        json.dumps(token_history.serialize_for_v2()),
-    )
-    return token_hit.time_of_hit
 
 
 def add_key_exposed_hit(
@@ -397,6 +368,15 @@ def add_key_exposed_hit(
 
 def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
     triggered_details = get_canarydrop_triggered_details(canarytoken)
+    if not any([hit_time == o.time_of_hit for o in triggered_details.hits]):
+        raise ValueError(
+            textwrap.dedent(
+                """
+                    Got additional details for a hit that does not exist.
+                    This is likely a use case we don't support yet but can.
+                """
+            )
+        )
     enriched_hit = next(
         filter(lambda o: o.time_of_hit == hit_time, triggered_details.hits)
     )

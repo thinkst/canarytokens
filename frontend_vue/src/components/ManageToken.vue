@@ -131,7 +131,7 @@ import DeleteTokenButton from '@/components/ui/DeleteTokenButton.vue';
 import MemoDisplay from '@/components/ui/MemoDisplay.vue';
 import TokenIcon from '@/components/icons/TokenIcon.vue';
 
-const MAX_ALERTS = 11;
+const MAX_ALERTS = 50;
 
 const route = useRoute();
 const router = useRouter();

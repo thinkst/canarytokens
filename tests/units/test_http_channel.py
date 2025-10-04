@@ -66,6 +66,42 @@ def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
     assert len(cd_updated.triggered_details.hits) == 1
 
 
+def test_channel_http_GET_token_limit(setup_db, settings, frontend_settings):
+    """
+    Test canarytokens http (GET) channel.
+    """
+    http_channel = ChannelHTTP(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.WEB,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        browser_scanner_enabled=False,
+        redirect_url="https://youtube.com",
+    )
+    queries.save_canarydrop(cd)
+
+    client = IPv4Address(type="TCP", host="127.0.0.1", port=8686)
+    request = DummyRequest("/")
+    request.client = client
+    request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
+    request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
+    for _ in range(100):
+        http_channel.canarytoken_page.render_GET(request)
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert len(cd_updated.triggered_details.hits) == settings.MAX_HISTORY
+
+
 @pytest.mark.parametrize(
     "token_type, request_args",
     [

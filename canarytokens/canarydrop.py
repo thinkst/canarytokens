@@ -19,6 +19,7 @@ from hashlib import md5
 from pathlib import Path
 from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
+from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
 from pydantic import AnyHttpUrl, BaseModel, Field, parse_obj_as, root_validator
@@ -48,6 +49,8 @@ from canarytokens.models import (
 )
 
 logger = logging.getLogger(__name__)
+
+switchboard_settings = SwitchboardSettings()
 
 
 def make_auth_token():
@@ -244,39 +247,27 @@ class Canarydrop(BaseModel):
             datetime: lambda v: v.strftime("%s.%f"),
         }
 
-    def add_additional_info_to_hit(
-        self,
-        hit_time: str,
-        additional_info: dict[str, str],
-    ) -> None:
-        """ """
-        trigger_details = queries.get_canarydrop_triggered_details(self.canarytoken)
-        if not any([hit_time == o.time_of_hit for o in trigger_details.hits]):
-            raise ValueError(
-                textwrap.dedent(
-                    """
-                Got additional details for a hit that does not exist.
-                This is likely a use case we don't support yet but can.
-            """
-                )
-            )
-
-        queries.add_additional_info_to_hit(self.canarytoken, hit_time, additional_info)
-
     def add_canarydrop_hit(self, *, token_hit: AnyTokenHit):
         """Adds a hit to the drops history `.triggered_details`.
 
         Args:
             token_hit (AnyTokenHit): Hit to add.
         """
-        queries.save_canarydrop(self)
+        if self.triggered_details.token_type != token_hit.token_type:
+            # Design: This might not hold in the future but for now this is true.
+            raise ValueError(
+                f"All hits must be of a single type. Given {token_hit.token_type}; existing {self.triggered_details.token_type}"
+            )
 
         self.triggered_details.hits.append(token_hit)
+        if len(self.triggered_details.hits) > switchboard_settings.MAX_HISTORY:
+            self.triggered_details.hits = self.triggered_details.hits[
+                -min(
+                    len(self.triggered_details.hits), switchboard_settings.MAX_HISTORY
+                ) :  # noqa: E203
+            ]
 
-        queries.add_canarydrop_hit(
-            token_hit=token_hit,
-            canarytoken=self.canarytoken,
-        )
+        queries.save_canarydrop(self)
 
     def add_key_exposed_hit(self, token_exposed_hit: AnyTokenExposedHit):
         if self.key_exposed_details is not None:
