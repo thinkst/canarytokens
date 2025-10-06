@@ -80,6 +80,29 @@ def test_add_delete_email(setup_db):
     assert not db.exists(key)
 
 
+def test_email_case_management(setup_db):
+    db: StrictRedis = setup_db
+    email = "Test@test.com"
+
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(canarydrop)
+
+    key = KEY_EMAIL_IDX + email
+    assert len(db.smembers(key)) == 0
+    assert len(db.smembers(key.lower)) == 1
+
+    delete_email_tokens(key)
+
+
 def test_add_hit_get_canarytoken(setup_db):
     canarytoken = Canarytoken()
 
