@@ -98,7 +98,7 @@ def test_email_case_management(setup_db):
 
     key = KEY_EMAIL_IDX + email
     assert len(db.smembers(key)) == 0
-    assert len(db.smembers(key.lower)) == 1
+    assert len(db.smembers(key.lower())) == 1
 
     delete_email_tokens(key)
 
