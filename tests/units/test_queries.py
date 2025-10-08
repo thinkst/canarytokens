@@ -99,6 +99,9 @@ def test_email_case_management(setup_db):
     key = KEY_EMAIL_IDX + email
     assert len(db.smembers(key)) == 0
     assert len(db.smembers(key.lower())) == 1
+    assert (
+        db.hget(KEY_CANARYDROP + canarytoken.value(), "alert_email_recipient") == email
+    )
 
     delete_email_tokens(key)
 
