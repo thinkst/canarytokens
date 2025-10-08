@@ -171,11 +171,11 @@ def add_canary_nxdomain(domain: str) -> int:
 
 
 def add_email_token_idx(email: str, canarytoken: str) -> int:
-    return DB.get_db().sadd(KEY_EMAIL_IDX + email, canarytoken)
+    return DB.get_db().sadd(KEY_EMAIL_IDX + email.lower(), canarytoken)
 
 
 def remove_email_token_idx(email: str, canarytoken: str) -> None:
-    DB.get_db().srem(KEY_EMAIL_IDX + email, canarytoken)
+    DB.get_db().srem(KEY_EMAIL_IDX + email.lower(), canarytoken)
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
@@ -215,7 +215,7 @@ def delete_webhook_tokens(webhook: str):
 
 
 def list_email_tokens(email_address) -> set[str]:
-    return DB.get_db().smembers(KEY_EMAIL_IDX + email_address)
+    return DB.get_db().smembers(KEY_EMAIL_IDX + email_address.lower())
 
 
 def list_webhook_tokens(webhook) -> set[str]:
