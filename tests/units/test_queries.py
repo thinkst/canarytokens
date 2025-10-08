@@ -103,6 +103,22 @@ def test_email_case_management(setup_db):
         db.hget(KEY_CANARYDROP + canarytoken.value(), "alert_email_recipient") == email
     )
 
+    second_token = Canarytoken()
+    second_canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email.lower(),
+        canarytoken=second_token,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(second_canarydrop)
+
+    set_members = db.smembers(key.lower())
+    assert len(set_members) == 2
+    assert all([token.value() in set_members for token in [canarytoken, second_token]])
+
     delete_email_tokens(key)
 
 
