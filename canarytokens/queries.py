@@ -368,7 +368,7 @@ def add_key_exposed_hit(
 
 def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
     triggered_details = get_canarydrop_triggered_details(canarytoken)
-    if not any([hit_time == o.time_of_hit for o in triggered_details.hits]):
+    if not any(hit_time == o.time_of_hit for o in triggered_details.hits):
         raise ValueError(
             textwrap.dedent(
                 """

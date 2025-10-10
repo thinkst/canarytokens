@@ -260,12 +260,10 @@ class Canarydrop(BaseModel):
             )
 
         self.triggered_details.hits.append(token_hit)
-        if len(self.triggered_details.hits) > switchboard_settings.MAX_HISTORY:
-            self.triggered_details.hits = self.triggered_details.hits[
-                -min(
-                    len(self.triggered_details.hits), switchboard_settings.MAX_HISTORY
-                ) :  # noqa: E203
-            ]
+        max_hits = min(
+            len(self.triggered_details.hits), switchboard_settings.MAX_HISTORY
+        )
+        self.trigger_details.hits = self.triggered_details.hits[-max_hits:]
 
         queries.save_canarydrop(self)
 
