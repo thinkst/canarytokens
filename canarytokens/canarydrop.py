@@ -209,7 +209,7 @@ class Canarydrop(BaseModel):
         # Check that the triggered_details 'token_type' matches the 'type' of the canarydrop.
         if getattr(values["triggered_details"], "token_type") != values["type"]:
             raise ValueError(
-                f"""trigger_details type must match drop type. Got:
+                f"""triggered_details type must match drop type. Got:
             {getattr(values["triggered_details"], "token_type")} != {values["type"]}
             """
             )
@@ -263,7 +263,7 @@ class Canarydrop(BaseModel):
         max_hits = min(
             len(self.triggered_details.hits), switchboard_settings.MAX_HISTORY
         )
-        self.trigger_details.hits = self.triggered_details.hits[-max_hits:]
+        self.triggered_details.hits = self.triggered_details.hits[-max_hits:]
 
         queries.save_canarydrop(self)
 
