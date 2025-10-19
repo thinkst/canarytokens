@@ -24,7 +24,6 @@ from canarytokens.redismanager import (
     KEY_WEBHOOK_IDX,
 )
 from canarytokens.queries import (
-    add_canarydrop_hit,
     delete_canarydrop,
     delete_email_tokens,
     delete_webhook_tokens,
@@ -146,7 +145,7 @@ def test_add_hit_get_canarytoken(setup_db):
         is_tor_relay=False,
         input_channel="dns",
     )
-    add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
+    canarydrop.add_canarydrop_hit(token_hit=token_hit)
     cd = get_canarydrop(canarytoken=canarytoken)
     assert cd.triggered_details
 
@@ -179,7 +178,7 @@ def test_add_hit_get_canarytoken_wrong_type(setup_db):
         useragent="Unknown",
     )
     with pytest.raises(ValueError):
-        add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
+        canarydrop.add_canarydrop_hit(token_hit=token_hit)
     cd = get_canarydrop(canarytoken=canarytoken)
     assert cd.triggered_details
 
@@ -222,7 +221,7 @@ def test_delete_drop(setup_db):
         location="/get",
         useragent="Unknown",
     )
-    add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
+    canarydrop.add_canarydrop_hit(token_hit=token_hit)
     cd = get_canarydrop(canarytoken=canarytoken)
 
     for key in critical_keys:

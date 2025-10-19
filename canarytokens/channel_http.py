@@ -227,7 +227,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
                     for k, v in request.args.items()
                     if k.decode() not in ["key", "canarytoken", "name"]
                 }
-                canarydrop.add_additional_info_to_hit(
+                queries.add_additional_info_to_hit(
+                    canarytoken=canarydrop.canarytoken,
                     hit_time=key,
                     additional_info={
                         request.args[b"name"][0].decode(): additional_info
@@ -254,7 +255,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
                     for k, v in request.args.items()
                     if k.decode() not in ["key", "canarytoken", "name"]
                 }
-                canarydrop.add_additional_info_to_hit(
+                queries.add_additional_info_to_hit(
+                    canarytoken=canarydrop.canarytoken,
                     hit_time=key,
                     additional_info={
                         request.args[b"name"][0].decode(): additional_info
