@@ -42,7 +42,12 @@ from fastapi import (
     Header,
 )
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+)
 from fastapi.security import APIKeyQuery
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -294,6 +299,22 @@ if frontend_settings.NEW_UI:
     @app.get("/generate")
     def index(request: Request):
         return vue_index.TemplateResponse("index.html", {"request": request})
+
+    @app.get("/robots.txt")
+    def robots_txt():
+        txt_template = get_template_env().get_template("robots.txt")
+        return PlainTextResponse(
+            content=txt_template.render(),
+            status_code=200,
+        )
+
+    @app.get("/.well-known/security.txt")
+    def security_txt():
+        txt_template = get_template_env().get_template("security.txt")
+        return PlainTextResponse(
+            content=txt_template.render(),
+            status_code=200,
+        )
 
 
 ROOT_API_ENDPOINT = "/d3aece8093b71007b5ccfedad91ebb11"
