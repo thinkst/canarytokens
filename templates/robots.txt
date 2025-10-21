@@ -1,6 +1,8 @@
 User-agent: *
 Disallow: /download
 Disallow: /history
+Disallow: /nest/history
 Disallow: /manage
+Disallow: /nest/manage
 Disallow: /settings
 Sitemap: http://canarytokens.org/resources/sitemap.xml

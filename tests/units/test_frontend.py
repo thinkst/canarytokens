@@ -216,6 +216,32 @@ def test_get_commit_sha(test_client: TestClient) -> None:
     assert resp.status_code == 200
 
 
+def test_get_robots_txt(test_client: TestClient) -> None:
+    resp = test_client.get("/robots.txt")
+    assert resp.status_code == 200
+    assert resp.text.startswith("User-agent: *")
+    assert "Disallow: /history" in resp.text
+    assert "Disallow: /manage" in resp.text
+
+
+def test_get_security_txt(test_client: TestClient) -> None:
+    resp = test_client.get("/.well-known/security.txt")
+    assert resp.status_code == 200
+    assert (
+        "Acknowledgements: https://github.com/thinkst/canarytokens/security/advisories"
+        in resp.text
+    )
+    assert "Expires: " in resp.text
+    expiry_date = re.search(r"Expires:\s*(\S+)", resp.text).group(1)
+    # Check that the expiry date is in the future
+    from datetime import datetime, timezone
+
+    expiry_datetime = datetime.fromisoformat(expiry_date.replace("Z", "+00:00"))
+    assert expiry_datetime > datetime.now(
+        timezone.utc
+    ), "Update the security.txt expiry date!"
+
+
 @pytest.mark.parametrize(
     "token_request_type, token_response_type",
     zip(set_of_request_classes, set_of_response_classes),

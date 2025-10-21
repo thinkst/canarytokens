@@ -8,5 +8,5 @@ Contact: https://github.com/thinkst/canarytokens/security/advisories/new
 Policy: https://github.com/thinkst/canarytokens/security/policy
 Acknowledgements: https://github.com/thinkst/canarytokens/security/advisories
 
-Expires: 2023-12-31T21:59:00.000Z
+Expires: 2026-12-31T21:59:00.000Z
 Hiring: https://canary.tools/jobs
