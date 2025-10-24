@@ -42,7 +42,6 @@
             "ghcr.io/devcontainers-extra/features/terraform-docs:1": {
                 "version": "0.16.0"
             },
-            "ghcr.io/devcontainers-extra/features/mysql-homebrew:1": {},
             "ghcr.io/devcontainers-extra/features/wireguard-apt-get:1": {},
             "ghcr.io/devcontainers-extra/features/kubectl-asdf:2": {
                 "version": "1.28.1"
