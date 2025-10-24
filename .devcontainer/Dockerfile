@@ -1,5 +1,5 @@
 # If any packages or tools are not available through devcontainer features, install them here.
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+FROM mcr.microsoft.com/devcontainers/base:debian-11
 
 COPY custom-installs.sh /tmp/custom-installs.sh
 RUN apt-get update \
