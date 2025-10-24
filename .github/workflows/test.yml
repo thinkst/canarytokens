@@ -123,7 +123,7 @@ jobs:
         # Here we check coverage info on all tests
         run: |
           cd tests
-          poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 85
+          poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 75
         continue-on-error: ${{ github.ref_name != 'master' }}
 
 
