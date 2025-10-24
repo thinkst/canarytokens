@@ -1,57 +1,56 @@
 {
-    // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-    // https://github.com/microsoft/vscode-dev-containers/tree/v0.177.0/containers/docker-from-docker-compose
-        "name": "CanarytokensDevelopmentBox",
-        "dockerComposeFile": "docker-compose.yml",
-        "service": "app",
-        "workspaceFolder": "/workspace",
+    // For format details, see https://containers.dev/implementors/json_reference/.
+    "name": "CanarytokensDevelopmentBox",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspace",
 
-        // Use this environment variable if you need to bind mount your local source code into a new container.
-        "remoteEnv": {
-            "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+    // Use this environment variable if you need to bind mount your local source code into a new container.
+    "remoteEnv": {
+        "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+    },
+    "customizations": {
+        "vscode": {
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "ms-azuretools.vscode-docker",
+                "ms-python.python",
+                "hashicorp.terraform",
+                "pomdtr.excalidraw-editor",
+                "eamodio.gitlens",
+                "njpwerner.autodocstring",
+                "ms-vsliveshare.vsliveshare",
+                "streetsidesoftware.code-spell-checker",
+                "cweijan.vscode-redis-client",
+                "me-dutour-mathieu.vscode-github-actions"
+            ]
+        }
+    },
+
+    "features": {
+        "ghcr.io/devcontainers/features/terraform:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true,
+            "nonFreePackages": true
         },
-        "customizations": {
-            "vscode": {
-                // Add the IDs of extensions you want installed when the container is created.
-                "extensions": [
-                    "ms-azuretools.vscode-docker",
-                    "ms-python.python",
-                    "hashicorp.terraform",
-                    "pomdtr.excalidraw-editor",
-                    "eamodio.gitlens",
-                    "njpwerner.autodocstring",
-                    "ms-vsliveshare.vsliveshare",
-                    "streetsidesoftware.code-spell-checker",
-                    "cweijan.vscode-redis-client",
-                    "me-dutour-mathieu.vscode-github-actions"
-                ]
-            }
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.9"
         },
-
-        "features": {
-            "ghcr.io/devcontainers/features/terraform:1": {},
-            "ghcr.io/devcontainers/features/github-cli:1": {},
-            "ghcr.io/devcontainers/features/common-utils:2": {
-                "configureZshAsDefaultShell": true,
-                "nonFreePackages": true
-            },
-            "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-            "ghcr.io/devcontainers/features/python:1": {
-                "version": "3.9"
-            },
-            "ghcr.io/devcontainers-extra/features/packer-asdf:2": {},
-            "ghcr.io/devcontainers-extra/features/terraform-docs:1": {
-                "version": "0.16.0"
-            },
-            "ghcr.io/devcontainers-extra/features/wireguard-apt-get:1": {},
-            "ghcr.io/devcontainers-extra/features/kubectl-asdf:2": {
-                "version": "1.28.1"
-            }
+        "ghcr.io/devcontainers-extra/features/packer-asdf:2": {},
+        "ghcr.io/devcontainers-extra/features/terraform-docs:1": {
+            "version": "0.16.0"
         },
+        "ghcr.io/devcontainers-extra/features/wireguard-apt-get:1": {},
+        "ghcr.io/devcontainers-extra/features/kubectl-asdf:2": {
+            "version": "1.28.1"
+        }
+    },
 
-        // Use 'postCreateCommand' to run commands after the container is created.
-        "postCreateCommand": "python -m pip install poetry && poetry install -E 'twisted web' && poetry run pre-commit install && git config --global --add safe.directory /workspace",
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "python -m pip install poetry && poetry install -E 'twisted web' && poetry run pre-commit install && git config --global --add safe.directory /workspace",
 
-        // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-        "remoteUser": "vscode"
-    }
+    // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "vscode"
+}
