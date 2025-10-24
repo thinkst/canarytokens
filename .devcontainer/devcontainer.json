@@ -12,18 +12,6 @@
         },
         "customizations": {
             "vscode": {
-                "python.pythonPath": "/usr/local/bin/python",
-                "python.linting.enabled": true,
-                "python.linting.pylintEnabled": true,
-                "python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
-                "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
-                "python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
-                "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
-                "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-                "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
-                "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
-                "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
-                "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
                 // Add the IDs of extensions you want installed when the container is created.
                 "extensions": [
                     "ms-azuretools.vscode-docker",
@@ -40,14 +28,30 @@
             }
         },
 
+                "features": {
+            "ghcr.io/devcontainers/features/terraform:1": {},
+            "ghcr.io/devcontainers/features/github-cli:1": {},
+            "ghcr.io/devcontainers/features/common-utils:2": {
+                "configureZshAsDefaultShell": true
+            },
+            "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+            "ghcr.io/devcontainers/features/python:1": {
+                "version": "3.9"
+            },
+            "ghcr.io/devcontainers-extra/features/packer-asdf:2": {},
+            "ghcr.io/devcontainers-extra/features/terraform-docs:1": {
+                "version": "0.16.0"
+            },
+            "ghcr.io/devcontainers-extra/features/mysql-homebrew:1": {},
+            "ghcr.io/devcontainers-extra/features/wireguard-apt-get:1": {},
+            "ghcr.io/devcontainers-extra/features/kubectl-asdf:2": {
+                "version": "1.28.1"
+            }
+        },
+
         // Use 'postCreateCommand' to run commands after the container is created.
         "postCreateCommand": "python -m pip install poetry && poetry install -E 'twisted web' && poetry run pre-commit install && git config --global --add safe.directory /workspace",
 
         // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-        "remoteUser": "vscode",
-
-        "features": {
-            "terraform": "latest",
-            "github-cli": "latest"
-        }
+        "remoteUser": "vscode"
     }
