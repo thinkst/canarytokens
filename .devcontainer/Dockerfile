@@ -1,11 +1,15 @@
 # If any packages or tools are not available through devcontainer features, install them here.
 FROM mcr.microsoft.com/devcontainers/base:debian-11
 
-COPY custom-installs.sh /tmp/custom-installs.sh
 RUN apt-get update \
-    && /bin/bash /tmp/custom-installs.sh
-# Clean up
-RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/custom-installs.sh
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    default-mysql-client \
+    dnsutils \
+    libzbar0 \
+    osslsigncode \
+    subversion \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 CMD [ "sleep", "infinity" ]
 
