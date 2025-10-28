@@ -457,7 +457,7 @@ def authorize_aws_infra(authorization: Annotated[str, Header()]):
 @app.on_event("startup")
 def startup_event():
     DB.set_db_details(
-        hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT
+        hostname=switchboard_settings.REDIS_HOST, port=switchboard_settings.REDIS_PORT, password=switchboard_settings.REDIS_PASSWORD
     )
     remove_canary_domain()
     remove_canary_nxdomain()
