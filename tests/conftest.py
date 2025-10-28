@@ -34,7 +34,6 @@ from canarytokens.redismanager import DB, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_S
 from canarytokens.settings import FrontendSettings, Port, SwitchboardSettings
 from canarytokens.utils import strtobool
 
-
 # TODO: Once webhooker can handle more / faster traffic these will get upped
 # DESIGN: ngrok to get a basic webhook(er). This can be a lambda or a docker service.
 #         main limitation is number of connections.
