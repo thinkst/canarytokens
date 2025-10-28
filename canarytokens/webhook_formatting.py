@@ -2,6 +2,12 @@ from __future__ import annotations
 from typing import Union, Optional, Literal
 import json
 from enum import Enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 import re
 from functools import partial
 from datetime import datetime
@@ -47,7 +53,7 @@ class DecimalColor(Enum):
     CANARY_GREEN = HexColor.CANARY_GREEN.decimal_value
 
 
-class WebhookType(Enum):
+class WebhookType(StrEnum):
     SLACK = "slack"
     GOOGLE_CHAT = "google-chat"
     DISCORD = "discord"

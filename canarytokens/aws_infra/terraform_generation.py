@@ -1,4 +1,9 @@
-import enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 
 from canarytokens.aws_infra.utils import generate_content
 from canarytokens.canarydrop import Canarydrop
@@ -8,7 +13,7 @@ from canarytokens.settings import FrontendSettings
 settings = FrontendSettings()
 
 
-class Variable(str, enum.Enum):
+class Variable(StrEnum):
     S3_BUCKET_NAMES = "s3_bucket_names"
     S3_OBJECTS = "s3_objects"
     SQS_QUEUES = "sqs_queues"

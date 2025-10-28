@@ -6,7 +6,12 @@ from cssutils.css import CSSStyleRule
 
 import logging
 import cssutils
-import enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 
 frontend_settings = FrontendSettings()
 
@@ -17,7 +22,7 @@ EntraTokenErrorAccessDenied = "access_denied"
 ENTRA_BASE_REDIRECT_URL = "/nest/entra/{status}"
 
 
-class EntraTokenStatus(enum.Enum):
+class EntraTokenStatus(StrEnum):
     ENTRA_STATUS_HAS_CUSTOM_CSS_ALREADY = "has_custom_css_already"
     ENTRA_STATUS_ERROR = "error"
     ENTRA_STATUS_SUCCESS = "success"
