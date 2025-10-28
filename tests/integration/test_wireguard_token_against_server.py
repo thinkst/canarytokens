@@ -12,7 +12,6 @@ from canarytokens.models import (
     WireguardTokenResponse,
 )
 from canarytokens.utils import strtobool
-
 from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 
 

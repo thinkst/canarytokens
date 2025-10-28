@@ -21,7 +21,6 @@ from canarytokens.models import (
 from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.utils import strtobool
-
 from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 
 
