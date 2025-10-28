@@ -8,7 +8,6 @@ import re
 import socket
 from dataclasses import dataclass
 from datetime import datetime
-from distutils.util import strtobool
 from fastapi.responses import JSONResponse
 from functools import cached_property
 from io import BytesIO, StringIO
@@ -47,10 +46,7 @@ from canarytokens.constants import (
     CANARYTOKEN_LENGTH,
     MEMO_MAX_CHARACTERS,
 )
-from canarytokens.utils import (
-    json_safe_dict,
-    get_src_ip_continent,
-)
+from canarytokens.utils import json_safe_dict, get_src_ip_continent, strtobool
 
 CANARYTOKEN_RE = re.compile(
     f"[{CANARYTOKEN_ALPHABET}]{{{CANARYTOKEN_LENGTH}}}",

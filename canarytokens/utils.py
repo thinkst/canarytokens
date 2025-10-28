@@ -104,3 +104,21 @@ def get_src_ip_continent(geo_data: dict) -> str:
         return pycountry_convert.country_alpha2_to_continent_code(country)
     except KeyError:
         return "NO_CONTINENT"
+
+
+def strtobool(string: str) -> bool:
+    """Convert a string to a boolean value.
+
+    Args:
+        s (str): The string to convert.
+
+    Returns:
+        bool: The boolean value of the string.
+    """
+    string = string.lower()
+    if string in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    elif string in ("n", "no", "f", "false", "off", "0"):
+        return False
+    else:
+        raise ValueError(f"Not convertible to boolean: {string}")

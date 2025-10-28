@@ -1,6 +1,5 @@
 import os
 import struct
-from distutils.util import strtobool
 
 import pytest
 from twisted.internet.testing import StringTransport
@@ -15,6 +14,7 @@ from canarytokens.models import AdditionalInfo, TokenTypes
 from canarytokens.queries import get_canarydrop_triggered_details, save_canarydrop
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
+from canarytokens.utils import strtobool
 
 switchboard = Switchboard()
 

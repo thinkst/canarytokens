@@ -1,7 +1,6 @@
 import os
 import re
 import tempfile
-from distutils.util import strtobool
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -16,6 +15,8 @@ from canarytokens.models import (
     WindowsDirectoryTokenResponse,
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
+from canarytokens.utils import strtobool
+
 from tests.utils import (
     create_token,
     get_stats_from_webhook,
