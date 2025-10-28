@@ -4,7 +4,6 @@ import logging
 import os
 import threading
 import time
-from distutils.util import strtobool
 from pathlib import Path
 from typing import Any, Generator, Optional
 from unittest import mock
@@ -33,6 +32,7 @@ from canarytokens.queries import (
 )
 from canarytokens.redismanager import DB, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP
 from canarytokens.settings import FrontendSettings, Port, SwitchboardSettings
+from canarytokens.utils import strtobool
 
 # TODO: Once webhooker can handle more / faster traffic these will get upped
 # DESIGN: ngrok to get a basic webhook(er). This can be a lambda or a docker service.

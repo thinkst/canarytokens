@@ -1,6 +1,4 @@
 import os
-from distutils.util import strtobool
-
 from typing import Union
 from pydantic import HttpUrl
 import pytest
@@ -14,6 +12,8 @@ from canarytokens.models import (
     Memo,
     TokenTypes,
 )
+from canarytokens.utils import strtobool
+
 from tests.utils import azure_token_fire, create_token
 from tests.utils import get_token_history
 from tests.utils import run_or_skip, v2, v3

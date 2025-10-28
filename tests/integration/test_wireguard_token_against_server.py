@@ -1,6 +1,5 @@
 import os
 import subprocess
-from distutils.util import strtobool
 from pathlib import Path
 
 import pytest
@@ -12,6 +11,8 @@ from canarytokens.models import (
     WireguardTokenRequest,
     WireguardTokenResponse,
 )
+from canarytokens.utils import strtobool
+
 from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
 
 

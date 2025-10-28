@@ -5,7 +5,6 @@ import time
 import urllib.parse
 import urllib.request
 from datetime import datetime
-from distutils.util import strtobool
 from functools import wraps
 from logging import Logger
 from typing import Callable, Dict, Optional, Union
@@ -55,6 +54,7 @@ from canarytokens.models import (
     WindowsDirectoryTokenResponse,
 )
 from canarytokens.tokens import Canarytoken
+from canarytokens.utils import strtobool
 from frontend.app import ROOT_API_ENDPOINT
 
 log = Logger("test_utils")

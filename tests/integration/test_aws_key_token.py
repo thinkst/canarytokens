@@ -1,5 +1,4 @@
 import os
-from distutils.util import strtobool
 from time import sleep
 from typing import Dict, Union
 
@@ -19,6 +18,8 @@ from canarytokens.models import (
     Memo,
     TokenTypes,
 )
+from canarytokens.utils import strtobool
+
 from tests.utils import aws_token_fire, create_token
 from tests.utils import get_token_history as utils_get_token_history
 from tests.utils import run_or_skip, v2, v3
