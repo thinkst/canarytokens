@@ -5,8 +5,10 @@ import random
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from functools import cached_property
+import sys
 
-from exceptiongroup import ExceptionGroup
+if sys.version_info < (3, 11):
+    from exceptiongroup import ExceptionGroup
 import httpx
 
 from canarytokens.aws_infra.db_queries import (
@@ -141,6 +143,11 @@ async def _finalize_list(
     try:
         is_valid_results = await asyncio.gather(*is_valid_tasks)
     except ExceptionGroup as e:
+        # Rather raise single exception so that there are no unexpected exception groups in upstream exception handling
+        if any(isinstance(exception, ValueError) for exception in e.exceptions):
+            raise ValueError(
+                f"Incorrect input when trying to validate suggested asset names: {e}"
+            ) from e
         raise RuntimeError(
             f"Exception(s) occurred when trying to validate suggested asset names: {e}"
         ) from e

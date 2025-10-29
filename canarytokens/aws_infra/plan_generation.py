@@ -3,7 +3,10 @@ import json
 import math
 import random
 import re
-from exceptiongroup import ExceptionGroup
+import sys
+
+if sys.version_info < (3, 11):
+    from exceptiongroup import ExceptionGroup
 
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -319,6 +322,11 @@ async def add_new_assets_to_plan(
     try:
         await asyncio.gather(*tasks)
     except ExceptionGroup as e:
+        # Rather raise single exception so that there are no unexpected exception groups in upstream exception handling
+        if any(isinstance(exception, ValueError) for exception in e.exceptions):
+            raise ValueError(
+                f"Incorrect input when generating new asset names: {e}"
+            ) from e
         raise RuntimeError(
             f"Exception(s) occurred when trying to add new assets to the decoy plan: {e}"
         ) from e
@@ -519,6 +527,11 @@ async def generate_child_assets(
     try:
         all_names = await asyncio.gather(*tasks)  # each task returns a list of names
     except ExceptionGroup as e:
+        # Rather raise single exception so that there are no unexpected exception groups in upstream exception handling
+        if any(isinstance(exception, ValueError) for exception in e.exceptions):
+            raise ValueError(
+                f"Incorrect input when trying to generate child asset names: {e}"
+            ) from e
         raise RuntimeError(
             f"Exception(s) occurred when trying to generate child asset names: {e}"
         ) from e
@@ -585,6 +598,7 @@ async def _get_unavailable_buckets(
                 if not available
             ]
         except ExceptionGroup as e:
+            # Exceptions are handled in s3_bucket_is_available, leaving this here for future-proofing
             raise RuntimeError(
                 f"Exception(s) occurred when trying to check S3 bucket availability: {e}"
             ) from e
