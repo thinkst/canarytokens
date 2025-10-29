@@ -172,11 +172,11 @@ class Canarytoken(object):
 
     @staticmethod
     def _sql_server_username(matches: Match[AnyStr]) -> dict[str, str]:
-        match = matches.group(1)
-        if isinstance(match, str):
-            raw_username: str = match
-        elif isinstance(match, bytes):
-            raw_username: str = match.decode()
+        username_match = matches.group(1)
+        if isinstance(username_match, str):
+            raw_username: str = username_match
+        elif isinstance(username_match, bytes):
+            raw_username: str = username_match.decode()
         else:
             raw_username: str = ""
         data = {}
@@ -196,11 +196,11 @@ class Canarytoken(object):
 
     @staticmethod
     def _linux_inotify(matches: Match[AnyStr]) -> dict[str, str]:
-        match = matches.group(1)
-        if isinstance(match, str):
-            filename: str = match.encode()
-        elif isinstance(match, bytes):
-            filename: str = match
+        filename_match = matches.group(1)
+        if isinstance(filename_match, str):
+            filename: str = filename_match.encode()
+        elif isinstance(filename_match, bytes):
+            filename: str = filename_match
         else:
             filename: str = b""
         data = {}
