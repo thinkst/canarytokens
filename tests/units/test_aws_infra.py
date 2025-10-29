@@ -345,7 +345,7 @@ class TestPlanGenerationValidation:
     async def test_add_new_assets_to_plan_exception_group(self, mock_add_assets):
         """Test ExceptionGroup handling in add_new_assets_to_plan."""
 
-        mock_error = ValueError("Mock error")
+        mock_error = RuntimeError("Mock error")
 
         if sys.version_info < (3, 11):
             exception_group = ExceptionGroup("Multiple errors occurred", [mock_error])
