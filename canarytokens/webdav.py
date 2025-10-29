@@ -1,7 +1,12 @@
 import json
 import requests
 from typing import Optional
-from enum import Enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 from hashlib import sha1
 
 from canarytokens.settings import FrontendSettings
@@ -13,7 +18,7 @@ NAMESPACE_ID = settings.CLOUDFLARE_NAMESPACE
 
 
 # Matches the keys in the worker's fs.js
-class FsType(str, Enum):
+class FsType(StrEnum):
     TESTING = "testing"
     SECURITY = "security"
     DEFENSE = "defense"
@@ -37,7 +42,6 @@ def insert_webdav_token(
     Inserts a token config into the Cloudflare KV store
     Returns: True if successful, False otherwise
     """
-    api_cred = settings.CLOUDFLARE_API_TOKEN
     value = {"token_url": alert_url}
 
     if webdav_fs_type is not None:
@@ -48,7 +52,9 @@ def insert_webdav_token(
     fd = {"value": json.dumps(value), "metadata": "{}"}
     put_url = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/storage/kv/namespaces/{NAMESPACE_ID}/values/{password}"
     res = requests.put(
-        put_url, files=fd, headers={"Authorization": f"Bearer {settings.CLOUDFLARE_API_TOKEN}"}
+        put_url,
+        files=fd,
+        headers={"Authorization": f"Bearer {settings.CLOUDFLARE_API_TOKEN}"},
     )
     if res.status_code == 200:
         return True

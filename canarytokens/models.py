@@ -3,6 +3,12 @@ from abc import ABCMeta, abstractmethod
 import csv
 
 import enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 import os
 import re
 import socket
@@ -269,7 +275,7 @@ class ApiProvider(metaclass=ABCMeta):
         pass
 
 
-class TokenTypes(str, enum.Enum):
+class TokenTypes(StrEnum):
     """Enumerates all supported token types"""
 
     WEB = "web"
@@ -553,7 +559,7 @@ class CCTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
 
 
-class PWAType(enum.Enum):
+class PWAType(StrEnum):
     absa = "absa"
     amex = "amex"
     applemail = "applemail"
@@ -827,7 +833,7 @@ class CreditCardV2TokenRequest(TokenRequest):
     cf_turnstile_response: Optional[str]
 
 
-class IdPAppType(enum.Enum):
+class IdPAppType(StrEnum):
     AWS = "aws"
     AZURE = "azure"
     BITWARDEN = "bitwarden"
@@ -2425,7 +2431,7 @@ class Anonymous(User):
     name: UserName = UserName("Anonymous")
 
 
-class DownloadFmtTypes(str, enum.Enum):
+class DownloadFmtTypes(StrEnum):
     """Enumerates all supported token download format types"""
 
     ZIP = "zip"
@@ -2451,7 +2457,7 @@ class DownloadFmtTypes(str, enum.Enum):
         return str(self.value)
 
 
-class DownloadContentTypes(str, enum.Enum):
+class DownloadContentTypes(StrEnum):
     """Enumerates all supported token download content types"""
 
     APPZIP = "application/zip"
@@ -2763,7 +2769,7 @@ class FetchLinksRequest(BaseModel):
     cf_turnstile_response: str
 
 
-class CanarydropSettingsTypes(str, enum.Enum):
+class CanarydropSettingsTypes(StrEnum):
     """Enumerates all supported canarydrop settings types"""
 
     # CLONEDSITESETTING = "clonedsite"
@@ -2831,7 +2837,7 @@ class EditResponse(BaseModel):
     message: Literal["success", "failure"]
 
 
-class FetchLinksMessage(enum.Enum):
+class FetchLinksMessage(StrEnum):
     NOT_CONFIGURED = "failed: cloudflare turnstile not configured"
     TURNSTILE_REQUIRED = "failed: turnstile required"
     INVALID_EMAIL = "failed: invalid email"
@@ -2875,7 +2881,7 @@ class HistoryResponse(BaseModel):
     google_api_key: Optional[str]
 
 
-class AWSInfraAssetType(str, enum.Enum):
+class AWSInfraAssetType(StrEnum):
     S3_BUCKET = "S3Bucket"
     SQS_QUEUE = "SQSQueue"
     SSM_PARAMETER = "SSMParameter"
@@ -2883,7 +2889,7 @@ class AWSInfraAssetType(str, enum.Enum):
     DYNAMO_DB_TABLE = "DynamoDBTable"
 
 
-class AWSInfraAssetField(str, enum.Enum):
+class AWSInfraAssetField(StrEnum):
     BUCKET_NAME = "bucket_name"
     OBJECTS = "objects"
     SQS_QUEUE_NAME = "sqs_queue_name"
@@ -2987,7 +2993,7 @@ class AWSInfraTeardownReceivedResponse(BaseModel):
     error: str = ""
 
 
-class AWSInfraOperationType(str, enum.Enum):
+class AWSInfraOperationType(StrEnum):
     CHECK_ROLE = "Check-Role"
     INVENTORY = "Inventory"
     SETUP_INGESTION = "Setup-Ingestion"
@@ -3038,7 +3044,7 @@ class AWSInfraState(enum.Flag):
     SUCCEEDED = enum.auto()
 
 
-class AWSInfraServiceError(enum.Enum):
+class AWSInfraServiceError(StrEnum):
     FAILURE_CHECK_ROLE = "FAILURE_CHECK_ROLE"
     FAILURE_INGESTION_BUS_IS_FULL = "FAILURE_INGESTION_BUS_IS_FULL"
     FAILURE_INGESTION_BUS_PROVISION = "FAILURE_INGESTION_BUS_PROVISION"

@@ -7,7 +7,12 @@ from canarytokens.settings import FrontendSettings
 from canarytokens.models import Canarytoken
 from dataclasses import dataclass
 from typing import Optional, Tuple, Literal, Union
-from enum import Enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 from pydantic import BaseModel
 
 
@@ -18,16 +23,16 @@ _CACHED_LAMBDA_CLIENT = None
 _RETRY_COUNT = 2
 
 
-class Lambda(Enum):
+class Lambda(StrEnum):
     PAYMENTS_DEMO = "CreditCardPaymentsDemoBackend"
 
 
-class _Api(Enum):
+class _Api(StrEnum):
     CARD_CREATE = "/card/create"
     CUSTOMER_DETAILS = "/customer/details"
 
 
-class Status(Enum):
+class Status(StrEnum):
     SUCCESS = "success"
     CUSTOMER_NOT_FOUND = "customer_not_found"
     NO_AVAILABLE_CARDS = "no_cards"
@@ -36,7 +41,7 @@ class Status(Enum):
     FORBIDDEN = "forbidden"
 
 
-class TriggerWebhookEvent(str, Enum):
+class TriggerWebhookEvent(StrEnum):
     TransactionFailed = "issuing.transaction.failed"
     ThreeDSecureNotification = "issuing.3ds_notification.stepup_otp"
 

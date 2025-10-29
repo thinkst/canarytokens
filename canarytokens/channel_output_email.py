@@ -5,7 +5,12 @@ from pathlib import Path
 from textwrap import dedent
 import textwrap
 from typing import Optional, Union
-import enum
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 import uuid
 
 import minify_html
@@ -58,7 +63,7 @@ log = Logger()
 # badly formed such as http://bob.com -> ignored (error returned right away)
 # bad domain                          -> sent
 # unhandled error                     -> error (sent to slack to notify)
-class EmailResponseStatuses(str, enum.Enum):
+class EmailResponseStatuses(StrEnum):
     """Enumerates all email responses"""
 
     # NOT_SENT = "not_sent"
@@ -68,7 +73,7 @@ class EmailResponseStatuses(str, enum.Enum):
     IGNORED = "ignored"
 
 
-class EmailTemplates(str, enum.Enum):
+class EmailTemplates(StrEnum):
     NOTIFICATION_TOKEN_EXPOSED = (
         "emails/_generated_dont_edit_notification_token_exposed.html"
     )
