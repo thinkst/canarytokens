@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from functools import cached_property
 
+from exceptiongroup import ExceptionGroup
 import httpx
 
 from canarytokens.aws_infra.db_queries import (
@@ -137,8 +138,13 @@ async def _finalize_list(
     for name in suggested_names:
         is_valid_tasks.append(_validate_name(asset_type, name))
         asset_names.append(name)
+    try:
+        is_valid_results = await asyncio.gather(*is_valid_tasks)
+    except ExceptionGroup as e:
+        raise RuntimeError(
+            f"Exception(s) occurred when trying to validate suggested asset names: {e}"
+        ) from e
 
-    is_valid_results = await asyncio.gather(*is_valid_tasks)
     for name, is_valid in zip(asset_names, is_valid_results):
         if not is_valid:
             continue

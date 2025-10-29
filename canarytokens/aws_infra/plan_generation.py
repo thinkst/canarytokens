@@ -3,6 +3,7 @@ import json
 import math
 import random
 import re
+from exceptiongroup import ExceptionGroup
 
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -315,8 +316,12 @@ async def add_new_assets_to_plan(
                 asset_type, aws_deployed_assets, aws_inventoried_assets, plan
             )
         )
-
-    await asyncio.gather(*tasks)
+    try:
+        await asyncio.gather(*tasks)
+    except ExceptionGroup as e:
+        raise RuntimeError(
+            f"Exception(s) occurred when trying to add new assets to the decoy plan: {e}"
+        ) from e
 
 
 def add_current_assets_to_plan(
@@ -511,9 +516,13 @@ async def generate_child_assets(
                     random.randint(1, _ASSET_TYPE_CONFIG[asset_type].max_child_items),
                 )
             )
-    all_names: list[list[str]] = await asyncio.gather(
-        *tasks
-    )  # each task returns a list of names
+    try:
+        all_names = await asyncio.gather(*tasks)  # each task returns a list of names
+    except ExceptionGroup as e:
+        raise RuntimeError(
+            f"Exception(s) occurred when trying to generate child asset names: {e}"
+        ) from e
+
     data_generation.name_generation_usage_consume(canarydrop, len(all_names))
 
     i = 0
@@ -564,16 +573,21 @@ async def _get_unavailable_buckets(
         not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
     ]
     if new_buckets:
-        unavailable_buckets = [
-            bucket.bucket_name
-            for bucket, available in zip(
-                new_buckets,
-                await asyncio.gather(
-                    *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
-                ),
-            )
-            if not available
-        ]
+        try:
+            unavailable_buckets = [
+                bucket.bucket_name
+                for bucket, available in zip(
+                    new_buckets,
+                    await asyncio.gather(
+                        *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
+                    ),
+                )
+                if not available
+            ]
+        except ExceptionGroup as e:
+            raise RuntimeError(
+                f"Exception(s) occurred when trying to check S3 bucket availability: {e}"
+            ) from e
     return unavailable_buckets
 
 
