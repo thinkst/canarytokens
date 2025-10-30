@@ -15,6 +15,9 @@ from canarytokens.models import (
     ClonedWebTokenHistory,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
+    CSSClonedWebTokenHistory,
+    CSSClonedWebTokenRequest,
+    CSSClonedWebTokenResponse,
     DNSTokenHistory,
     DNSTokenRequest,
     DNSTokenResponse,
@@ -27,6 +30,10 @@ from canarytokens.models import (
     Log4ShellTokenRequest,
     Log4ShellTokenResponse,
     Memo,
+    PWATokenHistory,
+    PWATokenRequest,
+    PWATokenResponse,
+    PWAType,
     SlowRedirectTokenHistory,
     SlowRedirectTokenRequest,
     SlowRedirectTokenResponse,
@@ -406,12 +413,12 @@ def test_web_bug_token(
     "location, referrer, version",
     [
         (
-            b"https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml",
-            b"",
+            "https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml",
+            "",
             v3,
         ),
-        (b"http://test.com/testloc", b"http://test.com/testref", v3),
-        (b"http://test.com/testloc2", b"about:blank", v3),
+        ("http://test.com/testloc", "http://test.com/testref", v3),
+        ("http://test.com/testloc2", "about:blank", v3),
     ],
 )
 def test_cloned_web_token(
@@ -459,10 +466,153 @@ def test_cloned_web_token(
 
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
-    assert token_hit.referer == referrer
-    assert token_hit.location == location
+    # Handle both bytes and string values for backward compatibility
+    if isinstance(token_hit.referer, bytes):
+        assert token_hit.referer.decode() == referrer
+    else:
+        assert token_hit.referer == referrer
+    if isinstance(token_hit.location, bytes):
+        assert token_hit.location.decode() == location
+    else:
+        assert token_hit.location == location
     if version.live:
         # Todo: remove when v3 runs as a live server.
+        assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
+    else:
+        assert token_hit.geo_info.ip == "127.0.0.1"
+
+
+@pytest.mark.parametrize(
+    "referrer, version",
+    [
+        ("http://test.com/testref", v3),
+        ("https://example.com/referrer", v3),
+        ("about:blank", v3),
+    ],
+)
+def test_css_cloned_web_token(
+    referrer: str,
+    version: Union[V2, V3],
+    webhook_receiver,
+    runv2,
+    runv3,
+) -> None:
+    """
+    Tests: CSS cloned web token
+    This test is crucial for catching bytes/string compatibility issues
+    as the CSS cloned token uses request.args.get(b"r") and calls .decode() on it.
+    """
+    run_or_skip(version, runv2=runv2, runv3=runv3)
+    memo = "Test CSS cloned web token compatibility"
+    # Create a CSS cloned web token request
+    token_request = CSSClonedWebTokenRequest(
+        webhook_url=webhook_receiver,
+        memo=memo,
+        expected_referrer="http://www.test.com",
+    )
+    resp = create_token(token_request, version=version)
+
+    token_info = CSSClonedWebTokenResponse(**resp)
+    # Trigger the token with a referrer parameter
+    _ = trigger_http_token(
+        token_info=token_info,
+        version=version,
+        params={"r": referrer},
+        headers={"Referer": referrer},
+    )
+
+    stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
+    if stats is not None:
+        # Check that what was sent to the webhook is consistent.
+        assert len(stats) == 1
+        assert stats[0]["memo"] == memo
+        _ = TokenAlertDetailGeneric(**stats[0])
+
+    # Check that the returned history has a single hit
+    history_resp = get_token_history(token_info, version=version)
+    token_history = CSSClonedWebTokenHistory(**history_resp)
+
+    assert len(token_history.hits) == 1
+    token_hit = token_history.hits[0]
+    # Handle both bytes and string values for backward compatibility
+    # This is crucial as CSS tokens call .decode() on request args
+    if isinstance(token_hit.referrer, bytes):
+        assert token_hit.referrer.decode() == referrer
+    else:
+        assert token_hit.referrer == referrer
+    if version.live:
+        assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
+    else:
+        assert token_hit.geo_info.ip == "127.0.0.1"
+
+
+@pytest.mark.parametrize(
+    "location_data, version",
+    [
+        ('{"latitude": 37.7749, "longitude": -122.4194}', v3),
+        ('{"latitude": 51.5074, "longitude": -0.1278, "accuracy": 10}', v3),
+        ('{"error": "Location unavailable"}', v3),
+    ],
+)
+def test_pwa_token_with_location(
+    location_data: str,
+    version: Union[V2, V3],
+    webhook_receiver,
+    runv2,
+    runv3,
+) -> None:
+    """
+    Tests: PWA token with location parameter
+    This test is crucial for catching bytes/string compatibility issues
+    as PWA tokens use request.args.get(b"loc") for location data extraction.
+    """
+    run_or_skip(version, runv2=runv2, runv3=runv3)
+    memo = "Test PWA token with location compatibility"
+    # Create a PWA token request
+    token_request = PWATokenRequest(
+        webhook_url=webhook_receiver,
+        email="test@test.com",
+        memo=memo,
+        icon=PWAType.chase,  # Using a valid PWA type
+        app_name="Test PWA App",
+    )
+    resp = create_token(token_request, version=version)
+
+    token_info = PWATokenResponse(**resp)
+    # Trigger the token with location parameter
+    _ = trigger_http_token(
+        token_info=token_info,
+        version=version,
+        params={"loc": location_data},
+    )
+
+    # For compatibility testing, we just need to verify the token was triggered
+    # without server errors. The location parameter uses request.args.get(b"loc")
+    # which is the critical bytes/string compatibility point we're testing.
+    # No need to validate webhook delivery for this compatibility test.
+    assert token_info.token is not None
+    assert token_info.pwa_app_name == "Test PWA App"  # Check the app name field
+
+    # Check that the returned history has a single hit
+    history_resp = get_token_history(token_info, version=version)
+    token_history = PWATokenHistory(**history_resp)
+
+    assert len(token_history.hits) == 1
+    token_hit = token_history.hits[0]
+
+    # The key test here is that request.args.get(b"loc") worked without errors
+    # If Twisted upgrade breaks bytes key access, the server would crash during token processing
+    # The fact that we got a successful hit proves the bytes key access is working
+
+    # Validate that location data was processed correctly (if src_data exists)
+    if token_hit.src_data and "location" in token_hit.src_data:
+        # If location data was successfully parsed as JSON, verify it
+        import json
+
+        expected_data = json.loads(location_data)
+        assert token_hit.src_data["location"] == expected_data
+
+    if version.live:
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
         assert token_hit.geo_info.ip == "127.0.0.1"
@@ -605,6 +755,16 @@ def test_slow_redirect_token(
     token_history = SlowRedirectTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1
+    token_hit = token_history.hits[0]
+    # Handle both bytes and string values for backward compatibility
+    if isinstance(token_hit.referer, bytes):
+        assert token_hit.referer.decode() == referrer
+    else:
+        assert token_hit.referer == referrer
+    if isinstance(token_hit.location, bytes):
+        assert token_hit.location.decode() == location
+    else:
+        assert token_hit.location == location
     assert token_history.hits[0].additional_info.browser.vendor == ["Google Inc."]
     #
 
