@@ -532,6 +532,12 @@
                   <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['decoy_resource']['Asset Name']}}</a>
                 </p>
               {% endif %}
+              {% if BasicDetails['additional_info']['event']['Event Name'] %}
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Event Name</p>
+                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
+                  <a href="" style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['event']['Event Name']}}</a>
+                </p>
+              {% endif %}
               </td>
             </tr>
 
