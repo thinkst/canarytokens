@@ -3,10 +3,6 @@ import json
 import math
 import random
 import re
-import sys
-
-if sys.version_info < (3, 11):
-    from exceptiongroup import ExceptionGroup
 
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -30,6 +26,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import AWSInfraDataGenerationLimitReached
 from canarytokens.models import AWSInfraAssetField, AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
+from canarytokens.utils import handle_exception_group
 
 settings = FrontendSettings()
 
@@ -319,17 +316,8 @@ async def add_new_assets_to_plan(
                 asset_type, aws_deployed_assets, aws_inventoried_assets, plan
             )
         )
-    try:
+    with handle_exception_group("add new assets to plan"):
         await asyncio.gather(*tasks)
-    except ExceptionGroup as e:
-        # Rather raise single exception so that there are no unexpected exception groups in upstream exception handling
-        if any(isinstance(exception, ValueError) for exception in e.exceptions):
-            raise ValueError(
-                f"Incorrect input when generating new asset names: {e}"
-            ) from e
-        raise RuntimeError(
-            f"Exception(s) occurred when trying to add new assets to the decoy plan: {e}"
-        ) from e
 
 
 def add_current_assets_to_plan(
@@ -524,17 +512,8 @@ async def generate_child_assets(
                     random.randint(1, _ASSET_TYPE_CONFIG[asset_type].max_child_items),
                 )
             )
-    try:
+    with handle_exception_group("generate child asset names"):
         all_names = await asyncio.gather(*tasks)  # each task returns a list of names
-    except ExceptionGroup as e:
-        # Rather raise single exception so that there are no unexpected exception groups in upstream exception handling
-        if any(isinstance(exception, ValueError) for exception in e.exceptions):
-            raise ValueError(
-                f"Incorrect input when trying to generate child asset names: {e}"
-            ) from e
-        raise RuntimeError(
-            f"Exception(s) occurred when trying to generate child asset names: {e}"
-        ) from e
 
     data_generation.name_generation_usage_consume(canarydrop, len(all_names))
 
@@ -586,7 +565,7 @@ async def _get_unavailable_buckets(
         not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
     ]
     if new_buckets:
-        try:
+        with handle_exception_group("check s3 bucket availability"):
             unavailable_buckets = [
                 bucket.bucket_name
                 for bucket, available in zip(
@@ -597,11 +576,7 @@ async def _get_unavailable_buckets(
                 )
                 if not available
             ]
-        except ExceptionGroup as e:
-            # Exceptions are handled in s3_bucket_is_available, leaving this here for future-proofing
-            raise RuntimeError(
-                f"Exception(s) occurred when trying to check S3 bucket availability: {e}"
-            ) from e
+
     return unavailable_buckets
 
 
