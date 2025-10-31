@@ -26,6 +26,7 @@ from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import AWSInfraDataGenerationLimitReached
 from canarytokens.models import AWSInfraAssetField, AWSInfraAssetType
 from canarytokens.settings import FrontendSettings
+from canarytokens.utils import handle_exception_group
 
 settings = FrontendSettings()
 
@@ -315,8 +316,8 @@ async def add_new_assets_to_plan(
                 asset_type, aws_deployed_assets, aws_inventoried_assets, plan
             )
         )
-
-    await asyncio.gather(*tasks)
+    with handle_exception_group("add new assets to plan"):
+        await asyncio.gather(*tasks)
 
 
 def add_current_assets_to_plan(
@@ -511,9 +512,9 @@ async def generate_child_assets(
                     random.randint(1, _ASSET_TYPE_CONFIG[asset_type].max_child_items),
                 )
             )
-    all_names: list[list[str]] = await asyncio.gather(
-        *tasks
-    )  # each task returns a list of names
+    with handle_exception_group("generate child asset names"):
+        all_names = await asyncio.gather(*tasks)  # each task returns a list of names
+
     data_generation.name_generation_usage_consume(canarydrop, len(all_names))
 
     i = 0
@@ -564,16 +565,18 @@ async def _get_unavailable_buckets(
         not in current_deployed_assets.get(AWSInfraAssetType.S3_BUCKET, [])
     ]
     if new_buckets:
-        unavailable_buckets = [
-            bucket.bucket_name
-            for bucket, available in zip(
-                new_buckets,
-                await asyncio.gather(
-                    *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
-                ),
-            )
-            if not available
-        ]
+        with handle_exception_group("check s3 bucket availability"):
+            unavailable_buckets = [
+                bucket.bucket_name
+                for bucket, available in zip(
+                    new_buckets,
+                    await asyncio.gather(
+                        *[s3_bucket_is_available(b.bucket_name) for b in new_buckets]
+                    ),
+                )
+                if not available
+            ]
+
     return unavailable_buckets
 
 

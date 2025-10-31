@@ -1,10 +1,15 @@
+import contextlib
 import json
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Literal, Union
 
 import pycountry_convert
 from pydantic import BaseModel
+
+if sys.version_info < (3, 11):
+    from exceptiongroup import ExceptionGroup
 
 
 def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:
@@ -122,3 +127,13 @@ def strtobool(string: str) -> bool:
         return False
     else:
         raise ValueError(f"Not convertible to boolean: {string}")
+
+
+@contextlib.contextmanager
+def handle_exception_group(action: str = ""):
+    try:
+        yield
+    except ExceptionGroup as e:
+        if any(isinstance(exception, ValueError) for exception in e.exceptions):
+            raise ValueError(f"Incorrect input when trying to {action}: {e}") from e
+        raise RuntimeError(f"Exception(s) occurred when trying to {action}: {e}") from e

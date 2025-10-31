@@ -1,5 +1,7 @@
+import sys
 from unittest.mock import Mock, patch
 import pytest
+from exceptiongroup import ExceptionGroup
 
 from canarytokens.aws_infra.operations import (
     get_role_create_commands,
@@ -18,6 +20,7 @@ from canarytokens.aws_infra.plan_generation import (
     AWSInfraAsset,
     AWSInfraPlan,
     _get_event_pattern_length,
+    add_new_assets_to_plan,
 )
 from canarytokens.aws_infra.state_management import (
     update_state,
@@ -336,3 +339,41 @@ class TestPlanGenerationValidation:
 
         length = _get_event_pattern_length(VALID_PLAN, "us-east-1")
         assert length == 567
+
+    @patch("canarytokens.aws_infra.plan_generation._add_assets_for_type")
+    @pytest.mark.parametrize(
+        "mock_error, error_message_pattern",
+        [
+            (
+                RuntimeError,
+                r"Exception\(s\) occurred when trying to add new assets to plan",
+            ),
+            (ValueError, r"Incorrect input when trying to add new assets to plan"),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_add_new_assets_to_plan_exception_group(
+        self, mock_add_assets, mock_error, error_message_pattern
+    ):
+        """Test ExceptionGroup handling in add_new_assets_to_plan."""
+
+        if sys.version_info < (3, 11):
+            exception_group = ExceptionGroup(
+                "Multiple errors occurred", [mock_error("mock error")]
+            )
+            mock_add_assets.side_effect = exception_group
+        else:
+            mock_add_assets.side_effect = mock_error
+
+        aws_deployed_assets = {}
+        aws_inventoried_assets = {}
+        plan = {asset_type.value: [] for asset_type in AWSInfraAssetType}
+
+        # Should catch ExceptionGroup and raise RuntimeError
+        with pytest.raises(
+            mock_error,
+            match=error_message_pattern,
+        ):
+            await add_new_assets_to_plan(
+                aws_deployed_assets, aws_inventoried_assets, plan
+            )
