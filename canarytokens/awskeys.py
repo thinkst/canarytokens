@@ -15,9 +15,7 @@ def validate_record(server: str, token: tokens.Canarytoken) -> bool:
     invalid_character_match = pattern.search(server)
     if invalid_character_match:
         logging.error(
-            "Hostname contains a bad character for AWS username {m} ... aborting".format(
-                m=invalid_character_match.group(0),
-            ),
+            f"Hostname contains a bad character for AWS username {invalid_character_match.group(0)} ... aborting"
         )
         return False
 
