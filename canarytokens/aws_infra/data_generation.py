@@ -8,6 +8,7 @@ from functools import cached_property
 
 import httpx
 
+from canarytokens.utils import handle_exception_group
 from canarytokens.aws_infra.db_queries import (
     get_data_generation_requests,
     update_data_generation_requests,
@@ -137,8 +138,9 @@ async def _finalize_list(
     for name in suggested_names:
         is_valid_tasks.append(_validate_name(asset_type, name))
         asset_names.append(name)
+    with handle_exception_group():
+        is_valid_results = await asyncio.gather(*is_valid_tasks)
 
-    is_valid_results = await asyncio.gather(*is_valid_tasks)
     for name, is_valid in zip(asset_names, is_valid_results):
         if not is_valid:
             continue
