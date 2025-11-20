@@ -103,6 +103,20 @@ WebDAV Client User-Agent:
   {{BasicDetails['additional_info']['useragent']}}
 {% endif %}
 {% endif %}
+{% if BasicDetails['token_type'] == 'aws_infra' %}
+{% if BasicDetails['additional_info']['decoy_resource']['asset_type'] %}
+Asset Type:
+  {{ BasicDetails['additional_info']['decoy_resource']['asset_type'] }}
+{% endif %}
+{% if BasicDetails['additional_info']['decoy_resource']['Asset Name'] %}
+Asset Name:
+  {{ BasicDetails['additional_info']['decoy_resource']['Asset Name'] }}
+{% endif %}
+{% if BasicDetails['additional_info']['event']['Event Name'] %}
+Event Name:
+  {{ BasicDetails['additional_info']['event']['Event Name'] }}
+{% endif %}
+{% endif %}
 {% if BasicDetails['generic_data'] +%}
 Generic data:
   {{ BasicDetails['generic_data']}}
