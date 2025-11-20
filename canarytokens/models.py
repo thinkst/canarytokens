@@ -1613,6 +1613,9 @@ class TokenHit(BaseModel):
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
 
+    class Config:
+        smart_union = True
+
     @validator("geo_info", pre=True)
     def adjust_geo_info(cls, value):
         # Allow loading v2 data.
