@@ -12,12 +12,10 @@ from canarytokens.models import AWSKey
 def validate_record(server: str, token: tokens.Canarytoken) -> bool:
     # Check `server` has no invalid characters (NB: a match here *is* an error)
     pattern = re.compile("[^a-zA-Z0-9+=,.@_-]")
-    match = pattern.search(server)
-    if match:
+    invalid_character_match = pattern.search(server)
+    if invalid_character_match:
         logging.error(
-            "Hostname contains a bad character for AWS username {m} ... aborting".format(
-                m=match.group(0),
-            ),
+            f"Hostname contains a bad character for AWS username {invalid_character_match.group(0)} ... aborting"
         )
         return False
 

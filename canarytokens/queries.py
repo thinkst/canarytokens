@@ -934,8 +934,8 @@ def is_valid_email(email):
     regex = re.compile(
         r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
     )
-    match = regex.search(email.lower())
-    if not match:
+    valid_email_match = regex.search(email.lower())
+    if not valid_email_match:
         return False
     else:
         return True
