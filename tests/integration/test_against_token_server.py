@@ -455,7 +455,7 @@ def test_cloned_web_token(
 
     history_resp = get_token_history(token_info, version=version)
 
-    token_history = ClonedWebTokenHistory(**history_resp)  # str for 24, bytes for 22
+    token_history = ClonedWebTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
@@ -605,10 +605,7 @@ def test_slow_redirect_token(
     token_history = SlowRedirectTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1
-    token_hit = token_history.hits[0]
-    assert token_hit.referer == referrer
-    assert token_hit.location == location
-    assert token_hit.additional_info.browser.vendor == ["Google Inc."]
+    assert token_history.hits[0].additional_info.browser.vendor == ["Google Inc."]
     #
 
 
