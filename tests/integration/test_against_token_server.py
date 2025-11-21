@@ -406,12 +406,12 @@ def test_web_bug_token(
     "location, referrer, version",
     [
         (
-            b"https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml",
-            b"",
+            "https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml",
+            "",
             v3,
         ),
-        (b"http://test.com/testloc", b"http://test.com/testref", v3),
-        (b"http://test.com/testloc2", b"about:blank", v3),
+        ("http://test.com/testloc", "http://test.com/testref", v3),
+        ("http://test.com/testloc2", "about:blank", v3),
     ],
 )
 def test_cloned_web_token(
@@ -605,7 +605,10 @@ def test_slow_redirect_token(
     token_history = SlowRedirectTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1
-    assert token_history.hits[0].additional_info.browser.vendor == ["Google Inc."]
+    token_hit = token_history.hits[0]
+    assert token_hit.location == location
+    assert token_hit.referer == referrer
+    assert token_hit.additional_info.browser.vendor == ["Google Inc."]
     #
 
 
