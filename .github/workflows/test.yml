@@ -47,7 +47,7 @@ jobs:
           --health-retries 5
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.13"]
 
     steps:
       - name: Configure AWS credentials

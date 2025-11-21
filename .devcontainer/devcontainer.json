@@ -36,7 +36,7 @@
         },
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
         "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.9"
+            "version": "3.13"
         },
         "ghcr.io/devcontainers-extra/features/packer-asdf:2": {},
         "ghcr.io/devcontainers-extra/features/terraform-docs:1": {
