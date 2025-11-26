@@ -2,6 +2,7 @@ import logging
 import random
 import re
 import secrets
+import ssl
 import string
 import httpx
 
@@ -104,6 +105,8 @@ async def s3_bucket_is_available(bucket_name: str) -> bool:
         return (
             response.status_code == 404
         )  # Not Found indicates the bucket does not exist
+    except ssl.SSLCertVerificationError:
+        return True  # bucket name with '.' causes SSL verification error, treat as available
     except Exception:
         log.exception("Error checking S3 bucket existence")
         return False
