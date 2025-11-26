@@ -24,7 +24,7 @@ AWS_INFRA_ENABLED = (
     and settings.AWS_INFRA_TF_MODULE_BUCKET
 )
 S3_BUCKET_NAME_REGEX = re.compile(
-    r"^(?!\d{1,3}(\.\d{1,3}){3}$)[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$"
+    r"^(?!\d{1,3}(\.\d{1,3}){3}$)[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$"
 )
 DYNAMO_DB_TABLE_NAME_REGEX = re.compile(r"[A-Za-z0-9_.\-]{3,255}")
 SSM_PARAMETER_NAME_REGEX = re.compile(r"[A-Za-z0-9_.\-]{1,1011}")
