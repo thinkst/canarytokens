@@ -98,6 +98,16 @@ async def s3_bucket_is_available(bucket_name: str) -> bool:
     Check if an S3 bucket is available.
     """
     url = f"https://{bucket_name}.s3.amazonaws.com"
+
+    # Fall back to deprecated path-style access if the bucket name contains period
+    #
+    # AWS doesn't fully support testing bucket existence via virtual-hosted-style URLs if the bucket
+    # name contains a . in it. Those HTTPS requests fail TLS verification as the wildcard in the
+    # TLS certificate (*.s3.amazonaws.com) only supports a single subdomain. While this changes the
+    # HTTP response codes returned, 404 for non-existent bucket is consistent for both styles
+    if "." in bucket_name:
+        url = f"https://s3.eu-west-1.amazonaws.com/{bucket_name}"
+
     try:
         async with httpx.AsyncClient(timeout=60) as client:
             response = await client.head(url)
