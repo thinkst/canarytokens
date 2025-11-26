@@ -106,7 +106,9 @@ async def s3_bucket_is_available(bucket_name: str) -> bool:
             response.status_code == 404
         )  # Not Found indicates the bucket does not exist
     except ssl.SSLCertVerificationError:
-        return True  # bucket name with '.' causes SSL verification error, treat as available
+        return (
+            "." in bucket_name
+        )  # bucket name with '.' causes SSL verification error, treat as available
     except Exception:
         log.exception("Error checking S3 bucket existence")
         return False
