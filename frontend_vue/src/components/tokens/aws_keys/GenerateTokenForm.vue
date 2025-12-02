@@ -1,6 +1,6 @@
 <template>
   <GenerateTokenSettingsNotifications
-    memo-helper-example="AWS keys placed on Jim's laptop"
+    memo-helper-example="GCP keys placed on Jim's laptop"
   />
 </template>
 

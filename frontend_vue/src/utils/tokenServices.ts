@@ -121,6 +121,22 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.CLOUD,
     keywords: ['cloud', 'api'],
   },
+  [TOKENS_TYPE.GCP_KEYS]: {
+    label: 'GCP keys',
+    description: 'Get an alert when an attacker uses your GCP API Key.',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/gcp-keys-token.html',
+    icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
+    instruction:
+      'Copy this credential pair to your clipboard to use as desired:',
+    howItWorksInstructions: [
+      'We give you a legit (defanged) GCP API Key.',
+      'You place it somewhere.',
+      'We send you an alert if some tries to use that key.',
+    ],
+    category: TOKEN_CATEGORY.CLOUD,
+    keywords: ['cloud', 'api'],
+  },
   [TOKENS_TYPE.PWA]: {
     label: 'Fake App',
     description: 'Get an alert when someone opens a fake app on your device.',

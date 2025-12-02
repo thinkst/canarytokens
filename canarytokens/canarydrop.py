@@ -127,6 +127,10 @@ class Canarydrop(BaseModel):
     webdav_password: Optional[str]
     webdav_server: Optional[str]
 
+    # GCP Key specific stuff
+    gcp_service_account_email: Optional[str]
+    gcp_keyfile: Optional[str]
+
     # AWS key specific stuff
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]

@@ -85,6 +85,9 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.AWS_KEYS]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },
+   [TOKENS_TYPE.GCP_KEYS]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
   [TOKENS_TYPE.FAST_REDIRECT]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,

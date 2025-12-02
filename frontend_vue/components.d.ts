@@ -13,6 +13,7 @@ declare module 'vue' {
     BaseCard: typeof import('./src/components/base/BaseCard.vue')['default']
     BaseCodeSnippet: typeof import('./src/components/base/BaseCodeSnippet.vue')['default']
     BaseContentBlock: typeof import('./src/components/base/BaseContentBlock.vue')['default']
+    BaseContentSnippet: typeof import('src/components/base/BaseContentSnippet.vue')['default']
     BaseCopyButton: typeof import('./src/components/base/BaseCopyButton.vue')['default']
     BaseDownloadIconButton: typeof import('./src/components/base/BaseDownloadIconButton.vue')['default']
     BaseFormImageSelect: typeof import('./src/components/base/BaseFormImageSelect.vue')['default']

@@ -54,6 +54,8 @@ type CanaryDropType = {
   aws_account_id: string;
   aws_output: string;
   aws_region: string;
+  gcp_keyfile: string;
+  gcp_service_account_email: string;
   app_id: string;
   tenant_id: string;
   cert: string;
@@ -118,6 +120,8 @@ export type ManageTokenBackendType = {
   cc_v2_name_on_card: string;
   aws_region: string;
   aws_account_id: string;
+  gcp_keyfile: string;
+  gcp_service_account_email: string;
 };
 
 export type NewTokenBackendType = {
@@ -134,6 +138,8 @@ export type NewTokenBackendType = {
   token_type: string;
   aws_access_key_id: string;
   aws_secret_access_key: string;
+  gcp_keyfile: string;
+  gcp_service_account_email: string;
   output: string;
   region: string;
   token_usage: string;

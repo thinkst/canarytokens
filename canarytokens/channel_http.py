@@ -16,7 +16,7 @@ from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
-from canarytokens.queries import get_canarydrop
+from canarytokens.queries import get_canarydrop, list_gcp_keys_email_tokens
 from canarytokens.saml import SAML_POST_ARG
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
@@ -166,7 +166,21 @@ class CanarytokenPage(InputChannel, resource.Resource):
 
     def render_POST(self, request: Request):  # noqa: C901
         try:
-            token = Canarytoken(value=request.path)
+            if (
+                request.path
+                == b"/gcp_keys/0k00ewqer4t7im9wq73dn37apaz0ruyvdxafc1xg1x63z57k3008yrez"
+            ):
+                token_hit = Canarytoken._parse_gcp_key_trigger(request)
+                gcp_service_account_email = token_hit.additional_info.get(
+                    "service_account_email", None
+                )
+                token = list_gcp_keys_email_tokens(gcp_service_account_email)[0]
+                if not token:
+                    raise NoCanarytokenFound(
+                        f"No token found for GCP service account email: {gcp_service_account_email}"
+                    )
+            else:
+                token = Canarytoken(value=request.path)
         except NoCanarytokenFound:
             log.info(f"No token found in {request.path=}.")
             return b"failed"
@@ -187,6 +201,10 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 canarydrop.add_canarydrop_hit(token_hit=token_hit)
             else:
                 canarydrop.add_key_exposed_hit(token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
+        elif canarydrop.type == TokenTypes.GCP_KEYS:
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
         elif canarydrop.type == TokenTypes.AZURE_ID:

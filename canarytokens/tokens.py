@@ -40,6 +40,7 @@ from canarytokens.models import (
     WebDavTokenHit,
     WebDavAdditionalInfo,
     AWSInfraAssetType,
+    GCPKeyTokenHit,
 )
 from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
@@ -151,6 +152,20 @@ class Canarytoken(object):
 
         result = m.group(0)
         return result[::-1] if should_reverse else result
+
+    @staticmethod
+    def find_canarytoken_by_gcp_service_account_email(email: str) -> str:
+        """Return the canarytoken associated with the given GCP service account email.
+
+        Arguments:
+        email -- The GCP service account email associated with a canarytoken.
+
+        Exceptions:
+        NoCanarytokenFound
+        """
+        # This is a stub implementation. Replace with actual lookup logic.
+        # For example, query a database or in-memory store to find the canarytoken.
+        raise NoCanarytokenFound(f"No canarytoken found for email: {email}")
 
     def value(
         self,
@@ -346,6 +361,55 @@ class Canarytoken(object):
             "request_headers": request_headers,
             "request_args": request_args,
         }
+
+    @staticmethod
+    def _parse_gcp_key_trigger(request: Request) -> GCPKeyTokenHit:
+        """When a GCPKey token is triggered the GCP logging sends a POST request
+           with details. The `request` is processed, fields extracted, and used for
+           the subsequent alerting.
+
+        Args:
+            request (twisted.web.http.Request): containing GCP Key hit information.
+
+        Returns:
+            GCPKeyTokenHit: Structured GCP Key Specific hit info.
+        """
+        hit_time = datetime.utcnow().strftime("%s.%f")
+        json_data = json.loads(request.content.read())
+        summary = json_data.get("summary", "")
+        # example summary:
+        # 'Log match condition with labels {email=rwopejh24jiyk26o04j06anbqaofa0@winged-tenure-201710.iam.gserviceaccount.com,
+        # method=v1.compute.zones.list,service=compute.googleapis.com,srcip=13.245.103.199,useragent=google-cloud-sdk gcloud/548.0.0
+        # command/gcloud.compute.instances.create invocation-id/88dead25601c4ddf8bcb7ccce2e835de environment/None environment-version/None
+        # client-os/MACOSX client-os-ver/24.6.0 client-pltf-arch/arm interactive/True from-script/False python/3.13.9 term/xterm-256color
+        # (Macintosh; Intel Mac OS X 24.6.0),gzip(gfe)} fired for Produced API with {location=global, method=compute.zones.list,
+        # project_id=winged-tenure-201710, service=compute.googleapis.com, version=v1}.
+        parsed_data = {
+            item.split("=")[0]: item.split("=")[1]
+            for item in summary.split("}", 1)[0].split("{", 1)[1].split(",")
+            if len(item.split("=")) == 2
+        }
+        src_ip = parsed_data.get("srcip", "")
+        geo_info = queries.get_geoinfo(ip=src_ip)
+        is_tor_relay = queries.is_tor_relay(src_ip)
+        user_agent = parsed_data.get("useragent", "")
+        hit_info = {
+            "token_type": TokenTypes.GCP_KEYS,
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "src_ip": src_ip,
+            "geo_info": geo_info,
+            "is_tor_relay": is_tor_relay,
+            "user_agent": user_agent,
+            "additional_info": {
+                "gcp_key_log_data": {
+                    k: v
+                    for k, v in parsed_data.items()
+                    if k not in ["srcip", "useragent"]
+                }
+            },
+        }
+        return GCPKeyTokenHit(**hit_info)
 
     @staticmethod
     def _parse_aws_key_trigger(

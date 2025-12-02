@@ -6,6 +6,7 @@
 #               2) deferred porting frontend and token creation at the same time.
 #
 
+import json
 import base64
 import datetime
 import errno
@@ -64,6 +65,7 @@ from canarytokens import wireguard as wg
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens import aws_infra
 from canarytokens.awskeys import get_aws_key
+from canarytokens.gcpkeys import get_gcp_key
 from canarytokens.azurekeys import get_azure_id
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import (
@@ -103,6 +105,8 @@ from canarytokens.models import (
     AWSInfraTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    GCPKeyTokenRequest,
+    GCPKeyTokenResponse,
     AzureIDTokenRequest,
     AzureIDTokenResponse,
     CCTokenRequest,
@@ -132,6 +136,8 @@ from canarytokens.models import (
     DNSTokenResponse,
     DownloadAWSKeysRequest,
     DownloadAWSKeysResponse,
+    DownloadGCPKeysRequest,
+    DownloadGCPKeysResponse,
     DownloadAzureIDCertRequest,
     DownloadAzureIDCertResponse,
     DownloadAzureIDConfigRequest,
@@ -225,6 +231,7 @@ from canarytokens.queries import (
     add_canary_page,
     add_canary_image_page,
     add_canary_path_element,
+    add_gcp_service_account_email_token_idx,
     get_all_canary_domains,
     get_all_canary_sites,
     is_email_blocked,
@@ -1750,6 +1757,19 @@ def _(
 
 @create_download_response.register
 def _(
+    download_request_details: DownloadGCPKeysRequest, canarydrop: Canarydrop
+) -> Response:
+    return DownloadGCPKeysResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.keyfile,
+        filename="credentials",
+        gcp_service_account_email=canarydrop.gcp_service_account_email,
+    )
+
+
+@create_download_response.register
+def _(
     download_request_details: DownloadAzureIDConfigRequest, canarydrop: Canarydrop
 ) -> Response:
     return DownloadAzureIDConfigResponse(
@@ -2063,6 +2083,63 @@ def _(token_request_details: SQLServerTokenRequest, canarydrop: Canarydrop):
         sql_server_view_name=canarydrop.sql_server_view_name,
         sql_server_function_name=canarydrop.sql_server_function_name,
         sql_server_trigger_name=canarydrop.sql_server_trigger_name,
+    )
+
+
+@create_response.register
+def _create_gcp_key_token_response(
+    token_request_details: GCPKeyTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
+) -> GCPKeyTokenResponse:
+
+    if settings is None:
+        settings = frontend_settings
+
+    if settings.GCPKEYS_URL is None:
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have GCP Key tokens enabled."
+            },
+            status_code=500,
+        )
+
+    try:
+        key = get_gcp_key(
+            gcp_url=settings.GCPKEYS_URL,
+            gcp_auth_token=settings.GCPKEYS_AUTH,
+        )
+    except Exception as e:
+        log.exception("Error generating GCP Keys")
+        capture_exception(error=e, context=("get_gcp_key", None))
+        # We can fail by getting 404 from GCPID_URL or failing validation
+        return JSONResponse(
+            {"message": "Failed to generate GCP Keys. We looking into it."},
+            status_code=400,
+        )
+
+    canarydrop.gcp_service_account_id = key["service_account_id"]
+    canarydrop.gcp_service_account_email = key["service_account_email"]
+    canarydrop.keyfile = json.dumps(key["keyfile"])
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    save_canarydrop(canarydrop)
+    add_gcp_service_account_email_token_idx(
+        canarydrop.gcp_service_account_email, canarydrop.canarytoken.value()
+    )
+
+    return GCPKeyTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        # additional information for GCP token response
+        gcp_service_account_email=canarydrop.gcp_service_account_email,
+        gcp_keyfile=canarydrop.keyfile,
     )
 
 

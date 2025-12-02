@@ -165,6 +165,11 @@ class AWSKey(TypedDict):
     output: Literal["json", "yaml", "yaml-stream", "text", "table"]
 
 
+class GCPKey(TypedDict):
+    gcp_keyfile: Dict[str, Any]
+    gcp_service_account_email: str
+
+
 class CSSClonedSite(TypedDict):
     expected_referrer: str
 
@@ -310,6 +315,7 @@ class TokenTypes(StrEnum):
     SLACK_API = "slack_api"
     LEGACY = "legacy"
     AWS_INFRA = "aws_infra"
+    GCP_KEYS = "gcp_keys"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -474,6 +480,10 @@ class TokenRequest(BaseModel):
 
 class AWSKeyTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
+
+
+class GCPKeyTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.GCP_KEYS] = TokenTypes.GCP_KEYS
 
 
 class AzureIDTokenRequest(TokenRequest):
@@ -934,6 +944,7 @@ AnyTokenRequest = Annotated[
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
         AzureIDTokenRequest,
+        GCPKeyTokenRequest,
         PDFTokenRequest,
         DNSTokenRequest,
         Log4ShellTokenRequest,
@@ -1029,6 +1040,12 @@ class AWSKeyTokenResponse(TokenResponse):
     aws_access_key_id: str
     aws_secret_access_key: str
     output: str
+
+
+class GCPKeyTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.GCP_KEYS] = TokenTypes.GCP_KEYS
+    gcp_service_account_email: str
+    gcp_keyfile: str
 
 
 class AzureIDTokenResponse(TokenResponse):
@@ -1304,7 +1321,7 @@ AnyTokenResponse = Annotated[
         SvnTokenResponse,
         CustomBinaryTokenResponse,
         SlowRedirectTokenResponse,
-        AWSKeyTokenResponse,
+        GCPKeyTokenResponse,
         AzureIDTokenResponse,
         MsWordDocumentTokenResponse,
         Log4ShellTokenResponse,
@@ -1475,6 +1492,22 @@ class AWSKeyAdditionalInfo(BaseModel):
         keys_to_convert = [
             # TODO: make this consistent.
             ("AWS Key Log Data", "aws_key_log_data"),
+        ]
+        for old_key, new_key in keys_to_convert:  # pragma: no cover
+            if old_key in values:
+                values[new_key] = values.pop(old_key)
+
+        return {k.lower(): v for k, v in values.items()}
+
+
+class GCPKeyAdditionalInfo(BaseModel):
+    gcp_key_log_data: dict[str, list[str]]
+
+    @root_validator(pre=True)
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        keys_to_convert = [
+            # TODO: make this consistent.
+            ("GCP Key Log Data", "gcp_key_log_data"),
         ]
         for old_key, new_key in keys_to_convert:  # pragma: no cover
             if old_key in values:
@@ -1671,6 +1704,25 @@ class AzureIDTokenHit(TokenHit):
         that holds the equivalent info in the v2 shape.
         Returns:
             dict: AzureIDTokenHit in v2 dict representation.
+        """
+        data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+        if "additional_info" in data:
+            data["additional_info"] = self.additional_info.serialize_for_v2()
+        return data
+
+
+class GCPKeyTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.GCP_KEYS] = TokenTypes.GCP_KEYS
+    additional_info: Optional[GCPKeyAdditionalInfo]
+
+    class Config:
+        allow_population_by_field_name = True
+
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `GCPKeyTokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: GCPKeyTokenHit in v2 dict representation.
         """
         data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
         if "additional_info" in data:
@@ -2021,6 +2073,7 @@ AnyTokenHit = Annotated[
         DNSTokenHit,
         AWSKeyTokenHit,
         AzureIDTokenHit,
+        GCPKeyTokenHit,
         SlackAPITokenHit,
         PDFTokenHit,
         ClonedWebTokenHit,
@@ -2126,6 +2179,11 @@ class TokenHistory(GenericModel, Generic[TH]):
 class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
     hits: List[AWSKeyTokenHit]
+
+
+class GCPKeyTokenHistory(TokenHistory[GCPKeyTokenHit]):
+    token_type: Literal[TokenTypes.GCP_KEYS] = TokenTypes.GCP_KEYS
+    hits: List[GCPKeyTokenHit]
 
 
 class AzureIDTokenHistory(TokenHistory):
@@ -2295,6 +2353,7 @@ AnyTokenHistory = Annotated[
         DNSTokenHistory,
         AWSKeyTokenHistory,
         AzureIDTokenHistory,
+        GCPKeyTokenHistory,
         SlackAPITokenHistory,
         PDFTokenHistory,
         SMTPTokenHistory,
@@ -2439,6 +2498,7 @@ class DownloadFmtTypes(StrEnum):
     MSEXCEL = "msexcel"
     PDF = "pdf"
     AWSKEYS = "awskeys"
+    GCPKEYS = "gcpkeys"
     AZUREIDCONFIG = "azure_id_config"
     AZUREIDCERT = "azure_id"
     KUBECONFIG = "kubeconfig"
@@ -2518,6 +2578,10 @@ class DownloadAWSKeysRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.AWSKEYS] = DownloadFmtTypes.AWSKEYS
 
 
+class DownloadGCPKeysRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.GCPKEYS] = DownloadFmtTypes.GCPKEYS
+
+
 class DownloadAzureIDConfigRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.AZUREIDCONFIG] = DownloadFmtTypes.AZUREIDCONFIG
 
@@ -2559,6 +2623,7 @@ AnyDownloadRequest = Annotated[
         DownloadAWSKeysRequest,
         DownloadAzureIDConfigRequest,
         DownloadAzureIDCertRequest,
+        DownloadGCPKeysRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
         DownloadWindowsFakeFSRequest,
@@ -2708,6 +2773,24 @@ class DownloadAWSKeysResponse(TokenDownloadResponse):
     aws_secret_access_key: str
     region: str
     output: str
+
+
+class DownloadGCPKeysResponse(TokenDownloadResponse):
+    contenttype: Literal[
+        DownloadContentTypes.TEXTPLAIN
+    ] = DownloadContentTypes.TEXTPLAIN
+    filename: str = "credentials"
+    token: str
+    auth: str
+    gcp_project_id: str
+    gcp_private_key_id: str
+    gcp_private_key: str
+    gcp_client_email: str
+    gcp_client_id: str
+    gcp_auth_uri: str
+    gcp_token_uri: str
+    gcp_auth_provider_x509_cert_url: str
+    gcp_client_x509_cert_url: str
 
 
 class DownloadAzureIDConfigResponse(TokenDownloadResponse):
