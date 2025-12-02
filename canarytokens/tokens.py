@@ -384,7 +384,7 @@ class Canarytoken(object):
         # client-os/MACOSX client-os-ver/24.6.0 client-pltf-arch/arm interactive/True from-script/False python/3.13.9 term/xterm-256color
         # (Macintosh; Intel Mac OS X 24.6.0),gzip(gfe)} fired for Produced API with {location=global, method=compute.zones.list,
         # project_id=winged-tenure-201710, service=compute.googleapis.com, version=v1}.
-        logging.debug(f"GCP Key summary: {summary}")
+        logging.error(summary)
         parsed_data = {
             item.split("=")[0]: item.split("=")[1]
             for item in summary.split("}", 1)[0].split("{", 1)[1].split(",")
