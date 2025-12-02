@@ -2118,9 +2118,8 @@ def _create_gcp_key_token_response(
             status_code=400,
         )
 
-    canarydrop.gcp_service_account_id = key["service_account_id"]
-    canarydrop.gcp_service_account_email = key["service_account_email"]
-    canarydrop.keyfile = json.dumps(key["keyfile"])
+    canarydrop.gcp_service_account_email = key["gcp_service_account_email"]
+    canarydrop.gcp_keyfile = json.dumps(key["gcp_keyfile"])
     canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
     save_canarydrop(canarydrop)
     add_gcp_service_account_email_token_idx(
@@ -2139,7 +2138,7 @@ def _create_gcp_key_token_response(
         url_components=list(canarydrop.get_url_components()),
         # additional information for GCP token response
         gcp_service_account_email=canarydrop.gcp_service_account_email,
-        gcp_keyfile=canarydrop.keyfile,
+        gcp_keyfile=canarydrop.gcp_keyfile,
     )
 
 
