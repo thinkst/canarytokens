@@ -1725,8 +1725,10 @@ class GCPKeyTokenHit(TokenHit):
             dict: GCPKeyTokenHit in v2 dict representation.
         """
         data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
-        if "additional_info" in data:
-            data["additional_info"] = self.additional_info.serialize_for_v2()
+        if "additional_info" in data and "gcp_key_log_data" in data["additional_info"]:
+            data["additional_info"]["GCP Key Log Data"] = data["additional_info"].pop(
+                "gcp_key_log_data"
+            )
         return data
 
 
