@@ -202,6 +202,17 @@ async def _gemini_request(prompt: str):
     return []
 
 
+def _sanitize_name(name: str) -> str:
+    """
+    Sanitize a name by replacing invalid characters and trimming to max length.
+    """
+    sanitized = name.replace("/", "-")
+    sanitized = sanitized[:_MAX_ASSET_NAME_LENGTH]
+    while sanitized and not sanitized[-1].isalnum():
+        sanitized = sanitized[:-1]
+    return sanitized
+
+
 def _overshoot_count(count: int, validated_count: int = 0) -> int:
     """
     Calculate the overshoot count based on the provided count.
@@ -258,6 +269,17 @@ async def generate_names(
         )
         names = await _finalize_list(asset_type, inventory, new_names)
         validated_names.extend(names)
+
+        # If we're on the last attempt, try force sanitizing any unvalidated names
+        # for in case Gemini was not following the naming rules properly.
+        if attempts == _NAME_GEN_MAX_ATTEMPTS - 1 and len(validated_names) < count:
+            sanitized_names = [
+                _sanitize_name(name)
+                for name in new_names
+                if name not in validated_names
+            ]
+            names = await _finalize_list(asset_type, inventory, sanitized_names)
+            validated_names.extend(names)
 
     random.shuffle(validated_names)
     suggested_names = validated_names[:count] if trim_list else validated_names
