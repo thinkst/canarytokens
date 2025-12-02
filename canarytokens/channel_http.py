@@ -174,7 +174,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 gcp_service_account_email = token_hit.additional_info.gcp_key_log_data[
                     "email"
                 ]
-                token = get_gcp_keys_email_token(gcp_service_account_email)
+                canarytoken_value = get_gcp_keys_email_token(gcp_service_account_email)
+                token = Canarytoken(value=canarytoken_value)
                 if not token:
                     raise NoCanarytokenFound(
                         f"No token found for GCP service account email: {gcp_service_account_email}"
