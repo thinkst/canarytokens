@@ -1,0 +1,1 @@
+import{_ as t}from"./BaseContentBlock-BYMWLnzc.js";import{d as a,r as c,e as s,f as p}from"./index-BIeXzLgN.js";const i=a({__name:"TokenDisplay",props:{tokenData:{}},setup(e){const o=c(`${e.tokenData.gcp_keyfile}`);return(r,l)=>{const n=t;return s(),p(n,{lang:"json",label:"GCP token",text:o.value,copyContent:!0,"icon-name":"lock"},null,8,["text"])}}});export{i as _};
