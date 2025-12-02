@@ -2140,6 +2140,7 @@ class TokenHistory(GenericModel, Generic[TH]):
         for hit in self.hits:
             if (
                 isinstance(hit, AWSKeyTokenHit)
+                or isinstance(hit, GCPKeyTokenHit)
                 or isinstance(hit, AWSInfraTokenHit)
                 or isinstance(hit, SlackAPITokenHit)
                 or isinstance(hit, CreditCardV2TokenHit)
