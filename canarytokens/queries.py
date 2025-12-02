@@ -181,7 +181,7 @@ def add_email_token_idx(email: str, canarytoken: str) -> int:
 def add_gcp_service_account_email_token_idx(
     gcp_service_account_email: str, canarytoken: str
 ) -> int:
-    return DB.get_db().sadd(
+    return DB.get_db().set(
         KEY_GCP_KEYS_IDX + gcp_service_account_email.lower(), canarytoken
     )
 
@@ -226,8 +226,8 @@ def delete_webhook_tokens(webhook: str):
         delete_canarydrop(drop)
 
 
-def list_gcp_keys_email_tokens(gcp_service_account_email) -> set[str]:
-    return DB.get_db().smembers(KEY_GCP_KEYS_IDX + gcp_service_account_email.lower())
+def get_gcp_keys_email_token(gcp_service_account_email) -> set[str]:
+    return DB.get_db().get(KEY_GCP_KEYS_IDX + gcp_service_account_email.lower())
 
 
 def list_email_tokens(email_address) -> set[str]:
@@ -265,10 +265,6 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
         add_webhook_token_idx(canarydrop.alert_webhook_url, canarytoken.value())
 
     add_auth_token_idx(canarydrop.auth, canarydrop.canarytoken.value())
-
-
-def add_gcp_keys_email_canarytoken(canarytoken_value: str, email: EmailStr):
-    """Adds a canarytoken to the email index for GCP keys tokens."""
 
 
 def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:

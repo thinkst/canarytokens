@@ -1501,7 +1501,7 @@ class AWSKeyAdditionalInfo(BaseModel):
 
 
 class GCPKeyAdditionalInfo(BaseModel):
-    gcp_key_log_data: dict[str, list[str]]
+    gcp_key_log_data: dict[str, str]
 
     @root_validator(pre=True)
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore

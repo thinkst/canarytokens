@@ -16,7 +16,7 @@ from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
-from canarytokens.queries import get_canarydrop, list_gcp_keys_email_tokens
+from canarytokens.queries import get_canarydrop, get_gcp_keys_email_token
 from canarytokens.saml import SAML_POST_ARG
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
@@ -171,10 +171,10 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 == b"/gcp_keys/0k00ewqer4t7im9wq73dn37apaz0ruyvdxafc1xg1x63z57k3008yrez"
             ):
                 token_hit = Canarytoken._parse_gcp_key_trigger(request)
-                gcp_service_account_email = token_hit.additional_info.get(
-                    "service_account_email", None
-                )
-                token = list_gcp_keys_email_tokens(gcp_service_account_email)[0]
+                gcp_service_account_email = token_hit.additional_info.gcp_key_log_data[
+                    "email"
+                ]
+                token = get_gcp_keys_email_token(gcp_service_account_email)
                 if not token:
                     raise NoCanarytokenFound(
                         f"No token found for GCP service account email: {gcp_service_account_email}"

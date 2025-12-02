@@ -375,7 +375,7 @@ class Canarytoken(object):
             GCPKeyTokenHit: Structured GCP Key Specific hit info.
         """
         hit_time = datetime.utcnow().strftime("%s.%f")
-        json_data = json.loads(request.content.read())
+        json_data = json.loads(request.content.read()).get("incident", {})
         summary = json_data.get("summary", "")
         # example summary:
         # 'Log match condition with labels {email=rwopejh24jiyk26o04j06anbqaofa0@winged-tenure-201710.iam.gserviceaccount.com,
@@ -384,7 +384,6 @@ class Canarytoken(object):
         # client-os/MACOSX client-os-ver/24.6.0 client-pltf-arch/arm interactive/True from-script/False python/3.13.9 term/xterm-256color
         # (Macintosh; Intel Mac OS X 24.6.0),gzip(gfe)} fired for Produced API with {location=global, method=compute.zones.list,
         # project_id=winged-tenure-201710, service=compute.googleapis.com, version=v1}.
-        logging.error(summary)
         parsed_data = {
             item.split("=")[0]: item.split("=")[1]
             for item in summary.split("}", 1)[0].split("{", 1)[1].split(",")
