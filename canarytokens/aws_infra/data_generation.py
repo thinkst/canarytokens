@@ -151,7 +151,7 @@ async def _finalize_list(
 
         if similarity_score < _SIMILARITY_THRESHOLD:
             validated_names.append(name)
-    return validated_names
+    return list(set(validated_names))
 
 
 async def _gemini_request(prompt: str):
@@ -206,6 +206,7 @@ def _sanitize_name(name: str) -> str:
     """
     Sanitize a name by replacing invalid characters and trimming to max length.
     """
+    name = name[1:] if name.startswith("/") else name
     sanitized = name.replace("/", "-")
     sanitized = sanitized[:_MAX_ASSET_NAME_LENGTH]
     while sanitized and not sanitized[-1].isalnum():
@@ -246,7 +247,8 @@ async def generate_names(
 
     while len(validated_names) < count:
         attempts += 1
-        if attempts == _NAME_GEN_MAX_ATTEMPTS:
+        # raise error with not at least one valid name after max attempts
+        if attempts == _NAME_GEN_MAX_ATTEMPTS and not validated_names:
             raise RuntimeError(
                 f"Failed to generate enough valid names for {asset_type.name} after {_NAME_GEN_MAX_ATTEMPTS} attempts."
             )
