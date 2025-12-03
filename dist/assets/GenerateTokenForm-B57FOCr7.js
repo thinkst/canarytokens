@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-Bpwj23oo.js";import{d as o,e as a,f as r}from"./index-DZkwp-7t.js";const _=o({__name:"GenerateTokenForm",setup(m){return(n,p)=>(a(),r(e,{"memo-helper-example":"GCP keys placed on Jim's laptop"}))}});export{_ as default};

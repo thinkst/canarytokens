@@ -1,0 +1,1 @@
+import{_ as a}from"./BaseCodeSnippet.vue_vue_type_script_setup_true_lang-AOZPhcx2.js";import{d as s,r as t,e as c,f as p}from"./index-DZkwp-7t.js";const i=s({__name:"TokenDisplay",props:{tokenData:{}},setup(e){const o=t(`${e.tokenData.gcp_keyfile}`);return(_,l)=>{const n=a;return c(),p(n,{lang:"json",label:"AWS token",code:o.value},null,8,["code"])}}});export{i as _};
