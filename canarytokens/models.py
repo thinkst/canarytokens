@@ -350,6 +350,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.SQL_SERVER: "MS SQL Server",
     TokenTypes.MY_SQL: "MySQL",
     TokenTypes.AWS_KEYS: "AWS key",
+    TokenTypes.GCP_KEYS: "GCP key",
     TokenTypes.AZURE_ID: "Azure key",
     TokenTypes.SIGNED_EXE: "Custom EXE / binary",
     TokenTypes.FAST_REDIRECT: "Fast redirect",
