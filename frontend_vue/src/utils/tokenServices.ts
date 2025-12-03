@@ -126,7 +126,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker uses your GCP API Key.',
     documentationLink:
       'https://docs.canarytokens.org/guide/gcp-keys-token.html',
-    icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
+    icon: `${TOKENS_TYPE.GCP_KEYS}.png`,
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
     howItWorksInstructions: [
