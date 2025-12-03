@@ -1,11 +1,9 @@
 <template>
-  <base-content-block
+  <base-code-snippet
     lang="json"
-    label="GCP token"
-    :text="GCPKeyCode"
-    :copyContent="true"
-    :icon-name="'lock'"
-  ></base-content-block>
+    label="AWS token"
+    :code="GCPKeyCode"
+  ></base-code-snippet>
 </template>
 
 <script setup lang="ts">
