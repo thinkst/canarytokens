@@ -893,14 +893,18 @@ class Canarytoken(object):
                     "Asset Name": next(
                         (
                             v
-                            for k, v in event_detail["requestParameters"].items()
+                            for k, v in (
+                                event_detail.get("requestParameters") or {}
+                            ).items()
                             if k in resource_name_keys
                         ),
                         "",
                     ),
                     "Request Parameters": ", ".join(
                         f"{k}: {v}"
-                        for k, v in event_detail["requestParameters"].items()
+                        for k, v in (
+                            event_detail.get("requestParameters") or {}
+                        ).items()
                     ),
                 },
                 identity={
