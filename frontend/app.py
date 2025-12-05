@@ -2453,7 +2453,7 @@ def _(
         pathjoin=os.path.join(
             frontend_settings.WEB_IMAGE_UPLOAD_PATH, random_name[:2], random_name[2:]
         ),
-        extension=filename.lower()[-3:],
+        extension=filename.lower().split('.')[-1]
     )
 
     # create local file
