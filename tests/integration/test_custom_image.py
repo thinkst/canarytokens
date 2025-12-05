@@ -99,7 +99,7 @@ def test_custom_image_url(  # noqa: C901
         )
 
     # Check token url page extension
-    assert token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+    assert token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # Trigger the token alert
     accepted_content = [

@@ -369,7 +369,7 @@ def test_web_bug_token(
 
     token_info = WebBugTokenResponse(**resp)
 
-    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # Trigger the token
     trigger_http_token(
@@ -492,7 +492,7 @@ def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
     token_info = FastRedirectTokenResponse(**resp)
 
     # Check token url page extension
-    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # Trigger the token
     trigger_resp = trigger_http_token(
@@ -553,7 +553,7 @@ def test_slow_redirect_token(
     token_info = SlowRedirectTokenResponse(**resp)
 
     # Check token url page extension
-    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # Trigger the token
     trigger_resp = trigger_http_token(
