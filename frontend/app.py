@@ -286,13 +286,6 @@ app = FastAPI(
 vue_index = Jinja2Templates(directory="../dist/")
 
 
-def split_tags(tags: Optional[str]) -> set[str]:
-    """Split tags string into set of tags"""
-    if not tags:
-        return set()
-    return set(tag.strip() for tag in tags.split(","))
-
-
 if frontend_settings.NEW_UI:
 
     @app.get("/")
@@ -307,8 +300,7 @@ if frontend_settings.NEW_UI:
     def index(request: Request):
         response = vue_index.TemplateResponse("index.html", {"request": request})
         if request.url.path not in ["/", "/nest"]:
-            robot_tags = split_tags(response.headers.get("X-Robots-Tag"))
-            robot_tags.add("noindex")
+            robot_tags = ['noindex', 'nofollow']
             response.headers["X-Robots-Tag"] = ", ".join(robot_tags)
 
         return response
