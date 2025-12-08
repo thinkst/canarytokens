@@ -151,7 +151,7 @@ async def _finalize_list(
 
         if similarity_score < _SIMILARITY_THRESHOLD:
             validated_names.append(name)
-    return validated_names
+    return list(set(validated_names))
 
 
 async def _gemini_request(prompt: str):
@@ -202,6 +202,18 @@ async def _gemini_request(prompt: str):
     return []
 
 
+def _sanitize_name(name: str) -> str:
+    """
+    Sanitize a name by replacing invalid characters and trimming to max length.
+    """
+    name = name[1:] if name.startswith("/") else name
+    sanitized = name.replace("/", "-")
+    sanitized = sanitized[:_MAX_ASSET_NAME_LENGTH]
+    while sanitized and not sanitized[-1].isalnum():
+        sanitized = sanitized[:-1]
+    return sanitized
+
+
 def _overshoot_count(count: int, validated_count: int = 0) -> int:
     """
     Calculate the overshoot count based on the provided count.
@@ -235,7 +247,8 @@ async def generate_names(
 
     while len(validated_names) < count:
         attempts += 1
-        if attempts == _NAME_GEN_MAX_ATTEMPTS:
+        # raise error with not at least one valid name after max attempts
+        if attempts == _NAME_GEN_MAX_ATTEMPTS and not validated_names:
             raise RuntimeError(
                 f"Failed to generate enough valid names for {asset_type.name} after {_NAME_GEN_MAX_ATTEMPTS} attempts."
             )
@@ -258,6 +271,17 @@ async def generate_names(
         )
         names = await _finalize_list(asset_type, inventory, new_names)
         validated_names.extend(names)
+
+        # If we're on the last attempt, try force sanitizing any unvalidated names
+        # for in case Gemini was not following the naming rules properly.
+        if attempts == _NAME_GEN_MAX_ATTEMPTS - 1 and len(validated_names) < count:
+            sanitized_names = [
+                _sanitize_name(name)
+                for name in new_names
+                if name not in validated_names
+            ]
+            names = await _finalize_list(asset_type, inventory, sanitized_names)
+            validated_names.extend(names)
 
     random.shuffle(validated_names)
     suggested_names = validated_names[:count] if trim_list else validated_names
