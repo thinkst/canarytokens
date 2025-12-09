@@ -12,7 +12,7 @@ import re
 from functools import partial
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as, validator
+from pydantic import BaseModel, HttpUrl, parse_obj_as, validator, Field
 
 from canarytokens import constants
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
@@ -765,7 +765,7 @@ class TokenAlertDetailsDiscord(BaseModel):
 
 def _format_as_ms_teams_canaryalert(
     details: TokenAlertDetails,
-) -> TokenAlertDetailsMsTeams:
+) -> TokenAlertAttachmentMsTeams:
     facts = [
         MsTeamsFact(name="Canarytoken", value=details.token),
         MsTeamsFact(name="Token Reminder", value=details.memo),
@@ -781,13 +781,21 @@ def _format_as_ms_teams_canaryalert(
         MsTeamsDetailsSection(facts=facts),
     ]
 
-    return TokenAlertDetailsMsTeams(
-        summary="Canarytoken Triggered",
-        themeColor=HexColor.ERROR.value_without_hash,
-        sections=sections,
-        potentialAction=[
-            MsTeamsPotentialAction(name="Manage token", target=[details.manage_url])
-        ],
+    return TokenAlertAttachmentMsTeams(
+        attachments=[
+            TokenAlertContentMsTeams(
+                content=TokenAlertDetailsMsTeams(
+                    summary="Canarytoken Triggered",
+                    themeColor=HexColor.ERROR.value_without_hash,
+                    sections=sections,
+                    potentialAction=[
+                        MsTeamsPotentialAction(
+                            name="Manage token", target=[details.manage_url]
+                        )
+                    ],
+                )
+            )
+        ]
     )
 
 
@@ -869,9 +877,24 @@ class TokenAlertDetailsMsTeams(BaseModel):
 
     summary: str
     themeColor: str = HexColor.CANARY_GREEN.value
+    type: str = Field("MessageCard", alias="@type")
+    context: str = Field("http://schema.org", alias="@context")
     sections: Optional[list[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
     potentialAction: Optional[list[MsTeamsPotentialAction]] = None
     text: Optional[str] = None
+
+    def json(self, *args, **kwargs):
+        kwargs.setdefault("by_alias", True)
+        return super().json(*args, **kwargs)
+
+
+class TokenAlertContentMsTeams(BaseModel):
+    contentType: str = "application/vnd.microsoft.teams.card.o365connector"
+    content: TokenAlertDetailsMsTeams
+
+
+class TokenAlertAttachmentMsTeams(BaseModel):
+    attachments: list[TokenAlertContentMsTeams]
 
     def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
