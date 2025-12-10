@@ -174,14 +174,37 @@ def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTy
             timestamp=datetime.now(),
         )
         return TokenAlertDetailsDiscord(embeds=[embeds])
-    # Fix initial test webhook
-    # elif webhook_type == WebhookType.MS_TEAMS:
-    #     section = MsTeamsTitleSection(
-    #         activityTitle="<b>Validating new Canarytokens webhook</b>"
-    #     )
-    #     return TokenAlertDetailsMsTeams(
-    #         summary="Validating new Canarytokens webhook", sections=[section]
-    #     )
+    elif webhook_type == WebhookType.MS_TEAMS:
+        columns = [
+            MsTeamsColumn(
+                items=[
+                    MsTeamsColumnItem(
+                        type="TextBlock",
+                        text="Validating new Canarytokens webhook",
+                        weight="Bolder",
+                        size="Large",
+                    )
+                ]
+            )
+        ]
+
+        return TokenAlertDetailsMsTeams(
+            attachments=[
+                TokenAlertAttachmentMsTeams(
+                    content=TokenAlertContentMsTeams(
+                        body=[MsTeamsColumnSet(columns=columns)],
+                        actions=[
+                            MsTeamsAction(
+                                type="Action.OpenUrl",
+                                title="Canarytokens.org",
+                                url="https://canarytokens.org/nest/",
+                                iconUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
+                            )
+                        ],
+                    )
+                )
+            ]
+        )
     elif webhook_type == WebhookType.GENERIC:
         return TokenAlertDetails(
             manage_url=WEBHOOK_TEST_URL,
@@ -798,10 +821,10 @@ def _format_as_ms_teams_canaryalert(
         MsTeamsFactSet(facts=facts),
     ]
 
-    return TokenAlertAttachmentMsTeams(
+    return TokenAlertDetailsMsTeams(
         attachments=[
-            TokenAlertContentMsTeams(
-                content=TokenAlertDetailsMsTeams(
+            TokenAlertAttachmentMsTeams(
+                content=TokenAlertContentMsTeams(
                     body=body,
                     actions=[
                         MsTeamsAction(
@@ -822,34 +845,68 @@ def _format_as_ms_teams_canaryalert(
     )
 
 
-# def _format_as_ms_teams_token_exposed(
-#     details: TokenExposedDetails,
-# ) -> TokenAlertDetailsMsTeams:
-#     facts = [
-#         MsTeamsFact(name="Key ID", value=details.key_id),
-#         MsTeamsFact(name="Token Reminder", value=details.memo),
-#         MsTeamsFact(
-#             name="Key exposed at",
-#             value=details.exposed_time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-#         ),
-#         MsTeamsFact(name="Key exposed here", value=details.public_location),
-#     ]
+def _format_as_ms_teams_token_exposed(
+    details: TokenExposedDetails,
+) -> TokenAlertDetailsMsTeams:
+    columns = [
+        MsTeamsColumn(
+            items=[
+                MsTeamsColumnItem(
+                    type="Image", url=CANARY_LOGO_ROUND_PUBLIC_URL, size="Medium"
+                )
+            ]
+        ),
+        MsTeamsColumn(
+            items=[
+                MsTeamsColumnItem(
+                    type="TextBlock",
+                    text="Canarytoken Exposed",
+                    weight="Bolder",
+                    size="ExtraLarge",
+                )
+            ]
+        ),
+    ]
 
-#     sections = [
-#         MsTeamsTitleSection(activityTitle="<b>Canarytoken Exposed</b>"),
-#         MsTeamsDetailsSection(
-#             facts=facts, text=_get_exposed_token_description(details.token_type)
-#         ),
-#     ]
+    text = MsTeamsTextblock(text=_get_exposed_token_description(details.token_type))
 
-#     return TokenAlertDetailsMsTeams(
-#         summary="Canarytoken Exposed",
-#         themeColor=HexColor.WARNING.value_without_hash,
-#         sections=sections,
-#         potentialAction=[
-#             MsTeamsPotentialAction(name="Manage token", target=[details.manage_url])
-#         ],
-#     )
+    facts = [
+        MsTeamsFact(title="Key ID", value=details.key_id),
+        MsTeamsFact(title="Token Reminder", value=details.memo),
+        MsTeamsFact(
+            title="Key exposed at",
+            value=details.exposed_time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
+        ),
+        MsTeamsFact(title="Key exposed here", value=details.public_location),
+    ]
+
+    body: list[Union[MsTeamsColumnSet, MsTeamsTextblock, MsTeamsFactSet]] = [
+        MsTeamsColumnSet(columns=columns),
+        text,
+        MsTeamsFactSet(facts=facts),
+    ]
+    return TokenAlertDetailsMsTeams(
+        attachments=[
+            TokenAlertAttachmentMsTeams(
+                content=TokenAlertContentMsTeams(
+                    body=body,
+                    actions=[
+                        MsTeamsAction(
+                            type="Action.OpenUrl",
+                            title="⚙️ Manage token",
+                            url=details.manage_url,
+                        ),
+                        MsTeamsAction(
+                            type="Action.OpenUrl",
+                            title="Canarytokens.org",
+                            url="https://canarytokens.org/nest/",
+                            iconUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
+                        ),
+                    ],
+                )
+            )
+        ]
+    )
 
 
 def _data_to_ms_teams_facts(data: dict[str, Union[str, dict]]) -> list[MsTeamsFact]:
@@ -863,6 +920,12 @@ def _data_to_ms_teams_facts(data: dict[str, Union[str, dict]]) -> list[MsTeamsFa
         facts.append(MsTeamsFact(title=prettify_snake_case(label), value=message_text))
 
     return facts
+
+
+class MsTeamsTextblock(BaseModel):
+    type: str = "TextBlock"
+    text: str
+    wrap: bool = True
 
 
 class MsTeamsAction(BaseModel):
@@ -902,23 +965,25 @@ class MsTeamsColumnSet(BaseModel):
     columns: Optional[list[MsTeamsColumn]] = None
 
 
-class TokenAlertDetailsMsTeams(BaseModel):
+class TokenAlertContentMsTeams(BaseModel):
     schema_: str = Field(
         "https://adaptivecards.io/schemas/adaptive-card.json", alias="$schema"
     )
     type: str = "AdaptiveCard"
     version: str = "1.5"
-    body: Optional[list[Union[MsTeamsColumnSet, MsTeamsFactSet]]] = None
+    body: Optional[
+        list[Union[MsTeamsColumnSet, MsTeamsFactSet, MsTeamsTextblock]]
+    ] = None
     actions: Optional[list[MsTeamsAction]] = None
 
 
-class TokenAlertContentMsTeams(BaseModel):
-    contentType: str = "application/vnd.microsoft.teams.card.o365connector"
-    content: TokenAlertDetailsMsTeams
-
-
 class TokenAlertAttachmentMsTeams(BaseModel):
-    attachments: list[TokenAlertContentMsTeams]
+    contentType: str = "application/vnd.microsoft.teams.card.o365connector"
+    content: TokenAlertContentMsTeams
+
+
+class TokenAlertDetailsMsTeams(BaseModel):
+    attachments: list[TokenAlertAttachmentMsTeams]
 
     def json_safe_dict(self) -> dict[str, str]:
         return self.dict(by_alias=True, exclude_none=True)
