@@ -33,5 +33,5 @@ WEBHOOK_BASE_URL_SLACK = "https://hooks.slack.com"
 WEBHOOK_BASE_URL_GOOGLE_CHAT = "https://chat.googleapis.com"
 WEBHOOK_BASE_URL_DISCORD = "https://discord.com/api/webhooks"
 WEBHOOK_BASE_URL_REGEX_MS_TEAMS = (
-    r"^https:\/\/\S+\.ac\.environment\.api\.powerplatform\.com\S*"
+    r"^https:\/\/\S+\.ac\.environment\.api\.powerplatform\.com"
 )
