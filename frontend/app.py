@@ -298,7 +298,12 @@ if frontend_settings.NEW_UI:
     @app.get("/nest/generate")
     @app.get("/generate")
     def index(request: Request):
-        return vue_index.TemplateResponse("index.html", {"request": request})
+        response = vue_index.TemplateResponse("index.html", {"request": request})
+        if request.url.path not in ["/", "/nest"]:
+            robot_tags = ['noindex', 'nofollow']
+            response.headers["X-Robots-Tag"] = ", ".join(robot_tags)
+
+        return response
 
     @app.get("/robots.txt")
     def robots_txt():
