@@ -96,7 +96,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver, runv2, runv
     assert extracted_url == token_info.token_url
 
     # Check token url page extension
-    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg"))
+    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # trigger token
     resp = trigger_http_token(token_info=token_info, version=version)

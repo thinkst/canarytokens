@@ -2418,7 +2418,7 @@ def _(
 
     Raises:
         HTTPException: status 400 if Image Upload is not supported.
-        HTTPException: status 400 if file is not .png, .gif, .jpg
+        HTTPException: status 400 if file is not .png, .gif, .jpg, .jpeg
         HTTPException: status 400 if file is too large. See MAX_UPLOAD_SIZE
         HTTPException: status 400 if failed to save file.
 
@@ -2433,9 +2433,9 @@ def _(
     filename = token_request_details.web_image.filename
 
     # check file extension
-    if not filename.lower().endswith((".png", ".gif", ".jpg")):
+    if not filename.lower().endswith((".png", ".gif", ".jpg", ".jpeg")):
         raise HTTPException(
-            status_code=400, detail="Uploaded image must be a PNG, GIF or JPG"
+            status_code=400, detail="Uploaded image must be a PNG, GIF, JPG or JPEG"
         )
 
     # extract file bytes and check file size
@@ -2453,7 +2453,7 @@ def _(
         pathjoin=os.path.join(
             frontend_settings.WEB_IMAGE_UPLOAD_PATH, random_name[:2], random_name[2:]
         ),
-        extension=filename.lower()[-3:],
+        extension=filename.lower().split('.')[-1]
     )
 
     # create local file
