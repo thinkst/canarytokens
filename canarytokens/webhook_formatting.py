@@ -559,7 +559,7 @@ def _format_as_googlechat_token_exposed(
 
 
 def _data_to_googlechat_text_widgets(
-    data: dict[str, str],
+    data: dict[str, str]
 ) -> list[GoogleChatTextWithTopLabel]:
     widgets: list[GoogleChatTextWithTopLabel] = []
     for label, text in data.items():
