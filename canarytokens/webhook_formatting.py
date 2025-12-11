@@ -816,16 +816,14 @@ def _format_as_ms_teams_canaryalert(
     if details.additional_data:
         facts.extend(_data_to_ms_teams_facts(details.additional_data))
 
-    body: list[Union[MsTeamsColumnSet, MsTeamsFactSet]] = [
-        MsTeamsColumnSet(columns=columns),
-        MsTeamsFactSet(facts=facts),
-    ]
-
     return TokenAlertDetailsMsTeams(
         attachments=[
             TokenAlertAttachmentMsTeams(
                 content=TokenAlertContentMsTeams(
-                    body=body,
+                    body=[
+                        MsTeamsColumnSet(columns=columns),
+                        MsTeamsFactSet(facts=facts),
+                    ],
                     actions=[
                         MsTeamsAction(
                             type="Action.OpenUrl",
@@ -868,7 +866,7 @@ def _format_as_ms_teams_token_exposed(
         ),
     ]
 
-    text = MsTeamsTextblock(text=_get_exposed_token_description(details.token_type))
+    text = _get_exposed_token_description(details.token_type)
 
     facts = [
         MsTeamsFact(title="Key ID", value=details.key_id),
@@ -880,16 +878,15 @@ def _format_as_ms_teams_token_exposed(
         MsTeamsFact(title="Key exposed here", value=details.public_location),
     ]
 
-    body: list[Union[MsTeamsColumnSet, MsTeamsTextblock, MsTeamsFactSet]] = [
-        MsTeamsColumnSet(columns=columns),
-        text,
-        MsTeamsFactSet(facts=facts),
-    ]
     return TokenAlertDetailsMsTeams(
         attachments=[
             TokenAlertAttachmentMsTeams(
                 content=TokenAlertContentMsTeams(
-                    body=body,
+                    body=[
+                        MsTeamsColumnSet(columns=columns),
+                        MsTeamsTextblock(text=text),
+                        MsTeamsFactSet(facts=facts),
+                    ],
                     actions=[
                         MsTeamsAction(
                             type="Action.OpenUrl",
@@ -972,7 +969,7 @@ class TokenAlertContentMsTeams(BaseModel):
     type: str = "AdaptiveCard"
     version: str = "1.5"
     body: Optional[
-        list[Union[MsTeamsColumnSet, MsTeamsFactSet, MsTeamsTextblock]]
+        list[Union[MsTeamsColumnSet, MsTeamsTextblock, MsTeamsFactSet]]
     ] = None
     actions: Optional[list[MsTeamsAction]] = None
 
