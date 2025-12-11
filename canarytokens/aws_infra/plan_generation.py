@@ -615,7 +615,7 @@ async def save_plan(canarydrop: Canarydrop, plan: dict[str, list[dict]]) -> None
             raise ValueError(
                 f"Your proposed plan is too big and will exceed an AWS character limit. You need to shave off more than {event_pattern_length - _EVENT_PATTERN_LIMIT} characters from the plan; either remove assets, or shorten your decoy names."
             )
-    except ValueError:
+    except* ValueError:
         canarydrop.aws_deployed_assets = json.dumps(
             current_deployed_assets
         )  # restore previous state
