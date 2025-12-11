@@ -31,7 +31,7 @@ from canarytokens.webhook_formatting import (
             WebhookType.GOOGLE_CHAT,
         ),
         (
-            "https://azurebasethinkst.webhook.office.com/webhookb2/aaaaaaaa-bbbb-cccc-dddd-111111111111@aaaaaaaa-bbbb-cccc-dddd-111111111111/IncomingWebhook/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbb-cccc-dddd-1111-eeeeeeeeeeee/ABCDEFG123456789ABCDEFG123456789abcdefg1234567",
+            "https://default12345678abcdef.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/12345678abcdef/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=12345678abcdef",
             WebhookType.MS_TEAMS,
         ),
         ("http://example.com/abc", WebhookType.GENERIC),

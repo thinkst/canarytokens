@@ -12,7 +12,6 @@ from canarytokens.models import (
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
-from canarytokens.constants import CANARY_IMAGE_URL
 from canarytokens.webhook_formatting import (
     WebhookType,
     format_details_for_webhook,
@@ -277,21 +276,17 @@ def test_ms_teams_webhook_format(
     webhook_payload = format_details_for_webhook(WebhookType.MS_TEAMS, details)
     payload = webhook_payload.json_safe_dict()
 
-    assert payload["summary"] == "Canarytoken Triggered"
-    assert payload["themeColor"] == "d32f2f"
-    assert payload["potentialAction"] == [
-        {
-            "@context": "http://schema.org",
-            "@type": "ViewAction",
-            "name": "Manage token",
-            "target": [details.manage_url],
-        }
-    ]
-    assert len(payload["sections"]) == 2
-
-    assert payload["sections"][0] == {
-        "activityTitle": "<b>Canarytoken Triggered</b>",
-        "activityImage": CANARY_IMAGE_URL,
+    assert (
+        payload["attachments"][0]["content"]["body"][0]["columns"][1]["items"][0][
+            "text"
+        ]
+        == "Canarytoken Triggered"
+    )
+    assert len(payload["attachments"][0]["content"]["body"][1]["facts"]) == 3
+    assert payload["attachments"][0]["content"]["actions"][0] == {
+        "type": "Action.OpenUrl",
+        "title": "⚙️ Manage token",
+        "url": details.manage_url,
     }
 
 
@@ -304,7 +299,7 @@ def test_canaryalert_ms_teams_webhook(
     """
     Tests if a MS Teams webhook payload is produced given a MS Teams webhook receiver.
     """
-    ms_teams_webhook_receiver = "https://azurerandomtest.webhook.office.com/webhookb2/ramdomhashhere/IncomingWebhook/randomhashhere/randomhashhere"
+    ms_teams_webhook_receiver = "https://defaultsomehash.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/someotherhash/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=anotherhash"
 
     switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
