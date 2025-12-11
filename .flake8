@@ -1,5 +1,5 @@
 [flake8]
-ignore = E501, E701, W503
+ignore = E501, W503
 exclude = .git,__pycache__,docs/source/conf.py,old,build,dist
 max-complexity = 10
 min_python_version = 3.9

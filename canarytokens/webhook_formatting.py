@@ -356,7 +356,8 @@ class SlackTextWithLabel(SlackTextObject):
         super().__init__(text=f"*{label}*\n{text}")
 
 
-class SlackBlock(BaseModel): ...
+class SlackBlock(BaseModel):
+    ...
 
 
 class SlackHeader(SlackBlock):
@@ -575,7 +576,8 @@ def _data_to_googlechat_text_widgets(
     return widgets
 
 
-class GoogleChatWidget(BaseModel): ...
+class GoogleChatWidget(BaseModel):
+    ...
 
 
 class GoogleChatParagraph(GoogleChatWidget):
@@ -969,9 +971,9 @@ class TokenAlertContentMsTeams(BaseModel):
     )
     type: str = "AdaptiveCard"
     version: str = "1.5"
-    body: Optional[list[Union[MsTeamsColumnSet, MsTeamsFactSet, MsTeamsTextblock]]] = (
-        None
-    )
+    body: Optional[
+        list[Union[MsTeamsColumnSet, MsTeamsFactSet, MsTeamsTextblock]]
+    ] = None
     actions: Optional[list[MsTeamsAction]] = None
 
 
@@ -987,10 +989,12 @@ class TokenAlertDetailsMsTeams(BaseModel):
         return self.dict(by_alias=True, exclude_none=True)
 
 
-class TokenAlertDetailGeneric(TokenAlertDetails): ...
+class TokenAlertDetailGeneric(TokenAlertDetails):
+    ...
 
 
-class TokenExposedDetailGeneric(TokenExposedDetails): ...
+class TokenExposedDetailGeneric(TokenExposedDetails):
+    ...
 
 
 def _get_exposed_token_description(token_type: TokenTypes) -> str:
