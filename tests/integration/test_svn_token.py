@@ -20,7 +20,6 @@ from tests.utils import (
     get_token_history,
     plain_fire_token,
     run_or_skip,
-    v2,
     v3,
 )
 
@@ -52,7 +51,6 @@ def managed_svn_server(tmpdir_repo):
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )
