@@ -22,7 +22,6 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     run_or_skip,
-    v2,
     v3,
     windows_directory_fire_token,
 )
@@ -39,7 +38,6 @@ MODE_DIRECTORY = 0x10
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )

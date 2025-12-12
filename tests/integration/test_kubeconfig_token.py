@@ -19,7 +19,6 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     run_or_skip,
-    v2,
     v3,
 )
 
@@ -27,7 +26,6 @@ from tests.utils import (
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )
