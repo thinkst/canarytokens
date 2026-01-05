@@ -18,7 +18,6 @@ from tests.utils import (
     download_token_artifact,
     get_token_history,
     run_or_skip,
-    v2,
     v3,
 )
 
@@ -26,7 +25,6 @@ from tests.utils import (
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )

@@ -8,7 +8,6 @@ import requests
 from pydantic import HttpUrl
 from requests import HTTPError
 
-from canarytokens.exceptions import CanaryTokenCreationError
 from canarytokens.models import (
     V2,
     V3,
@@ -53,7 +52,6 @@ from tests.utils import (
     run_or_skip,
     slack_webhook_test,
     trigger_http_token,
-    v2,
     v3,
     windows_directory_fire_token,
 )
@@ -112,21 +110,6 @@ def test_delete_token(version, runv3, runv2):
             Log4ShellTokenResponse,
             Log4ShellTokenHistory,
             partial(log_4_shell_fire_token, retrieved_hostname="somehostname.local"),
-        ),
-        (v2, DNSTokenRequest, DNSTokenResponse, DNSTokenHistory, plain_fire_token),
-        (
-            v2,
-            Log4ShellTokenRequest,
-            Log4ShellTokenResponse,
-            Log4ShellTokenHistory,
-            partial(log_4_shell_fire_token, retrieved_hostname="somehostname.local"),
-        ),
-        (
-            v2,
-            WindowsDirectoryTokenRequest,
-            WindowsDirectoryTokenResponse,
-            WindowsDirectoryTokenHistory,
-            plain_fire_token,
         ),
     ],
 )
@@ -196,7 +179,6 @@ def test_dns_triggered_tokens(
     "version, hostname_to_retrieve",
     [
         (v3, "testhost.name.com"),
-        (v2, "testhost.name.com"),
     ],
 )
 def test_log_4_shell_token(
@@ -260,7 +242,6 @@ def test_log_4_shell_token(
 @pytest.mark.parametrize(
     "version,memo",
     [
-        (v2, "V2 is email test"),
         (v3, "V3 email test run"),
     ],
 )
@@ -348,7 +329,7 @@ def test_unique_email_token(
 
 @pytest.mark.parametrize(
     "version, method",
-    [(v2, "GET"), (v3, "GET"), (v3, "POST"), (v3, "OPTIONS")],
+    [(v3, "GET"), (v3, "POST"), (v3, "OPTIONS")],
 )
 def test_web_bug_token(
     version: Union[V2, V3], method: str, webhook_receiver, runv2, runv3
@@ -472,7 +453,6 @@ def test_cloned_web_token(
     "target,version",
     [
         ("https://www.youtube.com", v3),
-        ("https://www.youtube.com", v2),
         # ("google.com") # without http[s]://
     ],
 )
@@ -517,18 +497,6 @@ def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
             "http://test.com/testloc",
             "http://test.com/testref",
             v3,
-        ),
-        (
-            "http://www.youtube.com",
-            "http://test.com/testloc",
-            "http://test.com/testref",
-            v2,
-        ),
-        (
-            "https://www.youtube.com",
-            "http://test.com/testloc",
-            "http://test.com/testref",
-            v2,
         ),
         # https://github.com/thinkst/canarytokens/issues/122
         # in future add one without http[s]:// (currently broken)
@@ -614,35 +582,7 @@ def test_slow_redirect_token(
 
 @pytest.mark.parametrize(
     "version",
-    [
-        # v3,
-        v2
-    ],
-)
-def test_broken_webhook_on_token_creation(version, runv2, runv3):
-    token_request = ClonedWebTokenRequest(
-        webhook_url=HttpUrl(url="https://something.com/nothing", scheme="https"),
-        memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
-        clonedsite="test.com",
-    )
-    run_or_skip(version, runv2=runv2, runv3=runv3)
-    if isinstance(version, V2):
-        with pytest.raises(CanaryTokenCreationError):
-            _ = create_token.__wrapped__(token_request, version=version)
-    # ! in future V3 will use http codes to indicate a failed token creation
-    # elif isinstance(version, V3):  # pragma: no cover
-    #     with pytest.raises(requests.exceptions.HTTPError):
-    #         _ = create_token.__wrapped__(token_request, version=version)
-    else:
-        assert False, f"Unsupported version {version}"
-
-
-@pytest.mark.parametrize(
-    "version",
-    [
-        # v2,
-        v3
-    ],
+    [v3],
 )
 @pytest.mark.parametrize(
     "request_dict, error_code",

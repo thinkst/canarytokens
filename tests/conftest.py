@@ -163,7 +163,6 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--runv3", action="store_true", default=False, help="run V3 tests")
-    parser.addoption("--runv2", action="store_true", default=False, help="run V2 tests")
 
 
 @pytest.fixture(scope="session")
@@ -181,15 +180,19 @@ def settings() -> SwitchboardSettings:
     return SwitchboardSettings(
         PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
-        CHANNEL_SMTP_PORT=Port(25)
-        if strtobool(os.getenv("LIVE", "FALSE"))
-        else Port(2500),
-        MAILGUN_DOMAIN_NAME="eu-mg.honeypdfs.com"
-        if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
-        else os.getenv("CANARY_MAILGUN_DOMAIN_NAME"),
-        MAILGUN_BASE_URL="https://api.eu.mailgun.net"
-        if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
-        else os.getenv("CANARY_MAILGUN_BASE_URL"),
+        CHANNEL_SMTP_PORT=(
+            Port(25) if strtobool(os.getenv("LIVE", "FALSE")) else Port(2500)
+        ),
+        MAILGUN_DOMAIN_NAME=(
+            "eu-mg.honeypdfs.com"
+            if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
+            else os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
+        ),
+        MAILGUN_BASE_URL=(
+            "https://api.eu.mailgun.net"
+            if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
+            else os.getenv("CANARY_MAILGUN_BASE_URL")
+        ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )
@@ -203,9 +206,9 @@ def fake_settings_for_aws_keys():
     return SwitchboardSettings(
         PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
-        CHANNEL_SMTP_PORT=Port(25)
-        if strtobool(os.getenv("LIVE", "FALSE"))
-        else Port(2500),
+        CHANNEL_SMTP_PORT=(
+            Port(25) if strtobool(os.getenv("LIVE", "FALSE")) else Port(2500)
+        ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )

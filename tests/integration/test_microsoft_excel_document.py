@@ -20,7 +20,6 @@ from tests.utils import (
     get_token_history,
     run_or_skip,
     trigger_http_token,
-    v2,
     v3,
 )
 
@@ -30,7 +29,6 @@ MODE_DIRECTORY = 0x10
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )
