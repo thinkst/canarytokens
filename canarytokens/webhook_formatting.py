@@ -31,6 +31,7 @@ CANARY_LOGO_ROUND_PUBLIC_URL = parse_obj_as(
 WEBHOOK_TEST_URL = parse_obj_as(HttpUrl, "http://example.com/test/url/for/webhook")
 TOKEN_EXPOSED_DESCRIPTION = "One of your {readable_type} Canarytokens has been found on the internet. A publicly exposed token will provide very low quality alerts. We recommend that you disable and replace this token on private infrastructure."
 MAX_INLINE_LENGTH = 40  # Max length of content to share a line with other content
+CANARY_TOKENS_NEST_URL = "https://canarytokens.org/nest/"
 
 
 class HexColor(Enum):
@@ -197,7 +198,7 @@ def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTy
                             MsTeamsAction(
                                 type="Action.OpenUrl",
                                 title="Canarytokens.org",
-                                url="https://canarytokens.org/nest/",
+                                url=CANARY_TOKENS_NEST_URL,
                                 iconUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
                             )
                         ],
@@ -833,7 +834,7 @@ def _format_as_ms_teams_canaryalert(
                         MsTeamsAction(
                             type="Action.OpenUrl",
                             title="Canarytokens.org",
-                            url="https://canarytokens.org/nest/",
+                            url=CANARY_TOKENS_NEST_URL,
                             iconUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
                         ),
                     ],
@@ -896,7 +897,7 @@ def _format_as_ms_teams_token_exposed(
                         MsTeamsAction(
                             type="Action.OpenUrl",
                             title="Canarytokens.org",
-                            url="https://canarytokens.org/nest/",
+                            url=CANARY_TOKENS_NEST_URL,
                             iconUrl=CANARY_LOGO_ROUND_PUBLIC_URL,
                         ),
                     ],
