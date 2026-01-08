@@ -163,7 +163,6 @@ function handleSelectOption(value: string | SelectOption) {
 }
 
 .focus-visible {
-  outline: 2px solid;
-  outline-color: hsl(191, 96%, 36%);
+  @apply ring-green-600 ring-2
 }
 </style>
