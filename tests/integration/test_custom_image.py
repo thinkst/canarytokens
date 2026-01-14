@@ -23,7 +23,6 @@ from tests.utils import (
     run_or_skip,
     set_token_settings,
     trigger_http_token,
-    v2,
     v3,
 )
 
@@ -31,7 +30,7 @@ from tests.utils import (
 DEFAULT_GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"  # 1x1 GIF
 
 
-@pytest.mark.parametrize("version", [v2, v3])
+@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize("browser_scanner_enabled", [True, False])
 @pytest.mark.parametrize("web_image_enabled", [True, False])
 @pytest.mark.parametrize("accept_html", [True, False])
@@ -156,7 +155,7 @@ def test_custom_image_url(  # noqa: C901
         assert token_hit.geo_info.ip == "127.0.0.1"
 
 
-@pytest.mark.parametrize("version", [v2, v3])
+@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "file_name",
     ["canary_image.png", "Moon.jpg", "testing.gif"],

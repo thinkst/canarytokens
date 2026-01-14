@@ -16,7 +16,7 @@ from canarytokens.utils import strtobool
 
 from tests.utils import azure_token_fire, create_token
 from tests.utils import get_token_history
-from tests.utils import run_or_skip, v2, v3
+from tests.utils import run_or_skip, v3
 
 
 @pytest.mark.skipif(
@@ -26,7 +26,6 @@ from tests.utils import run_or_skip, v2, v3
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )

@@ -22,10 +22,10 @@ from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.utils import strtobool
 
-from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
+from tests.utils import create_token, get_token_history, run_or_skip, v3
 
 
-@pytest.mark.parametrize("version", [v2, v3])
+@pytest.mark.parametrize("version", [v3])
 def test_mysql_token(
     version: Union[V2, V3],
     webhook_receiver: str,
