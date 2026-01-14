@@ -118,6 +118,7 @@ class InputChannel(Channel):
                 f"Not dispatching alert for ignored IP {token_hit.src_ip} on {canarydrop.canarytoken.value()}"
             )
             return
+
         d = threads.deferToThread(
             self.switchboard.dispatch,
             canarydrop=canarydrop,
