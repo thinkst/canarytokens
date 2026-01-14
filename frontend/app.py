@@ -1572,7 +1572,7 @@ async def api_add_ip_ignore(request: Request) -> JSONResponse:
         token=data.get("token", ""), auth=data.get("auth", "")
     )
     ip_address = data.get("ip_list", [])
-    queries.add_ignored_ip_addresses(canarydrop, ip_address)
+    queries.set_ignored_ip_addresses(canarydrop, ip_address)
     return JSONResponse(
         {"message": "IP address added to ignore list."}, status_code=200
     )

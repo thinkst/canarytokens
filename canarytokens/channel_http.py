@@ -155,8 +155,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             and token_hit.src_ip in queries.get_ignored_ip_addresses(canarydrop)
         )
         canarydrop.add_canarydrop_hit(token_hit=token_hit)
-        if not token_hit.ignored:
-            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+        self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
         # TODO: fix this. Making it type dispatched?
         resp = getattr(Canarytoken, f"_get_response_for_{canarydrop.type}")(
             canarydrop, request
@@ -291,8 +290,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 canarydrop
             )
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
-            if not token_hit.ignored:
-                self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
         return self.render_GET(request)
 

@@ -401,6 +401,10 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
         raise NotImplementedError(
             f"Additional info not supported for hit type: {type(enriched_hit)}"
         )
+    enriched_hit.ignored = (
+        enriched_hit.token_type in models.IGNORABLE_IP_TOKENS
+        and enriched_hit.src_ip in get_ignored_ip_addresses(get_canarydrop(canarytoken))
+    )
     triggered_details.hits.append(enriched_hit)
 
     # if "additional_info" not in triggered_details[hit_time]:
@@ -1094,11 +1098,13 @@ def update_aws_management_lambda_handle(handle_id: str, response: str):
     )
 
 
-def add_ignored_ip_addresses(
-    canarydrop: cand.Canarydrop, ip_addresses: list[str]
-) -> int:
+def set_ignored_ip_addresses(canarydrop: cand.Canarydrop, ip_addresses: list[str]):
     key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
-    return DB.get_db().sadd(key, *ip_addresses)
+    swap_key = key + ":swap"
+    with DB.get_db().pipeline() as pipe:
+        pipe.sadd(swap_key, *ip_addresses)
+        pipe.rename(swap_key, key)  # make sure that we won't read an empty set
+        pipe.execute()
 
 
 def get_ignored_ip_addresses(canarydrop: cand.Canarydrop) -> set[str]:

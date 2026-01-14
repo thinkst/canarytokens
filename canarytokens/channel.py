@@ -1,4 +1,4 @@
-""""
+""" "
 Base class for all canarydrop channels.
 """
 
@@ -85,9 +85,9 @@ class InputChannel(Channel):
         if canarydrop.windows_fake_fs_root:
             additional_data["windows_fake_fs_root"] = canarydrop.windows_fake_fs_root
         if canarydrop.windows_fake_fs_file_structure:
-            additional_data[
-                "windows_fake_fs_file_structure"
-            ] = canarydrop.windows_fake_fs_file_structure
+            additional_data["windows_fake_fs_file_structure"] = (
+                canarydrop.windows_fake_fs_file_structure
+            )
 
         return TokenAlertDetails(
             channel=cls.CHANNEL,
@@ -112,6 +112,12 @@ class InputChannel(Channel):
         Spins off a `switchboard.dispatch` which notifies on all necessary channels.
         """
         log.info(f"reactor is running?: {twisted.internet.reactor.running}")
+
+        if token_hit.ignored:
+            log.info(
+                f"Not dispatching alert for ignored IP {token_hit.src_ip} on {canarydrop.canarytoken.value()}"
+            )
+            return
         d = threads.deferToThread(
             self.switchboard.dispatch,
             canarydrop=canarydrop,
