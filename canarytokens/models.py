@@ -1204,16 +1204,16 @@ class Log4ShellTokenResponse(TokenResponse):
 
     @root_validator(pre=True)
     def set_token_usage_info(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        values[
-            "token_with_usage_info"
-        ] = f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
+        values["token_with_usage_info"] = (
+            f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
+        )
         return values
 
     @root_validator(pre=True)
     def set_token_usage(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        values[
-            "token_usage"
-        ] = f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
+        values["token_usage"] = (
+            f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
+        )
         return values
 
     class Config:
@@ -1612,6 +1612,7 @@ class TokenHit(BaseModel):
     input_channel: str
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
+    ignored: bool = False
 
     class Config:
         smart_union = True
@@ -2600,9 +2601,9 @@ class TokenDownloadResponse(Response):
 
 
 class DownloadMSWordResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.APPMSWORD] = (
         DownloadContentTypes.APPMSWORD
-    ] = DownloadContentTypes.APPMSWORD
+    )
     filename: str
     token: str
     auth: str
@@ -2617,9 +2618,9 @@ class DownloadZipResponse(TokenDownloadResponse):
 
 
 class DownloadMSExcelResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.APPMSEXCELL] = (
         DownloadContentTypes.APPMSEXCELL
-    ] = DownloadContentTypes.APPMSEXCELL
+    )
     filename: str
     token: str
     auth: str
@@ -2633,9 +2634,9 @@ class DownloadPDFResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListJsonResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2656,54 +2657,54 @@ class DownloadQRCodeResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListCSVResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCCResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCMDResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCSSClonedWebResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadAWSKeysResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "credentials"
     token: str
     auth: str
@@ -2714,9 +2715,9 @@ class DownloadAWSKeysResponse(TokenDownloadResponse):
 
 
 class DownloadAzureIDConfigResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2724,9 +2725,9 @@ class DownloadAzureIDConfigResponse(TokenDownloadResponse):
 
 
 class DownloadAzureIDCertResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2734,18 +2735,18 @@ class DownloadAzureIDCertResponse(TokenDownloadResponse):
 
 
 class DownloadKubeconfigResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "kubeconfig"
     token: str
     auth: str
 
 
 class DownloadSlackAPIResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     slack_api_key: str
     filename: str = "slack_creds"
     token: str
@@ -2753,9 +2754,9 @@ class DownloadSlackAPIResponse(TokenDownloadResponse):
 
 
 class DownloadCreditCardV2Response(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "credit_card"
     token: str
     auth: str
@@ -2794,27 +2795,27 @@ class SettingsRequest(BaseModel):
 
 
 class EmailSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.EMAILSETTING] = (
         CanarydropSettingsTypes.EMAILSETTING
-    ] = CanarydropSettingsTypes.EMAILSETTING
+    )
 
 
 class WebhookSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.WEBHOOKSETTING] = (
         CanarydropSettingsTypes.WEBHOOKSETTING
-    ] = CanarydropSettingsTypes.WEBHOOKSETTING
+    )
 
 
 class BrowserScannerSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.BROWSERSCANNERSETTING] = (
         CanarydropSettingsTypes.BROWSERSCANNERSETTING
-    ] = CanarydropSettingsTypes.BROWSERSCANNERSETTING
+    )
 
 
 class WebImageSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.WEBIMAGESETTING] = (
         CanarydropSettingsTypes.WEBIMAGESETTING
-    ] = CanarydropSettingsTypes.WEBIMAGESETTING
+    )
 
 
 AnySettingsRequest = Annotated[
@@ -3079,3 +3080,6 @@ class AWSInfraServiceError(StrEnum):
             return cls(code)
         except ValueError:
             return cls.UNKNOWN
+
+
+IGNORABLE_IP_TOKENS = [TokenTypes.AWS_INFRA, TokenTypes.WEB]

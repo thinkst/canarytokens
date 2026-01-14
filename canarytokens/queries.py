@@ -46,6 +46,7 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_DOMAIN_BLOCK_LIST,
     KEY_EMAIL_BLOCK_LIST,
     KEY_EMAIL_IDX,
+    KEY_IGNORED_IP_ADDRESSES,
     KEY_KUBECONFIG_CERTS,
     KEY_KUBECONFIG_SERVEREP,
     KEY_MAIL_TO_SEND,
@@ -323,7 +324,9 @@ def get_canarydrop_triggered_details(
             k: v
             for k, v in triggered_details.items()
             if k
-            in sorted(triggered_details.keys(),)[
+            in sorted(
+                triggered_details.keys(),
+            )[
                 -(switchboard_settings.MAX_HISTORY) :  # noqa: E203
             ]
         }
@@ -651,9 +654,7 @@ def get_all_mails_in_send_status(
     return mails_and_details
 
 
-def remove_mail_from_to_send_status(
-    token: str, time: datetime.datetime
-) -> tuple[
+def remove_mail_from_to_send_status(token: str, time: datetime.datetime) -> tuple[
     Optional[list[EmailStr]],
     Optional[Union[models.TokenAlertDetails, models.TokenExposedDetails]],
 ]:
@@ -1091,3 +1092,15 @@ def update_aws_management_lambda_handle(handle_id: str, response: str):
     DB.get_db().hset(
         key, mapping={"response_content": response, "response_received": "True"}
     )
+
+
+def add_ignored_ip_addresses(
+    canarydrop: cand.Canarydrop, ip_addresses: list[str]
+) -> int:
+    key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
+    return DB.get_db().sadd(key, *ip_addresses)
+
+
+def get_ignored_ip_addresses(canarydrop: cand.Canarydrop) -> set[str]:
+    key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
+    return DB.get_db().smembers(key)
