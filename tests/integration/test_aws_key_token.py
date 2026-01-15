@@ -9,7 +9,6 @@ import requests
 from pydantic import HttpUrl
 
 from canarytokens.models import (
-    V3,
     AWSKeyTokenHistory,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
@@ -19,12 +18,11 @@ from canarytokens.models import (
 )
 from canarytokens.utils import strtobool
 
-from tests.utils import aws_token_fire, create_token
+from tests.utils import aws_token_fire, create_token, server_config
 from tests.utils import get_token_history as utils_get_token_history
-from tests.utils import v3
 
 
-def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cover
+def get_token_history(token_info) -> Dict[str, str]:  # pragma: no cover
     token_history_request = DownloadIncidentListJsonRequest(
         token=token_info.token,
         # TODO: auth vs. auth_token choose one at least at the object level
@@ -32,7 +30,7 @@ def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cove
         fmt="incidentlist_json",
     )
     resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=token_history_request.dict(),
     )
     if resp.status_code == 404:
@@ -45,7 +43,6 @@ def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cove
         resp.raise_for_status()
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.skipif(
     (
         strtobool(os.getenv("SKIP_AWS_KEY_TEST", "True"))
@@ -53,18 +50,18 @@ def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cove
     ),
     reason="avoid using up an AWS user each time we run tests, and AWS can't trigger unless live",
 )
-def test_aws_key_token(version, webhook_receiver):  # pragma: no cover
+def test_aws_key_token(webhook_receiver):  # pragma: no cover
 
     # Make the token
     token_request = AWSKeyTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
     token_info = AWSKeyTokenResponse(**resp)
 
     # Make sure the downloaded version is what we expect
-    url = f"http://{version.canarytokens_domain}/download?fmt=awskeys&token={token_info.token}&auth={token_info.auth_token}&encoded=false"
+    url = f"http://{server_config.canarytokens_domain}/download?fmt=awskeys&token={token_info.token}&auth={token_info.auth_token}&encoded=false"
     raw_creds = requests.get(url).content.decode("utf-8")
     print(f"creds:\n{raw_creds}")
     [_, AKI, SAK, region, output] = raw_creds.strip().split("\n")
@@ -98,12 +95,12 @@ def test_aws_key_token(version, webhook_receiver):  # pragma: no cover
     assert "UserId" in caller_identity
 
     # Check that the returned history has a single hit
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
     history_wait = 0
     while not history_resp:
         sleep(5)
         history_wait += 5
-        history_resp = get_token_history(token_info, version=version)
+        history_resp = get_token_history(token_info)
         if history_wait > 20 * 60:
             assert False, "timed out waiting for trigger to register in history"
     token_history = AWSKeyTokenHistory(**history_resp)
@@ -118,13 +115,7 @@ def test_aws_key_token(version, webhook_receiver):  # pragma: no cover
     ),
     reason="avoid using up an AWS user each time we run tests, and AWS can't trigger unless live",
 )
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
-def test_aws_token_post_request_processing(version: V3):  # pragma: no cover
+def test_aws_token_post_request_processing():  # pragma: no cover
     """When an AWS Token is triggered a lambda makes a POST request
     back to the http channel. This is tested here using `aws_token_fire`
     which run code akin to the lambda.
@@ -136,13 +127,12 @@ def test_aws_token_post_request_processing(version: V3):  # pragma: no cover
             email="test@test.com",
             memo="Aws test token",
         ),
-        version=version,
     )
     token_info = AWSKeyTokenResponse(**token_resp)
     # Fire aws token
-    aws_token_fire(token_info=token_info, version=version)
+    aws_token_fire(token_info=token_info)
 
-    token_hist_resp = utils_get_token_history(token_info=token_info, version=version)
+    token_hist_resp = utils_get_token_history(token_info=token_info)
 
     token_hist = AWSKeyTokenHistory(**token_hist_resp)
     assert len(token_hist.hits) == 1

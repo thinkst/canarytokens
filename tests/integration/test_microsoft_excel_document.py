@@ -3,7 +3,6 @@ import tempfile
 from io import BytesIO
 from zipfile import ZipFile
 
-import pytest
 import requests
 
 from canarytokens.models import (
@@ -19,18 +18,12 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     trigger_http_token,
-    v3,
+    server_config,
 )
 
 MODE_DIRECTORY = 0x10
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
 def test_microsoft_excel_document(tmpdir, version, webhook_receiver):
 
     # initialize request
@@ -40,7 +33,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver):
     )
 
     # Create microsoft word token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = MsExcelDocumentTokenResponse(**resp)
 
     # request and download generated excel document
@@ -51,7 +44,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver):
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=word_document_request_params,
     )
 
@@ -96,7 +89,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver):
     assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # trigger token
-    resp = trigger_http_token(token_info=token_info, version=version)
+    resp = trigger_http_token(token_info=token_info)
 
     # Check that the returned history has a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
@@ -105,7 +98,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver):
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = MsExcelDocumentTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]

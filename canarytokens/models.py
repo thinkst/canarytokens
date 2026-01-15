@@ -9,13 +9,9 @@ if sys.version_info >= (3, 11):
     from enum import StrEnum  # Python 3.11+
 else:
     from backports.strenum import StrEnum  # Python < 3.11
-import os
 import re
-import socket
-from dataclasses import dataclass
 from datetime import datetime
 from fastapi.responses import JSONResponse
-from functools import cached_property
 from io import BytesIO, StringIO
 from ipaddress import IPv4Address
 from tempfile import SpooledTemporaryFile
@@ -94,35 +90,6 @@ class Hostname(ConstrainedStr):
 class Canarytoken(ConstrainedStr):
     max_length: int = CANARYTOKEN_LENGTH
     regex = CANARYTOKEN_RE
-
-
-@dataclass()
-class V3:
-    """Indicates models should exhibit V3 behavior"""
-
-    # A near replica of V2 but it wasn't always.
-    # Both are set to get removed.
-    version = "v3"
-    canarytokens_sld: str
-    canarytokens_domain: str
-    canarytokens_dns_port: int
-    canarytokens_http_port: Optional[int]
-    scheme: Literal["http", "https"]
-
-    @property
-    def server_url(self) -> HttpUrl:  # pragma: no cover
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
-
-    @cached_property
-    def canarytokens_ips(self) -> list[str]:  # pragma: no cover
-        *_, ips = socket.gethostbyname_ex(self.canarytokens_domain)
-        return ips
-
-    @property
-    def live(self) -> bool:
-        return strtobool(os.getenv("LIVE", "FALSE"))
 
 
 class AWSKey(TypedDict):
@@ -414,10 +381,8 @@ class TokenRequest(BaseModel):
 
     # Design: this might be short lived. If not we can do better.
     # Singledispatch if it plays well with pydantic.
-    def to_dict(self, version: V3) -> Dict[str, Any]:
-        if isinstance(version, V3):
-            return json_safe_dict(self)
-        raise NotImplementedError("version must be V3.")
+    def to_dict(self) -> Dict[str, Any]:
+        return json_safe_dict(self)
 
     def v2_dict(self) -> Dict[str, Any]:
         webhook_url = self.webhook_url or ""

@@ -15,7 +15,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    v3,
 )
 
 
@@ -23,7 +22,7 @@ from tests.utils import (
     "redirect_url",
     ["https://canary.tools", None],
 )
-def test_saml_token(redirect_url, webhook_receiver, version=v3):
+def test_saml_token(redirect_url, webhook_receiver):
     memo = "SAML memo!"
     token_request = IdPAppTokenRequest(
         token_type=TokenTypes.IDP_APP,
@@ -32,7 +31,7 @@ def test_saml_token(redirect_url, webhook_receiver, version=v3):
         redirect_url=redirect_url,
         app_type=IdPAppType.AWS,
     )
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = IdPAppTokenResponse(**resp)
     login_url = token_info.token_url
     entity_id = token_info.entity_id
@@ -55,7 +54,7 @@ def test_saml_token(redirect_url, webhook_receiver, version=v3):
         assert stats[0]["memo"] == memo
         TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = IdPAppTokenHistory(**resp)
     assert len(token_history.hits) == 1
     assert token_history.hits[0].src_data["identity"] == "tokens-testing@thinkst.com"

@@ -4,13 +4,11 @@ from os import remove
 from pathlib import Path
 from time import sleep
 
-import pytest
 from pydantic import HttpUrl
 from requests import get
 
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
-    V3,
     Memo,
     MySQLTokenHistory,
     MySQLTokenRequest,
@@ -20,12 +18,10 @@ from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.utils import strtobool
 
-from tests.utils import create_token, get_token_history, v3
+from tests.utils import create_token, get_token_history, server_config
 
 
-@pytest.mark.parametrize("version", [v3])
 def test_mysql_token(
-    version: V3,
     webhook_receiver: str,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
@@ -35,18 +31,17 @@ def test_mysql_token(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
     token_info = MySQLTokenResponse(**resp)
     gz_file = f"{token_info.token}_mysql_dump.sql.gz"
-    if version.live:
-        url = f"{version.server_url}/download?fmt=my_sql&token={token_info.token}&auth={token_info.auth_token}&encoded=true"
+    if server_config.live:
+        url = f"{server_config.server_url}/download?fmt=my_sql&token={token_info.token}&auth={token_info.auth_token}&encoded=true"
         with get(url) as rc:
             with open(gz_file, "wb") as f:
                 f.write(rc.content)
     else:
-        if isinstance(version, V3):
-            assert token_info.usage is not None
-            assert token_info.usage[-8:] == "REPLICA;"
+        assert token_info.usage is not None
+        assert token_info.usage[-8:] == "REPLICA;"
         listen_domain = os.getenv("TEST_HOST", "app")
         mysql_usage = Canarydrop.generate_mysql_usage(
             token=token_info.token,
@@ -82,11 +77,10 @@ def test_mysql_token(
 
     # the v3 frontend in docker runs slower than this test,
     # so we need to wait to let it save the hit before requesting it
-    if isinstance(version, V3):
-        sleep(1)
+    sleep(1)
 
     # Check that the returned history has a hit
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
     token_history = MySQLTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1

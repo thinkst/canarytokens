@@ -22,12 +22,10 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     plain_fire_token,
-    v3,
 )
 
 
 @pytest.mark.skipif(os.name == "nt", reason="Skip if nt os (Windows OS)")
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "file_name,file_mimetype",
     [
@@ -59,7 +57,7 @@ def test_custom_binary_token_fire(
         )
 
         # Create signed exe token
-        resp = create_token(token_request=token_request, version=version)
+        resp = create_token(token_request=token_request)
         token_info = CustomBinaryTokenResponse(**resp)
 
     _, data = token_info.file_contents.split(",")
@@ -71,7 +69,7 @@ def test_custom_binary_token_fire(
     )
     # fire token
     try:
-        plain_fire_token.__wrapped__(token_info, version=version)
+        plain_fire_token.__wrapped__(token_info)
     except dns.resolver.NXDOMAIN:
         # we expect a NXDOMAIN response
         pass
@@ -83,7 +81,7 @@ def test_custom_binary_token_fire(
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = CustomBinaryTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]
@@ -92,13 +90,13 @@ def test_custom_binary_token_fire(
 
 @pytest.mark.skipif(os.name != "nt", reason="Requires nt os (Windows OS)")
 @pytest.mark.parametrize(
-    "version,file_name,file_mimetype",
+    "file_name,file_mimetype",
     [
-        (v3, "helloWorld.exe", "application/x-msdownload"),
-        (v3, "helloWorld.dll", "application/octet-stream"),
+        ("helloWorld.exe", "application/x-msdownload"),
+        ("helloWorld.dll", "application/octet-stream"),
     ],
 )
-def test_custom_binary(tmpdir, version, file_name, file_mimetype, webhook_receiver):
+def test_custom_binary(tmpdir, file_name, file_mimetype, webhook_receiver):
 
     with open("data\\{file}".format(file=file_name), "rb") as fp:
         # record contents
@@ -121,7 +119,7 @@ def test_custom_binary(tmpdir, version, file_name, file_mimetype, webhook_receiv
         )
 
         # Create signed exe token
-        resp = create_token(token_request=token_request, version=version)
+        resp = create_token(token_request=token_request)
         token_info = CustomBinaryTokenResponse(**resp)
 
     # Extract signed exe
@@ -156,7 +154,7 @@ def test_custom_binary(tmpdir, version, file_name, file_mimetype, webhook_receiv
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = CustomBinaryTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]

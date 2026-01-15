@@ -15,11 +15,9 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    v3,
 )
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "file_name, process_name",
     [
@@ -49,7 +47,7 @@ def test_windows_fake_fs_token_fires(
         windows_fake_fs_root=root_dir,
         windows_fake_fs_file_structure=file_structure,
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     # Check dns token has correct attributes
     token_info = WindowsFakeFSTokenResponse(**resp)
@@ -60,14 +58,12 @@ def test_windows_fake_fs_token_fires(
     invocation_id = random.randint(1000, 10000)
     _ = trigger_windows_fake_fs_token(
         token_info=token_info,
-        version=version,
         invocation_id=invocation_id,
         file_name=file_name,
         process_name=process_name,
     )
     _ = trigger_windows_fake_fs_token(
         token_info=token_info,
-        version=version,
         invocation_id=invocation_id,
         file_name=file_name,
         process_name=process_name,
@@ -81,13 +77,12 @@ def test_windows_fake_fs_token_fires(
     _ = TokenAlertDetailGeneric(**stats[0])
 
     # Check that the returned history has a single hit.
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
 
     token_history = WindowsFakeFSTokenHistory(**resp)
     assert len(token_history.hits) == expected_hits
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "directories, expected_error_message",
     [
