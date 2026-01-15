@@ -1,6 +1,6 @@
 import os
 from time import sleep
-from typing import Dict, Union
+from typing import Dict
 
 import boto3
 import botocore.exceptions
@@ -9,7 +9,6 @@ import requests
 from pydantic import HttpUrl
 
 from canarytokens.models import (
-    V2,
     V3,
     AWSKeyTokenHistory,
     AWSKeyTokenRequest,
@@ -125,7 +124,7 @@ def test_aws_key_token(version, webhook_receiver):  # pragma: no cover
         v3,
     ],
 )
-def test_aws_token_post_request_processing(version: Union[V2, V3]):  # pragma: no cover
+def test_aws_token_post_request_processing(version: V3):  # pragma: no cover
     """When an AWS Token is triggered a lambda makes a POST request
     back to the http channel. This is tested here using `aws_token_fire`
     which run code akin to the lambda.

@@ -1,10 +1,8 @@
 import os
-from typing import Union
 from pydantic import HttpUrl
 import pytest
 
 from canarytokens.models import (
-    V2,
     V3,
     AzureIDTokenHistory,
     AzureIDTokenRequest,
@@ -80,7 +78,7 @@ from tests.utils import v3
     ],
 )
 def test_azure_token_post_request_processing(
-    data: dict, expected_hit: dict, version: Union[V2, V3]
+    data: dict, expected_hit: dict, version: V3
 ):  # pragma: no cover
     """
     When an Azure Token is triggered azure makes a POST request

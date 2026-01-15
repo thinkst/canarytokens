@@ -3,7 +3,6 @@ import subprocess
 from os import remove
 from pathlib import Path
 from time import sleep
-from typing import Union
 
 import pytest
 from pydantic import HttpUrl
@@ -11,7 +10,6 @@ from requests import get
 
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
-    V2,
     V3,
     Memo,
     MySQLTokenHistory,
@@ -27,7 +25,7 @@ from tests.utils import create_token, get_token_history, v3
 
 @pytest.mark.parametrize("version", [v3])
 def test_mysql_token(
-    version: Union[V2, V3],
+    version: V3,
     webhook_receiver: str,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
@@ -91,7 +89,4 @@ def test_mysql_token(
     history_resp = get_token_history(token_info, version=version)
     token_history = MySQLTokenHistory(**history_resp)
 
-    if isinstance(version, V2):
-        assert len(token_history.hits) >= 1
-    else:
-        assert len(token_history.hits) == 1
+    assert len(token_history.hits) == 1

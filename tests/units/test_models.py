@@ -7,7 +7,6 @@ from pydantic import HttpUrl, ValidationError, parse_obj_as
 from canarytokens import models
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
-    V2,
     V3,
     AdditionalInfo,
     AnyTokenHistory,
@@ -39,7 +38,7 @@ from canarytokens.models import (
 )
 from canarytokens.tokens import Canarytoken
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
-from tests.utils import v2, v3
+from tests.utils import v3
 
 
 @pytest.mark.parametrize(
@@ -74,7 +73,6 @@ def test_token_request(token_type, _type):
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
         None,
     ],
@@ -85,8 +83,6 @@ def test_token_request_version_based_dict_call(version):
         webhook_url="https://hooks.test.com/test",
         memo="test",
     )
-    if isinstance(version, V2):
-        assert "webhook" in tr.to_dict(version=version)
     if isinstance(version, V3):
         assert "webhook_url" in tr.to_dict(version=version)
     if version is None:

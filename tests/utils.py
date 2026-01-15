@@ -18,7 +18,6 @@ from pydantic import EmailStr, HttpUrl, parse_obj_as
 
 from canarytokens.exceptions import CanaryTokenCreationError
 from canarytokens.models import (
-    V2,
     V3,
     AdditionalInfo,
     AnyTokenHit,
@@ -58,23 +57,7 @@ from frontend.app import ROOT_API_ENDPOINT
 
 log = Logger("test_utils")
 
-# TODO: Grab from env var to test the intended deployment
-if strtobool(os.getenv("LIVE", "False")):
-    v2 = V2(
-        canarytokens_sld="canarytokens.org",
-        canarytokens_domain="canarytokens.org",
-        canarytokens_dns_port=53,
-        scheme="https",
-        canarytokens_http_port=-1,
-    )
-else:
-    v2 = V2(
-        canarytokens_sld="frontend:8082",
-        canarytokens_domain="127.0.0.1",
-        canarytokens_dns_port=5354,
-        canarytokens_http_port=8083,
-        scheme="http",
-    )
+
 # TODO: Once we clean out the v2 testing we can refactor this.
 
 if strtobool(os.getenv("LIVE", "False")):
@@ -106,7 +89,7 @@ session.mount("http://", adapter)
 request_timeout = (26, 26)
 
 
-def grab_resolver(version: Union[V2, V3]):
+def grab_resolver(version: V3):
     # DESIGN: Hit the tokens server directly. If this is used as a monitor please add
     #        other popular name servers.
     resolver = dns.resolver.Resolver()
@@ -124,7 +107,7 @@ class ShouldBeStats(Exception):
 
 
 def log_4_shell_fire_token(
-    token_info: Log4ShellTokenResponse, retrieved_hostname: str, version: Union[V2, V3]
+    token_info: Log4ShellTokenResponse, retrieved_hostname: str, version: V3
 ) -> str:
     """
     Triggers a log 4 shell token by making a dns query with the expected parameters as ldap lookup would do.
@@ -143,7 +126,7 @@ def log_4_shell_fire_token(
 
 
 def windows_directory_fire_token(
-    token_info: WindowsDirectoryTokenResponse, domain: str, version: Union[V2, V3]
+    token_info: WindowsDirectoryTokenResponse, domain: str, version: V3
 ) -> str:
     """
     Triggers a Windows directory token by making a dns query with the expected parameters as Windows would produce.
@@ -167,7 +150,7 @@ def windows_directory_fire_token(
 
 def trigger_cmd_token(
     token_info: CMDTokenResponse,
-    version: Union[V2, V3],
+    version: V3,
     invocation_id: Optional[str],
     computername: str = "comp",
     username: str = "user",
@@ -195,7 +178,7 @@ def trigger_cmd_token(
 
 def trigger_windows_fake_fs_token(
     token_info: WindowsFakeFSTokenResponse,
-    version: Union[V2, V3],
+    version: V3,
     invocation_id: int,
     file_name: str = "doc b.docx",
     process_name: str = "explorer.exe",
@@ -267,7 +250,7 @@ def plain_fire_token(
         CustomBinaryTokenResponse,
         SvnTokenResponse,
     ],
-    version: Union[V2, V3],
+    version: V3,
 ) -> None:
     """Triggers a token via the dns channel.
 
@@ -283,7 +266,7 @@ def plain_fire_token(
     _ = resolver.resolve(token_info.hostname, "A")
 
 
-def aws_token_fire(token_info: AWSKeyTokenResponse, version: Union[V2, V3]) -> None:
+def aws_token_fire(token_info: AWSKeyTokenResponse, version: V3) -> None:
     """Triggers an AWS token via the HTTP channel. This mimics the 'ProcessUserAPITokenLogs'
     lambda POST.
 
@@ -309,9 +292,7 @@ def aws_token_fire(token_info: AWSKeyTokenResponse, version: Union[V2, V3]) -> N
     _ = urllib.request.urlopen(req)
 
 
-def azure_token_fire(
-    token_info: AzureIDTokenResponse, data: dict, version: Union[V2, V3]
-) -> None:
+def azure_token_fire(token_info: AzureIDTokenResponse, data: dict, version: V3) -> None:
     """Triggers an Azure token via the HTTP channel.
     This mimics the POST we receive.
 
@@ -341,7 +322,7 @@ def get_token_history(
         CustomBinaryTokenResponse,
         CustomImageTokenResponse,
     ],
-    version: Union[V2, V3],
+    version: V3,
     expected_len: int = 1,
     fmt: DownloadFmtTypes = DownloadFmtTypes.INCIDENTLISTJSON,
 ) -> Dict[str, str]:
@@ -367,7 +348,7 @@ def get_token_history(
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))
 def download_token_artifact(
     token_info: AnyTokenResponse,
-    version: Union[V2, V3],
+    version: V3,
     fmt="incidentlist_json",
 ) -> Dict[str, str]:
     token_history_request = DownloadGetRequestModel(
@@ -455,13 +436,10 @@ def clear_stats_on_webhook(webhook_receiver: str, token: str):
 
 
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))
-def set_token_settings(setting: SettingsRequest, version: Union[V2, V3]):
+def set_token_settings(setting: SettingsRequest, version: V3):
     generate_url = f"{version.server_url}/settings"
     kwargs = {}
-    if isinstance(version, V2):
-        kwargs["data"] = setting.dict()
-    elif isinstance(version, V3):
-        kwargs["json"] = setting.dict()
+    kwargs["json"] = setting.dict()
 
     resp = session.post(
         url=generate_url,
@@ -479,13 +457,11 @@ def set_token_settings(setting: SettingsRequest, version: Union[V2, V3]):
 @retry_on_failure(
     retry_when_raised=(requests.exceptions.HTTPError, CanaryTokenCreationError)
 )
-def create_token(token_request: TokenRequest, version: Union[V2, V3]):
+def create_token(token_request: TokenRequest, version: V3):
     generate_url = f"{version.server_url}/generate"
     kwargs = {}
     timeout = request_timeout
-    if isinstance(version, V2):
-        kwargs["data"] = token_request.to_dict(version=version)
-    elif isinstance(version, V3):
+    if isinstance(version, V3):
         if isinstance(
             token_request, (CustomImageTokenRequest, CustomBinaryTokenRequest)
         ):
@@ -531,10 +507,6 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
     session.close()
     # TODO / DESIGN: The webhook receiver sometimes chokes due to ngrok rate limit 429 error.
     #                retry for now. +1 for a webhook receiver as a docker service.
-    if (
-        isinstance(version, V2) and data["Error"] == 3
-    ):  # webhook failed not the servers fault
-        raise CanaryTokenCreationError("Webhook failed to validate")  # pragma: no cover
 
     return data
 
@@ -542,7 +514,7 @@ def create_token(token_request: TokenRequest, version: Union[V2, V3]):
 @retry_on_failure(
     retry_when_raised=(requests.exceptions.HTTPError, CanaryTokenCreationError)
 )
-def delete_token(token: str, auth: str, version: Union[V2, V3]):
+def delete_token(token: str, auth: str, version: V3):
     delete_url = f"{version.server_url}{ROOT_API_ENDPOINT}/delete"
     data = {"token": token, "auth": auth}
     timeout = request_timeout
@@ -670,7 +642,7 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
 
 def trigger_http_token(
     token_info: AnyTokenResponse,
-    version: Union[V2, V3],
+    version: V3,
     headers: Optional[dict] = None,
     params: Optional[dict] = None,
     method: Optional[str] = "GET",
@@ -682,7 +654,7 @@ def trigger_http_token(
 
     Args:
         token_info (AnyTokenResponse): _description_
-        version (Union[V2, V3]): _description_
+        version (V3): _description_
 
     Returns:
         requests.Response: _description_

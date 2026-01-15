@@ -97,37 +97,6 @@ class Canarytoken(ConstrainedStr):
 
 
 @dataclass()
-class V2:
-    """Indicates models should exhibit V2 behavior"""
-
-    # DESIGN: This separation might be short lived. If not we can do better.
-    version = "v2"
-    canarytokens_sld: str
-    canarytokens_domain: str
-    canarytokens_dns_port: int
-    canarytokens_http_port: Optional[int]
-    scheme: Literal["http", "https"]
-
-    @property
-    def live(self) -> bool:
-        """Used to indicate tests are targeting a live server.
-        Live means nginx is routing to switchboard and dns resolves.
-        """
-        return strtobool(os.getenv("LIVE", "FALSE"))
-
-    @property
-    def server_url(self) -> HttpUrl:  # pragma: no cover
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
-
-    @cached_property
-    def canarytokens_ips(self) -> list[str]:  # pragma: no cover
-        *_, ips = socket.gethostbyname_ex(self.canarytokens_domain)
-        return ips
-
-
-@dataclass()
 class V3:
     """Indicates models should exhibit V3 behavior"""
 
@@ -445,12 +414,10 @@ class TokenRequest(BaseModel):
 
     # Design: this might be short lived. If not we can do better.
     # Singledispatch if it plays well with pydantic.
-    def to_dict(self, version: Union[V2, V3]) -> Dict[str, Any]:
-        if isinstance(version, V2):
-            return self.v2_dict()
-        elif isinstance(version, V3):
+    def to_dict(self, version: V3) -> Dict[str, Any]:
+        if isinstance(version, V3):
             return json_safe_dict(self)
-        raise NotImplementedError("version must be either V2 or V3.")
+        raise NotImplementedError("version must be V3.")
 
     def v2_dict(self) -> Dict[str, Any]:
         webhook_url = self.webhook_url or ""
@@ -1204,16 +1171,16 @@ class Log4ShellTokenResponse(TokenResponse):
 
     @root_validator(pre=True)
     def set_token_usage_info(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        values[
-            "token_with_usage_info"
-        ] = f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
+        values["token_with_usage_info"] = (
+            f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
+        )
         return values
 
     @root_validator(pre=True)
     def set_token_usage(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        values[
-            "token_usage"
-        ] = f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
+        values["token_usage"] = (
+            f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
+        )
         return values
 
     class Config:
@@ -2600,9 +2567,9 @@ class TokenDownloadResponse(Response):
 
 
 class DownloadMSWordResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.APPMSWORD] = (
         DownloadContentTypes.APPMSWORD
-    ] = DownloadContentTypes.APPMSWORD
+    )
     filename: str
     token: str
     auth: str
@@ -2617,9 +2584,9 @@ class DownloadZipResponse(TokenDownloadResponse):
 
 
 class DownloadMSExcelResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.APPMSEXCELL] = (
         DownloadContentTypes.APPMSEXCELL
-    ] = DownloadContentTypes.APPMSEXCELL
+    )
     filename: str
     token: str
     auth: str
@@ -2633,9 +2600,9 @@ class DownloadPDFResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListJsonResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2656,54 +2623,54 @@ class DownloadQRCodeResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListCSVResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCCResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCMDResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCSSClonedWebResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadAWSKeysResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "credentials"
     token: str
     auth: str
@@ -2714,9 +2681,9 @@ class DownloadAWSKeysResponse(TokenDownloadResponse):
 
 
 class DownloadAzureIDConfigResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2724,9 +2691,9 @@ class DownloadAzureIDConfigResponse(TokenDownloadResponse):
 
 
 class DownloadAzureIDCertResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2734,18 +2701,18 @@ class DownloadAzureIDCertResponse(TokenDownloadResponse):
 
 
 class DownloadKubeconfigResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "kubeconfig"
     token: str
     auth: str
 
 
 class DownloadSlackAPIResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     slack_api_key: str
     filename: str = "slack_creds"
     token: str
@@ -2753,9 +2720,9 @@ class DownloadSlackAPIResponse(TokenDownloadResponse):
 
 
 class DownloadCreditCardV2Response(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "credit_card"
     token: str
     auth: str
@@ -2794,27 +2761,27 @@ class SettingsRequest(BaseModel):
 
 
 class EmailSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.EMAILSETTING] = (
         CanarydropSettingsTypes.EMAILSETTING
-    ] = CanarydropSettingsTypes.EMAILSETTING
+    )
 
 
 class WebhookSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.WEBHOOKSETTING] = (
         CanarydropSettingsTypes.WEBHOOKSETTING
-    ] = CanarydropSettingsTypes.WEBHOOKSETTING
+    )
 
 
 class BrowserScannerSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.BROWSERSCANNERSETTING] = (
         CanarydropSettingsTypes.BROWSERSCANNERSETTING
-    ] = CanarydropSettingsTypes.BROWSERSCANNERSETTING
+    )
 
 
 class WebImageSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.WEBIMAGESETTING] = (
         CanarydropSettingsTypes.WEBIMAGESETTING
-    ] = CanarydropSettingsTypes.WEBIMAGESETTING
+    )
 
 
 AnySettingsRequest = Annotated[
