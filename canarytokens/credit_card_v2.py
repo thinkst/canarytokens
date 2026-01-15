@@ -66,9 +66,9 @@ class Customer:
 
 
 class CreditCardTrigger3DSNotification(BaseModel):
-    trigger_type: Literal[
+    trigger_type: Literal[TriggerWebhookEvent.ThreeDSecureNotification] = (
         TriggerWebhookEvent.ThreeDSecureNotification
-    ] = TriggerWebhookEvent.ThreeDSecureNotification
+    )
     canarytoken: Optional[str]
     masked_card_number: Optional[str]
     transaction_amount: Optional[str]
@@ -76,9 +76,9 @@ class CreditCardTrigger3DSNotification(BaseModel):
 
 
 class CreditCardTriggerTransaction(BaseModel):
-    trigger_type: Literal[
+    trigger_type: Literal[TriggerWebhookEvent.TransactionFailed] = (
         TriggerWebhookEvent.TransactionFailed
-    ] = TriggerWebhookEvent.TransactionFailed
+    )
     canarytoken: Canarytoken
     masked_card_number: Optional[str]
     merchant: Optional[str]
