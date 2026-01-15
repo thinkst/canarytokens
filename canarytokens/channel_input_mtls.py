@@ -191,9 +191,11 @@ class mTLS(basic.LineReceiver):
             X509Extension(
                 b"authorityKeyIdentifier", False, b"keyid", issuer=cert_authority
             ),
-            X509Extension(b"extendedKeyUsage", True, b"serverAuth")
-            if is_server_cert
-            else X509Extension(b"extendedKeyUsage", True, b"clientAuth"),
+            (
+                X509Extension(b"extendedKeyUsage", True, b"serverAuth")
+                if is_server_cert
+                else X509Extension(b"extendedKeyUsage", True, b"clientAuth")
+            ),
             key_usage,
         ]
         if san_list:

@@ -323,7 +323,9 @@ def get_canarydrop_triggered_details(
             k: v
             for k, v in triggered_details.items()
             if k
-            in sorted(triggered_details.keys(),)[
+            in sorted(
+                triggered_details.keys(),
+            )[
                 -(switchboard_settings.MAX_HISTORY) :  # noqa: E203
             ]
         }
@@ -651,9 +653,7 @@ def get_all_mails_in_send_status(
     return mails_and_details
 
 
-def remove_mail_from_to_send_status(
-    token: str, time: datetime.datetime
-) -> tuple[
+def remove_mail_from_to_send_status(token: str, time: datetime.datetime) -> tuple[
     Optional[list[EmailStr]],
     Optional[Union[models.TokenAlertDetails, models.TokenExposedDetails]],
 ]:

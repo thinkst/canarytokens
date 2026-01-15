@@ -852,7 +852,8 @@ def test_webdav_no_cloudflare(
     setup_db,
 ) -> None:
     """
-    Test whether a Canarytokens instance with no Network Folder enabled returns the correct response."""
+    Test whether a Canarytokens instance with no Network Folder enabled returns the correct response.
+    """
     from frontend.app import _create_webdav_token_response
 
     token_request_details = WebDavTokenRequest(
