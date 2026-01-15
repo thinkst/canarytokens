@@ -11,40 +11,31 @@ from io import StringIO
 from urllib import request, parse
 
 DB_TABLE_NAME = "awsidtoken_table"
-TICKET_URL = os.environ.get("TICKET_URL")
-TICKET_TEAM = os.environ.get("TICKET_TEAM")
-PLAYBOOK_URL = os.environ.get("PLAYBOOK_URL")
+TICKET_URL = os.environ.get('TICKET_URL')
+TICKET_TEAM = os.environ.get('TICKET_TEAM')
+PLAYBOOK_URL = os.environ.get('PLAYBOOK_URL')
 
-iam = boto3.client("iam")
-db = boto3.client("dynamodb")
-
+iam = boto3.client('iam')
+db = boto3.client('dynamodb')
 
 class NoItem(Exception):
     pass
 
-
 def file_ticket(subject=None, team=TICKET_TEAM, priority=3, text=None):
     data = {}
-    data["subject"] = subject
-    data["team"] = team
-    data["priority"] = str(priority)
-    data["text"] = text
-    data["dedupe_key"] = f"key_credsreportchecker_canarytokensorg_{aws_account_id}"
-    req = request.Request(TICKET_URL, data=json.dumps(data).encode("utf-8"))
-    req.add_header("Content-Type", "application/json; charset=utf-8")
+    data['subject'] = subject
+    data['team'] = team
+    data['priority'] = str(priority)
+    data['text'] = text
+    data['dedupe_key'] = f"key_credsreportchecker_canarytokensorg_{aws_account_id}"
+    req =  request.Request(TICKET_URL, data=json.dumps(data).encode('utf-8'))
+    req.add_header('Content-Type', 'application/json; charset=utf-8')
     resp = request.urlopen(req)
 
-
 def ticket_exception(exception):
-    file_ticket(
-        subject="Canarytoken.org Safetynet Exception",
-        text=f"An exception occurred whilst running the APITokensSafetyNet lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}",
-    )
-
+    file_ticket(subject="Canarytoken.org Safetynet Exception", text=f"An exception occurred whilst running the APITokensSafetyNet lambda function. The affected aws subaccount was {aws_account_id}. The exception was {repr(exception)}")
 
 aws_account_id = None
-
-
 def lambda_handler(event, context):
     global aws_account_id
     aws_account_id = context.invoked_function_arn.split(":")[4]
@@ -56,8 +47,9 @@ def lambda_handler(event, context):
     except Exception as e:
         ticket_exception(e)
 
-    return {"statusCode": 500}
-
+    return {
+        'statusCode': 500
+    }
 
 def check_credential_report():
     response = iam.generate_credential_report()
@@ -75,58 +67,59 @@ def check_credential_report():
     else:
         raise ReportNotGeneratedInTime("Could not generate credentials report")
 
-    f = StringIO(response["Content"].decode("utf-8"))
-    reader = csv.DictReader(f, delimiter=",")
+    f = StringIO(response['Content'].decode("utf-8"))
+    reader = csv.DictReader(f, delimiter=',')
     current_ts = datetime.utcnow().strftime("%s")
     for row in reader:
         try:
-            user = row["user"]
-            last_used_timestamp = iso8601_to_datetime(
-                row["access_key_1_last_used_date"]
-            )
+            user = row['user']
+            last_used_timestamp = iso8601_to_datetime(row['access_key_1_last_used_date'])
             # print('csvrow={}'.format(row))
 
             try:
                 server, access_key, token, last_alerted_timestamp = get_token_info(user)
             except NoItem:
                 # No record of this key. Every key must have an entry created in the DynamoDB when the key is generated
-                print(f"No record for key: {user}")
+                print(f'No record for key: {user}')
                 continue
 
             if last_used_timestamp > last_alerted_timestamp:
-                print("Safety net triggered for {}".format(token))
+                print('Safety net triggered for {}'.format(token))
                 try:
-                    last_service_used = row["access_key_1_last_used_service"]
+                    last_service_used = row['access_key_1_last_used_service']
                     url = "http://{}/{}".format(server, token)
                     data = {
                         "safety_net": True,
-                        "last_used": row["access_key_1_last_used_date"],
-                        "last_used_service": last_service_used,
+                        "last_used": row['access_key_1_last_used_date'],
+                        "last_used_service": last_service_used
                     }
                     data = urllib.parse.urlencode(data).encode("utf8")
-                    print("Looking up {u} to trigger alert!".format(u=url))
+                    print('Looking up {u} to trigger alert!'.format(u=url))
                     req = urllib.request.Request(url, data)
                     response = urllib.request.urlopen(req)
                 except urllib.error.URLError as e:
-                    print("Failed to trigger token: {e}".format(e=e))
+                    print('Failed to trigger token: {e}'.format(e=e))
                     ticket_exception(e)
 
                 db_response = db.put_item(
                     TableName=DB_TABLE_NAME,
                     Item={
-                        "Username": {"S": user},
-                        "Domain": {"S": server},
-                        "AccessKey": {"S": access_key},
-                        "Canarytoken": {"S": token},
-                        "LastUsed": {"N": current_ts},
-                    },
+                        'Username': {'S': user},
+                        'Domain': {'S': server},
+                        'AccessKey': {'S': access_key},
+                        'Canarytoken': {'S': token},
+                        'LastUsed': {'N': current_ts}
+                    }
                 )
                 # print('DynamoDB response: {r}'.format(r=db_response))
         except ValueError as e:
-            print("ValueError: {}".format(e))
+            print('ValueError: {}'.format(e))
             continue
 
-    return {"statusCode": 200, "body": json.dumps("Done")}
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Done')
+    }
 
 
 def iso8601_to_datetime(date):
@@ -137,20 +130,14 @@ def iso8601_to_datetime(date):
 
 def get_token_info(user):
     # print(user)
-    row = db.get_item(TableName=DB_TABLE_NAME, Key={"Username": {"S": user}})
-    if "Item" not in row:
+    row = db.get_item(TableName=DB_TABLE_NAME, Key={'Username':{'S': user}})
+    if 'Item' not in row:
         raise NoItem
 
     # print('row={}'.format(row))
-    db_item = row["Item"]
+    db_item = row['Item']
     # print('item={}'.format(db_item))
-    return (
-        db_item["Domain"]["S"],
-        db_item["AccessKey"]["S"],
-        db_item["Canarytoken"]["S"],
-        datetime.utcfromtimestamp(int(db_item["LastUsed"]["N"])),
-    )
-
+    return db_item['Domain']['S'], db_item['AccessKey']['S'], db_item['Canarytoken']['S'], datetime.utcfromtimestamp(int(db_item['LastUsed']['N']))
 
 class ReportNotGeneratedInTime(Exception):
     pass
