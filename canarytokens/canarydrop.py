@@ -4,6 +4,7 @@ and records accounting information about the Canarytoken.
 
 Maps to the object stored in Redis.
 """
+
 from __future__ import annotations
 
 import csv

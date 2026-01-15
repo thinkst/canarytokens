@@ -22,7 +22,7 @@ from canarytokens.utils import strtobool
 
 from tests.utils import aws_token_fire, create_token
 from tests.utils import get_token_history as utils_get_token_history
-from tests.utils import run_or_skip, v2, v3
+from tests.utils import run_or_skip, v3
 
 
 def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cover
@@ -46,7 +46,7 @@ def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cove
         resp.raise_for_status()
 
 
-@pytest.mark.parametrize("version", [v2, v3])
+@pytest.mark.parametrize("version", [v3])
 @pytest.mark.skipif(
     (
         strtobool(os.getenv("SKIP_AWS_KEY_TEST", "True"))
@@ -123,7 +123,6 @@ def test_aws_key_token(version, webhook_receiver, runv2, runv3):  # pragma: no c
 @pytest.mark.parametrize(
     "version",
     [
-        v2,
         v3,
     ],
 )

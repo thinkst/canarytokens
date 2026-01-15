@@ -1,4 +1,4 @@
-""" "
+"""
 Base class for all canarydrop channels.
 """
 

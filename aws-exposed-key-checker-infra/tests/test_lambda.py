@@ -10,9 +10,9 @@ sys.path.insert(0, "lambda_source")
 os.environ["ZENDESK_EXPOSED_TICKET_TAG"] = "test_tag"
 os.environ["ZENDESK_CLOSED_TICKET_TAG"] = "test_close_tag"
 os.environ["ZENDESK_ASSIGNEE"] = "0000"
-os.environ[
-    "TOKENS_SERVERS_ALLOW_LIST"
-] = "example.com,example.net,example-test.org,example2.com,example2.net,example-test-domain.org"
+os.environ["TOKENS_SERVERS_ALLOW_LIST"] = (
+    "example.com,example.net,example-test.org,example2.com,example2.net,example-test-domain.org"
+)
 
 from exposed_key_checker.ticket_manager import TicketData  # noqa: E402
 from exposed_key_checker.exposed_keys import (  # noqa: E402
