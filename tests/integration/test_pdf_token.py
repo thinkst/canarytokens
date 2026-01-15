@@ -19,7 +19,7 @@ from tests.utils import (
 )
 
 
-def test_pdf_token(version, webhook_receiver):
+def test_pdf_token(webhook_receiver):
 
     # Generate the token
     token_request = PDFTokenRequest(

@@ -33,9 +33,7 @@ from tests.utils import (
         ("helloWorld.dll", "application/octet-stream"),
     ],
 )
-def test_custom_binary_token_fire(
-    tmpdir, version, file_name, file_mimetype, webhook_receiver
-):
+def test_custom_binary_token_fire(tmpdir, file_name, file_mimetype, webhook_receiver):
 
     with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents

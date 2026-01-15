@@ -30,7 +30,6 @@ def test_cmd_token_fires(
     use_invocation_id: bool,
     expected_hits: int,
     webhook_receiver,
-    version,
 ):
     """
     Tests the sensitive command token.

@@ -20,7 +20,7 @@ from tests.utils import (
 )
 
 
-def test_microsoft_word_document(tmpdir, version, webhook_receiver):
+def test_microsoft_word_document(tmpdir, webhook_receiver):
 
     # initialize request
     memo = "microsoft word memo!"

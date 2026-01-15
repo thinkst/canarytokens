@@ -19,7 +19,7 @@ from tests.utils import create_token, get_token_history
 @pytest.mark.skipif(
     not strtobool(os.getenv("CI", "False")), reason="Only test wireguard token on ci"
 )
-def test_wireguard_token(version, webhook_receiver):
+def test_wireguard_token(webhook_receiver):
 
     token_request = WireguardTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),

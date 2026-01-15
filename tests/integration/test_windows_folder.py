@@ -39,7 +39,6 @@ def test_windows_directory(
     test_computer: str,
     test_domain: str,
     tmpdir,
-    version,
     webhook_receiver,
 ):
 
@@ -117,7 +116,7 @@ def test_windows_directory(
         _ = requests.get("{scheme}://{url}".format(scheme="http", url=extracted_url))
     else:
         target_domain = extracted_url.split("/")[0]
-        _ = windows_directory_fire_token(token_info, target_domain, version)
+        _ = windows_directory_fire_token(token_info, target_domain)
 
     # Check that the returned history has a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)

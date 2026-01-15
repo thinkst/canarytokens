@@ -24,7 +24,7 @@ from tests.utils import (
 MODE_DIRECTORY = 0x10
 
 
-def test_microsoft_excel_document(tmpdir, version, webhook_receiver):
+def test_microsoft_excel_document(tmpdir, webhook_receiver):
 
     # initialize request
     memo = "microsoft excel memo!"

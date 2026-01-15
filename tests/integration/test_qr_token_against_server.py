@@ -22,7 +22,7 @@ from tests.utils import (
 )
 
 
-def test_qr_code_token(version, webhook_receiver):
+def test_qr_code_token(webhook_receiver):
 
     memo = "qr code memo!"
     token_request = QRCodeTokenRequest(

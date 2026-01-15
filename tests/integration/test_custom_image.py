@@ -32,7 +32,6 @@ DEFAULT_GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff
 @pytest.mark.parametrize("accept_html", [True, False])
 @pytest.mark.parametrize("accept_image", [True, False])
 def test_custom_image_url(  # noqa: C901
-    version,
     browser_scanner_enabled,
     web_image_enabled,
     accept_html,
@@ -151,7 +150,6 @@ def test_custom_image_url(  # noqa: C901
     ["canary_image.png", "Moon.jpg", "testing.gif"],
 )
 def test_custom_image_web_image(
-    version,
     file_name,
     webhook_receiver,
 ):
@@ -294,7 +292,7 @@ def test_custom_image_web_image(
     ],
 )
 def test_custom_image_web_image_cors_support(
-    version, webhook_receiver, request_details, resp_details
+    webhook_receiver, request_details, resp_details
 ):
 
     file_name = "canary_image.png"

@@ -473,7 +473,7 @@ def test_fast_redirect_token(target: str) -> None:
     ],
 )
 def test_slow_redirect_token(
-    target: str, location: str, referrer: str, version, webhook_receiver
+    target: str, location: str, referrer: str, webhook_receiver
 ) -> None:
     """
     Tests: slow_redirect

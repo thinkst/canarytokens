@@ -29,7 +29,6 @@ def test_windows_fake_fs_token_fires(
     file_name: str,
     process_name: str,
     webhook_receiver,
-    version,
 ):
     """
     Tests the Windows Fake FS token.
@@ -109,7 +108,6 @@ def test_windows_fake_fs_token_validator(
     directories: List[str],
     expected_error_message: str,
     webhook_receiver,
-    version,
 ):
     """
     Tests the Windows Fake FS token.
