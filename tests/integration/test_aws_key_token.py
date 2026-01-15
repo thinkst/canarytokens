@@ -22,7 +22,7 @@ from canarytokens.utils import strtobool
 
 from tests.utils import aws_token_fire, create_token
 from tests.utils import get_token_history as utils_get_token_history
-from tests.utils import run_or_skip, v3
+from tests.utils import v3
 
 
 def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cover
@@ -54,8 +54,7 @@ def get_token_history(token_info, version) -> Dict[str, str]:  # pragma: no cove
     ),
     reason="avoid using up an AWS user each time we run tests, and AWS can't trigger unless live",
 )
-def test_aws_key_token(version, webhook_receiver, runv2, runv3):  # pragma: no cover
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_aws_key_token(version, webhook_receiver):  # pragma: no cover
 
     # Make the token
     token_request = AWSKeyTokenRequest(
@@ -126,15 +125,13 @@ def test_aws_key_token(version, webhook_receiver, runv2, runv3):  # pragma: no c
         v3,
     ],
 )
-def test_aws_token_post_request_processing(
-    version: Union[V2, V3], runv2, runv3
-):  # pragma: no cover
+def test_aws_token_post_request_processing(version: Union[V2, V3]):  # pragma: no cover
     """When an AWS Token is triggered a lambda makes a POST request
     back to the http channel. This is tested here using `aws_token_fire`
     which run code akin to the lambda.
     TODO: make the lambda and this test (`def aws_token_fire(...)`) share code.
     """
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+
     token_resp = create_token(
         token_request=AWSKeyTokenRequest(
             email="test@test.com",

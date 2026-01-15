@@ -18,7 +18,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     v3,
 )
 
@@ -29,8 +28,8 @@ from tests.utils import (
         v3,
     ],
 )
-def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+def test_kubeconfig(tmpdir, version, webhook_receiver):
+
     # initialize request
     memo = "kubeconfig memo!"
     token_request = KubeconfigTokenRequest(

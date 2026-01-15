@@ -22,7 +22,6 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     plain_fire_token,
-    run_or_skip,
     v3,
 )
 
@@ -37,9 +36,8 @@ from tests.utils import (
     ],
 )
 def test_custom_binary_token_fire(
-    tmpdir, version, file_name, file_mimetype, webhook_receiver, runv2, runv3
+    tmpdir, version, file_name, file_mimetype, webhook_receiver
 ):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
 
     with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
@@ -100,10 +98,7 @@ def test_custom_binary_token_fire(
         (v3, "helloWorld.dll", "application/octet-stream"),
     ],
 )
-def test_custom_binary(
-    tmpdir, version, file_name, file_mimetype, webhook_receiver, runv2, runv3
-):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_custom_binary(tmpdir, version, file_name, file_mimetype, webhook_receiver):
 
     with open("data\\{file}".format(file=file_name), "rb") as fp:
         # record contents

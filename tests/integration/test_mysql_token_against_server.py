@@ -22,7 +22,7 @@ from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.utils import strtobool
 
-from tests.utils import create_token, get_token_history, run_or_skip, v3
+from tests.utils import create_token, get_token_history, v3
 
 
 @pytest.mark.parametrize("version", [v3])
@@ -31,10 +31,8 @@ def test_mysql_token(
     webhook_receiver: str,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
-    runv2: bool,
-    runv3: bool,
 ):  # pragma: no cover
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     token_request = MySQLTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),

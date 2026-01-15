@@ -13,15 +13,15 @@ from canarytokens.models import (
 )
 from canarytokens.utils import strtobool
 
-from tests.utils import create_token, get_token_history, run_or_skip, v3
+from tests.utils import create_token, get_token_history, v3
 
 
 @pytest.mark.parametrize("version", [v3])
 @pytest.mark.skipif(
     not strtobool(os.getenv("CI", "False")), reason="Only test wireguard token on ci"
 )
-def test_wireguard_token(version, webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_wireguard_token(version, webhook_receiver):
+
     token_request = WireguardTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),

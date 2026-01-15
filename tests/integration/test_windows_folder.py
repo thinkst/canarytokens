@@ -21,7 +21,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     v3,
     windows_directory_fire_token,
 )
@@ -48,10 +47,8 @@ def test_windows_directory(
     tmpdir,
     version,
     webhook_receiver,
-    runv2,
-    runv3,
 ):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # initialize request
     memo = "windows directory memo!"
     token_request = WindowsDirectoryTokenRequest(

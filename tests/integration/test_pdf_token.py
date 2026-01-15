@@ -17,7 +17,6 @@ from tests.utils import (
     create_token,
     download_token_artifact,
     get_token_history,
-    run_or_skip,
     v3,
 )
 
@@ -28,8 +27,8 @@ from tests.utils import (
         v3,
     ],
 )
-def test_pdf_token(version, webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_pdf_token(version, webhook_receiver):
+
     # Generate the token
     token_request = PDFTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),

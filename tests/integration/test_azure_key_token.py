@@ -16,7 +16,7 @@ from canarytokens.utils import strtobool
 
 from tests.utils import azure_token_fire, create_token
 from tests.utils import get_token_history
-from tests.utils import run_or_skip, v3
+from tests.utils import v3
 
 
 @pytest.mark.skipif(
@@ -80,13 +80,13 @@ from tests.utils import run_or_skip, v3
     ],
 )
 def test_azure_token_post_request_processing(
-    data: dict, expected_hit: dict, version: Union[V2, V3], runv2: bool, runv3: bool
+    data: dict, expected_hit: dict, version: Union[V2, V3]
 ):  # pragma: no cover
     """
     When an Azure Token is triggered azure makes a POST request
     back to the http channel. This is mimicked here using `azure_token_fire`.
     """
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+
     token_request = AzureIDTokenRequest(
         webhook_url=HttpUrl(
             "https://webhook.site/873f846e-9434-4db9-bfb4-1e7f60464f97", scheme="https"
