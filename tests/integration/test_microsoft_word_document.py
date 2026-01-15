@@ -16,7 +16,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     trigger_http_token,
     v3,
 )
@@ -28,8 +27,8 @@ from tests.utils import (
         v3,
     ],
 )
-def test_microsoft_word_document(tmpdir, version, webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_microsoft_word_document(tmpdir, version, webhook_receiver):
+
     # initialize request
     memo = "microsoft word memo!"
     token_request = MsWordDocumentTokenRequest(

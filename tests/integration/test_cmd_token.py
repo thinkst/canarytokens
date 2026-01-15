@@ -16,7 +16,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     v3,
 )
 
@@ -34,13 +33,11 @@ def test_cmd_token_fires(
     expected_hits: int,
     webhook_receiver,
     version,
-    runv2,
-    runv3,
 ):
     """
     Tests the sensitive command token.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a CMD token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
 

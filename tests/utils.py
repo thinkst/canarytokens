@@ -12,7 +12,6 @@ import base64
 import re
 
 import dns.resolver
-import pytest
 import requests
 from dns.resolver import LifetimeTimeout
 from pydantic import EmailStr, HttpUrl, parse_obj_as
@@ -105,18 +104,6 @@ adapter = requests.adapters.HTTPAdapter(pool_connections=1, pool_maxsize=3)
 session = requests.Session()
 session.mount("http://", adapter)
 request_timeout = (26, 26)
-
-
-def run_or_skip(version: Union[V2, V3], *, runv2, runv3) -> None:
-    """Checks is a test should run."""
-    if isinstance(version, V2) and not runv2:
-        pytest.skip("Not running V2 tests. Use --runv2 to enable them")
-    elif isinstance(version, V3) and not runv3:
-        pytest.skip("Not running V3 tests. Use --runv3 to enable them")
-    elif version is None:
-        pytest.skip("Not running test. Bypassing!")
-    else:
-        return
 
 
 def grab_resolver(version: Union[V2, V3]):

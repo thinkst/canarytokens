@@ -49,7 +49,6 @@ from tests.utils import (
     get_token_history,
     log_4_shell_fire_token,
     plain_fire_token,
-    run_or_skip,
     slack_webhook_test,
     trigger_http_token,
     v3,
@@ -58,8 +57,7 @@ from tests.utils import (
 
 
 @pytest.mark.parametrize("version", [v3])
-def test_delete_token(version, runv3, runv2):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_delete_token(version):
     token_request = DNSTokenRequest(
         webhook_url=slack_webhook_test,
         email="test@test.com",
@@ -120,8 +118,6 @@ def test_dns_triggered_tokens(
     token_response_type,
     token_history_type,
     token_trigger,
-    runv2,
-    runv3,
 ):
     """
     Tests all tokens that are triggered via the DNS channel. It's a fully `parametrize`'d
@@ -133,7 +129,7 @@ def test_dns_triggered_tokens(
     add those as a separate test. That is advisable over making this complex test even more
     complex.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a DNS token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
 
@@ -181,9 +177,7 @@ def test_dns_triggered_tokens(
         (v3, "testhost.name.com"),
     ],
 )
-def test_log_4_shell_token(
-    version, hostname_to_retrieve, webhook_receiver, runv2, runv3
-):
+def test_log_4_shell_token(version, hostname_to_retrieve, webhook_receiver):
     """Tests the Log4Shell token. Creates a token with `webhook_receiver` as
     the output channel. Triggers the token with with `computer_name` as `hostname_to_retrieve`
     and checks that it is correctly recovered in the `src_data`.
@@ -193,7 +187,7 @@ def test_log_4_shell_token(
         hostname_to_retrieve (str): computer_name that we want to recover based on how it's added to the token.
         webhook_receiver (str): A webhook receiver yto
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a DNS token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
 
@@ -249,8 +243,6 @@ def test_unique_email_token(
     version: Union[V2, V3],
     memo: str,
     webhook_receiver: str,
-    runv2: bool,
-    runv3: bool,
     settings: SwitchboardSettings,
 ):
     """
@@ -258,7 +250,7 @@ def test_unique_email_token(
     it by sending an email. Checks that the token history is consistent and the revovered
     details are correct.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create SMTP token
     smtp_token_request = SMTPTokenRequest(
         webhook_url=webhook_receiver,
@@ -331,13 +323,11 @@ def test_unique_email_token(
     "version, method",
     [(v3, "GET"), (v3, "POST"), (v3, "OPTIONS")],
 )
-def test_web_bug_token(
-    version: Union[V2, V3], method: str, webhook_receiver, runv2, runv3
-) -> None:
+def test_web_bug_token(version: Union[V2, V3], method: str, webhook_receiver) -> None:
     """
     Tests: web_bug_token
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     memo = "Testing Web Bug from V3 test suite "
     useragent = "python4 from the future"
     # Create a cloned web token request
@@ -400,13 +390,11 @@ def test_cloned_web_token(
     referrer: str,
     version: Union[V2, V3],
     webhook_receiver,
-    runv2,
-    runv3,
 ) -> None:
     """
     Tests: cloned_web
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     memo = "Test stuff break stuff test stuff sometimes build stuff"
     # Create a cloned web token request
     token_request = ClonedWebTokenRequest(
@@ -456,11 +444,11 @@ def test_cloned_web_token(
         # ("google.com") # without http[s]://
     ],
 )
-def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
+def test_fast_redirect_token(target: str, version) -> None:
     """
     Tests: fast_redirect
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a fast redirect token request
     token_request = FastRedirectTokenRequest(
         webhook_url=HttpUrl(url="https://slack.com/api/api.test", scheme="https"),
@@ -503,12 +491,12 @@ def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
     ],
 )
 def test_slow_redirect_token(
-    target: str, location: str, referrer: str, version, webhook_receiver, runv2, runv3
+    target: str, location: str, referrer: str, version, webhook_receiver
 ) -> None:
     """
     Tests: slow_redirect
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     memo = "Test stuff break stuff test stuff sometimes build stuff"
     # Create a slow redirect token request
     token_request = SlowRedirectTokenRequest(
@@ -609,10 +597,8 @@ def test_slow_redirect_token(
         # ({'token_type': 'dns', ...}, '6'),
     ],
 )
-def test_token_error_codes(
-    request_dict: dict[str, str], error_code: str, version, runv2, runv3
-):
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+def test_token_error_codes(request_dict: dict[str, str], error_code: str, version):
+
     if isinstance(version, V2):
         error = "Error"
         req_kw = "data"

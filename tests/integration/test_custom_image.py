@@ -20,7 +20,6 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     set_token_settings,
     trigger_http_token,
     v3,
@@ -42,11 +41,9 @@ def test_custom_image_url(  # noqa: C901
     accept_html,
     accept_image,
     webhook_receiver,
-    runv2,
-    runv3,
     clean_uploads_dir,
 ):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # custom image
     file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(
@@ -164,10 +161,7 @@ def test_custom_image_web_image(
     version,
     file_name,
     webhook_receiver,
-    runv2,
-    runv3,
 ):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
 
     file_mimetype = "image/{mimetype}".format(
         mimetype=file_name[-3:].replace("jpg", "jpeg")
@@ -313,9 +307,9 @@ def test_custom_image_web_image(
     ],
 )
 def test_custom_image_web_image_cors_support(
-    version, webhook_receiver, runv2, runv3, request_details, resp_details
+    version, webhook_receiver, request_details, resp_details
 ):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(
         mimetype=file_name[-3:].replace("jpg", "jpeg")

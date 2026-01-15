@@ -19,7 +19,6 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     plain_fire_token,
-    run_or_skip,
     v3,
 )
 
@@ -54,8 +53,8 @@ def managed_svn_server(tmpdir_repo):
         v3,
     ],
 )
-def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver):
+
     # create temp dir for the repo and client
     tmpdir_repo = tmpdir.mkdir("SVN")
     tmpdir_client = tmpdir.mkdir("SVN_ClIENT")
