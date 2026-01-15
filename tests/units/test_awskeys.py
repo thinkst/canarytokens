@@ -37,9 +37,9 @@ def test_get_aws_key_with_query(
             and frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY
         )
         expected_key["access_key_id"] = frontend_settings.TESTING_AWS_ACCESS_KEY_ID
-        expected_key[
-            "secret_access_key"
-        ] = frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY
+        expected_key["secret_access_key"] = (
+            frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY
+        )
 
         key = get_aws_key(
             token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
