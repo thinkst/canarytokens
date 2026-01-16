@@ -1,6 +1,7 @@
 """
 Output channel that sends emails. Relies on Sendgrid to actually send mails.
 """
+
 from pathlib import Path
 from textwrap import dedent
 import textwrap
@@ -58,6 +59,7 @@ log = Logger()
 #     if not success:
 #         log.error("Failed to send mail via mailgun.")
 #     return not success
+
 
 # success                             -> sent
 # badly formed such as http://bob.com -> ignored (error returned right away)
