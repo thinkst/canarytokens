@@ -384,18 +384,6 @@ class TokenRequest(BaseModel):
     def to_dict(self) -> Dict[str, Any]:
         return json_safe_dict(self)
 
-    def v2_dict(self) -> Dict[str, Any]:
-        webhook_url = self.webhook_url or ""
-        out_dict = {
-            "type": getattr(self, "token_type").value,
-            "email": self.email or "",
-            "memo": self.memo,
-            "webhook": str(webhook_url),
-        }
-        if "redirect_url" in self.dict():  # pragma: no cover
-            out_dict["redirect_url"] = self.redirect_url  # type: ignore
-        return out_dict
-
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
 
@@ -411,17 +399,6 @@ class AWSKeyTokenRequest(TokenRequest):
 class AzureIDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     azure_id_cert_file_name: str
-
-    def v2_dict(self) -> Dict[str, Any]:
-        webhook_url = self.webhook_url or ""
-        out_dict = {
-            "type": getattr(self, "token_type").value,
-            "email": self.email or "",
-            "memo": self.memo,
-            "webhook": str(webhook_url),
-            "azure_id_cert_file_name": self.azure_id_cert_file_name,
-        }
-        return out_dict
 
 
 class QRCodeTokenRequest(TokenRequest):
