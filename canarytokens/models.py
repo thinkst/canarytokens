@@ -1521,6 +1521,7 @@ class TokenHit(BaseModel):
     input_channel: str
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
+    ignored: bool = False
 
     class Config:
         smart_union = True
@@ -2988,3 +2989,6 @@ class AWSInfraServiceError(StrEnum):
             return cls(code)
         except ValueError:
             return cls.UNKNOWN
+
+
+IGNORABLE_IP_TOKENS = [TokenTypes.AWS_INFRA, TokenTypes.WEB]
