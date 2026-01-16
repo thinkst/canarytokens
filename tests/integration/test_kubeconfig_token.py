@@ -6,7 +6,6 @@ import pytest
 import requests
 
 from canarytokens.models import (
-    V2,
     KubeconfigTokenHistory,
     KubeconfigTokenRequest,
     KubeconfigTokenResponse,
@@ -91,8 +90,6 @@ def test_kubeconfig(tmpdir, version, webhook_receiver):
         "nodes",
         # "-v=9",
     ]
-    if isinstance(version, V2):
-        cmd.append("--insecure-skip-tls-verify")
 
     # trigger token
     print(f"start subprocess: {cmd}")

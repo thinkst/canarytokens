@@ -1,11 +1,9 @@
 import subprocess
 from contextlib import contextmanager
-from typing import Union
 
 import pytest
 
 from canarytokens.models import (
-    V2,
     V3,
     Memo,
     SvnTokenHistory,
@@ -53,7 +51,7 @@ def managed_svn_server(tmpdir_repo):
         v3,
     ],
 )
-def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver):
+def test_svn_token(tmpdir, version: V3, webhook_receiver):
 
     # create temp dir for the repo and client
     tmpdir_repo = tmpdir.mkdir("SVN")

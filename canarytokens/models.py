@@ -97,37 +97,6 @@ class Canarytoken(ConstrainedStr):
 
 
 @dataclass()
-class V2:
-    """Indicates models should exhibit V2 behavior"""
-
-    # DESIGN: This separation might be short lived. If not we can do better.
-    version = "v2"
-    canarytokens_sld: str
-    canarytokens_domain: str
-    canarytokens_dns_port: int
-    canarytokens_http_port: Optional[int]
-    scheme: Literal["http", "https"]
-
-    @property
-    def live(self) -> bool:
-        """Used to indicate tests are targeting a live server.
-        Live means nginx is routing to switchboard and dns resolves.
-        """
-        return strtobool(os.getenv("LIVE", "FALSE"))
-
-    @property
-    def server_url(self) -> HttpUrl:  # pragma: no cover
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
-
-    @cached_property
-    def canarytokens_ips(self) -> list[str]:  # pragma: no cover
-        *_, ips = socket.gethostbyname_ex(self.canarytokens_domain)
-        return ips
-
-
-@dataclass()
 class V3:
     """Indicates models should exhibit V3 behavior"""
 
@@ -445,12 +414,10 @@ class TokenRequest(BaseModel):
 
     # Design: this might be short lived. If not we can do better.
     # Singledispatch if it plays well with pydantic.
-    def to_dict(self, version: Union[V2, V3]) -> Dict[str, Any]:
-        if isinstance(version, V2):
-            return self.v2_dict()
-        elif isinstance(version, V3):
+    def to_dict(self, version: V3) -> Dict[str, Any]:
+        if isinstance(version, V3):
             return json_safe_dict(self)
-        raise NotImplementedError("version must be either V2 or V3.")
+        raise NotImplementedError("version must be V3.")
 
     def v2_dict(self) -> Dict[str, Any]:
         webhook_url = self.webhook_url or ""

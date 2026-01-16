@@ -7,7 +7,6 @@ from pydantic import HttpUrl
 
 from canarytokens.constants import CANARY_PDF_TEMPLATE_OFFSET as STREAM_OFFSET
 from canarytokens.models import (
-    V2,
     Memo,
     PDFTokenHistory,
     PDFTokenRequest,
@@ -49,9 +48,6 @@ def test_pdf_token(version, webhook_receiver):
     raw_stream = zlib.decompress(stream)
     token_url = re.findall(rb"URI\(([^\)]+)\)", raw_stream)[0].decode("utf-8")
     token_domain_name = token_url.split("/")[2]
-    if isinstance(version, V2):
-        # v2 gives incorrect hostname as it should be NXDOMAIN as it's a PDF.
-        token_info.hostname = token_domain_name
     assert token_domain_name == token_info.hostname
     # Trigger the token by direct DNS
     from tests.utils import plain_fire_token

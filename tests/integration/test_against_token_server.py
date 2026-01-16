@@ -1,7 +1,6 @@
 import re
 from functools import partial
 from smtplib import SMTP
-from typing import Union
 
 import pytest
 import requests
@@ -9,7 +8,6 @@ from pydantic import HttpUrl
 from requests import HTTPError
 
 from canarytokens.models import (
-    V2,
     V3,
     ClonedWebTokenHistory,
     ClonedWebTokenRequest,
@@ -183,7 +181,7 @@ def test_log_4_shell_token(version, hostname_to_retrieve, webhook_receiver):
     and checks that it is correctly recovered in the `src_data`.
 
     Args:
-        version (Union[V2, V3]): indicates the server version we testing against.
+        version (V3): indicates the server version we testing against.
         hostname_to_retrieve (str): computer_name that we want to recover based on how it's added to the token.
         webhook_receiver (str): A webhook receiver yto
     """
@@ -240,7 +238,7 @@ def test_log_4_shell_token(version, hostname_to_retrieve, webhook_receiver):
     ],
 )
 def test_unique_email_token(
-    version: Union[V2, V3],
+    version: V3,
     memo: str,
     webhook_receiver: str,
     settings: SwitchboardSettings,
@@ -323,7 +321,7 @@ def test_unique_email_token(
     "version, method",
     [(v3, "GET"), (v3, "POST"), (v3, "OPTIONS")],
 )
-def test_web_bug_token(version: Union[V2, V3], method: str, webhook_receiver) -> None:
+def test_web_bug_token(version: V3, method: str, webhook_receiver) -> None:
     """
     Tests: web_bug_token
     """
@@ -388,7 +386,7 @@ def test_web_bug_token(version: Union[V2, V3], method: str, webhook_receiver) ->
 def test_cloned_web_token(
     location: str,
     referrer: str,
-    version: Union[V2, V3],
+    version: V3,
     webhook_receiver,
 ) -> None:
     """
@@ -599,10 +597,7 @@ def test_slow_redirect_token(
 )
 def test_token_error_codes(request_dict: dict[str, str], error_code: str, version):
 
-    if isinstance(version, V2):
-        error = "Error"
-        req_kw = "data"
-    elif isinstance(version, V3):
+    if isinstance(version, V3):
         error = "error"
         req_kw = "json"
 

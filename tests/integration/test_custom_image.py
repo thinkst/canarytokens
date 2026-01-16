@@ -4,7 +4,6 @@ import pytest
 import requests
 
 from canarytokens.models import (
-    V2,
     V3,
     BrowserScannerSettingsRequest,
     CustomImageTokenHistory,
@@ -200,9 +199,7 @@ def test_custom_image_web_image(
         version=version,
     )
     # check success of the web_image settings update
-    if isinstance(version, V2):
-        assert _res["result"] == "success"
-    elif isinstance(version, V3):
+    if isinstance(version, V3):
         assert _res["message"] == "success"
 
     # Trigger the token
@@ -348,10 +345,7 @@ def test_custom_image_web_image_cors_support(
         version=version,
     )
     # check success of the web_image settings update
-    if isinstance(version, V2):
-        assert _res["result"] == "success"
-    elif isinstance(version, V3):
-        assert _res["message"] == "success"
+    assert _res["message"] == "success"
 
     # Trigger the token
     trigger_headers = {
