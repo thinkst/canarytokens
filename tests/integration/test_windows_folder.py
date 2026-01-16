@@ -21,8 +21,8 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    v3,
     windows_directory_fire_token,
+    server_config,
 )
 
 MODE_DIRECTORY = 0x10
@@ -34,18 +34,11 @@ MODE_DIRECTORY = 0x10
         ("uSeRnaME1", "cOMp-1", "teSTdoMAin"),
     ],
 )
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
 def test_windows_directory(
     test_user: str,
     test_computer: str,
     test_domain: str,
     tmpdir,
-    version,
     webhook_receiver,
 ):
 
@@ -56,7 +49,7 @@ def test_windows_directory(
     )
 
     # Create windows folder token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = WindowsDirectoryTokenResponse(**resp)
 
     # request and download generated widows folder zip
@@ -67,7 +60,7 @@ def test_windows_directory(
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=windows_folder_request_params,
     )
 
@@ -123,7 +116,7 @@ def test_windows_directory(
         _ = requests.get("{scheme}://{url}".format(scheme="http", url=extracted_url))
     else:
         target_domain = extracted_url.split("/")[0]
-        _ = windows_directory_fire_token(token_info, target_domain, version)
+        _ = windows_directory_fire_token(token_info, target_domain)
 
     # Check that the returned history has a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
@@ -132,7 +125,7 @@ def test_windows_directory(
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = WindowsDirectoryTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     token_hit = token_history.hits[-1]

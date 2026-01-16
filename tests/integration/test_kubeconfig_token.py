@@ -2,7 +2,6 @@ import base64
 import subprocess
 import tempfile
 
-import pytest
 import requests
 
 from canarytokens.models import (
@@ -17,17 +16,11 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    v3,
+    server_config,
 )
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
-def test_kubeconfig(tmpdir, version, webhook_receiver):
+def test_kubeconfig(tmpdir, webhook_receiver):
 
     # initialize request
     memo = "kubeconfig memo!"
@@ -38,7 +31,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver):
     )
 
     # Create kubeconfig token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = KubeconfigTokenResponse(**resp)
 
     # check kubeconfig response field is not empty
@@ -58,7 +51,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver):
 
     print("get download")
     download_resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=kubeconfig_request_params,
         timeout=(60, 60),
     )
@@ -111,7 +104,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver):
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = KubeconfigTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]

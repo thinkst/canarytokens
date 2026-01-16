@@ -4,7 +4,6 @@ import pytest
 import requests
 
 from canarytokens.models import (
-    V3,
     BrowserScannerSettingsRequest,
     CustomImageTokenHistory,
     CustomImageTokenRequest,
@@ -21,20 +20,18 @@ from tests.utils import (
     get_token_history,
     set_token_settings,
     trigger_http_token,
-    v3,
+    server_config,
 )
 
 # the gif returned by default by the web image token
 DEFAULT_GIF = b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"  # 1x1 GIF
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize("browser_scanner_enabled", [True, False])
 @pytest.mark.parametrize("web_image_enabled", [True, False])
 @pytest.mark.parametrize("accept_html", [True, False])
 @pytest.mark.parametrize("accept_image", [True, False])
 def test_custom_image_url(  # noqa: C901
-    version,
     browser_scanner_enabled,
     web_image_enabled,
     accept_html,
@@ -70,7 +67,7 @@ def test_custom_image_url(  # noqa: C901
         )
 
         # Create custom image token
-        resp = create_token(token_request=token_request, version=version)
+        resp = create_token(token_request=token_request)
         token_info = CustomImageTokenResponse(**resp)
 
         # ensure browser_scanner is enabled or not
@@ -80,7 +77,6 @@ def test_custom_image_url(  # noqa: C901
                 token=token_info.token,
                 auth=token_info.auth_token,
             ),
-            version=version,
         )
 
         # ensure web_image is enabled or not
@@ -90,7 +86,6 @@ def test_custom_image_url(  # noqa: C901
                 token=token_info.token,
                 auth=token_info.auth_token,
             ),
-            version=version,
         )
 
     # Check token url page extension
@@ -103,7 +98,6 @@ def test_custom_image_url(  # noqa: C901
     ]
     _resp = trigger_http_token(
         token_info=token_info,
-        version=version,
         headers={
             "Referrer-Policy": "strict-origin-when-cross-origin",
             "Accept": ",".join(x for x in accepted_content if x),
@@ -139,25 +133,23 @@ def test_custom_image_url(  # noqa: C901
         _ = TokenAlertDetailGeneric(**stats[0])
 
     # Check that the returned history has a single hit, and is on the HTTP channel
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = CustomImageTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "HTTP"
 
-    if version.live:
+    if server_config.live:
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
         assert token_hit.geo_info.ip == "127.0.0.1"
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "file_name",
     ["canary_image.png", "Moon.jpg", "testing.gif"],
 )
 def test_custom_image_web_image(
-    version,
     file_name,
     webhook_receiver,
 ):
@@ -186,7 +178,7 @@ def test_custom_image_web_image(
     )
 
     # Create custom image token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = CustomImageTokenResponse(**resp)
 
     # ensure web_image is enabled
@@ -196,16 +188,13 @@ def test_custom_image_web_image(
             token=token_info.token,
             auth=token_info.auth_token,
         ),
-        version=version,
     )
     # check success of the web_image settings update
-    if isinstance(version, V3):
-        assert _res["message"] == "success"
+    assert _res["message"] == "success"
 
     # Trigger the token
     _resp = trigger_http_token(
         token_info=token_info,
-        version=version,
         headers={
             "Referrer-Policy": "strict-origin-when-cross-origin",
             "Accept": "{mimetype}".format(
@@ -229,18 +218,17 @@ def test_custom_image_web_image(
         _ = TokenAlertDetailGeneric(**stats[0])
 
     # Check that the returned history has a single hit, and is on the HTTP channel
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = CustomImageTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "HTTP"
-    if version.live:
+    if server_config.live:
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
         assert token_hit.geo_info.ip == "127.0.0.1"
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "request_details, resp_details",
     [
@@ -304,7 +292,7 @@ def test_custom_image_web_image(
     ],
 )
 def test_custom_image_web_image_cors_support(
-    version, webhook_receiver, request_details, resp_details
+    webhook_receiver, request_details, resp_details
 ):
 
     file_name = "canary_image.png"
@@ -332,7 +320,7 @@ def test_custom_image_web_image_cors_support(
     )
 
     # Create custom image token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = CustomImageTokenResponse(**resp)
 
     # ensure web_image is enabled
@@ -342,7 +330,6 @@ def test_custom_image_web_image_cors_support(
             token=token_info.token,
             auth=token_info.auth_token,
         ),
-        version=version,
     )
     # check success of the web_image settings update
     assert _res["message"] == "success"
@@ -358,7 +345,6 @@ def test_custom_image_web_image_cors_support(
 
     _resp = trigger_http_token(
         token_info=token_info,
-        version=version,
         headers=trigger_headers,
         stream=True,
         method=request_details["method"],
