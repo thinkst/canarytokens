@@ -64,6 +64,11 @@
         )
       "
     />
+    <IPIgnoreList
+      v-if="isIPIgnorable"
+      :token-backend-response="tokenBackendResponse"
+
+      />
 
 
   </div>
@@ -81,6 +86,7 @@ import {
   GET_SETTINGS_BACKEND_TYPE,
   TOKENS_TYPE,
 } from '@/components/constants';
+import IPIgnoreList from './ui/IPIgnoreList.vue';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
@@ -107,6 +113,7 @@ const hasWebhookAlert = ref(
 );
 const hasBrowserScan = ref(isSupportBrowserScan());
 const hasCustomImage = ref(isSupportCustomImage());
+const isIPIgnorable = ref(props.tokenBackendResponse.is_ip_ignorable);
 
 // State of each setting type
 const settingRefs = ref({
@@ -114,6 +121,7 @@ const settingRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
+  [SETTINGS_TYPE.IGNORED_IPS]: false,
 });
 
 // Handle Loading for Switch Component during settings change

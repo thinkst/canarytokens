@@ -118,6 +118,8 @@ export type ManageTokenBackendType = {
   cc_v2_name_on_card: string;
   aws_region: string;
   aws_account_id: string;
+  is_ip_ignorable: boolean;
+  ignored_ips: string[];
 };
 
 export type NewTokenBackendType = {

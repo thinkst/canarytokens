@@ -48,6 +48,7 @@ export const SETTINGS_TYPE = {
   WEB_HOOK: 'WEB_HOOK',
   BROWSER_SCANNER: 'BROWSER_SCANNER',
   WEB_IMAGE: 'WEB_IMAGE',
+  IGNORED_IPS: 'IGNORED_IPS',
 };
 
 // values used in the backend to identify enable settings
@@ -57,6 +58,7 @@ export const UPDATE_SETTINGS_BACKEND_TYPE = {
   WEB_HOOK: 'webhook_enable',
   BROWSER_SCANNER: 'browser_scanner_enable',
   WEB_IMAGE: 'web_image_enable',
+  IGNORED_IPS: 'ignored_ips',
 };
 
 // values used in the backend to identify enable settings
@@ -66,6 +68,7 @@ export const GET_SETTINGS_BACKEND_TYPE = {
   WEB_HOOK: 'alert_webhook_enabled',
   BROWSER_SCANNER: 'browser_scanner_enabled',
   WEB_IMAGE: 'web_image_enabled',
+  IGNORED_IPS: 'ignored_ips',
 };
 
 export const INCIDENT_LIST_EXPORT = {
