@@ -120,6 +120,8 @@ from canarytokens.models import (
     FetchLinksMessage,
     FetchLinksRequest,
     FetchLinksResponse,
+    IPIgnoreListRequest,
+    IPIgnoreListResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -1564,18 +1566,11 @@ def create_download_response(download_request_details, canarydrop: Canarydrop):
     )
 
 
-# temporary endpoint for adding ip to ignore list
-@api.post("/add-ip-ignore")
-async def api_add_ip_ignore(request: Request) -> JSONResponse:
-    data = await request.json()
-    canarydrop = get_canarydrop_and_authenticate(
-        token=data.get("token", ""), auth=data.get("auth", "")
-    )
-    ip_address = data.get("ip_list", [])
-    queries.set_ignored_ip_addresses(canarydrop, ip_address)
-    return JSONResponse(
-        {"message": "IP address added to ignore list."}, status_code=200
-    )
+@api.post("/settings/ip-ignore-list")
+async def api_add_ip_ignore(request: IPIgnoreListRequest) -> IPIgnoreListResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
+    queries.set_ignored_ip_addresses(canarydrop, request.ip_ignore_list)
+    return IPIgnoreListResponse(message="success")
 
 
 @create_download_response.register

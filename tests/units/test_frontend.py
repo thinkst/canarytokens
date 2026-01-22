@@ -987,3 +987,32 @@ def test_generate_token_ip_headers(
     canarydrop = manage_resp.json()["canarydrop"]
     for key, value in expected_headers.items():
         assert canarydrop[key] == value
+
+
+@pytest.mark.parametrize(
+    "ip_address_list, is_valid",
+    [
+        (["2406:da11:e7:2232:c89a:e0f0:71b7:d55a"], False),
+        (["not an ip"], False),
+        (["192.168.2.10"], True),
+        ([], True),
+        (["1.2.3.4.5"], False),
+    ],
+)
+def test_add_ip_ignore_list(
+    ip_address_list: list[str],
+    is_valid: bool,
+    test_client: TestClient,
+    setup_db: None,
+) -> None:
+    ip_ignore_request = models.IPIgnoreListRequest(
+        ip_addresses=ip_address_list,
+    )
+    resp = test_client.post(
+        f"{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
+        json=ip_ignore_request.dict(),
+    )
+    if is_valid:
+        assert resp.status_code == 200
+    else:
+        assert resp.status_code == 400
