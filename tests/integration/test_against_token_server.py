@@ -1,7 +1,6 @@
 import re
 from functools import partial
 from smtplib import SMTP
-from typing import Union
 
 import pytest
 import requests
@@ -9,8 +8,6 @@ from pydantic import HttpUrl
 from requests import HTTPError
 
 from canarytokens.models import (
-    V2,
-    V3,
     ClonedWebTokenHistory,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
@@ -49,35 +46,32 @@ from tests.utils import (
     get_token_history,
     log_4_shell_fire_token,
     plain_fire_token,
-    run_or_skip,
     slack_webhook_test,
     trigger_http_token,
-    v3,
     windows_directory_fire_token,
+    server_config,
 )
 
 
-@pytest.mark.parametrize("version", [v3])
-def test_delete_token(version, runv3, runv2):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_delete_token():
     token_request = DNSTokenRequest(
         webhook_url=slack_webhook_test,
         email="test@test.com",
         memo="We are v3",
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     # Check dns token has correct attributes
     token_info = DNSTokenResponse(**resp)
 
     # Trigger it once
-    _ = plain_fire_token(token_info, version)
+    _ = plain_fire_token(token_info)
 
     # Check that we can query the token's history
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     _ = DNSTokenHistory(**resp)
 
-    resp = delete_token(token_info.token, token_info.auth_token, version)
+    resp = delete_token(token_info.token, token_info.auth_token)
     assert resp.get("message") == "success"
 
     token_history_request = DownloadIncidentListJsonRequest(
@@ -87,25 +81,23 @@ def test_delete_token(version, runv3, runv2):
         fmt=DownloadFmtTypes.INCIDENTLISTJSON,
     )
     resp = requests.get(
-        url=f"{version.server_url}/download", params=token_history_request
+        url=f"{server_config.server_url}/download", params=token_history_request
     )
 
     assert resp.status_code == 403
 
 
 @pytest.mark.parametrize(
-    "version, token_request_type, token_response_type, token_history_type, token_trigger",
+    "token_request_type, token_response_type, token_history_type, token_trigger",
     [
-        (v3, DNSTokenRequest, DNSTokenResponse, DNSTokenHistory, plain_fire_token),
+        (DNSTokenRequest, DNSTokenResponse, DNSTokenHistory, plain_fire_token),
         (
-            v3,
             WindowsDirectoryTokenRequest,
             WindowsDirectoryTokenResponse,
             WindowsDirectoryTokenHistory,
             partial(windows_directory_fire_token, domain="username.hostname.domain"),
         ),
         (
-            v3,
             Log4ShellTokenRequest,
             Log4ShellTokenResponse,
             Log4ShellTokenHistory,
@@ -115,13 +107,10 @@ def test_delete_token(version, runv3, runv2):
 )
 def test_dns_triggered_tokens(
     webhook_receiver,
-    version,
     token_request_type,
     token_response_type,
     token_history_type,
     token_trigger,
-    runv2,
-    runv3,
 ):
     """
     Tests all tokens that are triggered via the DNS channel. It's a fully `parametrize`'d
@@ -133,7 +122,7 @@ def test_dns_triggered_tokens(
     add those as a separate test. That is advisable over making this complex test even more
     complex.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a DNS token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
 
@@ -141,7 +130,7 @@ def test_dns_triggered_tokens(
         webhook_url=webhook_receiver,
         memo=memo,
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     # Check dns token has correct attributes
     token_info = token_response_type(**resp)
@@ -150,7 +139,7 @@ def test_dns_triggered_tokens(
 
     clear_stats_on_webhook(webhook_receiver, token=token_info.token)
     # Trigger DNS token
-    _ = token_trigger(token_info, version=version)
+    _ = token_trigger(token_info)
 
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats is not None:
@@ -159,7 +148,7 @@ def test_dns_triggered_tokens(
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
     # Check that the returned history has a single hit.
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
 
     token_history = token_history_type(**resp)
     # TODO: what other fields do we want to assert on.
@@ -176,24 +165,21 @@ def test_dns_triggered_tokens(
 #     version=st.sampled_from([v3]),
 # )
 @pytest.mark.parametrize(
-    "version, hostname_to_retrieve",
+    "hostname_to_retrieve",
     [
-        (v3, "testhost.name.com"),
+        "testhost.name.com",
     ],
 )
-def test_log_4_shell_token(
-    version, hostname_to_retrieve, webhook_receiver, runv2, runv3
-):
+def test_log_4_shell_token(hostname_to_retrieve, webhook_receiver):
     """Tests the Log4Shell token. Creates a token with `webhook_receiver` as
     the output channel. Triggers the token with with `computer_name` as `hostname_to_retrieve`
     and checks that it is correctly recovered in the `src_data`.
 
     Args:
-        version (Union[V2, V3]): indicates the server version we testing against.
         hostname_to_retrieve (str): computer_name that we want to recover based on how it's added to the token.
         webhook_receiver (str): A webhook receiver yto
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a DNS token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
 
@@ -202,7 +188,7 @@ def test_log_4_shell_token(
         memo=memo,
     )
 
-    resp = create_token(dns_request, version=version)
+    resp = create_token(dns_request)
     # Check dns token has correct attributes
     token_info = Log4ShellTokenResponse(**resp)
     assert token_info.hostname.split(".")[0] == token_info.token
@@ -211,9 +197,7 @@ def test_log_4_shell_token(
     clear_stats_on_webhook(webhook_receiver, token=token_info.token)
     # Trigger the token
     hostname_to_retrieve = hostname_to_retrieve.strip()
-    _ = log_4_shell_fire_token(
-        token_info, retrieved_hostname=hostname_to_retrieve, version=version
-    )
+    _ = log_4_shell_fire_token(token_info, retrieved_hostname=hostname_to_retrieve)
 
     # Check the webhook got correct number of triggers and correct info
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
@@ -231,7 +215,7 @@ def test_log_4_shell_token(
         )
 
     # Get token history and check that it is consistent and correct.
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = Log4ShellTokenHistory(**resp)
     assert (
         token_history.hits[0].src_data["log4_shell_computer_name"].lower()
@@ -240,17 +224,14 @@ def test_log_4_shell_token(
 
 
 @pytest.mark.parametrize(
-    "version,memo",
+    "memo",
     [
-        (v3, "V3 email test run"),
+        "V3 email test run",
     ],
 )
 def test_unique_email_token(
-    version: Union[V2, V3],
     memo: str,
     webhook_receiver: str,
-    runv2: bool,
-    runv3: bool,
     settings: SwitchboardSettings,
 ):
     """
@@ -258,22 +239,22 @@ def test_unique_email_token(
     it by sending an email. Checks that the token history is consistent and the revovered
     details are correct.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create SMTP token
     smtp_token_request = SMTPTokenRequest(
         webhook_url=webhook_receiver,
         memo=memo,
     )
     #
-    resp = create_token(smtp_token_request, version=version)
+    resp = create_token(smtp_token_request)
     unique_email = resp.pop("unique_email", None)
     smtp_token_response = SMTPTokenResponse(**resp, unique_email=unique_email)
 
     clear_stats_on_webhook(webhook_receiver, token=smtp_token_response.token)
     # Trigger SMTP token
     sender = SMTP(
-        host=version.canarytokens_domain,
-        port=25 if version.live else int(settings.CHANNEL_SMTP_PORT),
+        host=server_config.canarytokens_domain,
+        port=25 if server_config.live else int(settings.CHANNEL_SMTP_PORT),
     )
     # TODO: Add email attachment and test that is recovered.
     #       Add other fields we expect to recover.
@@ -315,29 +296,27 @@ def test_unique_email_token(
         assert len(mail_details["attachments"]) == 3
 
     # Check that the returned history has a single hit.
-    resp = get_token_history(token_info=smtp_token_response, version=version)
+    resp = get_token_history(token_info=smtp_token_response)
 
     token_history = SMTPTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "SMTP"  # TODO: input channel should be an enum
-    if version.live:
+    if server_config.live:
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
         assert token_hit.geo_info.ip == "127.0.0.1"
 
 
 @pytest.mark.parametrize(
-    "version, method",
-    [(v3, "GET"), (v3, "POST"), (v3, "OPTIONS")],
+    "method",
+    ["GET", "POST", "OPTIONS"],
 )
-def test_web_bug_token(
-    version: Union[V2, V3], method: str, webhook_receiver, runv2, runv3
-) -> None:
+def test_web_bug_token(method: str, webhook_receiver) -> None:
     """
     Tests: web_bug_token
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     memo = "Testing Web Bug from V3 test suite "
     useragent = "python4 from the future"
     # Create a cloned web token request
@@ -346,7 +325,7 @@ def test_web_bug_token(
         # email = email,
         memo=memo,
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     token_info = WebBugTokenResponse(**resp)
 
@@ -355,7 +334,6 @@ def test_web_bug_token(
     # Trigger the token
     trigger_http_token(
         token_info=token_info,
-        version=version,
         headers={"User-Agent": useragent},
         method=method,
     )
@@ -370,43 +348,39 @@ def test_web_bug_token(
         _ = TokenAlertDetailGeneric(**stats[0])
 
     # Check that the returned history has a single hit
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
 
     token_history = WebBugTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "HTTP"
-    if version.live:
+    if server_config.live:
         # TODO: Remove once v3 is live
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     assert token_hit.useragent == useragent
 
 
 @pytest.mark.parametrize(
-    "location, referrer, version",
+    "location, referrer",
     [
         (
             "https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml",
             "",
-            v3,
         ),
-        ("http://test.com/testloc", "http://test.com/testref", v3),
-        ("http://test.com/testloc2", "about:blank", v3),
+        ("http://test.com/testloc", "http://test.com/testref"),
+        ("http://test.com/testloc2", "about:blank"),
     ],
 )
 def test_cloned_web_token(
     location: str,
     referrer: str,
-    version: Union[V2, V3],
     webhook_receiver,
-    runv2,
-    runv3,
 ) -> None:
     """
     Tests: cloned_web
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     memo = "Test stuff break stuff test stuff sometimes build stuff"
     # Create a cloned web token request
     token_request = ClonedWebTokenRequest(
@@ -414,13 +388,12 @@ def test_cloned_web_token(
         memo=memo,
         clonedsite="http://www.test.com",
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     token_info = ClonedWebTokenResponse(**resp)
     # Trigger the token
     _ = trigger_http_token(
         token_info=token_info,
-        version=version,
         params={"l": location, "r": referrer},
     )
     # _ = requests.get(token_info.token_url, params=)
@@ -434,7 +407,7 @@ def test_cloned_web_token(
 
     # Check that the returned history has a single hit
 
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
 
     token_history = ClonedWebTokenHistory(**history_resp)
 
@@ -442,7 +415,7 @@ def test_cloned_web_token(
     token_hit = token_history.hits[0]
     assert token_hit.referer == referrer
     assert token_hit.location == location
-    if version.live:
+    if server_config.live:
         # Todo: remove when v3 runs as a live server.
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
@@ -450,24 +423,24 @@ def test_cloned_web_token(
 
 
 @pytest.mark.parametrize(
-    "target,version",
+    "target",
     [
-        ("https://www.youtube.com", v3),
+        "https://www.youtube.com",
         # ("google.com") # without http[s]://
     ],
 )
-def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
+def test_fast_redirect_token(target: str) -> None:
     """
     Tests: fast_redirect
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a fast redirect token request
     token_request = FastRedirectTokenRequest(
         webhook_url=HttpUrl(url="https://slack.com/api/api.test", scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
         redirect_url=target,
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     token_info = FastRedirectTokenResponse(**resp)
 
@@ -475,40 +448,37 @@ def test_fast_redirect_token(target: str, version, runv2, runv3) -> None:
     assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
     # Trigger the token
-    trigger_resp = trigger_http_token(
-        token_info=token_info, version=version, allow_redirects=True
-    )
+    trigger_resp = trigger_http_token(token_info=token_info, allow_redirects=True)
 
     # Make sure the redirect worked:
     assert trigger_resp.url == target
 
     # Check that the returned history has a single hit
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
     token_history = FastRedirectTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1
 
 
 @pytest.mark.parametrize(
-    "target, location, referrer, version",
+    "target, location, referrer",
     [
         (
             "https://www.youtube.com",
             "http://test.com/testloc",
             "http://test.com/testref",
-            v3,
         ),
         # https://github.com/thinkst/canarytokens/issues/122
         # in future add one without http[s]:// (currently broken)
     ],
 )
 def test_slow_redirect_token(
-    target: str, location: str, referrer: str, version, webhook_receiver, runv2, runv3
+    target: str, location: str, referrer: str, webhook_receiver
 ) -> None:
     """
     Tests: slow_redirect
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     memo = "Test stuff break stuff test stuff sometimes build stuff"
     # Create a slow redirect token request
     token_request = SlowRedirectTokenRequest(
@@ -516,7 +486,7 @@ def test_slow_redirect_token(
         memo=memo,
         redirect_url=target,
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     token_info = SlowRedirectTokenResponse(**resp)
 
@@ -525,7 +495,7 @@ def test_slow_redirect_token(
 
     # Trigger the token
     trigger_resp = trigger_http_token(
-        token_info=token_info, version=version, params={"l": location, "r": referrer}
+        token_info=token_info, params={"l": location, "r": referrer}
     )
 
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
@@ -568,7 +538,7 @@ def test_slow_redirect_token(
     requests.post(trigger_resp.url, data_2)
 
     # Check that the returned history has a single hit
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
 
     token_history = SlowRedirectTokenHistory(**history_resp)
 
@@ -580,10 +550,6 @@ def test_slow_redirect_token(
     #
 
 
-@pytest.mark.parametrize(
-    "version",
-    [v3],
-)
 @pytest.mark.parametrize(
     "request_dict, error_code",
     [
@@ -609,19 +575,13 @@ def test_slow_redirect_token(
         # ({'token_type': 'dns', ...}, '6'),
     ],
 )
-def test_token_error_codes(
-    request_dict: dict[str, str], error_code: str, version, runv2, runv3
-):
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
-    if isinstance(version, V2):
-        error = "Error"
-        req_kw = "data"
-    elif isinstance(version, V3):
-        error = "error"
-        req_kw = "json"
+def test_token_error_codes(request_dict: dict[str, str], error_code: str):
+
+    error = "error"
+    req_kw = "json"
 
     resp = requests.post(
-        url=f"{version.server_url}/generate",
+        url=f"{server_config.server_url}/generate",
         timeout=(26, 26),
         **{req_kw: request_dict},
         headers={"Connection": "close"},

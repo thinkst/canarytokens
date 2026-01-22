@@ -16,12 +16,9 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
-    v3,
 )
 
 
-@pytest.mark.parametrize("version", [v3])
 @pytest.mark.parametrize(
     "use_invocation_id, expected_hits",
     [
@@ -33,21 +30,18 @@ def test_cmd_token_fires(
     use_invocation_id: bool,
     expected_hits: int,
     webhook_receiver,
-    version,
-    runv2,
-    runv3,
 ):
     """
     Tests the sensitive command token.
     """
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+
     # Create a CMD token request
     memo = "Test stuff break stuff test stuff sometimes build stuff"
 
     token_request = CMDTokenRequest(
         webhook_url=webhook_receiver, memo=memo, cmd_process="klist.exe"
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
 
     # Check dns token has correct attributes
     token_info = CMDTokenResponse(**resp)
@@ -64,8 +58,8 @@ def test_cmd_token_fires(
         if use_invocation_id
         else None
     )
-    _ = trigger_cmd_token(token_info, version=version, invocation_id=invocation_id)
-    _ = trigger_cmd_token(token_info, version=version, invocation_id=invocation_id)
+    _ = trigger_cmd_token(token_info, invocation_id=invocation_id)
+    _ = trigger_cmd_token(token_info, invocation_id=invocation_id)
 
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats is not None:
@@ -75,7 +69,7 @@ def test_cmd_token_fires(
         _ = TokenAlertDetailGeneric(**stats[0])
 
     # Check that the returned history has a single hit.
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
 
     token_history = CMDTokenHistory(**resp)
     # TODO: what other fields do we want to assert on.

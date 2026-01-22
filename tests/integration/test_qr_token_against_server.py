@@ -1,7 +1,6 @@
 import base64
 import io
 
-import pytest
 import requests
 from PIL import Image
 from pyzbar.pyzbar import decode
@@ -18,20 +17,13 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     trigger_http_token,
-    v3,
+    server_config,
 )
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
-def test_qr_code_token(version, webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_qr_code_token(webhook_receiver):
+
     memo = "qr code memo!"
     token_request = QRCodeTokenRequest(
         token_type=TokenTypes.QR_CODE,
@@ -39,7 +31,7 @@ def test_qr_code_token(version, webhook_receiver, runv2, runv3):
         memo=Memo(memo),
     )
     # Create QRCode token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = QRCodeTokenResponse(**resp)
 
     # Validate token
@@ -63,7 +55,6 @@ def test_qr_code_token(version, webhook_receiver, runv2, runv3):
     # Trigger token
     trigger_http_token(
         token_info=token_info,
-        version=version,
     )
 
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
@@ -71,12 +62,12 @@ def test_qr_code_token(version, webhook_receiver, runv2, runv3):
         assert len(stats) == 1
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = QRCodeTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]
     assert token_hit.input_channel == "HTTP"
-    if version.live:
+    if server_config.live:
         assert token_hit.geo_info.ip == requests.get("https://ipinfo.io/ip").text
     else:
         assert token_hit.geo_info.ip == "127.0.0.1"

@@ -161,20 +161,6 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         yield f"http://{config.host}:{config.port}"
 
 
-def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption("--runv3", action="store_true", default=False, help="run V3 tests")
-
-
-@pytest.fixture(scope="session")
-def runv2(request: pytest.FixtureRequest) -> bool:
-    return request.config.getoption("--runv2", False)
-
-
-@pytest.fixture(scope="session")
-def runv3(request: pytest.FixtureRequest) -> bool:
-    return request.config.getoption("--runv3", False)
-
-
 @pytest.fixture(scope="session")
 def settings() -> SwitchboardSettings:
     return SwitchboardSettings(
