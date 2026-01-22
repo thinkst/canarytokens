@@ -16,12 +16,11 @@ from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import (
-    IGNORABLE_IP_TOKENS,
     AnyTokenHit,
     AWSKeyTokenHit,
     TokenTypes,
 )
-from canarytokens.queries import get_canarydrop
+from canarytokens.queries import get_canarydrop, ignore_alert
 from canarytokens.saml import SAML_POST_ARG
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
@@ -34,14 +33,6 @@ log = Logger()
 
 
 # from canarytokens.settings import
-
-
-def ignore_alert(canarydrop, token_hit):
-    if token_hit.token_type in IGNORABLE_IP_TOKENS and canarydrop.ip_ignore_enabled:
-        return token_hit.src_ip in queries.get_ignored_ip_addresses(canarydrop)
-    return False
-
-
 class CanarytokenPage(InputChannel, resource.Resource):
     CHANNEL = INPUT_CHANNEL_HTTP
     isLeaf = True

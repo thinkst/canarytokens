@@ -401,10 +401,7 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
         raise NotImplementedError(
             f"Additional info not supported for hit type: {type(enriched_hit)}"
         )
-    enriched_hit.ignored = (
-        enriched_hit.token_type in models.IGNORABLE_IP_TOKENS
-        and enriched_hit.src_ip in get_ignored_ip_addresses(get_canarydrop(canarytoken))
-    )
+    enriched_hit.ignored = ignore_alert(get_canarydrop(canarytoken), enriched_hit)
     triggered_details.hits.append(enriched_hit)
 
     # if "additional_info" not in triggered_details[hit_time]:
@@ -1115,3 +1112,12 @@ def set_ignored_ip_addresses(
 def get_ignored_ip_addresses(canarydrop: cand.Canarydrop) -> set[str]:
     key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
     return DB.get_db().smembers(key)
+
+
+def ignore_alert(canarydrop: cand.Canarydrop, token_hit: models.AnyTokenHit) -> bool:
+    if (
+        token_hit.token_type in models.IGNORABLE_IP_TOKENS
+        and canarydrop.ip_ignore_enabled
+    ):
+        return token_hit.src_ip in get_ignored_ip_addresses(canarydrop)
+    return False
