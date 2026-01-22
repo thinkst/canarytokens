@@ -70,7 +70,7 @@ from canarytokens.models import (
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
-from tests.utils import get_basic_hit, get_token_request
+from tests.utils import create_token, get_basic_hit, get_token_request
 from frontend.app import ROOT_API_ENDPOINT
 
 
@@ -990,7 +990,7 @@ def test_generate_token_ip_headers(
 
 
 @pytest.mark.parametrize(
-    "ip_address_list, is_valid",
+    "ip_ignore_list, is_valid",
     [
         (["2406:da11:e7:2232:c89a:e0f0:71b7:d55a"], False),
         (["not an ip"], False),
@@ -1000,19 +1000,20 @@ def test_generate_token_ip_headers(
     ],
 )
 def test_add_ip_ignore_list(
-    ip_address_list: list[str],
+    ip_ignore_list: list[str],
     is_valid: bool,
     test_client: TestClient,
     setup_db: None,
 ) -> None:
-    ip_ignore_request = models.IPIgnoreListRequest(
-        ip_addresses=ip_address_list,
-    )
+    token_resp = create_token(get_token_request(WebBugTokenRequest))
+    data = {
+        "token": token_resp["token"],
+        "auth": token_resp["auth_token"],
+        "ip_ignore_list": ip_ignore_list,
+    }
+
     resp = test_client.post(
         f"{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
-        json=ip_ignore_request.dict(),
+        json=data,
     )
-    if is_valid:
-        assert resp.status_code == 200
-    else:
-        assert resp.status_code == 400
+    assert resp.status_code == (200 if is_valid else 422)

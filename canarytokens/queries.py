@@ -1098,12 +1098,17 @@ def update_aws_management_lambda_handle(handle_id: str, response: str):
     )
 
 
-def set_ignored_ip_addresses(canarydrop: cand.Canarydrop, ip_addresses: list[str]):
+def set_ignored_ip_addresses(
+    canarydrop: cand.Canarydrop, ip_addresses: list[IPv4Address]
+):
     key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
     swap_key = key + ":swap"
     with DB.get_db().pipeline() as pipe:
-        pipe.sadd(swap_key, *ip_addresses)
-        pipe.rename(swap_key, key)  # make sure that we won't read an empty set
+        if ip_addresses:
+            pipe.sadd(swap_key, *list(map(str, ip_addresses)))
+            pipe.rename(swap_key, key)  # make sure that we won't read an empty set
+        else:
+            pipe.delete(key)
         pipe.execute()
 
 

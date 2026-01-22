@@ -2762,12 +2762,6 @@ class IPIgnoreListRequest(BaseModel):
             raise ValueError("IPv6 addresses are not supported.")
         return v
 
-    class Config:
-        # Ensure that the ip_ignore_list is serialized as list[str]
-        json_encoders = {
-            IPv4Address: str,
-        }
-
 
 class IPIgnoreListResponse(BaseModel):
     message: Literal["success", "failure"]
