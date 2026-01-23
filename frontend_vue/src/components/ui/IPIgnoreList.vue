@@ -7,7 +7,7 @@
           @input="(e) => { field.onInput(e); isSaved = false }"
           placeholder="Enter IP addresses separated by commas, spaces, semicolons, or new lines&#10;192.168.1.1, 10.0.0.1; 172.16.0.1&#10;203.0.113.0 198.51.100.0"
           rows="8"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+          class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400"
         />
         <p v-if="errorMessage" class="text-xs leading-4 text-red">
           {{ errorMessage }}
