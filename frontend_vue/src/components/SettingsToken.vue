@@ -101,7 +101,7 @@ import {
   GET_SETTINGS_BACKEND_TYPE,
   TOKENS_TYPE,
 } from '@/components/constants';
-import IPIgnoreList from './ui/IPIgnoreList.vue';
+import IPIgnoreList from '@/components/ui/IPIgnoreList.vue';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
@@ -118,7 +118,6 @@ function isSupportBrowserScan() {
 function isSupportCustomImage() {
   return props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
 }
-
 
 function isSupportIPIgnoreList() {
   return (
@@ -223,5 +222,4 @@ async function handleChangeSetting(
     loadingRefs.value[settingType] = false;
   }
 }
-
 </script>

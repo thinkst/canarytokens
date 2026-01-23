@@ -71,8 +71,6 @@ export const GET_SETTINGS_BACKEND_TYPE = {
   IP_IGNORE: 'ip_ignore_enabled',
 };
 
-export const IP_IGNORE_LIST = "ip_ignore_list"
-
 export const INCIDENT_LIST_EXPORT = {
   JSON: 'incidentlist_json',
   CSV: 'incidentlist_csv',
