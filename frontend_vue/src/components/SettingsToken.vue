@@ -80,9 +80,9 @@
         )"
     />
     <IPIgnoreList
-      v-if="isIPIgnorable"
+      v-show="settingRefs.IP_IGNORE"
       :token-backend-response="tokenBackendResponse"
-
+      :canary-drop="tokenBackendResponse.canarydrop"
       />
 
 
@@ -223,4 +223,5 @@ async function handleChangeSetting(
     loadingRefs.value[settingType] = false;
   }
 }
+
 </script>

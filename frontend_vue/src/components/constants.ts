@@ -58,7 +58,7 @@ export const UPDATE_SETTINGS_BACKEND_TYPE = {
   WEB_HOOK: 'webhook_enable',
   BROWSER_SCANNER: 'browser_scanner_enable',
   WEB_IMAGE: 'web_image_enable',
-  IP_IGNORE: 'ip_ignore_enabled',
+  IP_IGNORE: 'ip_ignore_enable',
 };
 
 // values used in the backend to identify enable settings
