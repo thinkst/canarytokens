@@ -2692,7 +2692,7 @@ class CanarydropSettingsTypes(StrEnum):
     WEBHOOKSETTING = "webhook_enable"
     BROWSERSCANNERSETTING = "browser_scanner_enable"
     WEBIMAGESETTING = "web_image_enable"
-    IPIGNORESETTING = "ip_ignore_setting"
+    IPIGNORESETTING = "ip_ignore_enable"
 
     def __str__(self) -> str:
         return str(self.value)
