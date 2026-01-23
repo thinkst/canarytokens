@@ -15,84 +15,7 @@ on:
         default: "master"
 
 jobs:
-  build-and-commit-frontend-dist:
-    runs-on: ubuntu-22.04
-    env:
-      NODE_VERSION: '18'
-    permissions:
-      id-token: write
-      contents: write
-    steps:
-    - uses: actions/checkout@v4.2.0
-
-    - name: Record author
-      run: |
-        echo "# Owners" >> $GITHUB_STEP_SUMMARY
-        echo "Author: ${{ github.event.head_commit.author.name }} (${{ github.event.head_commit.author.email }})" >> $GITHUB_STEP_SUMMARY
-        echo "Committer: ${{ github.event.head_commit.committer.name }} (${{ github.event.head_commit.committer.email }})" >> $GITHUB_STEP_SUMMARY
-
-    - name: Restore Frontend Dist from Cache
-      uses: actions/cache@v4.2.0
-      id: cache-frontend-dist
-      with:
-        path: dist
-        key: frontend-dist-${{ hashFiles('frontend_vue/**') }}
-
-    - uses: actions/setup-node@v4.0.4
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Install node modules
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
-      working-directory: frontend_vue
-      run: |
-        npm config set "@fortawesome:registry" https://npm.fontawesome.com/
-        npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
-        npm ci
-
-    - name: Include git commit SHA and Google Maps Key for Frontend Development release
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && ( github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/dev2' )
-      working-directory: frontend_vue
-      run: |
-        touch .env
-        echo VITE_GITHUB_SHA=${GITHUB_SHA} >> .env
-        echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_DEV }}" >> .env
-        echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}" >> .env
-        cat .env
-
-    - name: Include git Google Maps Key for Frontend Production release
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true' && github.ref == 'refs/heads/master'
-      working-directory: frontend_vue
-      run: |
-        touch .env
-        echo VITE_GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY_PROD }}" >> .env
-        echo VITE_CLOUDFLARE_TURNSTILE_SITE_KEY="${{ secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD }}" >> .env
-        cat .env
-
-    - name: Build Frontend Dist
-      if: steps.cache-frontend-dist.outputs.cache-hit != 'true'
-      working-directory: frontend_vue
-      env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-      run: |
-        rm -rf dist
-        npm run build
-
-    - name: Commit report
-      run: |
-        git config --global user.name "Frontend Github Action"
-        git config --global user.email "max@thinkst.com"
-        git add -f dist
-        # Only commit if any files have changed
-        # git status --porcelain is empty if there are no changes
-        if [ -n "$(git status --porcelain)" ]; then
-          git commit -am "Add Frontend Dist"
-          git push
-        fi
-
   build:
-    needs: build-and-commit-frontend-dist
     runs-on: ubuntu-22.04
     env:
       COPYFILE_DISABLE: 1
@@ -158,6 +81,9 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             CACHE_BUSTER_COMMIT=${{ github.sha }}
+            GOOGLE_MAPS_API_KEY=${{ github.ref == 'refs/heads/master' && secrets.GOOGLE_MAPS_API_KEY_PROD || secrets.GOOGLE_MAPS_API_KEY_DEV }}
+            CLOUDFLARE_TURNSTILE_SITE_KEY=${{ github.ref == 'refs/heads/master' && secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD || secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}
+            GITHUB_SHA=${{ github.sha }}
 
     outputs:
       canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
