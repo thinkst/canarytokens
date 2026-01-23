@@ -1,5 +1,5 @@
 <template>
-    <Form class="flex flex-col gap-8" :validation-schema="ipListSchema" @submit="onSubmit">
+    <form class="flex flex-col gap-8" :validation-schema="ipListSchema" @submit="submit">
       <Field v-slot="{ field, errorMessage }" name="ipAddresses">
         <textarea
           id="ip-ignore-list"
@@ -16,14 +16,14 @@
       <BaseButton v-if="!isSaved" class="self-end" variant="primary" type="submit" :loading="isLoading">
         Save
       </BaseButton>
-    </Form>
+    </form>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import * as Yup from 'yup';
 import type { NullableCanaryDropType } from '../tokens/types';
-import { Form, Field, type GenericObject } from 'vee-validate';
+import { Form, Field, type GenericObject, useForm } from 'vee-validate';
 import { getIPIgnoreList, updateIPIgnoreList, type UpdateIPIgnoreListType} from '@/api/main';
 
 const props = defineProps<{
@@ -34,7 +34,6 @@ const isLoading = ref(false);
 const isError = ref(false);
 const isSaved = ref(true);
 const errorMessage = ref('');
-const initIpIgnoreList = ref('')
 
 const ipv4Regex =
   /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
@@ -53,12 +52,23 @@ const ipListSchema = Yup.object({
     .of(
       Yup.string().matches(ipv4Regex, 'Must use valid IPv4 addresses.')
     )
-})
+});
+
+const { resetForm, handleSubmit } = useForm({
+  validationSchema: ipListSchema,
+  initialValues: { ipAddresses: '' },
+});
+
+const submit = handleSubmit(onSubmit);
 
 onMounted(async () => {
   const savedIPs = await fetchSavedIPIgnoreList();
   if (savedIPs.length > 0) {
-    initIpIgnoreList.value = savedIPs.join('\n');
+    console.log("saved IPs");
+    console.log(savedIPs);
+
+
+    resetForm({ values: { ipAddresses: savedIPs.join('\n') } });
   }
 });
 
@@ -87,11 +97,12 @@ async function onSubmit(ipListValues: GenericObject) {
   isLoading.value = true;
   isError.value = false;
   try {
+    const ipList = ipListSchema.cast(ipListValues).ipAddresses as string[];
     const res = await updateIPIgnoreList(
       {
         token: props.canaryDrop!.canarytoken._value,
         auth: props.canaryDrop!.auth,
-        ip_ignore_list: ipListValues.ipAddresses,
+        ip_ignore_list: ipList,
       } as UpdateIPIgnoreListType
     );
 
