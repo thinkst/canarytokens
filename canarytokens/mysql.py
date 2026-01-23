@@ -100,7 +100,7 @@ if __name__ == "__main__":
     c = CanarydropTest()
 
     magic_sauce = (
-        "SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, SOURCE_PORT=3306,"
+        "SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, SOURCE_SSL=0, SOURCE_PORT=3306,"
         + f"SOURCE_HOST='{c.get_hostname()}', SOURCE_USER='{c.canarytoken()}\", @@lc_time_names, @@hostname, \"';\");"
     )
 

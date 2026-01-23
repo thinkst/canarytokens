@@ -470,6 +470,7 @@ class Canarydrop(BaseModel):
         magic_sauce = "SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, "
         magic_sauce += f"SOURCE_PORT={port}, "
         magic_sauce += f"SOURCE_HOST='{domain}', "
+        magic_sauce += "SOURCE_SSL=0, "
         magic_sauce += f'SOURCE_USER=\'{token}", @@lc_time_names, @@hostname, "\';");'
         if not encoded:
             usage = textwrap.dedent(

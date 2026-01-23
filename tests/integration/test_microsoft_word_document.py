@@ -1,6 +1,5 @@
 import tempfile
 
-import pytest
 import requests
 from docx import Document
 
@@ -17,17 +16,11 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     trigger_http_token,
-    v3,
+    server_config,
 )
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
-def test_microsoft_word_document(tmpdir, version, webhook_receiver):
+def test_microsoft_word_document(tmpdir, webhook_receiver):
 
     # initialize request
     memo = "microsoft word memo!"
@@ -38,7 +31,7 @@ def test_microsoft_word_document(tmpdir, version, webhook_receiver):
     )
 
     # Create microsoft word token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = MsWordDocumentTokenResponse(**resp)
 
     # request and download generated word document
@@ -49,7 +42,7 @@ def test_microsoft_word_document(tmpdir, version, webhook_receiver):
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=word_document_request_params,
     )
 
@@ -81,7 +74,7 @@ def test_microsoft_word_document(tmpdir, version, webhook_receiver):
     assert extracted_url == token_info.token_url
 
     # trigger token
-    resp = trigger_http_token(token_info=token_info, version=version)
+    resp = trigger_http_token(token_info=token_info)
     # Check that the returned history has a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
     if stats:
@@ -89,7 +82,7 @@ def test_microsoft_word_document(tmpdir, version, webhook_receiver):
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = MsWordDocumentTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]

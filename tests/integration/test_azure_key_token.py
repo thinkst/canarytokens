@@ -3,7 +3,6 @@ from pydantic import HttpUrl
 import pytest
 
 from canarytokens.models import (
-    V3,
     AzureIDTokenHistory,
     AzureIDTokenRequest,
     AzureIDTokenResponse,
@@ -14,18 +13,11 @@ from canarytokens.utils import strtobool
 
 from tests.utils import azure_token_fire, create_token
 from tests.utils import get_token_history
-from tests.utils import v3
 
 
 @pytest.mark.skipif(
     strtobool(os.getenv("SKIP_AZURE_ID_TEST", "True")),
     reason="avoid using up an Azure user each time we run tests",
-)
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
 )
 @pytest.mark.parametrize(
     "data,expected_hit",
@@ -78,7 +70,7 @@ from tests.utils import v3
     ],
 )
 def test_azure_token_post_request_processing(
-    data: dict, expected_hit: dict, version: V3
+    data: dict, expected_hit: dict
 ):  # pragma: no cover
     """
     When an Azure Token is triggered azure makes a POST request
@@ -94,12 +86,11 @@ def test_azure_token_post_request_processing(
     )
     token_resp = create_token(
         token_request=token_request,
-        version=version,
     )
     token_info = AzureIDTokenResponse(**token_resp)
-    azure_token_fire(token_info=token_info, data=data, version=version)
+    azure_token_fire(token_info=token_info, data=data)
 
-    token_hist_resp = get_token_history(token_info=token_info, version=version)
+    token_hist_resp = get_token_history(token_info=token_info)
     token_hist = AzureIDTokenHistory(**token_hist_resp)
     assert len(token_hist.hits) == 1
     hit = token_hist.hits[0]

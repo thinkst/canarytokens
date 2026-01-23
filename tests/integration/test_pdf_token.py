@@ -16,30 +16,21 @@ from tests.utils import (
     create_token,
     download_token_artifact,
     get_token_history,
-    v3,
 )
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
-def test_pdf_token(version, webhook_receiver):
+def test_pdf_token(webhook_receiver):
 
     # Generate the token
     token_request = PDFTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
     token_info = PDFTokenResponse(**resp)
 
     # Get the PDF
-    contents = download_token_artifact(
-        token_info=token_info, version=version, fmt="pdf"
-    )
+    contents = download_token_artifact(token_info=token_info, fmt="pdf")
 
     # Extract the token url from the PDF
     stream_size = int(re.findall(rb"\/Length ([0-9]+)\/", contents[STREAM_OFFSET:])[0])
@@ -55,10 +46,10 @@ def test_pdf_token(version, webhook_receiver):
     with pytest.raises(dns.resolver.NXDOMAIN):
         # we expect a NXDOMAIN response
         # Don't want retries
-        plain_fire_token.__wrapped__(token_info, version=version)
+        plain_fire_token.__wrapped__(token_info)
 
     # Check it was triggered  at least once (requests.get retries sometimes)
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
     token_history = PDFTokenHistory(**history_resp)
     ()
 
