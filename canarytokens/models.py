@@ -2763,11 +2763,6 @@ class IPIgnoreListRequest(BaseModel):
         return v
 
 
-class FetchIPIgnoreListRequest(BaseModel):
-    token: str
-    auth: str
-
-
 class IPIgnoreListResponse(BaseModel):
     ip_ignore_list: List[str]
 
