@@ -519,6 +519,9 @@ class Canarytoken(object):
                 f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
             )
 
+            if merchant.get("merchant_id"):
+                request_data["merchant_identifier"] = merchant.get("identifier")
+
         trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
 
         hit_time = datetime.utcnow().strftime("%s.%f")
