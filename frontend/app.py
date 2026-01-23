@@ -117,6 +117,7 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    FetchIPIgnoreListRequest,
     FetchLinksMessage,
     FetchLinksRequest,
     FetchLinksResponse,
@@ -728,7 +729,7 @@ async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
 
 
 @api.get("/settings/ip-ignore-list")
-async def ip_ignore_list_get(request: IPIgnoreListRequest) -> IPIgnoreListResponse:
+async def ip_ignore_list_get(request: FetchIPIgnoreListRequest) -> IPIgnoreListResponse:
     canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
     ips = list(queries.get_ignored_ip_addresses(canarydrop))
     return IPIgnoreListResponse(ip_ignore_list=ips)
