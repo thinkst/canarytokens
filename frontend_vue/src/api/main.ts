@@ -27,6 +27,12 @@ export type SettingsTokenType = {
   setting: EnableSettingsOptionType;
 };
 
+export type UpdateIPIgnoreListType = {
+  token: string;
+  auth: string;
+  ip_ignore_list: string[];
+};
+
 export function generateToken(form: any) {
   const formData = new FormData();
   Object.entries(form).forEach(([key, val]) => {
@@ -49,6 +55,16 @@ export function downloadAsset(params: DownloadAssetType) {
 
 export function settingsToken(params: SettingsTokenType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/settings';
+  return axios.post(url, params).then((response) => response);
+}
+
+export function getIPIgnoreList(params: TokenAuthType) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/settings/ip-ignore-list';
+  return axios.get(url, { params }).then((response) => response);
+}
+
+export function updateIPIgnoreList(params: UpdateIPIgnoreListType) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/settings/ip-ignore-list';
   return axios.post(url, params).then((response) => response);
 }
 

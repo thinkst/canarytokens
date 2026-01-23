@@ -64,6 +64,21 @@
         )
       "
     />
+    <BaseSwitch
+      v-if="isIPIgnorable"
+      id="ip-ignore"
+      v-model="settingRefs.IP_IGNORE"
+      label="Ignore IP addresses"
+      helper-message="IPs for which alerts are ignored."
+      :loading="loadingRefs.IP_IGNORE"
+      :has-error="errorRefs.IP_IGNORE"
+      :error-message="errorMessage"
+      @click.prevent="
+        handleChangeSetting(
+          SETTINGS_TYPE.IP_IGNORE as keyof typeof SETTINGS_TYPE,
+          !settingRefs.IP_IGNORE
+        )"
+    />
     <IPIgnoreList
       v-if="isIPIgnorable"
       :token-backend-response="tokenBackendResponse"
@@ -104,6 +119,14 @@ function isSupportCustomImage() {
   return props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
 }
 
+
+function isSupportIPIgnoreList() {
+  return (
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.AWS_INFRA
+  );
+}
+
 // Check which settings are available for this Token
 const hasEmailAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_email_recipient
@@ -113,7 +136,7 @@ const hasWebhookAlert = ref(
 );
 const hasBrowserScan = ref(isSupportBrowserScan());
 const hasCustomImage = ref(isSupportCustomImage());
-const isIPIgnorable = ref(props.tokenBackendResponse.is_ip_ignorable);
+const isIPIgnorable = ref(isSupportIPIgnoreList());
 
 // State of each setting type
 const settingRefs = ref({
@@ -121,7 +144,7 @@ const settingRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
-  [SETTINGS_TYPE.IGNORED_IPS]: false,
+  [SETTINGS_TYPE.IP_IGNORE]: false,
 });
 
 // Handle Loading for Switch Component during settings change
@@ -130,6 +153,7 @@ const loadingRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
+  [SETTINGS_TYPE.IP_IGNORE]: false,
 });
 
 // Handle Errors for Switch Component during settings change
@@ -138,6 +162,7 @@ const errorRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
+  [SETTINGS_TYPE.IP_IGNORE]: false,
 });
 
 const errorMessage = 'An error occurred. Please try again.';
