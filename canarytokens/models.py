@@ -2764,7 +2764,7 @@ class IPIgnoreListRequest(BaseModel):
 
 
 class IPIgnoreListResponse(BaseModel):
-    message: Literal["success", "failure"]
+    ip_ignore_list: List[str]
 
 
 class DeleteResponse(BaseModel):

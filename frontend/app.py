@@ -720,6 +720,20 @@ async def settings_post(
         return JSONResponse({"message": "failure"}, status_code=400)
 
 
+@api.post("/settings/ip-ignore-list")
+async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
+    queries.set_ignored_ip_addresses(canarydrop, request.ip_ignore_list)
+    return JSONResponse({"message": "success"})
+
+
+@api.get("/settings/ip-ignore-list")
+async def ip_ignore_list_get(request: IPIgnoreListRequest) -> IPIgnoreListResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
+    ips = list(queries.get_ignored_ip_addresses(canarydrop))
+    return IPIgnoreListResponse(ip_ignore_list=ips)
+
+
 @app.get(
     "/legal",
     tags=["Canarytokens legal page"],
@@ -1564,13 +1578,6 @@ def create_download_response(download_request_details, canarydrop: Canarydrop):
     raise NotImplementedError(
         f"DownloadRequest {download_request_details} not supported."
     )
-
-
-@api.post("/settings/ip-ignore-list")
-async def api_add_ip_ignore(request: IPIgnoreListRequest) -> IPIgnoreListResponse:
-    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
-    queries.set_ignored_ip_addresses(canarydrop, request.ip_ignore_list)
-    return IPIgnoreListResponse(message="success")
 
 
 @create_download_response.register
