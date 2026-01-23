@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from io import BytesIO, StringIO
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, IPv6Address
 from tempfile import SpooledTemporaryFile
 from typing import (
     Any,
@@ -40,6 +40,7 @@ from pydantic import (
     ValidationError,
     root_validator,
     validator,
+    IPvAnyAddress,
 )
 from pydantic.generics import GenericModel
 from typing_extensions import Annotated
@@ -1521,6 +1522,7 @@ class TokenHit(BaseModel):
     input_channel: str
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
+    ignored: bool = False
 
     class Config:
         smart_union = True
@@ -2690,6 +2692,7 @@ class CanarydropSettingsTypes(StrEnum):
     WEBHOOKSETTING = "webhook_enable"
     BROWSERSCANNERSETTING = "browser_scanner_enable"
     WEBIMAGESETTING = "web_image_enable"
+    IPIGNORESETTING = "ip_ignore_setting"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2726,18 +2729,41 @@ class WebImageSettingsRequest(SettingsRequest):
     )
 
 
+class IPIgnoreSettingsRequest(SettingsRequest):
+    setting: Literal[CanarydropSettingsTypes.IPIGNORESETTING] = (
+        CanarydropSettingsTypes.IPIGNORESETTING
+    )
+
+
 AnySettingsRequest = Annotated[
     Union[
         EmailSettingsRequest,
         WebhookSettingsRequest,
         BrowserScannerSettingsRequest,
         WebImageSettingsRequest,
+        IPIgnoreSettingsRequest,
     ],
     Field(discriminator="setting"),
 ]
 
 
 class SettingsResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
+class IPIgnoreListRequest(BaseModel):
+    token: str
+    auth: str
+    ip_ignore_list: List[IPvAnyAddress]
+
+    @validator("ip_ignore_list", each_item=True)
+    def only_ipv4(cls, v):
+        if isinstance(v, IPv6Address):
+            raise ValueError("IPv6 addresses are not supported.")
+        return v
+
+
+class IPIgnoreListResponse(BaseModel):
     message: Literal["success", "failure"]
 
 
@@ -2988,3 +3014,6 @@ class AWSInfraServiceError(StrEnum):
             return cls(code)
         except ValueError:
             return cls.UNKNOWN
+
+
+IGNORABLE_IP_TOKENS = [TokenTypes.AWS_INFRA, TokenTypes.WEB]

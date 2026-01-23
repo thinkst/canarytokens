@@ -120,6 +120,8 @@ from canarytokens.models import (
     FetchLinksMessage,
     FetchLinksRequest,
     FetchLinksResponse,
+    IPIgnoreListRequest,
+    IPIgnoreListResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -1562,6 +1564,13 @@ def create_download_response(download_request_details, canarydrop: Canarydrop):
     raise NotImplementedError(
         f"DownloadRequest {download_request_details} not supported."
     )
+
+
+@api.post("/settings/ip-ignore-list")
+async def api_add_ip_ignore(request: IPIgnoreListRequest) -> IPIgnoreListResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
+    queries.set_ignored_ip_addresses(canarydrop, request.ip_ignore_list)
+    return IPIgnoreListResponse(message="success")
 
 
 @create_download_response.register

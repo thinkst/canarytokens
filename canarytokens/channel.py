@@ -112,6 +112,13 @@ class InputChannel(Channel):
         Spins off a `switchboard.dispatch` which notifies on all necessary channels.
         """
         log.info(f"reactor is running?: {twisted.internet.reactor.running}")
+
+        if token_hit.ignored:
+            log.info(
+                f"Not dispatching alert for ignored IP {token_hit.src_ip} on {canarydrop.canarytoken.value()}"
+            )
+            return
+
         d = threads.deferToThread(
             self.switchboard.dispatch,
             canarydrop=canarydrop,

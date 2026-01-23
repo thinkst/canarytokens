@@ -46,6 +46,7 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_DOMAIN_BLOCK_LIST,
     KEY_EMAIL_BLOCK_LIST,
     KEY_EMAIL_IDX,
+    KEY_IGNORED_IP_ADDRESSES,
     KEY_KUBECONFIG_CERTS,
     KEY_KUBECONFIG_SERVEREP,
     KEY_MAIL_TO_SEND,
@@ -400,6 +401,10 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
         raise NotImplementedError(
             f"Additional info not supported for hit type: {type(enriched_hit)}"
         )
+    enriched_hit.ignored = (
+        enriched_hit.token_type in models.IGNORABLE_IP_TOKENS
+        and enriched_hit.src_ip in get_ignored_ip_addresses(get_canarydrop(canarytoken))
+    )
     triggered_details.hits.append(enriched_hit)
 
     # if "additional_info" not in triggered_details[hit_time]:
@@ -1091,3 +1096,22 @@ def update_aws_management_lambda_handle(handle_id: str, response: str):
     DB.get_db().hset(
         key, mapping={"response_content": response, "response_received": "True"}
     )
+
+
+def set_ignored_ip_addresses(
+    canarydrop: cand.Canarydrop, ip_addresses: list[IPv4Address]
+):
+    key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
+    swap_key = key + ":swap"
+    with DB.get_db().pipeline() as pipe:
+        if ip_addresses:
+            pipe.sadd(swap_key, *list(map(str, ip_addresses)))
+            pipe.rename(swap_key, key)  # make sure that we won't read an empty set
+        else:
+            pipe.delete(key)
+        pipe.execute()
+
+
+def get_ignored_ip_addresses(canarydrop: cand.Canarydrop) -> set[str]:
+    key = f"{KEY_IGNORED_IP_ADDRESSES}{canarydrop.canarytoken.value()}"
+    return DB.get_db().smembers(key)

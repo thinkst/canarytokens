@@ -15,7 +15,12 @@ from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
-from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
+from canarytokens.models import (
+    IGNORABLE_IP_TOKENS,
+    AnyTokenHit,
+    AWSKeyTokenHit,
+    TokenTypes,
+)
 from canarytokens.queries import get_canarydrop
 from canarytokens.saml import SAML_POST_ARG
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -29,6 +34,12 @@ log = Logger()
 
 
 # from canarytokens.settings import
+
+
+def ignore_alert(canarydrop, token_hit):
+    if token_hit.token_type in IGNORABLE_IP_TOKENS and canarydrop.ip_ignore_enabled:
+        return token_hit.src_ip in queries.get_ignored_ip_addresses(canarydrop)
+    return False
 
 
 class CanarytokenPage(InputChannel, resource.Resource):
@@ -145,6 +156,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 log_failure=Failure(e),
             )
             return
+        token_hit.ignored = ignore_alert(canarydrop, token_hit)
         canarydrop.add_canarydrop_hit(token_hit=token_hit)
         self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
         # TODO: fix this. Making it type dispatched?
@@ -277,6 +289,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             content = json.load(request.content)
             # log.debug(content)
             token_hit = Canarytoken._parse_aws_infra_trigger(content)
+            token_hit.ignored = ignore_alert(canarydrop, token_hit)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
