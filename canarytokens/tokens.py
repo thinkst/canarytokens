@@ -515,13 +515,18 @@ class Canarytoken(object):
 
         if request_data.get("merchant") is not None:
             merchant = request_data["merchant"]
+            if merchant.get("identifier"):
+                request_data["merchant_identifier"] = merchant.get("identifier")
             request_data["merchant"] = (
                 f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
             )
-
-        if request_data.get("merchant_detail") is not None:
+        elif request_data.get("merchant_detail") is not None:
             merchant_detail = request_data["merchant_detail"]
-            request_data["merchant_identifier"] = merchant_detail.get("merchant_id")
+            if merchant_detail.get("merchant_id"):
+                request_data["merchant_identifier"] = merchant_detail.get("merchant_id")
+            request_data["merchant"] = (
+                f"{merchant_detail.get('name')}, {merchant_detail.get('city')}, {merchant_detail.get('country')}"
+            )
 
         trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
 

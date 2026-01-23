@@ -88,6 +88,10 @@ Transaction amount:
 Authorizing merchant:
   {{BasicDetails['additional_info']['merchant']}}
 {% endif %}
+{% if BasicDetails['additional_info']['merchant_identifier'] +%}
+Merchant identifier:
+  {{BasicDetails['additional_info']['merchant_identifier']}}
+{% endif %}
 {% if BasicDetails['additional_info']['transaction_amount'] +%}
 Transaction amount:
   {{BasicDetails['additional_info']['transaction_amount']}} {{BasicDetails['additional_info']['transaction_currency']}}

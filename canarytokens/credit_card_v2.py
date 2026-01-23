@@ -71,6 +71,7 @@ class CreditCardTrigger3DSNotification(BaseModel):
     )
     canarytoken: Optional[str]
     masked_card_number: Optional[str]
+    merchant: Optional[str]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
     merchant_identifier: Optional[str]
