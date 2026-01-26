@@ -116,7 +116,7 @@ jobs:
           export CANARY_CLOUDFLARE_API_TOKEN=test
           export CANARY_CLOUDFLARE_NAMESPACE=test
           cd tests
-          poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units --runv3 -v
+          poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units -v
         continue-on-error: ${{ github.ref_name != 'master' }}
 
       - name: Check coverage is over threshold percentage for unit tests
@@ -139,7 +139,7 @@ jobs:
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
           export CANARY_AWS_INFRA_AWS_REGION=eu-west-1
 
-          LIVE=False poetry run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration --runv3 -v
+          LIVE=False poetry run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration -v
 
 
   windows-tests:
@@ -168,4 +168,4 @@ jobs:
           copy .\switchboard\switchboard.env.dist .\switchboard\switchboard.env
           cd tests
           $env:CANARY_AWS_INFRA_AWS_REGION = 'eu-west-1'
-          $env:PSModulePath = ''; poetry run pytest .\integration\test_custom_binary.py --runv3 -v
+          $env:PSModulePath = ''; poetry run pytest .\integration\test_custom_binary.py -v

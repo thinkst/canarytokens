@@ -13,15 +13,14 @@ from canarytokens.models import (
     TokenTypes,
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
-from tests.utils import create_token, get_stats_from_webhook, get_token_history, v2
+from tests.utils import create_token, get_stats_from_webhook, get_token_history
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Requires nt os (Windows OS)")
 @pytest.mark.parametrize(
-    "version, table, view, procedure, trigger, event",
+    "table, view, procedure, trigger, event",
     [
         (
-            v2,
             "table_name_insert",
             "view_name_insert",
             "ping_canarytokens_insert",
@@ -29,7 +28,6 @@ from tests.utils import create_token, get_stats_from_webhook, get_token_history,
             "insert",
         ),
         (
-            v2,
             "table_name_delete",
             "view_name_delete",
             "ping_canarytokens_delete",
@@ -37,7 +35,6 @@ from tests.utils import create_token, get_stats_from_webhook, get_token_history,
             "delete",
         ),
         (
-            v2,
             "table_name_update",
             "view_name_update",
             "ping_canarytokens_update",
@@ -45,18 +42,15 @@ from tests.utils import create_token, get_stats_from_webhook, get_token_history,
             "update",
         ),
         (
-            v2,
             "table_name_select",
             "view_name_select",
             "ping_canarytokens_select",
             "trigger_name_select",
             "select",
         ),
-        # v3,
     ],
 )
 def test_sql_server_token(
-    version,
     table: str,
     view: str,
     procedure: str,
@@ -80,7 +74,7 @@ def test_sql_server_token(
     )
 
     # Create sql server token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = SQLServerTokenResponse(**resp)
 
     # sql database variables for sql scripts
@@ -135,7 +129,7 @@ def test_sql_server_token(
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = SQLServerTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     if len(token_history.hits) >= 1:

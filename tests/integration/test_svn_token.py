@@ -1,12 +1,8 @@
 import subprocess
 from contextlib import contextmanager
-from typing import Union
 
-import pytest
 
 from canarytokens.models import (
-    V2,
-    V3,
     Memo,
     SvnTokenHistory,
     SvnTokenRequest,
@@ -19,8 +15,7 @@ from tests.utils import (
     get_stats_from_webhook,
     get_token_history,
     plain_fire_token,
-    run_or_skip,
-    v3,
+    server_config,
 )
 
 
@@ -48,14 +43,8 @@ def managed_svn_server(tmpdir_repo):
         server_output = subprocess.check_output(["kill", server_pid])
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v3,
-    ],
-)
-def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_svn_token(tmpdir, webhook_receiver):
+
     # create temp dir for the repo and client
     tmpdir_repo = tmpdir.mkdir("SVN")
     tmpdir_client = tmpdir.mkdir("SVN_ClIENT")
@@ -69,7 +58,7 @@ def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver, runv2, runv
     )
 
     # Create Svn token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = SvnTokenResponse(**resp)
 
     # create svn repo
@@ -131,9 +120,9 @@ def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver, runv2, runv
                 "{tmpdir}/SVN_REPO".format(tmpdir=tmpdir_client),
             ],
         )
-        if not version.live:
+        if not server_config.live:
             # locally switchboard is not handling dns. Trigger manually.
-            plain_fire_token(token_info=token_info, version=version)
+            plain_fire_token(token_info=token_info)
 
     assert repo_output == b""
     assert import_output == b""
@@ -148,7 +137,7 @@ def test_svn_token(tmpdir, version: Union[V2, V3], webhook_receiver, runv2, runv
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = SvnTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]

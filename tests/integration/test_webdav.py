@@ -15,7 +15,7 @@ from pydantic import parse_obj_as, HttpUrl
 from tests.utils import (
     create_token,
     get_token_history,
-    v3,
+    server_config,
 )
 
 _TEST_WEBDAV_CLIENT_UA = "WebdavClient"
@@ -25,7 +25,7 @@ _TEST_WEBDAV_FILE_PATH = "/dir1/dir2/file.pdf"
 def webdav_token_fire(token_info: WebDavTokenResponse) -> None:
     """Triggers a WebDAV token via the HTTP channel. This mimics the call made by the worker.js in Cloudflare."""
     http_url = parse_obj_as(HttpUrl, token_info.token_url)
-    http_url.port = v3.canarytokens_http_port
+    http_url.port = server_config.canarytokens_http_port
     url = f"{http_url.scheme}://{http_url.host}:{http_url.port}{http_url.path}"
     headers = {
         "X-Client-Ip": "128.2.4.98",
@@ -49,7 +49,7 @@ def test_webdav(
         memo=Memo("Testing WebDav token generation in frontend"),
         webdav_fs_type="it",
     )
-    resp = create_token(token_request_details, version=v3)
+    resp = create_token(token_request_details)
     token_info = WebDavTokenResponse(**resp)
     assert token_info.webdav_fs_type
     assert token_info.webdav_password
@@ -66,7 +66,7 @@ def test_webdav(
 
     webdav_token_fire(token_info)
 
-    token_hist_resp = get_token_history(token_info=token_info, version=v3)
+    token_hist_resp = get_token_history(token_info=token_info)
 
     token_hist = WebDavTokenHistory(**token_hist_resp)
 
