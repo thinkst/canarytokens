@@ -513,19 +513,22 @@ class Canarytoken(object):
     ) -> CreditCardV2TokenHit:
         request_data = json.loads(request.content.read().decode())
 
-        if request_data.get("merchant") is not None:
-            merchant = request_data["merchant"]
-            if merchant.get("identifier"):
-                request_data["merchant_identifier"] = merchant.get("identifier")
-            request_data["merchant"] = (
-                f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
+        merchant = request_data.get("merchant") or request_data.get("merchant_detail")
+
+        if merchant:
+            merchant_identifier = merchant.get("identifier") or merchant.get(
+                "merchant_id"
             )
-        elif request_data.get("merchant_detail") is not None:
-            merchant_detail = request_data["merchant_detail"]
-            if merchant_detail.get("merchant_id"):
-                request_data["merchant_identifier"] = merchant_detail.get("merchant_id")
-            request_data["merchant"] = (
-                f"{merchant_detail.get('name')}, {merchant_detail.get('city')}, {merchant_detail.get('country')}"
+            if merchant_identifier:
+                request_data["merchant_identifier"] = merchant_identifier
+
+            request_data["merchant"] = merchant.get("name") + ", ".join(
+                v
+                for v in (
+                    merchant.get("city"),
+                    merchant.get("country"),
+                )
+                if v
             )
 
         trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
