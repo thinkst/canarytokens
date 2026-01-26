@@ -71,8 +71,10 @@ class CreditCardTrigger3DSNotification(BaseModel):
     )
     canarytoken: Optional[str]
     masked_card_number: Optional[str]
+    merchant: Optional[str]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
+    merchant_identifier: Optional[str]
 
 
 class CreditCardTriggerTransaction(BaseModel):
@@ -87,6 +89,7 @@ class CreditCardTriggerTransaction(BaseModel):
     transaction_date: Optional[str]
     transaction_type: Optional[str]
     status: Optional[str]
+    merchant_identifier: Optional[str]
 
 
 AnyCreditCardTrigger = Union[
