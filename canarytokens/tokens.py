@@ -513,13 +513,16 @@ class Canarytoken(object):
     ) -> CreditCardV2TokenHit:
         request_data = json.loads(request.content.read().decode())
 
-        merchant = request_data.get("merchant") or request_data.get("merchant_detail")
-
-        if merchant:
+        if merchant := request_data.get("merchant") or request_data.get(
+            "merchant_detail"
+        ):
             merchant_identifier = merchant.get("identifier") or merchant.get(
                 "merchant_id"
             )
-            if merchant_identifier:
+
+            if merchant_identifier := merchant.get("identifier") or merchant.get(
+                "merchant_id"
+            ):
                 request_data["merchant_identifier"] = merchant_identifier
 
             request_data["merchant"] = ", ".join(
