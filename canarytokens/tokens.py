@@ -522,9 +522,10 @@ class Canarytoken(object):
             if merchant_identifier:
                 request_data["merchant_identifier"] = merchant_identifier
 
-            request_data["merchant"] = merchant.get("name") + ", ".join(
+            request_data["merchant"] = ", ".join(
                 v
                 for v in (
+                    merchant.get("name"),
                     merchant.get("city"),
                     merchant.get("country"),
                 )
