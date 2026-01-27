@@ -37,6 +37,7 @@ import {
   faIdCard,
   faCircleCheck,
   faTrash,
+  faFilter,
 } from '@fortawesome/free-solid-svg-icons';
 import { createVfm } from 'vue-final-modal';
 import { vTooltip } from 'floating-vue';
@@ -82,7 +83,8 @@ library.add(
   faCircleCheck,
   faTrash,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faFilter,
 );
 
 const vfm = createVfm();

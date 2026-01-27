@@ -25,7 +25,47 @@
     >
       <!-- TODO: add number of alerts? -->
       <ul class="flex flex-col h-full gap-16 pb-16">
-        <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+        <div class="flex items-center justify-between">
+          <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+          <div class="relative">
+            <BaseButton
+              variant="text"
+              icon="filter"
+              @click="showFilterPopup = !showFilterPopup"
+            ></BaseButton>
+            <div
+              v-if="showFilterPopup"
+              class="absolute right-0 top-12 z-20 w-[12em] bg-white border border-grey-200 rounded-lg shadow-lg p-4"
+              @click.stop
+            >
+              <div id="radio-group-action" class="space-y-3">
+                <BaseRadioInput
+                  id="all"
+                  name="alert-filter"
+                  label="All alerts"
+                  value="all"
+                  checked
+                  @select-value="handleSelectFilter"
+                />
+                <BaseRadioInput
+                  id="alerted"
+                  name="alert-filter"
+                  label="Alerted alerts"
+                  value="alerted"
+                  @select-value="handleSelectFilter"
+                />
+                <BaseRadioInput
+                  id="ignored"
+                  name="alert-filter"
+                  label="Ignored alerts"
+                  value="ignored"
+                  @select-value="handleSelectFilter"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <li
           v-if="hitsList.length === 0"
           class="flex flex-col items-center justify-center flex-grow px-16 py-16 align-middle"
@@ -136,6 +176,8 @@ const hitsList: Ref<HitsType[] | undefined> = ref();
 const selectedAlert = ref();
 const tokenType = ref();
 const dynamicIncidentList = shallowRef();
+const showFilterPopup = ref(false);
+const filterOption = ref('alert-filter-all');
 
 const hasCustomIncidentsList = computed(() => {
   const tokensWithCustomIncidentsList = [TOKENS_TYPE.AWS_INFRA];
@@ -211,6 +253,12 @@ async function handleSelectAlert(incident: HitsType) {
 function showMap(): boolean {
   const tokensWithoutGeoIPInfo = [TOKENS_TYPE.CREDIT_CARD_V2];
   return !tokensWithoutGeoIPInfo.includes(tokenType.value);
+}
+
+function handleSelectFilter(value: string) {
+  console.log("filter option" + filterOption.value + " " + value);
+
+  filterOption.value = value;
 }
 </script>
 
