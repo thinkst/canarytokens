@@ -1564,20 +1564,6 @@ def create_download_response(download_request_details, canarydrop: Canarydrop):
     )
 
 
-# temporary endpoint for adding ip to ignore list
-@api.post("/add-ip-ignore")
-async def api_add_ip_ignore(request: Request) -> JSONResponse:
-    data = await request.json()
-    canarydrop = get_canarydrop_and_authenticate(
-        token=data.get("token", ""), auth=data.get("auth", "")
-    )
-    ip_address = data.get("ip_list", [])
-    queries.set_ignored_ip_addresses(canarydrop, ip_address)
-    return JSONResponse(
-        {"message": "IP address added to ignore list."}, status_code=200
-    )
-
-
 @create_download_response.register
 def _(
     download_request_details: DownloadCMDRequest, canarydrop: Canarydrop

@@ -102,6 +102,7 @@ class Canarydrop(BaseModel):
     alert_webhook_enabled: bool = False
     alert_webhook_url: Optional[str]
     alert_failure_count: Optional[int]
+    alert_ignored_ips: list[str] = []
 
     # web image specific stuff
     web_image_enabled: bool = False
