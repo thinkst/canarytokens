@@ -33,10 +33,6 @@
       class="mt-8"
     >
       <p>Build ID: {{ BUILD_ID }}</p>
-      <p>
-        (This will be one commit behind the frontend Dist build if you made
-        frontend changes)
-      </p>
     </div>
   </div>
 </template>
