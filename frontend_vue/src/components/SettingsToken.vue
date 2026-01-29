@@ -81,7 +81,6 @@
     />
     <IPIgnoreList
       v-show="settingRefs.IP_IGNORE"
-      :token-backend-response="tokenBackendResponse"
       :canary-drop="tokenBackendResponse.canarydrop"
       />
 

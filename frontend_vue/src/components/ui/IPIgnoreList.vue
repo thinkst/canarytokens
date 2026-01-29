@@ -5,7 +5,7 @@
           id="ip-ignore-list"
           v-bind="field"
           @input="(e) => { field.onInput(e); isSaved = false }"
-          placeholder="Enter IP addresses separated by commas, spaces, semicolons, or new lines&#10;192.168.1.1, 10.0.0.1; 172.16.0.1&#10;203.0.113.0 198.51.100.0"
+          placeholder="Enter IP addresses separated by new lines&#10;192.168.1.1&#10;10.0.0.1&#10;172.16.0.1&#10;203.0.113.0&#10;198.51.100.0"
           rows="8"
           class="px-16 py-8 border resize-none shadow-inner-shadow-grey rounded-3xl border-grey-400"
         />
@@ -23,7 +23,7 @@
 import { ref, onMounted } from 'vue';
 import * as Yup from 'yup';
 import type { NullableCanaryDropType } from '../tokens/types';
-import { Form, Field, type GenericObject, useForm } from 'vee-validate';
+import { Field, type GenericObject, useForm } from 'vee-validate';
 import { getIPIgnoreList, updateIPIgnoreList, type UpdateIPIgnoreListType} from '@/api/main';
 
 const props = defineProps<{
@@ -44,13 +44,13 @@ const ipListSchema = Yup.object({
       if (!originalValue?.trim()) return []
 
       return originalValue
-        .split(/[\s,;\n\r]+/)
-        .map(ip => ip.trim())
+        .split(/[\n]+/)
+        .map(ip => ip.replace(/\s+/g, ''))
         .filter(ip => ip.length > 0)
     })
     .max(100, 'You can ignore at most 100 IP addresses.')
     .of(
-      Yup.string().matches(ipv4Regex, 'Must use valid IPv4 addresses.')
+      Yup.string().matches(ipv4Regex, 'Must use valid IPv4 addresses with a single IP address per line')
     )
 });
 
@@ -64,10 +64,6 @@ const submit = handleSubmit(onSubmit);
 onMounted(async () => {
   const savedIPs = await fetchSavedIPIgnoreList();
   if (savedIPs.length > 0) {
-    console.log("saved IPs");
-    console.log(savedIPs);
-
-
     resetForm({ values: { ipAddresses: savedIPs.join('\n') } });
   }
 });
