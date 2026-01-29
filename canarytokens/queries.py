@@ -1095,8 +1095,3 @@ def update_aws_management_lambda_handle(handle_id: str, response: str):
     DB.get_db().hset(
         key, mapping={"response_content": response, "response_received": "True"}
     )
-
-
-def set_ignored_ip_addresses(canarydrop: cand.Canarydrop, ip_addresses: list[str]):
-    canarydrop.alert_ignored_ips = ip_addresses
-    save_canarydrop(canarydrop)
