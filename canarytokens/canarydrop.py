@@ -553,6 +553,11 @@ class Canarydrop(BaseModel):
         # V2 stores `aws_region` as `region`
         if "aws_region" in serialized:
             serialized["region"] = serialized.pop("aws_region")
+
+        if "alert_ignored_ips" in serialized:
+            serialized["alert_ignored_ips"] = json.dumps(
+                serialized["alert_ignored_ips"]
+            )
         return serialized
 
     def can_notify_again(self):

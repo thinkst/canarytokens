@@ -89,6 +89,9 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
     if "aws_infra_state" in canarydrop:
         canarydrop["aws_infra_state"] = int(canarydrop["aws_infra_state"])
 
+    if "alert_ignored_ips" in canarydrop:
+        canarydrop["alert_ignored_ips"] = json.loads(canarydrop["alert_ignored_ips"])
+
     canarydrop["canarytoken"] = canarytoken
     try:
         return cand.Canarydrop(**canarydrop)

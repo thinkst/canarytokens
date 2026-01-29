@@ -507,7 +507,7 @@ def test_channel_http_ignored_ip(setup_db, http_channel, method):
     """
     cd = create_canarydrop(token_type=TokenTypes.WEB)
 
-    queries.set_ignored_ip_addresses(canarydrop=cd, ip_addresses=["127.0.0.1"])
+    cd.set_ignored_ip_addresses(ip_addresses=["127.0.0.1"])
 
     request = create_dummy_request(cd)
     render_method = getattr(http_channel.canarytoken_page, f"render_{method}")
