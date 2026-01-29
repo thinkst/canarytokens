@@ -33,6 +33,8 @@ async function handler(event) {
             statusDescription: 'Not Found'
         };
     }
+    const ja4 = event.request.headers['cloudfront-viewer-ja4-fingerprint'] ? event.request.headers['cloudfront-viewer-ja4-fingerprint'].value : 'none';
+    const user_agent = event.request.headers['user-agent'] ? event.request.headers['user-agent'].value : 'none';
     const token_id = uri[1];
     const exclusions_exist = await kvsHandle.exists(token_id);
     expected_referrer = decoder.decode(Buffer.from(uri[2], 'base64url'));
@@ -63,6 +65,14 @@ async function handler(event) {
         }
     }
 
+    const redirect_response = {
+        statusCode: 302,
+        statusDescription: 'Found',
+        headers: {
+            'location': { value: token_server + '/' + token_id + '/' + uri[3] + '?' + querystring.stringify({"r": referer, "ja4": ja4}) }
+        }
+    };
+
     if (expected_referrer == '')
         console.log("Empty expected_referrer!");
     if (referer == '')
@@ -70,11 +80,20 @@ async function handler(event) {
 
     if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer) || referer_origin.endsWith(event.context.distributionDomainName)) {
         // Happy case where the referer matches
+        if (expected_referrer.endsWith('microsoftonline.com') && user_agent.startsWith('Mozilla/') && ja4 == 'SUSPICIOUS_JA4_VALUE') {
+            console.log("M365 SOFT ALERT ON SUSPICIOUS JA4: " + ja4 + " with UA: " + user_agent);
+            // return redirect_response; // Soft alerting only for now
+        }
         return matching_ref_response;
     }
 
     if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
         // Special case of an MS login token came from login.microsoft.com instead of microsoftonline.com
+        // We still want to treat this as a good login since the referer is a valid MS domain
+        return matching_ref_response;
+    }
+    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoftonline.us')) {
+        // Special case of an MS login token came from the US Gov Azure login
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
@@ -88,6 +107,11 @@ async function handler(event) {
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
+    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('.office.com')) {
+        // Special case of an MS login token coming from an office.com URL
+        // We still want to treat this as a good login since the referer is a valid MS domain
+        return matching_ref_response;
+    }
 
     if (exclusions_exist) {
         const exclusions = (await kvsHandle.get(token_id)).split(',');
@@ -96,13 +120,7 @@ async function handler(event) {
                 return matching_ref_response;
         }
     }
+
     // Default case of redirecting to the tokens server
-    const response = {
-        statusCode: 302,
-        statusDescription: 'Found',
-        headers: {
-            'location': { value: token_server + '/' + token_id + '/' + uri[3] + '?' + querystring.stringify({"r": referer}) }
-        }
-    };
-    return response;
+    return redirect_response;
 }
