@@ -125,6 +125,10 @@ Generic data:
 Referer:
   {{ BasicDetails['referer']}}
 {% endif %}
+{% if BasicDetails['ja4'] +%}
+JA4:
+  {{ BasicDetails['ja4']}}
+{% endif %}
 {% if BasicDetails['referrer'] +%}
 Referer:
   {{ BasicDetails['referrer']}}

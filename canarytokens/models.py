@@ -1554,7 +1554,7 @@ class TokenHit(BaseModel):
         )
         if "additional_data" in additional_data:
             additional_data.update(**additional_data.pop("additional_data"))
-        for key, replacement in [("l", "location"), ("r", "referer")]:
+        for key, replacement in [("l", "location"), ("r", "referer"), ("ja4", "ja4")]:
             if key in additional_data:
                 additional_data[replacement] = additional_data.pop(key)
             if self.src_data and key in self.src_data:
@@ -1709,6 +1709,7 @@ class DNSTokenHit(TokenHit):
 class CSSClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     referrer: Optional[str]
+    ja4: Optional[str]
 
 
 class PDFTokenHit(TokenHit):

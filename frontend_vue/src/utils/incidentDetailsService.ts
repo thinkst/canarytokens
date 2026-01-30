@@ -28,6 +28,7 @@ export default function incidentDetailsService(
     merchant: hitAlert.merchant || null,
     mail: hitAlert.mail || null,
     referer: hitAlert.referer || hitAlert.referrer || null,
+    ja4: hitAlert.ja4 || null,
     request_args: hitAlert?.request_args || null,
   };
 
