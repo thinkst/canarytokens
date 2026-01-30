@@ -286,7 +286,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             content = json.load(request.content)
             # log.debug(content)
             token_hit = Canarytoken._parse_aws_infra_trigger(content)
-            token_hit.ignored = token_hit.src_ip in canarydrop.alert_ignored_ips or []
+            token_hit.ignored = token_hit.src_ip in canarydrop.alert_ignored_ips
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
