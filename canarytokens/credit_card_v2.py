@@ -146,7 +146,8 @@ def _invoke_lambda(lambda_name: str, payload: dict) -> dict:
             )
         except botocore.exceptions.ClientError as err:
             if (
-                err.response["Error"]["Code"] == "ExpiredTokenException"
+                err.response["Error"]["Code"]
+                in ["ExpiredTokenException", "UnrecognizedClientException"]
                 and attempt < _RETRY_COUNT - 1
             ):
                 client = _get_lambda_client(refresh_client=True)
