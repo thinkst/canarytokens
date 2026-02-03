@@ -1,9 +1,39 @@
 from typing import Optional
 
 import pytest
+import random
+import base64
 
 from canarytokens import tokens as t
+from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import TokenTypes
+
+
+@pytest.mark.parametrize(
+    "haystack, expected_token",
+    [
+        (
+            "username1.hostname2.ini.h6jmkykjd2rrd2ahnkl6v6zdb.canarytokens.org",
+            "h6jmkykjd2rrd2ahnkl6v6zdb",
+        ),
+        (
+            "cleighton-thinkst.UN.uthisisaveryloongusername.abcd1234.h6jmkykjd2rrd2ahnkl6v6zdb.canarytoken.org",
+            "h6jmkykjd2rrd2ahnkl6v6zdb",
+        ),
+        (
+            "https://canarytokens.org/about/static/h6jmkykjd2rrd2ahnkl6v6zdb/payments.js?l=https://example.com/sitemap123456789123523134521239172390182312369879081283123126.xml&amp;r=",
+            "h6jmkykjd2rrd2ahnkl6v6zdb",
+        ),
+        ("", ""),
+        ("no.token.in.this.domain.invalid", ""),
+    ],
+)
+def test_find_canarytoken(haystack, expected_token):
+    if expected_token:
+        assert t.Canarytoken.find_canarytoken(haystack) == expected_token
+    else:
+        with pytest.raises(NoCanarytokenFound):
+            t.Canarytoken.find_canarytoken(haystack)
 
 
 @pytest.mark.parametrize(
@@ -65,22 +95,156 @@ def test_log4_shell_pattern(query, computer_name, should_match):
 
 
 @pytest.mark.parametrize(
-    "query, cmd_computer_name,cmd_user_name,should_match,",
+    "query, cmd_computer_name, cmd_user_name, cmd_invocation_id",
     [
-        ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", True),
-        ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", True),
-        # ("xbrokenpc.L4.sometoken.com", "brokenpc", False),
+        (
+            "cbrokenpc.UN.ubrokenuser.CMD.someid78.sometoken.com",
+            "brokenpc",
+            "brokenuser",
+            "someid78",
+        ),
+        ("cbrokenpc.UN.ubrokenuser.CMD.sometoken.com", "brokenpc", "brokenuser", None),
+        ("c.UN.ubrokenuser.CMD.sometoken.com", "(not obtained)", "brokenuser", None),
+        ("cbrokenpc.UN.u.CMD.sometoken.com", "brokenpc", "(not obtained)", None),
     ],
 )
-def test_cmd_process_pattern(query, cmd_computer_name, cmd_user_name, should_match):
-    if (m := t.cmd_process_pattern.match(query)) and m is not None:
-        data = t.Canarytoken._cmd_process(m)
-        assert should_match
-        assert data["src_data"]["cmd_computer_name"] == cmd_computer_name
-        assert data["src_data"]["cmd_user_name"] == cmd_user_name
+def test_cmd_process_pattern(
+    query, cmd_computer_name, cmd_user_name, cmd_invocation_id
+):
+    m = t.cmd_process_pattern.match(query)
+    data = t.Canarytoken._cmd_process(m)
+    assert data["src_data"]["cmd_computer_name"] == cmd_computer_name
+    assert data["src_data"]["cmd_user_name"] == cmd_user_name
+    assert data["src_data"].get("cmd_invocation_id") == cmd_invocation_id
 
-    else:
-        assert not should_match
+
+# string was chosen so it would use each of the 32 characters used by base 32
+ALL_BASE_32_CHARS_BYTES = b"WP*BHy@Sa9`M:6'F?u0G':~?\\7<7o`[mQ~?"
+ALL_BASE_32_CHARS_STRING = base64.b32encode(ALL_BASE_32_CHARS_BYTES).decode()
+
+
+@pytest.mark.parametrize(
+    "query, invocation_id, file_name, process_name, pass_regex",
+    [
+        pytest.param(
+            "u7595.fMRXWGIDCFZSG6Y3Y.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
+            "7595",
+            "doc b.docx",
+            "explorer.exe",
+            True,
+            id="Valid Token",
+        ),
+        pytest.param(
+            # ensure lowercase also works
+            "u7595.fmrxwgidcfzsg6y3y.imv4ha3dpojsxeltfpbsq.someid.sometoken.com",
+            "7595",
+            "doc b.docx",
+            "explorer.exe",
+            True,
+            id="Valid Token Lowercase",
+        ),
+        pytest.param(
+            "u7595.f.iMV4HA3DPOJSXELTFPBSQ.someid.sometoken.com",
+            "7595",
+            "(not obtained)",
+            "explorer.exe",
+            True,
+            id="Valid Token No File",
+        ),
+        pytest.param(
+            "u7595.fMRXWGIDCFZSG6Y3Y.i.someid.sometoken.com",
+            "7595",
+            "doc b.docx",
+            "(not obtained)",
+            True,
+            id="Valid Token No Process",
+        ),
+        pytest.param(
+            "u7595.f.i.someid.sometoken.com",
+            "7595",
+            "(not obtained)",
+            "(not obtained)",
+            True,
+            id="Valid Token No File or Process",
+        ),
+        pytest.param(
+            # Test invalid base32 char 0 is ignored
+            "u.f0.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 0",
+        ),
+        pytest.param(
+            # Test invalid base32 char 1 is ignored
+            "u.f1.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 1",
+        ),
+        pytest.param(
+            # Test invalid base32 char 8 is ignored
+            "u.f8.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 8",
+        ),
+        pytest.param(
+            # Test invalid base32 char 9 is ignored
+            "u.f9.i.someid.sometoken.com",
+            None,
+            None,
+            None,
+            False,
+            id="Invalid Base32 Char 9",
+        ),
+        pytest.param(
+            # Test all the valid base32 chars
+            f"u1.f{ALL_BASE_32_CHARS_STRING}.i{ALL_BASE_32_CHARS_STRING}.someid.sometoken.com",
+            "1",
+            ALL_BASE_32_CHARS_BYTES.decode(),
+            ALL_BASE_32_CHARS_BYTES.decode(),
+            True,
+            id="All valid Base32 Chars",
+        ),
+    ],
+)
+def test_windows_fake_fs_pattern(
+    query, invocation_id, file_name, process_name, pass_regex
+):
+    matches = t.windows_fake_fs_pattern.match(query)
+    assert (matches is not None) == pass_regex
+
+    if pass_regex:
+        data = t.Canarytoken._windows_fake_fs(matches)
+        assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id
+        assert data["src_data"]["windows_fake_fs_file_name"] == file_name
+        assert data["src_data"]["windows_fake_fs_process_name"] == process_name
+
+
+def test_windows_fake_fs_base32_padding():
+    invocation_id = f"{random.randint(1000, 10000)}"
+    for counter in range(1, 20):
+        test_data = "a" * counter
+        base32_data = base64.b32encode(test_data.encode("utf-8")).decode()
+        base32_data_no_padding = base32_data.replace("=", "")
+        query = "u{invocation_id}.f{file_name}.i{process_name}.{domain}".format(
+            invocation_id=invocation_id,
+            file_name=base32_data_no_padding,
+            process_name=base32_data_no_padding,
+            domain="someid.sometoken.com",
+        )
+
+        m = t.windows_fake_fs_pattern.match(query)
+        data = t.Canarytoken._windows_fake_fs(m)
+        assert data["src_data"]["windows_fake_fs_invocation_id"] == invocation_id
+        assert data["src_data"]["windows_fake_fs_file_name"] == test_data
+        assert data["src_data"]["windows_fake_fs_process_name"] == test_data
 
 
 def test_canarytoken_create_and_fetch():

@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-TEvYvaZ5.js";import{d as o,e as n,f as a}from"./index-BVhdqyit.js";const s=o({__name:"GenerateTokenForm",setup(m){return(r,t)=>(n(),a(e,{"memo-helper-example":"MySQL token in payments_db_dump.sql on SRV01"}))}});export{s as default};

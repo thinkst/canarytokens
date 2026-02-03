@@ -1,6 +1,7 @@
 import inspect
 import json
 import os
+import re
 from unittest import mock
 
 import pytest
@@ -9,6 +10,8 @@ from pydantic import HttpUrl
 
 from canarytokens import canarydrop, models, queries, constants
 from canarytokens.models import (
+    AWSInfraTokenRequest,
+    AWSInfraTokenResponse,
     AnyDownloadRequest,
     AnyTokenRequest,
     AnyTokenResponse,
@@ -46,6 +49,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    PWATokenRequest,
+    PWATokenResponse,
     PageRequest,
     PDFTokenRequest,
     PDFTokenResponse,
@@ -57,11 +62,16 @@ from canarytokens.models import (
     WebImageSettingsRequest,
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
+    CreditCardV2TokenRequest,
+    CreditCardV2TokenResponse,
+    WebDavTokenRequest,
+    WebDavTokenResponse,
 )
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_basic_hit, get_token_request
+from frontend.app import ROOT_API_ENDPOINT
 
 
 def test_read_docs(test_client: TestClient) -> None:
@@ -75,6 +85,8 @@ def test_get_generate_page(test_client: TestClient) -> None:
 
 
 def test_redirect_base_to_generate(test_client: TestClient) -> None:
+    if FrontendSettings().NEW_UI:
+        pytest.skip("New UI does not redirect to /generate")
     response = test_client.get("/")
     assert response.status_code == 200
     assert response.url.path == "/generate"
@@ -150,6 +162,9 @@ set_of_unsupported_request_classes = [
     CCTokenRequest,  # don't use up a CC
     CustomImageTokenRequest,
     CustomBinaryTokenRequest,
+    PWATokenRequest,
+    CreditCardV2TokenRequest,
+    AWSInfraTokenRequest,  # no download
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -157,7 +172,15 @@ set_of_unsupported_response_classes = [
     CCTokenResponse,
     CustomImageTokenResponse,
     CustomBinaryTokenResponse,
+    PWATokenResponse,
+    CreditCardV2TokenResponse,
+    AWSInfraTokenResponse,  # no download
 ]
+
+if not FrontendSettings("../frontend/frontend.env").WEBDAV_SERVER:
+    # The Cloudflare settings for webdav aren't present
+    set_of_unsupported_request_classes += [WebDavTokenRequest]
+    set_of_unsupported_response_classes += [WebDavTokenResponse]
 
 [set_of_response_classes.remove(o) for o in set_of_unsupported_response_classes]
 [set_of_request_classes.remove(o) for o in set_of_unsupported_request_classes]
@@ -191,6 +214,32 @@ def test_creating_all_tokens(
 def test_get_commit_sha(test_client: TestClient) -> None:
     resp = test_client.get("/commitsha")
     assert resp.status_code == 200
+
+
+def test_get_robots_txt(test_client: TestClient) -> None:
+    resp = test_client.get("/robots.txt")
+    assert resp.status_code == 200
+    assert resp.text.startswith("User-agent: *")
+    assert "Disallow: /history" in resp.text
+    assert "Disallow: /manage" in resp.text
+
+
+def test_get_security_txt(test_client: TestClient) -> None:
+    resp = test_client.get("/.well-known/security.txt")
+    assert resp.status_code == 200
+    assert (
+        "Acknowledgements: https://github.com/thinkst/canarytokens/security/advisories"
+        in resp.text
+    )
+    assert "Expires: " in resp.text
+    expiry_date = re.search(r"Expires:\s*(\S+)", resp.text).group(1)
+    # Check that the expiry date is in the future
+    from datetime import datetime, timezone
+
+    expiry_datetime = datetime.fromisoformat(expiry_date.replace("Z", "+00:00"))
+    assert expiry_datetime > datetime.now(
+        timezone.utc
+    ), "Update the security.txt expiry date!"
 
 
 @pytest.mark.parametrize(
@@ -534,8 +583,7 @@ def test_history_page(
         ).dict(),
     )
     assert resp.status_code == 200
-    # TODO: Make this a stricter test
-    assert cd.canarytoken.value() in resp.content.decode()
+    # now that it's a Vue app we can't test further here
 
 
 @pytest.mark.parametrize(
@@ -558,6 +606,8 @@ def test_authorised_page_access(
         endpoint (str): endpoint to attempt to access.
         verb (str): HTTP verb for endpoint.
     """
+    if FrontendSettings().NEW_UI:
+        pytest.skip("New UI redirects these to index.html")
     resp = test_client.post(
         "/generate",
         data=DNSTokenRequest(
@@ -704,6 +754,140 @@ def test_aws_keys(
         assert token_info.output == "json"
 
 
+@pytest.fixture(scope="function")
+def frontend_settings_with_webdav(
+    frontend_settings: FrontendSettings,
+):
+    overrides = {
+        "WEBDAV_SERVER": "https://examplewebdavserver.com",
+        "CLOUDFLARE_ACCOUNT_ID": "nosuchaccountid",
+        "CLOUDFLARE_API_TOKEN": "nosuchapitoken",
+        "CLOUDFLARE_NAMESPACE": "nosuchnamespace",
+    }
+    yield next(
+        enumerate(_frontend_settings_with_overrides(frontend_settings, overrides))
+    )[1]
+
+
+@pytest.fixture(scope="function")
+def frontend_settings_with_no_webdav(frontend_settings: FrontendSettings):
+    overrides = {
+        "WEBDAV_SERVER": "",
+        "CLOUDFLARE_ACCOUNT_ID": "",
+        "CLOUDFLARE_API_TOKEN": "",
+        "CLOUDFLARE_NAMESPACE": "",
+    }
+    yield next(
+        enumerate(_frontend_settings_with_overrides(frontend_settings, overrides))
+    )[1]
+
+
+def _frontend_settings_with_overrides(
+    frontend_settings: FrontendSettings, overrides: dict
+):
+    with mock.patch.dict(
+        os.environ,
+        {"CANARY_" + k: v for (k, v) in overrides.items()},
+        clear=False,
+    ):
+        local_settings = frontend_settings.dict()
+        for k, v in overrides.items():
+            local_settings[k] = v
+        local_settings = FrontendSettings(**local_settings)
+        yield local_settings
+
+
+def test_webdav(
+    webhook_receiver: HttpUrl,
+    frontend_settings_with_webdav,
+    setup_db: None,
+) -> None:
+    """
+    Test that the creation flow returns a correctly formatted Canarydrop object.
+
+    It mocks out creating a corresponding object at Cloudflare, because this is a unit test.
+    """
+
+    from frontend.app import _create_webdav_token_response
+
+    token_request_details = WebDavTokenRequest(
+        webhook_url=webhook_receiver,
+        memo=Memo("Testing WebDav token generation in frontend"),
+        webdav_fs_type="it",
+    )
+
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_request_details.token_type,
+        alert_email_enabled=False,
+        alert_webhook_enabled=True,
+        alert_webhook_url=token_request_details.webhook_url,
+        canarytoken=canarytoken,
+        memo=token_request_details.memo,
+    )
+
+    # add generate random hostname an token
+    canary_http_channel = f"http://{frontend_settings_with_webdav.DOMAINS[0]}"
+    cd.get_url([canary_http_channel])
+    cd.generated_hostname = cd.get_hostname()
+
+    import frontend.app  # noqa: F401
+
+    with mock.patch("frontend.app.insert_webdav_token", return_value=True):
+        resp = _create_webdav_token_response(
+            token_request_details=token_request_details,
+            canarydrop=cd,
+            settings=frontend_settings_with_webdav,
+        )
+
+    token_info = WebDavTokenResponse(**resp.dict())
+    assert token_info.webdav_fs_type == "it"
+    assert re.match(r"^[a-f0-9]{40}$", token_info.webdav_password)
+    assert token_info.webdav_server == "https://examplewebdavserver.com"
+
+
+def test_webdav_no_cloudflare(
+    webhook_receiver: HttpUrl,
+    frontend_settings_with_no_webdav,
+    setup_db,
+) -> None:
+    """
+    Test whether a Canarytokens instance with no Network Folder enabled returns the correct response.
+    """
+    from frontend.app import _create_webdav_token_response
+
+    token_request_details = WebDavTokenRequest(
+        webhook_url=webhook_receiver,
+        memo=Memo("Testing WebDav token generation in frontend"),
+        webdav_fs_type="it",
+    )
+
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_request_details.token_type,
+        alert_email_enabled=False,
+        alert_webhook_enabled=True,
+        alert_webhook_url=token_request_details.webhook_url,
+        canarytoken=canarytoken,
+        memo=token_request_details.memo,
+    )
+    # add generate random hostname an token
+    canary_http_channel = f"http://{frontend_settings_with_no_webdav.DOMAINS[0]}"
+    cd.get_url([canary_http_channel])
+    cd.generated_hostname = cd.get_hostname()
+
+    resp = _create_webdav_token_response(
+        token_request_details=token_request_details,
+        canarydrop=cd,
+        settings=frontend_settings_with_no_webdav,
+    )
+    assert resp.status_code == 400
+    assert (
+        b"This Canarytokens instance does not have the Network Folder Canarytoken enabled."
+        in resp.body
+    )
+
+
 @pytest.mark.parametrize(
     "block_target, test_target",
     [
@@ -749,3 +933,57 @@ def test_block_user(
         json=token_request.json_safe_dict(),
     )
     assert not resp.json()["error"]
+
+
+@pytest.mark.parametrize(
+    "headers, expected_headers",
+    [
+        pytest.param(
+            {
+                "x-real-ip": "127.0.300.1",
+                "x-forwarded-for": "127.0.400.1",
+            },
+            {
+                "created_from_ip": "127.0.300.1",
+                "created_from_ip_x_forwarded_for": "127.0.400.1",
+            },
+            id="ValidHeaders",
+        ),
+        pytest.param(
+            {},
+            {
+                "created_from_ip": "",
+                "created_from_ip_x_forwarded_for": "",
+            },
+            id="EmptyHeaders",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "token_request_type, token_response_type",
+    zip(set_of_request_classes, set_of_response_classes),
+)
+def test_generate_token_ip_headers(
+    token_request_type: AnyTokenRequest,
+    token_response_type: AnyTokenResponse,
+    test_client: TestClient,
+    setup_db: None,
+    headers: dict[str, str],
+    expected_headers: dict[str, str],
+) -> None:
+    resp = test_client.post(
+        "/generate", data=get_token_request(token_request_type).json(), headers=headers
+    )
+    token_resp = token_response_type(**resp.json())
+    manage_resp = test_client.get(
+        f"{ROOT_API_ENDPOINT}/manage",
+        params=ManagePageRequest(
+            token=token_resp.token,
+            auth=token_resp.auth_token,
+        ).dict(),
+        follow_redirects=True,
+    )
+    assert manage_resp.status_code == 200
+    canarydrop = manage_resp.json()["canarydrop"]
+    for key, value in expected_headers.items():
+        assert canarydrop[key] == value

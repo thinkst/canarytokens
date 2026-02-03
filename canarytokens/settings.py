@@ -1,7 +1,7 @@
 import os
-from distutils.util import strtobool
 from typing import Any, Literal, Optional
 
+from canarytokens.utils import strtobool
 from pydantic import BaseSettings, EmailStr, HttpUrl, SecretStr
 
 from canarytokens.models import Port
@@ -32,9 +32,10 @@ class SwitchboardSettings(BaseSettings):
     USING_NGINX: bool = True
     TEMPLATES_PATH: str = "../templates"
 
-    ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("illegal@email.com")
+    ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("your-email@example.com")
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
+    MAX_HISTORY: int = 50
     MAX_ALERTS_PER_MINUTE: int = 1
     # Maximum number of alert failures before a mechanism is disabled
     MAX_ALERT_FAILURES: int = 5
@@ -83,10 +84,16 @@ class FrontendSettings(BaseSettings):
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
     SENTRY_ENABLE: bool = True
 
+    NEW_UI: bool = True
+
     TEMPLATES_PATH: str = "../templates"
     STATIC_FILES_PATH: str = "../templates/static"
     STATIC_FILES_APPLICATION_SUB_PATH: str = "/resources"
     STATIC_FILES_APPLICATION_INTERNAL_NAME: str = "resources"
+    TOKENS_FETCH_LIMIT: int = 1000
+
+    # if None the API docs won't load. Loads at /API_HASH/{your_url}. Must start with a /
+    API_REDOC_URL: Optional[str]
 
     # upload settings
     MAX_UPLOAD_SIZE: int = 1024 * 1024 * 1
@@ -112,9 +119,40 @@ class FrontendSettings(BaseSettings):
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
     EXTEND_CARD_NAME: Optional[str]
-    CLOUDFRONT_URL: Optional[HttpUrl]
+    CLOUDFRONT_URL: HttpUrl = "https://SET-CLOUDFRONT-URL-IN-FRONTEND-DOT-ENV.invalid"
+    CLOUDFLARE_ACCOUNT_ID: Optional[str] = ""
+    CLOUDFLARE_NAMESPACE: Optional[str] = ""
+    CLOUDFLARE_API_TOKEN: Optional[str] = ""
+    WEBDAV_SERVER: Optional[str] = ""
     AZUREAPP_ID: Optional[str]
     AZUREAPP_SECRET: Optional[str]  # TODO: Figure out SecretStr with Azure secrets
+    CREDIT_CARD_TOKEN_ENABLED: bool = False
+    CREDIT_CARD_INFRA_CUSTOMER_GUID: Optional[str]
+    CREDIT_CARD_INFRA_CUSTOMER_SECRET: Optional[str]
+    CREDIT_CARD_INFRA_LAMBDA: Optional[str]
+    CREDIT_CARD_INFRA_ACCOUNT_ID: Optional[str]
+    CREDIT_CARD_INFRA_REGION: Optional[str]
+    CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
+    CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
+
+    AWS_INFRA_AWS_ACCOUNT: Optional[str]
+    AWS_INFRA_AWS_REGION: Optional[str]
+    AWS_INFRA_SHARED_SECRET: Optional[str]
+    AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str]
+    AWS_INFRA_CALLBACK_DOMAIN: Optional[str] = "callback domain goes here"
+    AWS_INFRA_INGESTION_BUS: Optional[str]
+    AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
+    AWS_INFRA_NAME_GENERATION_LIMIT: Optional[int] = 50
+    GEMINI_API_KEY: Optional[str]
+    GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
+    GEMINI_PROMPT_TEMPLATE: Optional[str]
+    GEMINI_SYSTEM_PROMPT: Optional[str]
+    GEMINI_TEMPERATURE: Optional[str] = "1.8"
+
+    # for local aws infra testing
+    AWS_ACCESS_KEY_ID: Optional[str]
+    AWS_SECRET_ACCESS_KEY: Optional[str]
+    AWS_SESSION_TOKEN: Optional[str]
 
     class Config:
         allow_mutation = False

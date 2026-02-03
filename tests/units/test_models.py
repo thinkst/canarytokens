@@ -7,8 +7,6 @@ from pydantic import HttpUrl, ValidationError, parse_obj_as
 from canarytokens import models
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.models import (
-    V2,
-    V3,
     AdditionalInfo,
     AnyTokenHistory,
     AnyTokenHit,
@@ -19,7 +17,7 @@ from canarytokens.models import (
     DNSTokenRequest,
     DownloadContentTypes,
     DownloadMSWordResponse,
-    GeoIPBogonInfo,
+    GeoIPInfo,
     LegacyTokenHistory,
     LegacyTokenHit,
     Log4ShellTokenHistory,
@@ -31,7 +29,6 @@ from canarytokens.models import (
     SMTPMailField,
     SMTPTokenHistory,
     SMTPTokenHit,
-    TokenAlertDetailGeneric,
     TokenRequest,
     TokenTypes,
     WebBugTokenHistory,
@@ -39,7 +36,7 @@ from canarytokens.models import (
     json_safe_dict,
 )
 from canarytokens.tokens import Canarytoken
-from tests.utils import v2, v3
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 
 
 @pytest.mark.parametrize(
@@ -71,27 +68,13 @@ def test_token_request(token_type, _type):
     _ = _type(**data)
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v2,
-        v3,
-        None,
-    ],
-)
-def test_token_request_version_based_dict_call(version):
+def test_token_request_version_based_dict_call():
     tr = DNSTokenRequest(
         token_type=TokenTypes.DNS,
         webhook_url="https://hooks.test.com/test",
         memo="test",
     )
-    if isinstance(version, V2):
-        assert "webhook" in tr.to_dict(version=version)
-    if isinstance(version, V3):
-        assert "webhook_url" in tr.to_dict(version=version)
-    if version is None:
-        with pytest.raises(NotImplementedError):
-            tr.to_dict(version=version)
+    assert "webhook_url" in tr.to_dict()
 
 
 @pytest.mark.parametrize(
@@ -475,11 +458,19 @@ def test_all_requests_have_a_response():
             WebBugTokenHit,
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
         ),
         (
@@ -536,7 +527,45 @@ def test_get_additional_data_for_webhook(
             )
         ]
     )
-    assert expected_data == hist.latest_hit().get_additional_data_for_notification()
+    additional_data = hist.latest_hit().get_additional_data_for_notification()
+
+    assert "time_ymd" in additional_data
+    assert "time_hm" in additional_data
+    additional_data.pop("time_ymd", None)
+    additional_data.pop("time_hm", None)
+    additional_data.pop("additional_info", None)
+
+    assert expected_data == additional_data
+
+
+@pytest.mark.parametrize(
+    "history_type, hit_type, seed_data",
+    [
+        (
+            WebBugTokenHistory,
+            WebBugTokenHit,
+            {
+                "geo_info": GeoIPInfo(
+                    ip="1.1.1.1", country="ZA", loc="-33.9778,18.6167"
+                ),
+            },
+        ),
+    ],
+)
+def test_get_additional_data_for_email(history_type, hit_type, seed_data):
+    hist = history_type(
+        hits=[
+            hit_type(
+                time_of_hit=20,
+                input_channel="HTTP",
+                **seed_data,
+            )
+        ]
+    )
+    additional_data = hist.latest_hit().get_additional_data_for_notification()
+    assert additional_data["geo_info"]["continent"] == "AF"
+    assert "time_hm" in additional_data
+    assert "time_ymd" in additional_data
 
 
 @pytest.mark.parametrize(
@@ -545,11 +574,19 @@ def test_get_additional_data_for_webhook(
         (
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
             {
                 "useragent": "python 3.10",
-                "geo_info": GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+                "geo_info": {
+                    "ip": "127.0.0.1",
+                    "bogon": True,
+                    "continent": "NO_CONTINENT",
+                },
             },
         ),
         (
@@ -593,10 +630,11 @@ def test_legacy_hits(seed_data, expected_data):
         **seed_data,
     )
     legacy_history = LegacyTokenHistory(hits=[legacy_hit])
-    assert (
-        expected_data
-        == legacy_history.latest_hit().get_additional_data_for_notification()
-    )
+    data = legacy_history.latest_hit().get_additional_data_for_notification()
+    data.pop("time_ymd", None)
+    data.pop("time_hm", None)
+    data.pop("additional_info", None)
+    assert expected_data == data
 
 
 def test_download_content_types():

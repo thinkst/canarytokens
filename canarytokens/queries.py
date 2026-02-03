@@ -7,23 +7,37 @@ import json
 import re
 import secrets
 from ipaddress import IPv4Address
-from typing import Dict, List, Literal, Optional, Tuple, Union
+import textwrap
+from typing import Literal, Optional, Union
 
+import advocate
+import httpx
 import requests
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
 
-from canarytokens import canarydrop as cand
-from canarytokens import models, tokens, constants
-from canarytokens.exceptions import CanarydropAuthFailure, NoCanarydropFound
+from canarytokens import (
+    canarydrop as cand,
+    constants,
+    models,
+    tokens,
+    wireguard,
+)
+from canarytokens.exceptions import (
+    CanarydropAuthFailure,
+    NoCanarydropFound,
+    NoCanarytokenFound,
+)
 from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACCOUNTS,; KEY_CANARY_NXDOMAINS,; KEY_CANARYTOKEN_ALERT_COUNT,; KEY_CLONEDSITE_TOKEN,; KEY_CLONEDSITE_TOKENS,; KEY_IMGUR_TOKEN,; KEY_IMGUR_TOKENS,; KEY_KUBECONFIG_CERTS,; KEY_KUBECONFIG_HITS,; KEY_KUBECONFIG_SERVEREP,; KEY_LINKEDIN_ACCOUNT,; KEY_LINKEDIN_ACCOUNTS,; KEY_USER_ACCOUNT,
     DB,
     KEY_AUTH_IDX,
+    KEY_AWS_MANAGEMENT_LAMBDA_HANDLE,
     KEY_CANARY_DOMAINS,
     KEY_CANARY_GOOGLE_API_KEY,
     KEY_CANARY_IP_CACHE,
     KEY_CANARY_NXDOMAINS,
     KEY_CANARY_PAGES,
+    KEY_CANARY_IMAGE_PAGES,
     KEY_CANARY_PATH_ELEMENTS,
     KEY_CANARY_RETURN_TOKEN,
     KEY_CANARYDROP,
@@ -40,8 +54,14 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_WEBHOOK_IDX,
     KEY_WIREGUARD_KEYMAP,
 )
+from canarytokens.settings import SwitchboardSettings
+from canarytokens.webhook_formatting import (
+    generate_webhook_test_payload,
+    get_webhook_type,
+)
 
 log = Logger()
+switchboard_settings = SwitchboardSettings()
 
 
 def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]:
@@ -62,6 +82,12 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
     if "user" in canarydrop.keys():
         # Make user in redis fully supported.
         canarydrop["user"] = models.User(name=canarydrop["user"])
+    if "key_exposed_details" in canarydrop:
+        canarydrop["key_exposed_details"] = json.loads(
+            canarydrop.pop("key_exposed_details")
+        )
+    if "aws_infra_state" in canarydrop:
+        canarydrop["aws_infra_state"] = int(canarydrop["aws_infra_state"])
 
     canarydrop["canarytoken"] = canarytoken
     try:
@@ -77,6 +103,8 @@ def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop
         canarydrop = get_canarydrop(tokens.Canarytoken(token))
     except NoCanarydropFound:
         raise CanarydropAuthFailure("Canarydrop associated with token is missing.")
+    except NoCanarytokenFound:
+        raise CanarydropAuthFailure("Canarytoken doesn't exist.")
     if not secrets.compare_digest(token, canarydrop.canarytoken.value()):
         raise CanarydropAuthFailure(
             "Canarydrop associated with this auth has inconsistent token."
@@ -100,8 +128,16 @@ def add_canary_path_element(path_element: str) -> int:
     return DB.get_db().sadd(KEY_CANARY_PATH_ELEMENTS, path_element)
 
 
-def get_all_canary_pages() -> List[str]:
+def get_all_canary_pages() -> list[str]:
     return list(DB.get_db().smembers(KEY_CANARY_PAGES))
+
+
+def get_all_canary_image_pages() -> list[str]:
+    return list(DB.get_db().smembers(KEY_CANARY_IMAGE_PAGES))
+
+
+def add_canary_image_page(page: str) -> int:
+    return DB.get_db().sadd(KEY_CANARY_IMAGE_PAGES, page)
 
 
 def add_canary_page(page: str) -> int:
@@ -129,48 +165,63 @@ def remove_canary_domain():
     return DB.get_db().delete(KEY_CANARY_DOMAINS)
 
 
+def remove_canary_nxdomain():
+    return DB.get_db().delete(KEY_CANARY_NXDOMAINS)
+
+
 def add_canary_nxdomain(domain: str) -> int:
     return DB.get_db().sadd(KEY_CANARY_NXDOMAINS, domain)
 
 
-def add_email_token_idx(email, canarytoken):
-    return DB.get_db().sadd(KEY_EMAIL_IDX + email, canarytoken)
+def add_email_token_idx(email: str, canarytoken: str) -> int:
+    return DB.get_db().sadd(KEY_EMAIL_IDX + email.lower(), canarytoken)
+
+
+def remove_email_token_idx(email: str, canarytoken: str) -> None:
+    DB.get_db().srem(KEY_EMAIL_IDX + email.lower(), canarytoken)
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
     return DB.get_db().sadd(KEY_WEBHOOK_IDX + webhook, canarytoken)
 
 
-def add_auth_token_idx(auth: str, token: str):
+def remove_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> None:
+    DB.get_db().srem(KEY_WEBHOOK_IDX + webhook, canarytoken)
+
+
+def add_auth_token_idx(auth: str, token: str) -> int:
     return DB.get_db().sadd(KEY_AUTH_IDX + auth, token)
 
 
+def remove_auth_token_idx(auth: str, token: str) -> None:
+    DB.get_db().srem(KEY_AUTH_IDX + auth, token)
+
+
 def delete_email_tokens(email_address):
-    for token in DB.get_db().smembers(KEY_EMAIL_IDX + email_address):
-        DB.get_db().delete(KEY_CANARYDROP + token)
-    # delete idx set
-    DB.get_db().delete(KEY_EMAIL_IDX + email_address)
+    """
+    Delete all canarydrops associated with `email_address`.
+    """
+    token_set = list_email_tokens(email_address)
+    drops = (get_canarydrop(tokens.Canarytoken(token)) for token in token_set)
+    for drop in drops:
+        delete_canarydrop(drop)
 
 
 def delete_webhook_tokens(webhook: str):
     """
-    Looks up all tokens associated with `webhook`
-    and deletes those canarydrops.
-
-    Args:
-        webhook (str): webhook url.
+    Delete all canarydrops associated with `webhook`.
     """
-    for token in DB.get_db().smembers(KEY_WEBHOOK_IDX + webhook):
-        DB.get_db().delete(KEY_CANARYDROP + token)
-    # delete idx set
-    DB.get_db().delete(KEY_WEBHOOK_IDX + webhook)
+    token_set = list_webhook_tokens(webhook)
+    drops = (get_canarydrop(tokens.Canarytoken(token)) for token in token_set)
+    for drop in drops:
+        delete_canarydrop(drop)
 
 
-def list_email_tokens(email_address):
-    return DB.get_db().smembers(KEY_EMAIL_IDX + email_address)
+def list_email_tokens(email_address) -> set[str]:
+    return DB.get_db().smembers(KEY_EMAIL_IDX + email_address.lower())
 
 
-def list_webhook_tokens(webhook):
+def list_webhook_tokens(webhook) -> set[str]:
     return DB.get_db().smembers(KEY_WEBHOOK_IDX + webhook)
 
 
@@ -201,6 +252,25 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
         add_webhook_token_idx(canarydrop.alert_webhook_url, canarytoken.value())
 
     add_auth_token_idx(canarydrop.auth, canarydrop.canarytoken.value())
+
+
+def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
+    token = canarydrop.canarytoken.value()
+    DB.get_db().delete(KEY_CANARYDROP + token)
+    log.info(f"Deleted canarydrop for token: {token}")
+
+    DB.get_db().zrem(KEY_CANARYDROPS_TIMELINE, token)
+
+    if canarydrop.alert_email_recipient:
+        remove_email_token_idx(canarydrop.alert_email_recipient, token)
+
+    if canarydrop.alert_webhook_url:
+        remove_webhook_token_idx(canarydrop.alert_webhook_url, token)
+
+    remove_auth_token_idx(canarydrop.auth, token)
+
+    if canarydrop.type == models.TokenTypes.WIREGUARD:
+        wireguard.deleteCanarytokenPrivateKey(canarydrop.wg_key)
 
 
 # def _v2_compatibility_serialize_canarydrop(serialized_drop:dict[str, str], canarydrop:cand.Canarydrop)->dict[str, str]:
@@ -237,7 +307,6 @@ def _v2_compatibility_loading_triggered_details(key: str) -> str:
 
 def get_canarydrop_triggered_details(
     canarytoken: tokens.Canarytoken,
-    max_history: int = 10,
 ) -> models.AnyTokenHistory:
     """
     Returns the triggered list for a Canarydrop, or {} if it does not exist
@@ -256,35 +325,22 @@ def get_canarydrop_triggered_details(
             if k
             in sorted(
                 triggered_details.keys(),
-            )[-(max_history):]
+            )[
+                -(switchboard_settings.MAX_HISTORY) :  # noqa: E203
+            ]
         }
         triggered_details["token_type"] = token_type
     return parse_obj_as(models.AnyTokenHistory, triggered_details)
 
 
-def add_canarydrop_hit(token_hit: models.AnyTokenHit, canarytoken):
-    """
-    Add a hit to a canarydrop. A hit will capture the
-    Arguments:
-    canarytoken -- canarytoken object.
-    **kwargs   -- Additional details about the hit.
-    """
-    token_history = get_canarydrop_triggered_details(canarytoken)
-
-    if token_history.token_type != token_hit.token_type:
-        # Design: This might not hold in the future but for now this is true.
-        raise ValueError(
-            f"All hits must be of a single type. Given {token_hit.token_type}; existing {token_history.token_type}"
-        )
-
-    token_history.hits.append(token_hit)
-
+def add_key_exposed_hit(
+    token_exposed_hit: models.AnyTokenExposedHit, canarytoken: tokens.Canarytoken
+):
     DB.get_db().hset(
         KEY_CANARYDROP + canarytoken.value(),
-        "triggered_list",
-        json.dumps(token_history.serialize_for_v2()),
+        "key_exposed_details",
+        json.dumps(token_exposed_hit.dict()),
     )
-    return token_hit.time_of_hit
 
 
 # def get_canarydrop_history():
@@ -314,6 +370,15 @@ def add_canarydrop_hit(token_hit: models.AnyTokenHit, canarytoken):
 
 def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
     triggered_details = get_canarydrop_triggered_details(canarytoken)
+    if not any(hit_time == o.time_of_hit for o in triggered_details.hits):
+        raise ValueError(
+            textwrap.dedent(
+                """
+                    Got additional details for a hit that does not exist.
+                    This is likely a use case we don't support yet but can.
+                """
+            )
+        )
     enriched_hit = next(
         filter(lambda o: o.time_of_hit == hit_time, triggered_details.hits)
     )
@@ -324,6 +389,8 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
             models.SlowRedirectTokenHit,
             models.CustomImageTokenHit,
             models.WebBugTokenHit,
+            models.IdPAppTokenHit,
+            models.LegacyTokenHit,
         ),
     ):
         info = enriched_hit.additional_info.dict(exclude_unset=True, exclude_none=None)
@@ -353,6 +420,22 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
     print(data)
 
 
+async def validate_turnstile(
+    cf_turnstile_secret: str, cf_turnstile_response: str
+) -> bool:
+    data = {
+        "secret": cf_turnstile_secret,
+        "response": cf_turnstile_response,
+    }
+    async with httpx.AsyncClient(timeout=60) as client:
+        response = await client.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify", json=data
+        )
+
+    result: dict[str, bool] = response.json()
+    return result.get("success", False)
+
+
 _ip_info_api_key = None
 
 
@@ -362,6 +445,9 @@ def set_ip_info_api_key(ip_info_api_key):
 
 
 def get_geoinfo(ip: str):
+    if ip.lower() == "aws internal":
+        return None
+
     if is_ip_cached(ip):
         return get_geoinfo_from_cache(ip)
     else:
@@ -374,7 +460,7 @@ def get_geoinfo(ip: str):
             return ""
 
 
-def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
+def get_geoinfo_from_ip(ip: str) -> dict[str, str]:
     """
     Performs IP info lookup if cache check failed.
     Don't use directly, use get_geoinfo() instead.
@@ -389,7 +475,10 @@ def get_geoinfo_from_ip(ip: str) -> Dict[str, str]:
         resp.raise_for_status()
         info = resp.json()
     except requests.exceptions.HTTPError as e:
-        log.error(f"ip info error: {e}")
+        if e.response.status_code == 503:
+            log.info(f"ip info error: {e}")
+        else:
+            log.error(f"ip info error: {e}")
         # not strictly Bogon , we have no info
         info = models.GeoIPBogonInfo(ip=ip, bogon=True).dict()
     return info
@@ -537,12 +626,18 @@ def can_send_alert(canarydrop: cand.Canarydrop, alert_limit: int):
 #         raise Exception("Imgur response was unexpected: {resp}".format(resp=resp))
 #     return resp["data"][imgur_id]
 def add_mail_to_send_status(
-    recipient: EmailStr, details: models.TokenAlertDetails
+    recipient: EmailStr,
+    details: Union[models.TokenAlertDetails, models.TokenExposedDetails],
 ) -> int:
     data = {"recipient": recipient, **details.json_safe_dict()}
     mail_to_send = json.dumps(data)
+    time = (
+        details.time
+        if isinstance(details, models.TokenAlertDetails)
+        else details.exposed_time
+    )
     return DB.get_db().set(
-        f"{KEY_MAIL_TO_SEND}:{details.token}:{details.time.timestamp()}", mail_to_send
+        f"{KEY_MAIL_TO_SEND}:{details.token}:{time.timestamp()}", mail_to_send
     )
 
 
@@ -558,19 +653,28 @@ def get_all_mails_in_send_status(
     return mails_and_details
 
 
-def remove_mail_from_to_send_status(
-    token: str, time: datetime.datetime
-) -> tuple[Optional[list[EmailStr]], Optional[models.TokenAlertDetails]]:
+def remove_mail_from_to_send_status(token: str, time: datetime.datetime) -> tuple[
+    Optional[list[EmailStr]],
+    Optional[Union[models.TokenAlertDetails, models.TokenExposedDetails]],
+]:
     item = DB.get_db().getdel(f"{KEY_MAIL_TO_SEND}:{token}:{time.timestamp()}")
     if item is None:
         log.info(f"No mail at key: {KEY_MAIL_TO_SEND}:{token}:{time.timestamp()}")
         return None, None
+
     data = json.loads(item)
     recipient = EmailStr(data.pop("recipient"))
-    return recipient, models.TokenAlertDetails(**data)
+    details = (
+        models.TokenExposedDetails(**data)
+        if "public_location" in data
+        else models.TokenAlertDetails(**data)
+    )
+    return recipient, details
 
 
-def put_mail_on_sent_queue(mail_key: str, details: models.TokenAlertDetails) -> int:
+def put_mail_on_sent_queue(
+    mail_key: str, details: Union[models.TokenAlertDetails, models.TokenExposedDetails]
+) -> int:
     sent_mail = json.dumps({"mail_key": mail_key, **details.json_safe_dict()})
     return DB.get_db().lpush(KEY_SENT_MAIL_QUEUE, sent_mail)
 
@@ -809,98 +913,18 @@ def validate_webhook(url, token_type: models.TokenTypes):
     if len(url) > constants.MAX_WEBHOOK_URL_LENGTH:
         raise WebhookTooLongError()
 
-    payload: Union[
-        models.TokenAlertDetails,
-        models.TokenAlertDetailsSlack,
-        models.TokenAlertDetailsGoogleChat,
-        models.TokenAlertDetailsDiscord,
-        models.TokenAlertDetailsMsTeams,
-    ]
-    if url.startswith(constants.WEBHOOK_BASE_URL_SLACK):
-        payload = models.TokenAlertDetailsSlack(
-            attachments=[
-                models.SlackAttachment(
-                    title_link=HttpUrl("https://test.com/check", scheme="https"),
-                    fields=[
-                        models.SlackField(
-                            title="test",
-                            value="Working",
-                        )
-                    ],
-                )
-            ]
-        )
-    elif url.startswith(constants.WEBHOOK_BASE_URL_GOOGLE_CHAT):
-        # construct google chat alert card
-        card = models.GoogleChatCard(
-            header=models.GoogleChatHeader(
-                title="Validating new canarytokens webhook",
-                imageUrl="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png",
-                imageType="CIRCLE",
-                imageAltText="Thinkst Canary",
-            ),
-            sections=[],
-        )
-        # make google chat payload
-        payload = models.TokenAlertDetailsGoogleChat(
-            cardsV2=[models.GoogleChatCardV2(cardId="unique-card-id", card=card)]
-        )
-    elif url.startswith(constants.WEBHOOK_BASE_URL_DISCORD):
-        # construct discord alert card
-        embeds = models.DiscordEmbeds(
-            author=models.DiscordAuthorField(
-                icon_url="https://s3-eu-west-1.amazonaws.com/email-images.canary.tools/canary-logo-round.png"
-            ),
-            title="Validating new canarytokens webhook",
-            fields=[],
-            timestamp=datetime.datetime.now(),
-        )
-        payload = models.TokenAlertDetailsDiscord(embeds=[embeds])
-    elif re.match(constants.WEBHOOK_BASE_URL_REGEX_MS_TEAMS, url):
-        section = models.MsTeamsTitleSection(
-            activityTitle="<b>Validating new Canarytokens webhook</b>"
-        )
-        payload = models.TokenAlertDetailsMsTeams(
-            summary="Validating new Canarytokens webhook", sections=[section]
-        )
-    else:
-        payload = models.TokenAlertDetails(
-            manage_url=HttpUrl(
-                "http://example.com/test/url/for/webhook", scheme="http"
-            ),
-            channel="HTTP",
-            memo=models.Memo("Congrats! The newly saved webhook works"),
-            token="a+test+token",
-            token_type=token_type,
-            src_ip="127.0.0.1",
-            additional_data={
-                "src_ip": "1.1.1.1",
-                "useragent": "Mozilla/5.0...",
-                "referer": "http://example.com/referrer",
-                "location": "http://example.com/location",
-            },
-            time=datetime.datetime.now(),
-        )
-    response = requests.post(
+    webhook_type = get_webhook_type(url)
+    payload = generate_webhook_test_payload(webhook_type, token_type)
+
+    response = advocate.post(
         url,
         payload.json(),
         headers={"content-type": "application/json"},
         timeout=10,
+        validator=advocate.AddrValidator(port_whitelist=set(range(0, 65535))),
     )
     # TODO: this accepts 3xx which is probably too lenient. We probably want any 2xx code.
     response.raise_for_status()
-    # return True
-    # except requests.exceptions.Timeout as e:
-    #     log.error("Timed out sending test payload to webhook: {url}".format(url=url))
-    #     return False
-    # except requests.exceptions.RequestException as e:
-    #     log.error(
-    #         "Failed sending test payload to webhook: {url} with error {error}".format(
-    #             url=url,
-    #             error=e,
-    #         ),
-    #     )
-    #     return False
 
 
 def is_valid_email(email):
@@ -910,8 +934,8 @@ def is_valid_email(email):
     regex = re.compile(
         r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
     )
-    match = regex.search(email.lower())
-    if not match:
+    valid_email_match = regex.search(email.lower())
+    if not valid_email_match:
         return False
     else:
         return True
@@ -1004,7 +1028,7 @@ def save_kc_endpoint(ip: IPv4Address, port: models.Port):
     DB.get_db().set(KEY_KUBECONFIG_SERVEREP, f"{ip}:{port}")
 
 
-def get_kc_endpoint() -> Tuple[Optional[IPv4Address], Optional[models.Port]]:
+def get_kc_endpoint() -> tuple[Optional[IPv4Address], Optional[models.Port]]:
     endpoint = DB.get_db().get(KEY_KUBECONFIG_SERVEREP)
     if endpoint is None:
         return None, None
@@ -1038,3 +1062,32 @@ def wireguard_keymap_del(public_key: bytes) -> None:
 
 def wireguard_keymap_get(public_key: bytes) -> Optional[str]:
     return DB.get_db().hget(KEY_WIREGUARD_KEYMAP, public_key)
+
+
+def add_aws_management_lambda_handle(
+    handle_id: str, handle: dict, handle_lifetime: int = 3600
+):
+    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle_id}"
+    DB.get_db().hset(
+        key,
+        mapping=handle,
+    )
+    DB.get_db().expire(key, handle_lifetime)
+
+
+def reset_aws_management_lambda_handle_received(handle_id: str, operation: str):
+    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle_id}"
+    DB.get_db().hset(
+        key, mapping={"response_received": "False", "operation": operation}
+    )
+
+
+def get_aws_management_lambda_handle(handle):
+    return DB.get_db().hgetall(f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle}")
+
+
+def update_aws_management_lambda_handle(handle_id: str, response: str):
+    key = f"{KEY_AWS_MANAGEMENT_LAMBDA_HANDLE}{handle_id}"
+    DB.get_db().hset(
+        key, mapping={"response_content": response, "response_received": "True"}
+    )

@@ -3,15 +3,15 @@ from abc import ABCMeta, abstractmethod
 import csv
 
 import enum
-import json
-import os
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 import re
-import socket
-from dataclasses import dataclass
 from datetime import datetime
-from distutils.util import strtobool
 from fastapi.responses import JSONResponse
-from functools import cached_property
 from io import BytesIO, StringIO
 from ipaddress import IPv4Address
 from tempfile import SpooledTemporaryFile
@@ -46,13 +46,12 @@ from typing_extensions import Annotated
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,
     CANARYTOKEN_LENGTH,
-    CANARY_IMAGE_URL,
     MEMO_MAX_CHARACTERS,
 )
-from canarytokens.utils import prettify_snake_case, dict_to_csv
+from canarytokens.utils import json_safe_dict, get_src_ip_continent, strtobool
 
 CANARYTOKEN_RE = re.compile(
-    ".*([" + "".join(CANARYTOKEN_ALPHABET) + "]{" + str(CANARYTOKEN_LENGTH) + "}).*",
+    f"[{CANARYTOKEN_ALPHABET}]{{{CANARYTOKEN_LENGTH}}}",
     re.IGNORECASE,
 )
 
@@ -91,66 +90,6 @@ class Hostname(ConstrainedStr):
 class Canarytoken(ConstrainedStr):
     max_length: int = CANARYTOKEN_LENGTH
     regex = CANARYTOKEN_RE
-
-
-@dataclass()
-class V2:
-    """Indicates models should exhibit V2 behavior"""
-
-    # DESIGN: This separation might be short lived. If not we can do better.
-    version = "v2"
-    canarytokens_sld: str
-    canarytokens_domain: str
-    canarytokens_dns_port: int
-    canarytokens_http_port: Optional[int]
-    scheme: Literal["http", "https"]
-
-    @property
-    def live(self) -> bool:
-        """Used to indicate tests are targeting a live server.
-        Live means nginx is routing to switchboard and dns resolves.
-        """
-        return strtobool(os.getenv("LIVE", "FALSE"))
-
-    @property
-    def server_url(self) -> HttpUrl:  # pragma: no cover
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
-
-    @cached_property
-    def canarytokens_ips(self) -> list[str]:  # pragma: no cover
-        *_, ips = socket.gethostbyname_ex(self.canarytokens_domain)
-        return ips
-
-
-@dataclass()
-class V3:
-    """Indicates models should exhibit V3 behavior"""
-
-    # A near replica of V2 but it wasn't always.
-    # Both are set to get removed.
-    version = "v3"
-    canarytokens_sld: str
-    canarytokens_domain: str
-    canarytokens_dns_port: int
-    canarytokens_http_port: Optional[int]
-    scheme: Literal["http", "https"]
-
-    @property
-    def server_url(self) -> HttpUrl:  # pragma: no cover
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
-
-    @cached_property
-    def canarytokens_ips(self) -> list[str]:  # pragma: no cover
-        *_, ips = socket.gethostbyname_ex(self.canarytokens_domain)
-        return ips
-
-    @property
-    def live(self) -> bool:
-        return strtobool(os.getenv("LIVE", "FALSE"))
 
 
 class AWSKey(TypedDict):
@@ -272,12 +211,7 @@ class ApiProvider(metaclass=ABCMeta):
         pass
 
 
-# class CCToken(object):
-#     def __init__(self, api_provider: ApiProvider):
-#         pass
-
-
-class TokenTypes(str, enum.Enum):
+class TokenTypes(StrEnum):
     """Enumerates all supported token types"""
 
     WEB = "web"
@@ -288,8 +222,10 @@ class TokenTypes(str, enum.Enum):
     ADOBE_PDF = "adobe_pdf"
     WIREGUARD = "wireguard"
     WINDOWS_DIR = "windows_dir"
+    WEBDAV = "webdav"
     CLONEDSITE = "clonedsite"
     CSSCLONEDSITE = "cssclonedsite"
+    CREDIT_CARD_V2 = "credit_card_v2"
     QR_CODE = "qr_code"
     SVN = "svn"
     SMTP = "smtp"
@@ -303,17 +239,22 @@ class TokenTypes(str, enum.Enum):
     KUBECONFIG = "kubeconfig"
     LOG4SHELL = "log4shell"
     CMD = "cmd"
+    WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
+    PWA = "pwa"
+    IDP_APP = "idp_app"
     SLACK_API = "slack_api"
     LEGACY = "legacy"
+    AWS_INFRA = "aws_infra"
 
     def __str__(self) -> str:
         return str(self.value)
 
 
-token_types_with_article_an = [
+TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.ADOBE_PDF,
     TokenTypes.AWS_KEYS,
+    TokenTypes.AWS_INFRA,
     TokenTypes.AZURE_ID,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
@@ -321,33 +262,39 @@ token_types_with_article_an = [
     TokenTypes.SVN,
 ]
 
-readable_token_type_names = {
-    TokenTypes.WEB: "web bug",
+READABLE_TOKEN_TYPE_NAMES = {
+    TokenTypes.WEB: "Web bug",
     TokenTypes.DNS: "DNS",
-    TokenTypes.WEB_IMAGE: "custom image",
+    TokenTypes.WEB_IMAGE: "Custom image",
     TokenTypes.MS_WORD: "MS Word",
     TokenTypes.MS_EXCEL: "MS Excel",
     TokenTypes.ADOBE_PDF: "Adobe PDF",
     TokenTypes.WIREGUARD: "WireGuard",
     TokenTypes.WINDOWS_DIR: "Windows folder",
-    TokenTypes.CLONEDSITE: "cloned website",
+    TokenTypes.WEBDAV: "Network folder",
+    TokenTypes.CLONEDSITE: "JS cloned website",
     TokenTypes.CSSCLONEDSITE: "CSS cloned website",
     TokenTypes.QR_CODE: "QR code",
     TokenTypes.SVN: "SVN",
-    TokenTypes.SMTP: "email address",
+    TokenTypes.SMTP: "Email address",
     TokenTypes.SQL_SERVER: "MS SQL Server",
     TokenTypes.MY_SQL: "MySQL",
     TokenTypes.AWS_KEYS: "AWS key",
     TokenTypes.AZURE_ID: "Azure key",
-    TokenTypes.SIGNED_EXE: "custom exe/binary",
-    TokenTypes.FAST_REDIRECT: "fast redirect",
-    TokenTypes.SLOW_REDIRECT: "slow redirect",
+    TokenTypes.SIGNED_EXE: "Custom EXE / binary",
+    TokenTypes.FAST_REDIRECT: "Fast redirect",
+    TokenTypes.SLOW_REDIRECT: "Slow redirect",
     TokenTypes.KUBECONFIG: "Kubeconfig",
     TokenTypes.LOG4SHELL: "Log4Shell",
-    TokenTypes.CMD: "sensitive command",
-    TokenTypes.CC: "credit card",
+    TokenTypes.CMD: "Sensitive command",
+    TokenTypes.WINDOWS_FAKE_FS: "Windows Fake File System",
+    TokenTypes.CC: "Credit card",
+    TokenTypes.CREDIT_CARD_V2: "Credit card",
+    TokenTypes.PWA: "Fake app",
     TokenTypes.SLACK_API: "Slack API",
-    TokenTypes.LEGACY: "legacy",
+    TokenTypes.LEGACY: "Legacy",
+    TokenTypes.IDP_APP: "SAML2 IdP App",
+    TokenTypes.AWS_INFRA: "AWS Infrastructure",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -402,10 +349,6 @@ BlankRequestTokenType = Literal[
 ]
 
 
-def json_safe_dict(m: BaseModel, exclude: Tuple = ()) -> Dict[str, str]:
-    return json.loads(m.json(exclude_none=True, exclude=set(exclude)))
-
-
 class TokenRequest(BaseModel):
     """
     TokenRequest holds fields needed to create a Canarytoken.
@@ -438,24 +381,8 @@ class TokenRequest(BaseModel):
 
     # Design: this might be short lived. If not we can do better.
     # Singledispatch if it plays well with pydantic.
-    def to_dict(self, version: Union[V2, V3]) -> Dict[str, Any]:
-        if isinstance(version, V2):
-            return self.v2_dict()
-        elif isinstance(version, V3):
-            return json_safe_dict(self)
-        raise NotImplementedError("version must be either V2 or V3.")
-
-    def v2_dict(self) -> Dict[str, Any]:
-        webhook_url = self.webhook_url or ""
-        out_dict = {
-            "type": getattr(self, "token_type").value,
-            "email": self.email or "",
-            "memo": self.memo,
-            "webhook": str(webhook_url),
-        }
-        if "redirect_url" in self.dict():  # pragma: no cover
-            out_dict["redirect_url"] = self.redirect_url  # type: ignore
-        return out_dict
+    def to_dict(self) -> Dict[str, Any]:
+        return json_safe_dict(self)
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
@@ -472,17 +399,6 @@ class AWSKeyTokenRequest(TokenRequest):
 class AzureIDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     azure_id_cert_file_name: str
-
-    def v2_dict(self) -> Dict[str, Any]:
-        webhook_url = self.webhook_url or ""
-        out_dict = {
-            "type": getattr(self, "token_type").value,
-            "email": self.email or "",
-            "memo": self.memo,
-            "webhook": str(webhook_url),
-            "azure_id_cert_file_name": self.azure_id_cert_file_name,
-        }
-        return out_dict
 
 
 class QRCodeTokenRequest(TokenRequest):
@@ -520,8 +436,137 @@ class CMDTokenRequest(TokenRequest):
         return value
 
 
+class WindowsFakeFSTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    windows_fake_fs_root: str
+    windows_fake_fs_file_structure: str
+
+    @validator("windows_fake_fs_root")
+    def check_process_name(value: str):
+        _value = value.strip()
+        invalid_chars = r'[<>:"/|?*[\]]'
+        drive_pattern = r"^[A-Za-z]:[\\/]"
+
+        if not re.match(drive_pattern, _value):
+            raise ValueError(
+                f"windows_fake_fs_root does not have a drive letter specified. Given: {_value}"
+            )
+        folder_path = re.sub(drive_pattern, "", _value, 1)
+        if re.search(invalid_chars, folder_path):
+            raise ValueError(
+                f"windows_fake_fs_root contains invalid Windows Path Characters. Given: {_value}"
+            )
+        if _value.endswith("."):
+            raise ValueError(
+                f"windows_fake_fs_root cannot end with a fullstop. Given: {_value}"
+            )
+
+        return _value
+
+
 class CCTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
+
+
+class PWAType(StrEnum):
+    absa = "absa"
+    amex = "amex"
+    applemail = "applemail"
+    applewallet = "applewallet"
+    axis = "axis"
+    boa = "boa"
+    bunq = "bunq"
+    capitec = "capitec"
+    chase = "chase"
+    cred = "cred"
+    dashlane = "dashlane"
+    discord = "discord"
+    facebook = "facebook"
+    fnb = "fnb"
+    gmail = "gmail"
+    googlepay = "googlepay"
+    googlewallet = "googlewallet"
+    hdfc = "hdfc"
+    icici = "icici"
+    instagram = "instagram"
+    messenger = "messenger"
+    monzo = "monzo"
+    n26 = "n26"
+    nedbank = "nedbank"
+    nordpass = "nordpass"
+    oldmutual = "oldmutual"
+    onepassword = "onepassword"
+    paypal = "paypal"
+    paytm = "paytm"
+    phonepe = "phonepe"
+    protonpass = "protonpass"
+    rbc = "rbc"
+    revolut = "revolut"
+    sbi = "sbi"
+    signal = "signal"
+    snapchat = "snapchat"
+    snapscan = "snapscan"
+    standard = "standard"
+    starling = "starling"
+    telegram = "telegram"
+    tiktok = "tiktok"
+    twitter = "twitter"
+    whatsapp = "whatsapp"
+    zapper = "zapper"
+
+
+PWA_APP_TITLES = {
+    PWAType.absa: "Absa",
+    PWAType.amex: "American Express",
+    PWAType.applemail: "Mail",
+    PWAType.applewallet: "Wallet",
+    PWAType.axis: "Axis Mobile",
+    PWAType.boa: "Bank of America",
+    PWAType.bunq: "bunq",
+    PWAType.capitec: "Capitec",
+    PWAType.chase: "Chase",
+    PWAType.cred: "CRED",
+    PWAType.dashlane: "Dashlane",
+    PWAType.discord: "Discord",
+    PWAType.facebook: "Facebook",
+    PWAType.fnb: "FNB",
+    PWAType.gmail: "Gmail",
+    PWAType.googlepay: "GPay",
+    PWAType.googlewallet: "Wallet",
+    PWAType.hdfc: "HDFC Bank",
+    PWAType.icici: "iMobile Pay",
+    PWAType.instagram: "Instagram",
+    PWAType.messenger: "Messenger",
+    PWAType.monzo: "Monzo",
+    PWAType.n26: "N26",
+    PWAType.nedbank: "Nedbank",
+    PWAType.nordpass: "NordPass",
+    PWAType.oldmutual: "Old Mutual",
+    PWAType.onepassword: "1Password",
+    PWAType.paypal: "PayPal",
+    PWAType.paytm: "Paytm",
+    PWAType.phonepe: "PhonePe",
+    PWAType.protonpass: "Proton Pass",
+    PWAType.rbc: "RBC Mobile",
+    PWAType.revolut: "Revolut",
+    PWAType.sbi: "YONO SBI",
+    PWAType.signal: "Signal",
+    PWAType.snapchat: "Snapchat",
+    PWAType.snapscan: "SnapScan",
+    PWAType.standard: "Standard Bank",
+    PWAType.starling: "Starling",
+    PWAType.telegram: "Telegram",
+    PWAType.tiktok: "TikTok",
+    PWAType.twitter: "X",
+    PWAType.whatsapp: "WhatsApp",
+    PWAType.zapper: "Zapper",
+}
+
+
+class PWATokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    icon: PWAType
+    app_name: Optional[str]
 
 
 class KubeconfigTokenRequest(TokenRequest):
@@ -549,6 +594,10 @@ class UploadedExe(BaseModel):
         arbitrary_types_allowed = True
         orm_mode = True
 
+    @classmethod
+    def __modify_schema__(cls, field_schema, field):
+        field_schema["title"] = "File"
+
 
 class CustomBinaryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.SIGNED_EXE] = TokenTypes.SIGNED_EXE
@@ -570,6 +619,10 @@ class UploadedImage(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         orm_mode = True
+
+    @classmethod
+    def __modify_schema__(cls, field_schema, field):
+        field_schema["title"] = "File"
 
 
 class CustomImageTokenRequest(TokenRequest):
@@ -669,10 +722,123 @@ class WindowsDirectoryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
 
+class WebDavTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    webdav_fs_type: str
+
+    @validator("webdav_fs_type")
+    def check_webdav_fs_type(value: str):
+        from canarytokens.webdav import FsType
+
+        if not value.upper() in FsType.__members__.keys():
+            raise ValueError(
+                f"webdav_fs_type must be in the FsType enum. Given: {value}"
+            )
+        return value
+
+
+class CreditCardV2TokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    cf_turnstile_response: Optional[str]
+
+
+class IdPAppType(StrEnum):
+    AWS = "aws"
+    AZURE = "azure"
+    BITWARDEN = "bitwarden"
+    DROPBOX = "dropbox"
+    DUO = "duo"
+    ELASTICSEARCH = "elasticsearch"
+    FRESHBOOKS = "freshbooks"
+    GCLOUD = "gcloud"
+    GDRIVE = "gdrive"
+    GITHUB = "github"
+    GITLAB = "gitlab"
+    GMAIL = "gmail"
+    INTUNE = "intune"
+    JAMF = "jamf"
+    JIRA = "jira"
+    KIBANA = "kibana"
+    LASTPASS = "lastpass"
+    MS365 = "ms365"
+    MSTEAMS = "msteams"
+    ONEDRIVE = "onedrive"
+    ONEPASSWORD = "onepassword"
+    OUTLOOK = "outlook"
+    PAGERDUTY = "pagerduty"
+    SAGE = "sage"
+    SALESFORCE = "salesforce"
+    SAP = "sap"
+    SLACK = "slack"
+    VIRTRU = "virtru"
+    ZENDESK = "zendesk"
+    ZOHO = "zoho"
+    ZOOM = "zoom"
+
+
+IDP_APP_TITLES = {
+    IdPAppType.AWS: "AWS",
+    IdPAppType.AZURE: "Azure",
+    IdPAppType.BITWARDEN: "Bitwarden",
+    IdPAppType.DROPBOX: "Dropbox",
+    IdPAppType.DUO: "Duo",
+    IdPAppType.ELASTICSEARCH: "Elasticsearch",
+    IdPAppType.FRESHBOOKS: "Freshbooks",
+    IdPAppType.GCLOUD: "Google Cloud",
+    IdPAppType.GDRIVE: "Google Drive",
+    IdPAppType.GITHUB: "GitHub",
+    IdPAppType.GITLAB: "GitLab",
+    IdPAppType.GMAIL: "Gmail",
+    IdPAppType.INTUNE: "Intune",
+    IdPAppType.JAMF: "JAMF",
+    IdPAppType.JIRA: "Jira",
+    IdPAppType.KIBANA: "Kibana",
+    IdPAppType.LASTPASS: "LastPass",
+    IdPAppType.MS365: "Microsoft 365",
+    IdPAppType.MSTEAMS: "MS Teams",
+    IdPAppType.ONEDRIVE: "OneDrive",
+    IdPAppType.ONEPASSWORD: "1Password",
+    IdPAppType.OUTLOOK: "Outlook",
+    IdPAppType.PAGERDUTY: "PagerDuty",
+    IdPAppType.SAGE: "Sage",
+    IdPAppType.SALESFORCE: "Salesforce",
+    IdPAppType.SAP: "SAP",
+    IdPAppType.SLACK: "Slack",
+    IdPAppType.VIRTRU: "Virtru",
+    IdPAppType.ZENDESK: "Zendesk",
+    IdPAppType.ZOHO: "Zoho",
+    IdPAppType.ZOOM: "Zoom",
+}
+
+
+class IdPAppTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    app_type: IdPAppType
+    redirect_url: Optional[str] = None
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "token_type": TokenTypes.IDP_APP,
+                "memo": "Reminder note when this token is triggered",
+                "email": "username@domain.com",
+                "redirect_url": "https://youtube.com",
+            },
+        }
+
+
+class AWSInfraTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    aws_account_number: str
+    aws_region: str
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
+        PWATokenRequest,
         CMDTokenRequest,
+        WindowsFakeFSTokenRequest,
         FastRedirectTokenRequest,
         QRCodeTokenRequest,
         AWSKeyTokenRequest,
@@ -684,6 +850,7 @@ AnyTokenRequest = Annotated[
         ClonedWebTokenRequest,
         CSSClonedWebTokenRequest,
         WindowsDirectoryTokenRequest,
+        WebDavTokenRequest,
         WebBugTokenRequest,
         SlowRedirectTokenRequest,
         MySQLTokenRequest,
@@ -695,8 +862,30 @@ AnyTokenRequest = Annotated[
         MsExcelDocumentTokenRequest,
         SQLServerTokenRequest,
         KubeconfigTokenRequest,
+        CreditCardV2TokenRequest,
+        IdPAppTokenRequest,
+        AWSInfraTokenRequest,
     ],
     Field(discriminator="token_type"),
+]
+
+
+class TokenEditRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    email: Optional[EmailStr]
+    webhook_url: Optional[HttpUrl]
+    memo: Optional[Memo]
+
+
+class AWSInfraTokenEditRequest(TokenEditRequest):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    aws_account_number: Optional[str]
+    aws_region: Optional[str]
+
+
+AnyTokenEditRequest = Annotated[
+    Union[AWSInfraTokenEditRequest], Field(discriminator="token_type")
 ]
 
 
@@ -705,7 +894,8 @@ class TokenResponse(BaseModel):
     token: str
     # TODO: make host name validation stricter
     hostname: Hostname
-    token_url: Union[HttpUrl, Literal[""]]
+    # `str` for token_url is needed for local dev
+    token_url: Union[HttpUrl, Literal[""], str]
     auth_token: str
     email: Union[EmailStr, Literal[""]] = ""
     webhook_url: Union[HttpUrl, Literal[""]] = ""
@@ -769,6 +959,11 @@ class CMDTokenResponse(TokenResponse):
     reg_file: str
 
 
+class WindowsFakeFSTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    powershell_file: str
+
+
 class CCTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
     kind: str
@@ -778,6 +973,12 @@ class CCTokenResponse(TokenResponse):
     name: str
     billing_zip: str
     rendered_html: str
+
+
+class PWATokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    pwa_icon: str
+    pwa_app_name: str
 
 
 class QRCodeTokenResponse(TokenResponse):
@@ -864,6 +1065,11 @@ class WebBugTokenResponse(TokenResponse):
 
 class SQLServerTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SQL_SERVER] = TokenTypes.SQL_SERVER
+    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
+    sql_server_table_name: Optional[str]
+    sql_server_view_name: Optional[str]
+    sql_server_function_name: Optional[str]
+    sql_server_trigger_name: Optional[str]
 
 
 class ClonedWebTokenResponse(TokenResponse):
@@ -907,16 +1113,16 @@ class Log4ShellTokenResponse(TokenResponse):
 
     @root_validator(pre=True)
     def set_token_usage_info(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        values[
-            "token_with_usage_info"
-        ] = f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
+        values["token_with_usage_info"] = (
+            f"{cls._hostname_marker}{{hostname}}.{cls._token_marker}.{values['hostname']}"
+        )
         return values
 
     @root_validator(pre=True)
     def set_token_usage(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        values[
-            "token_usage"
-        ] = f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
+        values["token_usage"] = (
+            f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
+        )
         return values
 
     class Config:
@@ -932,6 +1138,13 @@ class Log4ShellTokenResponse(TokenResponse):
 
 class WindowsDirectoryTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
+
+
+class WebDavTokenResponse(TokenResponse):
+    webdav_fs_type: str
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    webdav_password: str
+    webdav_server: str
 
 
 class SMTPTokenResponse(TokenResponse):
@@ -965,10 +1178,36 @@ class MySQLTokenResponse(TokenResponse):
     usage: Optional[str]
 
 
+class CreditCardV2TokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    card_id: str
+    name_on_card: str
+    card_number: str
+    cvv: str
+    expiry_month: int
+    expiry_year: int
+
+
+class IdPAppTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    entity_id: str
+    app_type: IdPAppType
+
+
+class AWSInfraTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    aws_region: str
+    aws_account_number: str
+    tf_module_prefix: str
+    ingesting: bool  # TODO: remove
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
+        PWATokenResponse,
         CMDTokenResponse,
+        WindowsFakeFSTokenResponse,
         CustomImageTokenResponse,
         SMTPTokenResponse,
         SvnTokenResponse,
@@ -985,6 +1224,7 @@ AnyTokenResponse = Annotated[
         MySQLTokenResponse,
         WireguardTokenResponse,
         WindowsDirectoryTokenResponse,
+        WebDavTokenResponse,
         FastRedirectTokenResponse,
         ClonedWebTokenResponse,
         CSSClonedWebTokenResponse,
@@ -1001,6 +1241,9 @@ AnyTokenResponse = Annotated[
         MsWordDocumentTokenResponse,
         MsExcelDocumentTokenResponse,
         KubeconfigTokenResponse,
+        CreditCardV2TokenResponse,
+        IdPAppTokenResponse,
+        AWSInfraTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1200,6 +1443,7 @@ class AdditionalInfo(BaseModel):
     mysql_client: Optional[dict[str, list[str]]]
     r: Optional[list[str]]
     l: Optional[list[str]]
+    file_path: Optional[list[str]]
 
     def serialize_for_v2(self) -> dict:
         data = json_safe_dict(self)
@@ -1278,6 +1522,9 @@ class TokenHit(BaseModel):
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
 
+    class Config:
+        smart_union = True
+
     @validator("geo_info", pre=True)
     def adjust_geo_info(cls, value):
         # Allow loading v2 data.
@@ -1295,7 +1542,7 @@ class TokenHit(BaseModel):
             Dict[str, str]: Key value pairs to include in webhook info.
         """
 
-        additional_info = json_safe_dict(
+        additional_data = json_safe_dict(
             self,
             exclude=(
                 "time_of_hit",
@@ -1305,14 +1552,23 @@ class TokenHit(BaseModel):
                 "token_type",
             ),
         )
-        if "additional_info" in additional_info:
-            additional_info.update(**additional_info.pop("additional_info"))
+        if "additional_data" in additional_data:
+            additional_data.update(**additional_data.pop("additional_data"))
         for key, replacement in [("l", "location"), ("r", "referer")]:
-            if key in additional_info:
-                additional_info[replacement] = additional_info.pop(key)
+            if key in additional_data:
+                additional_data[replacement] = additional_data.pop(key)
             if self.src_data and key in self.src_data:
                 self.src_data[replacement] = self.src_data[key]
-        return additional_info
+
+        if additional_data.get("geo_info") is not None:
+            continent = get_src_ip_continent(additional_data["geo_info"])
+            additional_data["geo_info"]["continent"] = continent
+
+        time = datetime.utcnow()
+        additional_data["time_hm"] = time.strftime("%H:%M")
+        additional_data["time_ymd"] = time.strftime("%Y/%m/%d")
+
+        return additional_data
 
 
 class AzureIDTokenHit(TokenHit):
@@ -1420,8 +1676,18 @@ class AWSKeyTokenHit(TokenHit):
         return values
 
 
+class TokenExposedHit(BaseModel):
+    time_of_hit: float
+
+
+class AWSKeyTokenExposedHit(TokenExposedHit):
+    token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
+    public_location: Optional[str]
+    input_channel: str = "HTTP"
+
+
 class SlackAPITokenHit(TokenHit):
-    token_type: Literal[TokenTypes.SLACK_API] = Literal[TokenTypes.SLACK_API]
+    token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
     additional_info: Optional[dict]
 
     def serialize_for_v2(self) -> dict:
@@ -1456,8 +1722,32 @@ class CCTokenHit(TokenHit):
     merchant: Optional[str]
 
 
+class GeolocationCoordinates(BaseModel):
+    accuracy: Optional[float]
+    altitude: Optional[float]
+    altitudeAccuracy: Optional[float]
+    heading: Optional[float]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    speed: Optional[float]
+
+
+class GeolocationPosition(BaseModel):
+    coords: Optional[GeolocationCoordinates]
+    timestamp: Optional[int]
+
+
+class PWATokenHit(TokenHit):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    location: Optional[GeolocationPosition]
+
+
 class CMDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
+
+
+class WindowsFakeFSTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
 
 
 class SMTPTokenHit(TokenHit):
@@ -1477,6 +1767,19 @@ class MsWordDocumentTokenHit(TokenHit):
 class WindowsDirectoryTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
     src_data: Optional[dict]
+
+
+class WebDavAdditionalInfo(BaseModel):
+    file_path: Optional[str]
+    useragent: Optional[str]
+
+    def serialize_for_v2(self) -> dict:
+        return self.dict()
+
+
+class WebDavTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    additional_info: Optional[WebDavAdditionalInfo]
 
 
 class MsExcelDocumentTokenHit(TokenHit):
@@ -1557,6 +1860,29 @@ class WireguardTokenHit(TokenHit):
     src_data: WireguardSrcData
 
 
+class CreditCardV2AdditionalInfo(BaseModel):
+    merchant: Optional[str]
+    transaction_amount: Optional[str]
+    transaction_currency: Optional[str]
+    masked_card_number: Optional[str]
+    transaction_date: Optional[str]
+    transaction_type: Optional[str]
+    status: Optional[str]
+
+
+class CreditCardV2TokenHit(TokenHit):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    additional_info: Optional[CreditCardV2AdditionalInfo]
+
+    def serialize_for_v2(self) -> dict:
+        """Serialize an `CreditCardV2TokenHit` into a dict
+        that holds the equivalent info in the v2 shape.
+        Returns:
+            dict: CreditCardV2TokenHit in v2 dict representation.
+        """
+        return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+
+
 class LegacyTokenHit(TokenHit):
     # excel; word; image; QR;
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
@@ -1574,10 +1900,36 @@ class LegacyTokenHit(TokenHit):
     mail: Optional[SMTPMailField]
 
 
+class IdPAppTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    additional_info: AdditionalInfo = AdditionalInfo()
+
+
+class AwsInfraAdditionalInfo(BaseModel):
+    event: Optional[dict[str, Any]]
+    decoy_resource: Optional[dict[str, Any]]
+    identity: Optional[dict[str, Any]]
+    metadata: Optional[dict[str, Any]]
+
+    def serialize_for_v2(self) -> dict:
+        return self.dict()
+
+
+class AWSInfraTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    input_channel: str = "HTTP"
+    additional_info: Optional[AwsInfraAdditionalInfo]
+
+    def serialize_for_v2(self) -> dict:
+        return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
+        PWATokenHit,
         CMDTokenHit,
+        WindowsFakeFSTokenHit,
         DNSTokenHit,
         AWSKeyTokenHit,
         AzureIDTokenHit,
@@ -1590,6 +1942,7 @@ AnyTokenHit = Annotated[
         FastRedirectTokenHit,
         SMTPTokenHit,
         WebBugTokenHit,
+        WebDavTokenHit,
         MySQLTokenHit,
         WireguardTokenHit,
         QRCodeTokenHit,
@@ -1603,9 +1956,14 @@ AnyTokenHit = Annotated[
         SQLServerTokenHit,
         KubeconfigTokenHit,
         LegacyTokenHit,
+        CreditCardV2TokenHit,
+        IdPAppTokenHit,
+        AWSInfraTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
+
+AnyTokenExposedHit = AWSKeyTokenExposedHit
 
 TH = TypeVar("TH", bound=AnyTokenHit)
 
@@ -1639,7 +1997,12 @@ class TokenHistory(GenericModel, Generic[TH]):
         """
         data = {}
         for hit in self.hits:
-            if isinstance(hit, AWSKeyTokenHit) or isinstance(hit, SlackAPITokenHit):
+            if (
+                isinstance(hit, AWSKeyTokenHit)
+                or isinstance(hit, AWSInfraTokenHit)
+                or isinstance(hit, SlackAPITokenHit)
+                or isinstance(hit, CreditCardV2TokenHit)
+            ):
                 hit_data = hit.serialize_for_v2()
             else:
                 hit_data = json_safe_dict(hit, exclude=("token_type", "time_of_hit"))
@@ -1702,9 +2065,19 @@ class CCTokenHistory(TokenHistory[CCTokenHit]):
     hits: List[CCTokenHit]
 
 
+class PWATokenHistory(TokenHistory[PWATokenHit]):
+    token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
+    hits: List[PWATokenHit]
+
+
 class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     hits: List[CMDTokenHit]
+
+
+class WindowsFakeFSTokenHistory(TokenHistory[WindowsFakeFSTokenHit]):
+    token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
+    hits: List[WindowsFakeFSTokenHit]
 
 
 class SlowRedirectTokenHistory(TokenHistory[SlowRedirectTokenHit]):
@@ -1725,6 +2098,11 @@ class CustomImageTokenHistory(TokenHistory[CustomImageTokenHit]):
 class WindowsDirectoryTokenHistory(TokenHistory[WindowsDirectoryTokenHit]):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
     hits: List[WindowsDirectoryTokenHit] = []
+
+
+class WebDavTokenHistory(TokenHistory[WebDavTokenHit]):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    hits: List[WebDavTokenHit] = []
 
 
 class CustomBinaryTokenHistory(TokenHistory[CustomBinaryTokenHit]):
@@ -1796,9 +2174,24 @@ class SvnTokenHistory(TokenHistory[SvnTokenHit]):
     hits: List[SvnTokenHit] = []
 
 
+class CreditCardV2TokenHistory(TokenHistory[CreditCardV2TokenHit]):
+    token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
+    hits: List[CreditCardV2TokenHit] = []
+
+
 class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
     hits: List[LegacyTokenHit] = []
+
+
+class IdPAppTokenHistory(TokenHistory[IdPAppTokenHit]):
+    token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
+    hits: List[IdPAppTokenHit] = []
+
+
+class AWSInfraTokenHistory(TokenHistory[AWSInfraTokenHit]):
+    token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
+    hits: List[AWSInfraTokenHit] = []
 
 
 # AnyTokenHistory is used to type annotate functions that
@@ -1808,7 +2201,9 @@ class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):
 AnyTokenHistory = Annotated[
     Union[
         CCTokenHistory,
+        PWATokenHistory,
         CMDTokenHistory,
+        WindowsFakeFSTokenHistory,
         DNSTokenHistory,
         AWSKeyTokenHistory,
         AzureIDTokenHistory,
@@ -1821,6 +2216,7 @@ AnyTokenHistory = Annotated[
         SlowRedirectTokenHistory,
         FastRedirectTokenHistory,
         WebBugTokenHistory,
+        WebDavTokenHistory,
         CustomBinaryTokenHistory,
         WireguardTokenHistory,
         QRCodeTokenHistory,
@@ -1834,6 +2230,9 @@ AnyTokenHistory = Annotated[
         SQLServerTokenHistory,
         KubeconfigTokenHistory,
         LegacyTokenHistory,
+        CreditCardV2TokenHistory,
+        IdPAppTokenHistory,
+        AWSInfraTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1855,6 +2254,7 @@ class TokenAlertDetails(BaseModel):
     # DESIGN/TODO: pin this dict down and make it a type.
     # We know what this can be.
     additional_data: Optional[dict[str, Any]]
+    public_domain: Optional[str] = "my.domain"
 
     @validator("time", pre=True)
     def validate_time(cls, value):
@@ -1877,253 +2277,43 @@ class TokenAlertDetails(BaseModel):
         }
 
 
-class SlackField(BaseModel):
-    title: str
-    value: str
-    short: bool = True
+class TokenExposedDetails(BaseModel):
+    token_type: TokenTypes
+    token: str
+    memo: Memo
+    key_id: str
+    public_location: Optional[str]
+    exposed_time: datetime
+    manage_url: AnyHttpUrl
+    public_domain: Optional[str] = "my.domain"
 
-
-class SlackAttachment(BaseModel):
-    title: str = "Canarytoken Triggered"
-    title_link: HttpUrl
-    mrkdwn_in: List[str] = ["title"]
-    fallback: str = ""
-    fields: List[SlackField]
-
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        # HACK: We can do better here.
-        data["fallback"] = f"Canarytoken Triggered: {data['title_link']}"
-        super().__init__(**data)
-
-
-class GoogleChatDecoratedText(BaseModel):
-    topLabel: str = ""
-    text: str = ""
-
-
-class GoogleChatWidget(BaseModel):
-    decoratedText: GoogleChatDecoratedText
-
-
-class GoogleChatAlertDetailsSectionData(BaseModel):
-    channel: str = ""
-    time: datetime
-    canarytoken: Canarytoken
-    token_reminder: Memo
-    manage_url: HttpUrl
-
-    @validator("time", pre=True)
+    @validator("exposed_time", pre=True)
     def validate_time(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%d %H:%M:%S (UTC)")
         return value
 
-    def get_googlechat_data(self) -> Dict[str, str]:
-        data = json_safe_dict(self)
-        data["Channel"] = data.pop("channel", "")
-        data["Time"] = data.pop("time", "")
-        data["Canarytoken"] = data.pop("canarytoken", "")
-        data["Token Reminder"] = data.pop("token_reminder", "")
-        data["Manage URL"] = '<a href="{manage_url}">{manage_url}</a>'.format(
-            manage_url=data.pop("manage_url", "")
+    def json_safe_dict(self) -> Dict[str, str]:
+        return json_safe_dict(self)
+
+    @property
+    def history_url(self):
+        return HttpUrl(
+            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
         )
-        return data
+
+    @property
+    def time_hm(self) -> str:
+        return self.exposed_time.strftime("%H:%M")
+
+    @property
+    def time_ymd(self) -> str:
+        return self.exposed_time.strftime("%Y/%m/%d")
 
     class Config:
         json_encoders = {
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
         }
-
-
-class GoogleChatHeader(BaseModel):
-    title: str = "Canarytoken Triggered"
-    imageUrl: HttpUrl
-    imageType: str = "CIRCLE"
-    imageAltText: str = "Thinkst Canary"
-
-
-class GoogleChatSection(BaseModel):
-    header: str = ""
-    collapsible: bool = False
-    widgets: List[GoogleChatWidget] = []
-
-    def add_widgets(self, widgets_info: Optional[Dict[str, str]] = {}) -> None:
-        for label, text in widgets_info.items():
-            if not label or not text:
-                continue
-            message_text = (
-                json.dumps(text) if isinstance(text, dict) else "{}".format(text)
-            )
-            self.widgets.append(
-                GoogleChatWidget(
-                    decoratedText=GoogleChatDecoratedText(
-                        topLabel=label, text=message_text
-                    )
-                )
-            )
-
-
-class GoogleChatCard(BaseModel):
-    header: GoogleChatHeader
-    sections: List[GoogleChatSection] = []
-
-
-class GoogleChatCardV2(BaseModel):
-    cardId: str = "unique-card-id"
-    card: GoogleChatCard
-
-
-class DiscordFieldEntry(BaseModel):
-    name: str = ""
-    value: str = ""
-    inline: bool = False
-
-
-class DiscordDetails(BaseModel):
-    canarytoken: Canarytoken
-    token_reminder: Memo
-    src_data: Optional[dict[str, Any]]
-
-    def get_discord_data(self) -> Dict[str, str]:
-        data = json_safe_dict(self)
-        data["Canarytoken"] = data.pop("canarytoken", "")
-        data["Token Reminder"] = data.pop("token_reminder", "")
-        if "src_data" in data:
-            data["Source Data"] = data.pop("src_data", "")
-        return data
-
-
-class DiscordAuthorField(BaseModel):
-    name: str = "Canary Alerts"
-    icon_url: str
-
-
-class DiscordEmbeds(BaseModel):
-    author: DiscordAuthorField
-    color: int = 3724415  # Magic colour number. Trust the process
-    title: str = "Canarytoken Triggered"
-    url: Optional[HttpUrl]
-    timestamp: datetime
-    fields: List[DiscordFieldEntry] = []
-
-    def add_fields(self, fields_info: Optional[Dict[str, str]] = {}) -> None:
-        for label, text in fields_info.items():
-            if not label or not text:
-                continue
-            message_text = (
-                json.dumps(text) if isinstance(text, dict) else "{}".format(text)
-            )
-            self.fields.append(
-                DiscordFieldEntry(
-                    name=label,
-                    value=message_text,
-                    inline=len(max(message_text.split("\n"))) < 40,
-                )
-            )
-
-    @validator("timestamp", pre=True)
-    def validate_timestamp(cls, value):
-        if isinstance(value, str):
-            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
-        return value
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
-        }
-
-
-class TokenAlertDetailsGoogleChat(BaseModel):
-    cardsV2: List[GoogleChatCardV2]
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
-
-
-class TokenAlertDetailsSlack(BaseModel):
-    """Details that are sent to slack webhooks."""
-
-    attachments: List[SlackAttachment]
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
-
-
-class MsTeamsDetailsSection(BaseModel):
-    canarytoken: Canarytoken
-    token_reminder: Memo
-    src_data: Optional[dict[str, Any]] = None
-    additional_data: Optional[dict[str, Any]] = None
-
-    def dict(self, *args, **kwargs):
-        data = json_safe_dict(self)
-        data["Canarytoken"] = data.pop("canarytoken", "")
-        data["Token Reminder"] = data.pop("token_reminder", "")
-        if "src_data" in data:
-            data["Source Data"] = data.pop("src_data", "")
-
-        if data["additional_data"]:
-            add_data = data.pop("additional_data", {})
-            data.update(add_data)
-
-        facts = []
-        for k, v in data.items():
-            if not v:
-                continue
-
-            if isinstance(v, dict):
-                v = dict_to_csv(v)
-            else:
-                v = str(v)
-
-            facts.append({"name": prettify_snake_case(k), "value": v})
-
-        return {"facts": facts}
-
-
-class MsTeamsTitleSection(BaseModel):
-    activityTitle: str
-    activityImage = CANARY_IMAGE_URL
-
-
-class MsTeamsPotentialAction(BaseModel):
-    name: str
-    target: List[AnyHttpUrl]
-    type: str = "ViewAction"
-    context: str = "http://schema.org"
-
-    def dict(self, *args, **kwargs):
-        d = super().dict(*args, **kwargs)
-
-        d["@type"] = d.pop("type")
-        d["@context"] = d.pop("context")
-
-        return d
-
-
-class TokenAlertDetailsMsTeams(BaseModel):
-    """Details that are sent to MS Teams webhooks."""
-
-    summary: str
-    themeColor = "ff0000"
-    sections: Optional[List[Union[MsTeamsTitleSection, MsTeamsDetailsSection]]] = None
-    potentialAction: Optional[List[MsTeamsPotentialAction]] = None
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
-
-
-class TokenAlertDetailsDiscord(BaseModel):
-    """Details that are sent to Discord webhooks"""
-
-    embeds: List[DiscordEmbeds]
-
-    def json_safe_dict(self) -> Dict[str, str]:
-        return json_safe_dict(self)
-
-
-class TokenAlertDetailGeneric(TokenAlertDetails):
-    ...
 
 
 class UserName(ConstrainedStr):
@@ -2153,7 +2343,7 @@ class Anonymous(User):
     name: UserName = UserName("Anonymous")
 
 
-class DownloadFmtTypes(str, enum.Enum):
+class DownloadFmtTypes(StrEnum):
     """Enumerates all supported token download format types"""
 
     ZIP = "zip"
@@ -2170,14 +2360,16 @@ class DownloadFmtTypes(str, enum.Enum):
     MYSQL = "my_sql"
     QRCODE = "qr_code"
     CMD = "cmd"
+    WINDOWS_FAKE_FS = "windows_fake_fs"
     CC = "cc"
     CSSCLONEDSITE = "cssclonedsite"
+    CREDIT_CARD_V2 = "credit_card_v2"
 
     def __str__(self) -> str:
         return str(self.value)
 
 
-class DownloadContentTypes(str, enum.Enum):
+class DownloadContentTypes(StrEnum):
     """Enumerates all supported token download content types"""
 
     APPZIP = "application/zip"
@@ -2250,6 +2442,10 @@ class DownloadCMDRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
 
 
+class DownloadWindowsFakeFSRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.WINDOWS_FAKE_FS] = DownloadFmtTypes.WINDOWS_FAKE_FS
+
+
 class DownloadCSSClonedWebRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
 
@@ -2266,6 +2462,10 @@ class DownloadSlackAPIRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.SLACK_API] = DownloadFmtTypes.SLACK_API
 
 
+class DownloadCreditCardV2Request(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CREDIT_CARD_V2] = DownloadFmtTypes.CREDIT_CARD_V2
+
+
 AnyDownloadRequest = Annotated[
     Union[
         DownloadAWSKeysRequest,
@@ -2273,6 +2473,7 @@ AnyDownloadRequest = Annotated[
         DownloadAzureIDCertRequest,
         DownloadCCRequest,
         DownloadCMDRequest,
+        DownloadWindowsFakeFSRequest,
         DownloadCSSClonedWebRequest,
         DownloadIncidentListCSVRequest,
         DownloadIncidentListJsonRequest,
@@ -2284,6 +2485,7 @@ AnyDownloadRequest = Annotated[
         DownloadSlackAPIRequest,
         DownloadZipRequest,
         DownloadQRCodeRequest,
+        DownloadCreditCardV2Request,
     ],
     Field(discriminator="fmt"),
 ]
@@ -2300,15 +2502,16 @@ class TokenDownloadResponse(Response):
         headers = {
             "Content-Type": __pydantic_self__.contenttype,
             "Content-Disposition": f"attachment; filename={file_name}",
+            "X-Robots-Tag": "noindex",
         }
 
         super().__init__(content=content, headers=headers)
 
 
 class DownloadMSWordResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.APPMSWORD] = (
         DownloadContentTypes.APPMSWORD
-    ] = DownloadContentTypes.APPMSWORD
+    )
     filename: str
     token: str
     auth: str
@@ -2323,9 +2526,9 @@ class DownloadZipResponse(TokenDownloadResponse):
 
 
 class DownloadMSExcelResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.APPMSEXCELL] = (
         DownloadContentTypes.APPMSEXCELL
-    ] = DownloadContentTypes.APPMSEXCELL
+    )
     filename: str
     token: str
     auth: str
@@ -2339,9 +2542,9 @@ class DownloadPDFResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListJsonResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2362,45 +2565,54 @@ class DownloadQRCodeResponse(TokenDownloadResponse):
 
 
 class DownloadIncidentListCSVResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCCResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCMDResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadCSSClonedWebResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
 
 
 class DownloadAWSKeysResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "credentials"
     token: str
     auth: str
@@ -2411,9 +2623,9 @@ class DownloadAWSKeysResponse(TokenDownloadResponse):
 
 
 class DownloadAzureIDConfigResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2421,9 +2633,9 @@ class DownloadAzureIDConfigResponse(TokenDownloadResponse):
 
 
 class DownloadAzureIDCertResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str
     token: str
     auth: str
@@ -2431,20 +2643,29 @@ class DownloadAzureIDCertResponse(TokenDownloadResponse):
 
 
 class DownloadKubeconfigResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     filename: str = "kubeconfig"
     token: str
     auth: str
 
 
 class DownloadSlackAPIResponse(TokenDownloadResponse):
-    contenttype: Literal[
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
-    ] = DownloadContentTypes.TEXTPLAIN
+    )
     slack_api_key: str
     filename: str = "slack_creds"
+    token: str
+    auth: str
+
+
+class DownloadCreditCardV2Response(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str = "credit_card"
     token: str
     auth: str
 
@@ -2455,7 +2676,12 @@ class DownloadGetRequestModel(BaseModel):
     fmt: str
 
 
-class CanarydropSettingsTypes(str, enum.Enum):
+class FetchLinksRequest(BaseModel):
+    email: str
+    cf_turnstile_response: str
+
+
+class CanarydropSettingsTypes(StrEnum):
     """Enumerates all supported canarydrop settings types"""
 
     # CLONEDSITESETTING = "clonedsite"
@@ -2477,27 +2703,27 @@ class SettingsRequest(BaseModel):
 
 
 class EmailSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.EMAILSETTING] = (
         CanarydropSettingsTypes.EMAILSETTING
-    ] = CanarydropSettingsTypes.EMAILSETTING
+    )
 
 
 class WebhookSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.WEBHOOKSETTING] = (
         CanarydropSettingsTypes.WEBHOOKSETTING
-    ] = CanarydropSettingsTypes.WEBHOOKSETTING
+    )
 
 
 class BrowserScannerSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.BROWSERSCANNERSETTING] = (
         CanarydropSettingsTypes.BROWSERSCANNERSETTING
-    ] = CanarydropSettingsTypes.BROWSERSCANNERSETTING
+    )
 
 
 class WebImageSettingsRequest(SettingsRequest):
-    setting: Literal[
+    setting: Literal[CanarydropSettingsTypes.WEBIMAGESETTING] = (
         CanarydropSettingsTypes.WEBIMAGESETTING
-    ] = CanarydropSettingsTypes.WEBIMAGESETTING
+    )
 
 
 AnySettingsRequest = Annotated[
@@ -2511,8 +2737,29 @@ AnySettingsRequest = Annotated[
 ]
 
 
-class SettingsResponse(Response):
-    result: Literal["success", "failure"]
+class SettingsResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
+class DeleteResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
+class EditResponse(BaseModel):
+    message: Literal["success", "failure"]
+
+
+class FetchLinksMessage(StrEnum):
+    NOT_CONFIGURED = "failed: cloudflare turnstile not configured"
+    TURNSTILE_REQUIRED = "failed: turnstile required"
+    INVALID_EMAIL = "failed: invalid email"
+    INVALID_TURNSTILE = "failed: invalid turnstile"
+    SEND_FAIL = "failed: could not send mail"
+    SUCCESS = "success"
+
+
+class FetchLinksResponse(BaseModel):
+    message: FetchLinksMessage
 
 
 class ManageTokenSettingsRequest(BaseModel):
@@ -2524,3 +2771,220 @@ class ManageTokenSettingsRequest(BaseModel):
     web_image_enable: Optional[Literal["on", "off"]]
     browser_scanner_enable: Optional[Literal["on", "off"]]
     # Add validation for the token and auth fields
+
+
+class ManageResponse(BaseModel):
+    canarydrop: Dict
+    public_ip: Optional[str]
+    wg_private_key_seed: Optional[str]
+    wg_private_key_n: Optional[str]
+    wg_conf: Optional[str]
+    wg_qr_code: Optional[str]
+    qr_code: Optional[str]
+    force_https: Optional[bool]
+    clonedsite_js: Optional[str]
+    clonedsite_css: Optional[str]
+    client_id: Optional[str]
+
+
+class HistoryResponse(BaseModel):
+    canarydrop: Dict
+    history: AnyTokenHistory
+    google_api_key: Optional[str]
+
+
+class AWSInfraAssetType(StrEnum):
+    S3_BUCKET = "S3Bucket"
+    SQS_QUEUE = "SQSQueue"
+    SSM_PARAMETER = "SSMParameter"
+    SECRETS_MANAGER_SECRET = "SecretsManagerSecret"
+    DYNAMO_DB_TABLE = "DynamoDBTable"
+
+
+class AWSInfraAssetField(StrEnum):
+    BUCKET_NAME = "bucket_name"
+    OBJECTS = "objects"
+    SQS_QUEUE_NAME = "sqs_queue_name"
+    SSM_PARAMETER_NAME = "ssm_parameter_name"
+    SECRET_NAME = "secret_name"
+    TABLE_NAME = "table_name"
+    TABLE_ITEMS = "table_items"
+
+
+class AWSInfraConfigStartRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+
+
+class AWSInfraConfigStartResponse(BaseModel):
+    result: bool
+    message: str = ""
+    role_setup_commands: dict
+
+
+class AWSInfraTriggerOperationRequest(BaseModel):  # before handle id created
+    canarytoken: str
+    auth_token: str
+    external_id: Optional[str] = None
+
+
+class AWSInfraHandleRequest(BaseModel):
+    handle: str
+
+
+class AWSInfraHandleResponse(BaseModel):  # before response received
+    handle: str
+    message: str = ""
+    error: str = ""
+
+
+class AWSInfraCheckRoleReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    session_credentials_retrieved: bool
+    error: str = ""
+
+
+class AWSInfraInventoryCustomerAccountReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    proposed_plan: dict = {}
+    error: str = ""
+    data_generation_remaining: int = 0
+
+
+class AWSInfraGenerateDataChoiceRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    asset_type: AWSInfraAssetType
+    asset_field: AWSInfraAssetField
+    parent_asset_name: Optional[str] = None
+    plan: Optional[dict] = None
+
+
+class AWSInfraGenerateDataChoiceResponse(BaseModel):
+    result: bool
+    message: str = ""
+    proposed_data: Optional[str] = None
+    data_generation_remaining: int = 0
+
+
+class AWSInfraSavePlanRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    plan: Any
+
+
+class AWSInfraSavePlanResponse(BaseModel):
+    result: bool
+    message: str = ""
+    terraform_module_source: str = ""
+
+
+class DefaultResponse(BaseModel):
+    result: bool
+    message: str = ""
+
+
+class AWSInfraSetupIngestionReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    terraform_module_snippet: Optional[dict] = None
+    role_cleanup_commands: Optional[dict] = None
+    error: str = ""
+
+
+class AWSInfraTeardownReceivedResponse(BaseModel):
+    result: bool
+    message: str = ""
+    handle: str
+    role_cleanup_commands: Optional[dict] = None
+    error: str = ""
+
+
+class AWSInfraOperationType(StrEnum):
+    CHECK_ROLE = "Check-Role"
+    INVENTORY = "Inventory"
+    SETUP_INGESTION = "Setup-Ingestion"
+    PROVISION_INGESTION_BUS = "Provision-Ingestion-Bus"
+    TEARDOWN = "Teardown"
+
+
+class AWSInfraManagementResponseRequest(BaseModel):
+    handle: str
+    operation: AWSInfraOperationType
+    result: dict
+
+
+class AWSInfraGenerateChildAssetsRequest(BaseModel):
+    canarytoken: str
+    auth_token: str
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        list[str],
+    ]
+
+
+class AWSInfraGenerateChildAssetsResponse(BaseModel):
+    assets: dict[
+        Union[
+            Literal[AWSInfraAssetType.S3_BUCKET],
+            Literal[AWSInfraAssetType.DYNAMO_DB_TABLE],
+        ],
+        dict[str, list[str]],
+    ]
+    data_generation_remaining: int = 0
+
+
+class AWSInfraState(enum.Flag):
+    # Base states
+    INITIAL = enum.auto()  # initial state, before any operation
+    CHECK_ROLE = enum.auto()  # after config started
+    INVENTORY = enum.auto()  # after check-role succeeded
+    GENERATE_CHILD_ASSETS = enum.auto()  # after inventorying
+    PLAN = enum.auto()  # after inventorying
+    SETUP_INGESTION = enum.auto()  # after plan saved
+
+    # Overlay states
+    INGESTING = enum.auto()
+    SUCCEEDED = enum.auto()
+
+
+class AWSInfraServiceError(StrEnum):
+    FAILURE_CHECK_ROLE = "FAILURE_CHECK_ROLE"
+    FAILURE_INGESTION_BUS_IS_FULL = "FAILURE_INGESTION_BUS_IS_FULL"
+    FAILURE_INGESTION_BUS_PROVISION = "FAILURE_INGESTION_BUS_PROVISION"
+    FAILURE_INGESTION_SETUP = "FAILURE_INGESTION_SETUP"
+    FAILURE_INGESTION_TEARDOWN = "FAILURE_INGESTION_TEARDOWN"
+    FAILURE_INVENTORY = "FAILURE_INVENTORY"
+    FAILURE_MGMT_RESPONSE = "FAILURE_MGMT_RESPONSE"
+    FAILURE_TRIG_ALERT = "FAILURE_TRIG_ALERT"
+    FAILURE_INVENTORY_REGION_DISABLED = "FAILURE_INVENTORY_REGION_DISABLED"
+    FAILURE_INVENTORY_ACCESS_DENIED = "FAILURE_INVENTORY_ACCESS_DENIED"
+    FAILURE_INVENTORY_TOKEN_EXISTS = "FAILURE_INVENTORY_TOKEN_EXISTS"
+    OP_MISSING_KEY = "OP_MISSING_KEY"
+    REQ_HANDLE_INVALID = "REQ_HANDLE_INVALID"
+    REQ_HANDLE_TIMEOUT = "REQ_HANDLE_TIMEOUT"
+    REQ_OPERATION_INVALID = "REQ_OPERATION_INVALID"
+    REQ_PAYLOAD_INVALID_JSON = "REQ_PAYLOAD_INVALID_JSON"
+    REQ_PAYLOAD_UNSUPPORTED = "REQ_PAYLOAD_UNSUPPORTED"
+    UNHANDLED_ERROR = "UNHANDLED_ERROR"
+    UNKNOWN = "UNKNOWN"
+    NO_ERROR = ""
+
+    @classmethod
+    def parse(cls, error: Optional[str] = None) -> AWSInfraServiceError:
+        if not error:
+            return cls.NO_ERROR
+
+        try:
+            code = error.split("::")[0]
+            return cls(code)
+        except ValueError:
+            return cls.UNKNOWN

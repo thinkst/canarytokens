@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from pydantic import ValidationError, parse_obj_as
@@ -14,11 +15,12 @@ from canarytokens import queries
 from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
-from canarytokens.models import AnyTokenHit, TokenTypes
+from canarytokens.models import AnyTokenHit, AWSKeyTokenHit, TokenTypes
 from canarytokens.queries import get_canarydrop
+from canarytokens.saml import SAML_POST_ARG
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
-from canarytokens.tokens import Canarytoken, GIF
+from canarytokens.tokens import Canarytoken, GIF, get_template_env
 from canarytokens.utils import coerce_to_float
 
 log = Logger()
@@ -60,7 +62,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return self
         return Resource.getChild(self, name, request)
 
-    def render_GET(self, request: Request):
+    def render_GET(self, request: Request):  # noqa: C901
         # A GET request to a token URL can trigger one of a few responses:
         # 1. Check if link has been clicked on (rather than loaded from an
         #    <img>) by looking at the Accept header, then:
@@ -96,6 +98,28 @@ class CanarytokenPage(InputChannel, resource.Resource):
             log.info(f"Error: {e}")
             request.setHeader("Content-Type", "image/gif")
             return GIF
+
+        if canarydrop.type == TokenTypes.PWA:
+            if request.path.endswith(b"/manifest.json"):
+                request.setHeader("Content-Type", "application/manifest+json")
+                template = get_template_env().get_template("pwa_manifest.json")
+                params = {
+                    "app_name": canarydrop.pwa_app_name,
+                    "icon": canarydrop.pwa_icon.value,
+                }
+                return template.render(**params).encode()
+            elif request.path.endswith(b"/sw.js"):
+                request.setHeader("Content-Type", "text/javascript")
+                template = get_template_env().get_template("pwa_sw.js")
+                return template.render().encode()
+            elif request.args == {}:
+                template = get_template_env().get_template("pwa.html")
+                params = {
+                    "app_name": canarydrop.pwa_app_name,
+                    "token_url": canarydrop.generated_url,
+                    "icon": canarydrop.pwa_icon.value,
+                }
+                return template.render(**params).encode()
 
         handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
         http_general_info, src_data = handler(request)
@@ -140,7 +164,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         request.responseHeaders.removeHeader("Content-Type")
         return b""
 
-    def render_POST(self, request: Request):
+    def render_POST(self, request: Request):  # noqa: C901
         try:
             token = Canarytoken(value=request.path)
         except NoCanarytokenFound:
@@ -157,10 +181,12 @@ class CanarytokenPage(InputChannel, resource.Resource):
         #    -getting an aws trigger (key == aws_s3)
         # otherwise, slack api token data perhaps
         # store the info and don't re-render
-
         if canarydrop.type == TokenTypes.AWS_KEYS:
             token_hit = Canarytoken._parse_aws_key_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            if isinstance(token_hit, AWSKeyTokenHit):
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            else:
+                canarydrop.add_key_exposed_hit(token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
         elif canarydrop.type == TokenTypes.AZURE_ID:
@@ -173,19 +199,36 @@ class CanarytokenPage(InputChannel, resource.Resource):
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
+        elif canarydrop.type == TokenTypes.CREDIT_CARD_V2:
+            token_hit = Canarytoken._parse_credit_card_v2_trigger(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
+        elif canarydrop.type == TokenTypes.WEBDAV:
+            token_hit = Canarytoken._get_info_for_webdav(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
         elif canarydrop.type in [
             TokenTypes.SLOW_REDIRECT,
             TokenTypes.WEB_IMAGE,
             TokenTypes.WEB,
+            TokenTypes.LEGACY,
         ]:
             key = request.args.get(b"key", [None])[0]
+            # if key is present then do special handling arguments,
+            # otherwise just use render_GET()
+            if not key:
+                return self.render_GET(request)
+
             if (key := coerce_to_float(key)) and token:
                 additional_info = {
                     k.decode(): v
                     for k, v in request.args.items()
                     if k.decode() not in ["key", "canarytoken", "name"]
                 }
-                canarydrop.add_additional_info_to_hit(
+                queries.add_additional_info_to_hit(
+                    canarytoken=canarydrop.canarytoken,
                     hit_time=key,
                     additional_info={
                         request.args[b"name"][0].decode(): additional_info
@@ -202,8 +245,42 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 )
                 # TODO: These returns are not really needed
                 return b"failed"
-        else:
-            return self.render_GET(request)
+        elif canarydrop.type == TokenTypes.IDP_APP:
+            if SAML_POST_ARG in request.args:
+                return self.render_GET(request)
+            key = request.args.get(b"key", [None])[0]
+            if (key := coerce_to_float(key)) and token:
+                additional_info = {
+                    k.decode(): v
+                    for k, v in request.args.items()
+                    if k.decode() not in ["key", "canarytoken", "name"]
+                }
+                queries.add_additional_info_to_hit(
+                    canarytoken=canarydrop.canarytoken,
+                    hit_time=key,
+                    additional_info={
+                        request.args[b"name"][0].decode(): additional_info
+                    },
+                )
+                self.dispatch(
+                    canarydrop=canarydrop,
+                    token_hit=canarydrop.triggered_details.hits[-1],
+                )
+                return b"success"
+            else:
+                log.info(
+                    f"Either {key=} or {token=} were falsy. Dropping this request."
+                )
+                # TODO: These returns are not really needed
+                return b"failed"
+        elif canarydrop.type == TokenTypes.AWS_INFRA:
+            content = json.load(request.content)
+            # log.debug(content)
+            token_hit = Canarytoken._parse_aws_infra_trigger(content)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
+        return self.render_GET(request)
 
 
 class ChannelHTTP:

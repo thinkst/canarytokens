@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-TEvYvaZ5.js";import{d as o,e as r,f as t}from"./index-BVhdqyit.js";const c=o({__name:"GenerateTokenForm",setup(a){return(n,s)=>(r(),t(e,{"memo-helper-example":" Hostname in /etc/hosts of server X"}))}});export{c as default};

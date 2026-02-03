@@ -2,37 +2,26 @@ import base64
 import subprocess
 import tempfile
 
-import pytest
 import requests
 
 from canarytokens.models import (
-    V2,
     KubeconfigTokenHistory,
     KubeconfigTokenRequest,
     KubeconfigTokenResponse,
     Memo,
-    TokenAlertDetailGeneric,
     TokenTypes,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
-    v2,
-    v3,
+    server_config,
 )
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v2,
-        v3,
-    ],
-)
-def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+def test_kubeconfig(tmpdir, webhook_receiver):
+
     # initialize request
     memo = "kubeconfig memo!"
     token_request = KubeconfigTokenRequest(
@@ -42,7 +31,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
     )
 
     # Create kubeconfig token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = KubeconfigTokenResponse(**resp)
 
     # check kubeconfig response field is not empty
@@ -62,7 +51,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
 
     print("get download")
     download_resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=kubeconfig_request_params,
         timeout=(60, 60),
     )
@@ -94,8 +83,6 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         "nodes",
         # "-v=9",
     ]
-    if isinstance(version, V2):
-        cmd.append("--insecure-skip-tls-verify")
 
     # trigger token
     print(f"start subprocess: {cmd}")
@@ -117,7 +104,7 @@ def test_kubeconfig(tmpdir, version, webhook_receiver, runv2, runv3):
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = KubeconfigTokenHistory(**resp)
     assert len(token_history.hits) >= 1
     token_hit = token_history.hits[0]

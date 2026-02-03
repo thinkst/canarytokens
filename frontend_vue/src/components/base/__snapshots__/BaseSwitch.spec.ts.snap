@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BaseSwitch.vue > renders correctly 1`] = `
+"<div data-v-2a6ccf4b="" class="relative flex flex-col justify-between"><input data-v-2a6ccf4b="" id="test-id" type="checkbox" role="switch" class="toggle" aria-checked="false" value="false"><label data-v-2a6ccf4b="" for="test-id" class="relative">Test Label
+    <!--v-if-->
+  </label>
+  <div data-v-2a6ccf4b="">
+    <p data-v-2a6ccf4b="" id="helper" class="text-xs leading-4 text-grey-500 pr-[3rem]" style="display: none;"></p>
+    <p data-v-2a6ccf4b="" id="error" class="text-xs leading-4 text-red" style="display: none;"></p>
+  </div>
+</div>"
+`;

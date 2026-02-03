@@ -4,12 +4,12 @@ import logging
 import os
 import threading
 import time
-from distutils.util import strtobool
 from pathlib import Path
-from typing import Generator, Optional
+from typing import Any, Generator, Optional
 from unittest import mock
 
 import pytest
+from redis import StrictRedis
 import requests
 from requests import HTTPError
 import uvicorn  # type: ignore
@@ -24,6 +24,7 @@ from canarytokens.queries import (
     add_canary_domain,
     add_canary_nxdomain,
     add_canary_page,
+    add_canary_image_page,
     add_canary_path_element,
     get_certificate,
     save_certificate,
@@ -31,6 +32,7 @@ from canarytokens.queries import (
 )
 from canarytokens.redismanager import DB, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP
 from canarytokens.settings import FrontendSettings, Port, SwitchboardSettings
+from canarytokens.utils import strtobool
 
 # TODO: Once webhooker can handle more / faster traffic these will get upped
 # DESIGN: ngrok to get a basic webhook(er). This can be a lambda or a docker service.
@@ -159,35 +161,24 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         yield f"http://{config.host}:{config.port}"
 
 
-def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption("--runv3", action="store_true", default=False, help="run V3 tests")
-    parser.addoption("--runv2", action="store_true", default=False, help="run V2 tests")
-
-
-@pytest.fixture(scope="session")
-def runv2(request: pytest.FixtureRequest) -> bool:
-    return request.config.getoption("--runv2", False)
-
-
-@pytest.fixture(scope="session")
-def runv3(request: pytest.FixtureRequest) -> bool:
-    return request.config.getoption("--runv3", False)
-
-
 @pytest.fixture(scope="session")
 def settings() -> SwitchboardSettings:
     return SwitchboardSettings(
         PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
-        CHANNEL_SMTP_PORT=Port(25)
-        if strtobool(os.getenv("LIVE", "FALSE"))
-        else Port(2500),
-        MAILGUN_DOMAIN_NAME="eu-mg.honeypdfs.com"
-        if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
-        else os.getenv("CANARY_MAILGUN_DOMAIN_NAME"),
-        MAILGUN_BASE_URL="https://api.eu.mailgun.net"
-        if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
-        else os.getenv("CANARY_MAILGUN_BASE_URL"),
+        CHANNEL_SMTP_PORT=(
+            Port(25) if strtobool(os.getenv("LIVE", "FALSE")) else Port(2500)
+        ),
+        MAILGUN_DOMAIN_NAME=(
+            "eu-mg.honeypdfs.com"
+            if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
+            else os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
+        ),
+        MAILGUN_BASE_URL=(
+            "https://api.eu.mailgun.net"
+            if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
+            else os.getenv("CANARY_MAILGUN_BASE_URL")
+        ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )
@@ -201,9 +192,9 @@ def fake_settings_for_aws_keys():
     return SwitchboardSettings(
         PUBLIC_DOMAIN="127.0.0.1",
         CHANNEL_HTTP_PORT=Port(8084),
-        CHANNEL_SMTP_PORT=Port(25)
-        if strtobool(os.getenv("LIVE", "FALSE"))
-        else Port(2500),
+        CHANNEL_SMTP_PORT=(
+            Port(25) if strtobool(os.getenv("LIVE", "FALSE")) else Port(2500)
+        ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
     )
@@ -259,7 +250,7 @@ def setup_db_connection_only(settings: SwitchboardSettings):
 @pytest.fixture(scope="function", autouse=False)
 def setup_db(  # noqa: C901
     settings: SwitchboardSettings, frontend_settings: FrontendSettings
-):
+) -> Generator[Any, Any, Optional[StrictRedis]]:
     redis_hostname = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     DB.set_db_details(hostname=redis_hostname, port=6379)
     # Kubeconfig token needs a client cert in redis.
@@ -305,9 +296,10 @@ def setup_db(  # noqa: C901
     add_canary_domain(frontend_settings.DOMAINS[0])
     add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
+    add_canary_image_page("photo1.jpg")
     add_canary_path_element("tags")
 
-    yield
+    yield db
 
     for key in db.scan_iter():
         if not any(key.startswith(key_prefix) for key_prefix in prefixes_to_persist):
@@ -318,6 +310,7 @@ def setup_db(  # noqa: C901
     add_canary_domain(frontend_settings.DOMAINS[0])
     add_canary_nxdomain(frontend_settings.NXDOMAINS[0])
     add_canary_page("post.jsp")
+    add_canary_image_page("photo1.jpg")
     add_canary_path_element("tags")
 
 

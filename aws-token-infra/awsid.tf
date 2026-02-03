@@ -1,9 +1,7 @@
 terraform {
   backend "s3" {
-    bucket = "terraformstate-<account_id>"
-    key    = "terraformstate"
+    use_lockfile = true
     region = "us-east-2"
-    dynamodb_table = "terraformlock"
   }
 }
 
@@ -23,6 +21,13 @@ variable "playbook_url" {
   type = string
 }
 
+# While we <3 open source and sharing stuff we build, publishing guessable S3 Bucket or role names
+# allows an attacker to fingerprint an AWS API key by extracting its account ID and checking for the
+# bucket's existence or a role's existence in the account. This suffix is kept private to prevent this.
+variable "randomised_suffix" {
+  type = string
+}
+
 provider "aws" {
    region = "us-east-2"
 }
@@ -39,7 +44,7 @@ variable "create_user_api_tokens_name" {
 }
 
 resource "aws_iam_role" "create_user_api_tokens" {
-  name = "AWSTokenRole"
+  name = "AWSTokenRole${var.randomised_suffix}"
 
   assume_role_policy = <<EOF
 {
@@ -180,8 +185,15 @@ resource "aws_api_gateway_deployment" "create_user_api_tokens" {
    ]
 
    rest_api_id = aws_api_gateway_rest_api.create_user_api_tokens.id
-   stage_name  = "prod"
 }
+
+resource "aws_api_gateway_stage" "create_user_api_tokens" {
+  deployment_id = aws_api_gateway_deployment.create_user_api_tokens.id
+  rest_api_id   = aws_api_gateway_rest_api.create_user_api_tokens.id
+  stage_name    = "prod"
+}
+
+
 resource "aws_lambda_permission" "create_user_api_tokens" {
    statement_id  = "AllowAPIGatewayInvoke"
    action        = "lambda:InvokeFunction"
@@ -194,8 +206,8 @@ resource "aws_lambda_permission" "create_user_api_tokens" {
 }
 
 
-output "base_url" {
-  value = aws_api_gateway_deployment.create_user_api_tokens.invoke_url
+output "aws_api_key_creation_url" {
+  value = "https://${aws_api_gateway_rest_api.create_user_api_tokens.id}.execute-api.us-east-2.amazonaws.com/${aws_api_gateway_stage.create_user_api_tokens.stage_name}/${aws_api_gateway_resource.create_user_api_tokens.path_part}"
 }
 
 
@@ -203,7 +215,7 @@ output "base_url" {
 # Log storage
 #
 resource "aws_s3_bucket" "canarytoken_logs" {
-  bucket        = "awskeytokentrailbucketall-${data.aws_caller_identity.current.account_id}"
+  bucket        = "awskeytokentrail-${data.aws_caller_identity.current.account_id}-${var.randomised_suffix}"
   force_destroy = true
 }
 resource "aws_s3_bucket_policy" "canarytokens_logs_policy" {
@@ -219,7 +231,7 @@ resource "aws_s3_bucket_policy" "canarytokens_logs_policy" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:GetBucketAcl",
-            "Resource": "arn:aws:s3:::awskeytokentrailbucketall-${data.aws_caller_identity.current.account_id}"
+            "Resource": "arn:aws:s3:::${aws_s3_bucket.canarytoken_logs.id}"
         },
         {
             "Sid": "AWSCloudTrailWrite",
@@ -228,7 +240,7 @@ resource "aws_s3_bucket_policy" "canarytokens_logs_policy" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::awskeytokentrailbucketall-${data.aws_caller_identity.current.account_id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+            "Resource": "arn:aws:s3:::${aws_s3_bucket.canarytoken_logs.id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
             "Condition": {
                 "StringEquals": {
                     "s3:x-amz-acl": "bucket-owner-full-control"
@@ -274,7 +286,7 @@ variable "process_user_api_tokens_logs" {
 }
 
 resource "aws_iam_role" "process_user_api_tokens_logs" {
-  name = "AWSProcessTokenLogsRole"
+  name = "AWSProcessTokenLogsRole${var.randomised_suffix}"
 
   assume_role_policy = <<EOF
 {
@@ -328,6 +340,10 @@ resource "aws_cloudwatch_log_group" "process_user_api_tokens_logs_lambda_logs" {
   retention_in_days = 14
 }
 
+data "aws_kms_key" "default_lambda_kms_key" {
+  key_id = "alias/aws/lambda"
+}
+
 resource "aws_iam_policy" "process_user_api_tokens_logs_lambda_logs" {
   name        = "${var.process_user_api_tokens_logs}-Lambda-Logs"
   path        = "/"
@@ -342,7 +358,7 @@ resource "aws_iam_policy" "process_user_api_tokens_logs_lambda_logs" {
       "Action": [
           "kms:Decrypt"
       ],
-      "Resource": "*"
+      "Resource": "${data.aws_kms_key.default_lambda_kms_key.arn}"
     },
       {
         "Effect": "Allow",
@@ -406,7 +422,7 @@ resource "aws_iam_policy" "process_user_api_tokens_logs_cloudtrail" {
 EOF
 }
 resource "aws_iam_role" "process_user_api_tokens_logs_cloudtrail" {
-  name = "CloudTrail_CloudWatchLogs_Role"
+  name = "CloudTrail_CloudWatchLogs_Role${var.randomised_suffix}"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -470,7 +486,7 @@ variable "api_tokens_safety_net_name" {
 }
 
 resource "aws_iam_role" "api_tokens_safety_net" {
-  name = "SafetyNetRole"
+  name = "SafetyNetRole${var.randomised_suffix}"
 
   assume_role_policy = <<EOF
 {

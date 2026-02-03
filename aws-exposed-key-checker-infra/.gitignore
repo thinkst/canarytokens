@@ -1,0 +1,6 @@
+.terraform
+.tfvars
+*.zip
+*.tfstate
+*.tfstate.backup
+test_ticket_data.json

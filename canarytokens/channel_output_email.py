@@ -1,11 +1,17 @@
 """
 Output channel that sends emails. Relies on Sendgrid to actually send mails.
 """
+
 from pathlib import Path
 from textwrap import dedent
 import textwrap
-from typing import Optional
-import enum
+from typing import Optional, Union
+import sys
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum  # Python 3.11+
+else:
+    from backports.strenum import StrEnum  # Python < 3.11
 import uuid
 
 import minify_html
@@ -26,9 +32,13 @@ from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_EMAIL, MAILGUN_IGNORE_ERRORS
 from canarytokens.models import (
     AnyTokenHit,
-    readable_token_type_names,
+    AnyTokenExposedHit,
+    Memo,
+    TokenExposedHit,
+    READABLE_TOKEN_TYPE_NAMES,
     TokenAlertDetails,
-    token_types_with_article_an,
+    TokenExposedDetails,
+    TOKEN_TYPES_WITH_ARTICLE_AN,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -50,11 +60,12 @@ log = Logger()
 #         log.error("Failed to send mail via mailgun.")
 #     return not success
 
+
 # success                             -> sent
 # badly formed such as http://bob.com -> ignored (error returned right away)
 # bad domain                          -> sent
 # unhandled error                     -> error (sent to slack to notify)
-class EmailResponseStatuses(str, enum.Enum):
+class EmailResponseStatuses(StrEnum):
     """Enumerates all email responses"""
 
     # NOT_SENT = "not_sent"
@@ -64,13 +75,21 @@ class EmailResponseStatuses(str, enum.Enum):
     IGNORED = "ignored"
 
 
+class EmailTemplates(StrEnum):
+    NOTIFICATION_TOKEN_EXPOSED = (
+        "emails/_generated_dont_edit_notification_token_exposed.html"
+    )
+    NOTIFICATION_HTML = "emails/_generated_dont_edit_notification.html"
+    NOTIFICATION_TXT = "emails/notification.txt"
+
+
 class EmailResponse(object):
     def __init__(
         self,
         status: EmailResponseStatuses,
         canarydrop: Canarydrop,
         message_id: str,
-        alert_details: TokenAlertDetails,
+        alert_details: Union[TokenAlertDetails, TokenExposedDetails],
         max_alert_failures: int,
     ):
         self.status = status
@@ -91,9 +110,14 @@ class EmailResponse(object):
         self.canarydrop.disable_alert_email()
 
     def handle_sent(self):
+        time = (
+            self.alert_details.time
+            if isinstance(self.alert_details, TokenAlertDetails)
+            else self.alert_details.exposed_time
+        )
         queries.remove_mail_from_to_send_status(
             token=self.alert_details.token,
-            time=self.alert_details.time,
+            time=time,
         )
         queries.put_mail_on_sent_queue(
             mail_key=self.message_id,
@@ -247,8 +271,9 @@ def smtp_send(
         smtpmsg.attach(part2)
 
         with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
+            if smtp_username is not None and smtp_password is not None:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
             server.sendmail(fromaddr, toaddr, smtpmsg.as_string())
     except smtplib.SMTPException as e:
         log.error("A smtp error occurred: %s - %s" % (e.__class__, e))
@@ -256,6 +281,57 @@ def smtp_send(
     else:
         email_response = EmailResponseStatuses.SENT
     return email_response, message_id
+
+
+def send_email(
+    *,
+    switchboard_settings: SwitchboardSettings,
+    email_recipient: EmailStr,
+    email_subject: str,
+    email_content_html: str,
+    email_content_text: str,
+    from_email: EmailStr,
+    from_display: str,
+) -> tuple[Optional[EmailResponseStatuses], Optional[str]]:
+    if switchboard_settings.MAILGUN_API_KEY:
+        email_response_status, message_id = mailgun_send(
+            email_address=email_recipient,
+            email_subject=email_subject,
+            email_content_html=email_content_html,
+            email_content_text=email_content_text,
+            from_email=EmailStr(from_email),
+            from_display=from_display,
+            api_key=switchboard_settings.MAILGUN_API_KEY,
+            base_url=switchboard_settings.MAILGUN_BASE_URL,
+            mailgun_domain=switchboard_settings.MAILGUN_DOMAIN_NAME,
+        )
+    elif switchboard_settings.SENDGRID_API_KEY:
+        email_response_status, message_id = sendgrid_send(
+            api_key=switchboard_settings.SENDGRID_API_KEY,
+            email_address=email_recipient,
+            email_content_html=email_content_html,
+            from_email=EmailStr(from_email),
+            email_subject=email_subject,
+            from_display=from_display,
+            sandbox_mode=False,
+        )
+    elif switchboard_settings.SMTP_SERVER:
+        email_response_status, message_id = smtp_send(
+            email_address=email_recipient,
+            email_content_html=email_content_html,
+            email_content_text=email_content_text,
+            email_subject=email_subject,
+            from_email=EmailStr(from_email),
+            from_display=from_display,
+            smtp_password=switchboard_settings.SMTP_PASSWORD,
+            smtp_username=switchboard_settings.SMTP_USERNAME,
+            smtp_server=switchboard_settings.SMTP_SERVER,
+            smtp_port=switchboard_settings.SMTP_PORT,
+        )
+    else:
+        log.error("No email settings found")
+        email_response_status, message_id = None, None
+    return email_response_status, message_id
 
 
 class EmailOutputChannel(OutputChannel):
@@ -283,18 +359,36 @@ class EmailOutputChannel(OutputChannel):
         )
 
     @staticmethod
-    def format_report_html(
-        details: TokenAlertDetails,
+    def format_token_exposed_html(
+        details: TokenExposedDetails,
         template_path: Path,
     ):
         """Returns a string containing an incident report in HTML,
         suitable for emailing"""
-
-        # Use the Flask app context to render the emails
-        # (this generates the urls + schemes correctly)
-        readable_type = readable_token_type_names[details.token_type]
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
         BasicDetails = details.dict()
         BasicDetails["readable_type"] = readable_type
+        BasicDetails["token_type"] = details.token_type.value
+        BasicDetails["memo"] = details.memo
+        BasicDetails["key_id"] = details.key_id
+        BasicDetails["time_ymd"] = details.time_ymd
+        BasicDetails["time_hm"] = details.time_hm
+
+        rendered_html = Template(template_path.read_text()).render(
+            BasicDetails=BasicDetails,
+            ManageLink=details.manage_url,
+            HistoryLink=details.history_url,
+        )
+        return minify_html.minify(rendered_html)
+
+    @staticmethod
+    def extract_basic_details(details: TokenAlertDetails) -> dict:
+        # Use the Flask app context to render the emails
+        # (this generates the urls + schemes correctly)
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
+        BasicDetails = details.dict()
+        BasicDetails["readable_type"] = readable_type
+        BasicDetails["token_type"] = details.token_type.value
 
         if (
             BasicDetails["additional_data"]
@@ -323,48 +417,77 @@ class EmailOutputChannel(OutputChannel):
                 BasicDetails[field_name] = BasicDetails["src_data"].pop(field_name)
         BasicDetails.pop("src_data")
 
-        rendered_html = Template(template_path.open().read()).render(
+        if "useragent" in BasicDetails and not BasicDetails["useragent"]:
+            BasicDetails.pop("useragent")
+        if "src_ip" in BasicDetails and not BasicDetails["src_ip"]:
+            BasicDetails.pop("src_ip")
+        if details.token_type == TokenTypes.PWA and "location" in BasicDetails:
+            BasicDetails["pwa_location"] = BasicDetails.pop("location")
+            latitude = BasicDetails["pwa_location"]["coords"].get("latitude")
+            longitude = BasicDetails["pwa_location"]["coords"].get("longitude")
+            if latitude and longitude:
+                BasicDetails["pwa_location"][
+                    "google_maps_link"
+                ] = f"https://google.com/maps?q={latitude},{longitude}"
+                BasicDetails["pwa_location"][
+                    "apple_maps_link"
+                ] = f"https://maps.apple.com/?q={latitude},{longitude}"
+
+        return BasicDetails
+
+    @staticmethod
+    def format_token_alert_mail(
+        details: TokenAlertDetails,
+        template_path: Path,
+    ):
+        """
+        Returns a string containing an incident report in HTML / text
+        suitable for emailing
+        """
+
+        BasicDetails = EmailOutputChannel.extract_basic_details(details)
+        rendered_text = Template(template_path.open().read(), trim_blocks=True).render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),
             BasicDetails=BasicDetails,
             ManageLink=details.manage_url,
             HistoryLink=details.history_url,
         )
-        return minify_html.minify(rendered_html)
+        if template_path.suffix == ".html":
+            return minify_html.minify(rendered_text)
+        return rendered_text
 
     @staticmethod
-    def format_report_text(details: TokenAlertDetails, body_length: int = 999999999):
+    def format_token_exposed_text(details: TokenExposedDetails):
         """Returns a string containing an incident report in text,
         suitable for emailing"""
-
-        if body_length <= 140:
-            body = """Canarydrop@{time} via {channel_name}: """.format(
-                channel_name=details.channel, time=details.time
-            )
-            capacity = 140 - len(body)
-            body += details.memo[:capacity]
-        else:
-            additional_data = "\n" + "\n".join(
-                f"{k}: {v}" for k, v in details.additional_data.items()
-            )
-            body = textwrap.dedent(
-                f"""
-                One of your canarydrops was triggered.
-                Channel: {details.channel}
-                Time   : {details.time}
-                Memo   : {details.memo}{additional_data}
-                Manage your settings for this Canarydrop:
-                {details.manage_url}
-                """
-            ).strip()
+        body = textwrap.dedent(
+            f"""
+            One of your Canarytokens was exposed on the internet.
+            Location: {details.public_location or "unknown"}
+            Time    : {details.exposed_time}
+            Memo    : {details.memo}
+            Manage your settings for this Canarydrop:
+            {details.manage_url}
+            """
+        ).strip()
         return body
+
+    @staticmethod
+    def format_token_exposed_intro(details: TokenExposedDetails):
+        article = "An" if details.token_type in TOKEN_TYPES_WITH_ARTICLE_AN else "A"
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
+        intro = (
+            f"{article} {readable_type} Canarytoken has been exposed on the internet."
+        )
+        return intro
 
     @staticmethod
     def format_report_intro(details: TokenAlertDetails):
         details.channel
         details.token_type
-        article = "An" if details.token_type in token_types_with_article_an else "A"
-        readable_type = readable_token_type_names[details.token_type]
+        article = "An" if details.token_type in TOKEN_TYPES_WITH_ARTICLE_AN else "A"
+        readable_type = READABLE_TOKEN_TYPE_NAMES[details.token_type]
         if details.src_ip:
             intro = f"{article} {readable_type} Canarytoken has been triggered by the Source IP {details.src_ip}"
         else:
@@ -372,17 +495,19 @@ class EmailOutputChannel(OutputChannel):
 
         if details.channel == "DNS":  # TODO: make channel an enum.
             intro = dedent(
-                f"""{intro}
-                    Please note that the source IP refers to a DNS server, rather than the host that triggered the token.
-                    """
-            )
+                f"""
+                {intro}
+                Please note that the source IP refers to a DNS server, rather than the host that triggered the token.
+                """
+            ).strip()
 
         if (details.channel == "DNS") and (details.token_type == TokenTypes.MY_SQL):
             intro = dedent(
-                f"""{intro}
-                    Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
-                    """
-            )
+                f"""
+                {intro}
+                Your MySQL token was tripped, but the attackers machine was unable to connect to the server directly. Instead, we can tell that it happened, and merely report on their DNS server. Source IP therefore refers to the DNS server used by the attacker.
+                """
+            ).strip()
 
         if (
             (details.token_type == TokenTypes.AWS_KEYS)
@@ -391,10 +516,11 @@ class EmailOutputChannel(OutputChannel):
             and (details.additional_data["aws_key_log_data"]["safety_net"])
         ):
             intro = dedent(
-                f"""{intro}
-                    This AWS activity was caught using our safetynet feature so it may contain limited information.
-                    """
-            )
+                f"""
+                {intro}
+                This AWS activity was caught using our safetynet feature so it may contain limited information.
+                """
+            ).strip()
 
         return intro
 
@@ -402,72 +528,80 @@ class EmailOutputChannel(OutputChannel):
         self,
         input_channel: InputChannel,
         canarydrop: Canarydrop,
-        token_hit: AnyTokenHit,
+        token_hit: Union[AnyTokenHit, AnyTokenExposedHit],
     ):
-        alert_details = input_channel.gather_alert_details(
-            canarydrop=canarydrop,
-            host=self.switchboard_settings.PUBLIC_DOMAIN,
-            protocol=self.switchboard_scheme,
-        )
-        #
-        queries.add_mail_to_send_status(
-            recipient=canarydrop.alert_email_recipient,
-            details=alert_details,
-        )
-        email_content_html = EmailOutputChannel.format_report_html(
-            alert_details,
-            Path(
-                f"{self.switchboard_settings.TEMPLATES_PATH}/emails/notification.html"
-            ),
-        )
-        if self.switchboard_settings.MAILGUN_API_KEY:
-            email_response_status, message_id = mailgun_send(
-                email_address=canarydrop.alert_email_recipient,
-                email_subject=self.email_subject,
-                email_content_html=email_content_html,
-                email_content_text=EmailOutputChannel.format_report_text(alert_details),
-                from_email=EmailStr(self.from_email),
-                from_display=self.from_display,
-                api_key=self.switchboard_settings.MAILGUN_API_KEY,
-                base_url=self.switchboard_settings.MAILGUN_BASE_URL,
-                mailgun_domain=self.switchboard_settings.MAILGUN_DOMAIN_NAME,
-            )
-        elif self.switchboard_settings.SENDGRID_API_KEY:
-            email_response_status, message_id = sendgrid_send(
-                api_key=self.switchboard_settings.SENDGRID_API_KEY,
-                email_address=canarydrop.alert_email_recipient,
-                email_content_html=email_content_html,
-                from_email=EmailStr(self.from_email),
-                email_subject=self.email_subject,
-                from_display=self.from_display,
-                sandbox_mode=False,
-            )
-        elif self.switchboard_settings.SMTP_SERVER:
-            email_response_status, message_id = smtp_send(
-                email_address=canarydrop.alert_email_recipient,
-                email_content_html=email_content_html,
-                email_content_text=EmailOutputChannel.format_report_text(alert_details),
-                email_subject=self.email_subject,
-                from_email=EmailStr(self.from_email),
-                from_display=self.from_display,
-                smtp_password=self.switchboard_settings.SMTP_PASSWORD,
-                smtp_username=self.switchboard_settings.SMTP_USERNAME,
-                smtp_server=self.switchboard_settings.SMTP_SERVER,
-                smtp_port=self.switchboard_settings.SMTP_PORT,
+        if isinstance(token_hit, TokenExposedHit):
+            details = TokenExposedDetails(
+                token_type=token_hit.token_type,
+                token=canarydrop.canarytoken.value(),
+                key_id=canarydrop.aws_access_key_id,
+                memo=Memo(canarydrop.memo),
+                public_location=token_hit.public_location,
+                exposed_time=token_hit.time_of_hit,
+                manage_url=canarydrop.build_manage_url(
+                    self.switchboard_scheme, self.hostname
+                ),
+                public_domain=self.hostname,
             )
         else:
-            log.error("No email settings found")
+            details = input_channel.gather_alert_details(
+                canarydrop=canarydrop,
+                host=self.switchboard_settings.PUBLIC_DOMAIN,
+                protocol=self.switchboard_scheme,
+            )
+
+        queries.add_mail_to_send_status(
+            recipient=canarydrop.alert_email_recipient,
+            details=details,
+        )
+
+        if isinstance(details, TokenExposedDetails):
+            email_content_html = EmailOutputChannel.format_token_exposed_html(
+                details,
+                Path(
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION_TOKEN_EXPOSED}",
+                ),
+            )
+            email_content_text = EmailOutputChannel.format_token_exposed_text(details)
+            email_subject = "Canarytoken Exposed"
+        else:
+            email_content_html = EmailOutputChannel.format_token_alert_mail(
+                details,
+                Path(
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION_HTML}",
+                ),
+            )
+            email_content_text = EmailOutputChannel.format_token_alert_mail(
+                details,
+                Path(
+                    self.switchboard_settings.TEMPLATES_PATH,
+                    f"{EmailTemplates.NOTIFICATION_TXT}",
+                ),
+            )
+            email_subject = self.email_subject
+
+        email_response_status, message_id = send_email(
+            switchboard_settings=self.switchboard_settings,
+            email_recipient=canarydrop.alert_email_recipient,
+            email_subject=email_subject,
+            email_content_html=email_content_html,
+            email_content_text=email_content_text,
+            from_email=EmailStr(self.from_email),
+            from_display=self.from_display,
+        )
 
         self.handle_email_response(
             EmailResponse(
                 status=email_response_status,
                 canarydrop=canarydrop,
                 message_id=message_id,
-                alert_details=alert_details,
+                alert_details=details,
                 max_alert_failures=self.switchboard_settings.MAX_ALERT_FAILURES,
             )
         )
-        return alert_details
+        return details
 
     def handle_email_response(self, email_response: EmailResponse):
         return email_response.handle()
@@ -486,72 +620,3 @@ class EmailOutputChannel(OutputChannel):
             bool: returns True if mail was processed. False otherwise.
         """
         return
-        # sg = sendgrid.SendGridAPIClient(api_key=api_key)
-        # mail_key, alert_details = queries.pop_mail_off_sent_queue()
-        # # Check using: resp = sg.client.messages._(mail_key).get()
-        # if False:
-        #     # delivery was not made.
-        #     queries.put_mail_on_sent_queue(mail_key=mail_key, details=alert_details)
-        # return mail_key is not None
-
-    # def get_basic_details(self,):
-
-    #     vars = { 'Description' : self.data['description'],
-    #              'Channel'     : self.data['channel'],
-    #              'Time'        : self.data['time'],
-    #              'Canarytoken' : self.data['canarytoken']
-    #             }
-
-    #     if 'src_ip' in self.data:
-    #         vars['src_ip'] = self.data['src_ip']
-    #         vars['SourceIP'] = self.data['src_ip']
-
-    #     if 'useragent' in self.data:
-    #         vars['User-Agent'] = self.data['useragent']
-
-    #     if 'tokentype' in self.data:
-    #         vars['TokenType'] = self.data['tokentype']
-
-    #     if 'referer' in self.data:
-    #         vars['Referer'] = self.data['referer']
-
-    #     if 'location' in self.data:
-    #         try:
-    #             vars['Location'] = self.data['location'].decode('utf-8')
-    #         except Exception:
-    #             vars['Location'] = self.data['location']
-
-    #     if 'log4_shell_computer_name' in self.data:
-    #         vars['Log4JComputerName'] = self.data['log4_shell_computer_name']
-
-    #     return vars
-
-    # def mandrill_send(self, msg=None, canarydrop=None):
-    #     try:
-    #         mandrill_client = mandrill.Mandrill(settings.MANDRILL_API_KEY)
-    #         message = {
-    #          'auto_html': None,
-    #          'auto_text': None,
-    #          'from_email': msg['from_address'],
-    #          'from_name': msg['from_display'],
-    #          'text': msg['body'],
-    #          'html':self.format_report_html(),
-    #          'subject': msg['subject'],
-    #          'to': [{'email': canarydrop['alert_email_recipient'],
-    #                  'name': '',
-    #                  'type': 'to'}],
-    #         }
-    #         if settings.DEBUG:
-    #             pprint.pprint(message)
-    #         else:
-    #             result = mandrill_client.messages.send(message=message,
-    #                                                async=False,
-    #                                                ip_pool='Main Pool')
-    #         log.info('Sent alert to {recipient} for token {token}'\
-    #                     .format(recipient=canarydrop['alert_email_recipient'],
-    #                             token=canarydrop.canarytoken.value()))
-
-    #     except mandrill.Error, e:
-    #         # Mandrill errors are thrown as exceptions
-    #         log.error('A mandrill error occurred: %s - %s' % (e.__class__, e))
-    #         # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'....

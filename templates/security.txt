@@ -1,3 +1,6 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
 # Our primary reporting channel:
 Contact: mailto:security@thinkst.com
 Encryption: https://thinkst.com/pgp/security.txt
@@ -8,5 +11,14 @@ Contact: https://github.com/thinkst/canarytokens/security/advisories/new
 Policy: https://github.com/thinkst/canarytokens/security/policy
 Acknowledgements: https://github.com/thinkst/canarytokens/security/advisories
 
-Expires: 2023-12-31T21:59:00.000Z
-Hiring: https://canary.tools/jobs
+Canonical: https://canarytokens.org/.well-known/security.txt
+Expires: 2026-12-31T21:59:00.000Z
+Hiring: https://canary.tools/hiring
+-----BEGIN PGP SIGNATURE-----
+Comment: GPGTools - https://gpgtools.org
+
+iHUEARYKAB0WIQQ0wBgfavdBT+P6QEFVZt5K9AEpCAUCaPdywgAKCRBVZt5K9AEp
+CAmaAQDjdpTlsPKDX/i4KC3fBxFtlqHOhjeM2xyiH+wqylnP8QEAy7wBZ+MyJGSC
+ZojmHhaTWN7pfRoeTXLZnqoeqfRx+AY=
+=u1Af
+-----END PGP SIGNATURE-----

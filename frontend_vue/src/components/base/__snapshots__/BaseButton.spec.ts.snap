@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BaseButton > render correctly 1`] = `
+"<button data-v-33235260="" class="primary base-button" type="button">
+  <!--v-if-->
+  <!--v-if--><span data-v-33235260="" class=""></span>
+</button>"
+`;

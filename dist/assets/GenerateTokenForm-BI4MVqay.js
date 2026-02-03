@@ -1,0 +1,1 @@
+import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-Bro6xPTe.js";import{d as o,e as r,f as a}from"./index-DiWV8uCK.js";const c=o({__name:"GenerateTokenForm",setup(n){return(t,m)=>(r(),a(e,{"memo-helper-example":" Place where log line is inserted"}))}});export{c as default};

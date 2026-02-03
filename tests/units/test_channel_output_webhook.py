@@ -1,22 +1,24 @@
 # pytest caplog
+import pytest
+
 from twisted.logger import capturedLogs
 
 from canarytokens.canarydrop import Canarydrop
-from canarytokens.channel import (
-    format_as_googlechat_canaryalert,
-    format_as_ms_teams_canaryalert,
-)
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
 from canarytokens.models import (
-    TokenAlertDetailsGoogleChat,
-    TokenAlertDetailsMsTeams,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
-from canarytokens.constants import CANARY_IMAGE_URL
+from canarytokens.webhook_formatting import (
+    WebhookType,
+    format_details_for_webhook,
+    get_webhook_type,
+    TokenAlertDetailsGoogleChat,
+    TokenAlertDetailsMsTeams,
+)
 
 
 def test_broken_webhook(
@@ -24,7 +26,7 @@ def test_broken_webhook(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     switchboard.switchboard_settings = settings
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
@@ -72,7 +74,7 @@ def test_webhook(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     webhook_channel = WebhookOutputChannel(
         switchboard=switchboard,
         switchboard_scheme=settings.SWITCHBOARD_SCHEME,
@@ -118,7 +120,7 @@ def test_googlechat_webhook_format(
     settings: SwitchboardSettings,
 ):
 
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -150,7 +152,7 @@ def test_googlechat_webhook_format(
         host=settings.PUBLIC_DOMAIN,
     )
     print("Webhook details = {}".format(details))
-    webhook_payload = format_as_googlechat_canaryalert(details=details)
+    webhook_payload = format_details_for_webhook(WebhookType.GOOGLE_CHAT, details)
     webhook_payload_json = webhook_payload.json_safe_dict()
     print("Webhook_payload json = {}".format(webhook_payload.json()))
 
@@ -201,7 +203,7 @@ def test_canaryalert_googlechat_webhook(
         "https://chat.googleapis.com/v1/spaces/random/messages?key=temp_key"
     )
 
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -228,12 +230,10 @@ def test_canaryalert_googlechat_webhook(
     )
     cd.add_canarydrop_hit(token_hit=token_hit)
 
-    canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
-        canarydrop=cd,
-        protocol=input_channel.switchboard_scheme,
-        host=input_channel.hostname,
-    )
-    assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsGoogleChat)
+    webhook_type = get_webhook_type(cd.alert_webhook_url)
+    details = input_channel.gather_alert_details(cd, "http", "example.com")
+    payload = format_details_for_webhook(webhook_type, details)
+    assert isinstance(payload, TokenAlertDetailsGoogleChat)
 
 
 def test_ms_teams_webhook_format(
@@ -242,7 +242,7 @@ def test_ms_teams_webhook_format(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -273,24 +273,20 @@ def test_ms_teams_webhook_format(
         protocol=input_channel.switchboard_scheme,
         host=settings.PUBLIC_DOMAIN,
     )
-    webhook_payload = format_as_ms_teams_canaryalert(details=details)
+    webhook_payload = format_details_for_webhook(WebhookType.MS_TEAMS, details)
     payload = webhook_payload.json_safe_dict()
 
-    assert payload["summary"] == "Canarytoken triggered"
-    assert payload["themeColor"] == "ff0000"
-    assert payload["potentialAction"] == [
-        {
-            "@context": "http://schema.org",
-            "@type": "ViewAction",
-            "name": "Manage",
-            "target": [details.manage_url],
-        }
-    ]
-    assert len(payload["sections"]) == 2
-
-    assert payload["sections"][0] == {
-        "activityTitle": "<b>Canarytoken triggered</b>",
-        "activityImage": CANARY_IMAGE_URL,
+    assert (
+        payload["attachments"][0]["content"]["body"][0]["columns"][1]["items"][0][
+            "text"
+        ]
+        == "Canarytoken Triggered"
+    )
+    assert len(payload["attachments"][0]["content"]["body"][1]["facts"]) == 3
+    assert payload["attachments"][0]["content"]["actions"][0] == {
+        "type": "Action.OpenUrl",
+        "title": "⚙️ Manage token",
+        "url": details.manage_url,
     }
 
 
@@ -303,9 +299,9 @@ def test_canaryalert_ms_teams_webhook(
     """
     Tests if a MS Teams webhook payload is produced given a MS Teams webhook receiver.
     """
-    ms_teams_webhook_receiver = "https://azurerandomtest.webhook.office.com/webhookb2/ramdomhashhere/IncomingWebhook/randomhashhere/randomhashhere"
+    ms_teams_webhook_receiver = "https://defaultsomehash.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/someotherhash/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=anotherhash"
 
-    switchboard = Switchboard()
+    switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
         frontend_settings=frontend_settings,
@@ -332,9 +328,62 @@ def test_canaryalert_ms_teams_webhook(
     )
     cd.add_canarydrop_hit(token_hit=token_hit)
 
-    canaryalert_webhook_payload = input_channel.format_webhook_canaryalert(
-        canarydrop=cd,
-        protocol=input_channel.switchboard_scheme,
-        host=input_channel.hostname,
+    webhook_type = get_webhook_type(cd.alert_webhook_url)
+    details = input_channel.gather_alert_details(cd, "http", "example.com")
+    payload = format_details_for_webhook(webhook_type, details)
+    assert isinstance(payload, TokenAlertDetailsMsTeams)
+
+
+@pytest.mark.parametrize(
+    "bad_url",
+    [
+        "http://127.0.0.1",
+        "http://169.254.196.254",
+        "https://localhost",
+        "https://dev-docker.canary.tools",
+    ],
+)
+def test_ssrf_protection(
+    setup_db,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    bad_url: str,
+):
+    switchboard = Switchboard()
+    switchboard.switchboard_settings = settings
+    webhook_channel = WebhookOutputChannel(
+        switchboard=switchboard,
+        switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+        frontend_domain="test.com",
     )
-    assert isinstance(canaryalert_webhook_payload, TokenAlertDetailsMsTeams)
+    cd = Canarydrop(
+        type=TokenTypes.DNS,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=bad_url,
+        canarytoken=Canarytoken(),
+        memo="memo",
+        browser_scanner_enabled=False,
+    )
+
+    token_hit = Canarytoken.create_token_hit(
+        token_type=TokenTypes.DNS,
+        input_channel="not_valid",
+        src_ip="127.0.0.1",
+        hit_info={"some": "data"},
+    )
+    cd.add_canarydrop_hit(token_hit=token_hit)
+    with capturedLogs() as captured:
+        webhook_channel.send_alert(
+            canarydrop=cd,
+            token_hit=token_hit,
+            input_channel=ChannelDNS(
+                switchboard=switchboard,
+                frontend_settings=frontend_settings,
+                switchboard_hostname="test.com",
+                switchboard_scheme=settings.SWITCHBOARD_SCHEME,
+            ),
+        )
+    assert any(["Disallowed requests to" in log["log_format"] for log in captured])

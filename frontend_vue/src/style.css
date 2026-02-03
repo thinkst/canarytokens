@@ -1,0 +1,119 @@
+@import url('./assets/fonts/typography.css');
+@import 'vue-select/dist/vue-select.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@view-transition {
+  navigation: auto;
+  types: slide, forwards;
+}
+
+:root {
+  --color-green-300: hsl(147, 71%, 63%);
+  --color-green-500: hsl(157, 77%, 45%);
+  --color-green-700: hsl(166, 86%, 30%);
+  --color-grey-500: hsl(157, 9%, 40%);
+  --color-grey-300: hsl(154, 9%, 64%);
+  --color-grey-200: hsl(153, 9%, 81%);
+}
+
+/* gracefully copied from https://www.joshwcomeau.com/css/custom-css-reset/ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+*:focus-visible {
+  outline: 2px solid hsl(162, 86%, 36%);
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+p {
+  line-height: 1.5;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+  scroll-behavior: smooth;
+}
+
+:root,
+:host {
+  --fa-style-family-classic: 'Font Awesome 6 Free';
+  --fa-font-solid: normal 900 1em/1 'Font Awesome 6 Free';
+}
+
+.fas,
+.fa-solid {
+  font-weight: 900;
+}
+
+.v-popper--theme-tooltip {
+  .v-popper__inner {
+    border-radius: 9px;
+    font-size: 14px;
+  }
+}
+
+::selection {
+  background-color: hsl(149, 56%, 56%);
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

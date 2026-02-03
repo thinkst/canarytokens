@@ -16,3 +16,5 @@ def test_make_canary_msreg(process_name, token_hostname):
     )
     assert ".exe" in reg_file_info
     assert process_name in reg_file_info
+    assert f"1..{msreg.INVOCATION_ID_LENGTH}" in reg_file_info
+    assert "$c.UN.$u.CMD.$id." in reg_file_info

@@ -6,10 +6,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
-        USER_UID: 1000
-        USER_GID: 1000
 
     init: true
     volumes:
@@ -17,14 +13,15 @@ services:
       - /var/run/docker.sock:/var/run/docker-host.sock
       # Update this to wherever you want VS Code to mount the folder of your project
       - ..:/workspace:cached
+      # ignore directories not needed by the container
       - $HOME/Work/.gitconfig:/workspace/.gitconfig:ro
       - uploads:/uploads/
     ports:
       - "5354:5354/udp"
       - "51820:51820/udp"
       - "8082:8082"
+      - "8083:8083"
     # Overrides default command so things don't shut down after the process ends.
-    entrypoint: /usr/local/share/docker-init.sh
     command: sleep infinity
     depends_on:
       - redis
@@ -47,25 +44,7 @@ services:
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
 
-  # To test against the python 2 implementation uncomment this block
-  # and add a frontend.env file to `.devcontainer`
-  # frontend:
-  #   restart: always
-  #   image: thinkst/canarytokens:dev
-  #   ports:
-  #     - "8082:8082"
-  #   links:
-  #    - redis
-  #   env_file:
-  #    - frontend.env
-  #   volumes:
-  #   - uploads:/uploads/
-  #   - log-volume:/logs
-  #   container_name: frontend
-  #   command: bash -c "rm -f frontend.pid; twistd -noy frontend.tac --pidfile=frontend.pid"
-
 
 volumes:
   db-data:
-  log-volume:
   uploads:

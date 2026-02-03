@@ -130,7 +130,7 @@
 				            <li data-type="cmd"            class="token-item" data-memo-placeholder="Reg file for detection sensitive command execution"><a href="#" class="icon icon-msreg"><span class="title">Sensitive command token</span><div class="explanation">Alert when a suspicious Windows command is run</div></a></li>
                     <li data-type="ms_word"        class="token-item" data-memo-placeholder="Word document placed at U:\Users\Sally\Reports\feb.doc"><a href="#" class="icon icon-word"><span class="title">Microsoft Word document</span><div class="explanation">Get alerted when a document is opened in Microsoft Word</div></a></li>
                     <li data-type="ms_excel"       class="token-item" data-memo-placeholder="Excel document placed at U:\Users\Sally\Reports\feb.xlsx"><a href="#" class="icon icon-excel"><span class="title">Microsoft Excel document</span><div class="explanation">Get alerted when a document is opened in Microsoft Excel</div></a></li>
-                    <li data-type="cc"             class="token-item" data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token (beta)</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li>
+                    <!-- <li data-type="cc"             class="token-item" data-memo-placeholder="Credit Card placed in payment card database"><a href="#" class="icon icon-cc"><span class="title">Credit Card token (beta)</span><div class="explanation">Get alerted when a transaction is attempted on a credit card</div></a></li> -->
                     <li data-type="kubeconfig"     class="token-item" data-memo-placeholder="Kubeconfig token placed on web server WEB01"><a href="#" class="icon icon-kubernetes"><span class="title">Kubeconfig token</span><div class="explanation">Alert when a Kubeconfig is used</div></a></li>
                     <li data-type="wireguard"      class="token-item" data-memo-placeholder="WireGuard VPN config installed on Siya's phone"><a href="#" class="icon icon-wireguard"><span class="title">WireGuard VPN</span><div class="explanation">Alert when a WireGuard VPN client config is used</div></a></li>
                     <li data-type="cloned_website" class="token-item" data-memo-placeholder="Cloned website token for https://thinkst.com"><a href="#" class="icon icon-clonedsite"><span class="title">Cloned website</span><div class="explanation">Trigger an alert when your website is cloned</div></a></li>
@@ -481,6 +481,12 @@
                 <div class="advice">
                   <p>Unzip this file in a folder, and get notified when someone browses the folder in Windows Explorer. It will even trigger if someone is browsing the folder via a network share!</p>
                   <p>The alert will include the network domain and username of the browsing user, if present.<p>
+                  <div class="alert alert-warning" role="alert" style="text-align: center;">
+                    This token only works on Windows 10 systems and lower. It does
+                    not work on Windows 11 or higher. This is because a recent group policy update to
+                    some versions of Windows defaults to disabling functionality that this token
+                    relies on to fire.
+                  </div>
                   <p><h5>Ideas for use:</h5>
                     <ul>
                       <li>Unzip the file on a juicely named Windows network share.</li>
@@ -1508,7 +1514,8 @@ START REPLICA;
         }
         var _handleEntraClonedWebsiteResponse = function(data) {
           $('#result_entra_cloned_website').append(data['css']);
-          state = escape(btoa(data['css']));
+          state = encodeURIComponent(btoa(data['css']));
+
           redirect = window.location.origin + '/azure_css_landing';
           loc = "https://login.microsoftonline.com/common/adminconsent?client_id=" + data['client_id'] + "&state=" + state + "&redirect_uri=" + redirect;
           $('#azure_popup').attr('onclick', 'window.open("' + loc + '"); return false;')
@@ -1558,7 +1565,7 @@ START REPLICA;
           }
         }
         var _handleMySQLResponse = function(data) {
-          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
+          var cmd = `SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, SOURCE_PORT=3306, SOURCE_HOST='${data['hostname']}', SOURCE_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
 
           $('.mysql-cmd').text(btoa(cmd));
           $('.mysql-cmd-decoded').text(cmd);

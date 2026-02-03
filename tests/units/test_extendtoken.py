@@ -1,10 +1,10 @@
 import os
-from distutils.util import strtobool
 
 import pytest
 
 from canarytokens import extendtoken
 from canarytokens.settings import FrontendSettings
+from canarytokens.utils import strtobool
 
 settings = FrontendSettings("../frontend/frontend.env")
 

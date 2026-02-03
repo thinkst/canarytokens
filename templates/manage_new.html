@@ -228,6 +228,13 @@
                   <a class="btn btn-large btn-success file-download" data-fmt="zip">Download your Zip file</a>
                 </div>
               </div>
+              <br>
+              <div class="alert alert-warning" role="alert" style="text-align: center;">
+                This token only works on Windows 10 systems and lower. It does
+                not work on Windows 11 or higher. This is because a recent group policy update to
+                some versions of Windows defaults to disabling functionality that this token
+                relies on to fire.
+              </div>
             </div>
             <!-- <div class="result signed_exe">
               <h3>Here's  your Signed Executable token:</h3>
@@ -651,7 +658,7 @@ START REPLICA;
         aws_keys_token.innerHTML = aws_keys_token.innerHTML.trim()
       }
       var _handleMySQLResponse = function(data) {
-          var cmd = `SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306, MASTER_HOST='${data['generated_hostname']}', MASTER_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
+          var cmd = `SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, SOURCE_PORT=3306, SOURCE_HOST='${data['generated_hostname']}', SOURCE_USER='${data['token']}\", @@lc_time_names, @@hostname, \"';\");`
 
           $('.mysql-cmd').text(btoa(cmd));
           $('.mysql-cmd-decoded').text(cmd);

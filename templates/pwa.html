@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <title>{{app_name}}</title>
+    <link rel="icon" type="image/x-icon" href="/resources/favicon.ico">
+    <link rel="apple-touch-icon" sizes="120x120" href="/resources/pwa/{{icon}}/ios/120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/resources/pwa/{{icon}}/ios/152.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/resources/pwa/{{icon}}/ios/167.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/resources/pwa/{{icon}}/ios/180.png">
+    <link rel="manifest" href="./manifest.json">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        integrity="sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=" 
+        crossorigin="anonymous"
+        />
+
+        <script>
+            if('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js', { scope: './' });
+            }
+    
+            var current_position = {};
+            const location_settings = {timeout: 5000, enableHighAccuracy: true};
+            if ('geolocation' in navigator) {
+                //console.log('Geolocation is Available');
+                navigator.geolocation.getCurrentPosition((position) => {}, () => {}, location_settings);
+            }
+
+            function getPWADisplayMode() {
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                if (document.referrer.startsWith('android-app://')) {
+                  return 'twa';
+                } else if (navigator.standalone || isStandalone) {
+                  return 'standalone';
+                }
+                return 'browser';
+              }
+
+            function update_visibility() {
+                if (getPWADisplayMode() === 'browser') {
+                    document.getElementsByClassName('loading')[0].hidden = true;
+                    document.getElementsByClassName('instructions')[0].hidden = false;
+                } else {
+                    document.getElementsByClassName('instructions')[0].hidden = true;
+                    document.getElementsByClassName('loading')[0].hidden = false;
+                }
+            }
+
+            function cloneAsObject(obj) {
+                if (obj === null || !(obj instanceof Object)) {
+                    return obj;
+                }
+                var temp = (obj instanceof Array) ? [] : {};
+                // ReSharper disable once MissingHasOwnPropertyInForeach
+                for (var key in obj) {
+                    temp[key] = cloneAsObject(obj[key]);
+                }
+                return temp;
+            }
+
+            function trigger_with_location(position) {
+                current_position = position;
+                var m = new Image();
+                var url = "{{token_url}}?time="+encodeURIComponent(Date.now());
+                url += "&loc=" + encodeURIComponent(JSON.stringify(cloneAsObject(position)));
+                m.src = url;
+            }
+
+            function trigger_without_location() {
+                var m = new Image();
+                var url = "{{token_url}}?time="+encodeURIComponent(Date.now());
+                m.src = url;
+            }
+
+            function trigger_token() {
+                if (getPWADisplayMode() !== 'browser') {
+                    if ('geolocation' in navigator) {
+                        navigator.geolocation.getCurrentPosition(trigger_with_location, trigger_without_location, location_settings);
+                    } else {
+                        trigger_without_location();
+                    }
+                }
+            }
+
+            window.addEventListener("visibilitychange", function () {
+                update_visibility();
+                if (document.visibilityState === "visible") {
+                    trigger_token();
+                }
+            });
+
+            let promptEvent; 
+
+            // Capture event and defer
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                promptEvent = e;
+                listenToUserAction();
+            });
+        
+            // listen to install button clic
+            function listenToUserAction() {
+                const installBtn = document.querySelector(".install");
+                installBtn.addEventListener("click", prompt_to_install);
+            }
+            
+            function prompt_to_install() {
+                promptEvent.prompt();
+            }
+
+            window.addEventListener('appinstalled', (event) => {
+                update_visibility();
+            })
+
+            window.matchMedia('(display-mode: standalone)').addEventListener('change', (event) => {
+                update_visibility();
+              });
+        </script>
+    <style>
+        .hcenter {
+            margin-left: 20%;
+            margin-right: 20%;
+            width: 60%;
+        }
+        
+        .vcenter {
+            margin-top: 45vh;
+        }
+    </style>
+</head>
+<body onpageshow="trigger_token()">
+    <div class="instructions" style="padding-top: 21px; padding-bottom: 21px;" hidden>
+        <main class="container">
+            <h1>Installation guide:</h1>
+            <hr>
+            <section id="iphone">
+                <h3>iOS (Safari):</h3>
+                <ol>
+                    <li>
+                        Tap the <strong>Share</strong> icon
+                        <svg height="1.2rem" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 3C9 2.44772 9.44772 2 10 2C10.5523 2 11 2.44772 11 3L11 13.5C11 14.0523 10.5523 14.5 10 14.5C9.44772 14.5 9 14.0523 9 13.5L9 3Z" fill="currentColor"/>
+                            <path d="M10.6402 2.76826C11.0645 2.41469 11.1218 1.78413 10.7682 1.35985C10.4147 0.935575 9.7841 0.878251 9.35982 1.23181L6.35982 3.73181C5.93554 4.08538 5.87822 4.71594 6.23178 5.14022C6.58535 5.5645 7.21591 5.62182 7.64019 5.26826L10.6402 2.76826Z" fill="currentColor"/>
+                            <path d="M9.35981 2.76826C8.93553 2.41469 8.87821 1.78413 9.23177 1.35985C9.58534 0.935575 10.2159 0.878251 10.6402 1.23181L13.6402 3.73181C14.0645 4.08538 14.1218 4.71594 13.7682 5.14022C13.4147 5.5645 12.7841 5.62182 12.3598 5.26826L9.35981 2.76826Z" fill="currentColor"/>
+                            <path d="M13 9C12.4477 9 12 8.55228 12 8C12 7.44772 12.4477 7 13 7H14C15.6233 7 17 8.16491 17 9.69231V17.3077C17 18.8351 15.6233 20 14 20L6 20C4.37672 20 3 18.8351 3 17.3077L3 9.69231C3 8.16491 4.37672 7 6 7H7C7.55228 7 8 7.44772 8 8C8 8.55228 7.55228 9 7 9H6C5.41414 9 5 9.35043 5 9.69231L5 17.3077C5 17.6496 5.41414 18 6 18L14 18C14.5859 18 15 17.6496 15 17.3077L15 9.69231C15 9.35043 14.5859 9 14 9L13 9Z" fill="currentColor"/>
+                        </svg>
+                    </li>
+                    <li>Tap <strong>Add to Home Screen</strong></li>
+                    <li>Tap <strong>Add</strong></li>
+                </ol>
+            </section>
+            <hr>
+            <section id="android">
+                <h3>Android (Chrome):</h3>
+                <button class="install hcenter" style="margin-bottom: 3vw">Install</button>
+                <p>If <strong>Install</strong> above does not provide a prompt:</h4>
+                <ol>
+                    <li>Tap the <strong>menu</strong> icon
+                        <svg height="1rem" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                            <circle cx="8" cy="2.5" r=".75"/>
+                            <circle cx="8" cy="8" r=".75"/>
+                            <circle cx="8" cy="13.5" r=".75"/>
+                        </svg>
+                    </li>
+                    <li>Tap <strong>Add to Home Screen</strong></li>
+                    <li>Tap <strong>Install</strong></li>
+                </ol>
+            </section>
+            <hr>
+            <p>The installed app may ask once for location permissions. We recommend opening it once.</p>
+            <p>If you do not have the "Add to Home Screen" option, your phone may not yet support this token.</p>
+        </main>
+    </div>
+    <div class="loading">
+        <div class="hcenter vcenter">
+            <progress></progress>
+            <h1 style="text-align:center">Connecting...</h1>
+          </div>
+    </div>
+    <script>
+        update_visibility();
+    </script>
+</body>
+</html>

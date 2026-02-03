@@ -1,6 +1,14 @@
+import json
 import subprocess
 from pathlib import Path
 from typing import Any, Literal, Union
+
+import pycountry_convert
+from pydantic import BaseModel
+
+
+def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:
+    return json.loads(m.json(exclude_none=True, exclude=set(exclude)))
 
 
 def dict_to_csv(d: dict) -> str:
@@ -74,3 +82,43 @@ def get_deployed_commit_sha(commit_sha_file: Path = Path("/COMMIT_SHA")):
 #         return wrapper
 
 #     return inner
+
+
+def get_src_ip_continent(geo_data: dict) -> str:
+    """Helper function that returns the continent of country given it's ISO 3166-2 code.
+
+    Args:
+        geo_data (dict): The "country" key contains an ISO 3166-2 code
+
+    Returns:
+        str: A two character code representing a continent
+    """
+    country = geo_data.get("country")
+    if country is None:
+        return "NO_CONTINENT"
+    # AQ is the ISO 3166-2 code for Antarctica, and is returned from IPinfo,
+    # but it's not included in pycountry_convert.
+    if country == "AQ":
+        return "AN"
+    try:
+        return pycountry_convert.country_alpha2_to_continent_code(country)
+    except KeyError:
+        return "NO_CONTINENT"
+
+
+def strtobool(string: str) -> bool:
+    """Convert a string to a boolean value.
+
+    Args:
+        s (str): The string to convert.
+
+    Returns:
+        bool: The boolean value of the string.
+    """
+    string = string.lower()
+    if string in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    elif string in ("n", "no", "f", "false", "off", "0"):
+        return False
+    else:
+        raise ValueError(f"Not convertible to boolean: {string}")

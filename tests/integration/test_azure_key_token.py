@@ -1,34 +1,23 @@
 import os
-from distutils.util import strtobool
-
-from typing import Union
 from pydantic import HttpUrl
 import pytest
 
 from canarytokens.models import (
-    V2,
-    V3,
     AzureIDTokenHistory,
     AzureIDTokenRequest,
     AzureIDTokenResponse,
     Memo,
     TokenTypes,
 )
+from canarytokens.utils import strtobool
+
 from tests.utils import azure_token_fire, create_token
 from tests.utils import get_token_history
-from tests.utils import run_or_skip, v2, v3
 
 
 @pytest.mark.skipif(
     strtobool(os.getenv("SKIP_AZURE_ID_TEST", "True")),
     reason="avoid using up an Azure user each time we run tests",
-)
-@pytest.mark.parametrize(
-    "version",
-    [
-        v2,
-        v3,
-    ],
 )
 @pytest.mark.parametrize(
     "data,expected_hit",
@@ -81,13 +70,13 @@ from tests.utils import run_or_skip, v2, v3
     ],
 )
 def test_azure_token_post_request_processing(
-    data: dict, expected_hit: dict, version: Union[V2, V3], runv2: bool, runv3: bool
+    data: dict, expected_hit: dict
 ):  # pragma: no cover
     """
     When an Azure Token is triggered azure makes a POST request
     back to the http channel. This is mimicked here using `azure_token_fire`.
     """
-    run_or_skip(version=version, runv2=runv2, runv3=runv3)
+
     token_request = AzureIDTokenRequest(
         webhook_url=HttpUrl(
             "https://webhook.site/873f846e-9434-4db9-bfb4-1e7f60464f97", scheme="https"
@@ -97,12 +86,11 @@ def test_azure_token_post_request_processing(
     )
     token_resp = create_token(
         token_request=token_request,
-        version=version,
     )
     token_info = AzureIDTokenResponse(**token_resp)
-    azure_token_fire(token_info=token_info, data=data, version=version)
+    azure_token_fire(token_info=token_info, data=data)
 
-    token_hist_resp = get_token_history(token_info=token_info, version=version)
+    token_hist_resp = get_token_history(token_info=token_info)
     token_hist = AzureIDTokenHistory(**token_hist_resp)
     assert len(token_hist.hits) == 1
     hit = token_hist.hits[0]

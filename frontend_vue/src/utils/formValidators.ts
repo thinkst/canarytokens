@@ -1,0 +1,275 @@
+import * as Yup from 'yup';
+import {
+  TOKENS_TYPE,
+  MAX_UPLOAD_SIZE,
+  MAX_APP_NAME_LENGTH,
+} from '@/components/constants.ts';
+import { isValidFileType, validFileExtensions } from './utils';
+
+type FieldsType = {
+  email?: string;
+  memo?: string;
+  webhook_url?: string;
+  redirect_url?: string;
+  cmd_process?: string;
+  azure_id_cert_file_name?: string;
+  web_image?: File;
+  signed_exe?: File;
+  sql_server_sql_action?: string;
+  sql_server_table_name?: string;
+  sql_server_view_name?: string;
+  clonedsite?: string;
+  expected_referrer?: string;
+  windows_fake_fs_root?: string;
+  windows_fake_fs_file_structure?: string;
+  icon?: string;
+  app_name?: string;
+  cf_turnstile_response?: string;
+  app_type?: string;
+  aws_region?: string;
+  aws_account_number?: number;
+  [key: string]: any;
+};
+
+type ValidateSchemaType = {
+  [key: string]: {
+    schema: Yup.ObjectSchema<FieldsType>;
+  };
+};
+
+const validationMessages = {
+  validEmail: 'It must be a valid email',
+  validURL: 'It must be a valid URL',
+  provideMemo: 'Memo is a required field',
+  maxLengthMemo: 'Memo cannot be longer than 1000 characters',
+  provideEmail: 'Provide a valid email',
+};
+
+const validationNotificationSettings = {
+  email: Yup.string()
+    .email(validationMessages.validEmail)
+    .required(validationMessages.provideEmail),
+  memo: Yup.string()
+    .required(validationMessages.provideMemo)
+    .max(1000, validationMessages.maxLengthMemo)
+    .test(
+      'empty-check',
+      validationMessages.provideMemo,
+      (val) => val.trim().length !== 0
+    ),
+  webhook_url: Yup.string().url(validationMessages.validURL),
+};
+
+const validDnsRegexPattern = /^([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/;
+
+//@ts-expect-error comment out for POC
+export const formValidators: ValidateSchemaType = {
+  [TOKENS_TYPE.WEB_BUG]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.DNS]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.CREDIT_CARD_V2]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.QRCODE]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.MYSQL]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.LOG4SHELL]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.AWS_KEYS]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.FAST_REDIRECT]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      redirect_url: Yup.string().required('A redirect URL is required'),
+    }),
+  },
+  [TOKENS_TYPE.SLOW_REDIRECT]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      redirect_url: Yup.string().required('A redirect URL is required'),
+    }),
+  },
+  [TOKENS_TYPE.SENSITIVE_CMD]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      cmd_process: Yup.string()
+        .required('A process name is required')
+        .test('containsExe', 'File name must end in .exe', (value) => {
+          return value && value.endsWith('.exe') ? true : false;
+        }),
+    }),
+  },
+  [TOKENS_TYPE.WINDOWS_FAKE_FS]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.MICROSOFT_EXCEL]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.AZURE_ID]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      azure_id_cert_file_name: Yup.string()
+        .required('Azure ID certificate name is required')
+        .test('containsPem', 'File name must end in .pem', (value) => {
+          return value && value.endsWith('.pem') ? true : false;
+        }),
+    }),
+  },
+  [TOKENS_TYPE.MICROSOFT_WORD]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.WEB_IMAGE]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      web_image: Yup.mixed<File>()
+        .required('Image is Required')
+        .test(
+          'validType',
+          'Not a valid image type',
+          (value) =>
+            isValidFileType(
+              value && value.name.toLowerCase(),
+              validFileExtensions.image
+            ) as boolean
+        )
+        .test(
+          'fileTooLarge',
+          'Image size must be below 1MB',
+          (value) => value.size < MAX_UPLOAD_SIZE
+        ),
+    }),
+  },
+  [TOKENS_TYPE.SVN]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.UNIQUE_EMAIL]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.PDF]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.WINDOWS_FOLDER]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.CUSTOM_EXE]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      signed_exe: Yup.mixed<File>()
+        .required('File is Required')
+        .test(
+          'validType',
+          'Not a valid file type: expected EXE or DLL',
+          (value) =>
+            isValidFileType(
+              value && value.name.toLowerCase(),
+              validFileExtensions.exe
+            ) as boolean
+        )
+        .test(
+          'fileTooLarge',
+          'File size must be below 1MB',
+          (value) => value.size < MAX_UPLOAD_SIZE
+        ),
+    }),
+  },
+  [TOKENS_TYPE.SQL_SERVER]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      sql_server_sql_action: Yup.string().required('SQL Action is required'),
+      sql_server_table_name: Yup.string().when('sql_server_sql_action', {
+        is: (sql_server_sql_action: string) =>
+          sql_server_sql_action !== 'SELECT',
+        then: () => Yup.string().required('Table Name is required'),
+      }),
+      sql_server_view_name: Yup.string().when('sql_server_sql_action', {
+        is: (sql_server_sql_action: string) =>
+          sql_server_sql_action === 'SELECT',
+        then: () => Yup.string().required('Name SQL Server view is required'),
+      }),
+    }),
+  },
+  [TOKENS_TYPE.CLONED_WEBSITE]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      clonedsite: Yup.string()
+        .required('Domain is required')
+        .matches(validDnsRegexPattern, 'Must be valid domain eg: example.com'),
+    }),
+  },
+  [TOKENS_TYPE.CSS_CLONED_SITE]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      expected_referrer: Yup.string()
+        .required('Domain is required')
+        .matches(validDnsRegexPattern, 'Must be valid domain eg: example.com'),
+    }),
+  },
+  [TOKENS_TYPE.KUBECONFIG]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.WIREGUARD]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.PWA]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      icon: Yup.string().required('Selecting an icon is required'),
+      app_name: Yup.string().max(
+        MAX_APP_NAME_LENGTH,
+        `App name cannot be longer than ${MAX_APP_NAME_LENGTH} characters`
+      ),
+    }),
+  },
+  [TOKENS_TYPE.CREDIT_CARD_V2]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      cf_turnstile_response: Yup.string().required(),
+    }),
+  },
+  [TOKENS_TYPE.WEBDAV]: {
+    schema: Yup.object().shape(validationNotificationSettings),
+  },
+  [TOKENS_TYPE.WINDOWS_FAKE_FS]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      windows_fake_fs_root: Yup.string()
+        .required('A file path is required')
+        .matches(/^[a-zA-Z]:(\\[a-zA-Z0-9_.-]+)+\\?$/, 'Invalid file path'),
+      windows_fake_fs_file_structure: Yup.string().required(
+        'A file structure is required'
+      ),
+    }),
+  },
+  [TOKENS_TYPE.IDP_APP]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      redirect_url: Yup.string(),
+      app_type: Yup.string().required('App type is required'),
+    }),
+  },
+  [TOKENS_TYPE.AWS_INFRA]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      aws_region: Yup.string().required('AWS region is required'),
+      aws_account_number: Yup.string()
+        .required('AWS account number is required')
+        .matches(/^\d+$/, 'AWS account must be a number')
+        .test(
+          'len',
+          'AWS account number must have 12 digits',
+          (val) => val.length === 12
+        ),
+    }),
+  },
+};

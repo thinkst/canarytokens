@@ -1,7 +1,9 @@
 from datetime import datetime
-
+from twisted.logger import LogLevel, capturedLogs
 import pytest
 from pydantic import EmailStr
+from redis import StrictRedis
+import requests
 
 from canarytokens import queries
 from canarytokens.canarydrop import Canarydrop
@@ -14,9 +16,16 @@ from canarytokens.models import (
     Memo,
     TokenTypes,
 )
+from canarytokens.redismanager import (
+    KEY_AUTH_IDX,
+    KEY_CANARYDROP,
+    KEY_CANARYDROPS_TIMELINE,
+    KEY_EMAIL_IDX,
+    KEY_WEBHOOK_IDX,
+)
 from canarytokens.queries import (
-    add_canarydrop_hit,
-    add_webhook_token_idx,
+    delete_canarydrop,
+    delete_email_tokens,
     delete_webhook_tokens,
     get_canarydrop,
     get_canarydrop_and_authenticate,
@@ -27,11 +36,89 @@ from tests.utils import make_token_alert_detail
 
 
 def test_add_delete_webhook(setup_db):
-    token_value = Canarytoken.generate()
+    db: StrictRedis = setup_db
     webhook_url = "https://slack.com/api/api.test"
-    ret = add_webhook_token_idx(webhook_url, canarytoken=token_value)
-    assert ret == 1
+
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_webhook_enabled=True,
+        alert_webhook_url=webhook_url,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(canarydrop)
+
+    key = KEY_WEBHOOK_IDX + webhook_url
+    assert len(db.smembers(key)) == 1
     delete_webhook_tokens(webhook=webhook_url)
+    assert not db.exists(key)
+
+
+def test_add_delete_email(setup_db):
+    db: StrictRedis = setup_db
+    email = "test@test.com"
+
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(canarydrop)
+
+    key = KEY_EMAIL_IDX + email
+    assert len(db.smembers(key)) == 1
+    delete_email_tokens(email_address=email)
+    assert not db.exists(key)
+
+
+def test_email_case_management(setup_db):
+    db: StrictRedis = setup_db
+    email = "Test@test.com"
+
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(canarydrop)
+
+    key = KEY_EMAIL_IDX + email
+    assert len(db.smembers(key)) == 0
+    assert len(db.smembers(key.lower())) == 1
+    assert (
+        db.hget(KEY_CANARYDROP + canarytoken.value(), "alert_email_recipient") == email
+    )
+
+    second_token = Canarytoken()
+    second_canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email.lower(),
+        canarytoken=second_token,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+    save_canarydrop(second_canarydrop)
+
+    set_members = db.smembers(key.lower())
+    assert len(set_members) == 2
+    assert all([token.value() in set_members for token in [canarytoken, second_token]])
+
+    delete_email_tokens(key)
 
 
 def test_add_hit_get_canarytoken(setup_db):
@@ -58,7 +145,7 @@ def test_add_hit_get_canarytoken(setup_db):
         is_tor_relay=False,
         input_channel="dns",
     )
-    add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
+    canarydrop.add_canarydrop_hit(token_hit=token_hit)
     cd = get_canarydrop(canarytoken=canarytoken)
     assert cd.triggered_details
 
@@ -91,9 +178,61 @@ def test_add_hit_get_canarytoken_wrong_type(setup_db):
         useragent="Unknown",
     )
     with pytest.raises(ValueError):
-        add_canarydrop_hit(token_hit=token_hit, canarytoken=canarytoken)
+        canarydrop.add_canarydrop_hit(token_hit=token_hit)
     cd = get_canarydrop(canarytoken=canarytoken)
     assert cd.triggered_details
+
+
+def test_delete_drop(setup_db):
+    db: StrictRedis = setup_db
+
+    email = "test@test.com"
+    webhook = "https://slack.com/api/api.test"
+
+    canarytoken = Canarytoken()
+
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        alert_email_enabled=True,
+        alert_email_recipient=email,
+        alert_webhook_enabled=True,
+        alert_webhook_url=webhook,
+        canarytoken=canarytoken,
+        memo="stuff happened",
+        browser_scanner_enabled=False,
+    )
+
+    critical_keys = [
+        KEY_CANARYDROP + canarytoken.value(),
+        KEY_EMAIL_IDX + email,
+        KEY_WEBHOOK_IDX + webhook,
+        KEY_AUTH_IDX + canarydrop.auth,
+    ]
+
+    save_canarydrop(canarydrop)
+    token_hit = DNSTokenHit(
+        time_of_hit=datetime.utcnow().strftime("%s.%f"),
+        src_ip="127.0.0.1",
+        geo_info=GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
+        is_tor_relay=False,
+        input_channel="dns",
+        additional_info=AdditionalInfo(),
+        location="/get",
+        useragent="Unknown",
+    )
+    canarydrop.add_canarydrop_hit(token_hit=token_hit)
+    cd = get_canarydrop(canarytoken=canarytoken)
+
+    for key in critical_keys:
+        assert db.exists(key)
+    assert db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) is not None
+
+    delete_canarydrop(cd)
+
+    for key in critical_keys:
+        assert not db.exists(key)
+    assert db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) is None
 
 
 def test_remove_tokens_with_email_x(setup_db):
@@ -228,6 +367,31 @@ def test_get_geoinfo_is_cached():
     assert geoinfo == geoinfo_cache
     # TODO:   Check we evicte cache based on time. unittest.mock
     # to modify the date and check we empty the cache and re-fetch
+
+
+def test_get_geoinfo_503_response_code_handling(monkeypatch):
+    ip = "166.73.125.172"
+
+    def mock_get(*args, **kwargs):
+        response = requests.Response()
+        response.status_code = 503
+        response.headers = {"Content-Type": "text/plain"}
+        response._content = b"Service Unavailable"
+        return response
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    with capturedLogs() as captured:
+        _ = queries.get_geoinfo_from_ip(ip)
+
+    assert "ip info error: 503 Server" in captured[0]["log_format"]
+    assert captured[0]["log_level"] == LogLevel.info
+
+
+def test_get_geoinfo_aws_internal():
+    ip = "AWS Internal"
+    info = queries.get_geoinfo(ip)
+    assert info is None
 
 
 def test_mail_queue(setup_db):

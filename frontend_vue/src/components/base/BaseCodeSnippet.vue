@@ -1,0 +1,119 @@
+<template>
+  <div v-bind="$attrs">
+    <label
+      v-if="label"
+      class="inline-block mb-8 text-grey-500"
+      :for="label"
+      >{{ label }}</label
+    >
+
+    <div class="relative bg-white border rounded-2xl border-grey-100">
+      <button
+        v-if="showExpandButton"
+        id="show-all-button"
+        class="absolute w-[6rem] bottom-8 left-0 right-0 m-auto px-8 py-4 z-10 font-semibold text-green-600 bg-white border border-green-200 refresh-token rounded-xl hover:bg-green-50 hover:text-green-500 focus:text-green-500 focus-visible:outline-0 focus:bg-green-100 focus:border-green-200 focus:outline-0"
+        @click="handleShowAllSnippet"
+      >
+        {{ showAllCode ? 'Show less' : 'Show all' }}
+      </button>
+      <div class="absolute top-[.8rem] right-[1rem] z-10 flex gap-8">
+        <BaseRefreshButton
+          v-if="hasRefresh"
+          @refresh-token="handleRefreshToken"
+        />
+        <BaseCopyButton
+          :content="code"
+          class="ring-white ring-4"
+          @copy-content="emits('copy-content')"
+        />
+      </div>
+      <highlightjs
+        :id="label"
+        :code="code"
+        :lang="lang"
+        class="min-h-[3.5rem] overflow-scroll rounded-2xl"
+        :style="{
+          height: componentHeight,
+        }"
+        :class="[
+          showExpandButton ? 'whitespace-pre-wrap' : '',
+          isSingleLine && hasCopy && !hasRefresh ? 'mr-[3.5rem]' : '',
+          isSingleLine && hasCopy && hasRefresh ? 'mr-[6rem]' : '',
+        ]"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import 'highlight.js/lib/common';
+import 'highlight.js/styles/github.css';
+import hljsVuePlugin from '@highlightjs/vue-plugin';
+
+const props = withDefaults(
+  defineProps<{
+    code: string;
+    lang: string;
+    hasRefresh?: boolean;
+    hasCopy?: boolean;
+    showExpandButton?: boolean;
+    customHeight?: string;
+    label?: string | null;
+    isSingleLine?: boolean;
+    checkScroll?: boolean;
+  }>(),
+  {
+    hasRefresh: false,
+    hasCopy: true,
+    customHeight: 'auto',
+    label: null,
+    showExpandButton: false,
+    isSingleLine: false,
+  }
+);
+
+const emits = defineEmits([
+  'refresh-token',
+  'copy-content',
+  'snippet-scrolled',
+]);
+const showAllCode = ref(false);
+const highlightjs = ref(hljsVuePlugin.component);
+
+onMounted(() => {
+  if (props.checkScroll && props.label) {
+    handleScrollToBottom();
+  }
+});
+
+const componentHeight = computed(() => {
+  if (props.customHeight && !props.showExpandButton) {
+    return props.customHeight;
+  }
+  return showAllCode.value ? 'auto' : props.customHeight;
+});
+
+function handleRefreshToken() {
+  emits('refresh-token');
+}
+
+function handleShowAllSnippet() {
+  showAllCode.value = !showAllCode.value;
+}
+
+function handleScrollToBottom() {
+  // useful for checking if user copied the entire snippet
+  //@ts-ignore - this function is called only when props.label exists
+  const snippetEl = document.getElementById(props.label);
+  snippetEl?.addEventListener('scroll', () => {
+    if (
+      Math.abs(
+        snippetEl.scrollHeight - snippetEl.clientHeight - snippetEl.scrollTop
+      ) < 1
+    ) {
+      emits('snippet-scrolled');
+    }
+  });
+}
+</script>

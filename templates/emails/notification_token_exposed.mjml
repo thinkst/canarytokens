@@ -1,0 +1,211 @@
+<!--
+  This is an MJML file. MJML (Mailjet Markup Language) is a markup language designed to reduce the pain of coding responsive email templates.
+  It abstracts away the complexity of responsive email design, allowing developers to write simpler and more readable code.
+
+  There are many ways you can use MJML. The easier one that requires less setup is:
+  1. Add a mjml plugin to your code editor. This will allow you to write MJML code and see the rendered email template in real-time.
+    For VScode https://marketplace.visualstudio.com/items?itemName=attilabuti.vscode-mjml
+    ( If you face troubles with the official plugin, try one of the forked projects )
+  2. Use the MJML online editor to convert mjml code to html: https://mjml.io/try-it-live
+
+  Or install MJML globally and compile your MJML files into HTML files:
+  1. Install MJML: `npm install -g mjml`.
+  2. Create an MJML file: Write your email template using MJML tags.
+  3. Compile the MJML file: Use the command `mjml input.mjml -o output.html` to compile your MJML file into an HTML file.
+  4. Use the generated HTML: The output HTML file can be used in your email campaigns.
+
+
+  For more information, and more visit the official MJML documentation: https://mjml.io/documentation
+
+  NOTE: When exporting to html, the conditions {% if BasicDetails['something'] %} living outside a <mj-text> are not supported and will be removed from the final html file.
+  If you need to use conditions, remeber to check the output html file and add them manually if needed.
+-->
+<mjml>
+  <mj-head>
+    <mj-title>Canarytoken exposed!</mj-title>
+    <mj-attributes>
+      <mj-all font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#4D4D4D" line-height="24px" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-text>
+    </mj-attributes>
+    <mj-style inline="inline">
+      .center-image {
+        display: block;
+        margin: 0 auto;
+      }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#F6F7FA" width="600px">
+    <mj-section padding="10px 0 20px 0">
+      <mj-column>
+      </mj-column>
+    </mj-section>
+
+    <!-- Red bar top -->
+    <mj-section padding="10px 0 0px 0px" border-radius="30px 30px 0 0" background-color="#ec4f41">
+      <!--Logo -->
+      <mj-column width="40%">
+        <mj-image src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/token_logo.png" alt="Canarytokens" align="center" border="none" padding="0px" height="70px" />
+      </mj-column>
+    </mj-section>
+
+
+    <mj-wrapper padding="30px 30px 20px" background-color="#FFF">
+      <!--Alert icon -->
+
+      <!--Alert Top details -->
+      <mj-section padding="20px 0px 0px" border-radius="16px 16px" background-color="#F6F7FA">
+        <mj-column background-color="#f6f8fb" padding-bottom="30px" border-radius="0 0 16px 16px">
+          <mj-image src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/canarytoken-icons/{{BasicDetails['token_type']}}.png" alt="Canarytokens" align="center" border="none" padding="0px" width="70px" height="70px" />
+          <mj-text color="#060606" font-weight="bold" align="center" font-size="24px">
+            Your Canarytoken was exposed publicly</mj-text>
+          <mj-text color="#818a8e" padding="0px 20px" align="center">
+            One of your <span style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
+            Canarytokens has been found on the
+            {% if BasicDetails['public_location'] %}
+            <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">internet</a>.
+            {% else %}
+            internet.
+            {% endif %}
+            A publicly exposed token will provide very low quality alerts. We recommend that you disable and replace this token on private infrastructure.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+    <!--Reminder -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/reminder.png" width="40px" />
+              </td>
+              <td>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Reminder</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['memo'] | e}}</p>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+    <!-- Key exposed location -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+              </td>
+              <td>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Key found here</p>
+                <p style="font-weight:400;color:#060606;margin:0;">
+                  <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">{{ BasicDetails['public_location'] }}</a>
+                </p>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <!-- Key ID -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
+              </td>
+              <td>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Key ID</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{ BasicDetails['key_id'] | e}}</p>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <!-- Day & Time -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
+      <mj-section background-color="#f6f8fb" border-radius="16px 16px">
+        <mj-column width="100%" padding="0px">
+          <mj-table>
+
+            <tr style="color:#818a8e;font-size:16px;text-align:left;font-weight:600">
+              <td style="padding: 0px 10px; width:40px; font-weight:400; vertical-align: middle;" rowspan="2">
+                <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/daytime.png" width="40px" />
+              </td>
+              <td style="vertical-align: top;">
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Date</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['time_ymd']}}</p>
+              </td>
+              <td style="vertical-align: top;">
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Time</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['time_hm']}} UTC</p>
+              </td>
+            </tr>
+
+          </mj-table>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+
+    <!-- CTA -->
+    <mj-wrapper padding="0px 30px 0px" background-color="#FFF">
+      <mj-section padding="0px 0 20px 0">
+        <mj-column>
+          <mj-button line-height="160%" background-color="#33c480" color="#FFF" font-size="16px" font-weight="bold" padding="10px 20px" border-radius="24px" align="center" href="{{ ManageLink }}" width="100%">
+            Manage Alert
+          </mj-button>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <!-- More info -->
+    <mj-wrapper padding="0px 30px 0px" background-color="#FFF">
+      <mj-section padding="0px 0 20px 0">
+        <mj-column>
+          <mj-text align="center">More info on this Canarytoken? <a href="https://docs.canarytokens.org/guide/" style="text-decoration:none;color:#33c480">Click here</a></mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+
+    <!-- Banner ad -->
+    <mj-wrapper padding="0px 30px 30px" background-color="#FFF" border-radius="0 0 60px 60px"></mj-wrapper>
+    <mj-wrapper padding="0px 30px 30px" background-color="#F6F7FA"></mj-wrapper>
+
+    <mj-wrapper padding="10px 30px" background-color="#38d07e" border-radius="30px">
+      <mj-section padding="20px 0 10px 0">
+        <mj-column>
+          <mj-text align="center" color="white" font-size="24px" line-height="1.4" padding="10px 30px">
+            Some of the <span style="font-weight:600">best security teams</span> in the world run <span style="font-weight:600">Thinkst Canary</span>.
+          </mj-text>
+          <mj-text align="center" color="white">
+            <a href="https://canary.tools/" style="color:white">Find out why</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <mj-wrapper padding="0px 30px 30px" background-color="#F6F7FA"></mj-wrapper>
+
+
+  </mj-body>
+</mjml>

@@ -1,6 +1,5 @@
 import os
 import subprocess
-from distutils.util import strtobool
 from pathlib import Path
 
 import pytest
@@ -12,20 +11,21 @@ from canarytokens.models import (
     WireguardTokenRequest,
     WireguardTokenResponse,
 )
-from tests.utils import create_token, get_token_history, run_or_skip, v2, v3
+from canarytokens.utils import strtobool
+
+from tests.utils import create_token, get_token_history
 
 
-@pytest.mark.parametrize("version", [v2, v3])
 @pytest.mark.skipif(
     not strtobool(os.getenv("CI", "False")), reason="Only test wireguard token on ci"
 )
-def test_wireguard_token(version, webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_wireguard_token(webhook_receiver):
+
     token_request = WireguardTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
     )
-    resp = create_token(token_request, version=version)
+    resp = create_token(token_request)
     token_info = WireguardTokenResponse(**resp)
     wg_config = "/tmp/wg0.conf"
     with open(wg_config, "w") as fp:
@@ -37,7 +37,7 @@ def test_wireguard_token(version, webhook_receiver, runv2, runv3):
     print(sp2)
     Path(wg_config).unlink(missing_ok=False)
     # Check that the returned history has a single hit
-    history_resp = get_token_history(token_info, version=version)
+    history_resp = get_token_history(token_info)
     token_history = WireguardTokenHistory(**history_resp)
 
     assert len(token_history.hits) == 1

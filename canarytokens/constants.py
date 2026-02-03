@@ -14,14 +14,7 @@ INPUT_CHANNEL_WIREGUARD = "WireGuard"
 
 # DESIGN: We'll want a constraint on this but what is sensible as a user and what is practical for our system?
 MEMO_MAX_CHARACTERS = 1000
-# fmt: off
-CANARYTOKEN_ALPHABET = ['0', '1', '2', '3', '4', '5',
-                        '6', '7', '8', '9', 'a', 'b',
-                        'c', 'd', 'e', 'f', 'g', 'h',
-                        'i', 'j', 'k', 'l', 'm', 'n',
-                        'o', 'p', 'q', 'r', 's', 't',
-                        'u', 'v', 'w', 'x', 'y', 'z']
-# fmt: on
+CANARYTOKEN_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
 CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
 
 CANARY_IMAGE_URL = (
@@ -39,4 +32,6 @@ MAX_WEBHOOK_URL_LENGTH = 1024
 WEBHOOK_BASE_URL_SLACK = "https://hooks.slack.com"
 WEBHOOK_BASE_URL_GOOGLE_CHAT = "https://chat.googleapis.com"
 WEBHOOK_BASE_URL_DISCORD = "https://discord.com/api/webhooks"
-WEBHOOK_BASE_URL_REGEX_MS_TEAMS = r"^https://[\w.]+\.webhook\.office\.com/webhookb2/.*"
+WEBHOOK_BASE_URL_REGEX_MS_TEAMS = (
+    r"^https:\/\/\S+\.ac\.environment\.api\.powerplatform\.com"
+)

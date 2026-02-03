@@ -32,7 +32,9 @@ def handle_query_name(query_name: Name) -> Tuple[Canarydrop, Dict[str, str]]:
     #         V2
     src_data = Canarytoken.look_for_source_data(query_name=query_name_decoded)
     log.info(
-        f"Recovered: {repr([o for o in src_data.items()])} for {query_name_decoded}"
+        f"Recovered: {list(src_data.items())} for {query_name_decoded}".replace(
+            "{", "{{"
+        ).replace("}", "}}")
     )
     return canarydrop, src_data
 
@@ -107,17 +109,19 @@ class ChannelDNS(InputChannel):
         answer = dns.RRHeader(
             name=name,
             payload=dns.Record_NS(
-                ttl=10,
+                ttl=300,
                 name=".".join(["ns1", name.decode()]),
             ),
             type=dns.NS,
             auth=True,
+            ttl=300,
         )
         additional = dns.RRHeader(
             name=".".join(["ns1", name.decode()]),
             payload=dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP),
             type=dns.A,
             auth=True,
+            ttl=300,
         )
         answers = [answer]
         authority: list[str] = []
@@ -142,6 +146,7 @@ class ChannelDNS(InputChannel):
             ),
             type=dns.SOA,
             auth=True,
+            ttl=300,
         )
         answers = [answer]
         authority = []
@@ -154,8 +159,16 @@ class ChannelDNS(InputChannel):
         Calculate the response to a query.
         """
         log.info(f"Building A record: ip = {self.frontend_settings.PUBLIC_IP}")
-        payload = dns.Record_A(ttl=10, address=self.frontend_settings.PUBLIC_IP)
-        answer = dns.RRHeader(name=name, payload=payload, type=dns.A, auth=True)
+        ttl = 10
+
+        if name.lower().decode() in self.canary_domains:
+            # This is a resolution of the apex domain, not a token, so we can bump up the TTL
+            ttl = 600  # 10 min seems plenty short enough to allow for IP changes without getting overloaded
+
+        payload = dns.Record_A(ttl=ttl, address=self.frontend_settings.PUBLIC_IP)
+        answer = dns.RRHeader(
+            name=name, payload=payload, type=dns.A, auth=True, ttl=ttl
+        )
         answers = [answer]
         authority: list[str] = []
         additional: list[str] = []
@@ -222,10 +235,37 @@ class ChannelDNS(InputChannel):
         #     d = deferLater(...)
         if (
             canarydrop.type
-            in [TokenTypes.LOG4SHELL, TokenTypes.WINDOWS_DIR, TokenTypes.CMD]
+            in [
+                TokenTypes.LOG4SHELL,
+                TokenTypes.WINDOWS_DIR,
+                TokenTypes.CMD,
+                TokenTypes.WINDOWS_FAKE_FS,
+            ]
             and src_data == {}
         ):
             return defer.succeed(self._do_dynamic_response(name=query.name.name))
+
+        if canarydrop.type == TokenTypes.CMD:
+            invocation_id = src_data["src_data"].get("cmd_invocation_id")
+            if (invocation_id is not None) and any(
+                hit.src_data.get("cmd_invocation_id") == invocation_id
+                for hit in canarydrop.triggered_details.hits
+            ):
+                log.info(
+                    f"Ignoring hit on token {canarydrop.canarytoken.value()}; {invocation_id=} already seen."
+                )
+                return defer.succeed(self._do_dynamic_response(name=query.name.name))
+
+        if canarydrop.type == TokenTypes.WINDOWS_FAKE_FS:
+            invocation_id = src_data["src_data"].get("windows_fake_fs_invocation_id")
+            if (invocation_id is not None) and any(
+                hit.src_data.get("windows_fake_fs_invocation_id") == invocation_id
+                for hit in canarydrop.triggered_details.hits
+            ):
+                log.info(
+                    f"Ignoring hit on token {canarydrop.canarytoken.value()}; {invocation_id=} already seen."
+                )
+                return defer.succeed(self._do_dynamic_response(name=query.name.name))
 
         token_hit = Canarytoken.create_token_hit(
             token_type=canarydrop.type,

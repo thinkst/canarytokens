@@ -100,8 +100,8 @@ if __name__ == "__main__":
     c = CanarydropTest()
 
     magic_sauce = (
-        "SET @bb = CONCAT(\"CHANGE MASTER TO MASTER_PASSWORD='my-secret-pw', MASTER_RETRY_COUNT=1, MASTER_PORT=3306,"
-        + f"MASTER_HOST='{c.get_hostname()}', MASTER_USER='{c.canarytoken()}\", @@lc_time_names, @@hostname, \"';\");"
+        "SET @bb = CONCAT(\"CHANGE REPLICATION SOURCE TO SOURCE_PASSWORD='my-secret-pw', SOURCE_RETRY_COUNT=1, SOURCE_SSL=0, SOURCE_PORT=3306,"
+        + f"SOURCE_HOST='{c.get_hostname()}', SOURCE_USER='{c.canarytoken()}\", @@lc_time_names, @@hostname, \"';\");"
     )
 
     with open("mysql_dump.sql.gz", "wb+") as f:

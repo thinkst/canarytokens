@@ -5,18 +5,20 @@ import binascii
 import json
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cache
-from typing import Any, AnyStr, Match, Optional
+from typing import Any, AnyStr, Match, Optional, Union
+import logging
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
 from twisted.web.http import Request
 from twisted.web.util import redirectTo
 
+from canarytokens.saml import extract_identity, prepare_request
 from canarytokens.settings import SwitchboardSettings
 
-from canarytokens import canarydrop, queries
+from canarytokens import canarydrop, msreg, queries
 from canarytokens.constants import (
     CANARYTOKEN_ALPHABET,
     CANARYTOKEN_LENGTH,
@@ -24,12 +26,22 @@ from canarytokens.constants import (
 )
 from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import (
+    CANARYTOKEN_RE,
     AnyTokenHit,
+    AwsInfraAdditionalInfo,
+    AWSInfraTokenHit,
     AWSKeyTokenHit,
+    AWSKeyTokenExposedHit,
     AzureIDTokenHit,
     SlackAPITokenHit,
     TokenTypes,
+    CreditCardV2TokenHit,
+    CreditCardV2AdditionalInfo,
+    WebDavTokenHit,
+    WebDavAdditionalInfo,
+    AWSInfraAssetType,
 )
+from canarytokens.credit_card_v2 import AnyCreditCardTrigger
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -46,7 +58,15 @@ desktop_ini_browsing_pattern = re.compile(
     re.IGNORECASE,
 )
 log4_shell_pattern = re.compile(r"([A-Za-z0-9.-]*)\.L4J\.", re.IGNORECASE)
-cmd_process_pattern = re.compile(r"(.+)\.UN\.(.+)\.CMD\.", re.IGNORECASE)
+cmd_process_pattern = re.compile(
+    r"(.+)\.UN\.(.+)\.CMD\.([A-Z0-9]{{{LEN}}}\.)?".format(
+        LEN=msreg.INVOCATION_ID_LENGTH
+    ),
+    re.IGNORECASE,
+)
+windows_fake_fs_pattern = re.compile(
+    r"u([0-9]*)\.f([A-Z2-7]*)\.i([A-Z2-7]*)\.", re.IGNORECASE
+)
 
 # to validate decoded sql username, not a data extractor:
 sql_decoded_username = re.compile(r"[A-Za-z0-9\!\#\'\-\.\\\^\_\~]+")
@@ -60,6 +80,7 @@ source_data_extractors = {
     "desktop_ini_browsing": desktop_ini_browsing_pattern,
     "log4_shell": log4_shell_pattern,
     "cmd_process": cmd_process_pattern,
+    "windows_fake_fs": windows_fake_fs_pattern,
     "sql_server_username": sql_server_username,
 }
 
@@ -84,15 +105,6 @@ def get_template_env():
 
 
 class Canarytoken(object):
-    CANARY_RE = re.compile(
-        ".*(["
-        + "".join(CANARYTOKEN_ALPHABET)
-        + "]{"
-        + str(CANARYTOKEN_LENGTH)
-        + "}).*",
-        re.IGNORECASE,
-    )
-
     def __init__(self, value: Optional[AnyStr] = None):
         """Create a new Canarytoken instance. If no value was provided,
         generate a new canarytoken.
@@ -131,11 +143,14 @@ class Canarytoken(object):
         Exceptions:
         NoCanarytokenFound
         """
-        m = Canarytoken.CANARY_RE.match(haystack)
+        should_reverse = "/" not in haystack
+        m = CANARYTOKEN_RE.search(haystack[::-1] if should_reverse else haystack)
+
         if not m:
             raise NoCanarytokenFound(haystack)
 
-        return m.group(1)
+        result = m.group(0)
+        return result[::-1] if should_reverse else result
 
     def value(
         self,
@@ -157,11 +172,11 @@ class Canarytoken(object):
 
     @staticmethod
     def _sql_server_username(matches: Match[AnyStr]) -> dict[str, str]:
-        match = matches.group(1)
-        if isinstance(match, str):
-            raw_username: str = match
-        elif isinstance(match, bytes):
-            raw_username: str = match.decode()
+        username_match = matches.group(1)
+        if isinstance(username_match, str):
+            raw_username: str = username_match
+        elif isinstance(username_match, bytes):
+            raw_username: str = username_match.decode()
         else:
             raw_username: str = ""
         data = {}
@@ -181,11 +196,11 @@ class Canarytoken(object):
 
     @staticmethod
     def _linux_inotify(matches: Match[AnyStr]) -> dict[str, str]:
-        match = matches.group(1)
-        if isinstance(match, str):
-            filename: str = match.encode()
-        elif isinstance(match, bytes):
-            filename: str = match
+        filename_match = matches.group(1)
+        if isinstance(filename_match, str):
+            filename: str = filename_match.encode()
+        elif isinstance(filename_match, bytes):
+            filename: str = filename_match
         else:
             filename: str = b""
         data = {}
@@ -220,15 +235,48 @@ class Canarytoken(object):
     @staticmethod
     def _cmd_process(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
         """"""
-        computer_name = matches.group(1).lower()
-        user_name = matches.group(2).lower()
-        data = {}
-        data["cmd_computer_name"] = "(not obtained)"
-        data["cmd_user_name"] = "(not obtained)"
+        computer_name = matches.group(1)
+        user_name = matches.group(2)
+        invocation_id = matches.group(3)
+        data = {
+            "cmd_computer_name": "(not obtained)",
+            "cmd_user_name": "(not obtained)",
+        }
         if user_name and user_name != "u":
-            data["cmd_user_name"] = user_name[1:]
+            data["cmd_user_name"] = user_name[1:].lower()
         if computer_name and computer_name != "c":
-            data["cmd_computer_name"] = computer_name[1:]
+            data["cmd_computer_name"] = computer_name[1:].lower()
+        if invocation_id:
+            data["cmd_invocation_id"] = invocation_id[:-1].lower()
+
+        return {"src_data": data}
+
+    @staticmethod
+    def _windows_fake_fs(matches: Match[AnyStr]) -> dict[str, dict[str, AnyStr]]:
+        """"""
+        invocation_id = matches.group(1)
+        file_name = matches.group(2)
+        process_name = matches.group(3)
+        data = {
+            "windows_fake_fs_file_name": "(not obtained)",
+            "windows_fake_fs_process_name": "(not obtained)",
+        }
+        if invocation_id:
+            data["windows_fake_fs_invocation_id"] = invocation_id
+
+        def correct_base32_padding(b32_data):
+            padding_count = len(b32_data) % 8
+            if padding_count != 0:
+                b32_data += "=" * (8 - padding_count)
+            return b32_data
+
+        if file_name and file_name != "f":
+            b32_data = correct_base32_padding(file_name.upper())
+            data["windows_fake_fs_file_name"] = base64.b32decode(b32_data).decode()
+        if process_name and process_name != "i":
+            b32_data = correct_base32_padding(process_name.upper())
+            data["windows_fake_fs_process_name"] = base64.b32decode(b32_data).decode()
+
         return {"src_data": data}
 
     @staticmethod
@@ -302,7 +350,7 @@ class Canarytoken(object):
     @staticmethod
     def _parse_aws_key_trigger(
         request: Request,
-    ) -> AWSKeyTokenHit:
+    ) -> Union[AWSKeyTokenHit, AWSKeyTokenExposedHit]:
         """When an AWSKey token is triggered a lambda makes a POST request
         back to switchboard. The `request` is processed, fields extracted,
         and an `AWSKeyTokenHit` is created.
@@ -316,6 +364,21 @@ class Canarytoken(object):
         data: dict[str, list[str]] = {
             k.decode(): [o.decode() for o in v] for k, v in request.args.items()
         }
+
+        if "token_exposed" in data:
+            exposed_time = data.get(
+                "exposed_time", [datetime.utcnow().strftime("%s.%f")]
+            )[0]
+
+            public_location = data.get("public_location", [""])[0]
+            if not public_location.strip():
+                public_location = None
+
+            return AWSKeyTokenExposedHit(
+                public_location=public_location,
+                input_channel=INPUT_CHANNEL_HTTP,
+                time_of_hit=exposed_time,
+            )
 
         if "safety_net" in data and data["safety_net"][0] == "True":
             timestamp = data["last_used"][0]
@@ -445,6 +508,28 @@ class Canarytoken(object):
         return SlackAPITokenHit(**hit_info)
 
     @staticmethod
+    def _parse_credit_card_v2_trigger(
+        request: Request,
+    ) -> CreditCardV2TokenHit:
+        request_data = json.loads(request.content.read().decode())
+
+        if request_data.get("merchant") is not None:
+            merchant = request_data["merchant"]
+            request_data["merchant"] = (
+                f"{merchant.get('name')}, {merchant.get('city')}, {merchant.get('country')}"
+            )
+
+        trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
+
+        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_info = {
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "additional_info": CreditCardV2AdditionalInfo(**trigger_data.dict()),
+        }
+        return CreditCardV2TokenHit(**hit_info)
+
+    @staticmethod
     def _get_info_for_clonedsite(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
 
@@ -478,6 +563,29 @@ class Canarytoken(object):
         return http_general_info, src_data
 
     @staticmethod
+    def _get_info_for_webdav(request: Request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        client_ip = request.getHeader("X-Client-Ip")
+        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_info = {
+            "additional_info": WebDavAdditionalInfo(
+                file_path=request.getHeader("X-Alert-Path"),
+                useragent=http_general_info["useragent"],
+            ),
+            "geo_info": queries.get_geoinfo(ip=client_ip),
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "is_tor_relay": queries.is_tor_relay(client_ip),
+            "src_ip": client_ip,
+            "time_of_hit": hit_time,
+        }
+        return WebDavTokenHit(**hit_info)
+
+    @staticmethod
+    def _get_response_for_webdav(canarydrop: canarydrop.Canarydrop, request: Request):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_response_for_cssclonedsite(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
@@ -503,6 +611,33 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_pwa(request: Request):
+        src_data = {}
+        # we're already getting hit time;
+        # this is just for uniqueness so drop it
+        if b"time" in request.args:
+            request.args.pop(b"time")
+
+        # if there's loc data, extract it for the hit
+        if request.args.get(b"loc"):
+            loc_str = request.args.pop(b"loc")[0]
+            try:
+                d = json.loads(loc_str)
+                src_data["location"] = d
+            except json.decoder.JSONDecodeError:
+                pass
+
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        return http_general_info, src_data
+
+    @staticmethod
+    def _get_response_for_pwa(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_fast_redirect(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         return http_general_info, {}
@@ -513,10 +648,30 @@ class Canarytoken(object):
     ):
         redirect_url = canarydrop.redirect_url
         if redirect_url:
-            if ":" not in redirect_url:
+            if not redirect_url.startswith("http://") and not redirect_url.startswith(
+                "https://"
+            ):
                 redirect_url = "http://" + redirect_url
             return redirectTo(redirect_url.encode(), request)
         return GIF
+
+    @staticmethod
+    def _get_info_for_idp_app(request: Request):
+        src_data = {}
+        saml_request = prepare_request(request)
+        if saml_request:
+            identity = extract_identity(saml_request)
+            src_data["identity"] = identity
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        return http_general_info, {"src_data": src_data}
+
+    @staticmethod
+    def _get_response_for_idp_app(canarydrop: canarydrop.Canarydrop, request: Request):
+        if not canarydrop.redirect_url:
+            return Canarytoken._get_response_for_web(canarydrop, request)
+        if not canarydrop.browser_scanner_enabled:
+            return Canarytoken._get_response_for_fast_redirect(canarydrop, request)
+        return Canarytoken._get_response_for_slow_redirect(canarydrop, request)
 
     @staticmethod
     def _get_info_for_slow_redirect(request):
@@ -534,14 +689,18 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
         redirect_url = canarydrop.redirect_url
-        if redirect_url and ":" not in redirect_url:
+        if not redirect_url.startswith("http://") and not redirect_url.startswith(
+            "https://"
+        ):
             redirect_url = "http://" + redirect_url
-        template = get_template_env().get_template("browser_scanner.html")
-        return template.render(
-            key=canarydrop.triggered_details.hits[-1].time_of_hit,
-            canarytoken=canarydrop.canarytoken.value(),
-            redirect_url=redirect_url,
-        ).encode()
+        template_params = {
+            "key": canarydrop.triggered_details.hits[-1].time_of_hit,
+            "canarytoken": canarydrop.canarytoken.value(),
+            "redirect_url": redirect_url,
+            "include_browser_scanner": True,
+        }
+        template = get_template_env().get_template("fortune.html")
+        return template.render(**template_params).encode()
 
     @staticmethod
     def _get_info_for_web(request):
@@ -553,35 +712,24 @@ class Canarytoken(object):
         canarydrop: canarydrop.Canarydrop, request: Request
     ) -> bytes:
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            request.setHeader("Content-Type", "text/html")
             if canarydrop.browser_scanner_enabled:
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-                # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up response template
-                browser_scanner_template_params = {
+                template_params = {
                     "key": latest_hit_time,
-                    "canarytoken": canarydrop.canarytoken.value,
+                    "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
+                    "include_browser_scanner": True,
+                    "include_pale_blue_dot": True,
                 }
-                template = get_template_env().get_template("browser_scanner.html")
-                # render template
-                return template.render(**browser_scanner_template_params).encode()
-
-            elif queries.get_return_for_token() == "fortune":  # gif
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-
-                # get fortune
-                # fortune = subprocess.check_output('/usr/games/fortune')
-                fortune = "fortune favours the brave"
-
-                # set-up response template
-                fortune_template_params = {"request": request, "fortune": fortune}
                 template = get_template_env().get_template("fortune.html")
-
-                # render template
-                return template.render(**fortune_template_params).encode()
+                return template.render(**template_params).encode()
+            elif queries.get_return_for_token() == "fortune":
+                template_params = {
+                    "include_pale_blue_dot": True,
+                }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         request.setHeader("Content-Type", "image/gif")
         return GIF
@@ -627,50 +775,152 @@ class Canarytoken(object):
     def _get_response_for_web_image(
         canarydrop: canarydrop.Canarydrop, request: Request
     ):
-        if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+        html_accepted = request.getHeader(
+            "Accept"
+        ) and "text/html" in request.getHeader("Accept")
+        image_accepted = request.getHeader("Accept") and "image/" in request.getHeader(
+            "Accept"
+        )
+
+        if html_accepted and not image_accepted:
             if canarydrop.browser_scanner_enabled:
-                # set response mimetype
                 request.setHeader("Content-Type", "text/html")
-                # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up response template
-                browser_scanner_template_params = {
+                template_params = {
                     "key": latest_hit_time,
-                    "canarytoken": canarydrop.canarytoken.value,
+                    "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
+                    "include_browser_scanner": True,
+                    "include_pale_blue_dot": True,
                 }
-                template = get_template_env().get_template("browser_scanner.html")
-                # render template
-                return template.render(**browser_scanner_template_params).encode()
-
-            elif queries.get_return_for_token() == "fortune":  # gif
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-
-                # get fortune
-                # fortune = subprocess.check_output('/usr/games/fortune')
-                fortune = "fortune favours the brave"
-
-                # set-up response template
-                fortune_template_params = {"request": request, "fortune": fortune}
                 template = get_template_env().get_template("fortune.html")
-
-                # render template
-                return template.render(**fortune_template_params).encode()
+                return template.render(**template_params).encode()
+            elif queries.get_return_for_token() == "fortune":
+                request.setHeader("Content-Type", "text/html")
+                template_params = {
+                    "request": request,
+                    "include_pale_blue_dot": True,
+                }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         _check_and_add_cors_headers(request)
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
-            # set response mimetype
-            mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
+            mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[1:])
             request.setHeader("Content-Type", mimetype)
-            # read custom image
             with canarydrop.web_image_path.open(mode="rb") as fp:
                 contents = fp.read()
             return contents
 
         request.setHeader("Content-Type", "image/gif")
         return GIF
+
+    @staticmethod
+    def _get_asset_type(event_detail: dict) -> str:
+        resource_type_mapping = {
+            "AWS::S3::Bucket": AWSInfraAssetType.S3_BUCKET.value,
+            "AWS::DynamoDB::Table": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
+            "AWS::SQS::Queue": AWSInfraAssetType.SQS_QUEUE.value,
+            "AWS::SecretsManager::Secret": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
+            "AWS::SSM::Parameter": AWSInfraAssetType.SSM_PARAMETER.value,
+        }
+
+        event_source_mapping = {
+            "s3.amazonaws.com": AWSInfraAssetType.S3_BUCKET.value,
+            "dynamodb.amazonaws.com": AWSInfraAssetType.DYNAMO_DB_TABLE.value,
+            "sqs.amazonaws.com": AWSInfraAssetType.SQS_QUEUE.value,
+            "secretsmanager.amazonaws.com": AWSInfraAssetType.SECRETS_MANAGER_SECRET.value,
+            "ssm.amazonaws.com": AWSInfraAssetType.SSM_PARAMETER.value,
+        }
+
+        if resource_type := event_detail.get("resources", [{}])[0].get("type"):
+            if asset_type := resource_type_mapping.get(resource_type):
+                return asset_type
+
+            # Whenever this exception is thrown, update resource_type_mapping with missing value
+            logging.error(
+                f"Cloudtrail resource type {resource_type} is missing", exc_info=True
+            )
+
+        if event_source := event_detail.get("eventSource"):
+            if asset_type := event_source_mapping.get(event_source):
+                return asset_type
+            # Whenever this exception is thrown, update event_source_mapping with missing value
+            logging.error(
+                f"Cloudtrail event source {event_source} is missing", exc_info=True
+            )
+
+        logging.error(
+            "Could not match AWS Infra Canarytoken event (resource type or event source) to asset type",
+            exc_info=True,
+        )
+        return "Unknown"
+
+    @staticmethod
+    def _parse_aws_infra_trigger(request: Any) -> AWSInfraTokenHit:
+        event = request["cloudtrail_event"]
+        event_detail = event["detail"]
+        user = event_detail["userIdentity"]
+        resource_name_keys = [
+            "bucketName",
+            "tableName",
+            "queueName",
+            "queueUrl",
+            "secretId",
+            "name",
+        ]
+        src_ip = event_detail["sourceIPAddress"]
+        time_of_hit = datetime.strptime(event_detail["eventTime"], "%Y-%m-%dT%H:%M:%SZ")
+        if "arn" in user:
+            identity = f'{user.get("arn")} (type: {user["type"]})'
+        else:
+            identity = ", ".join(f"{k}: {v}" for k, v in user.items())
+        hit_info = {
+            "geo_info": queries.get_geoinfo(ip=src_ip),
+            "is_tor_relay": queries.is_tor_relay(src_ip),
+            "src_ip": src_ip,
+            "time_of_hit": datetime.now(timezone.utc).strftime("%s.%f"),
+            "user_agent": event_detail.get("userAgent"),
+            "additional_info": AwsInfraAdditionalInfo(
+                event={
+                    "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
+                    "Event Time": f"{time_of_hit.isoformat()} UTC+0:00",
+                    "Account & Region": f'{event["account"]}, {event["region"]}',
+                },
+                decoy_resource={
+                    "asset_type": Canarytoken._get_asset_type(event_detail),
+                    "Asset Name": next(
+                        (
+                            v
+                            for k, v in (
+                                event_detail.get("requestParameters") or {}
+                            ).items()
+                            if k in resource_name_keys
+                        ),
+                        "",
+                    ),
+                    "Request Parameters": ", ".join(
+                        f"{k}: {v}"
+                        for k, v in (
+                            event_detail.get("requestParameters") or {}
+                        ).items()
+                    ),
+                },
+                identity={
+                    "User Identity": identity,
+                    "UserAgent": event_detail.get("userAgent"),
+                },
+                metadata={
+                    "Event ID": event_detail["eventID"],
+                    "ReadOnly Event": event_detail.get("readOnly"),
+                    "Event Category": event_detail["eventCategory"],
+                    "Classification": event["detail-type"],
+                },
+            ),
+        }
+
+        return AWSInfraTokenHit(**hit_info)
 
     @staticmethod
     def _get_info_for_legacy(request):
@@ -701,38 +951,28 @@ class Canarytoken(object):
         """
 
         if request.getHeader("Accept") and "text/html" in request.getHeader("Accept"):
+            request.setHeader("Content-Type", "text/html")
             if canarydrop.browser_scanner_enabled:
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-                # latest hit
                 latest_hit_time = canarydrop.triggered_details.hits[-1].time_of_hit
-                # set-up response template
-                browser_scanner_template_params = {
+                template_params = {
                     "key": latest_hit_time,
-                    "canarytoken": canarydrop.canarytoken.value,
+                    "canarytoken": canarydrop.canarytoken.value(),
                     "redirect_url": "",
+                    "include_browser_scanner": True,
+                    "include_pale_blue_dot": True,
                 }
-                template = get_template_env().get_template("browser_scanner.html")
-                # render template
-                return template.render(**browser_scanner_template_params).encode()
-
-            elif queries.get_return_for_token() == "fortune":  # gif
-                # set response mimetype
-                request.setHeader("Content-Type", "text/html")
-
-                # get fortune
-                # fortune = subprocess.check_output('/usr/games/fortune')
-                fortune = "fortune favours the brave"
-
-                # set-up response template
-                fortune_template_params = {"request": request, "fortune": fortune}
                 template = get_template_env().get_template("fortune.html")
-
-                # render template
-                return template.render(**fortune_template_params).encode()
+                return template.render(**template_params).encode()
+            elif queries.get_return_for_token() == "fortune":
+                request.setHeader("Content-Type", "text/html")
+                template_params = {
+                    "request": request,
+                    "include_pale_blue_dot": True,
+                }
+                template = get_template_env().get_template("fortune.html")
+                return template.render(**template_params).encode()
 
         if canarydrop.web_image_enabled and canarydrop.web_image_path.exists():
-            # set response mimetype
             mimetype = "image/{mime}".format(mime=canarydrop.web_image_path.suffix[-3:])
             request.setHeader("Content-Type", mimetype)
             # read custom image

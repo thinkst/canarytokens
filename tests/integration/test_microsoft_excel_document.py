@@ -3,7 +3,6 @@ import tempfile
 from io import BytesIO
 from zipfile import ZipFile
 
-import pytest
 import requests
 
 from canarytokens.models import (
@@ -11,31 +10,22 @@ from canarytokens.models import (
     MsExcelDocumentTokenHistory,
     MsExcelDocumentTokenRequest,
     MsExcelDocumentTokenResponse,
-    TokenAlertDetailGeneric,
     TokenTypes,
 )
+from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
-    run_or_skip,
     trigger_http_token,
-    v2,
-    v3,
+    server_config,
 )
 
 MODE_DIRECTORY = 0x10
 
 
-@pytest.mark.parametrize(
-    "version",
-    [
-        v2,
-        v3,
-    ],
-)
-def test_microsoft_excel_document(tmpdir, version, webhook_receiver, runv2, runv3):
-    run_or_skip(version, runv2=runv2, runv3=runv3)
+def test_microsoft_excel_document(tmpdir, webhook_receiver):
+
     # initialize request
     memo = "microsoft excel memo!"
     token_request = MsExcelDocumentTokenRequest(
@@ -43,7 +33,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver, runv2, runv
     )
 
     # Create microsoft word token
-    resp = create_token(token_request=token_request, version=version)
+    resp = create_token(token_request=token_request)
     token_info = MsExcelDocumentTokenResponse(**resp)
 
     # request and download generated excel document
@@ -54,7 +44,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver, runv2, runv
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{version.server_url}/download",
+        url=f"{server_config.server_url}/download",
         params=word_document_request_params,
     )
 
@@ -95,8 +85,11 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver, runv2, runv
     assert extracted_url
     assert extracted_url == token_info.token_url
 
+    # Check token url page extension
+    assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
+
     # trigger token
-    resp = trigger_http_token(token_info=token_info, version=version)
+    resp = trigger_http_token(token_info=token_info)
 
     # Check that the returned history has a single hit
     stats = get_stats_from_webhook(webhook_receiver, token=token_info.token)
@@ -105,7 +98,7 @@ def test_microsoft_excel_document(tmpdir, version, webhook_receiver, runv2, runv
         assert stats[0]["memo"] == memo
         _ = TokenAlertDetailGeneric(**stats[0])
 
-    resp = get_token_history(token_info=token_info, version=version)
+    resp = get_token_history(token_info=token_info)
     token_history = MsExcelDocumentTokenHistory(**resp)
     assert len(token_history.hits) == 1
     token_hit = token_history.hits[0]

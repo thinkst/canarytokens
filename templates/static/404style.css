@@ -1,0 +1,102 @@
+/* open-sans-500 - latin */
+@font-face {
+    font-display: swap;
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 500;
+    src: url(".assets/fonts/open-sans-v40-latin-500.woff2") format("woff2");
+}
+
+/* open-sans-500 - latin */
+@font-face {
+    font-display: swap;
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 600;
+    src: url(".assets/fonts/open-sans-v40-latin-600.woff2") format("woff2");
+}
+
+
+h1 {
+    font-size: 6rem;
+    color: #718096;
+    text-align: center;
+    line-height: 0;
+    font-weight: 500;
+}
+
+
+h2 {
+    font-size: 1.25rem;
+    text-align: center;
+    color: #718096;
+}
+
+a {
+    color: #2d3748;
+    text-decoration: none;
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #42524a;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: rgb(240, 240, 240);
+}
+
+.container {
+    max-width: 90vw;
+    margin: 24px;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    min-height: 50vh;
+    padding: 24px;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 80vw;
+        margin-left: 10vw;
+        margin-right: 10vw;
+    }
+}
+
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    margin-top: 4rem;
+}
+
+
+img {
+    max-width: 200px;
+}
+
+p {
+    text-align: center;
+    color: #a0aec0;
+}
+
+footer {
+    height: 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+}

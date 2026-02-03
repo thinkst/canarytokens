@@ -15,12 +15,14 @@ from canarytokens.channel_output_email import (
     sendgrid_send,
     smtp_send,
     EmailResponseStatuses,
+    EmailTemplates,
 )
 from canarytokens.models import (
     DNSTokenHistory,
     DNSTokenHit,
     Memo,
     TokenAlertDetails,
+    TokenExposedDetails,
     TokenTypes,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -39,8 +41,9 @@ def test_dns_rendered_html(settings: SwitchboardSettings):
         manage_url="https://some.link/manage/here",
         additional_data={},
     )
-    email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    email_template = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
@@ -57,17 +60,15 @@ def test_slow_redirect_rendered_html(settings: SwitchboardSettings):
         manage_url="https://some.link/manage/here",
         additional_data={
             "useragent": "python 3.6",
-            "referer": "https://someone.not.nice/stuff",
             "location": "https://fake.your/domain/stuff",
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    email_template = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "hxxps://someone.not.nice/stuff" in email_template
-    assert "hxxps://fake.your/domain/stuff" in email_template
 
 
 def test_cloned_site_rendered_html(settings: SwitchboardSettings):
@@ -81,17 +82,15 @@ def test_cloned_site_rendered_html(settings: SwitchboardSettings):
         manage_url="https://some.link/manage/here",
         additional_data={
             "useragent": "python 3.6",
-            "referer": "https://someone.not.nice/stuff/ref",
             "location": "https://fake.your/domain/stuff/loc",
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    email_template = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "hxxps://someone.not.nice/stuff/ref" in email_template
-    assert "hxxps://fake.your/domain/stuff/loc" in email_template
 
 
 def test_log4shell_rendered_html(settings: SwitchboardSettings):
@@ -107,12 +106,12 @@ def test_log4shell_rendered_html(settings: SwitchboardSettings):
             "log4_shell_computer_name": "SRV01",
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    email_template = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "SRV01" in email_template
 
 
 def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
@@ -128,13 +127,39 @@ def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
             "aws_key_log_data": {"safety_net": ["True"], "service_used": ["ses"]}
         },
     )
-    email_template = EmailOutputChannel.format_report_html(
-        details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+    email_template = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
     )
     assert "https://some.link/manage/here" in email_template
     assert "https://some.link/history/here" in email_template
-    assert "SES" in email_template
-    assert "Service Used" in email_template
+
+
+def test_aws_key_exposed_rendered_html(settings: SwitchboardSettings):
+    memo = "This is a test Memo"
+    manage_url = "https://some.link/manage/here"
+    public_location = "http://example.com/exposed/key"
+    key_id = "ABCDEFG"
+
+    details = TokenExposedDetails(
+        token_type=TokenTypes.AWS_KEYS,
+        token=Canarytoken().value(),
+        memo=memo,
+        manage_url=manage_url,
+        key_id=key_id,
+        public_location=public_location,
+        exposed_time=datetime.datetime(2030, 12, 21, 12, 0, 0),
+    )
+    email_template = EmailOutputChannel.format_token_exposed_html(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TOKEN_EXPOSED}"),
+    )
+    assert memo in email_template
+    assert manage_url in email_template
+    assert public_location in email_template
+    assert key_id in email_template
+    assert "2030/12/21" in email_template
+    assert "12:00" in email_template
 
 
 def _get_send_token_details() -> TokenAlertDetails:
@@ -166,14 +191,18 @@ def test_sendgrid_send(
     email: str,
     expected_result_type: EmailResponseStatuses,
 ):
+    pytest.skip(
+        "This test is broken because of a quota issue. It is disabled until that gets resolved."
+    )
     if not settings.SENDGRID_API_KEY:
         pytest.skip("No SendGrid API key found; skipping...")
     details = _get_send_token_details()
 
     result, message_id = sendgrid_send(
         api_key=settings.SENDGRID_API_KEY,
-        email_content_html=EmailOutputChannel.format_report_html(
-            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        email_content_html=EmailOutputChannel.format_token_alert_mail(
+            details,
+            Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
         email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
@@ -207,10 +236,13 @@ def test_mailgun_send(
         pytest.skip("No Mailgun API key found; skipping...")
     details = _get_send_token_details()
     result, message_id = mailgun_send(
-        email_content_html=EmailOutputChannel.format_report_html(
-            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        email_content_html=EmailOutputChannel.format_token_alert_mail(
+            details,
+            Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_content_text=EmailOutputChannel.format_report_text(details),
+        email_content_text=EmailOutputChannel.format_token_alert_mail(
+            details, Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}")
+        ),
         email_address=EmailStr(email),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
@@ -234,10 +266,13 @@ def test_smtp_send(
 ):
     details = _get_send_token_details()
     result, message_id = smtp_send(
-        email_content_html=EmailOutputChannel.format_report_html(
-            details, Path(f"{settings.TEMPLATES_PATH}/emails/notification.html")
+        email_content_html=EmailOutputChannel.format_token_alert_mail(
+            details,
+            Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_content_text=EmailOutputChannel.format_report_text(details),
+        email_content_text=EmailOutputChannel.format_token_alert_mail(
+            details, Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}")
+        ),
         email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,

@@ -8,7 +8,7 @@ exclude: >
 fail_fast: true
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
@@ -21,13 +21,14 @@ repos:
     #     # GitHub only allows branch protection for teams or enterprise.
     #     args: ['--pattern', '^(?!T\d+.*)']
 -   repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 25.11.0
     hooks:
     -   id: black
 -   repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
     -   id: flake8
+        args: ["--extend-ignore=E701"]
         additional_dependencies: [flake8-typing-imports==1.12.0]
 
 -   repo: https://github.com/antonbabenko/pre-commit-terraform
@@ -35,3 +36,12 @@ repos:
     hooks:
         - id: terraform_fmt
         # - id: terraform_tfsec install is suboptimal
+
+-   repo: local
+    hooks:
+    -   id: typescript-check
+        name: Typescript Checker
+        entry: npm run --prefix frontend_vue type-check
+        types_or: [javascript, jsx, ts, tsx, vue]
+        language: system
+        pass_filenames: false
