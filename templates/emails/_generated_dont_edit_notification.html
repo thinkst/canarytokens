@@ -995,6 +995,9 @@
                                               <td style="vertical-align: top;"> {% if BasicDetails['additional_info']['merchant'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Authorizing merchant</p>
                                                 <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
                                                   <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['merchant'] | e}}</a>
+                                                </p> {% endif %} {% if BasicDetails['additional_info']['merchant_identifier'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Merchant identifier</p>
+                                                <p style="font-weight:400;color:#060606;margin:0 0 16px 0;">
+                                                  <a href style="text-decoration:none !important; color:#060606">{{BasicDetails['additional_info']['merchant_identifier'] | e}}</a>
                                                 </p> {% endif %} {% if BasicDetails['additional_info']['transaction_amount'] %} <p style="font-weight:600;display:block;line-height:1;margin:0;">Transaction amount</p>
                                                 <p style="font-weight:400;color:#060606;margin:0;">{{BasicDetails['additional_info']['transaction_amount']}} {{BasicDetails['additional_info']['transaction_currency']}}</p> {% endif %}
                                               </td>
