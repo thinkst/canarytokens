@@ -1554,7 +1554,7 @@ class TokenHit(BaseModel):
         )
         if "additional_data" in additional_data:
             additional_data.update(**additional_data.pop("additional_data"))
-        for key, replacement in [("l", "location"), ("r", "referer"), ("ja4", "ja4")]:
+        for key, replacement in [("l", "location"), ("r", "referer")]:
             if key in additional_data:
                 additional_data[replacement] = additional_data.pop(key)
             if self.src_data and key in self.src_data:

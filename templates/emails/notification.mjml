@@ -631,7 +631,7 @@
                 <img align="center" src="https://{{ BasicDetails['public_domain'] }}/resources/notification-email/default.png" width="40px" />
               </td>
               <td>
-                <p style="font-weight:600;display:block;line-height:1;margin:0;">Referrer</p>
+                <p style="font-weight:600;display:block;line-height:1;margin:0;">Referer</p>
                 <p style="font-weight:400;color:#060606;margin:0;">{{ BasicDetails['referrer'] | e}}</p>
               </td>
             </tr>
