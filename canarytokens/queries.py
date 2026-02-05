@@ -90,7 +90,9 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]
         canarydrop["aws_infra_state"] = int(canarydrop["aws_infra_state"])
 
     if "alert_ignored_ips" in canarydrop:
-        canarydrop["alert_ignored_ips"] = json.loads(canarydrop["alert_ignored_ips"])
+        canarydrop["alert_ignored_ips"] = list(
+            map(IPv4Address, json.loads(canarydrop["alert_ignored_ips"]))
+        )
 
     canarydrop["canarytoken"] = canarytoken
     try:
@@ -403,9 +405,10 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
         raise NotImplementedError(
             f"Additional info not supported for hit type: {type(enriched_hit)}"
         )
-    enriched_hit.ignored = (
-        enriched_hit.token_type in models.IGNORABLE_IP_TOKENS
-        and enriched_hit.src_ip in get_canarydrop(canarytoken).alert_ignored_ips
+    enriched_hit.ignore_reason = (
+        models.IgnoreReason.IP
+        if get_canarydrop(canarytoken).should_ignore_ip(enriched_hit.src_ip)
+        else None
     )
     triggered_details.hits.append(enriched_hit)
 

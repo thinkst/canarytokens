@@ -1512,6 +1512,11 @@ class SMTPMailField(BaseModel):
         return data
 
 
+class IgnoreReason(enum.StrEnum):
+    IP = "ignored_ip"
+    # add other ignore reasons as needed
+
+
 class TokenHit(BaseModel):
     # token_type: GeneralHistoryTokenType
     time_of_hit: float
@@ -1521,7 +1526,7 @@ class TokenHit(BaseModel):
     input_channel: str
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
-    ignored: bool = False
+    ignore_reason: Optional[IgnoreReason]
 
     class Config:
         smart_union = True

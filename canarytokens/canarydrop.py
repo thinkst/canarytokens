@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import io
+from ipaddress import IPv4Address
 import json
 import logging
 import random
@@ -23,7 +24,13 @@ from typing import Any, Literal, Optional, Union
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
-from pydantic import AnyHttpUrl, BaseModel, Field, parse_obj_as, root_validator
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    Field,
+    parse_obj_as,
+    root_validator,
+)
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (
@@ -32,6 +39,7 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
+    IGNORABLE_IP_TOKENS,
     AWSInfraState,
     Anonymous,
     AnySettingsRequest,
@@ -102,7 +110,7 @@ class Canarydrop(BaseModel):
     alert_webhook_enabled: bool = False
     alert_webhook_url: Optional[str]
     alert_failure_count: Optional[int]
-    alert_ignored_ips: list[str] = []
+    alert_ignored_ips: list[IPv4Address] = []
 
     # web image specific stuff
     web_image_enabled: bool = False
@@ -556,7 +564,7 @@ class Canarydrop(BaseModel):
 
         if "alert_ignored_ips" in serialized:
             serialized["alert_ignored_ips"] = json.dumps(
-                serialized["alert_ignored_ips"]
+                list(map(str, serialized["alert_ignored_ips"]))
             )
         return serialized
 
@@ -654,6 +662,12 @@ class Canarydrop(BaseModel):
         self.alert_email_enabled = False
         queries.save_canarydrop(self)
 
-    def set_ignored_ip_addresses(self, ip_addresses: list[str]):
+    def set_ignored_ip_addresses(self, ip_addresses: list[IPv4Address]):
         self.alert_ignored_ips = ip_addresses
         queries.save_canarydrop(self)
+
+    def should_ignore_ip(self, ip_address: str) -> bool:
+        return (
+            self.type in IGNORABLE_IP_TOKENS
+            and IPv4Address(ip_address) in self.alert_ignored_ips
+        )

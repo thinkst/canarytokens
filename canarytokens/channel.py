@@ -113,7 +113,7 @@ class InputChannel(Channel):
         """
         log.info(f"reactor is running?: {twisted.internet.reactor.running}")
 
-        if token_hit.ignored:
+        if token_hit.ignore_reason is not None:
             log.info(
                 f"Not dispatching alert for ignored IP {token_hit.src_ip} on {canarydrop.canarytoken.value()}"
             )
