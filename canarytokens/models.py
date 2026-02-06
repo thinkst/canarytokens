@@ -1512,8 +1512,9 @@ class SMTPMailField(BaseModel):
         return data
 
 
-class IgnoreReason(enum.StrEnum):
-    IP = "ignored_ip"
+class AlertStatus(enum.StrEnum):
+    ALERTABLE = "alertable"
+    IGNORED_IP = "ignored_ip"
     # add other ignore reasons as needed
 
 
@@ -1526,7 +1527,7 @@ class TokenHit(BaseModel):
     input_channel: str
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
-    ignore_reason: Optional[IgnoreReason]
+    alert_status: AlertStatus = AlertStatus.ALERTABLE
 
     class Config:
         smart_union = True

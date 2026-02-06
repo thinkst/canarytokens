@@ -15,7 +15,7 @@ from canarytokens.awskeys import get_aws_key
 from canarytokens.channel_http import ChannelHTTP
 from canarytokens.models import (
     AWSKeyTokenHistory,
-    IgnoreReason,
+    AlertStatus,
     TokenTypes,
     CreditCardV2TokenHit,
     CreditCardV2TokenHistory,
@@ -537,7 +537,7 @@ def test_channel_http_ignored_ip(setup_db, http_channel, method):
 
     cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
     assert len(cd_updated.triggered_details.hits) == 1
-    assert cd_updated.triggered_details.hits[0].ignore_reason == IgnoreReason.IP
+    assert cd_updated.triggered_details.hits[0].alert_status == AlertStatus.IGNORED_IP
 
 
 def create_canarydrop(token_type="web") -> canarydrop.Canarydrop:

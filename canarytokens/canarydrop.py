@@ -39,7 +39,6 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
-    IGNORABLE_IP_TOKENS,
     AWSInfraState,
     Anonymous,
     AnySettingsRequest,
@@ -665,9 +664,3 @@ class Canarydrop(BaseModel):
     def set_ignored_ip_addresses(self, ip_addresses: list[IPv4Address]):
         self.alert_ignored_ips = ip_addresses
         queries.save_canarydrop(self)
-
-    def should_ignore_ip(self, ip_address: str) -> bool:
-        return (
-            self.type in IGNORABLE_IP_TOKENS
-            and IPv4Address(ip_address) in self.alert_ignored_ips
-        )
