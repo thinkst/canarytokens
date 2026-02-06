@@ -52,7 +52,7 @@
         :has-remove="true"
         :asset-type="props.assetType"
         :parent-asset-name="props.parentAssetName"
-        @handle-remove-instance="remove(fieldIndex)"
+        @handle-remove-instance="remove(Number(fieldIndex))"
       />
     </div>
   </AssetFormPagination>
