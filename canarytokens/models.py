@@ -1512,6 +1512,12 @@ class SMTPMailField(BaseModel):
         return data
 
 
+class AlertStatus(enum.StrEnum):
+    ALERTABLE = "alertable"
+    IGNORED_IP = "ignored_ip"
+    # add other ignore reasons as needed
+
+
 class TokenHit(BaseModel):
     # token_type: GeneralHistoryTokenType
     time_of_hit: float
@@ -1521,6 +1527,7 @@ class TokenHit(BaseModel):
     input_channel: str
     src_data: Optional[dict]  # v2 stores empty {} src_data for tokens without src_data.
     useragent: Optional[str]
+    alert_status: AlertStatus = AlertStatus.ALERTABLE
 
     class Config:
         smart_union = True
@@ -2989,3 +2996,6 @@ class AWSInfraServiceError(StrEnum):
             return cls(code)
         except ValueError:
             return cls.UNKNOWN
+
+
+IGNORABLE_IP_TOKENS = [TokenTypes.AWS_INFRA, TokenTypes.WEB]

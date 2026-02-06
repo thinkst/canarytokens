@@ -3,6 +3,7 @@ from typing import Sequence
 import json
 import pytest
 import io
+import ipaddress
 from pydantic import EmailStr
 from twisted.internet.address import IPv4Address
 from twisted.web.http import Request
@@ -14,6 +15,7 @@ from canarytokens.awskeys import get_aws_key
 from canarytokens.channel_http import ChannelHTTP
 from canarytokens.models import (
     AWSKeyTokenHistory,
+    AlertStatus,
     TokenTypes,
     CreditCardV2TokenHit,
     CreditCardV2TokenHistory,
@@ -518,3 +520,64 @@ def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
     assert isinstance(resp, bytes), "HTTP Channel did not return bytes"
     cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
     assert len(cd_updated.triggered_details.hits) == 1
+
+
+@pytest.mark.parametrize("method", ["GET", "POST"])
+def test_channel_http_ignored_ip(setup_db, http_channel, method):
+    """
+    Test ignored IPs on canarytokens http channel.
+    """
+    cd = create_canarydrop(token_type=TokenTypes.WEB)
+
+    cd.set_ignored_ip_addresses(ip_addresses=[ipaddress.IPv4Address("127.0.0.1")])
+
+    request = create_dummy_request(cd)
+    render_method = getattr(http_channel.canarytoken_page, f"render_{method}")
+    render_method(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd_updated.triggered_details.hits[0].alert_status == AlertStatus.IGNORED_IP
+
+
+def create_canarydrop(token_type="web") -> canarydrop.Canarydrop:
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_type,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+    )
+
+    queries.save_canarydrop(cd)
+    return cd
+
+
+def delete_canarydrop(cd: canarydrop.Canarydrop) -> None:
+    queries.delete_canarydrop(canarydrop=cd)
+
+
+def create_dummy_request(cd: canarydrop.Canarydrop) -> DummyRequest:
+    client = IPv4Address(type="TCP", host="127.0.0.1", port=8686)
+    request = DummyRequest("/")
+    request.client = client
+    request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
+    request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
+    return request
+
+
+@pytest.fixture(scope="module")
+def http_channel(
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+) -> ChannelHTTP:
+    http_channel = ChannelHTTP(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+    return http_channel
