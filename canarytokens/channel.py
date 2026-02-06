@@ -16,6 +16,7 @@ from canarytokens.canarydrop import Canarydrop
 
 # from canarytokens.exceptions import DuplicateChannel
 from canarytokens.models import (
+    AlertStatus,
     AnyTokenHit,
     AnyTokenExposedHit,
     Memo,
@@ -113,7 +114,7 @@ class InputChannel(Channel):
         """
         log.info(f"reactor is running?: {twisted.internet.reactor.running}")
 
-        if token_hit.ignored:
+        if token_hit.alert_status == AlertStatus.IGNORED_IP:
             log.info(
                 f"Not dispatching alert for ignored IP {token_hit.src_ip} on {canarydrop.canarytoken.value()}"
             )
