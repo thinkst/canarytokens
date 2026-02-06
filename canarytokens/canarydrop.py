@@ -112,7 +112,7 @@ class Canarydrop(BaseModel):
     alert_webhook_url: Optional[str]
     alert_failure_count: Optional[int]
 
-    ip_ignore_enabled: bool = False
+    alert_ip_ignore_enabled: bool = False
     alert_ignored_ips: list[IPv4Address] = []
 
     # web image specific stuff
@@ -316,7 +316,7 @@ class Canarydrop(BaseModel):
                         f"Canarytoken of type {self.type} does not support IP ignoring."
                     )
                     return False
-                self.ip_ignore_enabled = setting_request.value == "on"
+                self.alert_ip_ignore_enabled = setting_request.value == "on"
             case _:
                 logger.error(
                     f"Canarydrops cannot apply a settings change for: {setting_request}"

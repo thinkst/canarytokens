@@ -723,15 +723,14 @@ async def settings_post(
 @api.post("/settings/ip-ignore-list")
 async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
-    queries.set_ignored_ip_addresses(canarydrop, request.ip_ignore_list)
+    canarydrop.set_ignored_ip_addresses(request.ip_ignore_list)
     return JSONResponse({"message": "success"})
 
 
 @api.get("/settings/ip-ignore-list")
 async def ip_ignore_list_get(token: str, auth: str) -> IPIgnoreListResponse:
     canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
-    ips = list(queries.get_ignored_ip_addresses(canarydrop))
-    return IPIgnoreListResponse(ip_ignore_list=ips)
+    return IPIgnoreListResponse(ip_ignore_list=canarydrop.alert_ignored_ips)
 
 
 @app.get(

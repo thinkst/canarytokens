@@ -2,12 +2,14 @@ import re
 from functools import partial
 from smtplib import SMTP
 
+from frontend.app import ROOT_API_ENDPOINT
 import pytest
 import requests
 from pydantic import HttpUrl
 from requests import HTTPError
 
 from canarytokens.models import (
+    AlertStatus,
     ClonedWebTokenHistory,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
@@ -590,3 +592,48 @@ def test_token_error_codes(request_dict: dict[str, str], error_code: str):
         resp.raise_for_status()
     code = resp.json()[error]
     assert code == error_code
+
+
+def test_ip_ignored_token_hit(webhook_receiver):
+    """
+    Tests that if a token is triggered from an ignored IP then the hit is marked  with the alerts_status as ignored_ip.
+    """
+
+    token_request = WebBugTokenRequest(
+        webhook_url=webhook_receiver,
+        memo="test",
+    )
+    token_data = create_token(token_request)
+
+    ip_ignore_list = ["127.0.0.1"]
+    # Set the token to ignore the localhost IP
+    resp = requests.post(
+        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
+        json={
+            "token": token_data["token"],
+            "auth": token_data["auth_token"],
+            "ip_ignore_list": ip_ignore_list,
+        },
+    )
+    resp.raise_for_status()
+
+    # check that the ignore list was set
+    ip_list_resp = requests.get(
+        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
+        params={
+            "token": token_data["token"],
+            "auth": token_data["auth_token"],
+        },
+    )
+    ip_list_resp.raise_for_status()
+    assert ip_list_resp.json().get("ip_ignore_list") == ip_ignore_list
+
+    # trigger the token
+    resp = trigger_http_token(
+        token_info=WebBugTokenResponse(**token_data),
+    )
+    resp.raise_for_status()
+
+    # check that the hit is marked as ignored_ip
+    token_history = get_token_history(token_info=WebBugTokenResponse(**token_data))
+    assert token_history["hits"][0]["alert_status"] == AlertStatus.IGNORED_IP.value

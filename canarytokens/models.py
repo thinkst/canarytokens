@@ -2771,7 +2771,7 @@ class IPIgnoreListRequest(BaseModel):
 
 
 class IPIgnoreListResponse(BaseModel):
-    ip_ignore_list: List[str]
+    ip_ignore_list: List[IPv4Address]
 
 
 class DeleteResponse(BaseModel):

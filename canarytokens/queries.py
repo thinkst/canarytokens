@@ -1102,17 +1102,3 @@ def update_aws_management_lambda_handle(handle_id: str, response: str):
     DB.get_db().hset(
         key, mapping={"response_content": response, "response_received": "True"}
     )
-
-
-def ignore_alert(canarydrop: cand.Canarydrop, token_hit: models.AnyTokenHit) -> bool:
-    if (
-        token_hit.token_type in models.IGNORABLE_IP_TOKENS
-        and canarydrop.ip_ignore_enabled
-    ):
-        return token_hit.src_ip in canarydrop.alert_ignored_ips
-    return False
-
-
-def set_ignored_ip_addresses(canarydrop: cand.Canarydrop, ip_addresses: list[str]):
-    canarydrop.alert_ignored_ips = ip_addresses
-    save_canarydrop(canarydrop)
