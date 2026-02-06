@@ -529,6 +529,7 @@ def test_channel_http_ignored_ip(setup_db, http_channel, method):
     """
     cd = create_canarydrop(token_type=TokenTypes.WEB)
 
+    cd.alert_ip_ignore_enabled = True
     cd.set_ignored_ip_addresses(ip_addresses=[ipaddress.IPv4Address("127.0.0.1")])
 
     request = create_dummy_request(cd)

@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from io import BytesIO, StringIO
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, IPv6Address
 from tempfile import SpooledTemporaryFile
 from typing import (
     Any,
@@ -40,6 +40,7 @@ from pydantic import (
     ValidationError,
     root_validator,
     validator,
+    IPvAnyAddress,
 )
 from pydantic.generics import GenericModel
 from typing_extensions import Annotated
@@ -1515,7 +1516,6 @@ class SMTPMailField(BaseModel):
 class AlertStatus(enum.StrEnum):
     ALERTABLE = "alertable"
     IGNORED_IP = "ignored_ip"
-    # add other ignore reasons as needed
 
 
 class TokenHit(BaseModel):
@@ -2698,6 +2698,7 @@ class CanarydropSettingsTypes(StrEnum):
     WEBHOOKSETTING = "webhook_enable"
     BROWSERSCANNERSETTING = "browser_scanner_enable"
     WEBIMAGESETTING = "web_image_enable"
+    IPIGNORESETTING = "ip_ignore_enable"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2734,12 +2735,19 @@ class WebImageSettingsRequest(SettingsRequest):
     )
 
 
+class IPIgnoreSettingsRequest(SettingsRequest):
+    setting: Literal[CanarydropSettingsTypes.IPIGNORESETTING] = (
+        CanarydropSettingsTypes.IPIGNORESETTING
+    )
+
+
 AnySettingsRequest = Annotated[
     Union[
         EmailSettingsRequest,
         WebhookSettingsRequest,
         BrowserScannerSettingsRequest,
         WebImageSettingsRequest,
+        IPIgnoreSettingsRequest,
     ],
     Field(discriminator="setting"),
 ]
@@ -2747,6 +2755,22 @@ AnySettingsRequest = Annotated[
 
 class SettingsResponse(BaseModel):
     message: Literal["success", "failure"]
+
+
+class IPIgnoreListRequest(BaseModel):
+    token: str
+    auth: str
+    ip_ignore_list: List[IPvAnyAddress]
+
+    @validator("ip_ignore_list", each_item=True)
+    def only_ipv4(cls, v):
+        if isinstance(v, IPv6Address):
+            raise ValueError("IPv6 addresses are not supported.")
+        return v
+
+
+class IPIgnoreListResponse(BaseModel):
+    ip_ignore_list: List[IPv4Address]
 
 
 class DeleteResponse(BaseModel):

@@ -120,6 +120,8 @@ from canarytokens.models import (
     FetchLinksMessage,
     FetchLinksRequest,
     FetchLinksResponse,
+    IPIgnoreListRequest,
+    IPIgnoreListResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -716,6 +718,19 @@ async def settings_post(
         return JSONResponse({"message": "success"})
     else:
         return JSONResponse({"message": "failure"}, status_code=400)
+
+
+@api.post("/settings/ip-ignore-list")
+async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
+    canarydrop.set_ignored_ip_addresses(request.ip_ignore_list)
+    return JSONResponse({"message": "success"})
+
+
+@api.get("/settings/ip-ignore-list")
+async def ip_ignore_list_get(token: str, auth: str) -> IPIgnoreListResponse:
+    canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
+    return IPIgnoreListResponse(ip_ignore_list=canarydrop.alert_ignored_ips)
 
 
 @app.get(
