@@ -17,7 +17,6 @@ from canarytokens.channel import InputChannel
 from canarytokens.constants import INPUT_CHANNEL_HTTP
 from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import (
-    IGNORABLE_IP_TOKENS,
     AnyTokenHit,
     AWSKeyTokenHit,
     AlertStatus,
@@ -150,10 +149,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 log_failure=Failure(e),
             )
             return
-        if (
-            token_hit.token_type in IGNORABLE_IP_TOKENS
-            and IPv4Address(token_hit.src_ip) in canarydrop.alert_ignored_ips
-        ):
+        if canarydrop.should_ignore_ip(IPv4Address(token_hit.src_ip)):
             token_hit.alert_status = AlertStatus.IGNORED_IP
 
         canarydrop.add_canarydrop_hit(token_hit=token_hit)
@@ -286,9 +282,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 return b"failed"
         elif canarydrop.type == TokenTypes.AWS_INFRA:
             content = json.load(request.content)
-            # log.debug(content)
             token_hit = Canarytoken._parse_aws_infra_trigger(content)
-            if IPv4Address(token_hit.src_ip) in canarydrop.alert_ignored_ips:
+            if canarydrop.should_ignore_ip(IPv4Address(token_hit.src_ip)):
                 token_hit.alert_status = AlertStatus.IGNORED_IP
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)

@@ -10,6 +10,7 @@ from requests import HTTPError
 
 from canarytokens.models import (
     AlertStatus,
+    CanarydropSettingsTypes,
     ClonedWebTokenHistory,
     ClonedWebTokenRequest,
     ClonedWebTokenResponse,
@@ -613,6 +614,18 @@ def test_ip_ignored_token_hit(webhook_receiver):
             "token": token_data["token"],
             "auth": token_data["auth_token"],
             "ip_ignore_list": ip_ignore_list,
+        },
+    )
+    resp.raise_for_status()
+
+    # make sure IP ignoring is enabled
+    resp = requests.post(
+        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/settings",
+        json={
+            "token": token_data["token"],
+            "auth": token_data["auth_token"],
+            "setting": CanarydropSettingsTypes.IPIGNORESETTING,
+            "value": "on",
         },
     )
     resp.raise_for_status()

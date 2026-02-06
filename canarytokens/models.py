@@ -1516,7 +1516,6 @@ class SMTPMailField(BaseModel):
 class AlertStatus(enum.StrEnum):
     ALERTABLE = "alertable"
     IGNORED_IP = "ignored_ip"
-    # add other ignore reasons as needed
 
 
 class TokenHit(BaseModel):
