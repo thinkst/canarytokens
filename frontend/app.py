@@ -103,6 +103,8 @@ from canarytokens.models import (
     AWSInfraTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    AWSS3BucketTokenRequest,
+    AWSS3BucketTokenResponse,
     AzureIDTokenRequest,
     AzureIDTokenResponse,
     CCTokenRequest,
@@ -1211,6 +1213,194 @@ async def api_credit_card_demo_trigger(request: Request) -> JSONResponse:
     return JSONResponse({"message": "Success"}, status_code=200)
 
 
+S3_BUCKET_MUTATIONS = [
+    "0",
+    "01",
+    "02",
+    "1",
+    "2",
+    "3",
+    "2020",
+    "2021",
+    "2022",
+    "2023",
+    "2024",
+    "2025",
+    "dev",
+    "staging",
+    "stage",
+    "prod",
+    "production",
+    "pre-prod",
+    "preprod",
+    "qa",
+    "test",
+    "demo",
+    "beta",
+    "preview",
+    "data",
+    "db",
+    "database",
+    "backup",
+    "backups",
+    "bak",
+    "archive",
+    "storage",
+    "uploads",
+    "files",
+    "assets",
+    "static",
+    "media",
+    "images",
+    "cache",
+    "tmp",
+    "aws",
+    "s3",
+    "ec2",
+    "gcp",
+    "azure",
+    "infra",
+    "k8s",
+    "docker",
+    "terraform",
+    "cloud",
+    "cdn",
+    "vpc",
+    "logs",
+    "access-logs",
+    "audit",
+    "audit-logs",
+    "monitoring",
+    "events",
+    "syslog",
+    "splunk",
+    "build",
+    "builds",
+    "artifacts",
+    "jenkins",
+    "gitlab",
+    "ci",
+    "dist",
+    "packages",
+    "repo",
+    "src",
+    "secrets",
+    "keys",
+    "private",
+    "secure",
+    "confidential",
+    "passwords",
+    "config",
+    "internal",
+    "admin",
+    "corp",
+    "finance",
+    "hr",
+    "ops",
+    "devops",
+    "analytics",
+    "reports",
+    "billing",
+    "api",
+    "app",
+    "web",
+    "public",
+    "shared",
+]
+
+
+def _is_valid_bucket_name(name: str) -> bool:
+    import re
+
+    if len(name) < 3 or len(name) > 63:
+        return False
+    if not re.match(r"^[a-z0-9][a-z0-9.\-]*[a-z0-9]$", name):
+        return False
+    if ".." in name or ".-" in name or "-." in name:
+        return False
+    if re.match(r"^\d+\.\d+\.\d+\.\d+$", name):
+        return False
+    return True
+
+
+def _generate_bucket_mutations(base: str) -> list[str]:
+    import random
+
+    results = set()
+    if _is_valid_bucket_name(base):
+        results.add(base)
+
+    candidates = []
+    for m in S3_BUCKET_MUTATIONS:
+        variants = [
+            f"{base}{m}",
+            f"{base}.{m}",
+            f"{base}-{m}",
+            f"{m}{base}",
+            f"{m}.{base}",
+            f"{m}-{base}",
+        ]
+        valid = [v for v in variants if _is_valid_bucket_name(v)]
+        if valid:
+            candidates.append(random.choice(valid))
+
+    random.shuffle(candidates)
+    for c in candidates:
+        results.add(c)
+        if len(results) >= 20:
+            break
+
+    return list(results)
+
+
+def _check_bucket_exists(name: str) -> bool:
+    try:
+        resp = requests.get(
+            f"https://{name}.s3.amazonaws.com/.canarytokens-org-probe",
+            timeout=3,
+        )
+        if resp.status_code == 404 and b"NoSuchBucket" in resp.content:
+            return False
+        return True
+    except requests.RequestException:
+        return True
+
+
+@api.post("/s3bucket/suggest")
+async def api_s3_bucket_suggest(request: Request) -> JSONResponse:
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    data = await request.json()
+    keyword = data.get("keyword", "").strip().lower()
+
+    import re
+
+    keyword = re.sub(r"[^a-z0-9-]", "-", keyword)
+    keyword = re.sub(r"-+", "-", keyword).strip("-")
+    if not keyword:
+        return JSONResponse({"suggestions": []})
+
+    candidates = _generate_bucket_mutations(keyword)
+
+    available = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {
+            executor.submit(_check_bucket_exists, name): name for name in candidates
+        }
+        for future in as_completed(futures):
+            name = futures[future]
+            try:
+                exists = future.result()
+                if not exists:
+                    available.append(name)
+                    if len(available) >= 6:
+                        break
+            except Exception:
+                pass
+
+    return JSONResponse({"suggestions": available})
+
+
 # TODO: Cleanup canarydrops in invalid states:
 #    - module snippet doesn't exist
 @api.post("/awsinfra/config-start")
@@ -2193,6 +2383,85 @@ def _create_azure_id_token_response(
         cert=canarydrop.cert,
         tenant_id=canarydrop.tenant_id,
         cert_name=canarydrop.cert_name,
+    )
+
+
+@create_response.register
+def _create_aws_s3_bucket_token_response(
+    token_request_details: AWSS3BucketTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
+) -> AWSS3BucketTokenResponse:
+    if settings is None:
+        settings = frontend_settings
+
+    if settings.AWS_S3_BUCKET_CFN_TEMPLATE_URL is None:
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have AWS S3 bucket tokens enabled."
+            },
+            status_code=400,
+        )
+
+    import uuid
+    from urllib.parse import quote
+
+    bucket_name = token_request_details.aws_s3_bucket_name
+
+    try:
+        resp = requests.get(
+            f"https://{bucket_name}.s3.amazonaws.com/.canarytokens-org-probe",
+            timeout=5,
+        )
+        if resp.status_code != 404 or b"NoSuchBucket" not in resp.content:
+            return JSONResponse(
+                {
+                    "message": f"The S3 bucket '{bucket_name}' already exists. Please choose a different name."
+                },
+                status_code=400,
+            )
+    except requests.RequestException:
+        pass
+
+    api_key = str(uuid.uuid4())
+    token_value = canarydrop.canarytoken.value()
+    region = token_request_details.aws_s3_region
+    template_url = str(settings.AWS_S3_BUCKET_CFN_TEMPLATE_URL)
+    webhook_url = f"https://{get_all_canary_domains()[0]}"
+
+    quickcreate_url = (
+        f"https://{region}.console.aws.amazon.com/cloudformation/home"
+        f"?region={region}#/stacks/quickcreate"
+        f"?templateURL={quote(template_url, safe='')}"
+        f"&stackName={quote(bucket_name, safe='')}"
+        f"&param_BucketName={quote(bucket_name, safe='')}"
+        f"&param_ResourcePrefix=canary"
+        f"&param_ResourceSuffix={token_value[:7]}"
+        f"&param_CanaryTokenID={token_value}"
+        f"&param_WebhookURL={quote(webhook_url, safe='')}"
+        f"&param_APIKey={api_key}"
+        f"&param_KMSKeyArn="
+        f"&param_LogRetentionDays=90"
+        f"&param_InvocationRateLimit=300"
+    )
+
+    canarydrop.aws_s3_bucket_name = bucket_name
+    canarydrop.aws_s3_region = region
+    canarydrop.aws_s3_api_key = api_key
+    canarydrop.aws_s3_quickcreate_url = quickcreate_url
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    save_canarydrop(canarydrop)
+    return AWSS3BucketTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        quickcreate_url=quickcreate_url,
+        bucket_name=bucket_name,
+        region=region,
     )
 
 

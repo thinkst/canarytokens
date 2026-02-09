@@ -87,3 +87,8 @@ export function sendUserTokenFetchLinks(
     .post(url, { cf_turnstile_response, email })
     .then((response) => response);
 }
+
+export function suggestS3BucketNames(keyword: string) {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/s3bucket/suggest';
+  return axios.post(url, { keyword }).then((response) => response);
+}

@@ -40,6 +40,7 @@ export const TOKENS_TYPE = {
   WEBDAV: 'webdav',
   IDP_APP: 'idp_app',
   AWS_INFRA: 'aws_infra',
+  AWS_S3_BUCKET: 'aws_s3_bucket',
 };
 
 // unique keys to use in the frontend
@@ -162,6 +163,7 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F'],
   idp_app: ['#1AABEE', '#026696', '#9CE5FD'],
   aws_infra: ['#FA6A22', '#233243', '#FC9824'],
+  aws_s3_bucket: ['#3F8624', '#569A34', '#E25444', '#FEBD4C', '#5E6570'],
 };
 
 export const IDP_OPTIONS: { value: string; label: string }[] = [

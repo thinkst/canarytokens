@@ -115,6 +115,7 @@ class FrontendSettings(BaseSettings):
     TESTING_AWS_OUTPUT: Optional[str] = "json"
     AZURE_ID_TOKEN_URL: Optional[HttpUrl]
     AZURE_ID_TOKEN_AUTH: Optional[str]
+    AWS_S3_BUCKET_CFN_TEMPLATE_URL: Optional[HttpUrl]
     GOOGLE_API_KEY: Optional[str]
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")

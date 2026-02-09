@@ -1,0 +1,509 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "S3 canary token - CloudTrail data events forwarded to webhook",
+    "Parameters": {
+        "BucketName": {
+            "Type": "String",
+            "Description": "Name of the decoy S3 bucket",
+            "AllowedPattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
+            "ConstraintDescription": "Must be a valid S3 bucket name (3-63 chars, lowercase)"
+        },
+        "ResourcePrefix": {
+            "Type": "String",
+            "Description": "Prefix for all resource names",
+            "AllowedPattern": "^[a-z0-9][a-z0-9-]{0,10}[a-z0-9]$",
+            "ConstraintDescription": "2-12 chars, lowercase alphanumeric and hyphens"
+        },
+        "ResourceSuffix": {
+            "Type": "String",
+            "Description": "Suffix for all resource names",
+            "AllowedPattern": "^[a-z0-9][a-z0-9-]{0,10}[a-z0-9]$",
+            "ConstraintDescription": "2-12 chars, lowercase alphanumeric and hyphens"
+        },
+        "CanaryTokenID": {
+            "Type": "String",
+            "Description": "Unique identifier for this canary token",
+            "AllowedPattern": "^[a-zA-Z0-9_-]{1,64}$",
+            "ConstraintDescription": "1-64 alphanumeric, hyphens, or underscores"
+        },
+        "WebhookURL": {
+            "Type": "String",
+            "Description": "Webhook endpoint URL for event delivery",
+            "AllowedPattern": "^https://.+",
+            "ConstraintDescription": "Must be an HTTPS URL"
+        },
+        "APIKey": {
+            "Type": "String",
+            "Description": "API key sent as x-signature header to webhook",
+            "NoEcho": true,
+            "MinLength": 1
+        },
+        "KMSKeyArn": {
+            "Type": "String",
+            "Description": "KMS key ARN for trail bucket encryption (empty = AES256)"
+        },
+        "LogRetentionDays": {
+            "Type": "Number",
+            "Description": "Days to retain CloudTrail logs",
+            "MinValue": 1,
+            "MaxValue": 3650
+        },
+        "InvocationRateLimit": {
+            "Type": "Number",
+            "Description": "Max webhook invocations per second",
+            "MinValue": 1,
+            "MaxValue": 10000
+        }
+    },
+    "Conditions": {
+        "UseKMS": {
+            "Fn::Not": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "KMSKeyArn"
+                        },
+                        ""
+                    ]
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "TrailBucket": {
+            "Type": "AWS::S3::Bucket",
+            "DeletionPolicy": "Retain",
+            "UpdateReplacePolicy": "Retain",
+            "Properties": {
+                "BucketName": {
+                    "Fn::Sub": "${ResourcePrefix}-trail-${ResourceSuffix}"
+                },
+                "BucketEncryption": {
+                    "ServerSideEncryptionConfiguration": [
+                        {
+                            "ServerSideEncryptionByDefault": {
+                                "SSEAlgorithm": {
+                                    "Fn::If": [
+                                        "UseKMS",
+                                        "aws:kms",
+                                        "AES256"
+                                    ]
+                                },
+                                "KMSMasterKeyID": {
+                                    "Fn::If": [
+                                        "UseKMS",
+                                        {
+                                            "Ref": "KMSKeyArn"
+                                        },
+                                        {
+                                            "Ref": "AWS::NoValue"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": true,
+                    "BlockPublicPolicy": true,
+                    "IgnorePublicAcls": true,
+                    "RestrictPublicBuckets": true
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "ExpireLogs",
+                            "Status": "Enabled",
+                            "ExpirationInDays": {
+                                "Ref": "LogRetentionDays"
+                            }
+                        },
+                        {
+                            "Id": "ExpireOldVersions",
+                            "Status": "Enabled",
+                            "NoncurrentVersionExpiration": {
+                                "NoncurrentDays": 30
+                            }
+                        }
+                    ]
+                },
+                "Tags": [
+                    {
+                        "Key": "CanaryTokenID",
+                        "Value": {
+                            "Ref": "CanaryTokenID"
+                        }
+                    },
+                    {
+                        "Key": "ManagedBy",
+                        "Value": "canary-token-cfn"
+                    }
+                ]
+            }
+        },
+        "TrailBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "Bucket": {
+                    "Ref": "TrailBucket"
+                },
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "CloudTrailAclCheck",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "cloudtrail.amazonaws.com"
+                            },
+                            "Action": "s3:GetBucketAcl",
+                            "Resource": {
+                                "Fn::GetAtt": "TrailBucket.Arn"
+                            },
+                            "Condition": {
+                                "StringEquals": {
+                                    "AWS:SourceArn": {
+                                        "Fn::Sub": "arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${ResourcePrefix}-trail-${ResourceSuffix}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "Sid": "CloudTrailWrite",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "cloudtrail.amazonaws.com"
+                            },
+                            "Action": "s3:PutObject",
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        {
+                                            "Fn::GetAtt": "TrailBucket.Arn"
+                                        },
+                                        "/*"
+                                    ]
+                                ]
+                            },
+                            "Condition": {
+                                "StringEquals": {
+                                    "s3:x-amz-acl": "bucket-owner-full-control",
+                                    "AWS:SourceArn": {
+                                        "Fn::Sub": "arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${ResourcePrefix}-trail-${ResourceSuffix}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "Sid": "DenyInsecureTransport",
+                            "Effect": "Deny",
+                            "Principal": "*",
+                            "Action": "s3:*",
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": "TrailBucket.Arn"
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": "TrailBucket.Arn"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Condition": {
+                                "Bool": {
+                                    "aws:SecureTransport": "false"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "DecoyBucket": {
+            "Type": "AWS::S3::Bucket",
+            "DeletionPolicy": "Delete",
+            "UpdateReplacePolicy": "Delete",
+            "Properties": {
+                "BucketName": {
+                    "Ref": "BucketName"
+                },
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": true,
+                    "BlockPublicPolicy": true,
+                    "IgnorePublicAcls": true,
+                    "RestrictPublicBuckets": true
+                },
+                "Tags": [
+                    {
+                        "Key": "CanaryTokenID",
+                        "Value": {
+                            "Ref": "CanaryTokenID"
+                        }
+                    },
+                    {
+                        "Key": "ManagedBy",
+                        "Value": "canary-token-cfn"
+                    }
+                ]
+            }
+        },
+        "DecoyTrail": {
+            "Type": "AWS::CloudTrail::Trail",
+            "DeletionPolicy": "Retain",
+            "UpdateReplacePolicy": "Retain",
+            "DependsOn": [
+                "TrailBucketPolicy"
+            ],
+            "Properties": {
+                "TrailName": {
+                    "Fn::Sub": "${ResourcePrefix}-trail-${ResourceSuffix}"
+                },
+                "S3BucketName": {
+                    "Ref": "TrailBucket"
+                },
+                "S3KeyPrefix": {
+                    "Ref": "CanaryTokenID"
+                },
+                "IsLogging": true,
+                "IsMultiRegionTrail": false,
+                "EnableLogFileValidation": true,
+                "IncludeGlobalServiceEvents": false,
+                "KMSKeyId": {
+                    "Fn::If": [
+                        "UseKMS",
+                        {
+                            "Ref": "KMSKeyArn"
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
+                "AdvancedEventSelectors": [
+                    {
+                        "Name": "S3DataEvents",
+                        "FieldSelectors": [
+                            {
+                                "Field": "eventCategory",
+                                "Equals": [
+                                    "Data"
+                                ]
+                            },
+                            {
+                                "Field": "resources.type",
+                                "Equals": [
+                                    "AWS::S3::Object"
+                                ]
+                            },
+                            {
+                                "Field": "resources.ARN",
+                                "StartsWith": [
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                {
+                                                    "Fn::GetAtt": "DecoyBucket.Arn"
+                                                },
+                                                "/"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "CanaryTokenID",
+                        "Value": {
+                            "Ref": "CanaryTokenID"
+                        }
+                    },
+                    {
+                        "Key": "ManagedBy",
+                        "Value": "canary-token-cfn"
+                    }
+                ]
+            }
+        },
+        "WebhookConnection": {
+            "Type": "AWS::Events::Connection",
+            "Properties": {
+                "Name": {
+                    "Fn::Sub": "${ResourcePrefix}-conn-${ResourceSuffix}"
+                },
+                "AuthorizationType": "API_KEY",
+                "AuthParameters": {
+                    "ApiKeyAuthParameters": {
+                        "ApiKeyName": "x-signature",
+                        "ApiKeyValue": {
+                            "Ref": "APIKey"
+                        }
+                    }
+                }
+            }
+        },
+        "WebhookDestination": {
+            "Type": "AWS::Events::ApiDestination",
+            "Properties": {
+                "Name": {
+                    "Fn::Sub": "${ResourcePrefix}-dest-${ResourceSuffix}"
+                },
+                "ConnectionArn": {
+                    "Fn::GetAtt": "WebhookConnection.Arn"
+                },
+                "HttpMethod": "POST",
+                "InvocationEndpoint": {
+                    "Fn::Sub": "${WebhookURL}/${CanaryTokenID}"
+                },
+                "InvocationRateLimitPerSecond": {
+                    "Ref": "InvocationRateLimit"
+                }
+            }
+        },
+        "EventBridgeRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Sub": "${ResourcePrefix}-eb-role-${ResourceSuffix}"
+                },
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole",
+                            "Condition": {
+                                "StringEquals": {
+                                    "aws:SourceAccount": {
+                                        "Ref": "AWS::AccountId"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "InvokeApiDestination",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "events:InvokeApiDestination",
+                                    "Resource": {
+                                        "Fn::GetAtt": "WebhookDestination.Arn"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "CanaryTokenID",
+                        "Value": {
+                            "Ref": "CanaryTokenID"
+                        }
+                    },
+                    {
+                        "Key": "ManagedBy",
+                        "Value": "canary-token-cfn"
+                    }
+                ]
+            }
+        },
+        "CanaryRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Name": {
+                    "Fn::Sub": "${ResourcePrefix}-rule-${ResourceSuffix}"
+                },
+                "State": "ENABLED",
+                "EventPattern": {
+                    "source": [
+                        "aws.s3"
+                    ],
+                    "detail-type": [
+                        "AWS API Call via CloudTrail"
+                    ],
+                    "detail": {
+                        "requestParameters": {
+                            "bucketName": [
+                                {
+                                    "Ref": "BucketName"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "Targets": [
+                    {
+                        "Id": "WebhookTarget",
+                        "Arn": {
+                            "Fn::GetAtt": "WebhookDestination.Arn"
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": "EventBridgeRole.Arn"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "DecoyBucketName": {
+            "Description": "Decoy S3 bucket name",
+            "Value": {
+                "Ref": "DecoyBucket"
+            }
+        },
+        "DecoyBucketArn": {
+            "Description": "Decoy S3 bucket ARN",
+            "Value": {
+                "Fn::GetAtt": "DecoyBucket.Arn"
+            }
+        },
+        "TrailBucketName": {
+            "Description": "CloudTrail log bucket name",
+            "Value": {
+                "Ref": "TrailBucket"
+            }
+        },
+        "CloudTrailArn": {
+            "Description": "CloudTrail ARN",
+            "Value": {
+                "Fn::GetAtt": "DecoyTrail.Arn"
+            }
+        },
+        "EventRuleArn": {
+            "Description": "EventBridge rule ARN",
+            "Value": {
+                "Fn::GetAtt": "CanaryRule.Arn"
+            }
+        },
+        "CanaryTokenID": {
+            "Description": "Canary token identifier",
+            "Value": {
+                "Ref": "CanaryTokenID"
+            }
+        }
+    }
+}

@@ -34,6 +34,7 @@ from canarytokens.models import (
     AWSKeyTokenExposedHit,
     AzureIDTokenHit,
     SlackAPITokenHit,
+    AWSS3BucketTokenHit,
     TokenTypes,
     CreditCardV2TokenHit,
     CreditCardV2AdditionalInfo,
@@ -506,6 +507,74 @@ class Canarytoken(object):
             },
         }
         return SlackAPITokenHit(**hit_info)
+
+    @staticmethod
+    def _parse_aws_s3_bucket_trigger(
+        request: Request,
+    ) -> AWSS3BucketTokenHit:
+        """When an AWS S3 bucket token is triggered, EventBridge POSTs
+        a CloudTrail event to switchboard. The `request` is processed,
+        fields extracted, and an `AWSS3BucketTokenHit` is created.
+
+        Args:
+            request (twisted.web.http.Request): containing EventBridge event.
+
+        Returns:
+            AWSS3BucketTokenHit: Structured AWS S3 bucket specific hit info.
+        """
+        hit_time = datetime.utcnow().strftime("%s.%f")
+
+        json_data = json.loads(request.content.read())
+        detail = json_data.get("detail", {})
+
+        src_ip = detail.get("sourceIPAddress", "127.0.0.1")
+        user_agent = detail.get("userAgent", "")
+
+        geo_info = queries.get_geoinfo(ip=src_ip)
+        is_tor_relay = queries.is_tor_relay(src_ip)
+
+        request_params = detail.get("requestParameters", {}) or {}
+        user_identity = detail.get("userIdentity", {}) or {}
+        resources = detail.get("resources", []) or []
+
+        log_data = {
+            "Event Name": [detail.get("eventName", "")],
+            "Event Source": [detail.get("eventSource", "")],
+            "Event Time": [detail.get("eventTime", "")],
+            "AWS Region": [detail.get("awsRegion", json_data.get("region", ""))],
+            "Bucket Name": [request_params.get("bucketName", "")],
+            "Object Key": [request_params.get("key", "")],
+            "User Identity ARN": [user_identity.get("arn", "")],
+            "User Identity Type": [user_identity.get("type", "")],
+            "Account ID": [user_identity.get("accountId", "")],
+        }
+
+        error_code = detail.get("errorCode", "")
+        if error_code:
+            log_data["Error Code"] = [error_code]
+
+        resource_arns = []
+        for res in resources:
+            rid = res.get("ARN") or res.get("ARNPrefix", "")
+            if rid:
+                rtype = res.get("type", "")
+                resource_arns.append(f"{rid} ({rtype})" if rtype else rid)
+        if resource_arns:
+            log_data["Resources"] = resource_arns
+
+        additional_info = {"AWS S3 Log Data": log_data}
+
+        hit_info = {
+            "token_type": TokenTypes.AWS_S3_BUCKET,
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "src_ip": src_ip,
+            "geo_info": geo_info,
+            "is_tor_relay": is_tor_relay,
+            "user_agent": user_agent,
+            "additional_info": additional_info,
+        }
+        return AWSS3BucketTokenHit(**hit_info)
 
     @staticmethod
     def _parse_credit_card_v2_trigger(

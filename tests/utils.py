@@ -28,6 +28,7 @@ from canarytokens.models import (
     AWSKeyTokenResponse,
     AzureIDTokenResponse,
     AzureIDAdditionalInfo,
+    AWSS3BucketAdditionalInfo,
     CMDTokenResponse,
     WindowsFakeFSTokenResponse,
     CustomBinaryTokenRequest,
@@ -596,6 +597,20 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
                 "safety_net": ["True"],
                 "last_used": ["2022-07-29T05:48:00+00:00"],
             }
+        )
+    elif token_type == TokenTypes.AWS_S3_BUCKET:
+        additional_info = AWSS3BucketAdditionalInfo(
+            aws_s3_log_data={
+                "Event Name": ["GetObject"],
+                "Event Source": ["s3.amazonaws.com"],
+                "Event Time": ["2026-01-31T12:00:00Z"],
+                "AWS Region": ["us-east-1"],
+                "Bucket Name": ["test-decoy-bucket"],
+                "Object Key": ["secret.txt"],
+                "User Identity ARN": ["arn:aws:iam::123456789012:user/test"],
+                "User Identity Type": ["IAMUser"],
+                "Account ID": ["123456789012"],
+            },
         )
     elif token_type == TokenTypes.AZURE_ID:
         additional_info = AzureIDAdditionalInfo(

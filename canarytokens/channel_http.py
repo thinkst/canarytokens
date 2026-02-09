@@ -207,6 +207,14 @@ class CanarytokenPage(InputChannel, resource.Resource):
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
+        elif canarydrop.type == TokenTypes.AWS_S3_BUCKET:
+            sig = request.getHeader("x-signature")
+            if not sig or sig != canarydrop.aws_s3_api_key:
+                return b"invalid signature"
+            token_hit = Canarytoken._parse_aws_s3_bucket_trigger(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
         elif canarydrop.type == TokenTypes.SLACK_API:
             token_hit = Canarytoken._parse_slack_api_trigger(request)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)

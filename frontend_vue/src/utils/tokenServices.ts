@@ -486,4 +486,20 @@ export const tokenServices: TokenServicesType = {
     category: [TOKEN_CATEGORY.CLOUD, TOKEN_CATEGORY.PHISHING],
     keywords: [],
   },
+  [TOKENS_TYPE.AWS_S3_BUCKET]: {
+    label: 'AWS S3 bucket',
+    description:
+      'Get an alert when an attacker accesses a decoy S3 bucket in your AWS account.',
+    documentationLink: '',
+    icon: 's3_bucket.png',
+    instruction:
+      'Deploy this stack in your AWS account to create the monitored decoy bucket:',
+    howItWorksInstructions: [
+      'We give you a CloudFormation Quick Create link.',
+      'You deploy it in your AWS account, creating a decoy S3 bucket.',
+      'We send you an alert if anyone tries to access that bucket.',
+    ],
+    category: TOKEN_CATEGORY.CLOUD,
+    keywords: ['cloud', 'aws', 's3', 'bucket', 'storage'],
+  },
 };

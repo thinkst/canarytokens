@@ -17,6 +17,8 @@ from canarytokens.models import (
     AnyTokenResponse,
     AWSKeyTokenRequest,
     AWSKeyTokenResponse,
+    AWSS3BucketTokenRequest,
+    AWSS3BucketTokenResponse,
     AzureIDTokenRequest,
     AzureIDTokenResponse,
     BrowserScannerSettingsRequest,
@@ -165,6 +167,7 @@ set_of_unsupported_request_classes = [
     PWATokenRequest,
     CreditCardV2TokenRequest,
     AWSInfraTokenRequest,  # no download
+    AWSS3BucketTokenRequest,  # requires AWS CFN infra
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -175,6 +178,7 @@ set_of_unsupported_response_classes = [
     PWATokenResponse,
     CreditCardV2TokenResponse,
     AWSInfraTokenResponse,  # no download
+    AWSS3BucketTokenResponse,  # requires AWS CFN infra
 ]
 
 if not FrontendSettings("../frontend/frontend.env").WEBDAV_SERVER:

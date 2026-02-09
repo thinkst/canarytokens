@@ -162,6 +162,12 @@ class Canarydrop(BaseModel):
     cert_name: Optional[str]
     cert_file_name: Optional[str]
 
+    # AWS S3 bucket specific stuff
+    aws_s3_bucket_name: Optional[str]
+    aws_s3_region: Optional[str]
+    aws_s3_api_key: Optional[str]
+    aws_s3_quickcreate_url: Optional[str]
+
     # HTTP style token specific stuff
     browser_scanner_enabled: Optional[bool]
     # Wireguard specific stuff

@@ -246,6 +246,7 @@ class TokenTypes(StrEnum):
     SLACK_API = "slack_api"
     LEGACY = "legacy"
     AWS_INFRA = "aws_infra"
+    AWS_S3_BUCKET = "aws_s3_bucket"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -255,6 +256,7 @@ TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.ADOBE_PDF,
     TokenTypes.AWS_KEYS,
     TokenTypes.AWS_INFRA,
+    TokenTypes.AWS_S3_BUCKET,
     TokenTypes.AZURE_ID,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
@@ -295,6 +297,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.LEGACY: "Legacy",
     TokenTypes.IDP_APP: "SAML2 IdP App",
     TokenTypes.AWS_INFRA: "AWS Infrastructure",
+    TokenTypes.AWS_S3_BUCKET: "AWS S3 bucket",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -390,6 +393,31 @@ class TokenRequest(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {TokenTypes: lambda v: v.value}
+
+
+class AWSS3BucketTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.AWS_S3_BUCKET] = TokenTypes.AWS_S3_BUCKET
+    aws_s3_bucket_name: str
+    aws_s3_region: str
+
+    @validator("aws_s3_bucket_name")
+    def validate_s3_bucket_name(cls, v):
+        v = v.strip().lower()
+        if len(v) < 3 or len(v) > 63:
+            raise ValueError("Bucket name must be between 3 and 63 characters")
+        if not re.match(r"^[a-z0-9][a-z0-9.\-]*[a-z0-9]$", v):
+            raise ValueError(
+                "Bucket name must start and end with a letter or number, "
+                "and contain only lowercase letters, numbers, hyphens, and periods"
+            )
+        if ".." in v or ".-" in v or "-." in v:
+            raise ValueError(
+                "Bucket name must not contain consecutive periods, "
+                "or a period adjacent to a hyphen"
+            )
+        if re.match(r"^\d+\.\d+\.\d+\.\d+$", v):
+            raise ValueError("Bucket name must not be formatted as an IP address")
+        return v
 
 
 class AWSKeyTokenRequest(TokenRequest):
@@ -865,6 +893,7 @@ AnyTokenRequest = Annotated[
         CreditCardV2TokenRequest,
         IdPAppTokenRequest,
         AWSInfraTokenRequest,
+        AWSS3BucketTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -947,6 +976,13 @@ class AzureIDTokenResponse(TokenResponse):
     cert: str
     cert_name: str
     cert_file_name: str
+
+
+class AWSS3BucketTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.AWS_S3_BUCKET] = TokenTypes.AWS_S3_BUCKET
+    quickcreate_url: str
+    bucket_name: str
+    region: str
 
 
 class PDFTokenResponse(TokenResponse):
@@ -1244,6 +1280,7 @@ AnyTokenResponse = Annotated[
         CreditCardV2TokenResponse,
         IdPAppTokenResponse,
         AWSInfraTokenResponse,
+        AWSS3BucketTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1426,6 +1463,31 @@ class AzureIDAdditionalInfo(BaseModel):
             ("Microsoft Azure", "microsoft_azure"),
             ("Location", "location"),
             ("Coordinates", "coordinates"),
+        ]
+        for value, key in keys_to_convert:
+            if key in data:
+                data[value] = data.pop(key)
+        return data
+
+
+class AWSS3BucketAdditionalInfo(BaseModel):
+    aws_s3_log_data: dict[str, list[str]]
+
+    @root_validator(pre=True)
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        keys_to_convert = [
+            ("AWS S3 Log Data", "aws_s3_log_data"),
+        ]
+        for old_key, new_key in keys_to_convert:  # pragma: no cover
+            if old_key in values:
+                values[new_key] = values.pop(old_key)
+
+        return {k.lower(): v for k, v in values.items()}
+
+    def serialize_for_v2(self) -> dict:
+        data = self.dict()
+        keys_to_convert = [
+            ("AWS S3 Log Data", "aws_s3_log_data"),
         ]
         for value, key in keys_to_convert:
             if key in data:
@@ -1709,6 +1771,22 @@ class SlackAPITokenHit(TokenHit):
         return data
 
 
+class AWSS3BucketTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.AWS_S3_BUCKET] = TokenTypes.AWS_S3_BUCKET
+    additional_info: Optional[AWSS3BucketAdditionalInfo]
+
+    class Config:
+        allow_population_by_field_name = True
+
+    def serialize_for_v2(self) -> dict:
+        data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+        if "additional_info" in data and self.additional_info:
+            data["additional_info"] = self.additional_info.serialize_for_v2()
+        if "user_agent" in data:
+            data["useragent"] = data.pop("user_agent")
+        return data
+
+
 class DNSTokenHit(TokenHit):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
 
@@ -1967,6 +2045,7 @@ AnyTokenHit = Annotated[
         CreditCardV2TokenHit,
         IdPAppTokenHit,
         AWSInfraTokenHit,
+        AWSS3BucketTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2010,6 +2089,7 @@ class TokenHistory(GenericModel, Generic[TH]):
                 or isinstance(hit, AWSInfraTokenHit)
                 or isinstance(hit, SlackAPITokenHit)
                 or isinstance(hit, CreditCardV2TokenHit)
+                or isinstance(hit, AWSS3BucketTokenHit)
             ):
                 hit_data = hit.serialize_for_v2()
             else:
@@ -2051,6 +2131,11 @@ class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
 class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
+
+
+class AWSS3BucketTokenHistory(TokenHistory[AWSS3BucketTokenHit]):
+    token_type: Literal[TokenTypes.AWS_S3_BUCKET] = TokenTypes.AWS_S3_BUCKET
+    hits: List[AWSS3BucketTokenHit] = []
 
 
 class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
@@ -2241,6 +2326,7 @@ AnyTokenHistory = Annotated[
         CreditCardV2TokenHistory,
         IdPAppTokenHistory,
         AWSInfraTokenHistory,
+        AWSS3BucketTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]

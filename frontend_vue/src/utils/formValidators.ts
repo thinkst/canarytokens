@@ -272,4 +272,28 @@ export const formValidators: ValidateSchemaType = {
         ),
     }),
   },
+  [TOKENS_TYPE.AWS_S3_BUCKET]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      aws_s3_bucket_name: Yup.string()
+        .required('Bucket name is required')
+        .min(3, 'Must be at least 3 characters')
+        .max(63, 'Must be 63 characters or fewer')
+        .matches(
+          /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/,
+          'Must start and end with a letter or number, and contain only lowercase letters, numbers, hyphens, and periods'
+        )
+        .test(
+          'no-consecutive-special',
+          'Must not contain "..", ".-", or "-."',
+          (val) => !val || (!val.includes('..') && !val.includes('.-') && !val.includes('-.'))
+        )
+        .test(
+          'not-ip',
+          'Must not be formatted as an IP address',
+          (val) => !val || !/^\d+\.\d+\.\d+\.\d+$/.test(val)
+        ),
+      aws_s3_region: Yup.string().required('AWS region is required'),
+    }),
+  },
 };
