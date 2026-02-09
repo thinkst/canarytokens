@@ -34,6 +34,7 @@ from canarytokens.models import (
     AWSKeyTokenExposedHit,
     AzureIDTokenHit,
     SlackAPITokenHit,
+    CrowdStrikeCCTokenHit,
     TokenTypes,
     CreditCardV2TokenHit,
     CreditCardV2AdditionalInfo,
@@ -506,6 +507,49 @@ class Canarytoken(object):
             },
         }
         return SlackAPITokenHit(**hit_info)
+
+    @staticmethod
+    def _parse_crowdstrike_cc_trigger(
+        request: Request,
+    ) -> CrowdStrikeCCTokenHit:
+        """When a CrowdStrike CC token is triggered, the gateway makes a POST
+        request back to switchboard. The `request` is processed, fields
+        extracted, and a `CrowdStrikeCCTokenHit` is created.
+
+        Args:
+            request (twisted.web.http.Request): containing CrowdStrike hit information.
+
+        Returns:
+            CrowdStrikeCCTokenHit: Structured CrowdStrike CC specific hit info.
+        """
+        hit_time = datetime.utcnow().strftime("%s.%f")
+
+        json_data = json.loads(request.content.read())
+        src_ip = json_data.get("src_ip", "127.0.0.1")
+        user_agent = json_data.get("user_agent", "")
+
+        geo_info = queries.get_geoinfo(ip=src_ip)
+        is_tor_relay = queries.is_tor_relay(src_ip)
+
+        additional_info = {
+            "CrowdStrike Log Data": {
+                k: [str(v)] if not isinstance(v, list) else v
+                for k, v in json_data.items()
+                if k not in ["src_ip", "user_agent"]
+            }
+        }
+
+        hit_info = {
+            "token_type": TokenTypes.CROWDSTRIKE_CC,
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "src_ip": src_ip,
+            "geo_info": geo_info,
+            "is_tor_relay": is_tor_relay,
+            "user_agent": user_agent,
+            "additional_info": additional_info,
+        }
+        return CrowdStrikeCCTokenHit(**hit_info)
 
     @staticmethod
     def _parse_credit_card_v2_trigger(

@@ -113,6 +113,13 @@ class AzureID(TypedDict):
     cert_file_name: str
 
 
+class CrowdStrikeCC(TypedDict):
+    token_id: str
+    client_id: str
+    client_secret: str
+    base_url: str
+
+
 class KubeCerts(TypedDict):
     """Kube digest (f), cert (c) and key (k) are stored directly and not
     base64 encoded.
@@ -246,6 +253,7 @@ class TokenTypes(StrEnum):
     SLACK_API = "slack_api"
     LEGACY = "legacy"
     AWS_INFRA = "aws_infra"
+    CROWDSTRIKE_CC = "crowdstrike_cc"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -295,6 +303,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.LEGACY: "Legacy",
     TokenTypes.IDP_APP: "SAML2 IdP App",
     TokenTypes.AWS_INFRA: "AWS Infrastructure",
+    TokenTypes.CROWDSTRIKE_CC: "CrowdStrike API key",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -390,6 +399,10 @@ class TokenRequest(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {TokenTypes: lambda v: v.value}
+
+
+class CrowdStrikeCCTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.CROWDSTRIKE_CC] = TokenTypes.CROWDSTRIKE_CC
 
 
 class AWSKeyTokenRequest(TokenRequest):
@@ -865,6 +878,7 @@ AnyTokenRequest = Annotated[
         CreditCardV2TokenRequest,
         IdPAppTokenRequest,
         AWSInfraTokenRequest,
+        CrowdStrikeCCTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -947,6 +961,13 @@ class AzureIDTokenResponse(TokenResponse):
     cert: str
     cert_name: str
     cert_file_name: str
+
+
+class CrowdStrikeCCTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.CROWDSTRIKE_CC] = TokenTypes.CROWDSTRIKE_CC
+    client_id: str
+    client_secret: str
+    base_url: str
 
 
 class PDFTokenResponse(TokenResponse):
@@ -1244,6 +1265,7 @@ AnyTokenResponse = Annotated[
         CreditCardV2TokenResponse,
         IdPAppTokenResponse,
         AWSInfraTokenResponse,
+        CrowdStrikeCCTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1426,6 +1448,31 @@ class AzureIDAdditionalInfo(BaseModel):
             ("Microsoft Azure", "microsoft_azure"),
             ("Location", "location"),
             ("Coordinates", "coordinates"),
+        ]
+        for value, key in keys_to_convert:
+            if key in data:
+                data[value] = data.pop(key)
+        return data
+
+
+class CrowdStrikeCCAdditionalInfo(BaseModel):
+    crowdstrike_log_data: dict[str, list[str]]
+
+    @root_validator(pre=True)
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        keys_to_convert = [
+            ("CrowdStrike Log Data", "crowdstrike_log_data"),
+        ]
+        for old_key, new_key in keys_to_convert:  # pragma: no cover
+            if old_key in values:
+                values[new_key] = values.pop(old_key)
+
+        return {k.lower(): v for k, v in values.items()}
+
+    def serialize_for_v2(self) -> dict:
+        data = self.dict()
+        keys_to_convert = [
+            ("CrowdStrike Log Data", "crowdstrike_log_data"),
         ]
         for value, key in keys_to_convert:
             if key in data:
@@ -1709,6 +1756,22 @@ class SlackAPITokenHit(TokenHit):
         return data
 
 
+class CrowdStrikeCCTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.CROWDSTRIKE_CC] = TokenTypes.CROWDSTRIKE_CC
+    additional_info: Optional[CrowdStrikeCCAdditionalInfo]
+
+    class Config:
+        allow_population_by_field_name = True
+
+    def serialize_for_v2(self) -> dict:
+        data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))
+        if "additional_info" in data and self.additional_info:
+            data["additional_info"] = self.additional_info.serialize_for_v2()
+        if "user_agent" in data:
+            data["useragent"] = data.pop("user_agent")
+        return data
+
+
 class DNSTokenHit(TokenHit):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
 
@@ -1967,6 +2030,7 @@ AnyTokenHit = Annotated[
         CreditCardV2TokenHit,
         IdPAppTokenHit,
         AWSInfraTokenHit,
+        CrowdStrikeCCTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2010,6 +2074,7 @@ class TokenHistory(GenericModel, Generic[TH]):
                 or isinstance(hit, AWSInfraTokenHit)
                 or isinstance(hit, SlackAPITokenHit)
                 or isinstance(hit, CreditCardV2TokenHit)
+                or isinstance(hit, CrowdStrikeCCTokenHit)
             ):
                 hit_data = hit.serialize_for_v2()
             else:
@@ -2051,6 +2116,11 @@ class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
 class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
+
+
+class CrowdStrikeCCTokenHistory(TokenHistory[CrowdStrikeCCTokenHit]):
+    token_type: Literal[TokenTypes.CROWDSTRIKE_CC] = TokenTypes.CROWDSTRIKE_CC
+    hits: List[CrowdStrikeCCTokenHit] = []
 
 
 class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
@@ -2241,6 +2311,7 @@ AnyTokenHistory = Annotated[
         CreditCardV2TokenHistory,
         IdPAppTokenHistory,
         AWSInfraTokenHistory,
+        CrowdStrikeCCTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]

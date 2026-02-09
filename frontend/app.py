@@ -65,6 +65,7 @@ from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens import aws_infra
 from canarytokens.awskeys import get_aws_key
 from canarytokens.azurekeys import get_azure_id
+from canarytokens.crowdstrikekeys import get_crowdstrike_key
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.exceptions import (
     AWSInfraDataGenerationLimitReached,
@@ -105,6 +106,8 @@ from canarytokens.models import (
     AWSKeyTokenResponse,
     AzureIDTokenRequest,
     AzureIDTokenResponse,
+    CrowdStrikeCCTokenRequest,
+    CrowdStrikeCCTokenResponse,
     CCTokenRequest,
     CCTokenResponse,
     ClonedWebTokenRequest,
@@ -2193,6 +2196,56 @@ def _create_azure_id_token_response(
         cert=canarydrop.cert,
         tenant_id=canarydrop.tenant_id,
         cert_name=canarydrop.cert_name,
+    )
+
+
+@create_response.register
+def _create_crowdstrike_cc_token_response(
+    token_request_details: CrowdStrikeCCTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
+) -> CrowdStrikeCCTokenResponse:
+    if settings is None:
+        settings = frontend_settings
+
+    if settings.CROWDSTRIKE_CC_CREATE_URL is None:
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have CrowdStrike CC tokens enabled."
+            },
+            status_code=400,
+        )
+
+    try:
+        key = get_crowdstrike_key(
+            token=canarydrop.canarytoken,
+            server=get_all_canary_domains()[0],
+            crowdstrike_url=settings.CROWDSTRIKE_CC_CREATE_URL,
+        )
+    except Exception as e:
+        capture_exception(error=e, context=("get_crowdstrike_key", None))
+        return response_error(
+            4,
+            message="Failed to generate CrowdStrike CC credentials. We are looking into it.",
+        )
+
+    canarydrop.crowdstrike_token_id = key["token_id"]
+    canarydrop.crowdstrike_client_id = key["client_id"]
+    canarydrop.crowdstrike_client_secret = key["client_secret"]
+    canarydrop.crowdstrike_base_url = key["base_url"]
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    save_canarydrop(canarydrop)
+    return CrowdStrikeCCTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        client_id=canarydrop.crowdstrike_client_id,
+        client_secret=canarydrop.crowdstrike_client_secret,
+        base_url=canarydrop.crowdstrike_base_url,
     )
 
 

@@ -28,6 +28,7 @@ from canarytokens.models import (
     AWSKeyTokenResponse,
     AzureIDTokenResponse,
     AzureIDAdditionalInfo,
+    CrowdStrikeCCAdditionalInfo,
     CMDTokenResponse,
     WindowsFakeFSTokenResponse,
     CustomBinaryTokenRequest,
@@ -596,6 +597,15 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
                 "safety_net": ["True"],
                 "last_used": ["2022-07-29T05:48:00+00:00"],
             }
+        )
+    elif token_type == TokenTypes.CROWDSTRIKE_CC:
+        additional_info = CrowdStrikeCCAdditionalInfo(
+            crowdstrike_log_data={
+                "api_client_id": ["test-client-id"],
+                "api_client_name": ["Test API Client"],
+                "request_method": ["POST"],
+                "request_path": ["/oauth2/token"],
+            },
         )
     elif token_type == TokenTypes.AZURE_ID:
         additional_info = AzureIDAdditionalInfo(
