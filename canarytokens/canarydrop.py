@@ -162,6 +162,12 @@ class Canarydrop(BaseModel):
     cert_name: Optional[str]
     cert_file_name: Optional[str]
 
+    # CrowdStrike CC specific stuff
+    crowdstrike_token_id: Optional[str]
+    crowdstrike_client_id: Optional[str]
+    crowdstrike_client_secret: Optional[str]
+    crowdstrike_base_url: Optional[str]
+
     # HTTP style token specific stuff
     browser_scanner_enabled: Optional[bool]
     # Wireguard specific stuff
