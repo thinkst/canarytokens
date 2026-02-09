@@ -16,6 +16,7 @@ from canarytokens.channel_http import ChannelHTTP
 from canarytokens.channel_input_mtls import ChannelKubeConfig
 from canarytokens.channel_input_mysql import ChannelMySQL
 from canarytokens.channel_input_smtp import ChannelSMTP
+from canarytokens.channel_input_postgresql import ChannelPostgreSQL
 from canarytokens.channel_input_wireguard import ChannelWireGuard
 from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
@@ -159,6 +160,14 @@ canarytokens_mysql = ChannelMySQL(
     switchboard_hostname=frontend_settings.DOMAINS[0],
 )
 canarytokens_mysql.service.setServiceParent(application)
+
+canarytokens_postgresql = ChannelPostgreSQL(
+    port=switchboard_settings.CHANNEL_POSTGRESQL_PORT,
+    switchboard=switchboard,
+    switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+    switchboard_hostname=frontend_settings.DOMAINS[0],
+)
+canarytokens_postgresql.service.setServiceParent(application)
 
 canarytokens_wireguard = ChannelWireGuard(
     port=switchboard_settings.CHANNEL_WIREGUARD_PORT,

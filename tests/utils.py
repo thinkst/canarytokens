@@ -28,6 +28,7 @@ from canarytokens.models import (
     AWSKeyTokenResponse,
     AzureIDTokenResponse,
     AzureIDAdditionalInfo,
+    PostgreSQLAdditionalInfo,
     CMDTokenResponse,
     WindowsFakeFSTokenResponse,
     CustomBinaryTokenRequest,
@@ -577,6 +578,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         windows_fake_fs_file_structure="home_network",
         app_type="aws",
         webdav_fs_type="testing",
+        postgresql_username="postgres",
     )
 
 
@@ -619,6 +621,15 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
         )
     else:
         additional_info = AdditionalInfo()
+    postgresql_username = "postgres" if token_type == TokenTypes.POSTGRESQL else None
+    if token_type == TokenTypes.POSTGRESQL:
+        additional_info = PostgreSQLAdditionalInfo(
+            postgresql_log_data={
+                "Database": ["postgres"],
+                "application_name": ["psql"],
+                "client_encoding": ["UTF8"],
+            },
+        )
     generic_hit = dict(
         token_type=token_type,
         time_of_hit=111,
@@ -630,6 +641,7 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
         useragent="mr anderson",
         src_data=src_data,
         additional_info=additional_info,
+        postgresql_username=postgresql_username,
         geo_info=GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
         mail=SMTPMailField(
             attachments=[],

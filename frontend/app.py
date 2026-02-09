@@ -19,6 +19,7 @@ from http.client import (
 from itertools import islice
 import logging.config
 import os
+import secrets
 import textwrap
 from base64 import b64decode
 from functools import singledispatch
@@ -61,6 +62,7 @@ from canarytokens.channel_output_email import EmailResponseStatuses, send_email
 import canarytokens.credit_card_v2 as credit_card_infra
 from canarytokens import extendtoken, kubeconfig, msreg, queries
 from canarytokens import wireguard as wg
+from canarytokens.postgresql import compute_md5_inner_hash
 from canarytokens.authenticode import make_canary_authenticode_binary
 from canarytokens import aws_infra
 from canarytokens.awskeys import get_aws_key
@@ -178,6 +180,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    PostgreSQLTokenRequest,
+    PostgreSQLTokenResponse,
     PDFTokenRequest,
     PDFTokenResponse,
     PWATokenRequest,
@@ -2615,6 +2619,39 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
             domain=frontend_settings.DOMAINS[0],
             port=switchboard_settings.CHANNEL_MYSQL_PORT,
         ),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: PostgreSQLTokenRequest, canarydrop: Canarydrop
+) -> PostgreSQLTokenResponse:
+    username = token_request_details.postgresql_username
+    password = secrets.token_urlsafe(16)
+    inner_hash = compute_md5_inner_hash(password, username)
+
+    queries.postgresql_passwordmap_add(inner_hash, canarydrop.canarytoken.value())
+
+    canarydrop.postgresql_username = username
+    canarydrop.postgresql_password = password
+    canarydrop.postgresql_server = frontend_settings.DOMAINS[0]
+    canarydrop.postgresql_port = switchboard_settings.CHANNEL_POSTGRESQL_PORT
+    save_canarydrop(canarydrop)
+
+    return PostgreSQLTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=(
+            canarydrop.alert_webhook_url if canarydrop.alert_webhook_url else ""
+        ),
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url or "",
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        postgresql_username=username,
+        postgresql_password=password,
+        postgresql_server=frontend_settings.DOMAINS[0],
+        postgresql_port=switchboard_settings.CHANNEL_POSTGRESQL_PORT,
     )
 
 

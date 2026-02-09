@@ -79,6 +79,18 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.MYSQL]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },
+  [TOKENS_TYPE.POSTGRESQL]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      postgresql_username: Yup.string()
+        .required('Username is required')
+        .max(63, 'Username must be 63 characters or fewer')
+        .matches(
+          /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+          'Must start with a letter or underscore and contain only letters, digits, and underscores'
+        ),
+    }),
+  },
   [TOKENS_TYPE.LOG4SHELL]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },

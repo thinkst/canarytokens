@@ -53,6 +53,7 @@ from canarytokens.redismanager import (  # KEY_BITCOIN_ACCOUNT,; KEY_BITCOIN_ACC
     KEY_TOR_EXIT_NODES,
     KEY_WEBHOOK_IDX,
     KEY_WIREGUARD_KEYMAP,
+    KEY_POSTGRESQL_PASSWORDMAP,
 )
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.webhook_formatting import (
@@ -1073,6 +1074,18 @@ def wireguard_keymap_del(public_key: bytes) -> None:
 
 def wireguard_keymap_get(public_key: bytes) -> Optional[str]:
     return DB.get_db().hget(KEY_WIREGUARD_KEYMAP, public_key)
+
+
+def postgresql_passwordmap_add(inner_hash: str, canarytoken: str) -> None:
+    DB.get_db().hset(KEY_POSTGRESQL_PASSWORDMAP, inner_hash, canarytoken)
+
+
+def postgresql_passwordmap_del(inner_hash: str) -> None:
+    DB.get_db().hdel(KEY_POSTGRESQL_PASSWORDMAP, inner_hash)
+
+
+def postgresql_passwordmap_getall() -> dict[str, str]:
+    return DB.get_db().hgetall(KEY_POSTGRESQL_PASSWORDMAP) or {}
 
 
 def add_aws_management_lambda_handle(

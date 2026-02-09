@@ -162,6 +162,12 @@ class Canarydrop(BaseModel):
     cert_name: Optional[str]
     cert_file_name: Optional[str]
 
+    # PostgreSQL specific stuff
+    postgresql_username: Optional[str]
+    postgresql_password: Optional[str]
+    postgresql_server: Optional[str]
+    postgresql_port: Optional[int]
+
     # HTTP style token specific stuff
     browser_scanner_enabled: Optional[bool]
     # Wireguard specific stuff

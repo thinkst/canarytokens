@@ -15,6 +15,7 @@ export const TOKENS_TYPE = {
   LOG4SHELL: 'log4shell',
   QRCODE: 'qr_code',
   MYSQL: 'my_sql',
+  POSTGRESQL: 'postgresql',
   WEB_IMAGE: 'web_image',
   AWS_KEYS: 'aws_keys',
   FAST_REDIRECT: 'fast_redirect',
@@ -130,6 +131,7 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   log4shell: ['#F2F2F2', '#E84F40', '#F36A5C', '#FDBCB0'],
   qr_code: ['#B4B4B4', '#E2E3E3', '#A0A0A0', '#737373'],
   my_sql: ['#C2E7EF', '#AEDAE6', '#126E93'],
+  postgresql: ['#336791', '#4A90A4', '#5BA3B8', '#6DB5CC'],
   web_image: ['#888CD8', '#4554AE', '#35AAE9', '#0E3B76', '#11559D'],
   aws_keys: ['#FEBD4C', '#A66E06', '#5E6570', '#FFC977', '#9299A4'],
   fast_redirect: [

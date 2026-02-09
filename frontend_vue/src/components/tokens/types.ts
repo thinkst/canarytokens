@@ -89,6 +89,10 @@ type CanaryDropType = {
   webdav_server: string;
   idp_app_entity_id: string | null;
   idp_app_type: string | null;
+  postgresql_username: string;
+  postgresql_password: string;
+  postgresql_server: string;
+  postgresql_port: number;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -169,6 +173,10 @@ export type NewTokenBackendType = {
   webdav_server: string | null;
   entity_id: string | null;
   app_type: string | null;
+  postgresql_username: string | null;
+  postgresql_password: string | null;
+  postgresql_server: string | null;
+  postgresql_port: number | null;
 };
 
 export type AsnType = {

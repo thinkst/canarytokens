@@ -10,6 +10,7 @@ INPUT_CHANNEL_BITCOIN = "Bitcoin"
 INPUT_CHANNEL_SMTP = "SMTP"
 INPUT_CHANNEL_MTLS = "Kubeconfig"
 INPUT_CHANNEL_MYSQL = "MYSQL"
+INPUT_CHANNEL_POSTGRESQL = "PostgreSQL"
 INPUT_CHANNEL_WIREGUARD = "WireGuard"
 
 # DESIGN: We'll want a constraint on this but what is sensible as a user and what is practical for our system?

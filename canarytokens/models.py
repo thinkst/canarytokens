@@ -231,6 +231,7 @@ class TokenTypes(StrEnum):
     SMTP = "smtp"
     SQL_SERVER = "sql_server"
     MY_SQL = "my_sql"
+    POSTGRESQL = "postgresql"
     AWS_KEYS = "aws_keys"
     AZURE_ID = "azure_id"
     SIGNED_EXE = "signed_exe"
@@ -279,6 +280,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.SMTP: "Email address",
     TokenTypes.SQL_SERVER: "MS SQL Server",
     TokenTypes.MY_SQL: "MySQL",
+    TokenTypes.POSTGRESQL: "PostgreSQL",
     TokenTypes.AWS_KEYS: "AWS key",
     TokenTypes.AZURE_ID: "Azure key",
     TokenTypes.SIGNED_EXE: "Custom EXE / binary",
@@ -709,6 +711,24 @@ class MySQLTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MY_SQL] = TokenTypes.MY_SQL
 
 
+class PostgreSQLTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.POSTGRESQL] = TokenTypes.POSTGRESQL
+    postgresql_username: str
+
+    @validator("postgresql_username")
+    def validate_postgresql_username(cls, v):
+        v = v.strip()
+        if not v:
+            raise ValueError("Username is required")
+        if len(v) > 63:
+            raise ValueError("Username must be 63 characters or fewer")
+        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", v):
+            raise ValueError(
+                "Username must start with a letter or underscore and contain only letters, digits, and underscores"
+            )
+        return v
+
+
 class SQLServerTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.SQL_SERVER] = TokenTypes.SQL_SERVER
     sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
@@ -854,6 +874,7 @@ AnyTokenRequest = Annotated[
         WebBugTokenRequest,
         SlowRedirectTokenRequest,
         MySQLTokenRequest,
+        PostgreSQLTokenRequest,
         WireguardTokenRequest,
         CustomBinaryTokenRequest,
         CustomImageTokenRequest,
@@ -1178,6 +1199,14 @@ class MySQLTokenResponse(TokenResponse):
     usage: Optional[str]
 
 
+class PostgreSQLTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.POSTGRESQL] = TokenTypes.POSTGRESQL
+    postgresql_username: str
+    postgresql_password: str
+    postgresql_server: str
+    postgresql_port: int
+
+
 class CreditCardV2TokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
     card_id: str
@@ -1222,6 +1251,7 @@ AnyTokenResponse = Annotated[
         PDFTokenResponse,
         DNSTokenResponse,
         MySQLTokenResponse,
+        PostgreSQLTokenResponse,
         WireguardTokenResponse,
         WindowsDirectoryTokenResponse,
         WebDavTokenResponse,
@@ -1855,6 +1885,36 @@ class MySQLTokenHit(TokenHit):
     additional_info: Optional[AdditionalInfo]
 
 
+class PostgreSQLAdditionalInfo(BaseModel):
+    postgresql_log_data: dict[str, list[str]]
+
+    @root_validator(pre=True)
+    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        keys_to_convert = [
+            ("PostgreSQL Log Data", "postgresql_log_data"),
+        ]
+        for old_key, new_key in keys_to_convert:
+            if old_key in values:
+                values[new_key] = values.pop(old_key)
+        return {k.lower(): v for k, v in values.items()}
+
+    def serialize_for_v2(self) -> dict:
+        data = self.dict()
+        keys_to_convert = [
+            ("PostgreSQL Log Data", "postgresql_log_data"),
+        ]
+        for value, key in keys_to_convert:
+            if key in data:
+                data[value] = data.pop(key)
+        return data
+
+
+class PostgreSQLTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.POSTGRESQL] = TokenTypes.POSTGRESQL
+    postgresql_username: Optional[str]
+    additional_info: Optional[PostgreSQLAdditionalInfo]
+
+
 class WireguardSrcData(TypedDict):
     src_port: int
     server_public_key: bytes
@@ -1952,6 +2012,7 @@ AnyTokenHit = Annotated[
         WebBugTokenHit,
         WebDavTokenHit,
         MySQLTokenHit,
+        PostgreSQLTokenHit,
         WireguardTokenHit,
         QRCodeTokenHit,
         CustomBinaryTokenHit,
@@ -2162,6 +2223,11 @@ class MySQLTokenHistory(TokenHistory[MySQLTokenHit]):
     hits: List[MySQLTokenHit]
 
 
+class PostgreSQLTokenHistory(TokenHistory[PostgreSQLTokenHit]):
+    token_type: Literal[TokenTypes.POSTGRESQL] = TokenTypes.POSTGRESQL
+    hits: List[PostgreSQLTokenHit] = []
+
+
 class KubeconfigTokenHistory(TokenHistory[KubeconfigTokenHit]):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
     hits: List[KubeconfigTokenHit] = []
@@ -2229,6 +2295,7 @@ AnyTokenHistory = Annotated[
         WireguardTokenHistory,
         QRCodeTokenHistory,
         MySQLTokenHistory,
+        PostgreSQLTokenHistory,
         CustomImageTokenHistory,
         SvnTokenHistory,
         KubeconfigTokenHistory,

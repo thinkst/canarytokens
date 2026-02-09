@@ -49,6 +49,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    PostgreSQLTokenRequest,
+    PostgreSQLTokenResponse,
     PWATokenRequest,
     PWATokenResponse,
     PageRequest,
@@ -165,6 +167,7 @@ set_of_unsupported_request_classes = [
     PWATokenRequest,
     CreditCardV2TokenRequest,
     AWSInfraTokenRequest,  # no download
+    PostgreSQLTokenRequest,  # requires postgresql channel
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -175,6 +178,7 @@ set_of_unsupported_response_classes = [
     PWATokenResponse,
     CreditCardV2TokenResponse,
     AWSInfraTokenResponse,  # no download
+    PostgreSQLTokenResponse,  # requires postgresql channel
 ]
 
 if not FrontendSettings("../frontend/frontend.env").WEBDAV_SERVER:

@@ -105,6 +105,22 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.DATABASE,
     keywords: ['db', 'database'],
   },
+  [TOKENS_TYPE.POSTGRESQL]: {
+    label: 'PostgreSQL',
+    description:
+      'Get an alert when an attacker uses your PostgreSQL credentials.',
+    documentationLink: '',
+    icon: `${TOKENS_TYPE.POSTGRESQL}.png`,
+    instruction:
+      'Copy this credential pair to your clipboard to use as desired:',
+    howItWorksInstructions: [
+      'We give you a unique PostgreSQL credential pair.',
+      'You place it somewhere.',
+      'We send you an alert if someone tries to authenticate with those credentials.',
+    ],
+    category: TOKEN_CATEGORY.DATABASE,
+    keywords: ['db', 'database', 'postgres', 'postgresql'],
+  },
   [TOKENS_TYPE.AWS_KEYS]: {
     label: 'AWS keys',
     description: 'Get an alert when an attacker uses your AWS API Key.',

@@ -16,6 +16,7 @@ class SwitchboardSettings(BaseSettings):
     CHANNEL_MYSQL_PORT: Port = Port(3306)
     CHANNEL_MTLS_KUBECONFIG_PORT: Port = Port(6443)
     CHANNEL_WIREGUARD_PORT: Port = Port(51820)
+    CHANNEL_POSTGRESQL_PORT: Port = Port(5432)
     SWITCHBOARD_SCHEME: str = "https"
     FORCE_HTTPS: bool = False
     # TODO: Remove this default here and added it where it's used. This is too opinionated.
