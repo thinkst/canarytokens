@@ -40,6 +40,7 @@ export const TOKENS_TYPE = {
   WEBDAV: 'webdav',
   IDP_APP: 'idp_app',
   AWS_INFRA: 'aws_infra',
+  CROWDSTRIKE_CC: 'crowdstrike_cc',
 };
 
 // unique keys to use in the frontend
