@@ -1557,6 +1557,7 @@ class TokenHit(BaseModel):
                 "is_tor_relay",
                 "input_channel",
                 "token_type",
+                "alert_status",
             ),
         )
         if "additional_data" in additional_data:
