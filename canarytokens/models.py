@@ -2770,10 +2770,6 @@ class IPIgnoreListRequest(BaseModel):
         return v
 
 
-class IPIgnoreListResponse(BaseModel):
-    ip_ignore_list: List[IPv4Address]
-
-
 class DeleteResponse(BaseModel):
     message: Literal["success", "failure"]
 

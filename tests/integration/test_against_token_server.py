@@ -631,15 +631,15 @@ def test_ip_ignored_token_hit(webhook_receiver):
     resp.raise_for_status()
 
     # check that the ignore list was set
-    ip_list_resp = requests.get(
-        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
+    manage_resp = requests.get(
+        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/manage",
         params={
             "token": token_data["token"],
             "auth": token_data["auth_token"],
         },
     )
-    ip_list_resp.raise_for_status()
-    assert ip_list_resp.json().get("ip_ignore_list") == ip_ignore_list
+    manage_resp.raise_for_status()
+    assert manage_resp.json()["canarydrop"]["alert_ignored_ips"] == ip_ignore_list
 
     # trigger the token
     resp = trigger_http_token(
