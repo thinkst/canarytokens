@@ -52,6 +52,6 @@ def delete_crowdstrike_key(
         )
         resp.raise_for_status()
         return True
-    except Exception as e:
-        logging.error(f"Failed to delete CrowdStrike CC key: {e}")
+    except Exception:
+        logging.exception(f"Failed to delete CrowdStrike CC key")
         return False
