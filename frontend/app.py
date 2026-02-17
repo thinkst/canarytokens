@@ -2216,17 +2216,10 @@ def _create_crowdstrike_cc_token_response(
             status_code=400,
         )
 
-    try:
         key = get_crowdstrike_key(
             token=canarydrop.canarytoken,
             server=get_all_canary_domains()[0],
             crowdstrike_url=settings.CROWDSTRIKE_CC_CREATE_URL,
-        )
-    except Exception as e:
-        capture_exception(error=e, context=("get_crowdstrike_key", None))
-        return response_error(
-            4,
-            message="Failed to generate CrowdStrike CC credentials. We are looking into it.",
         )
 
     canarydrop.crowdstrike_token_id = key["token_id"]
