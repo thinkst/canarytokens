@@ -1,7 +1,7 @@
 <template>
   <ul class="flex flex-col gap-8">
   <AssetCard
-    v-for="(asset, index) of props.assetData"
+    v-for="(asset, index) of normalizedAssetData"
     :key="`${index}-${props.assetType}`"
     :asset-data="asset"
     :asset-type="assetType as AssetTypesEnum"
@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ComputedRef } from 'vue';
+import { computed, type ComputedRef } from 'vue';
 import type { AssetData } from '../types';
 import AssetCard from '@/components/tokens/aws_infra/plan_generator/AssetCard.vue';
 import { AssetTypesEnum } from '@/components/tokens/aws_infra/constants.ts';
@@ -27,6 +27,14 @@ const props = defineProps<{
   // AssetType[] is used to ensure type safety in the template
   assetData: AssetData[] | ComputedRef<AssetData[] | null>;
 }>();
+
+const normalizedAssetData = computed(() => {
+  const data = props.assetData;
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.value || [];
+});
 
 const emit = defineEmits(['show-asset-details', 'delete-asset']);
 
