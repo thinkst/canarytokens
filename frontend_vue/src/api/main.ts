@@ -58,11 +58,6 @@ export function settingsToken(params: SettingsTokenType) {
   return axios.post(url, params).then((response) => response);
 }
 
-export function getIPIgnoreList(params: TokenAuthType) {
-  const url = '/d3aece8093b71007b5ccfedad91ebb11/settings/ip-ignore-list';
-  return axios.get(url, { params }).then((response) => response);
-}
-
 export function updateIPIgnoreList(params: UpdateIPIgnoreListType) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/settings/ip-ignore-list';
   return axios.post(url, params).then((response) => response);

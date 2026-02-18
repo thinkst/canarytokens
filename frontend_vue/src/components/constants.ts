@@ -68,7 +68,7 @@ export const GET_SETTINGS_BACKEND_TYPE = {
   WEB_HOOK: 'alert_webhook_enabled',
   BROWSER_SCANNER: 'browser_scanner_enabled',
   WEB_IMAGE: 'web_image_enabled',
-  IP_IGNORE: 'ip_ignore_enabled',
+  IP_IGNORE: 'alert_ip_ignore_enabled',
 };
 
 export const INCIDENT_LIST_EXPORT = {
