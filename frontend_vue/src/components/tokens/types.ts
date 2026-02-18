@@ -36,6 +36,8 @@ type CanaryDropType = {
   alert_webhook_enabled: boolean;
   alert_webhook_url: string;
   alert_failure_count: string;
+  alert_ip_ignore_enabled: boolean;
+  alert_ignored_ips: string[];
   web_image_enabled: boolean;
   web_image_path: string;
   redirect_url: string;
