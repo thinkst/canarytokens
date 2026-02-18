@@ -486,4 +486,20 @@ export const tokenServices: TokenServicesType = {
     category: [TOKEN_CATEGORY.CLOUD, TOKEN_CATEGORY.PHISHING],
     keywords: [],
   },
+  [TOKENS_TYPE.SVG]: {
+    label: 'SVG Image',
+    description:
+      'Get an alert when an attacker loads an SVG file.',
+    documentationLink: 'https://docs.canarytokens.org/guide/svg-href-token.html',
+    icon: `${TOKENS_TYPE.SVG}.png`,
+    instruction:
+      'Use these details to create an app in your Identity Provider.',
+    howItWorksInstructions: [
+      'We give you an SVG image.',
+      'You embed it somewhere.',
+      'We send you an alert if the image gets loaded.',
+    ],
+    category: [TOKEN_CATEGORY.OTHER, TOKEN_CATEGORY.PHISHING],
+    keywords: [],
+  },
 };

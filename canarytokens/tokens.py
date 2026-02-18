@@ -751,6 +751,18 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_svg(request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        return http_general_info, {}
+
+    @staticmethod
+    def _get_response_for_svg(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_qr_code(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         return http_general_info, {"useragent": http_general_info["useragent"]}

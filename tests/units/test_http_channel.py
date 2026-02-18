@@ -31,6 +31,7 @@ switchboard = Switchboard()
     "token_type",
     [
         TokenTypes.FAST_REDIRECT,
+        TokenTypes.SVG,
         TokenTypes.WEB,
         TokenTypes.WEB_IMAGE,
     ],

@@ -117,10 +117,14 @@ from canarytokens.models import (
     DownloadCSSClonedWebResponse,
     CMDTokenRequest,
     CMDTokenResponse,
+    DownloadSVGRequest,
+    DownloadSVGResponse,
     FetchLinksMessage,
     FetchLinksRequest,
     FetchLinksResponse,
     IPIgnoreListRequest,
+    SVGTokenRequest,
+    SVGTokenResponse,
     WindowsFakeFSTokenRequest,
     WindowsFakeFSTokenResponse,
     CreditCardV2TokenRequest,
@@ -961,17 +965,26 @@ async def api_generate(  # noqa: C901  # gen is large
             else None
         ),
     )
-    page = None
-    if token_request_details.token_type == TokenTypes.PWA:
-        page = "index.html"
-    elif token_request_details.token_type == TokenTypes.IDP_APP:
-        page = "saml/sso"
+
+    path_override = None
+    suffix_override = None
+    match token_request_details.token_type:
+        case TokenTypes.PWA:
+            suffix_override = "/index.html"
+        case TokenTypes.IDP_APP:
+            path_override = []
+            suffix_override = "/saml/sso"
+        case TokenTypes.SVG:
+            path_override = ["static", "images"]
+            suffix_override = ".gif"
+        case _:
+            pass
 
     # add generate random hostname an token
     canarydrop.get_url(
         canary_domains=[canary_http_channel],
-        page=page,
-        use_path_elements=(token_request_details.token_type != TokenTypes.IDP_APP),
+        suffix_override=suffix_override,
+        path_override=path_override,
     )
     if token_request_details.token_type in [
         TokenTypes.IDP_APP,
@@ -1857,6 +1870,17 @@ def _(
     )
 
 
+@create_download_response.register
+def _(download_request_details: DownloadSVGRequest, canarydrop: Canarydrop) -> Response:
+
+    return DownloadSVGResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=canarydrop.svg,
+        filename=f"{canarydrop.canarytoken.value()}.svg",
+    )
+
+
 @singledispatch
 def create_response(token_request_details, canarydrop: Canarydrop):
     """"""
@@ -2714,4 +2738,23 @@ def _(
         aws_region=canarydrop.aws_region,
         tf_module_prefix=canarydrop.aws_tf_module_prefix,
         ingesting=False,  # TODO: remove
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: SVGTokenRequest, canarydrop: Canarydrop
+) -> SVGTokenResponse:
+    canarydrop.svg = canarydrop.generate_svg()
+    save_canarydrop(canarydrop)
+
+    return SVGTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        svg=canarydrop.svg,
     )

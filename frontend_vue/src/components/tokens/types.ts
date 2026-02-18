@@ -89,6 +89,7 @@ type CanaryDropType = {
   webdav_server: string;
   idp_app_entity_id: string | null;
   idp_app_type: string | null;
+  svg: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -169,6 +170,7 @@ export type NewTokenBackendType = {
   webdav_server: string | null;
   entity_id: string | null;
   app_type: string | null;
+  svg: string | null;
 };
 
 export type AsnType = {

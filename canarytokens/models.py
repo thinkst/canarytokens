@@ -247,6 +247,7 @@ class TokenTypes(StrEnum):
     SLACK_API = "slack_api"
     LEGACY = "legacy"
     AWS_INFRA = "aws_infra"
+    SVG = "svg"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -296,6 +297,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.LEGACY: "Legacy",
     TokenTypes.IDP_APP: "SAML2 IdP App",
     TokenTypes.AWS_INFRA: "AWS Infrastructure",
+    TokenTypes.SVG: "SVG",
 }
 
 GeneralHistoryTokenType = Literal[
@@ -834,6 +836,10 @@ class AWSInfraTokenRequest(TokenRequest):
     aws_region: str
 
 
+class SVGTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
+
+
 AnyTokenRequest = Annotated[
     Union[
         CCTokenRequest,
@@ -866,6 +872,7 @@ AnyTokenRequest = Annotated[
         CreditCardV2TokenRequest,
         IdPAppTokenRequest,
         AWSInfraTokenRequest,
+        SVGTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1203,6 +1210,11 @@ class AWSInfraTokenResponse(TokenResponse):
     ingesting: bool  # TODO: remove
 
 
+class SVGTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
+    svg: str
+
+
 AnyTokenResponse = Annotated[
     Union[
         CCTokenResponse,
@@ -1245,6 +1257,7 @@ AnyTokenResponse = Annotated[
         CreditCardV2TokenResponse,
         IdPAppTokenResponse,
         AWSInfraTokenResponse,
+        SVGTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -1933,6 +1946,16 @@ class AWSInfraTokenHit(TokenHit):
         return json_safe_dict(self, exclude=("token_type", "time_of_hit"))
 
 
+class SVGTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
+    request_headers: Optional[dict]
+    request_args: Optional[dict]
+    additional_info: AdditionalInfo = AdditionalInfo()
+
+    class Config:
+        allow_population_by_field_name = True
+
+
 AnyTokenHit = Annotated[
     Union[
         CCTokenHit,
@@ -1968,6 +1991,7 @@ AnyTokenHit = Annotated[
         CreditCardV2TokenHit,
         IdPAppTokenHit,
         AWSInfraTokenHit,
+        SVGTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2203,6 +2227,11 @@ class AWSInfraTokenHistory(TokenHistory[AWSInfraTokenHit]):
     hits: List[AWSInfraTokenHit] = []
 
 
+class SVGTokenHistory(TokenHistory[SVGTokenHit]):
+    token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
+    hits: List[SVGTokenHit]
+
+
 # AnyTokenHistory is used to type annotate functions that
 # handle any token history. It makes use of an annotated type
 # that discriminates on `token_type` so pydantic can parse
@@ -2242,6 +2271,7 @@ AnyTokenHistory = Annotated[
         CreditCardV2TokenHistory,
         IdPAppTokenHistory,
         AWSInfraTokenHistory,
+        SVGTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
@@ -2373,6 +2403,7 @@ class DownloadFmtTypes(StrEnum):
     CC = "cc"
     CSSCLONEDSITE = "cssclonedsite"
     CREDIT_CARD_V2 = "credit_card_v2"
+    SVG = "svg"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2391,6 +2422,7 @@ class DownloadContentTypes(StrEnum):
     APPPDF = "application/pdf"
     TEXTPLAIN = "text/plain"
     IMAGE = "image/png"
+    SVG = "image/svg+xml"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -2475,6 +2507,10 @@ class DownloadCreditCardV2Request(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.CREDIT_CARD_V2] = DownloadFmtTypes.CREDIT_CARD_V2
 
 
+class DownloadSVGRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.SVG] = DownloadFmtTypes.SVG
+
+
 AnyDownloadRequest = Annotated[
     Union[
         DownloadAWSKeysRequest,
@@ -2495,6 +2531,7 @@ AnyDownloadRequest = Annotated[
         DownloadZipRequest,
         DownloadQRCodeRequest,
         DownloadCreditCardV2Request,
+        DownloadSVGRequest,
     ],
     Field(discriminator="fmt"),
 ]
@@ -2675,6 +2712,13 @@ class DownloadCreditCardV2Response(TokenDownloadResponse):
         DownloadContentTypes.TEXTPLAIN
     )
     filename: str = "credit_card"
+    token: str
+    auth: str
+
+
+class DownloadSVGResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.SVG] = DownloadContentTypes.SVG
+    filename: str
     token: str
     auth: str
 

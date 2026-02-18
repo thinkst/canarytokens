@@ -205,6 +205,8 @@ class Canarydrop(BaseModel):
     idp_app_entity_id: Optional[str]
     idp_app_type: Optional[IdPAppType]
 
+    svg: Optional[str]
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """
@@ -361,8 +363,8 @@ class Canarydrop(BaseModel):
     def generate_random_url(
         self,
         canary_domains: list[str],
-        page: Optional[str] = None,
-        use_path_elements: bool = True,
+        path_override: Optional[list[str]] = None,
+        suffix_override: Optional[str] = None,
         skip_cache: bool = False,
     ) -> str:
         """
@@ -375,16 +377,20 @@ class Canarydrop(BaseModel):
             return self.generated_url
         (path_elements, pages) = self.get_url_components()
 
-        path = []
-        if use_path_elements:
+        generated_url = random.choice(canary_domains) + "/"
+        if path_override is not None:
+            path = path_override
+        else:
             path = random.sample(
                 path_elements, random.randint(1, min(3, len(path_elements)))
             )
         path.append(self.canarytoken.value())
-        path.append(random.choice(pages) if page is None else page)
 
-        generated_url = random.choice(canary_domains) + "/"
         generated_url += "/".join(path)
+        if suffix_override is not None:
+            generated_url += suffix_override
+        else:
+            generated_url += f"/{random.choice(pages)}"
         # cache
         if not skip_cache:
             self.generated_url = generated_url
@@ -393,10 +399,10 @@ class Canarydrop(BaseModel):
     def get_url(
         self,
         canary_domains: list[str],
-        page: Optional[str] = None,
-        use_path_elements: Optional[bool] = True,
+        path_override: Optional[list[str]] = None,
+        suffix_override: Optional[str] = None,
     ):
-        return self.generate_random_url(canary_domains, page, use_path_elements)
+        return self.generate_random_url(canary_domains, path_override, suffix_override)
 
     def generate_random_hostname(self, with_random=False, nxdomain=False):
         """
@@ -517,6 +523,15 @@ class Canarydrop(BaseModel):
 
     def get_kubeconfig(self):
         return self.kubeconfig
+
+    def generate_svg(self):
+        return textwrap.dedent(
+            f"""
+                <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
+                  <image href="{self.generated_url}" x="0" y="0" height="0" width="0" />
+                </svg>
+                """
+        ).strip()
 
     def get_requested_output_channels(
         self,

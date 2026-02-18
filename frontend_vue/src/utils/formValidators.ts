@@ -244,8 +244,8 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
       windows_fake_fs_root: Yup.string()
-        .required('A file path is required')
-        .matches(/^[a-zA-Z]:(\\[a-zA-Z0-9_.-]+)+\\?$/, 'Invalid file path'),
+      .required('A file path is required')
+      .matches(/^[a-zA-Z]:(\\[a-zA-Z0-9_.-]+)+\\?$/, 'Invalid file path'),
       windows_fake_fs_file_structure: Yup.string().required(
         'A file structure is required'
       ),
@@ -263,13 +263,16 @@ export const formValidators: ValidateSchemaType = {
       ...validationNotificationSettings,
       aws_region: Yup.string().required('AWS region is required'),
       aws_account_number: Yup.string()
-        .required('AWS account number is required')
-        .matches(/^\d+$/, 'AWS account must be a number')
-        .test(
-          'len',
-          'AWS account number must have 12 digits',
-          (val) => val.length === 12
-        ),
+      .required('AWS account number is required')
+      .matches(/^\d+$/, 'AWS account must be a number')
+      .test(
+        'len',
+        'AWS account number must have 12 digits',
+        (val) => val.length === 12
+      ),
     }),
+  },
+  [TOKENS_TYPE.SVG]: {
+    schema: Yup.object().shape(validationNotificationSettings),
   },
 };
