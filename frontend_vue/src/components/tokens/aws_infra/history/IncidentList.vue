@@ -12,7 +12,7 @@
       <IncidentCardAsset
         v-for="(group, index) in groupedIncidentsList"
         :key="group[0].time_of_hit"
-        :last-key="index === Object.values(groupedIncidentsList).length - 1"
+        :last-key="Number(index) === Object.values(groupedIncidentsList).length - 1"
         :asset-preview-info="getAssetPreviewInfo(group[0])"
         :asset-type="getAssetType(group[0])"
         @click="handleSelectAssetGroup(group[0])"

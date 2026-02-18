@@ -1,10 +1,12 @@
 from typing import Sequence
 
+import json
 import pytest
+import io
+import ipaddress
 from pydantic import EmailStr
 from twisted.internet.address import IPv4Address
 from twisted.web.http import Request
-from twisted.web.http_headers import Headers
 from twisted.web.test.requesthelper import DummyChannel
 from twisted.web.test.test_web import DummyRequest
 
@@ -13,9 +15,10 @@ from canarytokens.awskeys import get_aws_key
 from canarytokens.channel_http import ChannelHTTP
 from canarytokens.models import (
     AWSKeyTokenHistory,
-    CCTokenHistory,
-    CreditCard,
+    AlertStatus,
     TokenTypes,
+    CreditCardV2TokenHit,
+    CreditCardV2TokenHistory,
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
@@ -378,11 +381,36 @@ def test_POST_aws_token_back(
     assert cd.type == cd_updated.type
 
 
-def test_GET_cc_token_back(
+@pytest.mark.parametrize(
+    "trigger_type,webhook_data_extra",
+    [
+        (
+            "issuing.transaction.failed",
+            {
+                "transaction_date": "2025-02-03T00:42:00Z",
+                "transaction_type": "PURCHASE",
+                "status": "DECLINED",
+            },
+        ),
+        (
+            "issuing.3ds_notification.stepup_otp",
+            {},
+        ),
+    ],
+)
+def test_POST_cc_token_v2_back(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
     setup_db: None,
+    trigger_type: str,
+    webhook_data_extra: dict,
 ):
+    """
+    Test the v2 credit card token webhook. Verifies that transaction data
+    is captured correctly in the token alert for both transaction failure and 3DS
+    notification webhooks.
+    """
+
     http_channel = ChannelHTTP(
         frontend_settings=frontend_settings,
         switchboard_settings=settings,
@@ -390,79 +418,73 @@ def test_GET_cc_token_back(
     )
 
     canarytoken = Canarytoken()
-    cc = CreditCard(
-        id="vc_1234",
-        number="370012340001234",
-        name="Bob Smith",
-        billing_zip=10210,
-        address="some billing address",
-    )
 
     cd = canarydrop.Canarydrop(
-        type=TokenTypes.CC,
-        triggered_details=CCTokenHistory(),
+        type=TokenTypes.CREDIT_CARD_V2,
+        triggered_details=CreditCardV2TokenHistory(),
         alert_email_enabled=False,
         alert_email_recipient=EmailStr("email@test.com"),
         alert_webhook_enabled=False,
         alert_webhook_url=None,
         canarytoken=canarytoken,
         memo="memo",
-        cc_id=cc.id,
-        cc_kind=cc.kind,
-        cc_number=cc.number,
-        cc_cvc=cc.cvc,
-        cc_expiration=cc.expiration,
-        cc_name=cc.name,
-        cc_billing_zip=cc.billing_zip,
-        cc_address=cc.address,
-        cc_rendered_html=cc.render_html(),
     )
     queries.save_canarydrop(cd)
 
-    # stripped down version of the data we get from Extend
-    resp = {
-        "transaction": {
-            "virtualCardId": cc.id,
-            "vcnLast4": cc.number[-4:],
-            "authMerchantAmountCents": "639",
-            "merchantName": "ACME Airline Co.",
-        }
-    }
-    # mimic the processing done on the above
-    txn = resp.get("transaction")
-    last4 = txn.get("vcnLast4", "")
-    amount = "{:.2f}".format(int(txn.get("authMerchantAmountCents", "0")) / 100)
-    merchant = txn.get("merchantName", "")
+    webhook_url = cd.get_url(
+        [f"{frontend_settings.DOMAINS[0]}:{settings.CHANNEL_HTTP_PORT}"]
+    )
 
-    vc_info = {
-        "virtualCard": {
-            "id": cc.id,
-            "last4": cc.number[-4:],
-            "notes": cd.get_url(
-                [f"{frontend_settings.DOMAINS[0]}:{settings.CHANNEL_HTTP_PORT}"]
-            ),
-        }
+    merchant_identifier = "MID123456789"
+    merchant_name = "ACME Airline Co."
+    merchant_city = "New York"
+    merchant_country = "US"
+    masked_card = "**** **** **** 1234"
+    amount = "6.39"
+    currency = "USD"
+
+    webhook_data = {
+        "trigger_type": trigger_type,
+        "canarytoken": canarytoken.value(),
+        "masked_card_number": masked_card,
+        "transaction_amount": amount,
+        "transaction_currency": currency,
+        "merchant_detail": {
+            "identifier": merchant_identifier,
+            "name": merchant_name,
+            "city": merchant_city,
+            "country": merchant_country,
+        },
+        **webhook_data_extra,
     }
 
     request = Request(channel=DummyChannel())
-    request.args = {}
-    request.uri = vc_info["virtualCard"].get("notes").encode()
+    request.uri = webhook_url.encode()
     request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
-    headers = {
-        "Type": ["Credit Card"],
-        "Last4": [last4],
-        "Amount": [amount],
-        "Merchant": [merchant],
-    }
-    request.requestHeaders = Headers(headers)
-    request.method = b"GET"
+    request.method = b"POST"
+    request.content = io.BytesIO(json.dumps(webhook_data).encode())
+
     http_channel.site.resource.render(request)
 
     cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
-
     assert cd_updated is not None
     assert len(cd_updated.triggered_details.hits) == 1
     assert cd.type == cd_updated.type
+
+    hit = cd_updated.triggered_details.hits[0]
+    assert isinstance(hit, CreditCardV2TokenHit)
+    hit_info = hit.additional_info
+
+    assert hit_info.merchant_identifier == merchant_identifier
+    assert hit_info.masked_card_number == masked_card
+    assert hit_info.transaction_amount == amount
+    assert hit_info.transaction_currency == currency
+    assert hit_info.merchant == f"{merchant_name}, {merchant_city}, {merchant_country}"
+
+    if trigger_type == "issuing.transaction.failed":
+        assert hit_info.transaction_date == webhook_data_extra["transaction_date"]
+        assert hit_info.transaction_type == webhook_data_extra["transaction_type"]
+        assert hit_info.status == webhook_data_extra["status"]
 
 
 def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
@@ -498,3 +520,65 @@ def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
     assert isinstance(resp, bytes), "HTTP Channel did not return bytes"
     cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
     assert len(cd_updated.triggered_details.hits) == 1
+
+
+@pytest.mark.parametrize("method", ["GET", "POST"])
+def test_channel_http_ignored_ip(setup_db, http_channel, method):
+    """
+    Test ignored IPs on canarytokens http channel.
+    """
+    cd = create_canarydrop(token_type=TokenTypes.WEB)
+
+    cd.alert_ip_ignore_enabled = True
+    cd.set_ignored_ip_addresses(ip_addresses=[ipaddress.IPv4Address("127.0.0.1")])
+
+    request = create_dummy_request(cd)
+    render_method = getattr(http_channel.canarytoken_page, f"render_{method}")
+    render_method(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd_updated.triggered_details.hits[0].alert_status == AlertStatus.IGNORED_IP
+
+
+def create_canarydrop(token_type="web") -> canarydrop.Canarydrop:
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_type,
+        generate=True,
+        alert_email_enabled=False,
+        alert_email_recipient="email@test.com",
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+    )
+
+    queries.save_canarydrop(cd)
+    return cd
+
+
+def delete_canarydrop(cd: canarydrop.Canarydrop) -> None:
+    queries.delete_canarydrop(canarydrop=cd)
+
+
+def create_dummy_request(cd: canarydrop.Canarydrop) -> DummyRequest:
+    client = IPv4Address(type="TCP", host="127.0.0.1", port=8686)
+    request = DummyRequest("/")
+    request.client = client
+    request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
+    request.path = request.uri[request.uri.index(b"/", 8) :]  # noqa: E203
+    return request
+
+
+@pytest.fixture(scope="module")
+def http_channel(
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+) -> ChannelHTTP:
+    http_channel = ChannelHTTP(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+    return http_channel
