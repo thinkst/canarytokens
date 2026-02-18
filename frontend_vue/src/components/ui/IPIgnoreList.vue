@@ -13,18 +13,19 @@
           {{ errorMessage }}
         </p>
       </Field>
-      <BaseButton v-if="!isSaved" class="self-end" variant="primary" type="submit" :loading="isLoading">
+      <BaseButton v-if="!isSaved" class="self-end" variant="primary" type="submit" :loading="isLoading" :disabled="hasValidationError">
         Save
       </BaseButton>
     </form>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import * as Yup from 'yup';
 import type { NullableCanaryDropType } from '../tokens/types';
 import { Field, type GenericObject, useForm } from 'vee-validate';
 import { updateIPIgnoreList, type UpdateIPIgnoreListType} from '@/api/main';
+import { Address4 } from 'ip-address';
 
 const props = defineProps<{
   canaryDrop: NullableCanaryDropType;
@@ -34,9 +35,6 @@ const isLoading = ref(false);
 const isError = ref(false);
 const isSaved = ref(true);
 const errorMessage = ref('');
-
-const ipv4Regex =
-  /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
 
 const ipListSchema = Yup.object({
   ipAddresses: Yup.array()
@@ -48,15 +46,27 @@ const ipListSchema = Yup.object({
         .map(ip => ip.replace(/\s+/g, ''))
         .filter(ip => ip.length > 0)
     })
-    .max(100, 'You can ignore at most 100 IP addresses.')
+    .max(100, 'You can ignore at most 100 IP addresses')
     .of(
-      Yup.string().matches(ipv4Regex, 'Must use valid IPv4 addresses with a single IP address per line')
+      Yup.string()
+        .test('is-ipv4', 'IP addresses must be valid IPv4 addresses separated by new lines', (value) => {
+          if (!value) return true;
+          return Address4.isValid(value);
+        })
+        .test('is-not-cidr', 'CIDR notation is not allowed', (value) => {
+          if (!value) return true;
+          return !value.includes('/');
+        })
     )
 });
 
-const { resetForm, handleSubmit } = useForm({
+const { resetForm, handleSubmit, errors } = useForm({
   validationSchema: ipListSchema,
   initialValues: { ipAddresses: '' },
+});
+
+const hasValidationError = computed(() => {
+  return Object.keys(errors.value).length > 0;
 });
 
 const submit = handleSubmit(onSubmit);

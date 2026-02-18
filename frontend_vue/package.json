@@ -26,6 +26,7 @@
     "canvas-confetti": "^1.9.3",
     "eslint-config-typescript": "^3.0.0",
     "floating-vue": "^5.2.2",
+    "ip-address": "^10.1.0",
     "vee-validate": "^4.12.6",
     "vue": "^3.5.8",
     "vue-final-modal": "^4.5.4",
