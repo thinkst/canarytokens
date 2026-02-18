@@ -6,6 +6,7 @@ exclude: >
       .devcontainer/devcontainer.json
   )
 fail_fast: true
+minimum_pre_commit_version: '3.2.0'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

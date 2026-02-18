@@ -38,6 +38,7 @@ from canarytokens.models import (
     DownloadMySQLRequest,
     DownloadPDFRequest,
     DownloadQRCodeRequest,
+    DownloadSVGRequest,
     DownloadZipRequest,
     EmailSettingsRequest,
     HistoryPageRequest,
@@ -58,6 +59,8 @@ from canarytokens.models import (
     PDFTokenResponse,
     QRCodeTokenRequest,
     QRCodeTokenResponse,
+    SVGTokenRequest,
+    SVGTokenResponse,
     TokenTypes,
     WebBugTokenRequest,
     WebhookSettingsRequest,
@@ -313,6 +316,7 @@ def test_download_canarydrop_csv_details(
         # (CCTokenRequest, CCTokenResponse, DownloadCCRequest),
         (KubeconfigTokenRequest, KubeconfigTokenResponse, DownloadKubeconfigRequest),
         (QRCodeTokenRequest, QRCodeTokenResponse, DownloadQRCodeRequest),
+        (SVGTokenRequest, SVGTokenResponse, DownloadSVGRequest),
     ],
 )
 def test_token_download_requests(

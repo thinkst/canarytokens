@@ -96,6 +96,7 @@ type CanaryDropType = {
   crowdstrike_client_id: string;
   crowdstrike_client_secret: string;
   crowdstrike_base_url: string;
+  svg: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -178,6 +179,7 @@ export type NewTokenBackendType = {
   app_type: string | null;
   client_secret: string | null;
   base_url: string | null;
+  svg: string | null;
 };
 
 export type AsnType = {
