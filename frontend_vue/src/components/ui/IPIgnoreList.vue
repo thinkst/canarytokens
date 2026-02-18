@@ -83,7 +83,7 @@ async function onSubmit(ipListValues: GenericObject) {
   isLoading.value = true;
   isError.value = false;
   try {
-    const ipList = ipListSchema.cast(ipListValues).ipAddresses as string[];
+    const ipList = [...new Set(ipListSchema.cast(ipListValues).ipAddresses as string[])];
     const res = await updateIPIgnoreList(
       {
         token: props.canaryDrop!.canarytoken._value,
