@@ -70,7 +70,7 @@ from canarytokens.models import (
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
-from tests.utils import create_token, get_basic_hit, get_token_request
+from tests.utils import get_basic_hit, get_token_request
 from frontend.app import ROOT_API_ENDPOINT
 
 
@@ -1005,7 +1005,11 @@ def test_add_ip_ignore_list(
     test_client: TestClient,
     setup_db: None,
 ) -> None:
-    token_resp = create_token(get_token_request(WebBugTokenRequest))
+    token_request = get_token_request(WebBugTokenRequest)
+    token_resp = test_client.post(
+        "/generate",
+        data=token_request.json(),
+    ).json()
     data = {
         "token": token_resp["token"],
         "auth": token_resp["auth_token"],
