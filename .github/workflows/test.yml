@@ -6,6 +6,9 @@ on:
       - "master"
       - "dev"
       - "dev2"
+  pull_request:
+    branches:
+      - "master"
 
   workflow_dispatch:
     inputs:
