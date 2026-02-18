@@ -39,6 +39,7 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
+    IGNORABLE_IP_TOKENS,
     AWSInfraState,
     Anonymous,
     AnySettingsRequest,
@@ -48,6 +49,7 @@ from canarytokens.models import (
     AnyTokenExposedHit,
     BrowserScannerSettingsRequest,
     EmailSettingsRequest,
+    IPIgnoreSettingsRequest,
     IdPAppType,
     PWAType,
     TokenTypes,
@@ -109,6 +111,8 @@ class Canarydrop(BaseModel):
     alert_webhook_enabled: bool = False
     alert_webhook_url: Optional[str]
     alert_failure_count: Optional[int]
+
+    alert_ip_ignore_enabled: bool = False
     alert_ignored_ips: list[IPv4Address] = []
 
     # web image specific stuff
@@ -297,19 +301,27 @@ class Canarydrop(BaseModel):
         Returns:
             bool: True if a supported setting. False otherwise.
         """
-        if isinstance(setting_request, EmailSettingsRequest):
-            self.alert_email_enabled = setting_request.value == "on"
-        elif isinstance(setting_request, WebImageSettingsRequest):
-            self.web_image_enabled = setting_request.value == "on"
-        elif isinstance(setting_request, WebhookSettingsRequest):
-            self.alert_webhook_enabled = setting_request.value == "on"
-        elif isinstance(setting_request, BrowserScannerSettingsRequest):
-            self.browser_scanner_enabled = setting_request.value == "on"
-        else:
-            logger.error(
-                f"Canarydrops cannot apply a settings change for: {setting_request}"
-            )
-            return False
+        match setting_request:
+            case EmailSettingsRequest():
+                self.alert_email_enabled = setting_request.value == "on"
+            case WebImageSettingsRequest():
+                self.web_image_enabled = setting_request.value == "on"
+            case WebhookSettingsRequest():
+                self.alert_webhook_enabled = setting_request.value == "on"
+            case BrowserScannerSettingsRequest():
+                self.browser_scanner_enabled = setting_request.value == "on"
+            case IPIgnoreSettingsRequest():
+                if self.type not in IGNORABLE_IP_TOKENS:
+                    logger.debug(
+                        f"Canarytoken of type {self.type} does not support IP ignoring."
+                    )
+                    return False
+                self.alert_ip_ignore_enabled = setting_request.value == "on"
+            case _:
+                logger.error(
+                    f"Canarydrops cannot apply a settings change for: {setting_request}"
+                )
+                return False
         queries.save_canarydrop(self)
         return True
 
@@ -664,3 +676,6 @@ class Canarydrop(BaseModel):
     def set_ignored_ip_addresses(self, ip_addresses: list[IPv4Address]):
         self.alert_ignored_ips = ip_addresses
         queries.save_canarydrop(self)
+
+    def should_ignore_ip(self, ip_address: IPv4Address) -> bool:
+        return self.alert_ip_ignore_enabled and ip_address in self.alert_ignored_ips
