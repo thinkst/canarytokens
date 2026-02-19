@@ -35,6 +35,7 @@ export default function incidentDetailsService(
     time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
     src_ip: hitAlert.src_ip,
     geo_info: parseGeoInfo(hitAlert),
+    alert_status: hitAlert.alert_status,
   };
 
   switch (tokenType) {
@@ -72,6 +73,7 @@ export default function incidentDetailsService(
         },
         time_of_hit: convertUnixTimeStampToDate(hitAlert.time_of_hit),
         is_tor_relay: null,
+        alert_status: hitAlert.alert_status,
         additional_info: {
           ...hitAlert.additional_info,
           aws_key_log_data: null,

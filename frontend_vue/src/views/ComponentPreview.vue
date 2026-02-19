@@ -240,6 +240,7 @@
           Channel: 'HTTP',
         }"
         incident-id="12345"
+        incident-status="alertable"
       />
     </ul>
   </div>

@@ -116,6 +116,7 @@
             x
             :last-key="index === filteredHitsList.length - 1"
             :incident-id="incident.time_of_hit"
+            :incident-status="incident.alert_status"
             :incident-preview-info="{
               Date: convertUnixTimeStampToDate(incident.time_of_hit),
               IP: incident.src_ip,
