@@ -38,6 +38,7 @@ describe('incidentDetailsService', () => {
       l: null,
     },
     location: null,
+    alert_status: 'alertable',
   };
 
   it('should handle AWS key token', () => {
@@ -134,6 +135,7 @@ describe('incidentDetailsService', () => {
       src_data: null,
       useragent: null,
       token_type: 'credit_card_v2',
+      alert_status: 'alertable',
       additional_info: {
         merchant: 'Amazon.com, New York, United States',
         transaction_amount: '-100',

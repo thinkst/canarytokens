@@ -31,35 +31,37 @@
             <BaseButton
               variant="text"
               icon="filter"
-              @click="showFilterPopup = !showFilterPopup"
+              @click="showAlertFilterPopup = !showAlertFilterPopup"
             ></BaseButton>
             <div
-              v-if="showFilterPopup"
-              class="absolute right-0 top-12 z-20 w-[12em] bg-white border border-grey-200 rounded-lg shadow-lg p-4"
+              v-if="showAlertFilterPopup"
+              class="absolute right-0 top-12 z-20 w-[6em] bg-white border border-grey-200 rounded-lg shadow-lg p-4"
               @click.stop
             >
               <div id="radio-group-action" class="space-y-3">
                 <BaseRadioInput
                   id="all"
                   name="alert-filter"
-                  label="All alerts"
-                  value="all"
-                  checked
-                  @select-value="handleSelectFilter"
+                  label="All"
+                  :value="ALERT_FILTER_OPTIONS.ALL"
+                  :checked="alertFilterOption === ALERT_FILTER_OPTIONS.ALL"
+                  @select-value="handleSelectAlertFilter"
                 />
                 <BaseRadioInput
-                  id="alerted"
+                  id="notified"
                   name="alert-filter"
-                  label="Alerted alerts"
-                  value="alerted"
-                  @select-value="handleSelectFilter"
+                  label="Notified"
+                  value="notified"
+                  :checked="alertFilterOption === 'notified'"
+                  @select-value="handleSelectAlertFilter"
                 />
                 <BaseRadioInput
                   id="ignored"
                   name="alert-filter"
-                  label="Ignored alerts"
+                  label="Ignored"
                   value="ignored"
-                  @select-value="handleSelectFilter"
+                  :checked="alertFilterOption === 'ignored'"
+                  @select-value="handleSelectAlertFilter"
                 />
               </div>
             </div>
@@ -79,6 +81,20 @@
             class="grayscale opacity-50 w-[50%] not-sr-only group-hover:opacity-100 sm:block mt-16"
           />
         </li>
+        <li
+          v-else-if="filteredHitsList.length === 0"
+          class="flex flex-col items-center justify-center flex-grow px-16 py-16 align-middle"
+        >
+          <p class="text-xl text-center text-grey-400">
+            There are no {{ alertFilterOption }} alerts for this Canarytoken.
+          </p>
+          <img
+            :src="getImageUrl(`token_icons/default.png`)"
+            alt="No alerts"
+            class="grayscale opacity-50 w-[50%] not-sr-only group-hover:opacity-100 sm:block mt-16"
+          />
+        </li>
+
         <AlertsListDownload v-else />
         <BaseMessageBox
           v-if="error"
@@ -95,10 +111,10 @@
         </template>
         <template v-else>
           <CardIncident
-            v-for="(incident, index) in hitsList"
+            v-for="(incident, index) in filteredHitsList"
             :key="index"
             x
-            :last-key="index === hitsList.length - 1"
+            :last-key="index === filteredHitsList.length - 1"
             :incident-id="incident.time_of_hit"
             :incident-preview-info="{
               Date: convertUnixTimeStampToDate(incident.time_of_hit),
@@ -115,7 +131,7 @@
     <div>
       <div
         class="@md:relative md:h-[45svh] h-[30svh]"
-        :class="hitsList.length === 0 ? 'hidden sm:grid' : 'grid'"
+        :class="filteredHitsList.length === 0 ? 'hidden sm:grid' : 'grid'"
       >
         <transition name="slide-fade">
           <IncidentDetails
@@ -147,6 +163,7 @@ import {
   shallowRef,
   defineAsyncComponent,
   computed,
+  watch,
 } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -163,7 +180,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import AlertsListDownload from '@/components/ui/AlertsListDownload.vue';
 import { addViewTransition } from '@/utils/utils';
-import { TOKENS_TYPE } from '@/components/constants';
+import { TOKEN_HIT_STATUS, TOKENS_TYPE, ALERT_FILTER_OPTIONS } from '@/components/constants';
 
 const emits = defineEmits(['update-token-title']);
 
@@ -173,16 +190,18 @@ const router = useRouter();
 const isLoading = ref(false);
 const error = ref(false);
 const hitsList: Ref<HitsType[] | undefined> = ref();
+const filteredHitsList: Ref<HitsType[]> = ref([]);
 const selectedAlert = ref();
 const tokenType = ref();
 const dynamicIncidentList = shallowRef();
-const showFilterPopup = ref(false);
-const filterOption = ref('alert-filter-all');
+const showAlertFilterPopup = ref(false);
+const alertFilterOption = ref('all');
 
 const hasCustomIncidentsList = computed(() => {
   const tokensWithCustomIncidentsList = [TOKENS_TYPE.AWS_INFRA];
   return tokensWithCustomIncidentsList.includes(tokenType.value);
 });
+
 
 onMounted(async () => {
   await fetchTokenHistoryData();
@@ -205,6 +224,31 @@ onMounted(async () => {
     }
   }
 });
+
+watch( alertFilterOption, () => {
+  filterTokenHitsList();
+});
+
+watch(hitsList, () => {
+  filterTokenHitsList();
+});
+
+function filterTokenHitsList() {
+  switch (alertFilterOption.value) {
+    case ALERT_FILTER_OPTIONS.ALL:
+      filteredHitsList.value = hitsList.value || [];
+      break;
+    case ALERT_FILTER_OPTIONS.NOTIFIED:
+      filteredHitsList.value = hitsList.value?.filter(
+        (hit) => hit.alert_status === TOKEN_HIT_STATUS.ALERTABLE
+      ) || [];
+      break;
+    case ALERT_FILTER_OPTIONS.IGNORED:
+      filteredHitsList.value = hitsList.value?.filter(
+        (hit) => hit.alert_status === TOKEN_HIT_STATUS.IGNORED_IP
+      ) || [];
+  }
+}
 
 async function fetchTokenHistoryData() {
   isLoading.value = true;
@@ -255,11 +299,11 @@ function showMap(): boolean {
   return !tokensWithoutGeoIPInfo.includes(tokenType.value);
 }
 
-function handleSelectFilter(value: string) {
-  console.log("filter option" + filterOption.value + " " + value);
-
-  filterOption.value = value;
+function handleSelectAlertFilter(value: string) {
+  showAlertFilterPopup.value = false;
+  alertFilterOption.value = value;
 }
+
 </script>
 
 <style>

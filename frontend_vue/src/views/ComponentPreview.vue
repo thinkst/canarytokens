@@ -564,6 +564,7 @@ const alertSample = {
     file_path: '/blah/foo/moo.txt',
   },
   location: null,
+  alert_status: 'alertable',
 };
 </script>
 
