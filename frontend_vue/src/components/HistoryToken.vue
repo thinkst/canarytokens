@@ -82,7 +82,7 @@
           />
         </li>
         <li
-          v-else-if="filteredHitsList.length === 0"
+          v-else-if="filteredHitsList.length === 0 && !hasCustomIncidentsList"
           class="flex flex-col items-center justify-center flex-grow px-16 py-16 align-middle"
         >
           <p class="text-xl text-center text-grey-400">
@@ -106,6 +106,7 @@
           <component
             :is="dynamicIncidentList"
             :hits-list="hitsList"
+            :filter-option="alertFilterOption"
             @select-alert="(incident: HitsType) => handleSelectAlert(incident)"
           />
         </template>

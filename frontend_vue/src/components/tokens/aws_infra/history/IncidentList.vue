@@ -1,6 +1,6 @@
 <template>
   <SelectIncidentType
-    :alerts-list="hitsList"
+    :alerts-list="filteredHitsList"
     @select-option="(value) => handleSelectOption(value)"
   />
   <section
@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, useTemplateRef } from 'vue';
+import { ref, computed, useTemplateRef, watch } from 'vue';
 import SelectIncidentType from '@/components/tokens/aws_infra/history/SelectIncidentType.vue';
 import type {
   HitsType,
@@ -60,6 +60,7 @@ import { getAssetLabel } from '@/components/tokens/aws_infra/plan_generator/asse
 import { convertUnixTimeStampToDate } from '@/utils/utils';
 import IncidentCardAsset from '@/components/tokens/aws_infra/history/IncidentCardAsset.vue';
 import CardIncident from '@/components/ui/CardIncident.vue';
+import { ALERT_FILTER_OPTIONS, TOKEN_HIT_STATUS } from '@/components/constants';
 
 type groupedIncidentsListType = {
   [key: string]: HitsType[];
@@ -69,11 +70,13 @@ const ALL_DECOYS = 'all_decoys';
 
 const props = defineProps<{
   hitsList: HitsType[];
+  filterOption: string;
 }>();
 
 const emits = defineEmits(['select-alert']);
 
 const hitsList: HitsType[] = props.hitsList;
+const filteredHitsList = ref<HitsType[]>(props.hitsList);
 const selectedAssetType = ref(ALL_DECOYS);
 const selectedAssetName = ref('');
 const assetSection = useTemplateRef('asset-section');
@@ -100,14 +103,39 @@ const groupedIncidentsList = computed((): groupedIncidentsListType => {
   return orderedTimeList;
 });
 
+watch(() => props.filterOption, () => {
+  filterTokenHitsList();
+
+  if (selectedAssetName.value) {
+    animateList('', () => {
+    selectedAssetType.value = ALL_DECOYS;
+    selectedAssetName.value = '';
+  });
+  }
+});
+
+function filterTokenHitsList() {
+  switch (props.filterOption) {
+    case ALERT_FILTER_OPTIONS.ALL:
+      filteredHitsList.value = hitsList;
+      break;
+    case ALERT_FILTER_OPTIONS.IGNORED:
+      filteredHitsList.value = hitsList.filter((hit) => hit.alert_status === TOKEN_HIT_STATUS.IGNORED_IP);
+      break;
+    case ALERT_FILTER_OPTIONS.NOTIFIED:
+      filteredHitsList.value = hitsList.filter((hit) => hit.alert_status === TOKEN_HIT_STATUS.ALERTABLE);
+      break;
+  }
+}
+
 function getFilteredIncidentsListByAssetType() {
   return selectedAssetType.value === ALL_DECOYS
-    ? hitsList
-    : hitsList.filter((hit) => getAssetType(hit) === selectedAssetType.value);
+    ? filteredHitsList.value
+    : filteredHitsList.value.filter((hit) => getAssetType(hit) === selectedAssetType.value);
 }
 
 function getFilteredIncidentsListByAssetName() {
-  return hitsList.filter(
+  return filteredHitsList.value.filter(
     (hit) => getAssetName(hit) === selectedAssetName.value
   );
 }
