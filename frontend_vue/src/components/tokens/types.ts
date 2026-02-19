@@ -1,4 +1,4 @@
-import type { TOKEN_HIT_STATUS } from "../constants";
+import type { TOKEN_HIT_STATUS } from '@/components/constants';
 
 export type BaseFormValuesType = {
   email: string;

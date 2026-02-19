@@ -203,7 +203,6 @@ const hasCustomIncidentsList = computed(() => {
   return tokensWithCustomIncidentsList.includes(tokenType.value);
 });
 
-
 onMounted(async () => {
   await fetchTokenHistoryData();
 

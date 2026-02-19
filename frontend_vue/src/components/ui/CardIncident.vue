@@ -56,8 +56,8 @@
 
 <script setup lang="ts">
 import AlertShieldIcon from '@/components/icons/AlertShieldIcon.vue';
-import { TOKEN_HIT_STATUS } from '../constants';
-import IgnoredAlertShieldIcon from '../icons/IgnoredAlertShieldIcon.vue';
+import { TOKEN_HIT_STATUS } from '@/components/constants';
+import IgnoredAlertShieldIcon from '@/components/icons/IgnoredAlertShieldIcon.vue';
 
 type incidentPreviewInfoType = {
   [key: string]: string | Date | null;

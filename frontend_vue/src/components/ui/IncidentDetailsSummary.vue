@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { TOKEN_HIT_STATUS } from '../constants';
+import { TOKEN_HIT_STATUS } from '@/components/constants';
 
 defineProps<{
   date: string | number;
