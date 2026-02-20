@@ -8,7 +8,7 @@
       :id="id"
       type="radio"
       :name="name"
-      @click="handleChangeOption"
+      @change="handleChangeOption"
       @keydown="handleKeyDown"
     />
     {{ label }}</label

@@ -1,5 +1,5 @@
 <template>
-    <div class="relative">
+    <div v-clickaway="handleClickAway" class="relative">
             <BaseButton
               ref="filterButton"
               variant="text"
@@ -11,7 +11,6 @@
             ></BaseButton>
             <div
               v-if="showAlertFilterPopup"
-              v-clickaway="handleClickAway"
               class="absolute right-0 top-12 z-20 bg-white border border-grey-200 rounded-lg shadow-lg p-16"
               role="dialog"
               @click.stop
