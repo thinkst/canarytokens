@@ -27,45 +27,7 @@
       <ul class="flex flex-col h-full gap-16 pb-16">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
-          <div class="relative">
-            <BaseButton
-              variant="text"
-              icon="filter"
-              @click="showAlertFilterPopup = !showAlertFilterPopup"
-            ></BaseButton>
-            <div
-              v-if="showAlertFilterPopup"
-              class="absolute right-0 top-12 z-20 w-[6em] bg-white border border-grey-200 rounded-lg shadow-lg p-4"
-              @click.stop
-            >
-              <div id="radio-group-action" class="space-y-3">
-                <BaseRadioInput
-                  id="all"
-                  name="alert-filter"
-                  label="All"
-                  :value="ALERT_FILTER_OPTIONS.ALL"
-                  :checked="alertFilterOption === ALERT_FILTER_OPTIONS.ALL"
-                  @select-value="handleSelectAlertFilter"
-                />
-                <BaseRadioInput
-                  id="notified"
-                  name="alert-filter"
-                  label="Notified"
-                  value="notified"
-                  :checked="alertFilterOption === 'notified'"
-                  @select-value="handleSelectAlertFilter"
-                />
-                <BaseRadioInput
-                  id="ignored"
-                  name="alert-filter"
-                  label="Ignored"
-                  value="ignored"
-                  :checked="alertFilterOption === 'ignored'"
-                  @select-value="handleSelectAlertFilter"
-                />
-              </div>
-            </div>
-          </div>
+
         </div>
 
         <li

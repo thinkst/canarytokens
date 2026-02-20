@@ -4,12 +4,12 @@
   >
   <div class="flex flex-row justify-between">
     <h2 class="font-semibold">Incident info</h2>
-    <span
+    <BasePill
       v-if="incidentStatus === TOKEN_HIT_STATUS.IGNORED_IP"
-      class="text-xs text-white bg-grey rounded-lg px-4 py-[2px]"
+      background-colour="grey-400"
     >
     Ignored IP
-    </span>
+    </BasePill>
     </div>
     <ul class="flex flex-col justify-between gap-24 mt-16 md:flex-row">
       <li class="flex flex-col gap-2">
@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { TOKEN_HIT_STATUS } from '@/components/constants';
+import BasePill from '../base/BasePill.vue';
 
 defineProps<{
   date: string | number;
