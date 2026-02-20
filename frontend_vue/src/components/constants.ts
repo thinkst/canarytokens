@@ -41,6 +41,7 @@ export const TOKENS_TYPE = {
   IDP_APP: 'idp_app',
   AWS_INFRA: 'aws_infra',
   SVG: 'svg',
+  CROWDSTRIKE_CC: 'crowdstrike_cc',
 };
 
 // unique keys to use in the frontend

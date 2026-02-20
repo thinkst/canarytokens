@@ -51,11 +51,16 @@ import type {
   TokenServiceType,
 } from '@/utils/tokenServices';
 import { tokenServices } from '@/utils/tokenServices';
+import { TOKENS_TYPE } from '@/components/constants.ts';
 import SearchBar from '@/components/ui/SearchBar.vue';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import { TOKEN_CATEGORY } from '@/components/constants.ts';
 import { sqlInjectionPattern } from '@/utils/utils';
 import { debounce } from '@/utils/utils';
+
+const props = defineProps<{
+  showCrowdstrike?: boolean;
+}>();
 
 const emits = defineEmits([
   'filtered-list',
@@ -67,14 +72,22 @@ const emits = defineEmits([
 const filterValue = ref('');
 const searchValue = ref('');
 
+const availableTokenServices = computed(() => {
+  if (props.showCrowdstrike) {
+    return tokenServices;
+  }
+  const { [TOKENS_TYPE.CROWDSTRIKE_CC]: _, ...rest } = tokenServices;
+  return rest;
+});
+
 const filteredList: ComputedRef<
   TokenServicesType | [string, TokenServiceType]
 > = computed(() => {
-  const filteredByCategory = filterByCategory(tokenServices);
-  const filteredBySearch = filterBySearch(tokenServices);
+  const filteredByCategory = filterByCategory(availableTokenServices.value);
+  const filteredBySearch = filterBySearch(availableTokenServices.value);
 
   if (!filterValue.value && !searchValue.value) {
-    return tokenServices;
+    return availableTokenServices.value;
   }
 
   if (filterValue.value && !searchValue.value) {
