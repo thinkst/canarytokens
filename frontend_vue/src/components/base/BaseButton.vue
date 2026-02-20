@@ -23,7 +23,7 @@
       aria-hidden="true"
       :class="loading && 'opacity-30'"
     />
-    <span :class="loading && 'opacity-30'">
+    <span v-if="$slots.default" :class="loading && 'opacity-30'">
       <slot></slot>
     </span>
   </component>

@@ -41,6 +41,7 @@
         :last-key="index === getFilteredIncidentsListByAssetName().length - 1"
         :incident-id="incident.time_of_hit"
         :incident-preview-info="getIncidentPreviewInfo(incident)"
+        :incident-status="incident.alert_status"
         @click="handleSelectAlert(incident)"
       ></CardIncident>
     </ul>

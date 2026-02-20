@@ -1,3 +1,5 @@
+import type { TOKEN_HIT_STATUS } from '@/components/constants';
+
 export type BaseFormValuesType = {
   email: string;
   memo: string;
@@ -267,6 +269,7 @@ export type HitsType = {
   input_channel: string;
   src_data: null | any;
   useragent: string | null;
+  alert_status: (typeof TOKEN_HIT_STATUS)[keyof typeof TOKEN_HIT_STATUS];
   token_type: string;
   request_headers?: RequestHeaders;
   request_args?: Record<string, any>;

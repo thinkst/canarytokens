@@ -122,6 +122,17 @@ export const ENTRA_ID_FEEDBACK_MESSAGES = {
     'Installation failed due to lack of sufficient granted permissions. We have uninstalled our application from your tenant, revoking all of our permissions.',
 };
 
+export const TOKEN_HIT_STATUS = {
+  ALERTABLE: 'alertable',
+  IGNORED_IP: 'ignored_ip',
+}
+
+export const ALERT_FILTER_OPTIONS = {
+  ALL: 'all',
+  NOTIFIED: 'notified',
+  IGNORED: 'ignored',
+};
+
 export const MAX_UPLOAD_SIZE = 1024 * 1024 * 1;
 export const MAX_APP_NAME_LENGTH = 30;
 
