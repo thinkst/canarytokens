@@ -2216,11 +2216,11 @@ def _create_crowdstrike_cc_token_response(
             status_code=400,
         )
 
-        key = get_crowdstrike_key(
-            token=canarydrop.canarytoken,
-            server=get_all_canary_domains()[0],
-            crowdstrike_url=settings.CROWDSTRIKE_CC_CREATE_URL,
-        )
+    key = get_crowdstrike_key(
+        token=canarydrop.canarytoken,
+        server=get_all_canary_domains()[0],
+        crowdstrike_url=settings.CROWDSTRIKE_CC_CREATE_URL,
+    )
 
     canarydrop.crowdstrike_token_id = key["token_id"]
     canarydrop.crowdstrike_client_id = key["client_id"]
