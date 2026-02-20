@@ -281,12 +281,12 @@ def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
         from canarytokens.crowdstrikekeys import delete_crowdstrike_key
         from canarytokens.settings import FrontendSettings
 
-            settings = FrontendSettings()
-            if settings.CROWDSTRIKE_CC_DELETE_URL and canarydrop.crowdstrike_token_id:
-                delete_crowdstrike_key(
-                    token_id=canarydrop.crowdstrike_token_id,
-                    crowdstrike_url=settings.CROWDSTRIKE_CC_DELETE_URL,
-                )
+        settings = FrontendSettings()
+        if settings.CROWDSTRIKE_CC_DELETE_URL and canarydrop.crowdstrike_token_id:
+            delete_crowdstrike_key(
+                token_id=canarydrop.crowdstrike_token_id,
+                crowdstrike_url=settings.CROWDSTRIKE_CC_DELETE_URL,
+            )
 
 
 # def _v2_compatibility_serialize_canarydrop(serialized_drop:dict[str, str], canarydrop:cand.Canarydrop)->dict[str, str]:
