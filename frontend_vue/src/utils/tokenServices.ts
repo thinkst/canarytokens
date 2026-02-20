@@ -479,11 +479,27 @@ export const tokenServices: TokenServicesType = {
     instruction:
       'Use these details to create an app in your Identity Provider.',
     howItWorksInstructions: [
-      'We give you a “fake” SAML2 app endpoint.',
+      'We give you a "fake" SAML2 app endpoint.',
       'You install it in your Identity Provider as an app.',
       'We send you an alert if an attacker tries to log into that app.',
     ],
     category: [TOKEN_CATEGORY.CLOUD, TOKEN_CATEGORY.PHISHING],
     keywords: [],
+  },
+  [TOKENS_TYPE.CROWDSTRIKE_CC]: {
+    label: 'CrowdStrike API key',
+    description:
+      'Get an alert when an attacker uses your CrowdStrike API credentials.',
+    documentationLink: 'https://docs.canarytokens.org/guide/crowdstrike-cc-token.html',
+    icon: `${TOKENS_TYPE.CROWDSTRIKE_CC}.png`,
+    instruction:
+      'Copy this credential pair to your clipboard to use as desired:',
+    howItWorksInstructions: [
+      'We give you a real CrowdStrike API client ID with an invalid secret.',
+      'You place it somewhere an attacker might find it.',
+      'We send you an alert if someone tries to authenticate with those credentials.',
+    ],
+    category: TOKEN_CATEGORY.CLOUD,
+    keywords: ['cloud', 'api', 'edr', 'security'],
   },
 };
