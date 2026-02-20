@@ -27,7 +27,16 @@
       <ul class="flex flex-col h-full gap-16 pb-16">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+          <BaseFilterDropDown
+            v-if="hitsList.length > 0"
+            id="alert-filter-dropdown"
+            :filter-options="Object.values(ALERT_FILTER_OPTIONS)"
+            :default-filter-option="ALERT_FILTER_OPTIONS.ALL"
+            name="alert-filter"
+            aria-label="Filter alerts dropdown"
+            @update-filter-option="(value) => handleSelectAlertFilter(value)"
 
+            />
         </div>
 
         <li
@@ -157,8 +166,7 @@ const filteredHitsList: Ref<HitsType[]> = ref([]);
 const selectedAlert = ref();
 const tokenType = ref();
 const dynamicIncidentList = shallowRef();
-const showAlertFilterPopup = ref(false);
-const alertFilterOption = ref('all');
+const alertFilterOption = ref(ALERT_FILTER_OPTIONS.ALL);
 
 const hasCustomIncidentsList = computed(() => {
   const tokensWithCustomIncidentsList = [TOKENS_TYPE.AWS_INFRA];
@@ -262,7 +270,6 @@ function showMap(): boolean {
 }
 
 function handleSelectAlertFilter(value: string) {
-  showAlertFilterPopup.value = false;
   alertFilterOption.value = value;
 }
 
