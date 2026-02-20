@@ -172,7 +172,6 @@ export type NewTokenBackendType = {
   webdav_server: string | null;
   entity_id: string | null;
   app_type: string | null;
-  client_id: string | null;
   client_secret: string | null;
   base_url: string | null;
 };

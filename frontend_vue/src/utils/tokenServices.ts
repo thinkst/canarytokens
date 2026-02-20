@@ -490,8 +490,8 @@ export const tokenServices: TokenServicesType = {
     label: 'CrowdStrike API key',
     description:
       'Get an alert when an attacker uses your CrowdStrike API credentials.',
-    documentationLink: '',
-    icon: 'cs.png',
+    documentationLink: 'https://docs.canarytokens.org/guide/crowdstrike-cc-token.html',
+    icon: `${TOKENS_TYPE.CROWDSTRIKE_CC}.png`,
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
     howItWorksInstructions: [
