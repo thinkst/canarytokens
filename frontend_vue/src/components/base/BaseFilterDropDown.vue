@@ -16,7 +16,7 @@
               role="dialog"
               @click.stop
             >
-              <div id="radio-group-action" class="space-y-3" role="radiogroup">
+              <fieldset id="radio-group-action" class="space-y-3">
                 <BaseRadioInput
 v-for="option in filterOptions"
                   :id="`${name}-${option}`"
@@ -28,7 +28,7 @@ v-for="option in filterOptions"
                   @select-value="handleSelectFilter"
                   @escape="handleClickAway"
                 />
-              </div>
+              </fieldset>
               </div>
             </div>
 </template>
