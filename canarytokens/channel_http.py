@@ -201,6 +201,11 @@ class CanarytokenPage(InputChannel, resource.Resource):
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
+        elif canarydrop.type == TokenTypes.CROWDSTRIKE_CC:
+            token_hit = Canarytoken._parse_crowdstrike_cc_trigger(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
         elif canarydrop.type == TokenTypes.SLACK_API:
             token_hit = Canarytoken._parse_slack_api_trigger(request)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
