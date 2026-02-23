@@ -25,7 +25,6 @@
       </h2>
     </div>
     <SearchFilterTokensHeader
-      :show-crowdstrike="showCrowdStrike"
       @filtered-list="filteredList = $event"
       @filter-search="searchValue = $event"
       @filter-category="filterValue = $event"
@@ -64,15 +63,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { useRoute } from 'vue-router';
 import { tokenServices } from '@/utils/tokenServices';
 import type {
   TokenServicesType,
   TokenServiceType,
 } from '@/utils/tokenServices';
-import { TOKENS_TYPE } from '@/components/constants';
 import AppLayoutGrid from '@/layout/AppLayoutGrid.vue';
 import CardToken from '@/components/ui/CardToken.vue';
 import { useModal } from 'vue-final-modal';
@@ -80,20 +77,9 @@ import ModalToken from '@/components/ModalToken.vue';
 import SearchFilterTokensHeader from '@/components/SearchFilterTokensHeader.vue';
 import solitaireVictory from '@/utils/solitaireVictory';
 
-const route = useRoute();
-const showCrowdStrike = computed(() => route.query.crowdstrike === '1');
-
-const initialTokenServices = computed(() => {
-  if (showCrowdStrike.value) {
-    return tokenServices;
-  }
-  const { [TOKENS_TYPE.CROWDSTRIKE_CC]: _, ...rest } = tokenServices;
-  return rest;
-});
-
 const filterValue = ref('');
 const searchValue = ref('');
-const filteredList: Ref<TokenServicesType> = ref(initialTokenServices.value);
+const filteredList: Ref<TokenServicesType> = ref(tokenServices);
 const animationType = ref('move-grid');
 
 function handleClickToken(selectedToken: string) {

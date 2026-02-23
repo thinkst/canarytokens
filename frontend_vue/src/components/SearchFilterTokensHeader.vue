@@ -46,21 +46,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import type { ComputedRef } from 'vue';
-import type {
-  TokenServicesType,
-  TokenServiceType,
-} from '@/utils/tokenServices';
+import type { TokenServicesType } from '@/utils/tokenServices';
 import { tokenServices } from '@/utils/tokenServices';
-import { TOKENS_TYPE } from '@/components/constants.ts';
 import SearchBar from '@/components/ui/SearchBar.vue';
 import FilterButton from '@/components/ui/FilterButton.vue';
 import { TOKEN_CATEGORY } from '@/components/constants.ts';
 import { sqlInjectionPattern } from '@/utils/utils';
 import { debounce } from '@/utils/utils';
-
-const props = defineProps<{
-  showCrowdstrike?: boolean;
-}>();
 
 const emits = defineEmits([
   'filtered-list',
@@ -72,22 +64,12 @@ const emits = defineEmits([
 const filterValue = ref('');
 const searchValue = ref('');
 
-const availableTokenServices = computed(() => {
-  if (props.showCrowdstrike) {
-    return tokenServices;
-  }
-  const { [TOKENS_TYPE.CROWDSTRIKE_CC]: _, ...rest } = tokenServices;
-  return rest;
-});
-
-const filteredList: ComputedRef<
-  TokenServicesType | [string, TokenServiceType]
-> = computed(() => {
-  const filteredByCategory = filterByCategory(availableTokenServices.value);
-  const filteredBySearch = filterBySearch(availableTokenServices.value);
+const filteredList: ComputedRef<TokenServicesType> = computed(() => {
+  const filteredByCategory = filterByCategory(tokenServices);
+  const filteredBySearch = filterBySearch(tokenServices);
 
   if (!filterValue.value && !searchValue.value) {
-    return availableTokenServices.value;
+    return tokenServices;
   }
 
   if (filterValue.value && !searchValue.value) {
@@ -101,11 +83,11 @@ const filteredList: ComputedRef<
   return filterBySearch(filteredByCategory);
 });
 
-function filterBySearch(list: TokenServicesType) {
+function filterBySearch(list: TokenServicesType): TokenServicesType {
   if (!searchValue.value) {
     return list;
   }
-  return Object.entries(list).reduce((acc, [key, val]) => {
+  return Object.entries(list).reduce<TokenServicesType>((acc, [key, val]) => {
     if (val.label.toLowerCase().includes(searchValue.value.toLowerCase())) {
       return { ...acc, [key]: val };
     }
@@ -121,11 +103,11 @@ function filterBySearch(list: TokenServicesType) {
   }, {});
 }
 
-function filterByCategory(list: TokenServicesType) {
+function filterByCategory(list: TokenServicesType): TokenServicesType {
   if (!filterValue.value) {
     return list;
   }
-  return Object.entries(list).reduce((acc, [key, val]) => {
+  return Object.entries(list).reduce<TokenServicesType>((acc, [key, val]) => {
     if (
       Array.isArray(val.category) &&
       val.category.includes(filterValue.value)
