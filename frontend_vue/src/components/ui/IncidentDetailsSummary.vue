@@ -6,7 +6,7 @@
     <h2 class="font-semibold">Incident info</h2>
     <BasePill
       v-if="incidentStatus === TOKEN_HIT_STATUS.IGNORED_IP"
-      background-colour="grey-400"
+      colour="grey"
     >
     Ignored IP
     </BasePill>

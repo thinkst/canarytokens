@@ -9,14 +9,16 @@
 
 <script setup lang="ts">
 
+type Colour = 'grey';
+
 const props = defineProps({
   colour: {
-    type: String,
-    default: 'grey'
+    type: String as () => Colour,
+    default: 'grey',
   },
 });
 
-function getColourClasses(colour: string): string {
+function getColourClasses(colour: Colour): string {
   switch (colour) {
     case 'grey':
       return 'bg-grey-400 text-white';

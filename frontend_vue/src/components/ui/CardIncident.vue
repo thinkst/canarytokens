@@ -36,7 +36,7 @@
             <BasePill
               v-if="key === 'IP' && incidentStatus === TOKEN_HIT_STATUS.IGNORED_IP"
               class="ml-8"
-              background-colour="grey-400"
+              colour="grey"
             >
               Ignored IP
             </BasePill>

@@ -60,10 +60,10 @@ function capitalizeOption(option: string) {
 
 function closePopUp() {
   showAlertFilterPopup.value = false;
-  if (dropdownFilter.value && dropdownFilter.value.$el.contains(document.activeElement))
-  { dropdownFilter.value?.$el?.focus();
-
-  } }
+  if (dropdownFilter.value && dropdownFilter.value.$el.contains(document.activeElement)) {
+    dropdownFilter.value?.$el?.focus();
+  }
+}
 
 function handleSelectFilter(option: string) {
   filterOption.value = option;
