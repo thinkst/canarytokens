@@ -1,7 +1,6 @@
 <template>
-    <div v-clickaway="handleClickAway" class="relative">
+    <div v-clickaway="closePopUp" class="relative">
             <BaseButton
-              ref="filterButton"
               variant="text"
               icon="filter"
               aria-label="filter button"
@@ -15,17 +14,16 @@
               role="dialog"
               @click.stop
             >
-              <fieldset id="radio-group-action" class="space-y-3">
+              <fieldset id="radio-group-action" class="space-y-3" role="radiogroup">
                 <BaseRadioInput
 v-for="option in filterOptions"
                   :id="`${name}-${option}`"
                   :key="option"
                   :name="name"
-                  :label="option.charAt(0).toUpperCase() + option.slice(1)"
+                  :label="capitalizeOption(option)"
                   :value="option"
                   :checked="filterOption === option"
                   @select-value="handleSelectFilter"
-                  @escape="handleClickAway"
                 />
               </fieldset>
               </div>
@@ -34,11 +32,10 @@ v-for="option in filterOptions"
 <script setup lang="ts">
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseRadioInput from '@/components/base/BaseRadioInput.vue';
-import { ref, useTemplateRef } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { onClickaway } from '@/directives/clickAway';
 
 const vClickaway = onClickaway;
-const filterButton = useTemplateRef('filterButton');
 
 const props = defineProps<{
   filterOptions: string[];
@@ -51,14 +48,31 @@ const emits = defineEmits(['update-filter-option']);
 const showAlertFilterPopup = ref(false);
 const filterOption = ref(props.defaultFilterOption);
 
-function handleClickAway() {
+onMounted(() => {
+  document.addEventListener('keydown', handleEscapeKey);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscapeKey);
+});
+
+function capitalizeOption(option: string) {
+  return `${option.charAt(0).toUpperCase()}${option.slice(1)}`;
+}
+
+function closePopUp() {
   showAlertFilterPopup.value = false;
+}
+
+
+function handleEscapeKey(event: KeyboardEvent) {
+  if (event.key === 'Escape' && showAlertFilterPopup.value) {
+    closePopUp();
+  }
 }
 
 function handleSelectFilter(option: string) {
   filterOption.value = option;
-  showAlertFilterPopup.value = false;
   emits('update-filter-option', option);
-  filterButton.value?.$el?.focus();
 }
 </script>

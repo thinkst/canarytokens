@@ -9,7 +9,6 @@
       type="radio"
       :name="name"
       @change="handleChangeOption"
-      @keydown="handleKeyDown"
     />
     {{ label }}</label
   >
@@ -31,32 +30,6 @@ const { value, errorMessage } = useField(props.name);
 function handleChangeOption(e: Event) {
   value.value = (e.target as HTMLInputElement).value;
   emits('selectValue', (e.target as HTMLInputElement).value);
-}
-
-function handleKeyDown(e: KeyboardEvent) {
-  const target = e.target as HTMLInputElement;
-
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    target.checked = true;
-    value.value = target.value;
-    emits('selectValue', target.value);
-  } else if (e.key === 'Escape') {
-    e.preventDefault();
-    emits('escape');
-  } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-    e.preventDefault();
-    const radioGroup = target.closest('[role="radiogroup"]');
-    const radios = radioGroup?.querySelectorAll('input[type="radio"]') as NodeListOf<HTMLInputElement>;
-    const currentIndex = Array.from(radios).indexOf(target);
-
-    const isDown = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-    const nextIndex = isDown
-      ? (currentIndex + 1) % radios.length
-      : currentIndex === 0 ? radios.length - 1 : currentIndex - 1;
-
-    radios[nextIndex]?.focus();
-  }
 }
 
 watch(errorMessage, () => {
