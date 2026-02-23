@@ -1,12 +1,14 @@
 <template>
-    <div v-clickaway="closePopUp" class="relative">
+    <div v-clickaway="closePopUp" class="relative" role="menu">
             <BaseButton
+            ref="dropdownFilter"
               variant="text"
               icon="filter"
               aria-label="filter button"
                 :aria-controls="'alert-filter-dropdown'"
                 :aria-expanded="showAlertFilterPopup.toString()"
               @click="showAlertFilterPopup = !showAlertFilterPopup"
+              @keydown.escape="closePopUp"
             ></BaseButton>
             <div
               v-if="showAlertFilterPopup"
@@ -24,6 +26,7 @@ v-for="option in filterOptions"
                   :value="option"
                   :checked="filterOption === option"
                   @select-value="handleSelectFilter"
+                  @keydown.escape="closePopUp"
                 />
               </fieldset>
               </div>
@@ -32,8 +35,9 @@ v-for="option in filterOptions"
 <script setup lang="ts">
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseRadioInput from '@/components/base/BaseRadioInput.vue';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import { onClickaway } from '@/directives/clickAway';
+import { templateRef } from '@vueuse/core';
 
 const vClickaway = onClickaway;
 
@@ -45,16 +49,10 @@ const props = defineProps<{
 
 const emits = defineEmits(['update-filter-option']);
 
+const dropdownFilter = templateRef('dropdownFilter');
+
 const showAlertFilterPopup = ref(false);
 const filterOption = ref(props.defaultFilterOption);
-
-onMounted(() => {
-  document.addEventListener('keydown', handleEscapeKey);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleEscapeKey);
-});
 
 function capitalizeOption(option: string) {
   return `${option.charAt(0).toUpperCase()}${option.slice(1)}`;
@@ -62,14 +60,10 @@ function capitalizeOption(option: string) {
 
 function closePopUp() {
   showAlertFilterPopup.value = false;
-}
+  if (dropdownFilter.value && dropdownFilter.value.$el.contains(document.activeElement))
+  { dropdownFilter.value?.$el?.focus();
 
-
-function handleEscapeKey(event: KeyboardEvent) {
-  if (event.key === 'Escape' && showAlertFilterPopup.value) {
-    closePopUp();
-  }
-}
+  } }
 
 function handleSelectFilter(option: string) {
   filterOption.value = option;
