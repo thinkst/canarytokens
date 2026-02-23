@@ -1,7 +1,8 @@
 <template>
-    <div v-clickaway="closePopUp" class="relative" role="menu">
+
+    <div ref="dropdownFilter" v-clickaway="closePopUp" class="relative" role="menu" >
             <BaseButton
-            ref="dropdownFilter"
+            ref="dropdownFilterButton"
               variant="text"
               icon="filter"
               aria-label="filter button"
@@ -50,6 +51,7 @@ const props = defineProps<{
 const emits = defineEmits(['update-filter-option']);
 
 const dropdownFilter = templateRef('dropdownFilter');
+const dropdownFilterButton = templateRef('dropdownFilterButton');
 
 const showAlertFilterPopup = ref(false);
 const filterOption = ref(props.defaultFilterOption);
@@ -60,8 +62,8 @@ function capitalizeOption(option: string) {
 
 function closePopUp() {
   showAlertFilterPopup.value = false;
-  if (dropdownFilter.value && dropdownFilter.value.$el.contains(document.activeElement)) {
-    dropdownFilter.value?.$el?.focus();
+  if (dropdownFilter.value && dropdownFilter.value.contains(document.activeElement)) {
+    dropdownFilterButton.value?.$el?.focus();
   }
 }
 
