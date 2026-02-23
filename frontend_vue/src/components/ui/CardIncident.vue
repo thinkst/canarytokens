@@ -33,13 +33,14 @@
               class="mr-8 font-semibold"
               >{{ val }}</span
             >
+            <BasePill
+              v-if="key === 'IP' && incidentStatus === TOKEN_HIT_STATUS.IGNORED_IP"
+              class="ml-8"
+              colour="grey"
+            >
+              Ignored IP
+            </BasePill>
           </span>
-        </span>
-        <span
-          v-if="incidentStatus === TOKEN_HIT_STATUS.IGNORED_IP"
-          class="text-xs text-white bg-grey rounded-lg px-4 py-[2px] absolute right-16 @md:top-8 @l:top-32 @xl:top-8 top-32"
-        >
-          Ignored IP
         </span>
       </span>
       <span

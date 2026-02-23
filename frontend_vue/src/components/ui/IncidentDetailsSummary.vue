@@ -1,15 +1,15 @@
 <template>
   <section class="p-16 rounded-md"
-    :class="{'bg-red': incidentStatus === TOKEN_HIT_STATUS.ALERTABLE, 'bg-grey-100': incidentStatus !== TOKEN_HIT_STATUS.ALERTABLE, 'text-white': incidentStatus === TOKEN_HIT_STATUS.ALERTABLE, 'text-grey-800': incidentStatus !== TOKEN_HIT_STATUS.ALERTABLE}"
+    :class="[sectionBackgroundClass, sectionTextClass]"
   >
   <div class="flex flex-row justify-between">
     <h2 class="font-semibold">Incident info</h2>
-    <span
+    <BasePill
       v-if="incidentStatus === TOKEN_HIT_STATUS.IGNORED_IP"
-      class="text-xs text-white bg-grey rounded-lg px-4 py-[2px]"
+      colour="grey"
     >
     Ignored IP
-    </span>
+    </BasePill>
     </div>
     <ul class="flex flex-col justify-between gap-24 mt-16 md:flex-row">
       <li class="flex flex-col gap-2">
@@ -35,12 +35,22 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { TOKEN_HIT_STATUS } from '@/components/constants';
+import BasePill from '../base/BasePill.vue';
 
-defineProps<{
+const props = defineProps<{
   date: string | number;
   ip?: string | null;
   inputChannel: string;
   incidentStatus: string;
 }>();
+
+const sectionBackgroundClass = computed(() => {
+  return props.incidentStatus === TOKEN_HIT_STATUS.ALERTABLE ? 'bg-red' : 'bg-grey-100';
+});
+
+const sectionTextClass = computed(() => {
+  return props.incidentStatus === TOKEN_HIT_STATUS.ALERTABLE ? 'text-white' : 'text-grey-800';
+});
 </script>
