@@ -93,6 +93,33 @@ function handleClickToken(selectedToken: string) {
   open();
 }
 
+function getTokenFromOpenQuery(openQuery: unknown): string | null {
+  if (typeof openQuery === 'string') {
+    return tokenServices[openQuery] ? openQuery : null;
+  }
+  if (Array.isArray(openQuery)) {
+    const firstToken = openQuery.find(
+      (value) => typeof value === 'string' && tokenServices[value]
+    );
+    return firstToken ?? null;
+  }
+  return null;
+}
+
+watch(
+  () => route.query.open,
+  (openQueryValue) => {
+    const selectedToken = getTokenFromOpenQuery(openQueryValue);
+
+    if (!selectedToken) {
+      return;
+    }
+
+    handleClickToken(selectedToken);
+  },
+  { immediate: true }
+);
+
 watch(filterValue, (newVal, oldVal) => {
   if (oldVal === '') {
     animationType.value = 'move-grid';
