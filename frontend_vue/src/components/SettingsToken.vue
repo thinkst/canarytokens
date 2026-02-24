@@ -82,6 +82,7 @@
     <IPIgnoreList
       v-show="settingRefs.IP_IGNORE"
       :canary-drop="tokenBackendResponse.canarydrop"
+      @empty-ip-list-saved="handleEmptyIPListSaved"
       />
 
 
@@ -220,5 +221,9 @@ async function handleChangeSetting(
   } finally {
     loadingRefs.value[settingType] = false;
   }
+}
+
+function handleEmptyIPListSaved() {
+  handleChangeSetting(SETTINGS_TYPE.IP_IGNORE as keyof typeof SETTINGS_TYPE, false);
 }
 </script>
