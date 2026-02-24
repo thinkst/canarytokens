@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { tokenServices } from '@/utils/tokenServices';
 import type {
   TokenServicesType,
@@ -77,6 +78,7 @@ import ModalToken from '@/components/ModalToken.vue';
 import SearchFilterTokensHeader from '@/components/SearchFilterTokensHeader.vue';
 import solitaireVictory from '@/utils/solitaireVictory';
 
+const route = useRoute();
 const filterValue = ref('');
 const searchValue = ref('');
 const filteredList: Ref<TokenServicesType> = ref(tokenServices);
@@ -92,6 +94,33 @@ function handleClickToken(selectedToken: string) {
   });
   open();
 }
+
+function getTokenFromOpenQuery(openQuery: unknown): string | null {
+  if (typeof openQuery === 'string') {
+    return tokenServices[openQuery] ? openQuery : null;
+  }
+  if (Array.isArray(openQuery)) {
+    const firstToken = openQuery.find(
+      (value) => typeof value === 'string' && tokenServices[value]
+    );
+    return firstToken ?? null;
+  }
+  return null;
+}
+
+watch(
+  () => route.query.open,
+  (openQueryValue) => {
+    const selectedToken = getTokenFromOpenQuery(openQueryValue);
+
+    if (!selectedToken) {
+      return;
+    }
+
+    handleClickToken(selectedToken);
+  },
+  { immediate: true }
+);
 
 watch(filterValue, (newVal, oldVal) => {
   if (oldVal === '') {
