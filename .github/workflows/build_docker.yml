@@ -30,14 +30,13 @@ jobs:
           fi
           echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> "$GITHUB_ENV"
 
+      - uses: actions/checkout@v4.2.0
 
       - uses: actions/checkout@v4.2.0
         with:
           repository: thinkst/canarytokens-docker
           path: canarytokens-docker
           ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
-
-      - uses: actions/checkout@v4.2.0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
