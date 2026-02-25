@@ -102,15 +102,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
             log.info(f"Error: {e}")
             request.setHeader("Content-Type", "image/gif")
             return GIF
-        try:
-            raise ValueError(f"Test value error for token {canarytoken.value()}")
-        except ValueError as e:
-            log.critical(
-                f"Expected testing error. Token: {canarydrop.canarytoken.value()} Error: {e}",
-                log_failure=Failure(e),
-            )
-            request.setHeader("Content-Type", "image/gif")
-            return GIF
 
         if canarydrop.type == TokenTypes.PWA:
             if request.path.endswith(b"/manifest.json"):
