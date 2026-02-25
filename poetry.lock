@@ -3220,24 +3220,25 @@ starkbank-ecdsa = ">=2.0.1"
 
 [[package]]
 name = "sentry-sdk"
-version = "1.45.1"
+version = "2.53.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = true
-python-versions = "*"
+python-versions = ">=3.6"
 groups = ["main"]
 markers = "extra == \"web\" or extra == \"twisted\""
 files = [
-    {file = "sentry_sdk-1.45.1-py2.py3-none-any.whl", hash = "sha256:608887855ccfe39032bfd03936e3a1c4f4fc99b3a4ac49ced54a4220de61c9c1"},
-    {file = "sentry_sdk-1.45.1.tar.gz", hash = "sha256:a16c997c0f4e3df63c0fc5e4207ccb1ab37900433e0f72fef88315d317829a26"},
+    {file = "sentry_sdk-2.53.0-py2.py3-none-any.whl", hash = "sha256:46e1ed8d84355ae54406c924f6b290c3d61f4048625989a723fd622aab838899"},
+    {file = "sentry_sdk-2.53.0.tar.gz", hash = "sha256:6520ef2c4acd823f28efc55e43eb6ce2e6d9f954a95a3aa96b6fd14871e92b77"},
 ]
 
 [package.dependencies]
 certifi = "*"
 fastapi = {version = ">=0.79.0", optional = true, markers = "extra == \"fastapi\""}
-urllib3 = {version = ">=1.26.11", markers = "python_version >= \"3.6\""}
+urllib3 = ">=1.26.11"
 
 [package.extras]
 aiohttp = ["aiohttp (>=3.5)"]
+anthropic = ["anthropic (>=0.16)"]
 arq = ["arq (>=0.23)"]
 asyncpg = ["asyncpg (>=0.23)"]
 beam = ["apache-beam (>=2.12)"]
@@ -3250,14 +3251,26 @@ django = ["django (>=1.8)"]
 falcon = ["falcon (>=1.4)"]
 fastapi = ["fastapi (>=0.79.0)"]
 flask = ["blinker (>=1.1)", "flask (>=0.11)", "markupsafe"]
-grpcio = ["grpcio (>=1.21.1)"]
+google-genai = ["google-genai (>=1.29.0)"]
+grpcio = ["grpcio (>=1.21.1)", "protobuf (>=3.8.0)"]
+http2 = ["httpcore[http2] (==1.*)"]
 httpx = ["httpx (>=0.16.0)"]
 huey = ["huey (>=2)"]
+huggingface-hub = ["huggingface_hub (>=0.22)"]
+langchain = ["langchain (>=0.0.210)"]
+langgraph = ["langgraph (>=0.6.6)"]
+launchdarkly = ["launchdarkly-server-sdk (>=9.8.0)"]
+litellm = ["litellm (>=1.77.5)"]
+litestar = ["litestar (>=2.0.0)"]
 loguru = ["loguru (>=0.5)"]
+mcp = ["mcp (>=1.15.0)"]
 openai = ["openai (>=1.0.0)", "tiktoken (>=0.3.0)"]
+openfeature = ["openfeature-sdk (>=0.7.1)"]
 opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
-opentelemetry-experimental = ["opentelemetry-distro (>=0.40b0,<1.0)", "opentelemetry-instrumentation-aiohttp-client (>=0.40b0,<1.0)", "opentelemetry-instrumentation-django (>=0.40b0,<1.0)", "opentelemetry-instrumentation-fastapi (>=0.40b0,<1.0)", "opentelemetry-instrumentation-flask (>=0.40b0,<1.0)", "opentelemetry-instrumentation-requests (>=0.40b0,<1.0)", "opentelemetry-instrumentation-sqlite3 (>=0.40b0,<1.0)", "opentelemetry-instrumentation-urllib (>=0.40b0,<1.0)"]
-pure-eval = ["asttokens", "executing", "pure-eval"]
+opentelemetry-experimental = ["opentelemetry-distro"]
+opentelemetry-otlp = ["opentelemetry-distro[otlp] (>=0.35b0)"]
+pure-eval = ["asttokens", "executing", "pure_eval"]
+pydantic-ai = ["pydantic-ai (>=1.0.0)"]
 pymongo = ["pymongo (>=3.1)"]
 pyspark = ["pyspark (>=2.4.4)"]
 quart = ["blinker (>=1.1)", "quart (>=0.16.1)"]
@@ -3266,7 +3279,9 @@ sanic = ["sanic (>=0.8)"]
 sqlalchemy = ["sqlalchemy (>=1.2)"]
 starlette = ["starlette (>=0.19.1)"]
 starlite = ["starlite (>=1.48)"]
-tornado = ["tornado (>=5)"]
+statsig = ["statsig (>=0.55.3)"]
+tornado = ["tornado (>=6)"]
+unleash = ["UnleashClient (>=6.0.1)"]
 
 [[package]]
 name = "service-identity"
@@ -3790,4 +3805,4 @@ web = ["fastapi", "sentry-sdk", "uvicorn"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "643bbae40fe00a43ff571de8a5eb231e7090c9f1ca8fbffba9c01f09f4386d69"
+content-hash = "1d499f8565d18703c2d700b20ec5d2cef1fe86fa3aad1b020a902c692e4fe247"

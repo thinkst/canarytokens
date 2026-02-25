@@ -31,16 +31,6 @@ from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import set_template_env
 from canarytokens.utils import get_deployed_commit_sha
 
-# from sentry_sdk.integrations.anthropic import AnthropicIntegration
-# from sentry_sdk.integrations.google_genai import GoogleGenAIIntegration
-# from sentry_sdk.integrations.huggingface_hub import HuggingfaceHubIntegration
-# from sentry_sdk.integrations.openai import OpenAIIntegration
-# from sentry_sdk.integrations.openai_agents import OpenAIAgentsIntegration
-# from sentry_sdk.integrations.langchain import LangchainIntegration
-# from sentry_sdk.integrations.langgraph import LanggraphIntegration
-# from sentry_sdk.integrations.pydantic_ai import PydanticAIIntegration
-# from sentry_sdk.integrations.mcp import MCPIntegration
-
 
 # TODO: see if this is still needed.
 # Removed for now
@@ -99,8 +89,7 @@ if switchboard_settings.SENTRY_DSN and switchboard_settings.SENTRY_ENABLE:
         release=get_deployed_commit_sha(),
     )
     globalLogPublisher.addObserver(sentry_observer)
-    log.info("Error log sentry enabled")
-    # log.debug(f"Sentry enabled. Environment: {switchboard_settings.SENTRY_ENVIRONMENT}")
+    log.debug(f"Sentry enabled. Environment: {switchboard_settings.SENTRY_ENVIRONMENT}")
 
 DB.set_db_details(switchboard_settings.REDIS_HOST, switchboard_settings.REDIS_PORT)
 set_template_env(Path(switchboard_settings.TEMPLATES_PATH))

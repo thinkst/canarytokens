@@ -62,18 +62,20 @@ class WebhookLogObserver(object):
             event["log_level"] == LogLevel.error
             or event["log_level"] == LogLevel.critical
         ):
-            if event.get("log_format"):
-                postdata = {"text": event["log_format"]}
-            elif isinstance(event.get("log_failure"), Failure):
-                postdata = {"text": event["log_failure"].getTraceback()}
-            elif event["log_namespace"] == "log_legacy":
-                # A log from the legacy logger has been called, therefore use a different key to get the log message
-                postdata = {"text": event["log_text"]}
-            else:
-                postdata = {"text": repr(event)}
+            log_parts = []
+            if "log_format" in event:
+                log_parts.append(event["log_format"])
+            if "log_text" in event:
+                log_parts.append(event["log_text"])
+            if isinstance(event.get("log_failure"), Failure):
+                log_parts.append(event["log_failure"].getTraceback())
+            postdata = {
+                "text": "\n".join(log_parts)
+                or f"Failed to format log for event: {event}"
+            }
             if (
-                postdata["text"] == "Unhandled error in Deferred:"
-                or postdata["text"] == text_for_failed_email_address_entered
+                "Unhandled error in Deferred:" in postdata["text"]
+                or text_for_failed_email_address_entered in postdata["text"]
             ):
                 # filters out non useful spam of messages seen before with these exact contents
                 return
