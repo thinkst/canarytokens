@@ -51,7 +51,6 @@ f = logfile.LogFile.fromFullPath(
     rotateLength=switchboard_settings.SWITCHBOARD_LOG_SIZE,
     maxRotatedFiles=switchboard_settings.SWITCHBOARD_LOG_COUNT,
 )
-log.info("Error log text enabled")
 globalLogPublisher.addObserver(textFileLogObserver(f))
 
 if os.getenv("ERROR_LOG_WEBHOOK", None):
