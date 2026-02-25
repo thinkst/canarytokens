@@ -1,5 +1,6 @@
 # pragma: no cover
 from twisted.logger import eventAsJSON, ILogObserver, Logger, LogLevel
+from twisted.python.failure import Failure
 from twisted.web.iweb import IBodyProducer
 from twisted.web.client import Agent
 from twisted.web.http_headers import Headers
@@ -37,7 +38,7 @@ class BytesProducer:
 
 
 @implementer(ILogObserver)
-class errorsToWebhookLogObserver(object):
+class WebhookLogObserver(object):
     """
     Log observer that sends errors out to a Slack endpoint.
     """
@@ -61,11 +62,15 @@ class errorsToWebhookLogObserver(object):
             event["log_level"] == LogLevel.error
             or event["log_level"] == LogLevel.critical
         ):
-            if event["log_namespace"] == "log_legacy":
+            if event.get("log_format"):
+                postdata = {"text": event["log_format"]}
+            elif isinstance(event.get("log_failure"), Failure):
+                postdata = {"text": event["log_failure"].getTraceback()}
+            elif event["log_namespace"] == "log_legacy":
                 # A log from the legacy logger has been called, therefore use a different key to get the log message
                 postdata = {"text": event["log_text"]}
             else:
-                postdata = {"text": event["log_format"]}
+                postdata = {"text": repr(event)}
             if (
                 postdata["text"] == "Unhandled error in Deferred:"
                 or postdata["text"] == text_for_failed_email_address_entered
@@ -95,18 +100,20 @@ def httpRequest(postdata):  # pragma: no cover
     return d
 
 
-def webhookLogObserver(recordSeparator="\x1e"):  # pragma: no cover
+def errorsToWebhookLogObserver(recordSeparator="\x1e"):  # pragma: no cover
     """
-    Create a L{errorsToWebhookLogObserver} that emits error and critical
+    Create a L{WebhookLogObserver} that emits error and critical
     loglines' text to a specified webhook URL by doing a HTTP POST.
 
     @param recordSeparator: The record separator to use.
     @type recordSeparator: L{unicode}
 
     @return: A log observer that POST critical and Error logs to a webhook.
-    @rtype: L{errorsToWebhookLogObserver}
+    @rtype: L{WebhookLogObserver}
 
     """
-    return errorsToWebhookLogObserver(
-        lambda event: "{0}{1}\n".format(recordSeparator, eventAsJSON(event))
-    )
+
+    def formatter(event):
+        return recordSeparator + eventAsJSON(event) + "\n"
+
+    return WebhookLogObserver(formatter)

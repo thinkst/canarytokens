@@ -19,7 +19,7 @@ from canarytokens.channel_input_smtp import ChannelSMTP
 from canarytokens.channel_input_wireguard import ChannelWireGuard
 from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
-from canarytokens.loghandlers import webhookLogObserver
+from canarytokens.loghandlers import errorsToWebhookLogObserver
 from canarytokens.queries import (
     add_return_for_token,
     set_ip_info_api_key,
@@ -30,6 +30,17 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import set_template_env
 from canarytokens.utils import get_deployed_commit_sha
+
+# from sentry_sdk.integrations.anthropic import AnthropicIntegration
+# from sentry_sdk.integrations.google_genai import GoogleGenAIIntegration
+# from sentry_sdk.integrations.huggingface_hub import HuggingfaceHubIntegration
+# from sentry_sdk.integrations.openai import OpenAIIntegration
+# from sentry_sdk.integrations.openai_agents import OpenAIAgentsIntegration
+# from sentry_sdk.integrations.langchain import LangchainIntegration
+# from sentry_sdk.integrations.langgraph import LanggraphIntegration
+# from sentry_sdk.integrations.pydantic_ai import PydanticAIIntegration
+# from sentry_sdk.integrations.mcp import MCPIntegration
+
 
 # TODO: see if this is still needed.
 # Removed for now
@@ -50,12 +61,13 @@ f = logfile.LogFile.fromFullPath(
     rotateLength=switchboard_settings.SWITCHBOARD_LOG_SIZE,
     maxRotatedFiles=switchboard_settings.SWITCHBOARD_LOG_COUNT,
 )
+log.info("Error log text enabled")
 globalLogPublisher.addObserver(textFileLogObserver(f))
 
 if os.getenv("ERROR_LOG_WEBHOOK", None):
     # Only create this log observer if the config is setup for it.
     log.info("Error log webhook enabled")
-    globalLogPublisher.addObserver(webhookLogObserver())
+    globalLogPublisher.addObserver(errorsToWebhookLogObserver())
 
 
 def sentry_observer(event):
@@ -87,7 +99,8 @@ if switchboard_settings.SENTRY_DSN and switchboard_settings.SENTRY_ENABLE:
         release=get_deployed_commit_sha(),
     )
     globalLogPublisher.addObserver(sentry_observer)
-    log.debug(f"Sentry enabled. Environment: {switchboard_settings.SENTRY_ENVIRONMENT}")
+    log.info("Error log sentry enabled")
+    # log.debug(f"Sentry enabled. Environment: {switchboard_settings.SENTRY_ENVIRONMENT}")
 
 DB.set_db_details(switchboard_settings.REDIS_HOST, switchboard_settings.REDIS_PORT)
 set_template_env(Path(switchboard_settings.TEMPLATES_PATH))
