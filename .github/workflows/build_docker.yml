@@ -75,7 +75,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          no-cache: true
           build-args: |
             CACHE_BUSTER_COMMIT=${{ github.sha }}
             GOOGLE_MAPS_API_KEY=${{ github.ref == 'refs/heads/master' && secrets.GOOGLE_MAPS_API_KEY_PROD || secrets.GOOGLE_MAPS_API_KEY_DEV }}
