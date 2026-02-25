@@ -84,6 +84,8 @@ jobs:
             GOOGLE_MAPS_API_KEY=${{ github.ref == 'refs/heads/master' && secrets.GOOGLE_MAPS_API_KEY_PROD || secrets.GOOGLE_MAPS_API_KEY_DEV }}
             CLOUDFLARE_TURNSTILE_SITE_KEY=${{ github.ref == 'refs/heads/master' && secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD || secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}
             GITHUB_SHA=${{ github.ref != 'refs/heads/master' && github.sha || '' }}
+            USE_CACHE_MOUNTS=true
+
 
     outputs:
       canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
