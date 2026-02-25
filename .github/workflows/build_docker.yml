@@ -63,6 +63,14 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
 
+            - name: Debug frontend path
+
+      - name: check dirs
+        run: |
+          ls -la
+          ls -la frontend_vue || true
+          find . -maxdepth 3 -name package.json -path "*frontend*" -print
+
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v6.8.0
