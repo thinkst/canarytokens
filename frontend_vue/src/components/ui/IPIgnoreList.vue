@@ -1,19 +1,30 @@
 <template>
     <form class="flex flex-col gap-8" :validation-schema="ipListSchema" @submit="submit">
-      <Field v-slot="{ field, errorMessage }" name="ipAddresses">
+      <Field v-slot="{ field, errorMessage }" name="ipAddresses" :validate-on-input="true">
         <textarea
           id="ip-ignore-list"
           v-bind="field"
           class="px-16 py-8 relative bg-white border rounded-2xl border-grey-100"
-          @input="(e) => { field.onInput(e); isSaved = false }"
           placeholder="Enter IP addresses separated by new lines&#10;192.168.1.1&#10;10.0.0.1&#10;172.16.0.1&#10;203.0.113.0&#10;198.51.100.0"
           rows="8"
+          :aria-invalid="!!errorMessage"
+          :aria-describedby="errorMessage ? 'ip-error-message' : undefined"
+          aria-label="IP addresses to ignore, one per line"
+          @input="(e) => { field.onInput(e); isSaved = false }"
         />
-        <p v-if="errorMessage" class="text-xs leading-4 text-red">
+        <p v-if="errorMessage" id="ip-error-message" class="text-xs leading-4 text-red" role="alert" aria-live="polite">
           {{ errorMessage }}
         </p>
       </Field>
-      <BaseButton v-if="!isSaved" class="self-end" variant="primary" type="submit" :loading="isLoading" :disabled="hasValidationError">
+      <BaseButton
+        v-if="!isSaved"
+        class="self-end"
+        variant="primary"
+        type="submit"
+        :loading="isLoading"
+        :disabled="hasValidationError"
+        :aria-describedby="hasValidationError ? 'ip-error-message' : undefined"
+      >
         Save
       </BaseButton>
     </form>
@@ -29,6 +40,10 @@ import { Address4 } from 'ip-address';
 
 const props = defineProps<{
   canaryDrop: NullableCanaryDropType;
+}>();
+
+const emits = defineEmits<{
+  'ip-list-saved': [value: string[]];
 }>();
 
 const isLoading = ref(false);
@@ -95,6 +110,8 @@ async function onSubmit(ipListValues: GenericObject) {
     if (res.status !== 200) {
       isError.value = true;
       errorMessage.value = "Unable to update IP ignore list.";
+    } else {
+      emits('ip-list-saved', ipList);
     }
   } catch (err: any) {
     isError.value = true;
