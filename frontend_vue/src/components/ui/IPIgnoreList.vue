@@ -43,7 +43,7 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-  'empty-ip-list-saved': [];
+  'ip-list-saved': [value: string[]];
 }>();
 
 const isLoading = ref(false);
@@ -110,8 +110,8 @@ async function onSubmit(ipListValues: GenericObject) {
     if (res.status !== 200) {
       isError.value = true;
       errorMessage.value = "Unable to update IP ignore list.";
-    } else if (ipList.length === 0) {
-      emits('empty-ip-list-saved');
+    } else {
+      emits('ip-list-saved', ipList);
     }
   } catch (err: any) {
     isError.value = true;
