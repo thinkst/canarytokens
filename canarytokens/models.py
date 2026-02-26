@@ -3090,4 +3090,4 @@ class AWSInfraServiceError(StrEnum):
             return cls.UNKNOWN
 
 
-IGNORABLE_IP_TOKENS = [TokenTypes.AWS_INFRA, TokenTypes.WEB]
+NON_IGNORABLE_IP_TOKENS = [TokenTypes.SMTP, TokenTypes.CREDIT_CARD_V2]

@@ -1,4 +1,3 @@
-from ipaddress import IPv4Address
 import json
 from typing import Optional
 
@@ -19,7 +18,6 @@ from canarytokens.exceptions import NoCanarytokenFound, NoCanarydropFound
 from canarytokens.models import (
     AnyTokenHit,
     AWSKeyTokenHit,
-    AlertStatus,
     TokenTypes,
 )
 from canarytokens.queries import get_canarydrop
@@ -149,8 +147,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 log_failure=Failure(e),
             )
             return
-        if canarydrop.should_ignore_ip(IPv4Address(token_hit.src_ip)):
-            token_hit.alert_status = AlertStatus.IGNORED_IP
 
         canarydrop.add_canarydrop_hit(token_hit=token_hit)
         self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
@@ -288,8 +284,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
         elif canarydrop.type == TokenTypes.AWS_INFRA:
             content = json.load(request.content)
             token_hit = Canarytoken._parse_aws_infra_trigger(content)
-            if canarydrop.should_ignore_ip(IPv4Address(token_hit.src_ip)):
-                token_hit.alert_status = AlertStatus.IGNORED_IP
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             return b"success"
