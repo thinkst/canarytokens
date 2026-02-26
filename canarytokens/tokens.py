@@ -595,10 +595,7 @@ class Canarytoken(object):
 
         location = request.args.get(b"l", [None])[0]
         referer = request.args.get(b"r", [None])[0]
-        src_data = {
-            "location": location,
-            "referer": referer,
-        }
+        src_data = {"location": location, "referer": referer}
         return http_general_info, src_data
 
     @staticmethod
@@ -614,12 +611,12 @@ class Canarytoken(object):
 
         referer = request.getHeader("Referer")
         r_arg = request.args.get(b"r", [None])[0]
-        if r_arg is not None:
+        if r_arg and isinstance(r_arg, bytes):
             r_arg = r_arg.decode()
-        src_data = {
-            "referer": referer,
-            "referrer": r_arg,
-        }
+        ja4_arg = request.args.get(b"ja4", [None])[0]
+        if ja4_arg and isinstance(ja4_arg, bytes):
+            ja4_arg = ja4_arg.decode()
+        src_data = {"referer": referer, "referrer": r_arg, "ja4": ja4_arg}
         return http_general_info, src_data
 
     @staticmethod
