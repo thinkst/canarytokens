@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { tokenServices } from '@/utils/tokenServices';
 import type {
   TokenServicesType,
@@ -79,20 +79,68 @@ import SearchFilterTokensHeader from '@/components/SearchFilterTokensHeader.vue'
 import solitaireVictory from '@/utils/solitaireVictory';
 
 const route = useRoute();
+const router = useRouter();
 const filterValue = ref('');
 const searchValue = ref('');
 const filteredList: Ref<TokenServicesType> = ref(tokenServices);
 const animationType = ref('move-grid');
+const selectedModalToken = ref<string | null>(null);
+const closeCurrentModal = ref<(() => void) | null>(null);
 
-function handleClickToken(selectedToken: string) {
+const createRouteAliasLookup = Object.entries(tokenServices).reduce(
+  (lookup: Record<string, string>, [tokenType, tokenService]) => {
+    if (tokenService.createRouteTokenAlias) {
+      lookup[tokenService.createRouteTokenAlias.toLowerCase()] = tokenType;
+    }
+
+    return lookup;
+  },
+  {}
+);
+
+function closeModalState() {
+  closeCurrentModal.value = null;
+  selectedModalToken.value = null;
+}
+
+function openTokenModal(selectedToken: string) {
+  if (selectedModalToken.value === selectedToken) {
+    return;
+  }
+
+  closeCurrentModal.value?.();
+
   const { open, close } = useModal({
     component: ModalToken,
     attrs: {
       selectedToken: selectedToken,
-      closeModal: () => close(),
+      closeModal: async (options?: { keepRoute?: boolean }) => {
+        close();
+        closeModalState();
+
+        if (options?.keepRoute) {
+          return;
+        }
+
+        const currentRoute = router.currentRoute.value;
+        const shouldResetToHome =
+          currentRoute.name === 'create' || Boolean(currentRoute.query.open);
+
+        if (shouldResetToHome) {
+          await router.push({ path: '/' });
+        }
+      },
     },
   });
+
+  closeCurrentModal.value = close;
+  selectedModalToken.value = selectedToken;
   open();
+}
+
+async function handleClickToken(selectedToken: string) {
+  const tokenAlias = tokenServices[selectedToken].createRouteTokenAlias;
+  await router.push({ path: `/create/${tokenAlias}` });
 }
 
 function getTokenFromOpenQuery(openQuery: unknown): string | null {
@@ -108,16 +156,55 @@ function getTokenFromOpenQuery(openQuery: unknown): string | null {
   return null;
 }
 
-watch(
-  () => route.query.open,
-  (openQueryValue) => {
-    const selectedToken = getTokenFromOpenQuery(openQueryValue);
+function getTokenFromCreateRouteParam(tokentypeParam: unknown): string | null {
+  const routeTokenCandidates =
+    typeof tokentypeParam === 'string'
+      ? [tokentypeParam]
+      : Array.isArray(tokentypeParam)
+        ? tokentypeParam.filter((value): value is string => typeof value === 'string')
+        : [];
 
-    if (!selectedToken) {
+  for (const routeTokenCandidate of routeTokenCandidates) {
+    const normalizedRouteToken = routeTokenCandidate.toLowerCase();
+    const underscoreTokenType = normalizedRouteToken.replace(/-/g, '_');
+    const resolvedTokenType =
+      tokenServices[normalizedRouteToken]
+        ? normalizedRouteToken
+        : tokenServices[underscoreTokenType]
+          ? underscoreTokenType
+          : createRouteAliasLookup[normalizedRouteToken];
+
+    if (resolvedTokenType && tokenServices[resolvedTokenType]) {
+      return resolvedTokenType;
+    }
+  }
+
+  return null;
+}
+
+watch(
+  () => [route.query.open, route.params.tokentype],
+  ([openQueryValue, createRouteTokenValue]) => {
+    const tokenFromOpenQuery = getTokenFromOpenQuery(openQueryValue);
+
+    if (tokenFromOpenQuery) {
+      openTokenModal(tokenFromOpenQuery);
       return;
     }
 
-    handleClickToken(selectedToken);
+    const tokenFromCreateRoute = getTokenFromCreateRouteParam(
+      createRouteTokenValue
+    );
+
+    if (tokenFromCreateRoute) {
+      openTokenModal(tokenFromCreateRoute);
+      return;
+    }
+
+    if (selectedModalToken.value) {
+      closeCurrentModal.value?.();
+      closeModalState();
+    }
   },
   { immediate: true }
 );

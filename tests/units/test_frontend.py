@@ -86,6 +86,13 @@ def test_get_generate_page(test_client: TestClient) -> None:
     assert response.status_code == 200
 
 
+def test_get_create_page(test_client: TestClient) -> None:
+    if not FrontendSettings().NEW_UI:
+        pytest.skip("Create SPA route is only available in New UI")
+    response = test_client.get("/create/crowdstrike")
+    assert response.status_code == 200
+
+
 def test_redirect_base_to_generate(test_client: TestClient) -> None:
     if FrontendSettings().NEW_UI:
         pytest.skip("New UI does not redirect to /generate")

@@ -61,7 +61,9 @@ const isHoverCard = ref(false);
 const cardTokenRef = ref();
 
 function handleHowToUseButton() {
-  const { open, close } = useModal({
+  let close: () => void = () => {};
+
+  const { open, close: modalClose } = useModal({
     component: ModalToken,
     attrs: {
       selectedToken: props.selectedToken as string,
@@ -69,6 +71,8 @@ function handleHowToUseButton() {
       selectedModalType: 'howToUse',
     },
   });
+
+  close = modalClose;
   open();
 }
 
