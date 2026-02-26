@@ -240,6 +240,7 @@
           Channel: 'HTTP',
         }"
         incident-id="12345"
+        incident-status="alertable"
       />
     </ul>
   </div>
@@ -564,6 +565,7 @@ const alertSample = {
     file_path: '/blah/foo/moo.txt',
   },
   location: null,
+  alert_status: 'alertable',
 };
 </script>
 

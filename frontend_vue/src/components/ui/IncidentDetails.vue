@@ -27,6 +27,7 @@
         :ip="getSrcIp(builtIncidentDetail)"
         :input-channel="
         builtIncidentDetail.basic_info.input_channel"
+        :incident-status="builtIncidentDetail.alert_status"
       />
       <!-- Details -->
       <section class="grid md:grid-cols-[auto_1fr] gap-32 mt-32 pl-8">

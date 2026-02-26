@@ -40,6 +40,7 @@ type AWSKeysIncidentDetails = {
   src_ip: string | null;
   geo_info: any;
   is_tor_relay: boolean | null;
+  alert_status: string;
   additional_info: {
     aws_key_log_data: AWSKeyLogData | null;
     [key: string]: any;
@@ -51,6 +52,7 @@ type CreditCardV2IncidentDetails = {
   basic_info: BasicInfo;
   time_of_hit: string;
   is_tor_relay: null;
+  alert_status: string;
   additional_info: {
     aws_key_log_data: null;
     [key: string]: any;
@@ -64,6 +66,7 @@ type PWAIncidentDetails = {
   src_ip: string;
   geo_info: any;
   is_tor_relay: boolean | null;
+  alert_status: string;
   additional_info: {
     aws_key_log_data: null;
     [key: string]: any;
@@ -104,6 +107,7 @@ type AWSInfraIncidentDetails = {
   decoy_resource: AWSInfraDecoyResource;
   identity: AWSInfraIdentity;
   metadata: AWSInfraMetadata;
+  alert_status: string;
 };
 
 type DefaultIncidentDetails = {
@@ -112,6 +116,7 @@ type DefaultIncidentDetails = {
   src_ip: string;
   geo_info: any;
   is_tor_relay: boolean | null;
+  alert_status: string;
   additional_info: {
     aws_key_log_data: {
       last_used: string | null;
