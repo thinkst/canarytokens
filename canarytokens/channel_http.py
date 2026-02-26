@@ -6,6 +6,7 @@ from twisted.application import internet
 from twisted.logger import Logger
 from twisted.python.failure import Failure
 
+
 # from canarytokens.channel_dns import create_token_hit
 from twisted.web import resource, server
 from twisted.web.resource import EncodingResourceWrapper, Resource
