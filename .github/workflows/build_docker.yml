@@ -112,7 +112,7 @@ jobs:
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
-          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }} && git pull
+          git stash && git checkout master && git pull
           sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
           sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
