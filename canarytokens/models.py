@@ -3090,4 +3090,7 @@ class AWSInfraServiceError(StrEnum):
             return cls.UNKNOWN
 
 
-IGNORABLE_IP_TOKENS = [TokenTypes.AWS_INFRA, TokenTypes.WEB]
+IGNORE_IP_UNSUPPORTED = [
+    TokenTypes.SMTP,  # source IP belongs to SMTP server
+    TokenTypes.CREDIT_CARD_V2,  # source IP is not exposed in token hit
+]

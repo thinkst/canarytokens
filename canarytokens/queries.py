@@ -64,7 +64,7 @@ log = Logger()
 switchboard_settings = SwitchboardSettings()
 
 
-def get_canarydrop(canarytoken: tokens.Canarytoken) -> Optional[cand.Canarydrop]:
+def get_canarydrop(canarytoken: tokens.Canarytoken) -> cand.Canarydrop:
     canarydrop: dict = DB.get_db().hgetall(KEY_CANARYDROP + canarytoken.value())
 
     if len(canarydrop) == 0:
@@ -417,10 +417,7 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
             f"Additional info not supported for hit type: {type(enriched_hit)}"
         )
     canarydrop = get_canarydrop(canarytoken)
-    if (
-        enriched_hit.token_type in models.IGNORABLE_IP_TOKENS
-        and IPv4Address(enriched_hit.src_ip) in canarydrop.alert_ignored_ips
-    ):
+    if canarydrop.should_ignore_ip(enriched_hit.src_ip):
         enriched_hit.alert_status = models.AlertStatus.IGNORED_IP
     triggered_details.hits.append(enriched_hit)
 

@@ -595,12 +595,21 @@ def test_token_error_codes(request_dict: dict[str, str], error_code: str):
     assert code == error_code
 
 
-def test_ip_ignored_token_hit(webhook_receiver):
+@pytest.mark.parametrize(
+    "token_request_type, token_response_type, token_trigger",
+    [
+        (WebBugTokenRequest, WebBugTokenResponse, trigger_http_token),
+        (DNSTokenRequest, DNSTokenResponse, plain_fire_token),
+    ],
+)
+def test_ip_ignored_token_hit(
+    token_request_type, token_response_type, token_trigger, webhook_receiver
+):
     """
     Tests that if a token is triggered from an ignored IP then the hit is marked  with the alerts_status as ignored_ip.
     """
 
-    token_request = WebBugTokenRequest(
+    token_request = token_request_type(
         webhook_url=webhook_receiver,
         memo="test",
     )
@@ -642,11 +651,10 @@ def test_ip_ignored_token_hit(webhook_receiver):
     assert manage_resp.json()["canarydrop"]["alert_ignored_ips"] == ip_ignore_list
 
     # trigger the token
-    resp = trigger_http_token(
-        token_info=WebBugTokenResponse(**token_data),
+    token_trigger(
+        token_info=token_response_type(**token_data),
     )
-    resp.raise_for_status()
 
     # check that the hit is marked as ignored_ip
-    token_history = get_token_history(token_info=WebBugTokenResponse(**token_data))
+    token_history = get_token_history(token_info=token_response_type(**token_data))
     assert token_history["hits"][0]["alert_status"] == AlertStatus.IGNORED_IP.value
