@@ -424,15 +424,6 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
         enriched_hit.alert_status = models.AlertStatus.IGNORED_IP
     triggered_details.hits.append(enriched_hit)
 
-    # if "additional_info" not in triggered_details[hit_time]:
-    #     triggered_details[hit_time]["additional_info"] = {}
-    # for k, v in additional_info.items():
-    #     if k in list(triggered_details[hit_time]["additional_info"].keys()):
-    #         triggered_details[hit_time]["additional_info"][k].update(v)
-    #     else:
-    #         reveal_type(triggered_details[hit_time]["additional_info"][k])
-    #         triggered_details[hit_time]["additional_info"][k] = v
-
     DB.get_db().hset(
         KEY_CANARYDROP + canarytoken.value(),
         "triggered_list",
