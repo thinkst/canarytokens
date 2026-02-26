@@ -39,7 +39,7 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
-    NON_IGNORABLE_IP_TOKENS,
+    IGNORE_IP_UNSUPPORTED,
     AWSInfraState,
     AlertStatus,
     Anonymous,
@@ -321,7 +321,7 @@ class Canarydrop(BaseModel):
             case BrowserScannerSettingsRequest():
                 self.browser_scanner_enabled = setting_request.value == "on"
             case IPIgnoreSettingsRequest():
-                if self.type in NON_IGNORABLE_IP_TOKENS:
+                if self.type in IGNORE_IP_UNSUPPORTED:
                     logger.debug(
                         f"Canarytoken of type {self.type} does not support IP ignoring."
                     )
