@@ -16,7 +16,7 @@ describe('CardIncident.vue', () => {
     const incidentId = '123';
 
     const wrapper = mount(CardIncident, {
-      props: { incidentPreviewInfo, incidentId, lastKey: false },
+      props: { incidentPreviewInfo, incidentId, lastKey: false, incidentStatus: 'alertable' },
     });
 
     expect(wrapper.text()).toContain(incidentPreviewInfo.Date);

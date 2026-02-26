@@ -25,7 +25,20 @@
     >
       <!-- TODO: add number of alerts? -->
       <ul class="flex flex-col h-full gap-16 pb-16">
-        <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+        <div class="flex items-center justify-between">
+          <h2 class="font-semibold leading-5 text-grey-800">Alerts list</h2>
+          <BaseFilterDropDown
+            v-if="hitsList.length > 0"
+            id="alert-filter-dropdown"
+            :filter-options="Object.values(ALERT_FILTER_OPTIONS)"
+            :default-filter-option="ALERT_FILTER_OPTIONS.ALL"
+            name="alert-filter"
+            aria-label="Filter alerts dropdown"
+            @update-filter-option="(value) => handleSelectAlertFilter(value)"
+
+            />
+        </div>
+
         <li
           v-if="hitsList.length === 0"
           class="flex flex-col items-center justify-center flex-grow px-16 py-16 align-middle"
@@ -39,6 +52,20 @@
             class="grayscale opacity-50 w-[50%] not-sr-only group-hover:opacity-100 sm:block mt-16"
           />
         </li>
+        <li
+          v-else-if="filteredHitsList.length === 0 && !hasCustomIncidentsList"
+          class="flex flex-col items-center justify-center flex-grow px-16 py-16 align-middle"
+        >
+          <p class="text-xl text-center text-grey-400">
+            There are no {{ alertFilterOption }} alerts for this Canarytoken.
+          </p>
+          <img
+            :src="getImageUrl(`token_icons/default.png`)"
+            alt="No alerts"
+            class="grayscale opacity-50 w-[50%] not-sr-only group-hover:opacity-100 sm:block mt-16"
+          />
+        </li>
+
         <AlertsListDownload v-else />
         <BaseMessageBox
           v-if="error"
@@ -50,16 +77,18 @@
           <component
             :is="dynamicIncidentList"
             :hits-list="hitsList"
+            :filter-option="alertFilterOption"
             @select-alert="(incident: HitsType) => handleSelectAlert(incident)"
           />
         </template>
         <template v-else>
           <CardIncident
-            v-for="(incident, index) in hitsList"
+            v-for="(incident, index) in filteredHitsList"
             :key="index"
             x
-            :last-key="index === hitsList.length - 1"
+            :last-key="index === filteredHitsList.length - 1"
             :incident-id="incident.time_of_hit"
+            :incident-status="incident.alert_status"
             :incident-preview-info="{
               Date: convertUnixTimeStampToDate(incident.time_of_hit),
               IP: incident.src_ip,
@@ -75,7 +104,7 @@
     <div>
       <div
         class="@md:relative md:h-[45svh] h-[30svh]"
-        :class="hitsList.length === 0 ? 'hidden sm:grid' : 'grid'"
+        :class="filteredHitsList.length === 0 ? 'hidden sm:grid' : 'grid'"
       >
         <transition name="slide-fade">
           <IncidentDetails
@@ -107,6 +136,7 @@ import {
   shallowRef,
   defineAsyncComponent,
   computed,
+  watch,
 } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -123,7 +153,7 @@ import BannerDeviceCanarytools from '@/components/ui/BannerDeviceCanarytools.vue
 import IncidentDetails from '@/components/ui/IncidentDetails.vue';
 import AlertsListDownload from '@/components/ui/AlertsListDownload.vue';
 import { addViewTransition } from '@/utils/utils';
-import { TOKENS_TYPE } from '@/components/constants';
+import { TOKEN_HIT_STATUS, TOKENS_TYPE, ALERT_FILTER_OPTIONS } from '@/components/constants';
 
 const emits = defineEmits(['update-token-title']);
 
@@ -133,9 +163,11 @@ const router = useRouter();
 const isLoading = ref(false);
 const error = ref(false);
 const hitsList: Ref<HitsType[] | undefined> = ref();
+const filteredHitsList: Ref<HitsType[]> = ref([]);
 const selectedAlert = ref();
 const tokenType = ref();
 const dynamicIncidentList = shallowRef();
+const alertFilterOption = ref(ALERT_FILTER_OPTIONS.ALL);
 
 const hasCustomIncidentsList = computed(() => {
   const tokensWithCustomIncidentsList = [TOKENS_TYPE.AWS_INFRA];
@@ -163,6 +195,31 @@ onMounted(async () => {
     }
   }
 });
+
+watch( alertFilterOption, () => {
+  filterTokenHitsList();
+});
+
+watch(hitsList, () => {
+  filterTokenHitsList();
+});
+
+function filterTokenHitsList() {
+  switch (alertFilterOption.value) {
+    case ALERT_FILTER_OPTIONS.ALL:
+      filteredHitsList.value = hitsList.value || [];
+      break;
+    case ALERT_FILTER_OPTIONS.NOTIFIED:
+      filteredHitsList.value = hitsList.value?.filter(
+        (hit) => hit.alert_status === TOKEN_HIT_STATUS.ALERTABLE
+      ) || [];
+      break;
+    case ALERT_FILTER_OPTIONS.IGNORED:
+      filteredHitsList.value = hitsList.value?.filter(
+        (hit) => hit.alert_status === TOKEN_HIT_STATUS.IGNORED_IP
+      ) || [];
+  }
+}
 
 async function fetchTokenHistoryData() {
   isLoading.value = true;
@@ -212,6 +269,11 @@ function showMap(): boolean {
   const tokensWithoutGeoIPInfo = [TOKENS_TYPE.CREDIT_CARD_V2];
   return !tokensWithoutGeoIPInfo.includes(tokenType.value);
 }
+
+function handleSelectAlertFilter(value: string) {
+  alertFilterOption.value = value;
+}
+
 </script>
 
 <style>

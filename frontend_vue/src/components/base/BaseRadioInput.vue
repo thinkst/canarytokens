@@ -24,7 +24,7 @@ const props = defineProps<{
   label: string;
 }>();
 
-const emits = defineEmits(['hasError', 'selectValue']);
+const emits = defineEmits(['hasError', 'selectValue', 'escape']);
 const { value, errorMessage } = useField(props.name);
 
 function handleChangeOption(e: Event) {
