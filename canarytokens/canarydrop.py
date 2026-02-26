@@ -39,8 +39,9 @@ from canarytokens.constants import (
     OUTPUT_CHANNEL_WEBHOOK,
 )
 from canarytokens.models import (
-    IGNORABLE_IP_TOKENS,
+    IGNORE_IP_UNSUPPORTED,
     AWSInfraState,
+    AlertStatus,
     Anonymous,
     AnySettingsRequest,
     AnyTokenEditRequest,
@@ -278,6 +279,9 @@ class Canarydrop(BaseModel):
                 f"All hits must be of a single type. Given {token_hit.token_type}; existing {self.triggered_details.token_type}"
             )
 
+        if self.should_ignore_ip(IPv4Address(token_hit.src_ip)):
+            token_hit.alert_status = AlertStatus.IGNORED_IP
+
         self.triggered_details.hits.append(token_hit)
         max_hits = min(
             len(self.triggered_details.hits), switchboard_settings.MAX_HISTORY
@@ -317,7 +321,7 @@ class Canarydrop(BaseModel):
             case BrowserScannerSettingsRequest():
                 self.browser_scanner_enabled = setting_request.value == "on"
             case IPIgnoreSettingsRequest():
-                if self.type not in IGNORABLE_IP_TOKENS:
+                if self.type in IGNORE_IP_UNSUPPORTED:
                     logger.debug(
                         f"Canarytoken of type {self.type} does not support IP ignoring."
                     )
