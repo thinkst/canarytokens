@@ -466,7 +466,7 @@ export const tokenServices: TokenServicesType = {
     howItWorksInstructions: [
       'We give you a WebDAV host and credentials',
       'You map a drive to that network folder.',
-      'We send you an alert if an attacker browses that folder.',
+      'We send you an alert if an attacker downloads files from that folder.',
     ],
     category: TOKEN_CATEGORY.OTHER,
   },

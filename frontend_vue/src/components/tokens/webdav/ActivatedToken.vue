@@ -1,7 +1,7 @@
 <template>
   <TokenDisplay :token-data="tokenCode" />
   <p class="mt-16 text-sm">
-    When the WebDAV folder is browsed, your Canarytoken will be triggered.
+    When files are downloaded from the WebDAV folder, your Canarytoken will be triggered.
   </p>
   <p class="mt-16 text-sm">
     <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
