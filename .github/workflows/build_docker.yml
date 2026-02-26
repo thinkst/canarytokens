@@ -39,7 +39,6 @@ jobs:
           ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
 
       - name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
@@ -64,21 +63,6 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
 
-      - name: Cache
-        uses: actions/cache@v4
-        id: cache
-        with:
-          path: cache-mount
-          key: cache-mount-${{ hashFiles('canarytokens-docker/canarytokens/Dockerfile.ci') }}
-
-      - name: Restore Docker cache mounts
-        uses: reproducible-containers/buildkit-cache-dance@v3
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          cache-dir: cache-mount
-          dockerfile: canarytokens-docker/canarytokens/Dockerfile.ci
-          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
-
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v6.8.0
@@ -95,8 +79,6 @@ jobs:
             GOOGLE_MAPS_API_KEY=${{ github.ref == 'refs/heads/master' && secrets.GOOGLE_MAPS_API_KEY_PROD || secrets.GOOGLE_MAPS_API_KEY_DEV }}
             CLOUDFLARE_TURNSTILE_SITE_KEY=${{ github.ref == 'refs/heads/master' && secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD || secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}
             GITHUB_SHA=${{ github.ref != 'refs/heads/master' && github.sha || '' }}
-            BRANCH=${{ github.ref_name }}
-
 
     outputs:
       canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
