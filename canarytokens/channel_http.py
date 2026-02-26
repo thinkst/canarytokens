@@ -32,10 +32,7 @@ from canarytokens.utils import coerce_to_float
 
 log = Logger()
 
-# from jinja2 import Environment, FileSystemLoader
 
-
-# from canarytokens.settings import
 class CanarytokenPage(InputChannel, resource.Resource):
     CHANNEL = INPUT_CHANNEL_HTTP
     isLeaf = True
