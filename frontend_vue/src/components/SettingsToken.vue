@@ -64,6 +64,28 @@
         )
       "
     />
+    <BaseSwitch
+      v-if="isIPIgnorable"
+      id="ip-ignore"
+      v-model="settingRefs.IP_IGNORE"
+      label="Ignore IP addresses"
+      helper-message="IPs for which alerts are ignored."
+      :loading="loadingRefs.IP_IGNORE"
+      :has-error="errorRefs.IP_IGNORE"
+      :error-message="errorMessage"
+      @click.prevent="
+        handleChangeIPIgnoreSetting(
+          !settingRefs.IP_IGNORE
+        )
+      "
+    />
+    <IPIgnoreList
+      v-show="settingRefs.IP_IGNORE"
+      :canary-drop="tokenBackendResponse.canarydrop"
+      @ip-list-saved="handleIPListSaved"
+      />
+
+
   </div>
 </template>
 
@@ -79,9 +101,15 @@ import {
   GET_SETTINGS_BACKEND_TYPE,
   TOKENS_TYPE,
 } from '@/components/constants';
+import IPIgnoreList from '@/components/ui/IPIgnoreList.vue';
 
 const props = defineProps<{
   tokenBackendResponse: ManageTokenBackendType;
+}>();
+
+const emit = defineEmits<{
+  'update-ignored-ips': [ipList: string[]];
+  'update-ignore-ips-enabled': [isEnabled: boolean];
 }>();
 
 function isSupportBrowserScan() {
@@ -96,6 +124,13 @@ function isSupportCustomImage() {
   return props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
 }
 
+function isSupportIPIgnoreList() {
+  return (
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
+    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.AWS_INFRA
+  );
+}
+
 // Check which settings are available for this Token
 const hasEmailAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_email_recipient
@@ -105,6 +140,7 @@ const hasWebhookAlert = ref(
 );
 const hasBrowserScan = ref(isSupportBrowserScan());
 const hasCustomImage = ref(isSupportCustomImage());
+const isIPIgnorable = ref(isSupportIPIgnoreList());
 
 // State of each setting type
 const settingRefs = ref({
@@ -112,6 +148,7 @@ const settingRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
+  [SETTINGS_TYPE.IP_IGNORE]: false,
 });
 
 // Handle Loading for Switch Component during settings change
@@ -120,6 +157,7 @@ const loadingRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
+  [SETTINGS_TYPE.IP_IGNORE]: false,
 });
 
 // Handle Errors for Switch Component during settings change
@@ -128,6 +166,7 @@ const errorRefs = ref({
   [SETTINGS_TYPE.WEB_HOOK]: false,
   [SETTINGS_TYPE.BROWSER_SCANNER]: false,
   [SETTINGS_TYPE.WEB_IMAGE]: false,
+  [SETTINGS_TYPE.IP_IGNORE]: false,
 });
 
 const errorMessage = 'An error occurred. Please try again.';
@@ -187,5 +226,28 @@ async function handleChangeSetting(
   } finally {
     loadingRefs.value[settingType] = false;
   }
+}
+
+function handleChangeIPIgnoreSetting(isEnabled: boolean) {
+  const currentIPs = props.tokenBackendResponse.canarydrop.alert_ignored_ips;
+  if ((!currentIPs || currentIPs.length === 0) && isEnabled) {
+    // Don't make the API call until they've added at least one IP to ignore, to avoid enabling the setting with an empty IP list
+    settingRefs.value[SETTINGS_TYPE.IP_IGNORE] = isEnabled;
+    return;
+  }
+  handleChangeSetting(SETTINGS_TYPE.IP_IGNORE as keyof typeof SETTINGS_TYPE, isEnabled);
+  emit('update-ignore-ips-enabled', isEnabled);
+
+}
+
+function handleIPListSaved(ipList: string[]) {
+  if (ipList.length === 0 && settingRefs.value[SETTINGS_TYPE.IP_IGNORE]) {
+    handleChangeSetting(SETTINGS_TYPE.IP_IGNORE as keyof typeof SETTINGS_TYPE, false);
+    emit('update-ignore-ips-enabled', false);
+  } else if (ipList.length > 0 && !props.tokenBackendResponse.canarydrop.alert_ip_ignore_enabled) {
+    handleChangeSetting(SETTINGS_TYPE.IP_IGNORE as keyof typeof SETTINGS_TYPE, true);
+    emit('update-ignore-ips-enabled', true);
+  }
+  emit('update-ignored-ips', ipList);
 }
 </script>

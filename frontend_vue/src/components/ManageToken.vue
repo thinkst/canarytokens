@@ -68,6 +68,8 @@
       <SettingsToken
         :token-backend-response="manageTokenResponse"
         class="mt-32"
+        @update-ignored-ips="handleUpdateIPIgnoreList"
+        @update-ignore-ips-enabled="handleUpdateIPIgnoreListEnable"
       ></SettingsToken>
       <BaseMessageBox
         class="mt-32"
@@ -167,6 +169,14 @@ function handleCheckHistory() {
 
 function handleGoToExposedToken() {
   window.open(keyExposedHit.value.public_location, '_blank');
+}
+
+function handleUpdateIPIgnoreList(ipList: string[]) {
+  manageTokenResponse.value.canarydrop.alert_ignored_ips = ipList;
+}
+
+function handleUpdateIPIgnoreListEnable(enabled: boolean) {
+  manageTokenResponse.value.canarydrop.alert_ip_ignore_enabled = enabled;
 }
 
 async function fetchTokenData() {
