@@ -32,11 +32,12 @@ jobs:
 
       - uses: actions/checkout@v4.2.0
 
-      - uses: actions/checkout@v4.2.0
-        with:
-          repository: thinkst/canarytokens-docker
-          path: canarytokens-docker
-          ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
+      - name: fetch dockerfile
+        run: |
+          mkdir -p dockerfiles
+          curl -L \
+            https://raw.githubusercontent.com/thinkst/canarytokens-docker/${CANARYTOKENS_DOCKER_BRANCH}/canarytokens/Dockerfile.ci \
+            -o dockerfiles/Dockerfile.ci
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
