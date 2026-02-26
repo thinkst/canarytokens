@@ -301,6 +301,10 @@ if frontend_settings.NEW_UI:
     @app.get("/nest/entra/{rest_of_path:path}")
     @app.get("/nest/generate")
     @app.get("/generate")
+    @app.get("/create")
+    @app.get("/create/{rest_of_path:path}")
+    @app.get("/nest/create")
+    @app.get("/nest/create/{rest_of_path:path}")
     def index(request: Request):
         response = vue_index.TemplateResponse("index.html", {"request": request})
         if request.url.path not in ["/", "/nest"]:

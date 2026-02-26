@@ -22,6 +22,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/create/:tokentype',
+      name: 'create',
+      component: HomeView,
+      meta: {
+        title: 'Create New Canarytoken',
+      },
+    },
+    {
       path: '/generate/:tokentype',
       name: 'generate-custom',
       component: () => import('../views/CustomFlowView.vue'),

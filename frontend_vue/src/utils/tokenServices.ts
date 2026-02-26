@@ -5,6 +5,7 @@ export type TokenServiceType = {
   description: string;
   documentationLink: string;
   icon: string;
+  createRouteTokenAlias: string;
   instruction: string;
   howItWorksInstructions?: string[];
   category?: string | string[];
@@ -22,6 +23,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker visits your URL.',
     documentationLink: 'https://docs.canarytokens.org/guide/http-token.html',
     icon: `${TOKENS_TYPE.WEB_BUG}.png`,
+    createRouteTokenAlias: 'web-bug',
     instruction: 'Copy this URL to your clipboard and use as you wish',
     howItWorksInstructions: [
       'We give you a unique URL.',
@@ -36,6 +38,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker resolves a DNS name.',
     documentationLink: 'https://docs.canarytokens.org/guide/dns-token.html',
     icon: `${TOKENS_TYPE.DNS}.png`,
+    createRouteTokenAlias: 'dns',
     instruction: 'Copy this URL to your clipboard and use as you wish',
     howItWorksInstructions: [
       'We give you a unique DNS name.',
@@ -50,6 +53,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker explores your AWS Infrastructure',
     documentationLink: 'https://docs.canarytokens.org/guide/#',
     icon: `${TOKENS_TYPE.AWS_INFRA}.png`,
+    createRouteTokenAlias: 'aws-infra',
     instruction: 'Here goes the instruction for this token',
     howItWorksInstructions: [
       'We guide you through creating a Terraform configuration for decoy AWS resources',
@@ -66,6 +70,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker attempts to use your credit card.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.CREDIT_CARD_V2}.png`,
+    createRouteTokenAlias: 'credit-card',
     instruction:
       "Place it on your computer and get notified when you're breached:",
     howItWorksInstructions: [
@@ -81,6 +86,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker follows your QR Code.',
     documentationLink: 'https://docs.canarytokens.org/guide/qr-code-token.html',
     icon: `${TOKENS_TYPE.QRCODE}.png`,
+    createRouteTokenAlias: 'qr-code',
     instruction: 'Use this QR Code to token a physical location or object:',
     howItWorksInstructions: [
       'We give you a unique QR code.',
@@ -96,6 +102,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/mysql-dump-token.html',
     icon: `${TOKENS_TYPE.MYSQL}.png`,
+    createRouteTokenAlias: 'mysql',
     instruction: '',
     howItWorksInstructions: [
       'We give you a uniquely generated MySQL dump.',
@@ -111,6 +118,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/aws-keys-token.html',
     icon: `${TOKENS_TYPE.AWS_KEYS}.png`,
+    createRouteTokenAlias: 'aws-keys',
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
     howItWorksInstructions: [
@@ -127,6 +135,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/fake-app-token.html',
     icon: `${TOKENS_TYPE.PWA}.png`,
+    createRouteTokenAlias: 'pwa',
     instruction:
       "Open the link to the app's page in your Native Browser (iOS: Safari, Android: Chrome) and install the app.",
     howItWorksInstructions: [
@@ -143,6 +152,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when a log4j logline is vulnerable to CVE-2021-44-228.',
     documentationLink: '',
     icon: `${TOKENS_TYPE.LOG4SHELL}.png`,
+    createRouteTokenAlias: 'log4shell',
     instruction:
       'The next step is to copy the log4j snippet below and test your systems for the log4shell issue.',
     howItWorksInstructions: [
@@ -160,6 +170,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/fast-redirect-token.html',
     icon: `${TOKENS_TYPE.FAST_REDIRECT}.png`,
+    createRouteTokenAlias: 'fast-redirect',
     instruction: 'Copy this URL to your clipboard and use as you wish:',
     howItWorksInstructions: [
       'We give you a unique URL.',
@@ -176,6 +187,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/slow-redirect-token.html',
     icon: `${TOKENS_TYPE.SLOW_REDIRECT}.png`,
+    createRouteTokenAlias: 'slow-redirect',
     instruction: 'Copy this URL to your clipboard and use as you wish:',
     howItWorksInstructions: [
       'We give you a unique URL.',
@@ -191,6 +203,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/sensitive-cmd-token.html',
     icon: `${TOKENS_TYPE.SENSITIVE_CMD}.png`,
+    createRouteTokenAlias: 'sensitive-command',
     instruction: '',
     howItWorksInstructions: [
       'We give you a Windows registry file.',
@@ -206,6 +219,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker accesses a file in the fake file system.',
     documentationLink: 'https://docs.canarytokens.org/guide/TBD.html',
     icon: `${TOKENS_TYPE.WINDOWS_FAKE_FS}.png`,
+    createRouteTokenAlias: 'windows-fake-fs',
     instruction: '',
     howItWorksInstructions: [
       'We give you a Powershell script.',
@@ -221,6 +235,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/web-image-token.html',
     icon: `${TOKENS_TYPE.WEB_IMAGE}.png`,
+    createRouteTokenAlias: 'web-image',
     instruction: 'Copy this URL to your clipboard and use as you wish:',
     howItWorksInstructions: [
       'We give you a unique image.',
@@ -236,6 +251,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker uses your Azure Service Principal certificate to login with.',
     documentationLink: '',
     icon: `${TOKENS_TYPE.AZURE_ID}.png`,
+    createRouteTokenAlias: 'azure-login-certificate',
     instruction: 'Save this json config file along with the certificate:',
     howItWorksInstructions: [
       'We give you a unique certificate to login.',
@@ -252,6 +268,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_EXCEL}.png`,
+    createRouteTokenAlias: 'microsoft-excel',
     instruction: '',
     howItWorksInstructions: [
       'We give you a unique Microsoft Excel document.',
@@ -268,6 +285,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/ms-excel-token.html',
     icon: `${TOKENS_TYPE.MICROSOFT_WORD}.png`,
+    createRouteTokenAlias: 'microsoft-word',
     instruction: '',
     howItWorksInstructions: [
       'We give you a unique Microsoft Word document.',
@@ -282,6 +300,7 @@ export const tokenServices: TokenServicesType = {
     description: 'Get an alert when an attacker checks out an SVN repository.',
     documentationLink: 'https://docs.canarytokens.org/guide/svn-token.html',
     icon: `${TOKENS_TYPE.SVN}.png`,
+    createRouteTokenAlias: 'svn',
     instruction: 'Run this SVN command in a dummy repo:',
     howItWorksInstructions: [
       'We give you a unique SVN token.',
@@ -297,6 +316,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker sends an email to this unique address.',
     documentationLink: '',
     icon: `${TOKENS_TYPE.UNIQUE_EMAIL}.png`,
+    createRouteTokenAlias: 'unique-email',
     instruction: 'Here is a unique email address:',
     howItWorksInstructions: [
       'We give you a unique email address.',
@@ -313,6 +333,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/sql-server-token.html',
     icon: `${TOKENS_TYPE.SQL_SERVER}.png`,
+    createRouteTokenAlias: 'sql-server',
     instruction:
       'The next step is to copy the SQL snippet below and run it in your SQL Server database.',
     howItWorksInstructions: [
@@ -329,6 +350,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/custom-exe-token.html',
     icon: `${TOKENS_TYPE.CUSTOM_EXE}.png`,
+    createRouteTokenAlias: 'custom-exe',
     instruction: 'Save this file and deploy on Windows machines:',
     howItWorksInstructions: [
       'We give you a tokenized EXE or DLL file.',
@@ -345,6 +367,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/adobe-pdf-token.html',
     icon: `${TOKENS_TYPE.PDF}.png`,
+    createRouteTokenAlias: 'adobe-pdf',
     instruction: '',
     howItWorksInstructions: [
       'We give you a PDF document.',
@@ -361,6 +384,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/windows-directory-token.html',
     icon: `${TOKENS_TYPE.WINDOWS_FOLDER}.png`,
+    createRouteTokenAlias: 'windows-folder',
     instruction: '',
     howItWorksInstructions: [
       'We give you a .ini file.',
@@ -377,6 +401,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/cloned-web-token.html',
     icon: `${TOKENS_TYPE.CLONED_WEBSITE}.png`,
+    createRouteTokenAlias: 'cloned-website',
     instruction: 'Place this Javascript on the page you wish to protect:',
     howItWorksInstructions: [
       'We give you a Javascript snippet.',
@@ -393,6 +418,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/css-cloned-site-token.html',
     icon: `${TOKENS_TYPE.CSS_CLONED_SITE}.png`,
+    createRouteTokenAlias: 'css-cloned-site',
     instruction:
       'Place this CSS on the page you wish to protect, or import it as custom branding:',
     howItWorksInstructions: [
@@ -409,6 +435,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/kubeconfig-token.html',
     icon: `${TOKENS_TYPE.KUBECONFIG}.png`,
+    createRouteTokenAlias: 'kubeconfig',
     instruction: '',
     howItWorksInstructions: [
       'We give you a YAML file.',
@@ -425,6 +452,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/wireguard-token.html',
     icon: `${TOKENS_TYPE.WIREGUARD}.png`,
+    createRouteTokenAlias: 'wireguard',
     instruction:
       'Scan this QR Code with the WireGuard app on your phone or copy the config below.',
     howItWorksInstructions: [
@@ -441,6 +469,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker phishes your Azure Entra ID login.',
     documentationLink: 'https://docs.canarytokens.org/guide/entraid-token.html',
     icon: `${TOKENS_TYPE.AZURE_ENTRA_CONFIG}.png`,
+    createRouteTokenAlias: 'azure-entra-config',
     instruction:
       "This token can be deployed automatically or manually. It inserts CSS into your Azure tenant's Entra ID login page to detect when the page has been cloned.",
     howItWorksInstructions: [
@@ -461,6 +490,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker browsers a mapped Network Folder (WebDAV).',
     documentationLink: 'https://docs.canarytokens.org/guide/webdav-token.html',
     icon: `${TOKENS_TYPE.WEBDAV}.png`,
+    createRouteTokenAlias: 'webdav',
     instruction:
       'Map a drive to the host below, with any username and the password below.',
     howItWorksInstructions: [
@@ -476,6 +506,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker opens a fake app from your Identity Provider dashboard.',
     documentationLink: 'https://docs.canarytokens.org/guide/idp-app-token.html',
     icon: `${TOKENS_TYPE.IDP_APP}.png`,
+    createRouteTokenAlias: 'idp-app',
     instruction:
       'Use these details to create an app in your Identity Provider.',
     howItWorksInstructions: [
@@ -492,6 +523,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker uses your CrowdStrike API credentials.',
     documentationLink: 'https://docs.canarytokens.org/guide/crowdstrike-cc-token.html',
     icon: `${TOKENS_TYPE.CROWDSTRIKE_CC}.png`,
+    createRouteTokenAlias: 'crowdstrike',
     instruction:
       'Copy this credential pair to your clipboard to use as desired:',
     howItWorksInstructions: [
