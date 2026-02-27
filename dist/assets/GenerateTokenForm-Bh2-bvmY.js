@@ -1,1 +1,0 @@
-import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-C6fWu3Ae.js";import{d as o,e as r,f as n}from"./index-MEdnovcy.js";const s=o({__name:"GenerateTokenForm",setup(a){return(t,m)=>(r(),n(e,{"memo-helper-example":"Kubeconfig token placed on web server WEB01"}))}});export{s as default};
