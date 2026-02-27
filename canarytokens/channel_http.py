@@ -6,7 +6,6 @@ from twisted.application import internet
 from twisted.logger import Logger
 from twisted.python.failure import Failure
 
-
 # from canarytokens.channel_dns import create_token_hit
 from twisted.web import resource, server
 from twisted.web.resource import EncodingResourceWrapper, Resource
@@ -30,7 +29,10 @@ from canarytokens.utils import coerce_to_float
 
 log = Logger()
 
+# from jinja2 import Environment, FileSystemLoader
 
+
+# from canarytokens.settings import
 class CanarytokenPage(InputChannel, resource.Resource):
     CHANNEL = INPUT_CHANNEL_HTTP
     isLeaf = True
