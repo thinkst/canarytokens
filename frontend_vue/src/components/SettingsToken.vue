@@ -126,8 +126,8 @@ function isSupportCustomImage() {
 
 function isSupportIPIgnoreList() {
   return (
-    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
-    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.AWS_INFRA
+    props.tokenBackendResponse.canarydrop.type !== TOKENS_TYPE.UNIQUE_EMAIL &&
+    props.tokenBackendResponse.canarydrop.type !== TOKENS_TYPE.CREDIT_CARD_V2
   );
 }
 
