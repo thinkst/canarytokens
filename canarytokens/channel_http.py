@@ -102,9 +102,11 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return GIF
 
         if canarydrop.type == TokenTypes.PWA:
+            template_env = get_template_env()
+            template_env.autoescape = True
             if request.path.endswith(b"/manifest.json"):
                 request.setHeader("Content-Type", "application/manifest+json")
-                template = get_template_env().get_template("pwa_manifest.json")
+                template = template_env.get_template("pwa_manifest.json")
                 params = {
                     "app_name": canarydrop.pwa_app_name,
                     "icon": canarydrop.pwa_icon.value,
@@ -112,10 +114,10 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 return template.render(**params).encode()
             elif request.path.endswith(b"/sw.js"):
                 request.setHeader("Content-Type", "text/javascript")
-                template = get_template_env().get_template("pwa_sw.js")
+                template = template_env.get_template("pwa_sw.js")
                 return template.render().encode()
             elif request.args == {}:
-                template = get_template_env().get_template("pwa.html")
+                template = template_env.get_template("pwa.html")
                 params = {
                     "app_name": canarydrop.pwa_app_name,
                     "token_url": canarydrop.generated_url,
