@@ -2020,6 +2020,10 @@ def _(
 ) -> PWATokenResponse:
     canarydrop.pwa_icon = token_request_details.icon
     if token_request_details.app_name:
+        if len(token_request_details.app_name) > 30:
+            raise HTTPException(
+                status_code=400, detail="PWA app name must be 30 characters or less"
+            )
         canarydrop.pwa_app_name = token_request_details.app_name
     else:
         canarydrop.pwa_app_name = PWA_APP_TITLES[token_request_details.icon]
