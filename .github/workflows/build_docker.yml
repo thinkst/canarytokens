@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "master"
-      - "dev"
-      - "dev2"
 
   workflow_dispatch:
     inputs:
@@ -76,10 +74,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            CACHE_BUSTER_COMMIT=${{ github.sha }}
+            GITHUB_SHA=${{ github.sha }}
             GOOGLE_MAPS_API_KEY=${{ github.ref == 'refs/heads/master' && secrets.GOOGLE_MAPS_API_KEY_PROD || secrets.GOOGLE_MAPS_API_KEY_DEV }}
             CLOUDFLARE_TURNSTILE_SITE_KEY=${{ github.ref == 'refs/heads/master' && secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD || secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}
-            GITHUB_SHA=${{ github.ref != 'refs/heads/master' && github.sha || '' }}
+            VITE_GITHUB_SHA=${{ github.ref != 'refs/heads/master' && github.sha || '' }}
 
     outputs:
       canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
@@ -94,7 +92,7 @@ jobs:
           cd /home/ubuntu/canarytokens-scripts/
           ./canarytokensdb_s3backup.sh
           cd /home/ubuntu/canarytokens-docker
-          git stash && git checkout ${{ needs.build.outputs.canarytokens-docker-branch }} && git pull
+          git stash && git checkout master && git pull
           sed "s/thinkst\/canarytokens$/thinkst\/canarytokens:${GITHUB_REF##*/}/g" common-services.yml > common-services-${GITHUB_REF##*/}.yml
           sed "s/file: common-services.yml/file: common-services-${GITHUB_REF##*/}.yml/g" docker-compose-letsencrypt.yml > docker-compose-letsencrypt-${GITHUB_REF##*/}.yml
           sed -i'' "s/CANARY_DEV_BUILD_ID=.*/CANARY_DEV_BUILD_ID=${GITHUB_SHA:0:8}/" frontend.env
