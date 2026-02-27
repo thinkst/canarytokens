@@ -1,1 +1,0 @@
-import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-C6fWu3Ae.js";import{d as o,e as a,f as r}from"./index-MEdnovcy.js";const p=o({__name:"GenerateTokenForm",setup(t){return(c,m)=>(a(),r(e,{"memo-helper-example":"Excel document placed at U:\\Users\\Max\\REPORTS\\feb.doc"}))}});export{p as default};

@@ -1,1 +1,0 @@
-import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-lHu_yr5h.js";import{d as a,a as r,b as o}from"./index-CvZxS35p.js";const s=a({__name:"GenerateTokenForm",setup(t){return(n,m)=>(r(),o(e,{"memo-helper-example":"Credit Card placed in payment card database"}))}});export{s as default};

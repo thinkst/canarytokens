@@ -1,1 +1,0 @@
-import{d as o,e as n,h as s}from"./index-C8tSFf5z.js";const p=o({__name:"ButtonActivateTokenTips",emits:["howToUse"],setup(r){return(t,e)=>(n(),s("button",{class:"inline-block text-sm cursor-pointer text-green hover:text-green-600",onClick:e[0]||(e[0]=i=>t.$emit("howToUse"))}," Need more tips? "))}});export{p as _};
