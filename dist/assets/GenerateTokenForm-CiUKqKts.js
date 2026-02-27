@@ -1,1 +1,0 @@
-import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-Cn2DEkdV.js";import{d as o,a,b as n}from"./index-BWqoNE0f.js";const _=o({__name:"GenerateTokenForm",setup(r){return(t,m)=>(a(),n(e,{"memo-helper-example":"WireGuard VPN config installed on Siya's phone"}))}});export{_ as default};

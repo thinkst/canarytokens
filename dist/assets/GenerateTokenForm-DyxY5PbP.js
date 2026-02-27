@@ -1,1 +1,0 @@
-import{_ as e}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-Cn2DEkdV.js";import{d as o,a as r,b as a}from"./index-BWqoNE0f.js";const s=o({__name:"GenerateTokenForm",setup(n){return(t,m)=>(r(),a(e,{"memo-helper-example":"URL within Dropbox"}))}});export{s as default};

@@ -1,1 +1,0 @@
-import{_ as e}from"./TokenSetupWizard.vue_vue_type_style_index_0_lang-BbDX7rKc.js";import{d as o,e as a,f as t}from"./index-C8tSFf5z.js";import"./StepState.vue_vue_type_script_setup_true_lang-CF2FbRFm.js";const p=o({__name:"ManageTokenCustom",setup(n){return(r,s)=>(a(),t(e,{"is-manage-token":!0}))}});export{p as default};

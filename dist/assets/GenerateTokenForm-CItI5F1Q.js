@@ -1,4 +1,0 @@
-import{d as s,e as n,h as t,i as e,O as r,C as a}from"./index-BYcYhT0r.js";import{_ as i}from"./GenerateTokenSettingsNotifications.vue_vue_type_script_setup_true_lang-Bb9Efdgq.js";import"./BaseFormTextField.vue_vue_type_style_index_0_lang-Dx1b__ln.js";import"./BaseLabelArrow.vue_vue_type_style_index_0_lang-CV0hEulT.js";import"./BaseLabel.vue_vue_type_script_setup_true_lang-w2ddoDUg.js";const h=s({__name:"GenerateTokenForm",setup(m){return(c,p)=>{const o=a;return n(),t(r,null,[e(o,{variant:"warning",message:`This token only works on Windows 10 systems and lower. It does
-      not work on Windows 11 or higher. This is because a recent group policy update to
-      some versions of Windows defaults to disabling functionality that this token
-      relies on to fire.`}),e(i,{"memo-helper-example":" Directory token placed in U:\\Users\\Max\\CrediCardsReports\\"})],64)}}});export{h as default};
