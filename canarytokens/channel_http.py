@@ -125,7 +125,14 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 }
                 return template.render(**params).encode()
 
-        handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
+        try:
+            handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
+        except AttributeError:
+            log.debug(
+                f"Received a request for token '{canarytoken.value()}' of type '{canarydrop.type}' which does not support alerting via HTTP."
+            )
+            request.setHeader("Content-Type", "image/gif")
+            return GIF
         http_general_info, src_data = handler(request)
 
         # TODO we should fail gracefully when third party dependency fails
