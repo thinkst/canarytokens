@@ -32,26 +32,21 @@ jobs:
 
 
       - uses: actions/checkout@v4.2.0
-        with:
-          repository: thinkst/canarytokens-docker
-          path: canarytokens-docker
-          ref: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
+
+      - name: Fetch dockerfile
+        run: |
+          mkdir -p dockerfiles
+          curl -L https://raw.githubusercontent.com/thinkst/canarytokens-docker/${CANARYTOKENS_DOCKER_BRANCH}/canarytokens/Dockerfile.ci \
+            -o dockerfiles/Dockerfile.ci
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
         uses: docker/login-action@v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Fixup the build branch
-        run: |
-          sed -i'' "s/master/${GITHUB_REF##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
-          sed -i'' "s/_COMMIT_HASH_/${GITHUB_SHA##*/}/g" /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
-          echo "Building for ${GITHUB_REF##*/}"
-          cat /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens/Dockerfile
 
       - name: Docker meta
         id: meta
@@ -73,17 +68,18 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v6.8.0
         with:
-          context: /home/runner/work/canarytokens/canarytokens/canarytokens-docker/canarytokens
+          context: .
+          file: dockerfiles/Dockerfile.ci
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ github.ref_name == 'master' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            CACHE_BUSTER_COMMIT=${{ github.sha }}
+            GITHUB_SHA=${{ github.sha }}
             GOOGLE_MAPS_API_KEY=${{ github.ref == 'refs/heads/master' && secrets.GOOGLE_MAPS_API_KEY_PROD || secrets.GOOGLE_MAPS_API_KEY_DEV }}
             CLOUDFLARE_TURNSTILE_SITE_KEY=${{ github.ref == 'refs/heads/master' && secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_PROD || secrets.CLOUDFLARE_TURNSTILE_SITE_KEY_DEV }}
-            GITHUB_SHA=${{ github.ref != 'refs/heads/master' && github.sha || '' }}
+            VITE_GITHUB_SHA=${{ github.ref != 'refs/heads/master' && github.sha || '' }}
 
     outputs:
       canarytokens-docker-branch: ${{ env.CANARYTOKENS_DOCKER_BRANCH }}
