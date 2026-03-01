@@ -2,6 +2,7 @@
   <BaseModal
     :title="title"
     :has-close-button="hasCloseButton"
+    @update:model-value="handleModalVisibilityChange"
   >
     <!-- Header -->
     <!-- Back Button-->
@@ -165,7 +166,7 @@ enum ModalType {
 
 const props = defineProps<{
   selectedToken: string;
-  closeModal: () => void;
+  closeModal: (options?: { keepRoute?: boolean }) => void | Promise<void>;
   selectedModalType?: string;
 }>();
 
@@ -238,11 +239,11 @@ async function handleHowToUseButton() {
   ).then(() => componentStack.value.push(modalType.value));
 }
 
-function handleManageTokenButton() {
+async function handleManageTokenButton() {
   const auth = newTokenResponse.value?.auth_token;
   const token = newTokenResponse.value?.token;
-  router.push({ name: 'manage', params: { auth, token } });
-  props.closeModal();
+  await router.push({ name: 'manage', params: { auth, token } });
+  await props.closeModal({ keepRoute: true });
 }
 
 async function handleBackButton() {
@@ -290,13 +291,13 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
     // if Token type has Custom Generate flow, go to custom page
     if (tokenServices[props.selectedToken].isCustomGenerateFlow) {
       setTokenData(res.data as TokenDataType);
-      router.push({
+      await router.push({
         name: 'generate-custom',
         params: {
           tokentype: props.selectedToken,
         },
       });
-      props.closeModal();
+      await props.closeModal({ keepRoute: true });
       return;
     }
 
@@ -317,6 +318,12 @@ async function handleGenerateToken(formValues: BaseFormValuesType) {
 
 function handleInvalidSubmit() {
   triggerSubmit.value = false;
+}
+
+function handleModalVisibilityChange(isOpen: boolean) {
+  if (!isOpen) {
+    props.closeModal();
+  }
 }
 
 // More info on Error handling for Suspense:

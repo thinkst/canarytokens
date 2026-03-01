@@ -49,10 +49,11 @@ const props = defineProps<{
 const slideContent = ref<string[]>(
   tokenServices[props.selectedToken].howItWorksInstructions || []
 );
+const step1Image = `step1/${tokenServices[props.selectedToken].icon}`;
 
 const items = [
   {
-    imgSrc: 'icons/howitworks_step_1.png',
+    imgSrc: step1Image,
     altText: 'Create it',
     header: 'Create it',
     paragraph: slideContent.value[0],
