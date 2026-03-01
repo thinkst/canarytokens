@@ -127,7 +127,6 @@ jobs:
         run: |
           cd tests
           poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 75
-        continue-on-error: ${{ github.ref_name != 'master' }}
 
 
       - name: Run integration tests (against local V3)
