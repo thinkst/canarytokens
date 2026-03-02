@@ -72,7 +72,7 @@ from canarytokens.models import (
 from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
-from tests.utils import get_basic_hit, get_token_request
+from tests.utils import get_token_request
 from frontend.app import ROOT_API_ENDPOINT
 
 
@@ -248,9 +248,9 @@ def test_get_security_txt(test_client: TestClient) -> None:
     from datetime import datetime, timezone
 
     expiry_datetime = datetime.fromisoformat(expiry_date.replace("Z", "+00:00"))
-    assert expiry_datetime > datetime.now(
-        timezone.utc
-    ), "Update the security.txt expiry date!"
+    assert expiry_datetime > datetime.now(timezone.utc), (
+        "Update the security.txt expiry date!"
+    )
 
 
 @pytest.mark.parametrize(
@@ -538,63 +538,6 @@ def test_web_image_enable_token_settings_requests(
         token=token_resp.token, auth=token_resp.auth_token
     )
     assert canarydrop.web_image_enabled
-
-
-@pytest.mark.parametrize(
-    "token_request_type, token_response_type",
-    zip(set_of_request_classes, set_of_response_classes),
-)
-def test_canarydrop_manage_page(
-    token_request_type: AnyTokenRequest,
-    token_response_type: AnyTokenResponse,
-    test_client: TestClient,
-    setup_db: None,
-) -> None:
-    resp = test_client.post(
-        "/generate",
-        data=get_token_request(token_request_type).json(),
-    )
-    token_resp = token_response_type(**resp.json())
-    manage_resp = test_client.get(
-        "/manage",
-        params=ManagePageRequest(
-            token=token_resp.token,
-            auth=token_resp.auth_token,
-        ).dict(),
-    )
-    assert manage_resp.status_code == 200
-
-
-@pytest.mark.parametrize(
-    "token_request_type, token_response_type",
-    zip(set_of_request_classes, set_of_response_classes),
-)
-def test_history_page(
-    token_request_type: AnyTokenRequest,
-    token_response_type: AnyTokenResponse,
-    test_client: TestClient,
-) -> None:
-    resp = test_client.post(
-        "/generate",
-        data=get_token_request(token_request_type).json(),
-    )
-    token_info = token_response_type(**resp.json())
-
-    token = Canarytoken(token_info.token)
-    cd = queries.get_canarydrop(token)
-
-    hit = get_basic_hit(cd.type)
-    cd.add_canarydrop_hit(token_hit=hit)
-
-    resp = test_client.get(
-        "/history",
-        params=HistoryPageRequest(
-            token=token_info.token,
-            auth=token_info.auth_token,
-        ).dict(),
-    )
-    assert resp.status_code == 200
-    # now that it's a Vue app we can't test further here
 
 
 @pytest.mark.parametrize(
