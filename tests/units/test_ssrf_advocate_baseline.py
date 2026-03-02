@@ -10,9 +10,6 @@ SSRF and DNS-rebinding attacks.
 They import WEBHOOK_ADDR_VALIDATOR directly from production code so that
 any accidental relaxation of the validator config (e.g. adding an IP
 whitelist, enabling internal addresses) will immediately break these tests.
-
-No canarytokens infrastructure (Redis, Twisted, conftest fixtures) is
-needed to run this file.
 """
 
 from __future__ import annotations

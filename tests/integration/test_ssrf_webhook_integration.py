@@ -3,18 +3,17 @@ SSRF and DNS-rebinding protection — WebhookOutputChannel integration tests.
 
 Purpose
 -------
-These tests verify that the production webhook alert path uses advocate to
+These tests verify that the production webhook alert path uses `advocate` to
 block SSRF and DNS-rebinding attacks end-to-end, from token hit through to
 the outbound HTTP call.
 
-They complement:
-  - tests/units/test_ssrf_advocate_baseline.py  (advocate in isolation)
-  - tests/units/test_channel_output_webhook.py  (SSRF via IP literal / hostname)
+They complement the unit tests in `test_ssrf_advocate_baseline.py` (`advocate` in isolation).
 
 This file focuses on DNS rebinding: an attacker's hostname resolves to a
 public IP on the first request (bypassing naive allow-list checks), then
-flips to a private IP on subsequent requests.  advocate validates the
-resolved address on every call, so the rebind is caught.
+flips to a private IP on subsequent requests.
+
+`advocate` validates the resolved address on every call, so the rebind is caught.
 """
 
 from __future__ import annotations
