@@ -89,7 +89,10 @@ export function getTokenConfig(tokenType: string | null): TokenCapabilities {
   }
   const tokenKey = Object.keys(TOKENS_TYPE).find(
     (k) => TOKENS_TYPE[k as keyof typeof TOKENS_TYPE] === tokenType
-  ) as keyof typeof TOKENS_TYPE;
+  ) as keyof typeof TOKENS_TYPE | undefined;
+  if (!tokenKey) {
+    throw new Error(`Please add token with type ${tokenType} to TOKEN_CONFIG.`);
+  }
   return TOKEN_CONFIG[tokenKey];
 }
 
