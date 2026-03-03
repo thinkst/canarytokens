@@ -99,7 +99,7 @@ import {
   SETTINGS_TYPE,
   UPDATE_SETTINGS_BACKEND_TYPE,
   GET_SETTINGS_BACKEND_TYPE,
-  TOKENS_TYPE,
+  getTokenConfig,
 } from '@/components/constants';
 import IPIgnoreList from '@/components/ui/IPIgnoreList.vue';
 
@@ -112,23 +112,8 @@ const emit = defineEmits<{
   'update-ignore-ips-enabled': [isEnabled: boolean];
 }>();
 
-function isSupportBrowserScan() {
-  return (
-    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_BUG ||
-    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE ||
-    props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.IDP_APP
-  );
-}
-
-function isSupportCustomImage() {
-  return props.tokenBackendResponse.canarydrop.type === TOKENS_TYPE.WEB_IMAGE;
-}
-
-function isSupportIPIgnoreList() {
-  return (
-    props.tokenBackendResponse.canarydrop.type !== TOKENS_TYPE.UNIQUE_EMAIL &&
-    props.tokenBackendResponse.canarydrop.type !== TOKENS_TYPE.CREDIT_CARD_V2
-  );
+function getTokenCapabilities() {
+  return getTokenConfig(props.tokenBackendResponse.canarydrop.type);
 }
 
 // Check which settings are available for this Token
@@ -138,9 +123,10 @@ const hasEmailAlert = ref(
 const hasWebhookAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_webhook_url
 );
-const hasBrowserScan = ref(isSupportBrowserScan());
-const hasCustomImage = ref(isSupportCustomImage());
-const isIPIgnorable = ref(isSupportIPIgnoreList());
+const tokenCapabilities = getTokenCapabilities();
+const hasBrowserScan = ref(tokenCapabilities.supportsBrowserScan);
+const hasCustomImage = ref(tokenCapabilities.supportsCustomImage);
+const isIPIgnorable = ref(tokenCapabilities.supportsIPIgnore);
 
 // State of each setting type
 const settingRefs = ref({

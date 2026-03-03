@@ -43,6 +43,59 @@ export const TOKENS_TYPE = {
   CROWDSTRIKE_CC: 'crowdstrike_cc',
 };
 
+
+type TokenCapabilities = {
+  supportsIPIgnore: boolean;
+  supportsBrowserScan: boolean;
+  supportsCustomImage: boolean;
+};
+
+export const TOKEN_CONFIG: Record<keyof typeof TOKENS_TYPE, TokenCapabilities> = {
+  WEB_BUG: { supportsIPIgnore: true, supportsBrowserScan: true, supportsCustomImage: false },
+  DNS: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  LOG4SHELL: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  QRCODE: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  MYSQL: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  WEB_IMAGE: { supportsIPIgnore: true, supportsBrowserScan: true, supportsCustomImage: true },
+  AWS_KEYS: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  FAST_REDIRECT: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  SLOW_REDIRECT: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  SENSITIVE_CMD: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  WINDOWS_FAKE_FS: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  AZURE_ID: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  MICROSOFT_EXCEL: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  MICROSOFT_WORD: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  SVN: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  UNIQUE_EMAIL: { supportsIPIgnore: false, supportsBrowserScan: false, supportsCustomImage: false },
+  SQL_SERVER: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  CUSTOM_EXE: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  PDF: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  WINDOWS_FOLDER: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  CSS_CLONED_SITE: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  CLONED_WEBSITE: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  KUBECONFIG: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  WIREGUARD: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  AZURE_ENTRA_CONFIG: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  PWA: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  CREDIT_CARD_V2: { supportsIPIgnore: false, supportsBrowserScan: false, supportsCustomImage: false },
+  WEBDAV: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  IDP_APP: { supportsIPIgnore: true, supportsBrowserScan: true, supportsCustomImage: false },
+  AWS_INFRA: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  CROWDSTRIKE_CC: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+};
+
+// Helper to get token config by backend token type value
+export function getTokenConfig(tokenType: string | null): TokenCapabilities {
+  if (!tokenType) {
+    return { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false };
+  }
+  const tokenKey = Object.keys(TOKENS_TYPE).find(
+    (k) => TOKENS_TYPE[k as keyof typeof TOKENS_TYPE] === tokenType
+  ) as keyof typeof TOKENS_TYPE | undefined;
+  // Default to true for IP ignore if token type not found
+  return tokenKey ? TOKEN_CONFIG[tokenKey] : { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false };
+}
+
 // unique keys to use in the frontend
 export const SETTINGS_TYPE = {
   EMAIL: 'EMAIL',
