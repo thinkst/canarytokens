@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import csv
 import io
-from ipaddress import IPv4Address
+from ipaddress import AddressValueError, IPv4Address
 import json
 import logging
 import random
@@ -279,8 +279,13 @@ class Canarydrop(BaseModel):
                 f"All hits must be of a single type. Given {token_hit.token_type}; existing {self.triggered_details.token_type}"
             )
 
-        if token_hit.src_ip and self.should_ignore_ip(IPv4Address(token_hit.src_ip)):
-            token_hit.alert_status = AlertStatus.IGNORED_IP
+        try:
+            if token_hit.src_ip and self.should_ignore_ip(
+                IPv4Address(token_hit.src_ip)
+            ):
+                token_hit.alert_status = AlertStatus.IGNORED_IP
+        except AddressValueError:
+            pass
 
         self.triggered_details.hits.append(token_hit)
         max_hits = min(
