@@ -43,7 +43,6 @@ export const TOKENS_TYPE = {
   CROWDSTRIKE_CC: 'crowdstrike_cc',
 };
 
-
 type TokenCapabilities = {
   supportsIPIgnore: boolean;
   supportsBrowserScan: boolean;
@@ -84,16 +83,14 @@ export const TOKEN_CONFIG: Record<keyof typeof TOKENS_TYPE, TokenCapabilities> =
   CROWDSTRIKE_CC: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
 };
 
-// Helper to get token config by backend token type value
 export function getTokenConfig(tokenType: string | null): TokenCapabilities {
   if (!tokenType) {
-    return { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false };
+    return { supportsIPIgnore: false, supportsBrowserScan: false, supportsCustomImage: false };
   }
   const tokenKey = Object.keys(TOKENS_TYPE).find(
     (k) => TOKENS_TYPE[k as keyof typeof TOKENS_TYPE] === tokenType
-  ) as keyof typeof TOKENS_TYPE | undefined;
-  // Default to true for IP ignore if token type not found
-  return tokenKey ? TOKEN_CONFIG[tokenKey] : { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false };
+  ) as keyof typeof TOKENS_TYPE;
+  return TOKEN_CONFIG[tokenKey];
 }
 
 // unique keys to use in the frontend

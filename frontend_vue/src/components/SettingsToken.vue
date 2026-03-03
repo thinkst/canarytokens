@@ -112,9 +112,6 @@ const emit = defineEmits<{
   'update-ignore-ips-enabled': [isEnabled: boolean];
 }>();
 
-function getTokenCapabilities() {
-  return getTokenConfig(props.tokenBackendResponse.canarydrop.type);
-}
 
 // Check which settings are available for this Token
 const hasEmailAlert = ref(
@@ -123,10 +120,10 @@ const hasEmailAlert = ref(
 const hasWebhookAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_webhook_url
 );
-const tokenCapabilities = getTokenCapabilities();
-const hasBrowserScan = ref(tokenCapabilities.supportsBrowserScan);
-const hasCustomImage = ref(tokenCapabilities.supportsCustomImage);
-const isIPIgnorable = ref(tokenCapabilities.supportsIPIgnore);
+const tokenConfig = getTokenConfig(props.tokenBackendResponse.canarydrop.type);
+const hasBrowserScan = ref(tokenConfig.supportsBrowserScan);
+const hasCustomImage = ref(tokenConfig.supportsCustomImage);
+const isIPIgnorable = ref(tokenConfig.supportsIPIgnore);
 
 // State of each setting type
 const settingRefs = ref({
