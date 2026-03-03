@@ -36,7 +36,7 @@ jobs:
       - name: Fetch dockerfile
         run: |
           mkdir -p dockerfiles
-          curl -L https://raw.githubusercontent.com/thinkst/canarytokens-docker/${CANARYTOKENS_DOCKER_BRANCH}/canarytokens/Dockerfile.ci \
+          curl -fsSL https://raw.githubusercontent.com/thinkst/canarytokens-docker/${CANARYTOKENS_DOCKER_BRANCH}/canarytokens/Dockerfile.ci \
             -o dockerfiles/Dockerfile.ci
 
       - name: Set up Docker Buildx
