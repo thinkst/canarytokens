@@ -41,14 +41,15 @@ def _make_rebinding_getaddrinfo(port: int):
     the first call and 127.0.0.1 on every subsequent call — simulating a
     DNS rebinding attack.
     """
-    call_counter = [0]
+    call_counter = 0
     original = socket.getaddrinfo
     ips = ["8.8.8.8", "127.0.0.1"]
 
     def patched(host, p, *args, **kwargs):
+        nonlocal call_counter
         if host == REBINDING_HOST:
-            ip = ips[min(call_counter[0], len(ips) - 1)]
-            call_counter[0] += 1
+            ip = ips[min(call_counter, len(ips) - 1)]
+            call_counter += 1
             return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, p or 80))]
         return original(host, p, *args, **kwargs)
 
