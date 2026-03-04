@@ -17,9 +17,9 @@ urllib3 = ">=1.22,<2.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/JordanMilne/Advocate.git"
+url = "https://github.com/jayjza/Advocate.git"
 reference = "HEAD"
-resolved_reference = "f65cbf925cacafded20bbb878776a543b6f2d21b"
+resolved_reference = "c95a42a2ae7f96003ed45adcf422939312026cc1"
 
 [[package]]
 name = "annotated-doc"
@@ -3805,4 +3805,4 @@ web = ["fastapi", "sentry-sdk", "uvicorn"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "1d499f8565d18703c2d700b20ec5d2cef1fe86fa3aad1b020a902c692e4fe247"
+content-hash = "ee100b06c295f42b7e186cdbb0878124cc7abd55e4cce53115958e424d6ecea2"
