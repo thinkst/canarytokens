@@ -11,6 +11,7 @@ import textwrap
 from typing import Literal, Optional, Union
 
 import advocate
+from canarytokens.channel_output_webhook import WEBHOOK_ADDR_VALIDATOR
 import httpx
 import requests
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
@@ -487,6 +488,8 @@ def get_geoinfo_from_ip(ip: str) -> dict[str, str]:
     Don't use directly, use get_geoinfo() instead.
     """
     try:
+        # vanilla requests is intentional — URL is the hardcoded ipinfo.io endpoint,
+        # not user-supplied, so advocate is not required.
         # This should be async
         resp = requests.get(
             "http://ipinfo.io/" + ip + "/json",
@@ -942,7 +945,7 @@ def validate_webhook(url, token_type: models.TokenTypes):
         payload.json(),
         headers={"content-type": "application/json"},
         timeout=10,
-        validator=advocate.AddrValidator(port_whitelist=set(range(0, 65535))),
+        validator=WEBHOOK_ADDR_VALIDATOR,
     )
     # TODO: this accepts 3xx which is probably too lenient. We probably want any 2xx code.
     response.raise_for_status()

@@ -23,6 +23,12 @@ from canarytokens.webhook_formatting import format_details_for_webhook, get_webh
 
 log = Logger()
 
+# Shared AddrValidator for all outbound webhook requests.
+# Allows any port but relies on advocate's default behaviour to block all
+# private/reserved IP ranges.  Tests import this directly so that any
+# accidental relaxation of the config is immediately caught.
+WEBHOOK_ADDR_VALIDATOR = advocate.AddrValidator(port_whitelist=set(range(0, 65535)))
+
 
 class WebhookOutputChannel(OutputChannel):
     CHANNEL = OUTPUT_CHANNEL_WEBHOOK
@@ -91,12 +97,11 @@ class WebhookOutputChannel(OutputChannel):
     ) -> bool:
         # Design: wrap in a retry?
         try:
-            validator = advocate.AddrValidator(port_whitelist=set(range(0, 65535)))
             response = advocate.post(
                 url=str(alert_webhook_url),
                 json=payload,
                 timeout=(2, 2),
-                validator=validator,
+                validator=WEBHOOK_ADDR_VALIDATOR,
             )
             response.raise_for_status()
             log.info(f"Successfully sent to {alert_webhook_url}")
