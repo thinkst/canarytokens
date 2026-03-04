@@ -32,7 +32,7 @@ faker = "^17.6.0"
 azure-core = "^1.38.0"
 azure-identity = "^1.10.0"
 cssutils = "^2.11.1"
-advocate = {git = "https://github.com/JordanMilne/Advocate.git"}
+advocate = {git = "https://github.com/jayjza/Advocate.git"}
 pycountry-convert = "^0.7.2"
 
 [tool.poetry.extras]
