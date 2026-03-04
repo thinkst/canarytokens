@@ -5,7 +5,7 @@ import pytest
 import io
 import ipaddress
 from pydantic import EmailStr
-from twisted.internet.address import IPv4Address
+from twisted.internet.address import IPv4Address, IPv6Address
 from twisted.web.http import Request
 from twisted.web.test.requesthelper import DummyChannel
 from twisted.web.test.test_web import DummyRequest
@@ -577,6 +577,25 @@ def test_channel_http_ignored_ip(setup_db, http_channel, method):
     assert cd_updated.triggered_details.hits[0].alert_status == AlertStatus.IGNORED_IP
 
 
+@pytest.mark.parametrize("method", ["GET", "POST"])
+def test_channel_http_ignored_ip_ipv6_trigger(setup_db, http_channel, method):
+    """
+    Test ignored IPs on canarytokens http channel getting hit by an IPv6 address.
+    """
+    cd = create_canarydrop(token_type=TokenTypes.WEB)
+
+    cd.alert_ip_ignore_enabled = True
+    cd.set_ignored_ip_addresses(ip_addresses=[ipaddress.IPv4Address("127.0.0.1")])
+
+    request = create_dummy_request(cd, ipv6=True)
+    render_method = getattr(http_channel.canarytoken_page, f"render_{method}")
+    render_method(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd_updated.triggered_details.hits[0].alert_status == AlertStatus.ALERTABLE
+
+
 def create_canarydrop(token_type="web") -> canarydrop.Canarydrop:
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -598,8 +617,11 @@ def delete_canarydrop(cd: canarydrop.Canarydrop) -> None:
     queries.delete_canarydrop(canarydrop=cd)
 
 
-def create_dummy_request(cd: canarydrop.Canarydrop) -> DummyRequest:
-    client = IPv4Address(type="TCP", host="127.0.0.1", port=8686)
+def create_dummy_request(cd: canarydrop.Canarydrop, ipv6: bool = False) -> DummyRequest:
+    if ipv6:
+        client = IPv6Address(type="TCP", host="::1", port=8686)
+    else:
+        client = IPv4Address(type="TCP", host="127.0.0.1", port=8686)
     request = DummyRequest("/")
     request.client = client
     request.uri = cd.generate_random_url(["http://127.0.0.1:8686"]).encode()
