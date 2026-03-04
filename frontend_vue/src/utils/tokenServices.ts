@@ -506,7 +506,7 @@ export const tokenServices: TokenServicesType = {
     label: 'SVG Image',
     description:
       'Get an alert when an attacker loads an SVG file.',
-    documentationLink: 'https://docs.canarytokens.org/guide/svg-href-token.html',
+    documentationLink: 'https://docs.canarytokens.org/guide/svg-token.html',
     icon: `${TOKENS_TYPE.SVG}.png`,
     instruction:
       'Embed this SVG in a web page/email, or download it with the button below.',
