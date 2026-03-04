@@ -502,4 +502,20 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.CLOUD,
     keywords: ['cloud', 'api', 'edr', 'security'],
   },
+  [TOKENS_TYPE.SVG]: {
+    label: 'SVG Image',
+    description:
+      'Get an alert when an attacker loads an SVG file.',
+    documentationLink: 'https://docs.canarytokens.org/guide/svg-href-token.html',
+    icon: `${TOKENS_TYPE.SVG}.png`,
+    instruction:
+      'Embed this SVG in a web page/email, or download it with the button below.',
+    howItWorksInstructions: [
+      'We give you an SVG image.',
+      'You embed it somewhere.',
+      'We send you an alert if the image gets loaded.',
+    ],
+    category: [TOKEN_CATEGORY.OTHER, TOKEN_CATEGORY.PHISHING],
+    keywords: [],
+  },
 };
