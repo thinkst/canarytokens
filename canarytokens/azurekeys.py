@@ -1,6 +1,8 @@
 import logging
 from typing import Optional
 
+# NOTE: vanilla requests is intentional here — the URL is sourced from internal
+# configuration (azure_url), not from user input, so advocate is not required.
 import requests
 from pydantic import HttpUrl
 
