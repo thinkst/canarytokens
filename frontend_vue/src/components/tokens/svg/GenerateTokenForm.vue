@@ -1,6 +1,6 @@
 <template>
   <GenerateTokenSettingsNotifications
-    memo-helper-example="URL within Dropbox"
+    memo-helper-example="Fake network diagram in Dropbox"
   />
 </template>
 
