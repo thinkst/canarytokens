@@ -10,7 +10,7 @@ from ipaddress import IPv4Address
 import textwrap
 from typing import Literal, Optional, Union
 
-import advocate
+from canarytokens import advocate
 from canarytokens.channel_output_webhook import WEBHOOK_ADDR_VALIDATOR
 import httpx
 import requests
