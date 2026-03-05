@@ -5,6 +5,9 @@
     is-single-line
     :code="tokenData.svg"
   ></base-code-snippet>
+  <p class="mt-16 text-sm">
+    Remember, it gets triggered whenever someone loads the image.
+  </p>
   <div class="flex justify-center">
     <base-button
       class="mt-16"
