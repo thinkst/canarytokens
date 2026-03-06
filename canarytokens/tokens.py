@@ -325,7 +325,10 @@ class Canarytoken(object):
         src_ip_chain = [o.strip() for o in src_ips.split(",")]
         # TODO: 'ts_key' -> which tokens fire this?
         hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
-        flatten_singletons = lambda d: d[0] if len(d) == 1 else d  # noqa: E731
+
+        def flatten_singletons(d):
+            return d[0] if len(d) == 1 else d  # noqa: E731
+
         request_headers = {
             k.decode(): flatten_singletons([s.decode() for s in v])
             for k, v in request.requestHeaders.getAllRawHeaders()
@@ -616,7 +619,11 @@ class Canarytoken(object):
         ja4_arg = request.args.get(b"ja4", [None])[0]
         if ja4_arg and isinstance(ja4_arg, bytes):
             ja4_arg = ja4_arg.decode()
-        src_data = {"referer": referer, "referrer": r_arg, "ja4": ja4_arg}
+        src_data = {
+            "referer": referer,
+            "referrer": r_arg,
+            "tls_ja4_fingerprint": ja4_arg,
+        }
         return http_general_info, src_data
 
     @staticmethod

@@ -285,7 +285,7 @@ export type HitsType = {
   mail?: string | null;
   referer?: string | null;
   referrer?: string | null;
-  ja4?: string | null;
+  tls_ja4_fingerprint?: string | null;
   location?: string | GeolocationPosition | CoordsType | null;
 };
 

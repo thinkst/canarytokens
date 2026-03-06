@@ -56,19 +56,21 @@ CANARYTOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 
-response_error = lambda error, message, status_code=400: JSONResponse(  # noqa: E731  # lambda is cleaner
-    {
-        "error": str(error),
-        "error_message": message,
-        "url": "",
-        "url_components": None,
-        "token": "",
-        "email": "",
-        "hostname": "",
-        "auth": "",
-    },
-    status_code=status_code,
-)
+
+def response_error(error, message, status_code=400):
+    return JSONResponse(  # noqa: E731  # lambda is cleaner
+        {
+            "error": str(error),
+            "error_message": message,
+            "url": "",
+            "url_components": None,
+            "token": "",
+            "email": "",
+            "hostname": "",
+            "auth": "",
+        },
+        status_code=status_code,
+    )
 
 
 class Memo(ConstrainedStr):
@@ -1793,7 +1795,7 @@ class DNSTokenHit(TokenHit):
 class CSSClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     referrer: Optional[str]
-    ja4: Optional[str]
+    tls_ja4_fingerprint: Optional[str]
 
 
 class PDFTokenHit(TokenHit):
