@@ -540,6 +540,7 @@ export const tokenServices: TokenServicesType = {
       'Get an alert when an attacker loads an SVG file.',
     documentationLink: 'https://docs.canarytokens.org/guide/svg-token.html',
     icon: `${TOKENS_TYPE.SVG}.png`,
+    createRouteTokenAlias: 'svg',
     instruction:
       'Embed this SVG in a web page, or download it with the button below.',
     howItWorksInstructions: [
