@@ -1,6 +1,6 @@
 <template>
     <form class="flex flex-col gap-8" :validation-schema="ipListSchema" @submit="submit">
-      <Field v-slot="{ field, errorMessage }" name="ipAddresses" :validate-on-input="true">
+      <Field v-slot="{ field, errorMessage }" name="ipAddresses">
         <textarea
           id="ip-ignore-list"
           v-bind="field"
@@ -22,8 +22,6 @@
         variant="primary"
         type="submit"
         :loading="isLoading"
-        :disabled="hasValidationError"
-        :aria-describedby="hasValidationError ? 'ip-error-message' : undefined"
       >
         Save
       </BaseButton>
@@ -31,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import * as Yup from 'yup';
 import type { NullableCanaryDropType } from '../tokens/types';
 import { Field, type GenericObject, useForm } from 'vee-validate';
@@ -75,13 +73,9 @@ const ipListSchema = Yup.object({
     )
 });
 
-const { resetForm, handleSubmit, errors } = useForm({
+const { resetForm, handleSubmit } = useForm({
   validationSchema: ipListSchema,
   initialValues: { ipAddresses: '' },
-});
-
-const hasValidationError = computed(() => {
-  return Object.keys(errors.value).length > 0;
 });
 
 const submit = handleSubmit(onSubmit);
