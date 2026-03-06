@@ -4,7 +4,7 @@
       class="lg:max-w-screen-2xl w-[90vw] md:max-w-[80svw] m-24 md:mx-[10svw] bg-white rounded-3xl shadow-lg shadow-grey-200/40 min-h-[60vh] sm:px-40 sm:py-40 p-16"
     >
       <h1
-        v-if="route.name !== 'home' && route.name !== 'generate'"
+        v-if="!['home', 'generate', 'create'].includes(String(route.name))"
         class="text-grey-800"
       >
         {{ title }}
