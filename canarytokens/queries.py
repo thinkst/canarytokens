@@ -6,7 +6,7 @@ import datetime
 import json
 import re
 import secrets
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, ip_address
 import textwrap
 from typing import Literal, Optional, Union
 
@@ -92,7 +92,7 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> cand.Canarydrop:
 
     if "alert_ignored_ips" in canarydrop:
         canarydrop["alert_ignored_ips"] = list(
-            map(IPv4Address, json.loads(canarydrop["alert_ignored_ips"]))
+            map(ip_address, json.loads(canarydrop["alert_ignored_ips"]))
         )
 
     canarydrop["canarytoken"] = canarytoken
@@ -418,9 +418,7 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
             f"Additional info not supported for hit type: {type(enriched_hit)}"
         )
     canarydrop = get_canarydrop(canarytoken)
-    if enriched_hit.src_ip and canarydrop.should_ignore_ip(
-        IPv4Address(enriched_hit.src_ip)
-    ):
+    if canarydrop.should_ignore_ip(enriched_hit.src_ip):
         enriched_hit.alert_status = models.AlertStatus.IGNORED_IP
     triggered_details.hits.append(enriched_hit)
 

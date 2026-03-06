@@ -938,7 +938,7 @@ def test_generate_token_ip_headers(
 @pytest.mark.parametrize(
     "ip_ignore_list, is_valid",
     [
-        (["2406:da11:e7:2232:c89a:e0f0:71b7:d55a"], False),
+        (["2406:da11:e7:2232:c89a:e0f0:71b7:d55a"], True),
         (["not an ip"], False),
         (["192.168.2.10"], True),
         ([], True),

@@ -34,7 +34,7 @@ import * as Yup from 'yup';
 import type { NullableCanaryDropType } from '../tokens/types';
 import { Field, type GenericObject, useForm } from 'vee-validate';
 import { updateIPIgnoreList, type UpdateIPIgnoreListType} from '@/api/main';
-import { Address4 } from 'ip-address';
+import { Address4, Address6 } from 'ip-address';
 
 const props = defineProps<{
   canaryDrop: NullableCanaryDropType;
@@ -62,9 +62,9 @@ const ipListSchema = Yup.object({
     .max(100, 'You can ignore at most 100 IP addresses')
     .of(
       Yup.string()
-        .test('is-ipv4', 'IP addresses must be valid IPv4 addresses separated by new lines', (value) => {
+        .test('is-ipv4-or-ipv6', 'IP addresses must be valid IP addresses separated by new lines', (value) => {
           if (!value) return true;
-          return Address4.isValid(value);
+          return Address4.isValid(value) || Address6.isValid(value);
         })
         .test('is-not-cidr', 'CIDR notation is not allowed', (value) => {
           if (!value) return true;
