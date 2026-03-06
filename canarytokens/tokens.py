@@ -327,7 +327,7 @@ class Canarytoken(object):
         hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
 
         def flatten_singletons(d):
-            return d[0] if len(d) == 1 else d  # noqa: E731
+            return d[0] if len(d) == 1 else d
 
         request_headers = {
             k.decode(): flatten_singletons([s.decode() for s in v])
