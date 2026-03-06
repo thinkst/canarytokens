@@ -6,7 +6,7 @@ import datetime
 import json
 import re
 import secrets
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, ip_address
 import textwrap
 from typing import Literal, Optional, Union
 
@@ -92,7 +92,7 @@ def get_canarydrop(canarytoken: tokens.Canarytoken) -> cand.Canarydrop:
 
     if "alert_ignored_ips" in canarydrop:
         canarydrop["alert_ignored_ips"] = list(
-            map(IPv4Address, json.loads(canarydrop["alert_ignored_ips"]))
+            map(ip_address, json.loads(canarydrop["alert_ignored_ips"]))
         )
 
     canarydrop["canarytoken"] = canarytoken
