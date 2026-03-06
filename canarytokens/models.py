@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from io import BytesIO, StringIO
-from ipaddress import IPv4Address, IPv6Address
+from ipaddress import IPv4Address
 from tempfile import SpooledTemporaryFile
 from typing import (
     Any,
@@ -2833,12 +2833,6 @@ class IPIgnoreListRequest(BaseModel):
     token: str
     auth: str
     ip_ignore_list: List[IPvAnyAddress]
-
-    @validator("ip_ignore_list", each_item=True)
-    def only_ipv4(cls, v):
-        if isinstance(v, IPv6Address):
-            raise ValueError("IPv6 addresses are not supported.")
-        return v
 
 
 class DeleteResponse(BaseModel):

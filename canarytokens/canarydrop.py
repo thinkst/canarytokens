@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import csv
 import io
-from ipaddress import IPv4Address, ip_address
+from ipaddress import IPv4Address, IPv6Address, ip_address
 import json
 import logging
 import random
@@ -114,7 +114,7 @@ class Canarydrop(BaseModel):
     alert_failure_count: Optional[int]
 
     alert_ip_ignore_enabled: bool = False
-    alert_ignored_ips: list[IPv4Address] = []
+    alert_ignored_ips: list[IPv4Address | IPv6Address] = []
 
     # web image specific stuff
     web_image_enabled: bool = False
@@ -280,8 +280,7 @@ class Canarydrop(BaseModel):
             )
 
         try:
-            ip = ip_address(token_hit.src_ip)
-            if isinstance(ip, IPv4Address) and self.should_ignore_ip(ip):
+            if self.should_ignore_ip(token_hit.src_ip):
                 token_hit.alert_status = AlertStatus.IGNORED_IP
         except ValueError:
             pass
@@ -691,5 +690,9 @@ class Canarydrop(BaseModel):
         self.alert_ignored_ips = ip_addresses
         queries.save_canarydrop(self)
 
-    def should_ignore_ip(self, ip_address: IPv4Address) -> bool:
-        return self.alert_ip_ignore_enabled and ip_address in self.alert_ignored_ips
+    def should_ignore_ip(self, ip: str) -> bool:
+        try:
+            valid_ip = ip_address(ip)
+            return self.alert_ip_ignore_enabled and valid_ip in self.alert_ignored_ips
+        except ValueError:
+            return False
