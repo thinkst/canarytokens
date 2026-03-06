@@ -41,6 +41,7 @@ export const TOKENS_TYPE = {
   IDP_APP: 'idp_app',
   AWS_INFRA: 'aws_infra',
   CROWDSTRIKE_CC: 'crowdstrike_cc',
+  SVG: 'svg',
 };
 
 type TokenCapabilities = {
@@ -81,6 +82,7 @@ export const TOKEN_CONFIG: Record<keyof typeof TOKENS_TYPE, TokenCapabilities> =
   IDP_APP: { supportsIPIgnore: true, supportsBrowserScan: true, supportsCustomImage: false },
   AWS_INFRA: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
   CROWDSTRIKE_CC: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  SVG: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
 };
 
 export function getTokenConfig(tokenType: string | null): TokenCapabilities {
@@ -230,6 +232,7 @@ export const TOKEN_COLOR_PALETTES: { [key: string]: Array<string> } = {
   windows_fake_fs: ['#2DCA6E', '#93EE7C', '#A2EAC1', '#D2FAC4', '#43CC5F'],
   idp_app: ['#1AABEE', '#026696', '#9CE5FD'],
   aws_infra: ['#FA6A22', '#233243', '#FC9824'],
+  svg: ['#1AABEE', '#026696', '#9CE5FD'],
 };
 
 export const IDP_OPTIONS: { value: string; label: string }[] = [
