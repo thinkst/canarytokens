@@ -69,7 +69,7 @@
       id="ip-ignore"
       v-model="settingRefs.IP_IGNORE"
       label="Ignore IP addresses"
-      helper-message="IPs for which alerts are ignored"
+      helper-message="Ignore alerts from these IPs"
       :loading="loadingRefs.IP_IGNORE"
       :has-error="errorRefs.IP_IGNORE"
       :error-message="errorMessage"
