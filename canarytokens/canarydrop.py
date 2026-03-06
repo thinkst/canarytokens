@@ -686,7 +686,7 @@ class Canarydrop(BaseModel):
         self.alert_email_enabled = False
         queries.save_canarydrop(self)
 
-    def set_ignored_ip_addresses(self, ip_addresses: list[IPv4Address]):
+    def set_ignored_ip_addresses(self, ip_addresses: list[IPv4Address | IPv6Address]):
         self.alert_ignored_ips = ip_addresses
         queries.save_canarydrop(self)
 
