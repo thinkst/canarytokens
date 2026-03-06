@@ -58,7 +58,7 @@ CANARYTOKEN_RE = re.compile(
 
 
 def response_error(error, message, status_code=400):
-    return JSONResponse(  # noqa: E731  # lambda is cleaner
+    return JSONResponse(
         {
             "error": str(error),
             "error_message": message,
