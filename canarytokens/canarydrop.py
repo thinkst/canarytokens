@@ -279,11 +279,8 @@ class Canarydrop(BaseModel):
                 f"All hits must be of a single type. Given {token_hit.token_type}; existing {self.triggered_details.token_type}"
             )
 
-        try:
-            if self.should_ignore_ip(token_hit.src_ip):
-                token_hit.alert_status = AlertStatus.IGNORED_IP
-        except ValueError:
-            pass
+        if self.should_ignore_ip(token_hit.src_ip):
+            token_hit.alert_status = AlertStatus.IGNORED_IP
 
         self.triggered_details.hits.append(token_hit)
         max_hits = min(
