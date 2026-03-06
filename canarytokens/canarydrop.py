@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import csv
 import io
-from ipaddress import AddressValueError, IPv4Address, ip_address
+from ipaddress import IPv4Address, ip_address
 import json
 import logging
 import random
@@ -283,7 +283,7 @@ class Canarydrop(BaseModel):
             ip = ip_address(token_hit.src_ip)
             if isinstance(ip, IPv4Address) and self.should_ignore_ip(ip):
                 token_hit.alert_status = AlertStatus.IGNORED_IP
-        except AddressValueError:
+        except ValueError:
             pass
 
         self.triggered_details.hits.append(token_hit)
