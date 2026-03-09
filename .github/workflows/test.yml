@@ -161,7 +161,7 @@ jobs:
         run: |
           poetry config virtualenvs.in-project true
           poetry cache clear --all pypi
-          poetry install -E 'twisted web netifaces'
+          poetry install -E 'twisted web'
       - name: Integration Tests
         run: |
           $env:LIVE = 'True'
