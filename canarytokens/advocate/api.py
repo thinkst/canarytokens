@@ -16,7 +16,7 @@ import pickle
 
 from requests import Session as RequestsSession
 
-import advocate
+import canarytokens.advocate
 from .adapters import ValidatingHTTPAdapter
 from .exceptions import MountDisabledException
 
