@@ -564,22 +564,22 @@ def test_authorised_page_access(
     )
     token_info = DNSTokenResponse(**resp.json())
 
-    resp = getattr(test_client, verb)(
-        endpoint,
-        params=param_type(
+    req_kwargs = {
+        "json" if verb == "post" else "params": param_type(
             token=token_info.token[::-1],
             auth=token_info.auth_token,
-        ).dict(),
-    )
+        ).dict()
+    }
+    resp = getattr(test_client, verb)(endpoint, **req_kwargs)
     assert resp.status_code == 403
 
-    resp = getattr(test_client, verb)(
-        endpoint,
-        params=param_type(
+    req_kwargs = {
+        "json" if verb == "post" else "params": param_type(
             token=token_info.token,
             auth=token_info.auth_token[::-1],
-        ).dict(),
-    )
+        ).dict()
+    }
+    resp = getattr(test_client, verb)(endpoint, **req_kwargs)
     assert resp.status_code == 403
 
 
