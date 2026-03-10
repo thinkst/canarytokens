@@ -11,6 +11,7 @@ from twisted.logger import globalLogPublisher, Logger, LogLevel, textFileLogObse
 from twisted.names import dns
 from twisted.python import logfile
 
+from canarytokens.aws_infra import cleanup_inactive_aws_infra_canarydrops
 from canarytokens.channel_dns import ChannelDNS, DNSServerFactory
 from canarytokens.channel_http import ChannelHTTP
 from canarytokens.channel_input_mtls import ChannelKubeConfig
@@ -173,3 +174,7 @@ canarytokens_wireguard.service.setServiceParent(application)
 # loop to update tor exit nodes every 30 min
 loop_http = internet.task.LoopingCall(update_tor_exit_nodes_loop)
 loop_http.start(1800)
+
+# Start the cleanup daemon for inactive AWS infra canarydrops.
+aws_infra_cleanup_task = internet.task.LoopingCall(cleanup_inactive_aws_infra_canarydrops)
+aws_infra_cleanup_task.start(frontend_settings.AWS_INFRA_CLEANUP_INTERVAL_SECONDS)
