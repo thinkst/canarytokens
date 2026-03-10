@@ -13,7 +13,6 @@ pytestmark = pytest.mark.usefixtures("setup_db")
 
 
 def test_ping():
-
     db = DB.get_db()
     db2 = DB.get_db()
     assert db is db2

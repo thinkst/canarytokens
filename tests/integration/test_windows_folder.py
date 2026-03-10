@@ -41,7 +41,6 @@ def test_windows_directory(
     tmpdir,
     webhook_receiver,
 ):
-
     # initialize request
     memo = "windows directory memo!"
     token_request = WindowsDirectoryTokenRequest(

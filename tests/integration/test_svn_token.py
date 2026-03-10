@@ -21,7 +21,6 @@ from tests.utils import (
 
 @contextmanager
 def managed_svn_server(tmpdir_repo):
-
     # run svn server
     server_output = subprocess.check_output(
         [
@@ -44,7 +43,6 @@ def managed_svn_server(tmpdir_repo):
 
 
 def test_svn_token(tmpdir, webhook_receiver):
-
     # create temp dir for the repo and client
     tmpdir_repo = tmpdir.mkdir("SVN")
     tmpdir_client = tmpdir.mkdir("SVN_ClIENT")

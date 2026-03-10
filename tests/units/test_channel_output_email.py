@@ -352,9 +352,9 @@ def test_bad_format_email(
         frontend_settings, settings, "http://testinganemailaddressurl.haha"
     )
     # Check canarydrop has been disabled
-    assert (
-        len(canarydrop.get_requested_output_channels()) == 0
-    ), "A requested output channel is enabled still."
+    assert len(canarydrop.get_requested_output_channels()) == 0, (
+        "A requested output channel is enabled still."
+    )
     # Check that the mail is successfully added to the sent queue.
     queries_canarydrop = queries.get_canarydrop(canarydrop.canarytoken)
     assert queries_canarydrop.memo == canarydrop.memo

@@ -51,7 +51,6 @@ def get_token_history(token_info) -> Dict[str, str]:  # pragma: no cover
     reason="avoid using up an AWS user each time we run tests, and AWS can't trigger unless live",
 )
 def test_aws_key_token(webhook_receiver):  # pragma: no cover
-
     # Make the token
     token_request = AWSKeyTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),

@@ -21,7 +21,6 @@ from tests.utils import (
 
 
 def test_kubeconfig(tmpdir, webhook_receiver):
-
     # initialize request
     memo = "kubeconfig memo!"
     token_request = KubeconfigTokenRequest(

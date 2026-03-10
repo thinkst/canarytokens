@@ -579,7 +579,6 @@ def test_slow_redirect_token(
     ],
 )
 def test_token_error_codes(request_dict: dict[str, str], error_code: str):
-
     error = "error"
     req_kw = "json"
 

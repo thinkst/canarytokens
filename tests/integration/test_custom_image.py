@@ -39,7 +39,6 @@ def test_custom_image_url(  # noqa: C901
     webhook_receiver,
     clean_uploads_dir,
 ):
-
     # custom image
     file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(
@@ -153,7 +152,6 @@ def test_custom_image_web_image(
     file_name,
     webhook_receiver,
 ):
-
     file_mimetype = "image/{mimetype}".format(
         mimetype=file_name[-3:].replace("jpg", "jpeg")
     )
@@ -294,7 +292,6 @@ def test_custom_image_web_image(
 def test_custom_image_web_image_cors_support(
     webhook_receiver, request_details, resp_details
 ):
-
     file_name = "canary_image.png"
     file_mimetype = "image/{mimetype}".format(
         mimetype=file_name[-3:].replace("jpg", "jpeg")
