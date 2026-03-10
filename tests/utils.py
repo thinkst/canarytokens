@@ -392,9 +392,9 @@ def get_stats_from_webhook(webhook_receiver: str, token: str):
         webhook_data = resp.json()
         session.close()
         # Check that len is > 1 because the webhook validation adds the first request and the total is not always consistent.
-        if webhook_data["total"] > 0:
+        if len(webhook_data["data"]) > 0:
             break
-    if webhook_data["total"] == 0:
+    if len(webhook_data["data"]) == 0:
         pytest.fail(
             "Webhook did not receive any requests after 5 attempts, cannot get stats"
         )
