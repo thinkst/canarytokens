@@ -12,6 +12,7 @@ from logging import Logger
 from typing import Callable, Dict, Optional, Union
 import base64
 import re
+import pytest
 
 import dns.resolver
 import requests
@@ -114,12 +115,6 @@ def grab_resolver():
         ip: server_config.canarytokens_dns_port for ip in server_config.canarytokens_ips
     }
     return resolver
-
-
-class ShouldBeStats(Exception):
-    """This is just for test suite."""
-
-    ...
 
 
 def log_4_shell_fire_token(
@@ -377,25 +372,32 @@ def download_token_artifact(
     return resp.content
 
 
-@retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError, ShouldBeStats))
+@retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError))
 def get_stats_from_webhook(webhook_receiver: str, token: str):
     if "slack" in webhook_receiver:
         # slack webhooks don't give us introspection. Or can we? TODO: take a look.
         return  # pragma: no cover
     stats = defaultdict(list)
     uuid = webhook_receiver.split("/")[-1]
-    time.sleep(1.0)
-    resp = session.get(
-        f"https://webhook.site/token/{uuid}/requests",
-        timeout=request_timeout,
-        headers={"Connection": "close"},
-    )
-    resp.raise_for_status()
-    webhook_data = resp.json()
-    resp.close()
-    session.close()
-    if not webhook_data["total"] > 0:
-        raise ShouldBeStats("we'll wait a bit for webhooks to get hit")
+    webhook_url = f"https://webhook.site/token/{uuid}/requests"
+    headers = {"Connection": "close"}
+    for _ in range(5):
+        time.sleep(1.0)
+        resp = session.get(
+            webhook_url,
+            timeout=request_timeout,
+            headers=headers,
+        )
+        resp.raise_for_status()
+        webhook_data = resp.json()
+        session.close()
+        # Check that len is > 1 because the webhook validation adds the first request and the total is not always consistent.
+        if len(webhook_data["data"]) > 1:
+            break
+    if not len(webhook_data["data"]) > 1:
+        pytest.fail(
+            "Webhook did not receive any requests after 5 attempts, cannot get stats"
+        )
     for req in webhook_data["data"]:
         data = json.loads(req["content"])
         # HACK: we can do better but that would be an API change:
