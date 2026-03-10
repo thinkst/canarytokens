@@ -14,6 +14,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -32,6 +33,7 @@ def test_qr_code_token(webhook_receiver):
     # Create QRCode token
     resp = create_token(token_request=token_request)
     token_info = QRCodeTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # Validate token
     image_bytes = io.BytesIO(
