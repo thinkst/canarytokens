@@ -79,6 +79,10 @@ from tests.utils import get_token_request
 from frontend.app import ROOT_API_ENDPOINT
 
 
+def api_path(path: str) -> str:
+    return f"{ROOT_API_ENDPOINT}{path}"
+
+
 def test_read_docs(test_client: TestClient) -> None:
     response = test_client.get("/docs")
     assert response.status_code == 200
@@ -91,7 +95,9 @@ def test_generate_dns_token(test_client: TestClient) -> None:
         webhook_url="https://slack.com/api/api.test",
         memo="test stuff break stuff fix stuff test stuff",
     )
-    resp = test_client.post("/generate", json=json.loads(dns_request_token.json()))
+    resp = test_client.post(
+        api_path("/generate"), json=json.loads(dns_request_token.json())
+    )
     assert resp.status_code == 200
 
 
@@ -103,7 +109,9 @@ def test_reject_webhook_too_long(test_client: TestClient) -> None:
         webhook_url=f"https://slack.com/api/{url_suffix}",
         memo="test stuff break stuff fix stuff test stuff",
     )
-    resp = test_client.post("/generate", json=json.loads(dns_request_token.json()))
+    resp = test_client.post(
+        api_path("/generate"), json=json.loads(dns_request_token.json())
+    )
     assert resp.status_code == 400
 
 
@@ -114,7 +122,7 @@ def test_generate_log4shell_token(test_client: TestClient) -> None:
         memo="test stuff break stuff fix stuff test stuff",
     )
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         json=json.loads(log4shell_request_token.json()),
     )
     assert resp.status_code == 200
@@ -194,7 +202,7 @@ def test_creating_all_tokens(
 
     try:
         resp = test_client.post(
-            "/generate",
+            api_path("/generate"),
             json=token_request.json_safe_dict(),
         )
     except NotImplementedError as e:
@@ -206,7 +214,7 @@ def test_creating_all_tokens(
 
 
 def test_get_commit_sha(test_client: TestClient) -> None:
-    resp = test_client.get("/commitsha")
+    resp = test_client.get(api_path("/commitsha"))
     assert resp.status_code == 200
 
 
@@ -246,12 +254,12 @@ def test_download_canarydrop_json_details(
     test_client: TestClient,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     dns_resp = token_response_type(**resp.json())
     resp_dl = test_client.get(
-        "/download",
+        api_path("/download"),
         params=DownloadIncidentListJsonRequest(
             token=dns_resp.token,
             auth=dns_resp.auth_token,
@@ -270,12 +278,12 @@ def test_download_canarydrop_csv_details(
     test_client: TestClient,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     dns_resp = token_response_type(**resp.json())
     resp_dl = test_client.get(
-        "/download",
+        api_path("/download"),
         params=DownloadIncidentListCSVRequest(
             token=dns_resp.token,
             auth=dns_resp.auth_token,
@@ -319,12 +327,12 @@ def test_token_download_requests(
     setup_db: None,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     dns_resp = token_response_type(**resp.json())
     resp_dl = test_client.get(
-        "/download",
+        api_path("/download"),
         params=token_download_request_type(
             token=dns_resp.token,
             auth=dns_resp.auth_token,
@@ -345,14 +353,14 @@ def test_email_enable_token_settings_requests(
     test_client: TestClient,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
     setting_resp = test_client.post(
-        "/settings",
-        data=EmailSettingsRequest(
+        api_path("/settings"),
+        json=EmailSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -367,8 +375,8 @@ def test_email_enable_token_settings_requests(
     )
     assert not canarydrop.alert_email_enabled
     setting_resp = test_client.post(
-        "/settings",
-        data=EmailSettingsRequest(
+        api_path("/settings"),
+        json=EmailSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -394,14 +402,14 @@ def test_webhook_enable_token_settings_requests(
     test_client: TestClient,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
     setting_resp = test_client.post(
-        "/settings",
-        data=WebhookSettingsRequest(
+        api_path("/settings"),
+        json=WebhookSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -415,8 +423,8 @@ def test_webhook_enable_token_settings_requests(
     )
     assert not canarydrop.alert_webhook_enabled
     setting_resp = test_client.post(
-        "/settings",
-        data=WebhookSettingsRequest(
+        api_path("/settings"),
+        json=WebhookSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -441,14 +449,14 @@ def test_browser_scanner_enable_token_settings_requests(
     test_client: TestClient,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
     setting_resp = test_client.post(
-        "/settings",
-        data=BrowserScannerSettingsRequest(
+        api_path("/settings"),
+        json=BrowserScannerSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -463,8 +471,8 @@ def test_browser_scanner_enable_token_settings_requests(
     )
     assert not canarydrop.browser_scanner_enabled
     setting_resp = test_client.post(
-        "/settings",
-        data=BrowserScannerSettingsRequest(
+        api_path("/settings"),
+        json=BrowserScannerSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -489,14 +497,14 @@ def test_web_image_enable_token_settings_requests(
     test_client: TestClient,
 ) -> None:
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=get_token_request(token_request_type).json(),
     )
     token_resp = token_response_type(**resp.json())
 
     setting_resp = test_client.post(
-        "/settings",
-        data=WebImageSettingsRequest(
+        api_path("/settings"),
+        json=WebImageSettingsRequest(
             value="off",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -509,8 +517,8 @@ def test_web_image_enable_token_settings_requests(
     )
     assert not canarydrop.web_image_enabled
     setting_resp = test_client.post(
-        "/settings",
-        data=WebImageSettingsRequest(
+        api_path("/settings"),
+        json=WebImageSettingsRequest(
             value="on",
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -527,10 +535,10 @@ def test_web_image_enable_token_settings_requests(
 @pytest.mark.parametrize(
     "param_type, endpoint, verb",
     [
-        (HistoryPageRequest, "/history", "get"),
-        (ManagePageRequest, "/manage", "get"),
-        (EmailSettingsRequest, "/settings", "post"),
-        (DownloadIncidentListJsonRequest, "/download", "get"),
+        (HistoryPageRequest, api_path("/history"), "get"),
+        (ManagePageRequest, api_path("/manage"), "get"),
+        (EmailSettingsRequest, api_path("/settings"), "post"),
+        (DownloadIncidentListJsonRequest, api_path("/download"), "get"),
     ],
 )
 def test_authorised_page_access(
@@ -545,7 +553,7 @@ def test_authorised_page_access(
         verb (str): HTTP verb for endpoint.
     """
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=DNSTokenRequest(
             email="test@test.com",
             webhook_url="https://slack.com/api/api.test",
@@ -856,7 +864,7 @@ def test_block_user(
     )
 
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         json=token_request.json_safe_dict(),
     )
     assert resp.json()["error"] == "6"
@@ -865,7 +873,7 @@ def test_block_user(
     unblock_func(block_target)
 
     resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         json=token_request.json_safe_dict(),
     )
     assert not resp.json()["error"]
@@ -908,11 +916,13 @@ def test_generate_token_ip_headers(
     expected_headers: dict[str, str],
 ) -> None:
     resp = test_client.post(
-        "/generate", data=get_token_request(token_request_type).json(), headers=headers
+        api_path("/generate"),
+        data=get_token_request(token_request_type).json(),
+        headers=headers,
     )
     token_resp = token_response_type(**resp.json())
     manage_resp = test_client.get(
-        f"{ROOT_API_ENDPOINT}/manage",
+        api_path("/manage"),
         params=ManagePageRequest(
             token=token_resp.token,
             auth=token_resp.auth_token,
@@ -943,7 +953,7 @@ def test_add_ip_ignore_list(
 ) -> None:
     token_request = get_token_request(WebBugTokenRequest)
     token_resp = test_client.post(
-        "/generate",
+        api_path("/generate"),
         data=token_request.json(),
     ).json()
     data = {
@@ -953,7 +963,7 @@ def test_add_ip_ignore_list(
     }
 
     resp = test_client.post(
-        f"{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
+        api_path("/settings/ip-ignore-list"),
         json=data,
     )
     assert resp.status_code == (200 if is_valid else 422)
