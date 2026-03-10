@@ -679,6 +679,15 @@ TH = TypeVar("TH", bound=TokenHit)
 
 
 class TokenHistory(GenericModel, Generic[TH]):
+    """
+    TokenHistory holds the format of each tokens'hits.
+    `token_type` dictates which type of token a
+    the history represents. Most tokens differ in the history
+    they collect and specialized XXXTokenHistory classes capture
+    this.
+    `hits` is a list containing all gather info from tokens firing.
+    """
+
     hits: List[TH] = []
 
     def __init__(__pydantic_self__, **data: Any) -> None:
@@ -693,16 +702,27 @@ class TokenHistory(GenericModel, Generic[TH]):
         super().__init__(hits=hits, token_type=token_type)
 
     def serialize_for_v2(self, readable_time_format: bool = False) -> dict[str, str]:
+        """Serialize TokenHistory into the same shape as
+        used by v2.
+        """
         data = {}
         for hit in self.hits:
-            if hasattr(hit, "serialize_for_v2"):
+            if hit.token_type in {
+                TokenTypes.AWS_KEYS,
+                TokenTypes.AWS_INFRA,
+                TokenTypes.SLACK_API,
+                TokenTypes.CREDIT_CARD_V2,
+                TokenTypes.CROWDSTRIKE_CC,
+            }:
                 hit_data = hit.serialize_for_v2()
             else:
                 hit_data = json_safe_dict(hit, exclude=("token_type", "time_of_hit"))
-                if "additional_info" in hit_data and hit.additional_info:
+                if "additional_info" in hit_data:
                     hit_data["additional_info"] = hit.additional_info.serialize_for_v2()
 
-            if not hit_data.get("additional_info", True):
+            if not hit_data.get(
+                "additional_info", True
+            ):  # V2 does not store empty {} additional data.
                 hit_data.pop("additional_info")
             if hit_data.get("geo_info", None) is None:
                 hit_data["geo_info"] = ""
