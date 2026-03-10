@@ -34,7 +34,6 @@ from tests.utils import (
     ],
 )
 def test_custom_binary_token_fire(tmpdir, file_name, file_mimetype, webhook_receiver):
-
     with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
@@ -95,7 +94,6 @@ def test_custom_binary_token_fire(tmpdir, file_name, file_mimetype, webhook_rece
     ],
 )
 def test_custom_binary(tmpdir, file_name, file_mimetype, webhook_receiver):
-
     with open("data\\{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()

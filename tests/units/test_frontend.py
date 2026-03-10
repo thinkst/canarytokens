@@ -239,9 +239,9 @@ def test_get_security_txt(test_client: TestClient) -> None:
     from datetime import datetime, timezone
 
     expiry_datetime = datetime.fromisoformat(expiry_date.replace("Z", "+00:00"))
-    assert expiry_datetime > datetime.now(
-        timezone.utc
-    ), "Update the security.txt expiry date!"
+    assert expiry_datetime > datetime.now(timezone.utc), (
+        "Update the security.txt expiry date!"
+    )
 
 
 @pytest.mark.parametrize(

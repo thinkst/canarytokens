@@ -60,7 +60,6 @@ def test_sql_server_token(
     ],
     webhook_receiver,
 ):
-
     # initialize request
     memo = "testing sql_server_token"
     token_request = SQLServerTokenRequest(

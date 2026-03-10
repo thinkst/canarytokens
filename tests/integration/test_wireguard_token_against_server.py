@@ -20,7 +20,6 @@ from tests.utils import create_token, get_token_history
     not strtobool(os.getenv("CI", "False")), reason="Only test wireguard token on ci"
 )
 def test_wireguard_token(webhook_receiver):
-
     token_request = WireguardTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
