@@ -22,9 +22,7 @@ from unittest.mock import patch
 import pytest
 import requests as vanilla_requests
 
-import advocate
-import advocate.exceptions
-
+from canarytokens import advocate
 from canarytokens.channel_output_webhook import WEBHOOK_ADDR_VALIDATOR
 
 

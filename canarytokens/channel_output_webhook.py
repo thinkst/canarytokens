@@ -4,11 +4,11 @@ Output channel that sends to webhooks.
 
 from typing import Dict, Union
 
-import advocate
+
 import requests
 from pydantic import HttpUrl
 from twisted.logger import Logger
-
+from canarytokens import advocate
 from canarytokens import canarydrop
 from canarytokens.channel import InputChannel, OutputChannel
 from canarytokens.constants import OUTPUT_CHANNEL_WEBHOOK
