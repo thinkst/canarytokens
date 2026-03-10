@@ -467,21 +467,6 @@ def authorize_aws_infra(authorization: Annotated[str, Header()]):
         )
 
 
-def _run_periodic_aws_infra_canarydrop_cleanup() -> None:
-    while True:
-        try:
-            inactive_aws_infra_deleted = aws_infra.cleanup_inactive_aws_infra_canarydrops()
-            if inactive_aws_infra_deleted:
-                log.warning(
-                    "%s inactive aws-infra canarydrops were found and deleted during periodic cleanup.",
-                    inactive_aws_infra_deleted,
-                )
-        except Exception:
-            log.exception("Failed periodic canarydrop cleanup.")
-
-        time.sleep(frontend_settings.AWS_INFRA_CLEANUP_INTERVAL_SECONDS)
-
-
 @app.on_event("startup")
 def startup_event():
     DB.set_db_details(
@@ -497,13 +482,6 @@ def startup_event():
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
     add_canary_image_page("photo1.jpg")
-    # Start the cleanup daemon for inactive AWS infra canarydrops.
-    aws_infra_cleanup_daemon = threading.Thread(
-        target=_run_periodic_aws_infra_canarydrop_cleanup,
-        name="aws_infra_cleanup_daemon",
-        daemon=True,
-    )
-    aws_infra_cleanup_daemon.start()
 
 
 def _get_src_ip(request):
