@@ -204,3 +204,9 @@ AnyTokenHistory = Annotated[
     ],
     Field(discriminator="token_type"),
 ]
+
+
+class HistoryResponse(BaseModel):
+    canarydrop: Dict
+    history: AnyTokenHistory
+    google_api_key: Optional[str]

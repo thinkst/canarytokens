@@ -1297,9 +1297,3 @@ class ManageResponse(BaseModel):
     clonedsite_js: Optional[str]
     clonedsite_css: Optional[str]
     client_id: Optional[str]
-
-
-class HistoryResponse(BaseModel):
-    canarydrop: Dict
-    history: TokenHistory
-    google_api_key: Optional[str]
