@@ -1,12 +1,14 @@
 from typing import List, Literal, Optional
+
+from pydantic import BaseModel
+
+from canarytokens.utils import json_safe_dict
 from .common import (
-    BaseModel,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    json_safe_dict,
 )
 
 

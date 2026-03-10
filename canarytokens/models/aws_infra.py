@@ -1,14 +1,16 @@
+import enum
 from typing import Any, List, Literal, Optional, Union
+
+from pydantic import BaseModel
+
+from canarytokens.utils import json_safe_dict
 from .common import (
-    BaseModel,
     TokenEditRequest,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    enum,
-    json_safe_dict,
 )
 
 

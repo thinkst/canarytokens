@@ -1,5 +1,7 @@
 from typing import List, Literal, Optional
-from .common import TokenHistory, TokenHit, TokenTypes, json_safe_dict
+
+from canarytokens.utils import json_safe_dict
+from .common import TokenHistory, TokenHit, TokenTypes
 
 
 class SlackAPITokenHit(TokenHit):

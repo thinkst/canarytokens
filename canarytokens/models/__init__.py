@@ -2,7 +2,7 @@
 
 from typing import Union
 
-from pydantic import Field
+from pydantic import Field, BaseModel
 from typing_extensions import Annotated
 
 from .common import *  # noqa: F401,F403
