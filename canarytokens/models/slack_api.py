@@ -1,7 +1,15 @@
 from typing import List, Literal, Optional
 
 from canarytokens.utils import json_safe_dict
-from .common import TokenHistory, TokenHit, TokenTypes
+from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
+    TokenHistory,
+    TokenHit,
+    TokenTypes,
+)
 
 
 class SlackAPITokenHit(TokenHit):
@@ -23,3 +31,17 @@ class SlackAPITokenHit(TokenHit):
 class SlackAPITokenHistory(TokenHistory[SlackAPITokenHit]):
     token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
     hits: List[SlackAPITokenHit] = []
+
+
+class DownloadSlackAPIRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.SLACK_API] = DownloadFmtTypes.SLACK_API
+
+
+class DownloadSlackAPIResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    slack_api_key: str
+    filename: str = "slack_creds"
+    token: str
+    auth: str

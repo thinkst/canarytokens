@@ -1,5 +1,15 @@
 from typing import List, Literal
-from .common import TokenHistory, TokenHit, TokenRequest, TokenResponse, TokenTypes
+from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
+    TokenHistory,
+    TokenHit,
+    TokenRequest,
+    TokenResponse,
+    TokenTypes,
+)
 
 
 class MsExcelDocumentTokenRequest(TokenRequest):
@@ -17,3 +27,16 @@ class MsExcelDocumentTokenHit(TokenHit):
 class MsExcelDocumentTokenHistory(TokenHistory[MsExcelDocumentTokenHit]):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
     hits: List[MsExcelDocumentTokenHit] = []
+
+
+class DownloadMSExcelRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.MSEXCEL] = DownloadFmtTypes.MSEXCEL
+
+
+class DownloadMSExcelResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.APPMSEXCELL] = (
+        DownloadContentTypes.APPMSEXCELL
+    )
+    filename: str
+    token: str
+    auth: str

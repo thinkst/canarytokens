@@ -1,5 +1,21 @@
-from typing import Any, List, Literal
-from .common import TokenHistory, TokenHit, TokenRequest, TokenResponse, TokenTypes
+from typing import Any, List, Literal, TypedDict
+from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
+    TokenHistory,
+    TokenHit,
+    TokenRequest,
+    TokenResponse,
+    TokenTypes,
+)
+
+
+class KubeCerts(TypedDict):
+    f: bytes
+    c: bytes
+    k: bytes
 
 
 class KubeconfigTokenRequest(TokenRequest):
@@ -44,3 +60,16 @@ class KubeconfigTokenHit(TokenHit):
 class KubeconfigTokenHistory(TokenHistory[KubeconfigTokenHit]):
     token_type: Literal[TokenTypes.KUBECONFIG] = TokenTypes.KUBECONFIG
     hits: List[KubeconfigTokenHit] = []
+
+
+class DownloadKubeconfigRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.KUBECONFIG] = DownloadFmtTypes.KUBECONFIG
+
+
+class DownloadKubeconfigResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str = "kubeconfig"
+    token: str
+    auth: str

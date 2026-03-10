@@ -1,9 +1,13 @@
-from typing import Any, List, Literal, Optional
+from typing import Any, List, Literal, Optional, TypedDict
 
 from pydantic import BaseModel, Field, root_validator
 
 from canarytokens.utils import json_safe_dict, strtobool
 from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
     TokenExposedHit,
     TokenHistory,
     TokenHit,
@@ -11,6 +15,14 @@ from .common import (
     TokenResponse,
     TokenTypes,
 )
+
+
+class AWSKey(TypedDict):
+    access_key_id: str
+    secret_access_key: str
+    aws_account_id: Optional[str]
+    region: str
+    output: Literal["json", "yaml", "yaml-stream", "text", "table"]
 
 
 class AWSKeyAdditionalInfo(BaseModel):
@@ -136,3 +148,20 @@ class AWSKeyTokenExposedHit(TokenExposedHit):
 class AWSKeyTokenHistory(TokenHistory[AWSKeyTokenHit]):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
     hits: List[AWSKeyTokenHit]
+
+
+class DownloadAWSKeysRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.AWSKEYS] = DownloadFmtTypes.AWSKEYS
+
+
+class DownloadAWSKeysResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str = "credentials"
+    token: str
+    auth: str
+    aws_access_key_id: str
+    aws_secret_access_key: str
+    region: str
+    output: str

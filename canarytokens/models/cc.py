@@ -4,6 +4,10 @@ from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel
 from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
     TokenHistory,
     TokenHit,
     TokenRequest,
@@ -96,3 +100,16 @@ class CCTokenHit(TokenHit):
 class CCTokenHistory(TokenHistory[CCTokenHit]):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
     hits: List[CCTokenHit]
+
+
+class DownloadCCRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CC] = DownloadFmtTypes.CC
+
+
+class DownloadCCResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str

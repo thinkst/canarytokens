@@ -1,5 +1,17 @@
 from typing import List, Literal
-from .common import TokenHistory, TokenHit, TokenRequest, TokenResponse, TokenTypes
+
+
+from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
+    TokenHistory,
+    TokenHit,
+    TokenRequest,
+    TokenResponse,
+    TokenTypes,
+)
 
 
 class PDFTokenRequest(TokenRequest):
@@ -18,3 +30,14 @@ class PDFTokenHit(TokenHit):
 class PDFTokenHistory(TokenHistory[PDFTokenHit]):
     token_type: Literal[TokenTypes.ADOBE_PDF] = TokenTypes.ADOBE_PDF
     hits: List[PDFTokenHit]
+
+
+class DownloadPDFRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.PDF] = DownloadFmtTypes.PDF
+
+
+class DownloadPDFResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.APPPDF] = DownloadContentTypes.APPPDF
+    filename: str
+    token: str
+    auth: str

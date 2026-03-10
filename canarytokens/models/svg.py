@@ -1,6 +1,10 @@
 from typing import List, Literal, Optional
 from .common import (
     AdditionalInfo,
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
     TokenHistory,
     TokenHit,
     TokenRequest,
@@ -31,3 +35,14 @@ class SVGTokenHit(TokenHit):
 class SVGTokenHistory(TokenHistory[SVGTokenHit]):
     token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
     hits: List[SVGTokenHit]
+
+
+class DownloadSVGRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.SVG] = DownloadFmtTypes.SVG
+
+
+class DownloadSVGResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.SVG] = DownloadContentTypes.SVG
+    filename: str
+    token: str
+    auth: str
