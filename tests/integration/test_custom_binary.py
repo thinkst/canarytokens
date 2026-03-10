@@ -18,6 +18,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -34,7 +35,6 @@ from tests.utils import (
     ],
 )
 def test_custom_binary_token_fire(tmpdir, file_name, file_mimetype, webhook_receiver):
-
     with open("data/{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
@@ -65,6 +65,7 @@ def test_custom_binary_token_fire(tmpdir, file_name, file_mimetype, webhook_rece
         re.search(f"http://{token_info.hostname}".encode(), signed_binary_as_bytes)
         is not None
     )
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
     # fire token
     try:
         plain_fire_token.__wrapped__(token_info)
@@ -95,7 +96,6 @@ def test_custom_binary_token_fire(tmpdir, file_name, file_mimetype, webhook_rece
     ],
 )
 def test_custom_binary(tmpdir, file_name, file_mimetype, webhook_receiver):
-
     with open("data\\{file}".format(file=file_name), "rb") as fp:
         # record contents
         input_file_contents = fp.read()
@@ -119,6 +119,7 @@ def test_custom_binary(tmpdir, file_name, file_mimetype, webhook_receiver):
         # Create signed exe token
         resp = create_token(token_request=token_request)
         token_info = CustomBinaryTokenResponse(**resp)
+        clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # Extract signed exe
     signed_exe_bytes = base64.b64decode(

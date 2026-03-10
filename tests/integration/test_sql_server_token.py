@@ -13,7 +13,12 @@ from canarytokens.models import (
     TokenTypes,
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
-from tests.utils import create_token, get_stats_from_webhook, get_token_history
+from tests.utils import (
+    clear_stats_on_webhook,
+    create_token,
+    get_stats_from_webhook,
+    get_token_history,
+)
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Requires nt os (Windows OS)")
@@ -60,7 +65,6 @@ def test_sql_server_token(
     ],
     webhook_receiver,
 ):
-
     # initialize request
     memo = "testing sql_server_token"
     token_request = SQLServerTokenRequest(
@@ -76,6 +80,7 @@ def test_sql_server_token(
     # Create sql server token
     resp = create_token(token_request=token_request)
     token_info = SQLServerTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # sql database variables for sql scripts
     sql_database_variables = {

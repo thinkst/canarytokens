@@ -15,6 +15,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -26,7 +27,6 @@ MODE_DIRECTORY = 0x10
 
 
 def test_microsoft_excel_document(tmpdir, webhook_receiver):
-
     # initialize request
     memo = "microsoft excel memo!"
     token_request = MsExcelDocumentTokenRequest(
@@ -36,6 +36,7 @@ def test_microsoft_excel_document(tmpdir, webhook_receiver):
     # Create microsoft word token
     resp = create_token(token_request=token_request)
     token_info = MsExcelDocumentTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # request and download generated excel document
     fmt = "msexcel"

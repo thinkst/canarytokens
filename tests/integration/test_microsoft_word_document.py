@@ -13,6 +13,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -22,7 +23,6 @@ from tests.utils import (
 
 
 def test_microsoft_word_document(tmpdir, webhook_receiver):
-
     # initialize request
     memo = "microsoft word memo!"
     token_request = MsWordDocumentTokenRequest(
@@ -34,6 +34,7 @@ def test_microsoft_word_document(tmpdir, webhook_receiver):
     # Create microsoft word token
     resp = create_token(token_request=token_request)
     token_info = MsWordDocumentTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # request and download generated word document
     fmt = "msword"

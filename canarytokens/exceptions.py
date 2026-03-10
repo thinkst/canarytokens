@@ -1,5 +1,4 @@
-class CanaryTokenCreationError(Exception):
-    ...
+class CanaryTokenCreationError(Exception): ...
 
 
 class RecreatingDBException(Exception):

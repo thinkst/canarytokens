@@ -945,7 +945,7 @@ class Canarytoken(object):
         src_ip = event_detail["sourceIPAddress"]
         time_of_hit = datetime.strptime(event_detail["eventTime"], "%Y-%m-%dT%H:%M:%SZ")
         if "arn" in user:
-            identity = f'{user.get("arn")} (type: {user["type"]})'
+            identity = f"{user.get('arn')} (type: {user['type']})"
         else:
             identity = ", ".join(f"{k}: {v}" for k, v in user.items())
         hit_info = {
@@ -956,9 +956,9 @@ class Canarytoken(object):
             "user_agent": event_detail.get("userAgent"),
             "additional_info": AwsInfraAdditionalInfo(
                 event={
-                    "Event Name": f'{event_detail["eventName"]} (source: {event_detail["eventSource"]})',
+                    "Event Name": f"{event_detail['eventName']} (source: {event_detail['eventSource']})",
                     "Event Time": f"{time_of_hit.isoformat()} UTC+0:00",
-                    "Account & Region": f'{event["account"]}, {event["region"]}',
+                    "Account & Region": f"{event['account']}, {event['region']}",
                 },
                 decoy_resource={
                     "asset_type": Canarytoken._get_asset_type(event_detail),

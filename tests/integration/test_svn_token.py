@@ -11,6 +11,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -21,7 +22,6 @@ from tests.utils import (
 
 @contextmanager
 def managed_svn_server(tmpdir_repo):
-
     # run svn server
     server_output = subprocess.check_output(
         [
@@ -44,7 +44,6 @@ def managed_svn_server(tmpdir_repo):
 
 
 def test_svn_token(tmpdir, webhook_receiver):
-
     # create temp dir for the repo and client
     tmpdir_repo = tmpdir.mkdir("SVN")
     tmpdir_client = tmpdir.mkdir("SVN_ClIENT")
@@ -60,6 +59,7 @@ def test_svn_token(tmpdir, webhook_receiver):
     # Create Svn token
     resp = create_token(token_request=token_request)
     token_info = SvnTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # create svn repo
     repo_output = subprocess.check_output(

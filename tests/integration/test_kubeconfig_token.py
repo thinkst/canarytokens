@@ -14,6 +14,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -22,7 +23,6 @@ from tests.utils import (
 
 
 def test_kubeconfig(tmpdir, webhook_receiver):
-
     # initialize request
     memo = "kubeconfig memo!"
     token_request = KubeconfigTokenRequest(
@@ -34,6 +34,7 @@ def test_kubeconfig(tmpdir, webhook_receiver):
     # Create kubeconfig token
     resp = create_token(token_request=token_request)
     token_info = KubeconfigTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # check kubeconfig response field is not empty
     assert len(token_info.kubeconfig) > 0
