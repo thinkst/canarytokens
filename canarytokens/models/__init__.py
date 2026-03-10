@@ -210,3 +210,29 @@ class HistoryResponse(BaseModel):
     canarydrop: Dict
     history: AnyTokenHistory
     google_api_key: Optional[str]
+
+
+AnyDownloadRequest = Annotated[
+    Union[
+        DownloadAWSKeysRequest,
+        DownloadAzureIDConfigRequest,
+        DownloadAzureIDCertRequest,
+        DownloadCCRequest,
+        DownloadCMDRequest,
+        DownloadWindowsFakeFSRequest,
+        DownloadCSSClonedWebRequest,
+        DownloadIncidentListCSVRequest,
+        DownloadIncidentListJsonRequest,
+        DownloadKubeconfigRequest,
+        DownloadMSExcelRequest,
+        DownloadMSWordRequest,
+        DownloadMySQLRequest,
+        DownloadPDFRequest,
+        DownloadSlackAPIRequest,
+        DownloadZipRequest,
+        DownloadQRCodeRequest,
+        DownloadCreditCardV2Request,
+        DownloadSVGRequest,
+    ],
+    Field(discriminator="fmt"),
+]

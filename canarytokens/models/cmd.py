@@ -2,6 +2,10 @@ from typing import List, Literal
 
 from pydantic import validator
 from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
     TokenHistory,
     TokenHit,
     TokenRequest,
@@ -33,3 +37,16 @@ class CMDTokenHit(TokenHit):
 class CMDTokenHistory(TokenHistory[CMDTokenHit]):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     hits: List[CMDTokenHit]
+
+
+class DownloadCMDRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
+
+
+class DownloadCMDResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str

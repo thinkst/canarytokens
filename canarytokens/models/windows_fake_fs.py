@@ -3,6 +3,10 @@ from typing import List, Literal
 
 from pydantic import validator
 from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
     TokenHistory,
     TokenHit,
     TokenRequest,
@@ -51,3 +55,16 @@ class WindowsFakeFSTokenHit(TokenHit):
 class WindowsFakeFSTokenHistory(TokenHistory[WindowsFakeFSTokenHit]):
     token_type: Literal[TokenTypes.WINDOWS_FAKE_FS] = TokenTypes.WINDOWS_FAKE_FS
     hits: List[WindowsFakeFSTokenHit]
+
+
+class DownloadWindowsFakeFSRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.WINDOWS_FAKE_FS] = DownloadFmtTypes.WINDOWS_FAKE_FS
+
+
+class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str

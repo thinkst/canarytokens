@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional
+from typing import Any, List, Literal, Optional, TypedDict
 
 from pydantic import BaseModel, root_validator
 
@@ -10,6 +10,13 @@ from .common import (
     TokenResponse,
     TokenTypes,
 )
+
+
+class CrowdStrikeCC(TypedDict):
+    token_id: str
+    client_id: str
+    client_secret: str
+    base_url: str
 
 
 class CrowdStrikeCCAdditionalInfo(BaseModel):

@@ -1,5 +1,19 @@
-from typing import List, Literal, Optional
-from .common import TokenHistory, TokenHit, TokenRequest, TokenResponse, TokenTypes
+from typing import List, Literal, Optional, TypedDict
+from .common import (
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
+    TokenHistory,
+    TokenHit,
+    TokenRequest,
+    TokenResponse,
+    TokenTypes,
+)
+
+
+class CSSClonedSite(TypedDict):
+    expected_referrer: str
 
 
 class CSSClonedWebTokenRequest(TokenRequest):
@@ -21,3 +35,16 @@ class CSSClonedWebTokenHit(TokenHit):
 class CSSClonedWebTokenHistory(TokenHistory[CSSClonedWebTokenHit]):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     hits: List[CSSClonedWebTokenHit] = []
+
+
+class DownloadCSSClonedWebRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
+
+
+class DownloadCSSClonedWebResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str

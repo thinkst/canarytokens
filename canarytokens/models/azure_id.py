@@ -1,16 +1,28 @@
-from typing import Any, List, Literal, Optional
+from typing import Any, List, Literal, Optional, TypedDict
 
 from pydantic import root_validator
 
 from canarytokens.utils import json_safe_dict
 from .common import (
     BaseModel,
+    DownloadContentTypes,
+    DownloadFmtTypes,
+    TokenDownloadRequest,
+    TokenDownloadResponse,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
 )
+
+
+class AzureID(TypedDict):
+    app_id: str
+    tenant_id: str
+    cert: str
+    cert_name: str
+    cert_file_name: str
 
 
 class AzureIDAdditionalInfo(BaseModel):
@@ -90,3 +102,29 @@ class AzureIDTokenHit(TokenHit):
 class AzureIDTokenHistory(TokenHistory):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     hits: List[AzureIDTokenHit]
+
+
+class DownloadAzureIDConfigRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.AZUREIDCONFIG] = DownloadFmtTypes.AZUREIDCONFIG
+
+
+class DownloadAzureIDConfigResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str
+
+
+class DownloadAzureIDCertRequest(TokenDownloadRequest):
+    fmt: Literal[DownloadFmtTypes.AZUREIDCERT] = DownloadFmtTypes.AZUREIDCERT
+
+
+class DownloadAzureIDCertResponse(TokenDownloadResponse):
+    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
+        DownloadContentTypes.TEXTPLAIN
+    )
+    filename: str
+    token: str
+    auth: str

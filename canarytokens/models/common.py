@@ -1,12 +1,8 @@
 from __future__ import annotations
-from abc import ABCMeta, abstractmethod
-import csv
 import enum
 import re
 import sys
 from datetime import datetime
-from io import StringIO
-from ipaddress import IPv4Address
 from typing import (
     Any,
     Dict,
@@ -15,7 +11,6 @@ from typing import (
     Literal,
     Optional,
     Tuple,
-    TypedDict,
     TypeVar,
     Union,
 )
@@ -92,105 +87,6 @@ class Hostname(ConstrainedStr):
 class Canarytoken(ConstrainedStr):
     max_length: int = CANARYTOKEN_LENGTH
     regex = CANARYTOKEN_RE
-
-
-class AWSKey(TypedDict):
-    access_key_id: str
-    secret_access_key: str
-    aws_account_id: Optional[str]
-    region: str
-    output: Literal["json", "yaml", "yaml-stream", "text", "table"]
-
-
-class CSSClonedSite(TypedDict):
-    expected_referrer: str
-
-
-class AzureID(TypedDict):
-    app_id: str
-    tenant_id: str
-    cert: str
-    cert_name: str
-    cert_file_name: str
-
-
-class CrowdStrikeCC(TypedDict):
-    token_id: str
-    client_id: str
-    client_secret: str
-    base_url: str
-
-
-class KubeCerts(TypedDict):
-    f: bytes
-    c: bytes
-    k: bytes
-
-
-class CreditCard(BaseModel):
-    id: str
-    number: Optional[str]
-    cvc: Optional[str]
-    expiration: Optional[str]
-    kind: Optional[str]
-    name: str
-    billing_zip: str
-    address: str
-
-    def render_html(self) -> str:
-        return f"""<div id=\"cccontainer\"><span id=\"ccname\">{self.name}</span><span id=\"ccnumber\">{self.__format_token()}</span><span id=\"ccexpires\">{self.expiration}</span><span id=\"cccvc\">{self.cvc}</span></div>"""
-
-    def to_csv(self) -> str:
-        f = StringIO()
-        fn = ["name", "type", "number", "cvc", "exp", "billing_zip"]
-        sd = self.to_dict()
-        del sd["address"]
-        del sd["id"]
-        writer = csv.DictWriter(f, fieldnames=fn)
-        writer.writeheader()
-        writer.writerow(sd)
-        return f.getvalue()
-
-    def to_dict(self) -> Dict[str, str]:
-        return {
-            "id": str(self.id),
-            "name": self.name,
-            "number": str(self.number),
-            "cvc": str(self.cvc),
-            "billing_zip": str(self.billing_zip),
-            "type": str(self.kind),
-            "address": str(self.address),
-            "exp": str(self.expiration),
-        }
-
-    def __format_token(self):
-        if self.kind != "AMEX":
-            return " ".join(
-                self.number[i : i + 4]  # noqa: E203
-                for i in range(0, len(self.number), 4)
-            )
-        return " ".join([self.number[0:4], self.number[4:10], self.number[10:15]])
-
-
-class ApiProvider(metaclass=ABCMeta):
-    @abstractmethod
-    def create_credit_card(
-        self,
-        token_url: str,
-        first_name: Optional[str] = None,
-        last_name: Optional[str] = None,
-        address: Optional[str] = None,
-        billing_zip: Optional[str] = None,
-    ) -> CreditCard:
-        pass
-
-    @abstractmethod
-    def get_credit_card(self, id: str) -> CreditCard:
-        pass
-
-    @abstractmethod
-    def get_latest_transaction(self, cc: CreditCard) -> Optional[Dict[str, str]]:
-        pass
 
 
 class TokenTypes(StrEnum):
@@ -517,31 +413,6 @@ class AzureIDAdditionalInfo(BaseModel):
         return data
 
 
-class CrowdStrikeCCAdditionalInfo(BaseModel):
-    crowdstrike_log_data: dict[str, list[str]]
-
-    @root_validator(pre=True)
-    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        keys_to_convert = [
-            ("CrowdStrike Log Data", "crowdstrike_log_data"),
-        ]
-        for old_key, new_key in keys_to_convert:  # pragma: no cover
-            if old_key in values:
-                values[new_key] = values.pop(old_key)
-
-        return {k.lower(): v for k, v in values.items()}
-
-    def serialize_for_v2(self) -> dict:
-        data = self.dict()
-        keys_to_convert = [
-            ("CrowdStrike Log Data", "crowdstrike_log_data"),
-        ]
-        for value, key in keys_to_convert:
-            if key in data:
-                data[value] = data.pop(key)
-        return data
-
-
 class AdditionalInfo(BaseModel):
     javascript: Optional[ServiceInfo]
     browser: Optional[BrowserInfo]
@@ -570,48 +441,6 @@ class AdditionalInfo(BaseModel):
             data["Javascript"] = data.pop("javascript")
         if "mysql_client" in data:
             data["MySQL Client"] = data.pop("mysql_client")
-        return data
-
-
-class SMTPHeloField(BaseModel):
-    client_name: str
-    client_ip: IPv4Address
-
-    class Config:
-        json_encoders = {
-            IPv4Address: lambda v: str(v),
-        }
-
-
-class SMTPMailField(BaseModel):
-    sender: Optional[str]
-    recipients: list[str]
-    links: list[str]
-    headers: list[str]
-    helo: SMTPHeloField
-    attachments: list[str]
-
-    def dict(
-        self,
-        *,
-        include: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        exclude: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        by_alias: bool = False,
-        skip_defaults: bool = None,
-        exclude_unset: bool = False,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> "DictStrAny":  # noqa F821
-        data = super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-        data["recipients"] = [f"<{o}>" for o in data["recipients"]]
         return data
 
 
@@ -888,18 +717,6 @@ class DownloadZipRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.ZIP] = DownloadFmtTypes.ZIP
 
 
-class DownloadMSWordRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.MSWORD] = DownloadFmtTypes.MSWORD
-
-
-class DownloadMSExcelRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.MSEXCEL] = DownloadFmtTypes.MSEXCEL
-
-
-class DownloadPDFRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.PDF] = DownloadFmtTypes.PDF
-
-
 class DownloadQRCodeRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.QRCODE] = DownloadFmtTypes.QRCODE
 
@@ -959,32 +776,6 @@ class DownloadCreditCardV2Request(TokenDownloadRequest):
 
 class DownloadSVGRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.SVG] = DownloadFmtTypes.SVG
-
-
-AnyDownloadRequest = Annotated[
-    Union[
-        DownloadAWSKeysRequest,
-        DownloadAzureIDConfigRequest,
-        DownloadAzureIDCertRequest,
-        DownloadCCRequest,
-        DownloadCMDRequest,
-        DownloadWindowsFakeFSRequest,
-        DownloadCSSClonedWebRequest,
-        DownloadIncidentListCSVRequest,
-        DownloadIncidentListJsonRequest,
-        DownloadKubeconfigRequest,
-        DownloadMSExcelRequest,
-        DownloadMSWordRequest,
-        DownloadMySQLRequest,
-        DownloadPDFRequest,
-        DownloadSlackAPIRequest,
-        DownloadZipRequest,
-        DownloadQRCodeRequest,
-        DownloadCreditCardV2Request,
-        DownloadSVGRequest,
-    ],
-    Field(discriminator="fmt"),
-]
 
 
 class TokenDownloadResponse(Response):
