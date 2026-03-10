@@ -717,65 +717,12 @@ class DownloadZipRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.ZIP] = DownloadFmtTypes.ZIP
 
 
-class DownloadQRCodeRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.QRCODE] = DownloadFmtTypes.QRCODE
-
-
 class DownloadIncidentListJsonRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.INCIDENTLISTJSON] = DownloadFmtTypes.INCIDENTLISTJSON
 
 
-class DownloadMySQLRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.MYSQL] = DownloadFmtTypes.MYSQL
-    encoded: bool = True
-
-
 class DownloadIncidentListCSVRequest(TokenDownloadRequest):
     fmt: Literal[DownloadFmtTypes.INCIDENTLISTCSV] = DownloadFmtTypes.INCIDENTLISTCSV
-
-
-class DownloadAWSKeysRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.AWSKEYS] = DownloadFmtTypes.AWSKEYS
-
-
-class DownloadAzureIDConfigRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.AZUREIDCONFIG] = DownloadFmtTypes.AZUREIDCONFIG
-
-
-class DownloadAzureIDCertRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.AZUREIDCERT] = DownloadFmtTypes.AZUREIDCERT
-
-
-class DownloadCMDRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.CMD] = DownloadFmtTypes.CMD
-
-
-class DownloadWindowsFakeFSRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.WINDOWS_FAKE_FS] = DownloadFmtTypes.WINDOWS_FAKE_FS
-
-
-class DownloadCSSClonedWebRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.CSSCLONEDSITE] = DownloadFmtTypes.CSSCLONEDSITE
-
-
-class DownloadCCRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.CC] = DownloadFmtTypes.CC
-
-
-class DownloadKubeconfigRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.KUBECONFIG] = DownloadFmtTypes.KUBECONFIG
-
-
-class DownloadSlackAPIRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.SLACK_API] = DownloadFmtTypes.SLACK_API
-
-
-class DownloadCreditCardV2Request(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.CREDIT_CARD_V2] = DownloadFmtTypes.CREDIT_CARD_V2
-
-
-class DownloadSVGRequest(TokenDownloadRequest):
-    fmt: Literal[DownloadFmtTypes.SVG] = DownloadFmtTypes.SVG
 
 
 class TokenDownloadResponse(Response):
@@ -795,35 +742,10 @@ class TokenDownloadResponse(Response):
         super().__init__(content=content, headers=headers)
 
 
-class DownloadMSWordResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.APPMSWORD] = (
-        DownloadContentTypes.APPMSWORD
-    )
-    filename: str
-    token: str
-    auth: str
-
-
 class DownloadZipResponse(TokenDownloadResponse):
     contenttype: Literal[DownloadContentTypes.APPZIP] = DownloadContentTypes.APPZIP
     filename: str
     content: bytes
-    token: str
-    auth: str
-
-
-class DownloadMSExcelResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.APPMSEXCELL] = (
-        DownloadContentTypes.APPMSEXCELL
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadPDFResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.APPPDF] = DownloadContentTypes.APPPDF
-    filename: str
     token: str
     auth: str
 
@@ -837,126 +759,10 @@ class DownloadIncidentListJsonResponse(TokenDownloadResponse):
     auth: str
 
 
-class DownloadMySQLResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.APPZIP] = DownloadContentTypes.APPZIP
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadQRCodeResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.IMAGE] = DownloadContentTypes.IMAGE
-    filename: str
-    token: str
-    auth: str
-
-
 class DownloadIncidentListCSVResponse(TokenDownloadResponse):
     contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
         DownloadContentTypes.TEXTPLAIN
     )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadCCResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadCMDResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadWindowsFakeFSResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadCSSClonedWebResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadAWSKeysResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str = "credentials"
-    token: str
-    auth: str
-    aws_access_key_id: str
-    aws_secret_access_key: str
-    region: str
-    output: str
-
-
-class DownloadAzureIDConfigResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadAzureIDCertResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str
-    token: str
-    auth: str
-
-
-class DownloadKubeconfigResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str = "kubeconfig"
-    token: str
-    auth: str
-
-
-class DownloadSlackAPIResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    slack_api_key: str
-    filename: str = "slack_creds"
-    token: str
-    auth: str
-
-
-class DownloadCreditCardV2Response(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.TEXTPLAIN] = (
-        DownloadContentTypes.TEXTPLAIN
-    )
-    filename: str = "credit_card"
-    token: str
-    auth: str
-
-
-class DownloadSVGResponse(TokenDownloadResponse):
-    contenttype: Literal[DownloadContentTypes.SVG] = DownloadContentTypes.SVG
     filename: str
     token: str
     auth: str
