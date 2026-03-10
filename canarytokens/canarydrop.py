@@ -464,7 +464,7 @@ class Canarydrop(BaseModel):
         )
         return clonedsite_js
 
-    def get_cloned_site_css(self, cf_url: str):
+    def get_cloned_site_css(self, cf_url: str, bitm_detection : bool = False):
         def _ucc_swap(s: str, n=3) -> str:
             """
             Replaces ~n of the characters in the string with a CSS-encoded unicode codepoint.
@@ -490,13 +490,29 @@ class Canarydrop(BaseModel):
 
         token_val = self.canarytoken.value()
         expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
-        clonedsite_css = textwrap.dedent(
-            f"""
-            body {{
-                background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
-            }}
-            """
-        )
+        if bitm_detection:
+            clonedsite_css = textwrap.dedent(
+                f"""
+                @media (display-mode: fullscreen) {{
+                    body {{
+                        background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif?fs=1') !important;
+                    }}
+                }}
+                @media not (display-mode: fullscreen) {{
+                    body {{
+                        background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
+                    }}
+                }}
+                """
+            )
+        else:
+            clonedsite_css = textwrap.dedent(
+                f"""
+                body {{
+                    background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
+                }}
+                """
+            )
         return clonedsite_css
 
     @staticmethod
