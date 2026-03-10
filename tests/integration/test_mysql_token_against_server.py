@@ -27,7 +27,6 @@ def test_mysql_token(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):  # pragma: no cover
-
     token_request = MySQLTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),

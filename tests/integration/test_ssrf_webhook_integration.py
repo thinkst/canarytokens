@@ -172,6 +172,6 @@ def test_dns_rebinding_crafted_hostname_blocked(
                 input_channel=input_channel,
             )
 
-    assert any(
-        "Disallowed requests to" in log["log_format"] for log in captured
-    ), "Hostname resolving to 127.0.0.1 should be blocked by advocate"
+    assert any("Disallowed requests to" in log["log_format"] for log in captured), (
+        "Hostname resolving to 127.0.0.1 should be blocked by advocate"
+    )

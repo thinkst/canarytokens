@@ -119,7 +119,6 @@ def test_googlechat_webhook_format(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
-
     switchboard = Switchboard(settings)
     input_channel = ChannelDNS(
         switchboard=switchboard,
