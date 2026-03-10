@@ -164,7 +164,6 @@ def test_channel_dns_query(
     ],
 )
 async def test_DNS_server_factory(query, address):
-
     proto = dns.DNSDatagramProtocol(controller=None)
     transport = FakeDatagramTransport()
     proto.makeConnection(transport)

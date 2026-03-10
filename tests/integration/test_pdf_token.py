@@ -20,7 +20,6 @@ from tests.utils import (
 
 
 def test_pdf_token(webhook_receiver):
-
     # Generate the token
     token_request = PDFTokenRequest(
         webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
