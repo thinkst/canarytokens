@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 import logging
 
 from canarytokens import queries
@@ -13,7 +14,7 @@ from canarytokens.exceptions import (
     AWSInfraOperationNotAllowed,
     CanarytokenTypeNotEnabled,
 )
-from canarytokens.models import AWSInfraState
+from canarytokens.models import AWSInfraState, TokenTypes
 from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
@@ -179,6 +180,9 @@ def is_ingesting(canarydrop: Canarydrop) -> bool:
     """
     Check if the canarydrop's state is currently ingesting.
     """
+    if canarydrop.aws_infra_state is None:
+        return False
+
     return (
         canarydrop.aws_infra_state & AWSInfraState.INGESTING
     ) == AWSInfraState.INGESTING
@@ -203,3 +207,37 @@ def set_ingestion_bus(canarydrop: Canarydrop, bus_name: str) -> None:
         raise RuntimeError(error_message)
     canarydrop.aws_infra_ingestion_bus_name = bus_name
     queries.save_canarydrop(canarydrop)
+
+
+def is_aws_infra_canarydrop_active(canarydrop: Canarydrop) -> bool:
+    """
+    Return True when an AWS infra token is currently ingesting.
+    """
+    if canarydrop.type != TokenTypes.AWS_INFRA:
+        return False
+
+    return is_ingesting(canarydrop)
+
+
+def cleanup_inactive_aws_infra_canarydrops() -> int:
+    """
+    Delete inactive AWS infra canarydrops from Redis and return count deleted.
+    """
+    deleted_count = 0
+    canarydrops = queries.get_canarydrops_by_type(TokenTypes.AWS_INFRA)
+    now = datetime.now(timezone.utc)
+
+    for canarydrop in canarydrops:
+        if now - canarydrop.created_at < timedelta(
+            seconds=settings.AWS_INFRA_CLEANUP_MAX_AGE
+        ):
+            continue
+
+        if is_aws_infra_canarydrop_active(canarydrop):
+            continue
+
+        queries.delete_canarydrop(canarydrop)
+        deleted_count += 1
+        logging.warning("Deleted inactive AWS infra canarydrop for token %s.", canarydrop.canarytoken.value())
+
+    return deleted_count

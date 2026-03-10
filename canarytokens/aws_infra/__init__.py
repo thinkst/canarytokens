@@ -6,6 +6,7 @@ from canarytokens.aws_infra.state_management import (
     mark_failed,
     mark_ingesting,
     in_state,
+    cleanup_inactive_aws_infra_canarydrops,
 )
 from canarytokens.aws_infra.operations import (
     get_canarydrop_from_handle,
@@ -53,4 +54,5 @@ __all__ = [
     "in_state",
     "setup_new_plan",
     "name_generation_limit_usage",
+    "cleanup_inactive_aws_infra_canarydrops",
 ]
