@@ -7,7 +7,6 @@
 #
 
 import base64
-import datetime
 import errno
 import hashlib
 from http.client import (
@@ -41,7 +40,6 @@ from fastapi import (
     status,
     Header,
 )
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import (
     HTMLResponse,
     JSONResponse,
@@ -222,7 +220,6 @@ from canarytokens.azure_css import (
     EntraTokenErrorAccessDenied,
     build_entra_redirect_url,
     EntraTokenStatus,
-    LEGACY_ENTRA_STATUS_MAP,
 )
 from canarytokens.webdav import generate_webdav_password, insert_webdav_token, FsType
 from canarytokens.pdfgen import make_canary_pdf
@@ -234,7 +231,6 @@ from canarytokens.queries import (
     add_canary_image_page,
     add_canary_path_element,
     get_all_canary_domains,
-    get_all_canary_sites,
     is_email_blocked,
     is_valid_email,
     remove_canary_domain,
@@ -294,44 +290,44 @@ app = FastAPI(
 vue_index = Jinja2Templates(directory="../dist/")
 
 
-if frontend_settings.NEW_UI:
+@app.get("/")
+@app.get("/nest/legal")
+@app.get("/manage")
+@app.get("/nest/manage/{rest_of_path:path}")
+@app.get("/history")
+@app.get("/nest/history/{rest_of_path:path}")
+@app.get("/nest/entra/{rest_of_path:path}")
+@app.get("/nest/generate")
+@app.get("/generate")
+@app.get("/create")
+@app.get("/create/{rest_of_path:path}")
+@app.get("/nest/create")
+@app.get("/nest/create/{rest_of_path:path}")
+def index(request: Request):
+    response = vue_index.TemplateResponse("index.html", {"request": request})
+    if request.url.path not in ["/", "/nest"]:
+        robot_tags = ["noindex", "nofollow"]
+        response.headers["X-Robots-Tag"] = ", ".join(robot_tags)
 
-    @app.get("/")
-    @app.get("/nest/legal")
-    @app.get("/manage")
-    @app.get("/nest/manage/{rest_of_path:path}")
-    @app.get("/history")
-    @app.get("/nest/history/{rest_of_path:path}")
-    @app.get("/nest/entra/{rest_of_path:path}")
-    @app.get("/nest/generate")
-    @app.get("/generate")
-    @app.get("/create")
-    @app.get("/create/{rest_of_path:path}")
-    @app.get("/nest/create")
-    @app.get("/nest/create/{rest_of_path:path}")
-    def index(request: Request):
-        response = vue_index.TemplateResponse("index.html", {"request": request})
-        if request.url.path not in ["/", "/nest"]:
-            robot_tags = ["noindex", "nofollow"]
-            response.headers["X-Robots-Tag"] = ", ".join(robot_tags)
+    return response
 
-        return response
 
-    @app.get("/robots.txt")
-    def robots_txt():
-        txt_template = get_template_env().get_template("robots.txt")
-        return PlainTextResponse(
-            content=txt_template.render(),
-            status_code=200,
-        )
+@app.get("/robots.txt")
+def robots_txt():
+    txt_template = get_template_env().get_template("robots.txt")
+    return PlainTextResponse(
+        content=txt_template.render(),
+        status_code=200,
+    )
 
-    @app.get("/.well-known/security.txt")
-    def security_txt():
-        txt_template = get_template_env().get_template("security.txt")
-        return PlainTextResponse(
-            content=txt_template.render(),
-            status_code=200,
-        )
+
+@app.get("/.well-known/security.txt")
+def security_txt():
+    txt_template = get_template_env().get_template("security.txt")
+    return PlainTextResponse(
+        content=txt_template.render(),
+        status_code=200,
+    )
 
 
 ROOT_API_ENDPOINT = "/d3aece8093b71007b5ccfedad91ebb11"
@@ -352,15 +348,14 @@ app.mount(
     name=frontend_settings.STATIC_FILES_APPLICATION_INTERNAL_NAME,
 )
 
-if frontend_settings.NEW_UI:
-    try:
-        app.mount(
-            "/nest",
-            StaticFiles(directory="../dist/", html=True),
-            name="Vue Frontend Dist",
-        )
-    except RuntimeError:
-        log.warning("Error: No Vue dist found. Is this the test Action?")
+try:
+    app.mount(
+        "/nest",
+        StaticFiles(directory="../dist/", html=True),
+        name="Vue Frontend Dist",
+    )
+except RuntimeError:
+    log.warning("Error: No Vue dist found. Please build the frontend.")
 
 templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
 
@@ -488,33 +483,6 @@ def startup_event():
     add_canary_image_page("photo1.jpg")
 
 
-# When the New UI is stable we can remove this entire "app" block up until the next comment
-
-
-@app.get("/", response_class=RedirectResponse, status_code=302)
-async def redirect_to_generate_page():
-    return "/generate"
-
-
-@app.get(
-    "/generate",
-    tags=["Canarytokens generate page"],
-    response_class=HTMLResponse,
-)
-def generate_page(request: Request) -> HTMLResponse:
-    sites_len = len(get_all_canary_sites())
-    now = datetime.datetime.now()
-    generate_template_params = {
-        "request": request,
-        "build_id": get_deployed_commit_sha(),
-        "sites_len": sites_len,
-        "now": now,
-        "awsid_enabled": frontend_settings.AWSID_URL is not None,
-        "azureid_enabled": frontend_settings.AZURE_ID_TOKEN_URL is not None,
-    }
-    return templates.TemplateResponse("generate_new.html", generate_template_params)
-
-
 def _get_src_ip(request):
     # starlette's testclient includes a non-IP hostname which is pointless and makes tests fail
     return request.headers.get(switchboard_settings.REAL_IP_HEADER) or (
@@ -524,212 +492,6 @@ def _get_src_ip(request):
     )
 
 
-@app.post(
-    "/generate",
-    tags=["Create Canarytokens"],
-)
-async def generate(request: Request) -> AnyTokenResponse:  # noqa: C901  # gen is large
-    """
-    Generate a token and return the appropriate TokenResponse
-    """
-
-    if request.headers.get("Content-Type", "application/json") == "application/json":
-        token_request_data = await request.json()
-    else:
-        # Need a mutable copy of the form data
-        token_request_data = dict(await request.form())
-        token_request_data["token_type"] = token_request_data.pop(
-            "type", token_request_data.get("token_type", None)
-        )
-
-    try:
-        token_request_details: AnyTokenRequest = parse_obj_as(
-            AnyTokenRequest, token_request_data
-        )
-    except ValidationError:  # DESIGN: can we specialise on what went wrong?
-        return response_error(1, "Malformed request, invalid data supplied.")
-
-    if not token_request_details.memo:
-        return response_error(2, "No memo supplied")
-
-    if token_request_details.webhook_url:
-        try:
-            validate_webhook(
-                token_request_details.webhook_url, token_request_details.token_type
-            )
-        except WebhookTooLongError:
-            return response_error(3, "Webhook URL too long. Use a shorter webhook URL.")
-        except requests.exceptions.HTTPError:
-            return response_error(
-                3, "Invalid webhook supplied. Confirm you can POST to this URL."
-            )
-        except requests.exceptions.Timeout:
-            return response_error(
-                3, "Webhook timed out. Confirm you can POST to this URL."
-            )
-        except requests.exceptions.ConnectionError:
-            return response_error(
-                3, "Failed to connect to webhook. Confirm you can POST to this URL."
-            )
-
-    if token_request_details.email:
-        if not is_valid_email(token_request_details.email):
-            return response_error(5, "Invalid email supplied")
-
-        if is_email_blocked(token_request_details.email):
-            # raise HTTPException(status_code=400, detail="Email is blocked.")
-            return response_error(
-                6,
-                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
-            )
-    # TODO: refactor this. KUBECONFIG token creates it's own token
-    # value and cannot follow same path as before.
-    if token_request_details.token_type == TokenTypes.KUBECONFIG:
-        token_value, kube_config = kubeconfig.get_kubeconfig()
-        canarytoken = Canarytoken(value=token_value)
-    else:
-        kube_config = None
-        canarytoken = Canarytoken()
-    src_ip = _get_src_ip(request)
-    x_forwarded_for = request.headers.get("x-forwarded-for") or ""
-
-    canarydrop = Canarydrop(
-        type=token_request_details.token_type,
-        alert_email_enabled=True if token_request_details.email else False,
-        alert_email_recipient=token_request_details.email,
-        alert_webhook_enabled=True if token_request_details.webhook_url else False,
-        alert_webhook_url=token_request_details.webhook_url or "",
-        created_from_ip=src_ip,
-        created_from_ip_x_forwarded_for=x_forwarded_for,
-        canarytoken=canarytoken,
-        memo=token_request_details.memo,
-        browser_scanner_enabled=False,
-        # Drop details to fulfil the tokens promise.
-        # TODO: move all token type specific canary drop
-        #       attribute setting into `create_response`
-        #       which is already doing the type dispatch for us.
-        kubeconfig=kube_config,
-        redirect_url=getattr(token_request_details, "redirect_url", None),
-        clonedsite=getattr(token_request_details, "clonedsite", None),
-        expected_referrer=getattr(token_request_details, "expected_referrer", None),
-        sql_server_sql_action=getattr(
-            token_request_details, "sql_server_sql_action", None
-        ),
-        sql_server_table_name=getattr(
-            token_request_details, "sql_server_table_name", None
-        ),
-        sql_server_view_name=getattr(
-            token_request_details, "sql_server_view_name", None
-        ),
-        sql_server_function_name=getattr(
-            token_request_details, "sql_server_function_name", None
-        ),
-        sql_server_trigger_name=getattr(
-            token_request_details, "sql_server_trigger_name", None
-        ),
-        # TODO: Move this into the create_response - same for much of what is done above.
-        wg_key=(
-            wg.generateCanarytokenPrivateKey(
-                canarytoken.value(),
-                wg_private_key_seed=switchboard_settings.WG_PRIVATE_KEY_SEED,
-                wg_private_key_n=switchboard_settings.WG_PRIVATE_KEY_N,
-            )
-            if token_request_details.token_type == TokenTypes.WIREGUARD
-            else None
-        ),
-    )
-
-    # add generate random hostname an token
-    canarydrop.get_url(canary_domains=[canary_http_channel])
-    canarydrop.generated_hostname = canarydrop.get_hostname()
-
-    save_canarydrop(canarydrop)
-
-    return create_response(token_request_details, canarydrop)
-
-
-@app.get(
-    "/manage",
-    tags=["Manage Canarytokens"],
-    response_class=HTMLResponse,
-    dependencies=[Depends(authorise_token_access)],
-)
-async def manage_page_get(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
-) -> HTMLResponse:
-
-    manage_template_params = {
-        "request": request,
-        "canarydrop": canarydrop,
-        "API_KEY": queries.get_canary_google_api_key(),
-        "now": datetime.datetime.now(),
-        "public_ip": frontend_settings.PUBLIC_IP,
-        "wg_private_key_seed": switchboard_settings.WG_PRIVATE_KEY_SEED,
-        "wg_private_key_n": switchboard_settings.WG_PRIVATE_KEY_N,
-    }
-
-    if canarydrop.type == TokenTypes.WIREGUARD:
-        wg_conf = wg.clientConfig(
-            canarydrop.wg_key,
-            frontend_settings.PUBLIC_IP,
-            switchboard_settings.WG_PRIVATE_KEY_SEED,
-            switchboard_settings.WG_PRIVATE_KEY_N,
-        )
-        qr_code = segno.make(wg_conf).png_data_uri(scale=2)
-        manage_template_params["wg_conf"] = wg_conf
-        manage_template_params["wg_qr_code"] = qr_code
-    elif canarydrop.type == TokenTypes.QR_CODE:
-        qr_code = segno.make(canarydrop.generated_url).png_data_uri(scale=5)
-        manage_template_params["qr_code"] = qr_code
-    elif canarydrop.type == TokenTypes.CLONEDSITE:
-        manage_template_params["force_https"] = switchboard_settings.FORCE_HTTPS
-
-    return templates.TemplateResponse("manage_new.html", manage_template_params)
-
-
-@app.get(
-    "/history",
-    tags=["Canarytokens History"],
-    response_class=HTMLResponse,
-    dependencies=[Depends(authorise_token_access)],
-)
-async def history_page_get(
-    request: Request, canarydrop: Canarydrop = Depends(get_canarydrop_and_authenticate)
-) -> HTMLResponse:
-
-    triggered_list = canarydrop.format_triggered_details_of_history_page()
-    triggered_list = jsonable_encoder(triggered_list)
-    # TODO: history html expects v2 shaped data.
-    #       Remove this when html is updated.
-    canarydrop_dict = canarydrop.dict()
-    canarydrop_dict["triggered_list"] = triggered_list
-    history_template_params = {
-        "request": request,
-        "canarydrop": canarydrop_dict,
-        "API_KEY": queries.get_canary_google_api_key(),
-        "now": datetime.datetime.now(),
-    }
-
-    return templates.TemplateResponse("history.html", history_template_params)
-
-
-@app.post(
-    "/settings",
-    tags=["Canarytokens Settings"],
-    dependencies=[Depends(authorise_token_access)],
-)
-async def settings_post(
-    settings_request: AnySettingsRequest = Depends(parse_for_settings),
-) -> SettingsResponse:
-    canarydrop = queries.get_canarydrop_and_authenticate(
-        token=settings_request.token, auth=settings_request.auth
-    )
-    if canarydrop.apply_settings_change(setting_request=settings_request):
-        return JSONResponse({"message": "success"})
-    else:
-        return JSONResponse({"message": "failure"}, status_code=400)
-
-
 @api.post("/settings/ip-ignore-list")
 async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
     canarydrop = get_canarydrop_and_authenticate(token=request.token, auth=request.auth)
@@ -737,43 +499,6 @@ async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
     return JSONResponse({"message": "success"})
 
 
-@app.get(
-    "/legal",
-    tags=["Canarytokens legal page"],
-    response_class=HTMLResponse,
-)
-def legal_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("legal.html", {"request": request})
-
-
-@app.get(
-    "/download",
-    tags=["Canarytokens Downloads"],
-    dependencies=[Depends(authorise_token_access)],
-)
-async def download(
-    download_request: AnyDownloadRequest = Depends(parse_for_download),
-) -> Response:
-    """
-    Given `AnyDownloadRequest` a canarydrop is retrieved and the token
-    artifact or hit information is returned.
-    """
-    canarydrop = queries.get_canarydrop_and_authenticate(
-        token=download_request.token, auth=download_request.auth
-    )
-    return create_download_response(download_request, canarydrop=canarydrop)
-
-
-@app.get("/commitsha")
-def get_commit_sha():
-    commit_sha = get_deployed_commit_sha()
-    return JSONResponse({"commit_sha": commit_sha}, status_code=200)
-
-
-# remove up until here once new ui stable
-
-
-# NOTE: Do not remove this when cleaning up after UI is stable
 @app.exception_handler(500)
 async def internal_exception_handler(request: Request, exc: Exception):
     return templates.TemplateResponse("500.html", {"request": request})
@@ -784,7 +509,6 @@ async def internal_not_found_handler(request: Request, exc: Exception):
     return templates.TemplateResponse("404.html", {"request": request})
 
 
-# NOTE: Do not remove this when cleaning up after UI is stable
 @app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
 async def azure_css_landing(
     request: Request,
@@ -804,12 +528,6 @@ async def azure_css_landing(
         status = EntraTokenStatus.ENTRA_STATUS_NO_ADMIN_CONSENT
     else:
         status = install_azure_css(tenant, css)
-
-    if not frontend_settings.NEW_UI:
-        return templates.TemplateResponse(
-            "azure_install.html",
-            {"request": request, "status": LEGACY_ENTRA_STATUS_MAP[status.value]},
-        )
 
     return RedirectResponse(build_entra_redirect_url(status.value))
 

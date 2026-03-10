@@ -84,14 +84,6 @@ def test_read_docs(test_client: TestClient) -> None:
     assert response.status_code == 200
 
 
-def test_redirect_base_to_generate(test_client: TestClient) -> None:
-    if FrontendSettings().NEW_UI:
-        pytest.skip("New UI does not redirect to /generate")
-    response = test_client.get("/")
-    assert response.status_code == 200
-    assert response.url.path == "/generate"
-
-
 def test_generate_dns_token(test_client: TestClient) -> None:
     dns_request_token = models.DNSTokenRequest(
         token_type=TokenTypes.DNS,
@@ -552,8 +544,6 @@ def test_authorised_page_access(
         endpoint (str): endpoint to attempt to access.
         verb (str): HTTP verb for endpoint.
     """
-    if FrontendSettings().NEW_UI:
-        pytest.skip("New UI redirects these to index.html")
     resp = test_client.post(
         "/generate",
         data=DNSTokenRequest(
