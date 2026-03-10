@@ -1,5 +1,7 @@
 from typing import List, Literal, Optional, Union
-from .common import AdditionalInfo, SMTPMailField, TokenHistory, TokenHit, TokenTypes
+
+from canarytokens.models.smtp import SMTPMailField
+from .common import AdditionalInfo, TokenHistory, TokenHit, TokenTypes
 
 
 class LegacyTokenHit(TokenHit):
