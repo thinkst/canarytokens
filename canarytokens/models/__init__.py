@@ -13,6 +13,7 @@ from .azure_id import *  # noqa: F401,F403
 from .cc import *  # noqa: F401,F403
 from .clonedsite import *  # noqa: F401,F403
 from .cmd import *  # noqa: F401,F403
+from .credit_card import *  # noqa: F401,F403
 from .credit_card_v2 import *  # noqa: F401,F403
 from .crowdstrike_cc import *  # noqa: F401,F403
 from .cssclonedsite import *  # noqa: F401,F403
