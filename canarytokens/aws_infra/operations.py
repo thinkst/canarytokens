@@ -151,7 +151,6 @@ def _build_operation_payload(
 def _get_error_message(
     error: AWSInfraServiceError, canarydrop: Canarydrop = None
 ) -> str:
-
     role = f" ({canarydrop.aws_infra_inventory_role})" if canarydrop else ""
     account = f" ({canarydrop.aws_account_id})" if canarydrop else ""
     region = f" ({canarydrop.aws_region})" if canarydrop else ""

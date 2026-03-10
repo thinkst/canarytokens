@@ -48,11 +48,12 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
     state_transition_allow_map = {
         AWSInfraState.INITIAL: [AWSInfraState.CHECK_ROLE],
         AWSInfraState.CHECK_ROLE: [AWSInfraState.CHECK_ROLE],
-        AWSInfraState.CHECK_ROLE
-        | AWSInfraState.SUCCEEDED: [AWSInfraState.CHECK_ROLE, AWSInfraState.INVENTORY],
+        AWSInfraState.CHECK_ROLE | AWSInfraState.SUCCEEDED: [
+            AWSInfraState.CHECK_ROLE,
+            AWSInfraState.INVENTORY,
+        ],
         AWSInfraState.INVENTORY: [AWSInfraState.INVENTORY, AWSInfraState.CHECK_ROLE],
-        AWSInfraState.INVENTORY
-        | AWSInfraState.SUCCEEDED: [
+        AWSInfraState.INVENTORY | AWSInfraState.SUCCEEDED: [
             AWSInfraState.INVENTORY,
             AWSInfraState.CHECK_ROLE,
             AWSInfraState.GENERATE_CHILD_ASSETS,
@@ -64,16 +65,14 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
             AWSInfraState.CHECK_ROLE,
             AWSInfraState.PLAN,
         ],
-        AWSInfraState.GENERATE_CHILD_ASSETS
-        | AWSInfraState.SUCCEEDED: [
+        AWSInfraState.GENERATE_CHILD_ASSETS | AWSInfraState.SUCCEEDED: [
             AWSInfraState.INVENTORY,
             AWSInfraState.GENERATE_CHILD_ASSETS,
             AWSInfraState.PLAN,
             AWSInfraState.CHECK_ROLE,
         ],
         AWSInfraState.PLAN: [AWSInfraState.PLAN, AWSInfraState.CHECK_ROLE],
-        AWSInfraState.PLAN
-        | AWSInfraState.SUCCEEDED: [
+        AWSInfraState.PLAN | AWSInfraState.SUCCEEDED: [
             AWSInfraState.SETUP_INGESTION,
             AWSInfraState.PLAN,
             AWSInfraState.CHECK_ROLE,
@@ -83,8 +82,7 @@ def allow_next_state(canarydrop: Canarydrop, next_state: AWSInfraState = None) -
             AWSInfraState.CHECK_ROLE,
             AWSInfraState.PLAN,
         ],  # if setup-ingestion fails, we can retry from check-role
-        AWSInfraState.SETUP_INGESTION
-        | AWSInfraState.SUCCEEDED: [
+        AWSInfraState.SETUP_INGESTION | AWSInfraState.SUCCEEDED: [
             AWSInfraState.SETUP_INGESTION,
             AWSInfraState.CHECK_ROLE,
             AWSInfraState.PLAN,
@@ -108,7 +106,6 @@ def update_state(canarydrop: Canarydrop, new_state: AWSInfraState, **kwargs) -> 
         )
 
     if new_state == AWSInfraState.CHECK_ROLE:
-
         new_external_id = kwargs.get("external_id")
         canarydrop.aws_customer_iam_access_external_id = (
             new_external_id or canarydrop.aws_customer_iam_access_external_id

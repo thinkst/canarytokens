@@ -91,12 +91,14 @@ class WireGuardProtocol(DatagramProtocol):
         try:
             device = next(
                 filter(
-                    lambda candidateDevice: search_mac
-                    == blake2s(
-                        data_smac1,
-                        digest_size=BLAKE2S_128_SIZE,
-                        key=candidateDevice.mac1_key,
-                    ).digest(),
+                    lambda candidateDevice: (
+                        search_mac
+                        == blake2s(
+                            data_smac1,
+                            digest_size=BLAKE2S_128_SIZE,
+                            key=candidateDevice.mac1_key,
+                        ).digest()
+                    ),
                     self.devices,
                 )
             )

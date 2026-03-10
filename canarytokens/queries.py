@@ -675,7 +675,9 @@ def get_all_mails_in_send_status(
     return mails_and_details
 
 
-def remove_mail_from_to_send_status(token: str, time: datetime.datetime) -> tuple[
+def remove_mail_from_to_send_status(
+    token: str, time: datetime.datetime
+) -> tuple[
     Optional[list[EmailStr]],
     Optional[Union[models.TokenAlertDetails, models.TokenExposedDetails]],
 ]:
@@ -701,9 +703,9 @@ def put_mail_on_sent_queue(
     return DB.get_db().lpush(KEY_SENT_MAIL_QUEUE, sent_mail)
 
 
-def pop_mail_off_sent_queue() -> (
-    tuple[Optional[str], Optional[models.TokenAlertDetails]]
-):
+def pop_mail_off_sent_queue() -> tuple[
+    Optional[str], Optional[models.TokenAlertDetails]
+]:
     item = DB.get_db().rpop(KEY_SENT_MAIL_QUEUE, count=1)
     if item is None:
         log.info(f"No mail to send on queue: {KEY_SENT_MAIL_QUEUE}")

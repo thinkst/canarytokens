@@ -25,7 +25,7 @@ class ValidatingHTTPAdapter(HTTPAdapter):
             maxsize=maxsize,
             block=block,
             validator=self._validator,
-            **pool_kwargs
+            **pool_kwargs,
         )
 
     def proxy_manager_for(self, proxy, **proxy_kwargs):

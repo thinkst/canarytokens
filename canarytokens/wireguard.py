@@ -153,10 +153,11 @@ def clientConfig(
           Address = 192.168.123.107/32
 
         [Peer]
-          PublicKey = {getDevices(wg_private_key_seed, wg_private_key_n)[
-            device_key_idx]
+          PublicKey = {
+            getDevices(wg_private_key_seed, wg_private_key_n)[device_key_idx]
             .privateKey.public_key.encode(encoder=nacl.encoding.Base64Encoder)
-            .decode()}
+            .decode()
+        }
           AllowedIPs = 192.168.1.0/24
           Endpoint = {public_ip}:{DEFAULT_PORT}
           PersistentKeepalive = {30 * (random.randrange(10) + 1)}

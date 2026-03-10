@@ -134,8 +134,10 @@ set_of_request_classes = sorted(
     [
         o[1]
         for o in filter(
-            lambda name_class: name_class[0].endswith("TokenRequest")
-            and name_class[0] != "TokenRequest",
+            lambda name_class: (
+                name_class[0].endswith("TokenRequest")
+                and name_class[0] != "TokenRequest"
+            ),
             all_classes,
         )
     ],
@@ -146,8 +148,10 @@ set_of_response_classes = sorted(
     [
         o[1]
         for o in filter(
-            lambda name_class: name_class[0].endswith("TokenResponse")
-            and name_class[0] != "TokenResponse",
+            lambda name_class: (
+                name_class[0].endswith("TokenResponse")
+                and name_class[0] != "TokenResponse"
+            ),
             all_classes,
         )
     ],
