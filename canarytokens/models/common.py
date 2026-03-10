@@ -5,8 +5,9 @@ import enum
 import re
 import sys
 from datetime import datetime
-from io import StringIO
+from io import BytesIO, StringIO  # noqa: F401
 from ipaddress import IPv4Address
+from tempfile import SpooledTemporaryFile  # noqa: F401
 from typing import (
     Any,
     Dict,
@@ -43,7 +44,7 @@ from canarytokens.constants import (
     CANARYTOKEN_LENGTH,
     MEMO_MAX_CHARACTERS,
 )
-from canarytokens.utils import get_src_ip_continent, json_safe_dict
+from canarytokens.utils import get_src_ip_continent, json_safe_dict, strtobool  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum  # Python 3.11+
