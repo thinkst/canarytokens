@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch
 import pytest
 
@@ -20,6 +21,8 @@ from canarytokens.aws_infra.plan_generation import (
     _get_event_pattern_length,
 )
 from canarytokens.aws_infra.state_management import (
+    cleanup_inactive_aws_infra_canarydrops,
+    is_aws_infra_canarydrop_active,
     update_state,
 )
 from canarytokens.canarydrop import Canarydrop
@@ -27,6 +30,7 @@ from canarytokens.models import (
     AWSInfraAssetType,
     AWSInfraOperationType,
     AWSInfraState,
+    TokenTypes,
 )
 from canarytokens.tokens import Canarytoken
 from canarytokens.exceptions import (
@@ -34,10 +38,7 @@ from canarytokens.exceptions import (
 )
 
 
-# Test Fixtures
-@pytest.fixture
-def mock_canarydrop():
-    """Create a mock Canarydrop instance for testing."""
+def _mock_aws_infra_canarydrop():
     canarydrop = Mock(spec=Canarydrop)
     canarydrop.canarytoken = Mock(spec=Canarytoken)
     canarydrop.canarytoken.value.return_value = "test_token_123"
@@ -49,7 +50,16 @@ def mock_canarydrop():
     canarydrop.aws_tf_module_prefix = "prefix123"
     canarydrop.aws_infra_state = AWSInfraState.INITIAL
     canarydrop.aws_infra_ingestion_bus_name = "test-bus"
+    canarydrop.aws_saved_plan = '{"S3Bucket": []}'
+    canarydrop.type = TokenTypes.AWS_INFRA
+    canarydrop.created_at = datetime.now(timezone.utc)
     return canarydrop
+
+# Test Fixtures
+@pytest.fixture
+def mock_canarydrop():
+    """Create a mock Canarydrop instance for testing."""
+    return _mock_aws_infra_canarydrop()
 
 
 MOCK_INVENTORY_DATA = {
@@ -262,6 +272,91 @@ class TestStateManagement:
         else:
             with pytest.raises(AWSInfraOperationNotAllowed):
                 update_state(mock_canarydrop, next_state)
+
+    def test_is_aws_infra_canarydrop_active(self, mock_canarydrop):
+        mock_canarydrop.type = TokenTypes.AWS_INFRA
+        mock_canarydrop.aws_infra_state = (
+            AWSInfraState.SETUP_INGESTION | AWSInfraState.INGESTING
+        )
+
+        assert is_aws_infra_canarydrop_active(mock_canarydrop) is True
+
+    def test_is_aws_infra_canarydrop_active_false_when_not_ingesting(
+        self, mock_canarydrop
+    ):
+        mock_canarydrop.type = TokenTypes.AWS_INFRA
+        mock_canarydrop.aws_infra_state = AWSInfraState.SETUP_INGESTION
+        mock_canarydrop.aws_tf_module_prefix = None
+        mock_canarydrop.aws_saved_plan = None
+
+        assert is_aws_infra_canarydrop_active(mock_canarydrop) is False
+
+    def test_is_aws_infra_canarydrop_active_false_when_state_missing(
+        self, mock_canarydrop
+    ):
+        mock_canarydrop.type = TokenTypes.AWS_INFRA
+        mock_canarydrop.aws_infra_state = None
+
+        assert is_aws_infra_canarydrop_active(mock_canarydrop) is False
+
+    @patch("canarytokens.aws_infra.state_management.queries")
+    def test_cleanup_inactive_aws_infra_canarydrops(
+        self, mock_queries, mock_canarydrop
+    ):
+        inactive_drop = mock_canarydrop
+        inactive_drop.created_at = datetime.now(timezone.utc) - timedelta(days=10)
+        inactive_drop.aws_infra_state = AWSInfraState.SETUP_INGESTION
+        inactive_drop.aws_tf_module_prefix = None
+        inactive_drop.aws_saved_plan = None
+
+        healthy_drop = _mock_aws_infra_canarydrop()
+        healthy_drop.aws_infra_state = AWSInfraState.INGESTING
+
+        mock_queries.get_canarydrops_by_type.return_value = [inactive_drop, healthy_drop]
+
+        deleted_count = cleanup_inactive_aws_infra_canarydrops()
+
+        assert deleted_count == 1
+        mock_queries.get_canarydrops_by_type.assert_called_once_with(
+            TokenTypes.AWS_INFRA
+        )
+        mock_queries.delete_canarydrop.assert_called_once_with(inactive_drop)
+
+    @patch("canarytokens.aws_infra.state_management.queries")
+    def test_cleanup_only_deletes_old_inactive_tokens(self, mock_queries):
+        """Test that cleanup only deletes inactive tokens older than threshold (1 week default)."""
+        # Old inactive drop (should be deleted - older than 1 week)
+        old_inactive_drop = _mock_aws_infra_canarydrop()
+        old_inactive_drop.created_at = datetime.now(timezone.utc) - timedelta(days=8)
+        old_inactive_drop.aws_infra_state = AWSInfraState.SETUP_INGESTION
+        old_inactive_drop.aws_tf_module_prefix = None
+        old_inactive_drop.aws_saved_plan = None
+
+        # Recent inactive drop (should NOT be deleted - younger than 1 week)
+        recent_inactive_drop = _mock_aws_infra_canarydrop()
+        recent_inactive_drop.created_at = datetime.now(timezone.utc) - timedelta(days=3)
+        recent_inactive_drop.aws_infra_state = AWSInfraState.SETUP_INGESTION
+        recent_inactive_drop.aws_tf_module_prefix = None
+        recent_inactive_drop.aws_saved_plan = None
+
+        # Active drop (should NOT be deleted regardless of age)
+        active_drop = _mock_aws_infra_canarydrop()
+        active_drop.created_at = datetime.now(timezone.utc) - timedelta(days=30)
+        active_drop.aws_infra_state = AWSInfraState.INGESTING
+
+        mock_queries.get_canarydrops_by_type.return_value = [
+            old_inactive_drop,
+            recent_inactive_drop,
+            active_drop,
+        ]
+
+        deleted_count = cleanup_inactive_aws_infra_canarydrops()
+
+        assert deleted_count == 1
+        mock_queries.get_canarydrops_by_type.assert_called_once_with(
+            TokenTypes.AWS_INFRA
+        )
+        mock_queries.delete_canarydrop.assert_called_once_with(old_inactive_drop)
 
 
 VALID_PLAN = {

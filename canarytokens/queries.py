@@ -122,6 +122,29 @@ def get_canarydrop_and_authenticate(*, token: str, auth: str) -> cand.Canarydrop
     return canarydrop
 
 
+def get_canarydrops_by_type(token_type: models.TokenTypes) -> list[cand.Canarydrop]:
+    """
+    Return all canarydrops of a given token type.
+    """
+    canarydrops: list[cand.Canarydrop] = []
+    token_ids = DB.get_db().zrange(KEY_CANARYDROPS_TIMELINE, 0, -1)
+
+    for token_id in token_ids:
+        key = KEY_CANARYDROP + token_id
+        drop_type = DB.get_db().hget(key, "type")
+        if drop_type is None:
+            continue
+
+        try:
+            if models.TokenTypes(drop_type) != token_type:
+                continue
+            canarydrops.append(get_canarydrop(tokens.Canarytoken(token_id)))
+        except (ValueError, NoCanarydropFound):
+            continue
+
+    return canarydrops
+
+
 def get_all_canary_sites():
     return [f"http://{str(o)}" for o in get_all_canary_domains()]
 

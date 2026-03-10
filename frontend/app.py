@@ -16,7 +16,6 @@ from http.client import (
     UNAUTHORIZED,
 )
 from itertools import islice
-import logging.config
 import os
 import textwrap
 from base64 import b64decode
