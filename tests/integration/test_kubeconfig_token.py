@@ -4,6 +4,7 @@ import tempfile
 
 import requests
 
+from frontend.app import ROOT_API_ENDPOINT
 from canarytokens.models import (
     KubeconfigTokenHistory,
     KubeconfigTokenRequest,
@@ -51,7 +52,7 @@ def test_kubeconfig(tmpdir, webhook_receiver):
 
     print("get download")
     download_resp = requests.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=kubeconfig_request_params,
         timeout=(60, 60),
     )

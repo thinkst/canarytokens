@@ -5,6 +5,7 @@ from zipfile import ZipFile
 
 import requests
 
+from frontend.app import ROOT_API_ENDPOINT
 from canarytokens.models import (
     Memo,
     MsExcelDocumentTokenHistory,
@@ -44,7 +45,7 @@ def test_microsoft_excel_document(tmpdir, webhook_receiver):
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=word_document_request_params,
     )
 

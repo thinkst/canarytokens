@@ -345,7 +345,7 @@ def get_token_history(
         fmt=fmt,
     )
     resp = session.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=token_history_request.dict(),
     )
     resp.raise_for_status()
@@ -369,7 +369,7 @@ def download_token_artifact(
         fmt=fmt,
     )
     resp = session.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=token_history_request.dict(),
     )
     resp.raise_for_status()
@@ -448,7 +448,7 @@ def clear_stats_on_webhook(webhook_receiver: str, token: str):
 
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))
 def set_token_settings(setting: SettingsRequest):
-    generate_url = f"{server_config.server_url}/settings"
+    generate_url = f"{server_config.server_url}{ROOT_API_ENDPOINT}/settings"
     kwargs = {}
     kwargs["json"] = setting.dict()
 
@@ -469,7 +469,7 @@ def set_token_settings(setting: SettingsRequest):
     retry_when_raised=(requests.exceptions.HTTPError, CanaryTokenCreationError)
 )
 def create_token(token_request: TokenRequest):
-    generate_url = f"{server_config.server_url}/generate"
+    generate_url = f"{server_config.server_url}{ROOT_API_ENDPOINT}/generate"
     kwargs = {}
     timeout = request_timeout
     if isinstance(token_request, (CustomImageTokenRequest, CustomBinaryTokenRequest)):
