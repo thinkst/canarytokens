@@ -497,11 +497,13 @@ def startup_event():
     add_canary_path_element(path_element="stuff")
     add_canary_page("payments.js")
     add_canary_image_page("photo1.jpg")
-    threading.Thread(
+    # Start the cleanup daemon for inactive AWS infra canarydrops.
+    aws_infra_cleanup_daemon = threading.Thread(
         target=_run_periodic_aws_infra_canarydrop_cleanup,
-        name="canarydrop-cleanup",
+        name="aws_infra_cleanup_daemon",
         daemon=True,
-    ).start()
+    )
+    aws_infra_cleanup_daemon.start()
 
 
 def _get_src_ip(request):
