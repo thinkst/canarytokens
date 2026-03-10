@@ -15,6 +15,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -68,6 +69,7 @@ def test_custom_image_url(  # noqa: C901
         # Create custom image token
         resp = create_token(token_request=token_request)
         token_info = CustomImageTokenResponse(**resp)
+        clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
         # ensure browser_scanner is enabled or not
         set_token_settings(
@@ -178,6 +180,7 @@ def test_custom_image_web_image(
     # Create custom image token
     resp = create_token(token_request=token_request)
     token_info = CustomImageTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # ensure web_image is enabled
     _res = set_token_settings(
