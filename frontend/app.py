@@ -17,8 +17,6 @@ from http.client import (
 )
 from itertools import islice
 import os
-import threading
-import time
 import textwrap
 from base64 import b64decode
 from functools import singledispatch
