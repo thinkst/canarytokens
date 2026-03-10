@@ -7,6 +7,7 @@ from zipfile import ZipFile
 import pytest
 import requests
 
+from frontend.app import ROOT_API_ENDPOINT
 from canarytokens.models import (
     Memo,
     TokenTypes,
@@ -60,7 +61,7 @@ def test_windows_directory(
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=windows_folder_request_params,
     )
 

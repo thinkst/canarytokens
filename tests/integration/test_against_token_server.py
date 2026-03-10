@@ -84,7 +84,8 @@ def test_delete_token():
         fmt=DownloadFmtTypes.INCIDENTLISTJSON,
     )
     resp = requests.get(
-        url=f"{server_config.server_url}/download", params=token_history_request
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
+        params=token_history_request,
     )
 
     assert resp.status_code == 403
@@ -584,7 +585,7 @@ def test_token_error_codes(request_dict: dict[str, str], error_code: str):
     req_kw = "json"
 
     resp = requests.post(
-        url=f"{server_config.server_url}/generate",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/generate",
         timeout=(26, 26),
         **{req_kw: request_dict},
         headers={"Connection": "close"},
@@ -618,7 +619,7 @@ def test_ip_ignored_token_hit(
     ip_ignore_list = ["127.0.0.1"]
     # Set the token to ignore the localhost IP
     resp = requests.post(
-        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/settings/ip-ignore-list",
         json={
             "token": token_data["token"],
             "auth": token_data["auth_token"],
@@ -629,7 +630,7 @@ def test_ip_ignored_token_hit(
 
     # make sure IP ignoring is enabled
     resp = requests.post(
-        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/settings",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/settings",
         json={
             "token": token_data["token"],
             "auth": token_data["auth_token"],
@@ -641,7 +642,7 @@ def test_ip_ignored_token_hit(
 
     # check that the ignore list was set
     manage_resp = requests.get(
-        url=f"{server_config.server_url}/{ROOT_API_ENDPOINT}/manage",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/manage",
         params={
             "token": token_data["token"],
             "auth": token_data["auth_token"],
