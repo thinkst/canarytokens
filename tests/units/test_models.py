@@ -369,8 +369,10 @@ def test_override_hits_are_not_in_GeneralHistoryTokenTypes(class_suffix):
     hit_classes = {
         o[1].construct().token_type
         for o in filter(
-            lambda name_class: name_class[0].endswith(class_suffix)
-            and not name_class[0] == class_suffix,
+            lambda name_class: (
+                name_class[0].endswith(class_suffix)
+                and not name_class[0] == class_suffix
+            ),
             all_classes,
         )
     }
@@ -390,8 +392,10 @@ def test_override_hits_are_not_in_BlankRequestTokenTypes(class_suffix):
     request_classes_token_types = {
         o[1].construct().token_type
         for o in filter(
-            lambda name_class: name_class[0].endswith(class_suffix)
-            and not name_class[0] == class_suffix,
+            lambda name_class: (
+                name_class[0].endswith(class_suffix)
+                and not name_class[0] == class_suffix
+            ),
             all_classes,
         )
     }
@@ -419,8 +423,9 @@ def test_XXXTokenYYY_are_registered_to_AnyTokenYYY(class_suffix, any_annotated_u
     set_of_hit_classes = {
         o[1]
         for o in filter(
-            lambda name_class: name_class[0].endswith(class_suffix)
-            and name_class[0] != class_suffix,
+            lambda name_class: (
+                name_class[0].endswith(class_suffix) and name_class[0] != class_suffix
+            ),
             all_classes,
         )
     }
@@ -433,8 +438,10 @@ def test_all_requests_have_a_response():
     set_of_request_classes = set(
         o[0].removesuffix("TokenRequest")
         for o in filter(
-            lambda name_class: name_class[0].endswith("TokenRequest")
-            and name_class[0] != "TokenRequest",
+            lambda name_class: (
+                name_class[0].endswith("TokenRequest")
+                and name_class[0] != "TokenRequest"
+            ),
             all_classes,
         )
     )
@@ -442,8 +449,10 @@ def test_all_requests_have_a_response():
     set_of_response_classes = set(
         o[0].removesuffix("TokenResponse")
         for o in filter(
-            lambda name_class: name_class[0].endswith("TokenResponse")
-            and name_class[0] != "TokenResponse",
+            lambda name_class: (
+                name_class[0].endswith("TokenResponse")
+                and name_class[0] != "TokenResponse"
+            ),
             all_classes,
         )
     )

@@ -55,9 +55,7 @@ def make_canary_mysql_dump(mysql_usage: str, template: Path) -> bytes:
         table_list = [
             f.filename
             for f in filter(
-                lambda f: (
-                    f.filename.startswith("dw_") and f.filename.endswith(".sql")
-                ),
+                lambda f: f.filename.startswith("dw_") and f.filename.endswith(".sql"),
                 doc_list,
             )
         ]
