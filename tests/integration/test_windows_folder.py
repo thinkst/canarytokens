@@ -18,6 +18,7 @@ from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from canarytokens.utils import strtobool
 
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -51,6 +52,7 @@ def test_windows_directory(
     # Create windows folder token
     resp = create_token(token_request=token_request)
     token_info = WindowsDirectoryTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # request and download generated widows folder zip
     fmt = "zip"

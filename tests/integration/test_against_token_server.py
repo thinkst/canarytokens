@@ -334,6 +334,7 @@ def test_web_bug_token(method: str, webhook_receiver) -> None:
 
     assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))
 
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
     # Trigger the token
     trigger_http_token(
         token_info=token_info,
@@ -392,6 +393,7 @@ def test_cloned_web_token(
         clonedsite="http://www.test.com",
     )
     resp = create_token(token_request)
+    clear_stats_on_webhook(webhook_receiver, token=resp["token"])
 
     token_info = ClonedWebTokenResponse(**resp)
     # Trigger the token
@@ -492,6 +494,7 @@ def test_slow_redirect_token(
     resp = create_token(token_request)
 
     token_info = SlowRedirectTokenResponse(**resp)
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
 
     # Check token url page extension
     assert not token_info.token_url.lower().endswith((".png", ".gif", ".jpg", ".jpeg"))

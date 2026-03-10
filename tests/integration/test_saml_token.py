@@ -12,6 +12,7 @@ from canarytokens.models import (
 )
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 from tests.utils import (
+    clear_stats_on_webhook,
     create_token,
     get_stats_from_webhook,
     get_token_history,
@@ -40,7 +41,7 @@ def test_saml_token(redirect_url, webhook_receiver):
     with open("data/sample_saml_data.txt") as f:
         raw_text = f.read()
     data = {"SAMLResponse": [raw_text]}
-
+    clear_stats_on_webhook(webhook_receiver, token=token_info.token)
     # Fire the token
     resp = requests.post(
         login_url, data, headers={"Accept": "text/html"}, timeout=(30, 30)
