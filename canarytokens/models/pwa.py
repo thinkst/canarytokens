@@ -1,12 +1,13 @@
+import enum
 from typing import List, Literal, Optional
+
+from pydantic import BaseModel
 from .common import (
-    BaseModel,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    enum,
 )
 
 

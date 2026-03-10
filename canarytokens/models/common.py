@@ -5,9 +5,8 @@ import enum
 import re
 import sys
 from datetime import datetime
-from io import BytesIO, StringIO  # noqa: F401
+from io import StringIO
 from ipaddress import IPv4Address
-from tempfile import SpooledTemporaryFile  # noqa: F401
 from typing import (
     Any,
     Dict,

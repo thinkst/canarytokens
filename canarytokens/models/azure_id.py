@@ -1,4 +1,8 @@
 from typing import Any, List, Literal, Optional
+
+from pydantic import root_validator
+
+from canarytokens.utils import json_safe_dict
 from .common import (
     BaseModel,
     TokenHistory,
@@ -6,8 +10,6 @@ from .common import (
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    json_safe_dict,
-    root_validator,
 )
 
 

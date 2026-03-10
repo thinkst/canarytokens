@@ -1,3 +1,4 @@
+import enum
 from typing import List, Literal, Optional
 from .common import (
     AdditionalInfo,
@@ -6,7 +7,6 @@ from .common import (
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    enum,
 )
 
 

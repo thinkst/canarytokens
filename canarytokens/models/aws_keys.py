@@ -1,16 +1,15 @@
 from typing import Any, List, Literal, Optional
+
+from pydantic import BaseModel, Field, root_validator
+
+from canarytokens.utils import json_safe_dict, strtobool
 from .common import (
-    BaseModel,
-    Field,
     TokenExposedHit,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    json_safe_dict,
-    root_validator,
-    strtobool,
 )
 
 

@@ -1,14 +1,13 @@
+from ipaddress import IPv4Address
 from typing import Any, List, Literal, Optional
+
+from pydantic import BaseModel, EmailStr, validator
 from .common import (
-    BaseModel,
-    EmailStr,
-    IPv4Address,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    validator,
 )
 
 

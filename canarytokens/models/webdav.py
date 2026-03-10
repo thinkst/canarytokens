@@ -1,12 +1,12 @@
 from typing import List, Literal, Optional
+
+from pydantic import BaseModel, validator
 from .common import (
-    BaseModel,
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    validator,
 )
 
 

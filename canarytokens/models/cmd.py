@@ -1,11 +1,12 @@
 from typing import List, Literal
+
+from pydantic import validator
 from .common import (
     TokenHistory,
     TokenHit,
     TokenRequest,
     TokenResponse,
     TokenTypes,
-    validator,
 )
 
 
