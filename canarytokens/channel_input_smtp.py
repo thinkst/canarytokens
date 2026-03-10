@@ -248,35 +248,6 @@ class CanarySMTPFactory(smtp.SMTPFactory, InputChannel):
         return p
 
 
-#     def format_additional_data(self, **kwargs):
-#         log.info(kwargs)
-#         if kwargs.has_key('src_ip') and kwargs['src_ip']:
-#             additional_report = 'Source IP : {ip}'.format(ip=kwargs['src_ip'])
-#         if kwargs.has_key('mail') and kwargs['mail']:
-#             mail = kwargs['mail']
-#             additional_report += """
-# Client Name : {client_name}
-# Client IP   : {client_ip}
-# Sender      : {sender}
-# Recipients  : {recipients}
-# Links       : {links}
-# Attachments :
-# {attachments}
-
-
-# Headers     :
-# {headers}""".format(
-#                 recipients = ', '.(mail['recipients']),
-#                 sender = mail['sender'],
-#                 client_ip= mail['helo']['client_ip'],
-#                 client_name = mail['helo']['client_name'],
-#                 links = ', '.join(mail['links']),
-#                 attachments = '\n\n'.join(mail['attachments']),
-#                 headers = '\n'.join(mail['headers']))
-
-#         return additional_report
-
-
 class ChannelSMTP:
     def __init__(
         self,

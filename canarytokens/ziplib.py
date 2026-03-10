@@ -14,14 +14,6 @@ MODE_ARCHIVE = 0x20
 MODE_FILE = 0x80
 
 
-# def printzip(zip):
-#     print(
-#         "\t{extattr:b}\t{extattr:02x}\t{intattr:b}\t-\t{name}".format(
-#             extattr=zip.external_attr, intattr=zip.internal_attr, name=zip.filename
-#         )
-#     )
-
-
 def make_canary_desktop_ini(hostname: str, dummyfile: str = "resource.dll") -> bytes:
     return (
         "\r\n[.ShellClassInfo]\r\nIconResource=\\\\%USERNAME%.%COMPUTERNAME%.%USERDOMAIN%.INI."
@@ -111,29 +103,6 @@ def write_dir(
     zip.writestr(entry, "")
 
 
-# def write_weird(
-#     zip=None,
-#     name=None,
-#     system=False,
-#     hidden=False,
-#     readonly=False,
-#     archive=False,
-#     directory=False,
-#     date_time=datetime.datetime.utcnow(),
-#     file=False,
-#     contents="",
-# ):
-#     mode = 0
-#     mode |= MODE_HIDDEN if hidden else 0
-#     mode |= MODE_SYSTEM if system else 0
-#     mode |= MODE_READONLY if readonly else 0
-#     mode |= MODE_ARCHIVE if archive else 0
-#     mode |= MODE_DIRECTORY if directory else 0
-#     mode |= MODE_FILE if file else 0
-#     entry = make_file_entry(name=name, mode=mode, date_time=date_time)
-#     zip.writestr(entry, contents)
-
-
 def make_canary_zip(hostname: str) -> bytes:
     (fd, fname) = tempfile.mkstemp()
     archive = create_zip(name=fname)
@@ -170,53 +139,3 @@ def zipinfo_contents_replace(
 
 def format_time_for_doc(time):
     return time.strftime("%Y-%m-%d") + "T" + time.strftime("%H:%M:%S") + "Z"
-
-
-# if __name__ == "__main__": # pragma: no cover
-#     archive = create_zip(name="test1.zip")
-#     write_dir(zip=archive, name="test")
-#     write_dir(zip=archive, name="test/normal-dir")
-#     write_file(zip=archive, name="test/normal-dir/file1.txt", contents="hello!")
-#     write_dir(zip=archive, name="test/sysdir")
-#     write_file(
-#         zip=archive,
-#         name="test/sysdir/file1.txt",
-#         contents="i am system!",
-#         system=True,
-#         hidden=True,
-#     )
-#     write_dir(zip=archive, name="test/weirddir/")
-#     write_weird(
-#         zip=archive,
-#         name="test/weirddir/file2.txt",
-#         contents="i am weird!",
-#         system=True,
-#         hidden=True,
-#         archive=True,
-#         readonly=True,
-#         directory=True,
-#         file=True,
-#     )
-#     write_weird(
-#         zip=archive,
-#         name="test/weirddir/file2.txt/fooo.txt",
-#         contents="i am weird 2!",
-#         system=True,
-#         hidden=True,
-#         archive=True,
-#         readonly=True,
-#         directory=True,
-#         file=True,
-#     )
-#     archive.close()
-
-#     archive = create_zip(name="test1.zip")
-#     write_dir(zip=archive, name="test/", system=True)
-#     write_file(
-#         zip=archive,
-#         name="test/desktop.ini",
-#         contents=make_canary_desktop_ini(hostname="xxxx5.canarydrops.net"),
-#         system=True,
-#         hidden=True,
-#     )
-#     archive.close()
