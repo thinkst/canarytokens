@@ -15,6 +15,7 @@ from tests.utils import (
     create_token,
     get_stats_from_webhook,
     get_token_history,
+    server_config,
 )
 
 
@@ -36,6 +37,8 @@ def test_saml_token(redirect_url, webhook_receiver):
     login_url = token_info.token_url
     entity_id = token_info.entity_id
     assert login_url.startswith(entity_id)
+    if not server_config.live and login_url.startswith("https://"):
+        login_url = login_url.replace("https://", "http://", 1)
 
     with open("data/sample_saml_data.txt") as f:
         raw_text = f.read()

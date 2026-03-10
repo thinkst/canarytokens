@@ -8,6 +8,7 @@ import pytest
 import requests
 from pydantic import HttpUrl
 
+from frontend.app import ROOT_API_ENDPOINT
 from canarytokens.models import (
     AWSKeyTokenHistory,
     AWSKeyTokenRequest,
@@ -30,7 +31,7 @@ def get_token_history(token_info) -> Dict[str, str]:  # pragma: no cover
         fmt="incidentlist_json",
     )
     resp = requests.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=token_history_request.dict(),
     )
     if resp.status_code == 404:
@@ -61,7 +62,7 @@ def test_aws_key_token(webhook_receiver):  # pragma: no cover
     token_info = AWSKeyTokenResponse(**resp)
 
     # Make sure the downloaded version is what we expect
-    url = f"http://{server_config.canarytokens_domain}/download?fmt=awskeys&token={token_info.token}&auth={token_info.auth_token}&encoded=false"
+    url = f"http://{server_config.canarytokens_domain}{ROOT_API_ENDPOINT}/download?fmt=awskeys&token={token_info.token}&auth={token_info.auth_token}&encoded=false"
     raw_creds = requests.get(url).content.decode("utf-8")
     print(f"creds:\n{raw_creds}")
     [_, AKI, SAK, region, output] = raw_creds.strip().split("\n")

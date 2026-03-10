@@ -3,6 +3,7 @@ import tempfile
 import requests
 from docx import Document
 
+from frontend.app import ROOT_API_ENDPOINT
 from canarytokens.models import (
     Memo,
     MsWordDocumentTokenHistory,
@@ -42,7 +43,7 @@ def test_microsoft_word_document(tmpdir, webhook_receiver):
         "fmt": fmt,
     }
     download_resp = requests.get(
-        url=f"{server_config.server_url}/download",
+        url=f"{server_config.server_url}{ROOT_API_ENDPOINT}/download",
         params=word_document_request_params,
     )
 
