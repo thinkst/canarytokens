@@ -18,6 +18,7 @@ from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.utils import strtobool
 
+from frontend.app import ROOT_API_ENDPOINT
 from tests.utils import create_token, get_token_history, server_config
 
 
@@ -35,7 +36,7 @@ def test_mysql_token(
     token_info = MySQLTokenResponse(**resp)
     gz_file = f"{token_info.token}_mysql_dump.sql.gz"
     if server_config.live:
-        url = f"{server_config.server_url}/download?fmt=my_sql&token={token_info.token}&auth={token_info.auth_token}&encoded=true"
+        url = f"{server_config.server_url}{ROOT_API_ENDPOINT}/download?fmt=my_sql&token={token_info.token}&auth={token_info.auth_token}&encoded=true"
         with get(url) as rc:
             with open(gz_file, "wb") as f:
                 f.write(rc.content)
