@@ -391,7 +391,7 @@ def get_stats_from_webhook(webhook_receiver: str, token: str):
         resp.raise_for_status()
         webhook_data = resp.json()
         session.close()
-        # Check that len is > 1 because the webhook validation adds the first request and the total is not always consistent.
+        # Check "data" instead of "total", because "total" is not reliable.
         if len(webhook_data["data"]) > 0:
             break
     if len(webhook_data["data"]) == 0:
