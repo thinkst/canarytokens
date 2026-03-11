@@ -125,6 +125,10 @@ Event Name:
 Generic data:
   {{ BasicDetails['generic_data']}}
 {% endif %}
+{% if BasicDetails['tls_ja4_fingerprint'] +%}
+TLS JA4 Fingerprint:
+  {{ BasicDetails['tls_ja4_fingerprint']}}
+{% endif %}
 {% if BasicDetails['referer'] +%}
 Referer:
   {{ BasicDetails['referer']}}
