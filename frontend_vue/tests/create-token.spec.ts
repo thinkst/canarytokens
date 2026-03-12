@@ -7,7 +7,6 @@ import { TOKENS_TYPE } from '../src/components/constants';
 const TOKENS_TO_SKIP = [
   TOKENS_TYPE.CREDIT_CARD_V2,
   TOKENS_TYPE.AWS_INFRA,
-  TOKENS_TYPE.AZURE_ID, //This can be removed once we fix the functionality in honeypdfs 
   TOKENS_TYPE.SQL_SERVER //Mission to set up - later problem 
 ]
 
@@ -73,10 +72,9 @@ test.describe('Create Token', () => {
         await page.locator('input[type="file"]').setInputFiles('tests/upload/CustomExe.exe');
       }
 
-      //This feature does not work on honeypdfs but the below can be uncommented once we fix the functionality
-      // if (service === TOKENS_TYPE.AZURE_ID){
-      //   page.getByRole('textbox', { name: 'Azure ID certificate name' }).fill('testingtokens.pem');
-      // }
+      if (service === TOKENS_TYPE.AZURE_ID){
+        page.getByRole('textbox', { name: 'Azure ID certificate name' }).fill('testingtokens.pem');
+      }
 
       await expect(page.getByText('Mail me here when the alert fires')).toBeVisible();
       await page.locator('#email').fill('test@example.com');
