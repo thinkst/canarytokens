@@ -3,7 +3,6 @@ import { waitForApiSuccess } from './utils/common';
 import { takeScreenshot } from './utils/screenshots';
 import { tokenServices } from '../src/utils/tokenServices';
 import { TOKENS_TYPE } from '../src/components/constants';
-import path from 'path';
 
 const TOKENS_TO_SKIP = [
   TOKENS_TYPE.CREDIT_CARD_V2,
@@ -66,17 +65,14 @@ test.describe('Create Token', () => {
         await page.getByRole('option', { name: 'Gmail' }).click();
       }
 
-
       if (service === TOKENS_TYPE.WEB_IMAGE) {
-        const nonImageFile = path.join(__dirname, './upload/WebImage.jpg');
-        await page.getByTestId('doc-msword-document').setInputFiles(nonImageFile);
+        await page.locator('input[type="file"]').setInputFiles('tests/upload/WebImage.jpg');
       }
 
-      if (service === TOKENS_TYPE.CUSTOM_EXE){
-        const exeFilePath = path.join(__dirname, './upload/CustomExe.exe');
-        await page.getByTestId('custom-exe-file').setInputFiles(exeFilePath);
+      if (service === TOKENS_TYPE.CUSTOM_EXE) {
+        await page.locator('input[type="file"]').setInputFiles('tests/upload/CustomExe.exe');
       }
-      
+
       //This feature does not work on honeypdfs but the below can be uncommented once we fix the functionality
       // if (service === TOKENS_TYPE.AZURE_ID){
       //   page.getByRole('textbox', { name: 'Azure ID certificate name' }).fill('testingtokens.pem');
