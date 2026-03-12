@@ -6,8 +6,7 @@ import { TOKENS_TYPE } from '../src/components/constants';
 
 const TOKENS_TO_SKIP = [
   TOKENS_TYPE.CREDIT_CARD_V2,
-  TOKENS_TYPE.AWS_INFRA,
-  TOKENS_TYPE.SQL_SERVER //Mission to set up - later problem 
+  TOKENS_TYPE.AWS_INFRA
 ]
 
 test.describe('Create Token', () => {
@@ -74,6 +73,11 @@ test.describe('Create Token', () => {
 
       if (service === TOKENS_TYPE.AZURE_ID){
         page.getByRole('textbox', { name: 'Azure ID certificate name' }).fill('testingtokens.pem');
+      }
+
+      if (service === TOKENS_TYPE.SQL_SERVER){
+        await page.locator('#insert').check();
+        page.getByRole('textbox', { name: 'On this Table' }).fill('testtable');
       }
 
       await expect(page.getByText('Mail me here when the alert fires')).toBeVisible();
