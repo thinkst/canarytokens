@@ -14,6 +14,42 @@ test.describe('Home Page', () => {
     await takeScreenshot(page, 'homepage');
   });
 
+  test('Home page heading documentation link is correct', async ({ page, context }) => {
+  const documentationLink = page.getByRole('link', {
+    name: 'Documentation',
+    exact: true,
+  });
+
+  await expect(documentationLink).toBeVisible();
+
+  const [newPage] = await Promise.all([
+    context.waitForEvent('page'),
+    documentationLink.click(),
+  ]);
+
+  await newPage.waitForLoadState();
+  await expect(newPage).toHaveURL('https://docs.canarytokens.org/guide/');
+});
+
+test('Home page heading Thinkst Canary link is correct', async ({ page, context }) => {
+  const documentationLink = page.getByRole('link', {
+    name: 'Thinkst Canary',
+    exact: true,
+  });
+
+  await expect(documentationLink).toBeVisible();
+
+  const [newPage] = await Promise.all([
+    context.waitForEvent('page'),
+    documentationLink.click(),
+  ]);
+
+  await newPage.waitForLoadState();
+  await expect(newPage).toHaveURL('https://canary.tools');
+});
+
+
+
   test('Has correct footer', async ({ page }) => {
     const footer = page.locator('footer');
     await expect(footer.getByText(
