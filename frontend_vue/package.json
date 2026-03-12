@@ -37,6 +37,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@rushstack/eslint-patch": "^1.7.2",
     "@tsconfig/node20": "^20.1.2",
     "@types/jest": "^29.5.12",
