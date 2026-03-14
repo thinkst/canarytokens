@@ -1,22 +1,42 @@
 import { test, expect } from '@playwright/test';
-import { waitForApiSuccess } from './utils/common';
-import { takeScreenshot } from './utils/screenshots';
+import { getApiSuccessData } from './utils/common';
+// import { takeScreenshot } from './utils/screenshots';
 import { tokenServices } from '../src/utils/tokenServices';
 import { TOKENS_TYPE } from '../src/components/constants';
+import { createTestingJob, registerTokenData } from './utils/services';
 
 const TOKENS_TO_SKIP = [
   TOKENS_TYPE.CREDIT_CARD_V2,
   TOKENS_TYPE.AWS_INFRA,
-  TOKENS_TYPE.SQL_SERVER //Mission to set up - later problem 
+  TOKENS_TYPE.AZURE_ID,
+  TOKENS_TYPE.SQL_SERVER //Mission to set up - later problem
+]
+
+const TOKENS_TO_REGISTER_JOB_FOR = [
+  TOKENS_TYPE.WEB_BUG,
+  TOKENS_TYPE.UNIQUE_EMAIL,
+  TOKENS_TYPE.DNS,
+  TOKENS_TYPE.AWS_KEYS,
 ]
 
 test.describe('Create Token', () => {
+  let JOB_ID: string | null = null;
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
+  test.beforeAll(async() => {
+    await createTestingJob()
+      .then(async (jobData) => {
+        JOB_ID = jobData.job_id;
+      })
+      .catch((error) => {
+        throw error;
+      });
+  });
+
   Object.keys(tokenServices).forEach((service) => {
-    if (TOKENS_TO_SKIP.includes(service)) {
+    if (TOKENS_TO_SKIP.includes(service) || !TOKENS_TO_REGISTER_JOB_FOR.includes(service)) {
       console.warn(`Skipping tests for ${service} Canarytoken`);
       return;
     }
@@ -80,21 +100,38 @@ test.describe('Create Token', () => {
       await page.locator('#email').fill('test@example.com');
       await expect(page.getByText('Remind me of this when the alert fires')).toBeVisible();
       await page.locator('#memo').fill(`This is a reminder for the ${serviceName} Canarytoken alert.`);
-      await takeScreenshot(page, `${serviceName.toLowerCase()}/token-form`);
+      // await takeScreenshot(page, `${serviceName.toLowerCase()}/token-form`);
 
       const createBtn = page.getByRole('button', { name: 'Create Canarytoken' });
       await expect(createBtn).toBeVisible();
       await createBtn.click();
 
-      await waitForApiSuccess({
+      const tokenData = await getApiSuccessData({
         page,
         url: '/d3aece8093b71007b5ccfedad91ebb11/generate',
         callback: async () => {
           await expect(page.getByText(`Your ${serviceName} Canarytoken is active!`)).toBeVisible();
           await expect(page.getByRole('button', { name: 'Manage Canarytoken' })).toBeVisible();
-          await takeScreenshot(page, `${serviceName.toLowerCase()}/token-created`)
+          // await takeScreenshot(page, `${serviceName.toLowerCase()}/token-created`)
         },
       })
+      const jobItems = [
+        {
+          "type": service,
+          "domain": "honeypdfs.net",
+          "token": tokenData.token,
+          "auth": tokenData.auth_token
+        },
+      ]
+      if (JOB_ID && TOKENS_TO_REGISTER_JOB_FOR.includes(service)) {
+        await registerTokenData(JOB_ID, jobItems)
+          .then((registerResponse) => {
+            console.log('Token data registered for testing job:', registerResponse);
+          })
+          .catch((error) => {
+            throw error;
+          });
+      }
     });
 
   });
