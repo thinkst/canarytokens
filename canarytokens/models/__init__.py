@@ -1,5 +1,4 @@
 # flake8: noqa: F401
-# ruff: noqa: F401
 from typing import Dict, Optional, Union
 
 from pydantic import BaseModel, Field
