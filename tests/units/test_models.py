@@ -33,9 +33,9 @@ from canarytokens.models import (
     TokenTypes,
     WebBugTokenHistory,
     WebBugTokenHit,
-    json_safe_dict,
 )
 from canarytokens.tokens import Canarytoken
+from canarytokens.utils import json_safe_dict
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 
 
