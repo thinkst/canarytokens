@@ -24,6 +24,7 @@
     "@vueuse/core": "^10.9.0",
     "axios": "^1.13.0",
     "canvas-confetti": "^1.9.3",
+    "dotenv": "^17.3.1",
     "eslint-config-typescript": "^3.0.0",
     "floating-vue": "^5.2.2",
     "ip-address": "^10.1.0",
