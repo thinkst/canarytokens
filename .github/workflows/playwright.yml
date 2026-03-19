@@ -54,7 +54,7 @@ jobs:
           npx playwright test
 
       - name: Upload screenshots of tests failed
-      - uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
