@@ -32,17 +32,17 @@ jobs:
       - name: Set Test Domain Environment Variable
         run: |
           if [ "${{ inputs.branch }}" == "master" ]; then
-            echo "TEST_DOMAIN=ssl-secure-srv.org" >> $GITHUB_ENV
+            echo "PLAYWRIGHT_BASE_URL=https://ssl-secure-srv.org" >> $GITHUB_ENV
           elif [ "${{ inputs.branch }}" == "dev" ]; then
-            echo "TEST_DOMAIN=honeypdfs.com" >> $GITHUB_ENV
+            echo "PLAYWRIGHT_BASE_URL=https://honeypdfs.com" >> $GITHUB_ENV
           elif [ "${{ inputs.branch }}" == "dev2" ]; then
-            echo "TEST_DOMAIN=syruppdfs.com" >> $GITHUB_ENV
+            echo "PLAYWRIGHT_BASE_URL=https://syruppdfs.com" >> $GITHUB_ENV
           else
             echo "${{ inputs.branch }}: No matching branch for domain testing. Exiting." && exit 1
           fi
 
       - name: Debug Test Domain
-        run: echo "TEST_DOMAIN=${{ env.TEST_DOMAIN }}"
+        run: echo "PLAYWRIGHT_BASE_URL=${{ env.PLAYWRIGHT_BASE_URL }}"
 
       - name: Install dependencies
         run: |

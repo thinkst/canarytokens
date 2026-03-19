@@ -18,10 +18,7 @@ test.describe('Create Token', () => {
   });
 
   Object.keys(tokenServices).forEach((service) => {
-    if (TOKENS_TO_SKIP.includes(service)) {
-      console.warn(`Skipping tests for ${service} Canarytoken`);
-      return;
-    }
+    if (TOKENS_TO_SKIP.includes(service)) return;
     const tokenObj = tokenServices[service as keyof typeof tokenServices];
     const serviceName = tokenObj.label;
 
