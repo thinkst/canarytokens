@@ -39,4 +39,4 @@ coverage
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
-/tests/screenshots/
+screenshots/

@@ -7,6 +7,6 @@ const VIEWPORTS = {
 export const takeScreenshot = async (page: any, name: string, fullPage: boolean = false) => {
   for (const [device, viewport] of Object.entries(VIEWPORTS)) {
     await page.setViewportSize(viewport);
-    await page.screenshot({ path: `./tests/screenshots/${device}/${name}.png`, fullPage });
+    await page.screenshot({ path: `./screenshots/${device}/${name}.png`, fullPage });
   }
 };

@@ -17,7 +17,7 @@ on:
 jobs:
   chrome:
     runs-on: ubuntu-latest
-    name: Playwright E2E tests on Chrome
+    name: Playwright E2E tests
     steps:
       - name: Checkout 🔖
         uses: actions/checkout@v4.2.0
@@ -55,10 +55,20 @@ jobs:
           cd frontend_vue
           npx playwright test
 
-      - name: Upload screenshots of tests failed
+      - name: Upload screenshots of tests
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-screenshots
+          path: frontend_vue/screenshots
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
-          path: playwright-report/
+          path: frontend_vue/playwright-report
           retention-days: 30
+          if-no-files-found: ignore
