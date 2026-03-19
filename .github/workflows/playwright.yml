@@ -1,0 +1,62 @@
+name: Run Playwright Tests
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to use for tests. Note: This is not deployed to the DUT"
+        required: true
+        type: string
+
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch to use for tests. Note: This is not deployed to the DUT"
+        required: true
+        type: string
+
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    name: Playwright E2E tests on Chrome
+    steps:
+      - name: Checkout 🔖
+        uses: actions/checkout@v4.2.0
+        with:
+          ref: "${{ inputs.branch }}"
+
+      - name: Setup Node.js 🔨
+        uses: actions/setup-node@v4.0.4
+        with:
+          node-version: 20
+
+      - name: Set Test Domain Environment Variable
+        run: |
+          if [ "${{ inputs.branch }}" == "master" ]; then
+            echo "TEST_DOMAIN=ssl-secure-srv.org" >> $GITHUB_ENV
+          elif [ "${{ inputs.branch }}" == "dev" ]; then
+            echo "TEST_DOMAIN=honeypdfs.com" >> $GITHUB_ENV
+          elif [ "${{ inputs.branch }}" == "dev2" ]; then
+            echo "TEST_DOMAIN=syruppdfs.com" >> $GITHUB_ENV
+          else
+            echo "${{ inputs.branch }}: No matching branch for domain testing. Exiting." && exit 1
+          fi
+
+      - name: Debug Test Domain
+        run: echo "TEST_DOMAIN=${{ env.TEST_DOMAIN }}"
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Install playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run tests
+        run: |
+          cd tests/
+          npx playwright test
+
+      - name: Upload screenshots of tests failed
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
