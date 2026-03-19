@@ -268,6 +268,10 @@ class ASN(BaseModel):
     name: str
 
 
+class GeoIPNoInfo(BaseModel):
+    ip: str
+
+
 class GeoIPBogonInfo(BaseModel):
     ip: str
     bogon: Literal[True]
@@ -452,7 +456,7 @@ class AlertStatus(enum.StrEnum):
 class TokenHit(BaseModel):
     time_of_hit: float
     src_ip: Optional[str]
-    geo_info: Union[GeoIPInfo, GeoIPBogonInfo, None, Literal[""]]
+    geo_info: Union[GeoIPInfo, GeoIPBogonInfo, GeoIPNoInfo, None, Literal[""]]
     is_tor_relay: Optional[bool]
     input_channel: str
     src_data: Optional[dict]
