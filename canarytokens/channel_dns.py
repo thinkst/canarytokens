@@ -107,9 +107,7 @@ class ChannelDNS(InputChannel):
         """
         Calculate the response to a query.
         """
-        configured_ns_servers = [
-            d.strip() for d in self.ns_servers if d.strip()
-        ]
+        configured_ns_servers = [d.strip() for d in self.ns_servers if d.strip()]
 
         if configured_ns_servers:
             answers = [
