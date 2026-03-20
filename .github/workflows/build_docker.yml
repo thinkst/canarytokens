@@ -174,3 +174,10 @@ jobs:
       uses: ./.github/workflows/cypress.yml
       with:
         branch: "${{ github.ref_name }}"
+
+  trigger_playwright:
+      needs: test-gate
+      if: ${{ always() && needs.test-gate.result == 'success' && needs.test-gate.outputs.ran_any == 'true' }}
+      uses: ./.github/workflows/playwright.yml
+      with:
+        branch: "${{ github.ref_name }}"
