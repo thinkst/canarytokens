@@ -44,7 +44,6 @@ main settings files: `frontend.env` and `switchboard.env`.
 
 The `frontend.env` contains the frontend process settings such as:
 - CANARY_DOMAINS=mytesttokensdomain.com
-- CANARY_NS_SERVERS=ns1.mytesttokensdomain.com,ns2.mytesttokensdomain.com
 - CANARY_NXDOMAINS=pdf.demo.canarytokens.net
 - CANARY_AWSID_URL=<custom awsid url>
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
@@ -84,6 +83,9 @@ we will use the regular URL as 'https://api.mailgun.net' as the default.
 
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
+
+If you want to change the nameservers for your DNS zone you can do this by setting `CANARY_NS_SERVERS`.
+Make sure that all the nameservers forward to your instance. Default behavior is that 'ns1' is prepended to your domain.
 
 ### Configuration of Outgoing SMTP
 
