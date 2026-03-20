@@ -44,6 +44,7 @@ main settings files: `frontend.env` and `switchboard.env`.
 
 The `frontend.env` contains the frontend process settings such as:
 - CANARY_DOMAINS=mytesttokensdomain.com
+- CANARY_NS_SERVERS=ns1.mytesttokensdomain.com,ns2.mytesttokensdomain.com
 - CANARY_NXDOMAINS=pdf.demo.canarytokens.net
 - CANARY_AWSID_URL=<custom awsid url>
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads

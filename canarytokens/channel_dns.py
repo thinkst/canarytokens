@@ -101,11 +101,31 @@ class ChannelDNS(InputChannel):
 
         # TODO: This should be passed in an not grabbed from redis
         self.canary_domains = self.frontend_settings.DOMAINS
+        self.ns_servers = self.frontend_settings.NS_SERVERS
 
     def _do_ns_response(self, name=None):
         """
         Calculate the response to a query.
         """
+        configured_ns_servers = [
+            d.strip() for d in self.ns_servers if d.strip()
+        ]
+
+        if configured_ns_servers:
+            answers = [
+                dns.RRHeader(
+                    name=name,
+                    payload=dns.Record_NS(ttl=300, name=ns_domain),
+                    type=dns.NS,
+                    auth=True,
+                    ttl=300,
+                )
+                for ns_domain in configured_ns_servers
+            ]
+            authority: list[str] = []
+            additional: list[str] = []
+            return answers, authority, additional
+
         answer = dns.RRHeader(
             name=name,
             payload=dns.Record_NS(
