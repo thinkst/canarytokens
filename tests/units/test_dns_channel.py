@@ -231,4 +231,3 @@ def test_ns_response_falls_back_to_ns1_when_no_ns_servers(
     assert answers[0].payload.name.name.decode() == "ns1.example.com"
     assert len(additional) == 1
     assert additional[0].name.name.decode() == "ns1.example.com"
-
