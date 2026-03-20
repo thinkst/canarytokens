@@ -84,6 +84,9 @@ we will use the regular URL as 'https://api.mailgun.net' as the default.
 Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
 `frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
 
+If you want to change the nameservers for your DNS zone you can do this by setting `CANARY_NS_SERVERS`.
+Make sure that all the nameservers forward to your instance. Default behavior is that 'ns1' is prepended to your domain.
+
 ### Configuration of Outgoing SMTP
 
 When configuring outgoing SMTP please consider the following:
