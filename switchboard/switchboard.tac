@@ -178,7 +178,7 @@ loop_http.start(1800)
 
 # Start the cleanup daemon for inactive AWS infra canarydrops.
 aws_infra_cleanup_task, aws_infra_cleanup_task_done = start_threaded_looping_job(
-    job_name="AWS infra cleanup",
+    job_name="AWS Infra token cleanup",
     work=cleanup_inactive_aws_infra_canarydrops,
     interval_seconds=frontend_settings.AWS_INFRA_CLEANUP_INTERVAL_SECONDS,
     timeout_seconds=frontend_settings.AWS_INFRA_CLEANUP_TIMEOUT_SECONDS,
