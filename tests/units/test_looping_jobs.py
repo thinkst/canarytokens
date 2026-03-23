@@ -8,8 +8,12 @@ from canarytokens import looping_jobs
 
 class FakeLog:
     def __init__(self):
+        self.info_calls: list[tuple[str, dict[str, Any]]] = []
         self.warn_calls: list[tuple[str, dict[str, Any]]] = []
         self.failure_calls: list[tuple[str, dict[str, Any]]] = []
+
+    def info(self, message: str, **kwargs):
+        self.info_calls.append((message, kwargs))
 
     def warn(self, message: str, **kwargs):
         self.warn_calls.append((message, kwargs))
@@ -72,6 +76,16 @@ class FakeDelayedCall:
             self._callback()
 
 
+class FakeReactor:
+    def __init__(self, delayed_calls: list[FakeDelayedCall]):
+        self._delayed_calls = delayed_calls
+
+    def callLater(self, _seconds, callback, *args, **kwargs):
+        delayed = FakeDelayedCall(lambda: callback(*args, **kwargs))
+        self._delayed_calls.append(delayed)
+        return delayed
+
+
 class FakeLoopingCall:
     def __init__(self, func: Callable[[], Any]):
         self.func = func
@@ -100,15 +114,10 @@ def fake_runtime(monkeypatch):
         worker_deferreds.append(deferred)
         return deferred
 
-    def _call_later(_seconds, callback):
-        delayed = FakeDelayedCall(callback)
-        delayed_calls.append(delayed)
-        return delayed
-
     monkeypatch.setattr(looping_jobs, "log", fake_log)
     monkeypatch.setattr(looping_jobs.internet.task, "LoopingCall", _looping_call_factory)
     monkeypatch.setattr(looping_jobs.threads, "deferToThread", _defer_to_thread)
-    monkeypatch.setattr(looping_jobs.reactor, "callLater", _call_later)
+    monkeypatch.setattr(looping_jobs, "reactor", FakeReactor(delayed_calls))
 
     return {
         "log": fake_log,
