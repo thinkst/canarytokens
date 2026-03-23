@@ -372,12 +372,11 @@ def download_token_artifact(
     return resp.content
 
 
-@retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError))
+@retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))
 def get_stats_from_webhook(webhook_receiver: str, token: str):
     if "slack" in webhook_receiver:
         # slack webhooks don't give us introspection. Or can we? TODO: take a look.
         return  # pragma: no cover
-    stats = defaultdict(list)
     uuid = webhook_receiver.split("/")[-1]
     webhook_url = f"https://webhook.site/token/{uuid}/requests"
     headers = {"Connection": "close"}
@@ -390,22 +389,21 @@ def get_stats_from_webhook(webhook_receiver: str, token: str):
         )
         resp.raise_for_status()
         webhook_data = resp.json()
-        session.close()
-        # Check "data" instead of "total", because "total" is not reliable.
-        if len(webhook_data["data"]) > 0:
-            break
-    if len(webhook_data["data"]) == 0:
-        pytest.fail(
-            "Webhook did not receive any requests after 5 attempts, cannot get stats"
-        )
-    for req in webhook_data["data"]:
-        data = json.loads(req["content"])
-        # HACK: we can do better but that would be an API change:
-        if "http://example.com/test/url/for/webhook" != data.get("manage_url", None):
-            token_and_auth = data["manage_url"].split("/")[-1]
-            token = token_and_auth.split("&")[0].split("=")[1]
-            stats[token].append(data)
-    return stats[token]
+        stats = defaultdict(list)
+        for req in webhook_data["data"]:
+            data = json.loads(req["content"])
+            # HACK: we can do better but that would be an API change:
+            if "http://example.com/test/url/for/webhook" != data.get(
+                "manage_url", None
+            ):
+                token_and_auth = data["manage_url"].split("/")[-1]
+                data_token = token_and_auth.split("&")[0].split("=")[1]
+                stats[data_token].append(data)
+        if len(stats[token]) > 0:
+            return stats[token]
+    pytest.fail(
+        f"No stats found for token {token} on webhook {webhook_receiver} after 5 attempts"
+    )
 
 
 @retry_on_failure(retry_when_raised=(requests.exceptions.HTTPError,))

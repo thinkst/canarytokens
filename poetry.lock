@@ -3755,4 +3755,4 @@ web = ["fastapi", "sentry-sdk", "uvicorn"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "edabf2018b2d0fb438d3324191884ca2275c3d39a8b95ba40ce209854e97a92f"
+content-hash = "6329cb616e80c61e7c699c1b641525cbc23d2b4fc8bfaaf709c5907c083b36dd"
