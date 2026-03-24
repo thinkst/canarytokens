@@ -69,6 +69,7 @@ modernize = "^0.8.0"
 deepdiff = "^8.6.1"
 pypdf = "^6.6.2"
 easywebdav = "1.2.0"
+pytest-repeat = "^0.9.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
