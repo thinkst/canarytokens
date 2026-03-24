@@ -21,6 +21,7 @@ from canarytokens.channel_input_wireguard import ChannelWireGuard
 from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
 from canarytokens.loghandlers import errorsToWebhookLogObserver
+from canarytokens.looping_jobs import start_threaded_looping_job
 from canarytokens.queries import (
     add_return_for_token,
     set_ip_info_api_key,
@@ -176,5 +177,10 @@ loop_http = internet.task.LoopingCall(update_tor_exit_nodes_loop)
 loop_http.start(1800)
 
 # Start the cleanup daemon for inactive AWS infra canarydrops.
-aws_infra_cleanup_task = internet.task.LoopingCall(cleanup_inactive_aws_infra_canarydrops)
-aws_infra_cleanup_task.start(frontend_settings.AWS_INFRA_CLEANUP_INTERVAL_SECONDS)
+aws_infra_cleanup_task, aws_infra_cleanup_task_done = start_threaded_looping_job(
+    job_name="AWS Infra token cleanup",
+    work=cleanup_inactive_aws_infra_canarydrops,
+    interval_seconds=frontend_settings.AWS_INFRA_CLEANUP_INTERVAL_SECONDS,
+    timeout_seconds=frontend_settings.AWS_INFRA_CLEANUP_TIMEOUT_SECONDS,
+    now=False,
+)

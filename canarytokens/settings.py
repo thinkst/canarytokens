@@ -144,6 +144,7 @@ class FrontendSettings(BaseSettings):
     AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
     AWS_INFRA_NAME_GENERATION_LIMIT: Optional[int] = 50
     AWS_INFRA_CLEANUP_INTERVAL_SECONDS: int = 6 * 60 * 60
+    AWS_INFRA_CLEANUP_TIMEOUT_SECONDS: int = 60 * 60
     AWS_INFRA_CLEANUP_MAX_AGE: int = 7 * 24 * 60 * 60
     GEMINI_API_KEY: Optional[str]
     GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
