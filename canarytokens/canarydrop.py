@@ -668,16 +668,6 @@ class Canarydrop(BaseModel):
 
         return csvOutput.getvalue()
 
-    def format_triggered_details_of_history_page(self) -> dict[str, Any]:
-        """
-        Helper function as history.html still relies on v2 format.
-        TODO: remove this when history.html is updated.
-        Returns:
-            dict[str, Any]: v2 formatted incident list.
-        """
-
-        return self.triggered_details.serialize_for_v2(readable_time_format=True)
-
     def clear_alert_failures(self) -> None:
         if self.alert_failure_count:
             self.alert_failure_count = 0
