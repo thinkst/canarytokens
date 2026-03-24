@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getApiSuccessData } from './utils/common';
+import { getApiSuccessData, waitForApiSuccess } from './utils/common';
 import { takeScreenshot } from './utils/screenshots';
 import { tokenServices } from '../src/utils/tokenServices';
 import { TOKENS_TYPE } from '../src/components/constants';
@@ -83,17 +83,36 @@ test.describe('Create Token', () => {
 
       const createBtn = page.getByRole('button', { name: 'Create Canarytoken' });
       await expect(createBtn).toBeVisible();
-      await createBtn.click();
-
-      await getApiSuccessData({
+      const response = await getApiSuccessData({
         page,
         url: '/d3aece8093b71007b5ccfedad91ebb11/generate',
         callback: async () => {
-          await expect(page.getByText(`Your ${serviceName} Canarytoken is active!`)).toBeVisible();
-          await expect(page.getByRole('button', { name: 'Manage Canarytoken' })).toBeVisible();
-          await takeScreenshot(page, `${serviceName.toLowerCase()}/token-created`);
+          await createBtn.click();
         },
-      })
+      });
+      await expect(page.getByText(`Your ${serviceName} Canarytoken is active!`)).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Manage Canarytoken' })).toBeVisible();
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/token-created`);
+
+      const manageURL = `/manage/${response.auth_token}/${response.token}`;
+      await page.getByRole('button', { name: 'Manage Canarytoken' }).click();
+      await expect(page).toHaveURL(new RegExp(`${manageURL}$`));
+
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/manage-page`);
+      await page.getByRole('button', { name: 'Delete' }).click();
+      await expect(page.getByText('Are you sure you want to delete this Canarytoken?')).toBeVisible();
+      await expect(page.getByText('All associated alerts will be permanently lost')).toBeVisible();
+
+      await waitForApiSuccess({
+        page,
+        url: `/d3aece8093b71007b5ccfedad91ebb11/delete`,
+        callback: async () => {
+          await page.getByRole('button', { name: 'Yes, delete'}).click();
+        }
+      });
+      await expect(page.getByRole('button', { name: 'Yes, delete'})).not.toBeVisible();
+      await expect(page.getByText('Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.')).toBeVisible();
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/token-deleted`);
     });
 
   });
