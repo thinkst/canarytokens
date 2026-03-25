@@ -9,7 +9,7 @@ const TOKENS_TO_SKIP = [
   TOKENS_TYPE.AWS_INFRA,
   TOKENS_TYPE.AZURE_ID,
   TOKENS_TYPE.AWS_KEYS,
-  TOKENS_TYPE.SQL_SERVER //Mission to set up - later problem
+  TOKENS_TYPE.SQL_SERVER,
 ]
 
 test.describe('Create Token', () => {
