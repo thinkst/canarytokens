@@ -141,11 +141,11 @@ jobs:
           sudo docker compose -f docker-compose-aws-logging-letsencrypt-${GITHUB_REF##*/}.yml up -d
           sudo docker system prune -f -a
 
-  # This step is added as a 'gate' for triggering the cypress tests. Since the
+  # This step is added as a 'gate' for triggering the Playwright tests. Since the
   # tests needs to run if 'any' of the deploy jobs succeeded it cannot just
   # directly use them in a 'needs' list, since that means all of them would
   # have to pass. This extra step triggers even if some are skipped, and if any
-  # of them did pass we set a flag which can be used by the actual cypress test
+  # of them did pass we set a flag which can be used by the actual Playwright test
   # trigger to decide if it should run.
   test-gate:
     runs-on: ubuntu-22.04
@@ -167,13 +167,6 @@ jobs:
           if [[ "${{ needs.staging-deploy.result }}" == "success" ]]; then ran_any=true; fi
 
           echo "ran_any=$ran_any" >> $GITHUB_OUTPUT
-
-  trigger_cypress:
-      needs: test-gate
-      if: ${{ always() && needs.test-gate.result == 'success' && needs.test-gate.outputs.ran_any == 'true' }}
-      uses: ./.github/workflows/cypress.yml
-      with:
-        branch: "${{ github.ref_name }}"
 
   trigger_playwright:
       needs: test-gate

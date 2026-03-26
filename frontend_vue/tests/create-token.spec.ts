@@ -33,19 +33,19 @@ test.describe('Create Token', () => {
       }
 
       if (service === TOKENS_TYPE.FAST_REDIRECT || service === TOKENS_TYPE.SLOW_REDIRECT) {
-        page.getByRole('textbox', { name: 'Redirect URL' }).fill('https://example.com');
+        await page.getByRole('textbox', { name: 'Redirect URL' }).fill('https://example.com');
       }
 
       if (service === TOKENS_TYPE.CLONED_WEBSITE || service === TOKENS_TYPE.CSS_CLONED_SITE) {
-        page.getByRole('textbox', { name: 'Domain of protected website' }).fill('example.com');
+        await page.getByRole('textbox', { name: 'Domain of protected website' }).fill('example.com');
       }
 
       if (service === TOKENS_TYPE.SENSITIVE_CMD) {
-        page.getByRole('textbox', { name: 'Name of the process to monitor' }).fill('whoami.exe');
+        await page.getByRole('textbox', { name: 'Name of the process to monitor' }).fill('whoami.exe');
       }
 
       if (service === TOKENS_TYPE.WINDOWS_FAKE_FS) {
-        page.getByRole('textbox', { name: 'Where will this directory be placed?' }).fill('C:\\Desktop\\FakeFS');
+        await page.getByRole('textbox', { name: 'Where will this directory be placed?' }).fill('C:\\Desktop\\FakeFS');
         const industryInput = page.locator('input.vs__search[placeholder="Choose an Industry/Sector"]');
         await industryInput.click();
         await page.getByRole('option', { name: 'Personal Finances' }).click();
@@ -69,10 +69,6 @@ test.describe('Create Token', () => {
 
       if (service === TOKENS_TYPE.CUSTOM_EXE) {
         await page.locator('input[type="file"]').setInputFiles('tests/upload/CustomExe.exe');
-      }
-
-      if (service === TOKENS_TYPE.AZURE_ID){
-        page.getByRole('textbox', { name: 'Azure ID certificate name' }).fill('testingtokens.pem');
       }
 
       await expect(page.getByText('Mail me here when the alert fires')).toBeVisible();
