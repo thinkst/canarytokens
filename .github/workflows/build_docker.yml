@@ -174,3 +174,4 @@ jobs:
       uses: ./.github/workflows/playwright.yml
       with:
         branch: "${{ github.ref_name }}"
+      secrets: inherit
