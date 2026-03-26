@@ -115,6 +115,8 @@ class FrontendSettings(BaseSettings):
     AZURE_ID_TOKEN_AUTH: Optional[str]
     CROWDSTRIKE_CC_CREATE_URL: Optional[HttpUrl]
     CROWDSTRIKE_CC_DELETE_URL: Optional[HttpUrl]
+    NPM_PUBLISH_CREATE_URL: Optional[HttpUrl]
+    NPM_PUBLISH_DELETE_URL: Optional[HttpUrl]
     GOOGLE_API_KEY: Optional[str]
     EXTEND_EMAIL: Optional[str]
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
@@ -145,6 +147,7 @@ class FrontendSettings(BaseSettings):
     AWS_INFRA_NAME_GENERATION_LIMIT: Optional[int] = 50
     AWS_INFRA_CLEANUP_INTERVAL_SECONDS: int = 6 * 60 * 60
     AWS_INFRA_CLEANUP_MAX_AGE: int = 7 * 24 * 60 * 60
+    NPM_PUBLISH_POLL_INTERVAL_SECONDS: int = 300
     GEMINI_API_KEY: Optional[str]
     GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
     GEMINI_PROMPT_TEMPLATE: Optional[str]
