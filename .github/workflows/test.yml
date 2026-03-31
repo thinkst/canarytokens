@@ -155,6 +155,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
+      - name: Install Python
+        run: uv python install 3.13
+
       - name: Install Canarytokens
         run: uv sync --locked --all-extras --dev
 
