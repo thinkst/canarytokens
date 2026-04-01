@@ -1,6 +1,5 @@
 # pragma: no cover
-from twisted.logger import eventAsJSON, ILogObserver, Logger, LogLevel
-from twisted.python.failure import Failure
+from twisted.logger import ILogObserver, Logger, LogLevel, eventAsText
 from twisted.web.iweb import IBodyProducer
 from twisted.web.client import Agent
 from twisted.web.http_headers import Headers
@@ -38,18 +37,10 @@ class BytesProducer:
 
 
 @implementer(ILogObserver)
-class WebhookLogObserver(object):
+class WebhookLogObserver:
     """
     Log observer that sends errors out to a Slack endpoint.
     """
-
-    def __init__(self, formatEvent):  # pragma: no cover
-        """
-        @param formatEvent: A callable that formats an event.
-        @type formatEvent: L{callable} that takes an C{event} argument and
-            returns a formatted event as L{unicode}.
-        """
-        self.formatEvent = formatEvent
 
     def __call__(self, event):  # pragma: no cover
         """
@@ -58,28 +49,15 @@ class WebhookLogObserver(object):
         @param event: An event.
         @type event: L{dict}
         """
-        if (
-            event["log_level"] == LogLevel.error
-            or event["log_level"] == LogLevel.critical
-        ):
-            log_parts = []
-            if "log_format" in event:
-                log_parts.append(event["log_format"])
-            if "log_text" in event:
-                log_parts.append(event["log_text"])
-            if isinstance(event.get("log_failure"), Failure):
-                log_parts.append(event["log_failure"].getTraceback())
-            postdata = {
-                "text": "\n".join(log_parts)
-                or f"Failed to format log for event: {event}"
-            }
+        if event["log_level"] in (LogLevel.error, LogLevel.critical):
+            text = eventAsText(event, includeTimestamp=False)
             if (
-                "Unhandled error in Deferred:" in postdata["text"]
-                or text_for_failed_email_address_entered in postdata["text"]
+                "Unhandled error in Deferred:" in text
+                or text_for_failed_email_address_entered in text
             ):
                 # filters out non useful spam of messages seen before with these exact contents
                 return
-            _ = httpRequest(postdata)
+            _ = httpRequest({"text": text})
 
 
 def httpRequest(postdata):  # pragma: no cover
@@ -100,22 +78,3 @@ def httpRequest(postdata):  # pragma: no cover
 
     d.addCallback(handle_response)
     return d
-
-
-def errorsToWebhookLogObserver(recordSeparator="\x1e"):  # pragma: no cover
-    """
-    Create a L{WebhookLogObserver} that emits error and critical
-    loglines' text to a specified webhook URL by doing a HTTP POST.
-
-    @param recordSeparator: The record separator to use.
-    @type recordSeparator: L{unicode}
-
-    @return: A log observer that POST critical and Error logs to a webhook.
-    @rtype: L{WebhookLogObserver}
-
-    """
-
-    def formatter(event):
-        return recordSeparator + eventAsJSON(event) + "\n"
-
-    return WebhookLogObserver(formatter)
