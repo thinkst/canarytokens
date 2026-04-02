@@ -170,3 +170,25 @@ i.e. Cloned site
 ...that should be it.
 
 That's all you need to do to add a new token. No further modifications are necessary.
+
+# Playwright Testing
+To run the Playwright tests, add PLAYWRIGHT_BASE_URL to your `.env.local`.
+
+Eg. When testing against local dev server - remember to run `npm run dev` first
+```
+  PLAYWRIGHT_BASE_URL=http://localhost:5173/nest/
+```
+Replace the PLAYWRIGHT_BASE_URL with a staging or development URL, if needed. Remember to include `/nest/` at the end of the domain name.
+
+You can then run UI test inside `frontend_vue/` directory using:
+### For terminal tests
+```
+  npx playwright test
+```
+or
+### For UI tests
+```
+  npx playwright test --ui
+```
+
+NOTE: You can run the tests using the `Playwright Test for VSCode` extension on VSCode

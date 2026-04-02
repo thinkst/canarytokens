@@ -1,0 +1,116 @@
+import { test, expect } from '@playwright/test';
+import { getApiSuccessData, waitForApiSuccess } from './utils/common';
+import { takeScreenshot } from './utils/screenshots';
+import { tokenServices } from '../src/utils/tokenServices';
+import { TOKENS_TYPE } from '../src/components/constants';
+
+const TOKENS_TO_SKIP = [
+  TOKENS_TYPE.CREDIT_CARD_V2,
+  TOKENS_TYPE.AWS_INFRA,
+  TOKENS_TYPE.AZURE_ID,
+  TOKENS_TYPE.AWS_KEYS,
+  TOKENS_TYPE.SQL_SERVER,
+]
+
+test.describe('Create Token', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  Object.keys(tokenServices).forEach((service) => {
+    if (TOKENS_TO_SKIP.includes(service)) return;
+    const tokenObj = tokenServices[service as keyof typeof tokenServices];
+    const serviceName = tokenObj.label;
+
+    test(`Can create ${tokenObj.label} Canarytoken`, async ({ page }) => {
+      const tokenCard = page.getByText(serviceName).first();
+      await expect(tokenCard).toBeVisible();
+      await tokenCard.click();
+
+      if (service === TOKENS_TYPE.PWA) {
+        await page.locator('label[for="absa"]').click();
+        await expect(page.locator('input#absa')).toBeChecked();
+      }
+
+      if (service === TOKENS_TYPE.FAST_REDIRECT || service === TOKENS_TYPE.SLOW_REDIRECT) {
+        await page.getByRole('textbox', { name: 'Redirect URL' }).fill('https://example.com');
+      }
+
+      if (service === TOKENS_TYPE.CLONED_WEBSITE || service === TOKENS_TYPE.CSS_CLONED_SITE) {
+        await page.getByRole('textbox', { name: 'Domain of protected website' }).fill('example.com');
+      }
+
+      if (service === TOKENS_TYPE.SENSITIVE_CMD) {
+        await page.getByRole('textbox', { name: 'Name of the process to monitor' }).fill('whoami.exe');
+      }
+
+      if (service === TOKENS_TYPE.WINDOWS_FAKE_FS) {
+        await page.getByRole('textbox', { name: 'Where will this directory be placed?' }).fill('C:\\Desktop\\FakeFS');
+        const industryInput = page.locator('input.vs__search[placeholder="Choose an Industry/Sector"]');
+        await industryInput.click();
+        await page.getByRole('option', { name: 'Personal Finances' }).click();
+      }
+
+      if (service === TOKENS_TYPE.WEBDAV) {
+        const WebDavInput = page.locator('input.vs__search[placeholder="Select dummy folder content"]');
+        await WebDavInput.click();
+        await page.getByRole('option', { name: 'Cyber Security' }).click();
+      }
+
+      if (service === TOKENS_TYPE.IDP_APP) {
+        const IDPAppInput = page.locator('input.vs__search[placeholder="Select an app"]');
+        await IDPAppInput.click();
+        await page.getByRole('option', { name: 'Gmail' }).click();
+      }
+
+      if (service === TOKENS_TYPE.WEB_IMAGE) {
+        await page.locator('input[type="file"]').setInputFiles('tests/upload/WebImage.jpg');
+      }
+
+      if (service === TOKENS_TYPE.CUSTOM_EXE) {
+        await page.locator('input[type="file"]').setInputFiles('tests/upload/CustomExe.exe');
+      }
+
+      await expect(page.getByText('Mail me here when the alert fires')).toBeVisible();
+      await page.locator('#email').fill('test@example.com');
+      await expect(page.getByText('Remind me of this when the alert fires')).toBeVisible();
+      await page.locator('#memo').fill(`This is a reminder for the ${serviceName} Canarytoken alert.`);
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/token-form`);
+
+      const createBtn = page.getByRole('button', { name: 'Create Canarytoken' });
+      await expect(createBtn).toBeVisible();
+      const response = await getApiSuccessData({
+        page,
+        url: '/d3aece8093b71007b5ccfedad91ebb11/generate',
+        callback: async () => {
+          await createBtn.click();
+        },
+      });
+      await expect(page.getByText(`Your ${serviceName} Canarytoken is active!`)).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Manage Canarytoken' })).toBeVisible();
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/token-created`);
+
+      const manageURL = `/manage/${response.auth_token}/${response.token}`;
+      await page.getByRole('button', { name: 'Manage Canarytoken' }).click();
+      await expect(page).toHaveURL(new RegExp(`${manageURL}$`));
+
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/manage-page`);
+      await page.getByRole('button', { name: 'Delete' }).click();
+      await expect(page.getByText('Are you sure you want to delete this Canarytoken?')).toBeVisible();
+      await expect(page.getByText('All associated alerts will be permanently lost')).toBeVisible();
+
+      await waitForApiSuccess({
+        page,
+        url: `/d3aece8093b71007b5ccfedad91ebb11/delete`,
+        callback: async () => {
+          await page.getByRole('button', { name: 'Yes, delete'}).click();
+        }
+      });
+      await expect(page.getByRole('button', { name: 'Yes, delete'})).not.toBeVisible();
+      await expect(page.getByText('Yay! Your Canarytoken, plus associated alerts, has been successfully deleted.')).toBeVisible();
+      await takeScreenshot(page, `${serviceName.toLowerCase()}/token-deleted`);
+    });
+
+  });
+
+});
