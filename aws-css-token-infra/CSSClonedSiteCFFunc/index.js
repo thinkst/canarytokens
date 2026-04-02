@@ -27,6 +27,8 @@ async function handler(event) {
     const decoder = new TextDecoder();
     const uri = event.request.uri.split('/');
     var expected_referrer = '';
+    const full_screen = event.request.querystring?.fs == undefined ? false : true;
+    const viewer_ip = event.request.viewer?.ip;
     if (uri.length != 4) { // We have a malformed request, return a 404
         return {
             statusCode: 404,
@@ -67,6 +69,18 @@ async function handler(event) {
         console.log("Empty expected_referrer!");
     if (referer == '')
         console.log("Empty/missing Referer header for: " + expected_referrer);
+
+    if (full_screen) {
+        // Because the page was loaded with query parameter fs set, it was loaded in a full-screen window, which is usually indicative of a BitM attack.
+        const response = {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+                'location': { value: token_server + '/' + token_id + '/' + uri[3] + '?fs=1&' + querystring.stringify({"r": viewer_ip}) }
+            }
+    };
+    return response;
+    }
 
     if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer) || referer_origin.endsWith(event.context.distributionDomainName)) {
         // Happy case where the referer matches
