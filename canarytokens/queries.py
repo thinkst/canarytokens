@@ -312,6 +312,17 @@ def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
                 crowdstrike_url=settings.CROWDSTRIKE_CC_DELETE_URL,
             )
 
+    if canarydrop.type == models.TokenTypes.NPM_PUBLISH:
+        from canarytokens.npmtokens import delete_npm_publish_token
+        from canarytokens.settings import FrontendSettings
+
+        settings = FrontendSettings()
+        if canarydrop.npm_token_id:
+            delete_npm_publish_token(
+                token_id=canarydrop.npm_token_id,
+                npm_delete_url=settings.NPM_PUBLISH_DELETE_URL,
+            )
+
 
 def _v2_compatibility_loading_triggered_details(key: str) -> str:
     """Reads the `triggered_list` stored in v2 shape

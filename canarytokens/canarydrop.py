@@ -173,6 +173,12 @@ class Canarydrop(BaseModel):
     crowdstrike_client_secret: Optional[str]
     crowdstrike_base_url: Optional[str]
 
+    # NPM publish specific stuff
+    npm_token: Optional[str]
+    npm_token_id: Optional[str]
+    npm_package_name: Optional[str]
+    npm_package_version: Optional[str]
+
     # HTTP style token specific stuff
     browser_scanner_enabled: Optional[bool]
     # Wireguard specific stuff
