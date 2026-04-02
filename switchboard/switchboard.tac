@@ -179,3 +179,10 @@ loop_http.start(1800)
 #   Disabled temporarily because it's a blocking check
 # aws_infra_cleanup_task = internet.task.LoopingCall(cleanup_inactive_aws_infra_canarydrops)
 # aws_infra_cleanup_task.start(frontend_settings.AWS_INFRA_CLEANUP_INTERVAL_SECONDS)
+
+log.error("Test {webhook_log} message (ignore me)", webhook_log="webhook log")
+
+try:
+    raise Exception("hello there")
+except Exception:
+    log.failure("test exception capture")
