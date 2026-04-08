@@ -880,7 +880,7 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
                 islice(token_list, frontend_settings.TOKENS_FETCH_LIMIT)
             ),
             "token_list_length": len(token_list),
-            "public_domain": frontend_settings.DOMAINS[0],
+            "public_domain": switchboard_settings.PUBLIC_DOMAIN,
             "switchboard_scheme": switchboard_settings.SWITCHBOARD_SCHEME,
         }
         html_template_name = "token_list.html"
