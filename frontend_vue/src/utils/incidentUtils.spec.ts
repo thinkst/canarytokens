@@ -16,7 +16,7 @@ describe('formatLabels', () => {
         City: 'string',
         'Something else': 'value',
       },
-      'Tor Known Exit Node': true,
+      'Tor known exit node': true,
       'Token type': 'aws_keys',
     };
 
@@ -46,7 +46,7 @@ describe('formatLabels', () => {
       'Computer executing command': 'something',
       'Key Last Used': 'something',
       Organisation: 'something',
-      'Tor Known Exit Node': 'something',
+      'Tor known exit node': 'something',
       'User executing command': 'something',
       'User-agent': 'something',
     };
