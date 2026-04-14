@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import base64
 import datetime
+import ipaddress
 import json
 import re
 import secrets
@@ -16,6 +17,9 @@ import httpx
 import requests
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
+from twisted.internet.defer import inlineCallbacks
+from twisted.web.client import Agent, readBody
+from twisted.internet import reactor
 
 from canarytokens import (
     canarydrop as cand,
@@ -713,21 +717,46 @@ def is_tor_relay(ip):
         update_tor_exit_nodes_loop()  # FIXME: DESIGN: we call deferred and expect a result in redis, Now!
     return DB.get_db().sismember(KEY_TOR_EXIT_NODES, json.dumps(ip))
 
+@inlineCallbacks
+def update_tor_exit_nodes():
+    agent = Agent(reactor)
+    response = yield agent.request(
+        b"GET",
+        b"https://check.torproject.org/exit-addresses",
+    )
 
-# def update_tor_exit_nodes(contents):
-#     if "ExitAddress" in contents:
-#         DB.get_db().delete(KEY_TOR_EXIT_NODES)
-#     for line in contents.splitlines():
-#         if "ExitAddress" in line:
-#             DB.get_db().sadd(KEY_TOR_EXIT_NODES, json.dumps(line.split(" ")[1]))
+    if response.code != 200:
+        log.error(f"Failed to update tor exit nodes, received status {response.code}")
+        return
+
+    body = yield readBody(response)
+    contents = body.decode("utf-8", errors="replace")
+
+    errored = False
+    ips = []
+    for line in contents.splitlines():
+        if "ExitAddress" in line:
+            parts = line.split()
+            if len(parts) < 2:
+                errored = True
+                break
+            try:
+                ip = ipaddress.ip_address(parts[1])
+                ips.append(str(ip))
+            except ValueError:
+                errored = True
+                break
+
+    if len(ips) == 0 or errored:
+        log.error("Received unexpected response format from server")
+        return
+
+    DB.get_db().delete(KEY_TOR_EXIT_NODES)
+    DB.get_db().sadd(KEY_TOR_EXIT_NODES, *ips)
 
 
 def update_tor_exit_nodes_loop():
-    # This breaks tests as it's an uncontrolled side effect
-    return
-    # d = getPage(b"https://check.torproject.org/exit-addresses")
-    # d.addCallback(update_tor_exit_nodes)
-
+    update_tor_exit_nodes()
 
 def get_certificate(key) -> models.KubeCerts:
     certificate = DB.get_db().hgetall("{}{}".format(KEY_KUBECONFIG_CERTS, key))
