@@ -1,6 +1,8 @@
 # If any packages or tools are not available through devcontainer features, install them here.
 FROM mcr.microsoft.com/devcontainers/base:debian-11
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     default-mysql-client \
@@ -12,7 +14,3 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 CMD [ "sleep", "infinity" ]
-
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
