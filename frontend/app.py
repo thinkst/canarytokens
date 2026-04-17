@@ -1859,6 +1859,7 @@ def _create_aws_key_token_response(
         key = get_aws_key(
             token=canarydrop.canarytoken,
             server=get_all_canary_domains()[0],
+            auth=settings.AWSID_AUTH,
             aws_url=settings.AWSID_URL,
             aws_access_key_id=settings.TESTING_AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.TESTING_AWS_SECRET_ACCESS_KEY,

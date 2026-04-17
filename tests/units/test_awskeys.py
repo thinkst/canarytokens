@@ -44,6 +44,7 @@ def test_get_aws_key_with_query(
         key = get_aws_key(
             token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
             server=frontend_settings.DOMAINS[0],
+            auth=settings.AWSID_AUTH,
             aws_url=HttpUrl(
                 f"{aws_webhook_receiver}/{path}/CreateUserAPITokens",
                 scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
@@ -58,6 +59,7 @@ def test_get_aws_key_with_query(
             key = get_aws_key(
                 token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
                 server=settings.PUBLIC_DOMAIN,
+                auth=settings.AWSID_AUTH,
                 aws_url=HttpUrl(
                     f"{aws_webhook_receiver}/{path}/CreateUserAPITokens",
                     scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
@@ -68,7 +70,7 @@ def test_get_aws_key_with_query(
 
 
 @pytest.mark.parametrize(
-    "token, server, aws_url, aws_access_key_id, aws_secret_access_key, expected_output",
+    "token, server, aws_url, aws_access_key_id, aws_secret_access_key, auth, expected_output",
     [
         (  # get mock creds you pass in yourself
             Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
@@ -76,6 +78,7 @@ def test_get_aws_key_with_query(
             "",
             "some_access_key",
             "some_secret_key",
+            "some_auth",
             {
                 "access_key_id": "some_access_key",
                 "secret_access_key": "some_secret_key",
@@ -89,6 +92,7 @@ def test_get_aws_key_with_query(
             "",
             "",
             "",
+            "some_auth",
             None,
         ),
         (  # hit a ConnectionError by failing to get()
@@ -97,6 +101,7 @@ def test_get_aws_key_with_query(
             "http://this.should.fail",
             "",
             "",
+            "some_auth",
             None,
         ),
     ],
@@ -107,12 +112,14 @@ def test_get_aws_key_without_query(
     aws_url: Optional[HttpUrl],
     aws_access_key_id: Optional[str],
     aws_secret_access_key: Optional[str],
+    auth: str,
     expected_output: Optional[dict[str, str]],
 ) -> None:
     if expected_output:
         key = get_aws_key(
             token=token,
             server=server,
+            auth=auth,
             aws_url=aws_url,
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
@@ -123,6 +130,7 @@ def test_get_aws_key_without_query(
             key = get_aws_key(
                 token=token,
                 server=server,
+                auth=auth,
                 aws_url=aws_url,
                 aws_access_key_id=aws_access_key_id,
                 aws_secret_access_key=aws_secret_access_key,
