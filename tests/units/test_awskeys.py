@@ -44,9 +44,9 @@ def test_get_aws_key_with_query(
         key = get_aws_key(
             token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
             server=frontend_settings.DOMAINS[0],
-            auth=settings.AWSID_AUTH,
+            auth="",
             aws_url=HttpUrl(
-                f"{aws_webhook_receiver}/{path}/CreateUserAPITokens",
+                f"{aws_webhook_receiver}/{path}/LinkAWSIDTokenUserToCanaryConsole",
                 scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
             ),
             aws_access_key_id=None,
@@ -59,9 +59,9 @@ def test_get_aws_key_with_query(
             key = get_aws_key(
                 token=Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
                 server=settings.PUBLIC_DOMAIN,
-                auth=settings.AWSID_AUTH,
+                auth="",
                 aws_url=HttpUrl(
-                    f"{aws_webhook_receiver}/{path}/CreateUserAPITokens",
+                    f"{aws_webhook_receiver}/{path}/LinkAWSIDTokenUserToCanaryConsole",
                     scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
                 ),
                 aws_access_key_id=None,
@@ -78,7 +78,7 @@ def test_get_aws_key_with_query(
             "",
             "some_access_key",
             "some_secret_key",
-            "some_auth",
+            "",
             {
                 "access_key_id": "some_access_key",
                 "secret_access_key": "some_secret_key",
@@ -92,7 +92,7 @@ def test_get_aws_key_with_query(
             "",
             "",
             "",
-            "some_auth",
+            "",
             None,
         ),
         (  # hit a ConnectionError by failing to get()
@@ -101,7 +101,7 @@ def test_get_aws_key_with_query(
             "http://this.should.fail",
             "",
             "",
-            "some_auth",
+            "",
             None,
         ),
     ],
