@@ -408,13 +408,13 @@ class Canarytoken(object):
         else:
             hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
             user_agent = (
-                base64.b64decode(request.args.get("ag", "")).decode("utf-8")
+                base64.b64decode(data.get("ag", [""])[0]).decode("utf-8")
                 or data["user_agent"][0]
             )
-            event_name = base64.b64decode(request.args.get("ev", "")).decode("utf-8")
-            account_id = base64.b64decode(request.args.get("acc", "")).decode("utf-8")
+            event_name = base64.b64decode(data.get("ev", [""])[0]).decode("utf-8")
+            account_id = base64.b64decode(data.get("acc", [""])[0]).decode("utf-8")
             src_ip = (
-                base64.b64decode(request.args.get("ip", "")).decode("utf-8")
+                base64.b64decode(data.get("ip", [""])[0]).decode("utf-8")
                 or data["ip"][0]
             )
             # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
