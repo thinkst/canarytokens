@@ -358,7 +358,7 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
         },
     ],
 )
-def test_POST_aws_token_back(
+def test_POST_aws_token_back_legacy(
     input_data: dict[bytes, Sequence[bytes]],
     frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: SwitchboardSettings,
@@ -420,7 +420,7 @@ def test_POST_aws_token_back(
     assert cd.type == cd_updated.type
 
 
-def test_GET_aws_token_back_new_infra(
+def test_GET_aws_token_back(
     frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: SwitchboardSettings,
     setup_db: None,
@@ -462,17 +462,12 @@ def test_GET_aws_token_back_new_infra(
     queries.save_canarydrop(cd)
 
     request = Request(channel=DummyChannel())
-    request.path = f"http://127.0.0.1/{canarytoken.value()}.gif".encode()
-    request.args = {
-        b"ip": [base64.b64encode(b"172.253.205.33")],
-        b"ag": [
-            base64.b64encode(
-                b"Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
-            )
-        ],
-        b"ev": [base64.b64encode(b"GetCallerIdentity")],
-        b"acc": [base64.b64encode(b"123456789012")],
-    }
+    path = f"http://127.0.0.1/{canarytoken.value()}.gif"
+    path += f"?ip={base64.b64encode(b'172.253.205.33').decode()}"
+    path += f"&ag={base64.b64encode(b'Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46').decode()}"
+    path += f"&ev={base64.b64encode(b'GetCallerIdentity').decode()}"
+    path += f"&acc={base64.b64encode(b'123456789012').decode()}"
+    request.path = path.encode()
     request.method = b"GET"
 
     http_channel.site.resource.render(request)
