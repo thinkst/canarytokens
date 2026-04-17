@@ -21,13 +21,6 @@ def validate_record(server: str, token: tokens.Canarytoken) -> bool:
         )
         return False
 
-    # Check that the full record is not too long for the DynamoDB field
-    data = f"{server}@@{token.value()}"
-    if len(data) > 64:
-        logging.error(
-            f"len({data!r}) > 64; Will not work on AWS. ",
-        )
-        return False
     return True
 
 
@@ -48,12 +41,15 @@ def get_aws_key(
             }
         )
 
-    record = f"{server}@@{token.value()}"
     if not validate_record(server, token):
-        raise ValueError(f"{record} is not valid.")
+        raise ValueError(f"{server} is not valid.")
 
     target_url = f"{aws_url}"
-    resp = requests.get(target_url, params={"data": record}, timeout=(5, 10))
+    resp = requests.get(
+        target_url,
+        params={"domain": server, "token": token.value()},
+        timeout=(5, 10),
+    )
     resp.raise_for_status()
     resp_json = resp.json()
 

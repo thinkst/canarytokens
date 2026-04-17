@@ -352,7 +352,7 @@ class Canarytoken(object):
     def _parse_aws_key_trigger(
         request: Request,
     ) -> Union[AWSKeyTokenHit, AWSKeyTokenExposedHit]:
-        """When an AWSKey token is triggered a lambda makes a POST request
+        """When an AWSKey token is triggered a lambda makes an HTTP request
         back to switchboard. The `request` is processed, fields extracted,
         and an `AWSKeyTokenHit` is created.
 
@@ -365,6 +365,16 @@ class Canarytoken(object):
         data: dict[str, list[str]] = {
             k.decode(): [o.decode() for o in v] for k, v in request.args.items()
         }
+
+        def decode_b64_value(key: str) -> Optional[str]:
+            values = data.get(key)
+            if not values:
+                return None
+            try:
+                decoded = base64.b64decode(values[0]).decode()
+            except (binascii.Error, UnicodeDecodeError):
+                return values[0]
+            return decoded
 
         if "token_exposed" in data:
             exposed_time = data.get(
@@ -397,13 +407,27 @@ class Canarytoken(object):
             }
         else:
             hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
-            # the source IP here is the one AWS sends, not the one belonging to them
-            src_ip = data["ip"][0]
+            user_agent = (
+                base64.b64decode(request.args.get("ag", "")).decode("utf-8")
+                or data["user_agent"][0]
+            )
+            event_name = base64.b64decode(request.args.get("ev", "")).decode("utf-8")
+            account_id = base64.b64decode(request.args.get("acc", "")).decode("utf-8")
+            src_ip = (
+                base64.b64decode(request.args.get("ip", "")).decode("utf-8")
+                or data["ip"][0]
+            )
             # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
             #              and have default.
             geo_info = queries.get_geoinfo(ip=src_ip)
             is_tor_relay = queries.is_tor_relay(src_ip)
-            user_agent = data["user_agent"][0]
+
+            if event_name:
+                data["eventName"] = [event_name]
+
+            if account_id:
+                data["accountId"] = [account_id]
+
             hit_info = {
                 "token_type": TokenTypes.AWS_KEYS,
                 "time_of_hit": hit_time,
@@ -414,7 +438,9 @@ class Canarytoken(object):
                 "user_agent": user_agent,
                 "additional_info": {
                     "aws_key_log_data": {
-                        k: v for k, v in data.items() if k not in ["ip", "user_agent"]
+                        k: v
+                        for k, v in data.items()
+                        if k not in ["ip", "user_agent", "ag", "ev", "acc"]
                     }
                 },
             }

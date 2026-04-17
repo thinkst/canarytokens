@@ -119,11 +119,24 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         return JSONResponse(content={}, status_code=200)
 
     @app.get("/mock_aws_key/CreateUserAPITokens")
-    def serve_aws_debug_token(request: Request) -> dict[str, Optional[str]]:
+    def serve_aws_debug_token(
+        request: Request,
+    ) -> JSONResponse | dict[str, Optional[str]]:
         """
         This provides a simple test endpoint that returns AWS creds
-        in the same way the `CreateUserAPITokens` lambda does.
+        in the same way the `link_console_to_iam_user` lambda does.
         """
+        if not request.query_params.get("domain") or not request.query_params.get(
+            "token"
+        ):
+            return JSONResponse(
+                content={"error": "missing parameters"}, status_code=400
+            )
+        if request.query_params.get("data"):
+            return JSONResponse(
+                content={"error": "legacy request shape"}, status_code=400
+            )
+
         # TODO: loading settings here is likely no needed - should be not needed.
         frontend_settings = FrontendSettings(
             NXDOMAINS=["nxdomain.127.0.0.1"],
