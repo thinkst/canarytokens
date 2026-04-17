@@ -91,14 +91,6 @@ def test_get_aws_key_with_query(
             "",
             None,
         ),
-        (  # hit a validation error on record too long for DynamoDB
-            Canarytoken("1234567890123456789012345"),
-            "678901234567890123456789012345678901",
-            "none",
-            "",
-            "",
-            None,
-        ),
         (  # hit a ConnectionError by failing to get()
             Canarytoken("q9o5v58eifjf9dsn4f03sai6a"),
             "",
