@@ -375,6 +375,7 @@ def test_POST_aws_token_back(
     key = get_aws_key(
         token=canarytoken,
         server=settings.PUBLIC_DOMAIN,
+        auth=None,
         aws_url=None,  # env var might have live url, don't use up an AWS user.
         aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
         aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
@@ -435,6 +436,7 @@ def test_GET_aws_token_back_new_infra(
     key = get_aws_key(
         token=canarytoken,
         server=settings.PUBLIC_DOMAIN,
+        auth=None,
         aws_url=None,
         aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
         aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
