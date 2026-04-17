@@ -27,7 +27,7 @@ def validate_record(server: str, token: tokens.Canarytoken) -> bool:
 def get_aws_key(
     token: tokens.Canarytoken,
     server: str,
-    auth: str,
+    auth: Optional[str],
     aws_url: Optional[HttpUrl],
     aws_access_key_id: Optional[str],
     aws_secret_access_key: Optional[str],
