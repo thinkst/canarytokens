@@ -463,11 +463,17 @@ def test_GET_aws_token_back(
 
     request = Request(channel=DummyChannel())
     path = f"http://127.0.0.1/{canarytoken.value()}.gif"
-    path += f"?ip={base64.b64encode(b'172.253.205.33').decode()}"
-    path += f"&ag={base64.b64encode(b'Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46').decode()}"
-    path += f"&ev={base64.b64encode(b'GetCallerIdentity').decode()}"
-    path += f"&acc={base64.b64encode(b'123456789012').decode()}"
     request.path = path.encode()
+    request.args = {
+        b"ip": [base64.b64encode(b"172.253.205.33")],
+        b"ag": [
+            base64.b64encode(
+                b"Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
+            )
+        ],
+        b"ev": [base64.b64encode(b"GetCallerIdentity")],
+        b"acc": [base64.b64encode(b"123456789012")],
+    }
     request.method = b"GET"
 
     http_channel.site.resource.render(request)
