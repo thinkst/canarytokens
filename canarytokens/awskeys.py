@@ -27,6 +27,7 @@ def validate_record(server: str, token: tokens.Canarytoken) -> bool:
 def get_aws_key(
     token: tokens.Canarytoken,
     server: str,
+    auth: str,
     aws_url: Optional[HttpUrl],
     aws_access_key_id: Optional[str],
     aws_secret_access_key: Optional[str],
@@ -47,7 +48,7 @@ def get_aws_key(
     target_url = f"{aws_url}"
     resp = requests.get(
         target_url,
-        params={"domain": server, "token": token.value()},
+        params={"domain": server, "token": token.value(), "auth": auth},
         timeout=(5, 10),
     )
     resp.raise_for_status()
