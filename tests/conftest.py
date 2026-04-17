@@ -101,8 +101,8 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     Stands up a simple web server to emulate the lambda that returns AWS keys
 
     Endpoints:
-    /mock_aws_key/CreateUserAPITokens -> returns testing aws creds
-    /mock_aws_key_broken/CreateUserAPITokens -> returns a 400
+    /mock_aws_key/LinkAWSIDTokenUserToCanaryConsole -> returns testing aws creds
+    /mock_aws_key_broken/LinkAWSIDTokenUserToCanaryConsole -> returns a 400
 
     Note: Debugging this web server you'll need rpdb.
     Returns:
@@ -118,7 +118,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     def serve_aws_alert_endpoint(request: Request) -> JSONResponse:
         return JSONResponse(content={}, status_code=200)
 
-    @app.get("/mock_aws_key/CreateUserAPITokens")
+    @app.get("/mock_aws_key/LinkAWSIDTokenUserToCanaryConsole")
     def serve_aws_debug_token(
         request: Request,
     ) -> JSONResponse | dict[str, Optional[str]]:
@@ -127,7 +127,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         in the same way the `link_console_to_iam_user` lambda does.
         """
         if not request.query_params.get("domain") or not request.query_params.get(
-            "token"
+            "token" or not request.query_params.get("auth")
         ):
             return JSONResponse(
                 content={"error": "missing parameters"}, status_code=400
@@ -143,6 +143,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
             PUBLIC_IP="10.0.1.3",
             DOMAINS=["127.0.0.1"],
             AWSID_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
+            AWSID_AUTH="N/A=",
             AZURE_ID_TOKEN_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
             AZURE_ID_TOKEN_AUTH="N/A=",
             SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
@@ -156,7 +157,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         }
         return mock_key
 
-    @app.get("/mock_aws_key_broken/CreateUserAPITokens")
+    @app.get("/mock_aws_key_broken/LinkAWSIDTokenUserToCanaryConsole")
     def serve_aws_debug_token_broken(request: Request) -> JSONResponse:
         return JSONResponse(content={}, status_code=400)
 
