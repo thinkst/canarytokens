@@ -366,16 +366,6 @@ class Canarytoken(object):
             k.decode(): [o.decode() for o in v] for k, v in request.args.items()
         }
 
-        def decode_b64_value(key: str) -> Optional[str]:
-            values = data.get(key)
-            if not values:
-                return None
-            try:
-                decoded = base64.b64decode(values[0]).decode()
-            except (binascii.Error, UnicodeDecodeError):
-                return values[0]
-            return decoded
-
         if "token_exposed" in data:
             exposed_time = data.get(
                 "exposed_time", [datetime.utcnow().strftime("%s.%f")]
