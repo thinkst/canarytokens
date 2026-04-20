@@ -50,6 +50,7 @@
         />
 
         <vue-turnstile
+          v-if="cloudflareSiteKey"
           v-model="token"
           class="flex align-center justify-center mt-24"
           :site-key="cloudflareSiteKey"
@@ -105,7 +106,7 @@ const emailInput = ref();
 const formRef = ref();
 const errorMessage = ref('');
 const loading = ref(false);
-const disabled = computed(() => loading.value || !token.value);
+const disabled = computed(() => loading.value || (cloudflareSiteKey ? !token.value : false));
 const isSuccess = ref(false);
 
 watch(token, (newVal) => {
@@ -153,7 +154,11 @@ const onSubmit = async (values: GenericObject) => {
   errorMessage.value = '';
   const email = values.email;
 
-  if (!token.value || !email || loading.value) {
+  // Skip CAPTCHA validation if site key is not configured
+  if (cloudflareSiteKey && (!token.value || !email || loading.value)) {
+    return;
+  }
+  if (!email || loading.value) {
     return;
   }
 
