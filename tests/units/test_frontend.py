@@ -600,19 +600,19 @@ def test_aws_keys_broken(
         os.environ,
         {
             "CANARY_AWSID_URL": aws_url,  # frontend will ask aws_webhook_receiver for creds
-            "CANARY_AWSID_AUTH": "",  # no auth
+            "CANARY_AWSID_AUTH": "N/A=",  # no auth
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "",  # awskeys.py won't give fake creds
         },
         clear=False,
     ):
         local_settings = FrontendSettings(
             AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
-            AWS_AUTH="",  # no auth
+            AWSID_AUTH="N/A=",  # no auth
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
                 k: v
                 for k, v in frontend_settings.dict().items()
-                if k not in ["AWSID_URL", "TESTING_AWS_ACCESS_KEY_ID"]
+                if k not in ["AWSID_URL", "TESTING_AWS_ACCESS_KEY_ID", "AWSID_AUTH"]
             },
         )
         from frontend.app import _create_aws_key_token_response
@@ -658,13 +658,14 @@ def test_aws_keys(
         os.environ,
         {
             "CANARY_AWSID_URL": aws_url,  # frontend will ask webhook_receiver for creds
-            "CANARY_AWSID_AUTH": "",  # auth is not checked
+            "CANARY_AWSID_AUTH": "N/A=",  # auth is not checked
             "CANARY_TESTING_AWS_ACCESS_KEY_ID": "",  # awskeys.py won't give fake creds
         },
         clear=False,
     ):
         local_settings = FrontendSettings(
             AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_AUTH="N/A=",
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
                 k: v
