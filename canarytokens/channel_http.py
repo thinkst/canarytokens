@@ -93,7 +93,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
             )
             request.setHeader("Content-Type", "image/gif")
             return GIF
-
         try:
             canarydrop = get_canarydrop(canarytoken)
         except NoCanarydropFound as e:
@@ -202,7 +201,15 @@ class CanarytokenPage(InputChannel, resource.Resource):
         #    -getting an aws trigger (key == aws_s3)
         # otherwise, slack api token data perhaps
         # store the info and don't re-render
-        if canarydrop.type == TokenTypes.AZURE_ID:
+        if canarydrop.type == TokenTypes.AWS_KEYS:
+            token_hit = Canarytoken._parse_aws_key_trigger(request)
+            if isinstance(token_hit, AWSKeyTokenHit):
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            else:
+                canarydrop.add_key_exposed_hit(token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
+        elif canarydrop.type == TokenTypes.AZURE_ID:
             token_hit = Canarytoken._parse_azure_id_trigger(request)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
             self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
