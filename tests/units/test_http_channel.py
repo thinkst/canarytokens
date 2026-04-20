@@ -400,11 +400,8 @@ def test_POST_aws_token_back_legacy(
     )
     queries.save_canarydrop(cd)
 
-    request = Request(channel=DummyChannel())
-    request.path = f"http://127.0.0.1/{canarytoken.value()}".encode()
-
-    data = input_data
-    request.args = data
+    request = create_dummy_request(cd)
+    request.args = input_data
     request.method = b"POST"
 
     http_channel.site.resource.render(request)
@@ -461,9 +458,7 @@ def test_GET_aws_token_back(
     )
     queries.save_canarydrop(cd)
 
-    request = Request(channel=DummyChannel())
-    path = f"http://127.0.0.1/{canarytoken.value()}.gif"
-    request.path = path.encode()
+    request = create_dummy_request(cd)
     request.args = {
         b"ip": [base64.b64encode(b"172.253.205.33")],
         b"ag": [
