@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from hashlib import md5
 from pathlib import Path
 from urllib.parse import quote
-from typing import Any, Literal, Optional, Union
+from typing import Literal, Optional, Union
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
@@ -492,8 +492,15 @@ class Canarydrop(BaseModel):
         expected_referrer = quote(b64encode(self.expected_referrer.encode()).decode())
         clonedsite_css = textwrap.dedent(
             f"""
-            body {{
-                background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
+            @media (display-mode: fullscreen) {{
+                body {{
+                    background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif?fs=1') !important;
+                }}
+            }}
+            @media not (display-mode: fullscreen) {{
+                body {{
+                    background: url('{cf_url}/{token_val}/{expected_referrer}/img.gif') !important;
+                }}
             }}
             """
         )
