@@ -127,6 +127,8 @@ class CanarytokenPage(InputChannel, resource.Resource):
         if canarydrop.type == TokenTypes.AWS_KEYS:
             token_hit = Canarytoken._parse_aws_key_trigger(request)
             canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
 
         try:
             handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
