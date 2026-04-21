@@ -121,7 +121,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     @app.get("/mock_aws_key/LinkAWSIDTokenUserToCanaryConsole")
     def serve_aws_debug_token(
         request: Request,
-    ) -> JSONResponse | dict[str, Optional[str]]:
+    ) -> dict[str, Optional[str]]:
         """
         This provides a simple test endpoint that returns AWS creds
         in the same way the `link_console_to_iam_user` lambda does.
