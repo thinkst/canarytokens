@@ -126,18 +126,6 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         This provides a simple test endpoint that returns AWS creds
         in the same way the `link_console_to_iam_user` lambda does.
         """
-        if (
-            not request.query_params.get("domain")
-            or not request.query_params.get("token")
-            or not request.query_params.get("auth")
-        ):
-            return JSONResponse(
-                content={"error": "missing parameters"}, status_code=400
-            )
-        if request.query_params.get("data"):
-            return JSONResponse(
-                content={"error": "legacy request shape"}, status_code=400
-            )
 
         # TODO: loading settings here is likely no needed - should be not needed.
         frontend_settings = FrontendSettings(
