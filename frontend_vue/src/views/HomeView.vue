@@ -123,8 +123,7 @@ function openTokenModal(selectedToken: string) {
         }
 
         const currentRoute = router.currentRoute.value;
-        const shouldResetToHome =
-          currentRoute.name === 'create' || Boolean(currentRoute.query.open);
+        const shouldResetToHome = currentRoute.name === 'create';
 
         if (shouldResetToHome) {
           await router.push({ path: '/' });
@@ -141,19 +140,6 @@ function openTokenModal(selectedToken: string) {
 async function handleClickToken(selectedToken: string) {
   const tokenAlias = tokenServices[selectedToken].createRouteTokenAlias;
   await router.push({ path: `/create/${tokenAlias}` });
-}
-
-function getTokenFromOpenQuery(openQuery: unknown): string | null {
-  if (typeof openQuery === 'string') {
-    return tokenServices[openQuery] ? openQuery : null;
-  }
-  if (Array.isArray(openQuery)) {
-    const firstToken = openQuery.find(
-      (value) => typeof value === 'string' && tokenServices[value]
-    );
-    return firstToken ?? null;
-  }
-  return null;
 }
 
 function getTokenFromCreateRouteParam(tokentypeParam: unknown): string | null {
@@ -183,18 +169,10 @@ function getTokenFromCreateRouteParam(tokentypeParam: unknown): string | null {
 }
 
 watch(
-  () => [route.query.open, route.params.tokentype],
-  ([openQueryValue, createRouteTokenValue]) => {
-    const tokenFromOpenQuery = getTokenFromOpenQuery(openQueryValue);
-
-    if (tokenFromOpenQuery) {
-      openTokenModal(tokenFromOpenQuery);
-      return;
-    }
-
-    const tokenFromCreateRoute = getTokenFromCreateRouteParam(
-      createRouteTokenValue
-    );
+  () => route.params.tokentype,
+  (createRouteTokenValue) => {
+    const tokenFromCreateRoute =
+      getTokenFromCreateRouteParam(createRouteTokenValue);
 
     if (tokenFromCreateRoute) {
       openTokenModal(tokenFromCreateRoute);
