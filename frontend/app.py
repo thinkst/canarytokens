@@ -845,28 +845,25 @@ async def api_download(
     response_model=FetchLinksResponse,
 )
 async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
-    if frontend_settings.CLOUDFLARE_TURNSTILE_SECRET is None:
-        return JSONResponse(
-            content={"message": FetchLinksMessage.NOT_CONFIGURED.value},
-            status_code=SERVICE_UNAVAILABLE,
-        )
-    if not request.cf_turnstile_response:
-        return JSONResponse(
-            content={"message": FetchLinksMessage.TURNSTILE_REQUIRED.value},
-            status_code=UNAUTHORIZED,
-        )
+    # Skip CAPTCHA validation if not configured (e.g., for on-premises deployments)
+    if frontend_settings.CLOUDFLARE_TURNSTILE_SECRET is not None:
+        if not request.cf_turnstile_response:
+            return JSONResponse(
+                content={"message": FetchLinksMessage.TURNSTILE_REQUIRED.value},
+                status_code=UNAUTHORIZED,
+            )
+        if not await queries.validate_turnstile(
+            cf_turnstile_secret=frontend_settings.CLOUDFLARE_TURNSTILE_SECRET,
+            cf_turnstile_response=request.cf_turnstile_response,
+        ):
+            return JSONResponse(
+                content={"message": FetchLinksMessage.INVALID_TURNSTILE.value},
+                status_code=UNAUTHORIZED,
+            )
     if not is_valid_email(request.email):
         return JSONResponse(
             content={"message": FetchLinksMessage.INVALID_EMAIL.value},
             status_code=BAD_REQUEST,
-        )
-    if not await queries.validate_turnstile(
-        cf_turnstile_secret=frontend_settings.CLOUDFLARE_TURNSTILE_SECRET,
-        cf_turnstile_response=request.cf_turnstile_response,
-    ):
-        return JSONResponse(
-            content={"message": FetchLinksMessage.INVALID_TURNSTILE.value},
-            status_code=UNAUTHORIZED,
         )
 
     token_set = queries.list_email_tokens(request.email)
@@ -885,7 +882,7 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
                 islice(token_list, frontend_settings.TOKENS_FETCH_LIMIT)
             ),
             "token_list_length": len(token_list),
-            "public_domain": frontend_settings.DOMAINS[0],
+            "public_domain": switchboard_settings.PUBLIC_DOMAIN,
             "switchboard_scheme": switchboard_settings.SWITCHBOARD_SCHEME,
         }
         html_template_name = "token_list.html"

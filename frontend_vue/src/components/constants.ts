@@ -142,7 +142,7 @@ export const INCIDENT_CHANNEL_TYPE_LABELS = {
 
 export const INCIDENT_DETAIL_CUSTOM_LABELS = {
   org: 'Organisation',
-  is_tor_relay: 'Tor Known Exit Node',
+  is_tor_relay: 'Tor known exit node',
   aws_keys: 'AWS Access Key ID',
   useragent: 'User-agent',
   src_port: 'Client Source Port',

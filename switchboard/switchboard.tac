@@ -20,8 +20,7 @@ from canarytokens.channel_input_smtp import ChannelSMTP
 from canarytokens.channel_input_wireguard import ChannelWireGuard
 from canarytokens.channel_output_email import EmailOutputChannel
 from canarytokens.channel_output_webhook import WebhookOutputChannel
-from canarytokens.loghandlers import errorsToWebhookLogObserver
-from canarytokens.npmtokens import poll_npm_publish_canarydrops
+from canarytokens.loghandlers import WebhookLogObserver
 from canarytokens.queries import (
     add_return_for_token,
     set_ip_info_api_key,
@@ -32,6 +31,7 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import set_template_env
 from canarytokens.utils import get_deployed_commit_sha
+from canarytokens.npmtokens import poll_npm_publish_canarydrops
 
 
 # TODO: see if this is still needed.
@@ -58,7 +58,7 @@ globalLogPublisher.addObserver(textFileLogObserver(f))
 if os.getenv("ERROR_LOG_WEBHOOK", None):
     # Only create this log observer if the config is setup for it.
     log.info("Error log webhook enabled")
-    globalLogPublisher.addObserver(errorsToWebhookLogObserver())
+    globalLogPublisher.addObserver(WebhookLogObserver())
 
 
 def sentry_observer(event):

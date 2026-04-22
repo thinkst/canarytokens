@@ -1,5 +1,6 @@
 from datetime import datetime
 from twisted.logger import LogLevel, capturedLogs
+from twisted.internet.defer import inlineCallbacks, succeed
 import pytest
 from pydantic import EmailStr
 from redis import StrictRedis
@@ -22,6 +23,7 @@ from canarytokens.redismanager import (
     KEY_CANARYDROPS_TIMELINE,
     KEY_EMAIL_IDX,
     KEY_WEBHOOK_IDX,
+    KEY_TOR_EXIT_NODES,
 )
 from canarytokens.queries import (
     delete_canarydrop,
@@ -473,6 +475,57 @@ def test_add_add_get_return_for_token(setup_db):
     queries.add_return_for_token("gif")
     assert queries.get_return_for_token() == "gif"
 
+@inlineCallbacks
+def test_update_tor_exit_nodes_http_not_ok(monkeypatch):
+    class MockResponse:
+        code = 404
+    class MockAgent:
+        def __init__(self, reactor): pass
+        def request(self, method, url):
+            return succeed(MockResponse())
+    monkeypatch.setattr(queries, "Agent", MockAgent)
+
+    with capturedLogs() as captured:
+        yield queries.update_tor_exit_nodes()
+
+    print(captured, len(captured))
+    assert "Failed to update tor exit nodes" in captured[0]["log_format"]
+    assert captured[0]["log_level"] == LogLevel.error
+
+@inlineCallbacks
+def test_update_tor_exit_nodes(setup_db, monkeypatch):
+    db: StrictRedis = setup_db
+    class MockResponse:
+        code = 200
+    class MockAgent:
+        def __init__(self, reactor): pass
+        def request(self, method, url):
+            return succeed(MockResponse())
+    def mock_read(url):
+        return succeed(b"""\
+ExitNode 46F8D3CCA2FE7C8D4907930CF0B8871BE7EA98E4
+Published 2026-04-13 13:36:56
+LastStatus 2026-04-14 06:00:00
+ExitAddress 38.135.24.245 2026-04-14 06:19:40
+ExitNode 376DC7CAD597D3A4CBB651999CFAD0E77DC9AE8C
+Published 2026-04-14 04:38:41
+LastStatus 2026-04-14 06:00:00
+ExitAddress 104.244.73.43 2026-04-14 06:11:46
+ExitNode 5D84900DBE6D6365684A9675B81A68ACE9577A68
+Published 2026-04-14 04:17:21
+LastStatus 2026-04-14 06:00:00
+ExitAddress 104.244.73.193 2026-04-14 06:33:13
+"""
+        )
+
+    monkeypatch.setattr(queries, "Agent", MockAgent)
+    monkeypatch.setattr(queries, "readBody", mock_read)
+
+    db.delete(KEY_TOR_EXIT_NODES)
+    yield queries.update_tor_exit_nodes()
+    nodes = db.smembers(KEY_TOR_EXIT_NODES)
+    for ip in ("38.135.24.245", "104.244.73.43", "104.244.73.193"):
+        assert ip in nodes
 
 @pytest.mark.parametrize(
     "target, expect_block",

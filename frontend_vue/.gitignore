@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 .npmrc
+.vite/
 
 node_modules
 .DS_Store
@@ -14,9 +15,6 @@ dist
 dist-ssr
 coverage
 *.local
-
-/cypress/videos/
-/cypress/screenshots/
 
 .env
 
@@ -31,3 +29,11 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+screenshots/
