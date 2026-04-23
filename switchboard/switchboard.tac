@@ -31,6 +31,7 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import set_template_env
 from canarytokens.utils import get_deployed_commit_sha
+from canarytokens.npmtokens import poll_npm_publish_canarydrops
 
 
 # TODO: see if this is still needed.
@@ -174,6 +175,13 @@ canarytokens_wireguard.service.setServiceParent(application)
 # loop to update tor exit nodes every 30 min
 loop_http = internet.task.LoopingCall(update_tor_exit_nodes_loop)
 loop_http.start(1800)
+
+loop_npm_publish = internet.task.LoopingCall(
+    poll_npm_publish_canarydrops,
+    switchboard,
+    frontend_settings.NPM_PUBLISH_DELETE_URL,
+)
+loop_npm_publish.start(frontend_settings.NPM_PUBLISH_POLL_INTERVAL_SECONDS)
 
 # Start the cleanup daemon for inactive AWS infra canarydrops.
 #   Disabled temporarily because it's a blocking check

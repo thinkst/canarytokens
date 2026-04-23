@@ -129,6 +129,21 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.CLOUD,
     keywords: ['cloud', 'api'],
   },
+  [TOKENS_TYPE.NPM_PUBLISH]: {
+    label: 'NPM publish',
+    description: 'Get an alert if someone uses your canary npm publish token.',
+    documentationLink: 'https://docs.canarytokens.org/guide/#',
+    icon: 'aws_keys.png',
+    createRouteTokenAlias: 'npm-publish',
+    instruction: 'Copy the token and download the canary workspace zip.',
+    howItWorksInstructions: [
+      'We give you a real npm publish token and a matching canary package workspace.',
+      'You keep the token where an attacker would normally find `NPM_TOKEN`.',
+      'We alert if that canary package version is ever published to npm.',
+    ],
+    category: TOKEN_CATEGORY.CLOUD,
+    keywords: ['npm', 'package', 'publish', 'token', 'supply chain'],
+  },
   [TOKENS_TYPE.PWA]: {
     label: 'Fake App',
     description: 'Get an alert when someone opens a fake app on your device.',

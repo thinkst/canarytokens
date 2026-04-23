@@ -64,6 +64,7 @@ from canarytokens.awskeys import get_aws_key
 from canarytokens.azurekeys import get_azure_id
 from canarytokens.crowdstrikekeys import get_crowdstrike_key
 from canarytokens.canarydrop import Canarydrop
+from canarytokens.npmtokens import get_npm_publish_token, make_npm_publish_workspace
 from canarytokens.exceptions import (
     AWSInfraDataGenerationLimitReached,
     CanarydropAuthFailure,
@@ -153,6 +154,8 @@ from canarytokens.models import (
     DownloadIncidentListCSVResponse,
     DownloadIncidentListJsonRequest,
     DownloadIncidentListJsonResponse,
+    DownloadNPMPublishRequest,
+    DownloadNPMPublishResponse,
     DownloadKubeconfigRequest,
     DownloadKubeconfigResponse,
     DownloadMSExcelRequest,
@@ -183,6 +186,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    NPMPublishTokenRequest,
+    NPMPublishTokenResponse,
     PDFTokenRequest,
     PDFTokenResponse,
     PWATokenRequest,
@@ -1501,6 +1506,22 @@ def _(
 
 @create_download_response.register
 def _(
+    download_request_details: DownloadNPMPublishRequest, canarydrop: Canarydrop
+) -> Response:
+    return DownloadNPMPublishResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=make_npm_publish_workspace(
+            package_name=canarydrop.npm_package_name,
+            package_version=canarydrop.npm_package_version,
+            canarytoken=canarydrop.canarytoken.value(),
+        ),
+        filename="npm_publish_canary.zip",
+    )
+
+
+@create_download_response.register
+def _(
     download_request_details: DownloadAzureIDConfigRequest, canarydrop: Canarydrop
 ) -> Response:
     return DownloadAzureIDConfigResponse(
@@ -1994,6 +2015,58 @@ def _create_crowdstrike_cc_token_response(
         client_id=canarydrop.crowdstrike_client_id,
         client_secret=canarydrop.crowdstrike_client_secret,
         base_url=canarydrop.crowdstrike_base_url,
+    )
+
+
+@create_response.register
+def _create_npm_publish_token_response(
+    token_request_details: NPMPublishTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
+) -> NPMPublishTokenResponse:
+    if settings is None:
+        settings = frontend_settings
+
+    if settings.NPM_PUBLISH_CREATE_URL is None:
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have npm publish tokens enabled."
+            },
+            status_code=400,
+        )
+
+    try:
+        key = get_npm_publish_token(
+            token=canarydrop.canarytoken,
+            server=get_all_canary_domains()[0],
+            npm_create_url=settings.NPM_PUBLISH_CREATE_URL,
+        )
+    except Exception as e:
+        capture_exception(error=e, context=("get_npm_publish_token", None))
+        return JSONResponse(
+            {"message": "Failed to generate npm publish canary token."},
+            status_code=400,
+        )
+
+    canarydrop.npm_token = key["token"]
+    canarydrop.npm_token_id = key["token_id"]
+    canarydrop.npm_package_name = key["package_name"]
+    canarydrop.npm_package_version = key["package_version"]
+    canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"
+    save_canarydrop(canarydrop)
+
+    return NPMPublishTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url or "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.generated_url,
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.generated_hostname,
+        url_components=list(canarydrop.get_url_components()),
+        npm_token=canarydrop.npm_token,
+        npm_token_id=canarydrop.npm_token_id,
+        npm_package_name=canarydrop.npm_package_name,
+        npm_package_version=canarydrop.npm_package_version,
     )
 
 

@@ -123,6 +123,7 @@ class TokenTypes(StrEnum):
     LEGACY = "legacy"
     AWS_INFRA = "aws_infra"
     CROWDSTRIKE_CC = "crowdstrike_cc"
+    NPM_PUBLISH = "npm_publish"
     SVG = "svg"
 
     def __str__(self) -> str:
@@ -136,6 +137,7 @@ TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.AZURE_ID,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
+    TokenTypes.NPM_PUBLISH,
     TokenTypes.SQL_SERVER,
     TokenTypes.SVN,
 ]
@@ -174,6 +176,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.IDP_APP: "SAML2 IdP App",
     TokenTypes.AWS_INFRA: "AWS Infrastructure",
     TokenTypes.CROWDSTRIKE_CC: "CrowdStrike API key",
+    TokenTypes.NPM_PUBLISH: "NPM publish token",
     TokenTypes.SVG: "SVG",
 }
 
@@ -181,7 +184,11 @@ GeneralHistoryTokenType = Literal["blank"]
 
 BlankRequestTokenType = Literal["blank",]
 
-IGNORE_IP_UNSUPPORTED = [TokenTypes.SMTP, TokenTypes.CREDIT_CARD_V2]
+IGNORE_IP_UNSUPPORTED = [
+    TokenTypes.SMTP,
+    TokenTypes.CREDIT_CARD_V2,
+    TokenTypes.NPM_PUBLISH,
+]
 
 
 class TokenRequest(BaseModel):
@@ -690,6 +697,7 @@ class DownloadFmtTypes(StrEnum):
     CC = "cc"
     CSSCLONEDSITE = "cssclonedsite"
     CREDIT_CARD_V2 = "credit_card_v2"
+    NPM_PUBLISH = "npm_publish"
     SVG = "svg"
 
     def __str__(self) -> str:
