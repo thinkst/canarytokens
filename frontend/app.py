@@ -1862,6 +1862,7 @@ def _create_aws_key_token_response(
         )
     except Exception as e:
         capture_exception(error=e, context=("get_aws_key", None))
+        queries.delete_canarydrop(canarydrop)
         # We can fail by getting 404 from AWSID_URL or failing validation
         return JSONResponse(
             {"message": "Failed to generate AWS Keys. We looking into it."},
