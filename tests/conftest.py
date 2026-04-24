@@ -201,6 +201,7 @@ def fake_settings_for_aws_keys():
         ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
+        LAMBDA_AWS_CRED_REPORT_AUTH="test_auth_value",
     )
 
 
