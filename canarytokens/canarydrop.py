@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from hashlib import md5
 from pathlib import Path
 from urllib.parse import quote
-from typing import Any, Literal, Optional, Union
+from typing import Literal, Optional, Union
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
@@ -145,6 +145,7 @@ class Canarydrop(BaseModel):
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]
     aws_output: Optional[str] = Field(alias="output")
+    last_triggered_timestamp: Optional[str]
 
     # AWS key and AWS infra stuff
     aws_account_id: Optional[str]
