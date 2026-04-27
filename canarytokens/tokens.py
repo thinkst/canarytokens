@@ -349,10 +349,10 @@ class Canarytoken(object):
         }
 
     @staticmethod
-    def _parse_aws_key_trigger(
+    def _parse_aws_key_trigger(  # noqa: C901
         request: Request,
     ) -> Union[AWSKeyTokenHit, AWSKeyTokenExposedHit]:
-        """When an AWSKey token is triggered a lambda makes a POST request
+        """When an AWSKey token is triggered a lambda makes an HTTP request
         back to switchboard. The `request` is processed, fields extracted,
         and an `AWSKeyTokenHit` is created.
 
@@ -381,8 +381,14 @@ class Canarytoken(object):
                 time_of_hit=exposed_time,
             )
 
-        if "safety_net" in data and data["safety_net"][0] == "True":
-            timestamp = data["last_used"][0]
+        if ("safety_net" in data and data["safety_net"][0] == "True") or (
+            "credential_report" in data
+        ):
+            if "last_used" in data:
+                timestamp = data["last_used"][0]
+            else:
+                timestamp = data["access_time"][0]
+
             hit_time = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z").strftime(
                 "%s"
             )
@@ -395,29 +401,54 @@ class Canarytoken(object):
                 "service_used": service_used,
                 "input_channel": INPUT_CHANNEL_HTTP,
             }
-        else:
-            hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
-            # the source IP here is the one AWS sends, not the one belonging to them
-            src_ip = data["ip"][0]
-            # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
-            #              and have default.
-            geo_info = queries.get_geoinfo(ip=src_ip)
-            is_tor_relay = queries.is_tor_relay(src_ip)
-            user_agent = data["user_agent"][0]
-            hit_info = {
-                "token_type": TokenTypes.AWS_KEYS,
-                "time_of_hit": hit_time,
-                "input_channel": INPUT_CHANNEL_HTTP,
-                "src_ip": src_ip,
-                "geo_info": geo_info,
-                "is_tor_relay": is_tor_relay,
-                "user_agent": user_agent,
-                "additional_info": {
-                    "aws_key_log_data": {
-                        k: v for k, v in data.items() if k not in ["ip", "user_agent"]
-                    }
-                },
-            }
+            return AWSKeyTokenHit(**hit_info)
+
+        hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
+        try:
+            new_infra_user_agent = base64.b64decode(data.get("ag", [""])[0]).decode(
+                "utf-8"
+            )
+        except binascii.Error:
+            new_infra_user_agent = None
+
+        user_agent = new_infra_user_agent or data["user_agent"][0]
+
+        event_name = base64.b64decode(data.get("ev", [""])[0]).decode("utf-8")
+        account_id = base64.b64decode(data.get("acc", [""])[0]).decode("utf-8")
+
+        try:
+            new_infra_src_ip = base64.b64decode(data.get("ip", [""])[0]).decode("utf-8")
+        except binascii.Error:
+            new_infra_src_ip = None
+
+        src_ip = new_infra_src_ip or data["ip"][0]
+        # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
+        #              and have default.
+        geo_info = queries.get_geoinfo(ip=src_ip)
+        is_tor_relay = queries.is_tor_relay(src_ip)
+
+        if event_name:
+            data["eventName"] = [event_name]
+
+        if account_id:
+            data["accountId"] = [account_id]
+
+        hit_info = {
+            "token_type": TokenTypes.AWS_KEYS,
+            "time_of_hit": hit_time,
+            "input_channel": INPUT_CHANNEL_HTTP,
+            "src_ip": src_ip,
+            "geo_info": geo_info,
+            "is_tor_relay": is_tor_relay,
+            "user_agent": user_agent,
+            "additional_info": {
+                "aws_key_log_data": {
+                    k: v
+                    for k, v in data.items()
+                    if k not in ["ip", "user_agent", "ag", "ev", "acc"]
+                }
+            },
+        }
         return AWSKeyTokenHit(**hit_info)
 
     @staticmethod

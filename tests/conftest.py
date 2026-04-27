@@ -101,8 +101,8 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     Stands up a simple web server to emulate the lambda that returns AWS keys
 
     Endpoints:
-    /mock_aws_key/CreateUserAPITokens -> returns testing aws creds
-    /mock_aws_key_broken/CreateUserAPITokens -> returns a 400
+    /mock_aws_key/LinkAWSIDTokenUserToCanaryConsole -> returns testing aws creds
+    /mock_aws_key_broken/LinkAWSIDTokenUserToCanaryConsole -> returns a 400
 
     Note: Debugging this web server you'll need rpdb.
     Returns:
@@ -118,18 +118,22 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     def serve_aws_alert_endpoint(request: Request) -> JSONResponse:
         return JSONResponse(content={}, status_code=200)
 
-    @app.get("/mock_aws_key/CreateUserAPITokens")
-    def serve_aws_debug_token(request: Request) -> dict[str, Optional[str]]:
+    @app.get("/mock_aws_key/LinkAWSIDTokenUserToCanaryConsole")
+    def serve_aws_debug_token(
+        request: Request,
+    ) -> dict[str, Optional[str]]:
         """
         This provides a simple test endpoint that returns AWS creds
-        in the same way the `CreateUserAPITokens` lambda does.
+        in the same way the `link_console_to_iam_user` lambda does.
         """
+
         # TODO: loading settings here is likely no needed - should be not needed.
         frontend_settings = FrontendSettings(
             NXDOMAINS=["nxdomain.127.0.0.1"],
             PUBLIC_IP="10.0.1.3",
             DOMAINS=["127.0.0.1"],
             AWSID_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
+            AWSID_AUTH="N/A=",
             AZURE_ID_TOKEN_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
             AZURE_ID_TOKEN_AUTH="N/A=",
             SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
@@ -143,7 +147,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         }
         return mock_key
 
-    @app.get("/mock_aws_key_broken/CreateUserAPITokens")
+    @app.get("/mock_aws_key_broken/LinkAWSIDTokenUserToCanaryConsole")
     def serve_aws_debug_token_broken(request: Request) -> JSONResponse:
         return JSONResponse(content={}, status_code=400)
 
@@ -197,6 +201,7 @@ def fake_settings_for_aws_keys():
         ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
+        LAMBDA_AWS_CRED_REPORT_AUTH="test_auth_value",
     )
 
 

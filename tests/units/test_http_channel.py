@@ -1,5 +1,6 @@
 from typing import Sequence
 
+import base64
 import json
 import pytest
 import io
@@ -357,7 +358,7 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
         },
     ],
 )
-def test_POST_aws_token_back(
+def test_POST_aws_token_back_legacy(
     input_data: dict[bytes, Sequence[bytes]],
     frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: SwitchboardSettings,
@@ -374,6 +375,7 @@ def test_POST_aws_token_back(
     key = get_aws_key(
         token=canarytoken,
         server=settings.PUBLIC_DOMAIN,
+        auth=None,
         aws_url=None,  # env var might have live url, don't use up an AWS user.
         aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
         aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
@@ -398,11 +400,8 @@ def test_POST_aws_token_back(
     )
     queries.save_canarydrop(cd)
 
-    request = Request(channel=DummyChannel())
-    request.path = f"http://127.0.0.1/{canarytoken.value()}".encode()
-
-    data = input_data
-    request.args = data
+    request = create_dummy_request(cd)
+    request.args = input_data
     request.method = b"POST"
 
     http_channel.site.resource.render(request)
@@ -415,6 +414,142 @@ def test_POST_aws_token_back(
         assert cd_updated.triggered_details.hits[0].additional_info.aws_key_log_data[
             "eventName"
         ] == ["GetCallerIdentity"]
+    assert cd.type == cd_updated.type
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        {
+            b"access_time": [b"2022-07-29T05:48:00+00:00"],
+            b"credential_report": [b"True"],
+            b"last_used_service": [b"sts"],
+            b"canarytoken": [b"q9o5v58eifjf9dsn4f03sai6a"],
+            b"auth": [b"test_auth_value"],
+        },
+    ],
+)
+def test_aws_credential_report_checker_trigger(
+    input_data: dict[bytes, Sequence[bytes]],
+    frontend_settings: FrontendSettings,
+    fake_settings_for_aws_keys: SwitchboardSettings,
+    setup_db: None,
+):
+    settings = fake_settings_for_aws_keys
+    http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+        switchboard=switchboard,
+    )
+
+    canarytoken = Canarytoken("q9o5v58eifjf9dsn4f03sai6a")
+    key = get_aws_key(
+        token=canarytoken,
+        server=settings.PUBLIC_DOMAIN,
+        auth=None,
+        aws_url=None,  # env var might have live url, don't use up an AWS user.
+        aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
+    )
+
+    if not key:
+        raise ValueError("Failed to get aws key")
+
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.AWS_KEYS,
+        triggered_details=AWSKeyTokenHistory(),
+        alert_email_enabled=False,
+        alert_email_recipient=EmailStr("email@test.com"),
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        aws_access_key_id=key["access_key_id"],
+        aws_secret_access_key=key["secret_access_key"],
+        aws_region=key["region"],
+        aws_output=key["output"],
+    )
+    queries.save_canarydrop(cd)
+
+    request = create_dummy_request(cd)
+    request.path = "/a/cr".encode()
+    request.args = input_data
+    request.method = b"POST"
+
+    http_channel.site.resource.render(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+
+    assert cd_updated is not None
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd.type == cd_updated.type
+
+
+def test_GET_aws_token_back(
+    frontend_settings: FrontendSettings,
+    fake_settings_for_aws_keys: SwitchboardSettings,
+    setup_db: None,
+):
+    settings = fake_settings_for_aws_keys
+    http_channel = ChannelHTTP(
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+        switchboard=switchboard,
+    )
+
+    canarytoken = Canarytoken()
+    key = get_aws_key(
+        token=canarytoken,
+        server=settings.PUBLIC_DOMAIN,
+        auth=None,
+        aws_url=None,
+        aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
+    )
+
+    if not key:
+        raise ValueError("Failed to get aws key")
+
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.AWS_KEYS,
+        triggered_details=AWSKeyTokenHistory(),
+        alert_email_enabled=False,
+        alert_email_recipient=EmailStr("email@test.com"),
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        aws_access_key_id=key["access_key_id"],
+        aws_secret_access_key=key["secret_access_key"],
+        aws_region=key["region"],
+        aws_output=key["output"],
+    )
+    queries.save_canarydrop(cd)
+
+    request = create_dummy_request(cd)
+    request.args = {
+        b"ip": [base64.b64encode(b"172.253.205.33")],
+        b"ag": [
+            base64.b64encode(
+                b"Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
+            )
+        ],
+        b"ev": [base64.b64encode(b"GetCallerIdentity")],
+        b"acc": [base64.b64encode(b"123456789012")],
+    }
+    request.method = b"GET"
+
+    http_channel.site.resource.render(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+
+    assert cd_updated is not None
+    assert len(cd_updated.triggered_details.hits) == 1
+    hit = cd_updated.triggered_details.hits[0]
+    assert hit.additional_info.aws_key_log_data["eventName"] == ["GetCallerIdentity"]
+    assert hit.additional_info.aws_key_log_data["accountId"] == ["123456789012"]
+    assert hit.useragent == "Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
+    assert hit.src_ip == "172.253.205.33"
     assert cd.type == cd_updated.type
 
 

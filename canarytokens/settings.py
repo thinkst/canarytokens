@@ -64,6 +64,7 @@ class SwitchboardSettings(BaseSettings):
     SWITCHBOARD_LOG_COUNT: Optional[int] = 20
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
+    LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
 
     class Config:
         allow_mutation = False
@@ -107,9 +108,11 @@ class FrontendSettings(BaseSettings):
 
     # 3rd party settings
     AWSID_URL: Optional[HttpUrl]
+    AWSID_AUTH: Optional[str]
     TESTING_AWS_ACCESS_KEY_ID: Optional[str] = ""
     TESTING_AWS_SECRET_ACCESS_KEY: Optional[str] = ""
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
+    TESTING_AWSID_AUTH: Optional[str] = "test_auth_value"
     TESTING_AWS_OUTPUT: Optional[str] = "json"
     AZURE_ID_TOKEN_URL: Optional[HttpUrl]
     AZURE_ID_TOKEN_AUTH: Optional[str]

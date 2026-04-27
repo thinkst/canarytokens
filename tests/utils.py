@@ -275,28 +275,29 @@ def plain_fire_token(
 
 
 def aws_token_fire(token_info: AWSKeyTokenResponse) -> None:
-    """Triggers an AWS token via the HTTP channel. This mimics the 'ProcessUserAPITokenLogs'
-    lambda POST.
+    """Triggers an AWS token via the HTTP channel. This mimics the
+    `check_cloudtrail_logs` lambda GET.
 
     Args:
         token_info (AWSTokenResponse): This is the token that gets triggered.
     """
     if server_config.live:
-        url = token_info.token_url
+        url = f"{token_info.token_url}.gif"
     else:
         # Need to hit Switchboard directly.
         http_url = parse_obj_as(HttpUrl, token_info.token_url)
         http_url.port = server_config.canarytokens_http_port
-        url = f"{http_url.scheme}://{http_url.host}:{http_url.port}{http_url.path}"
-    data = {
-        "ip": "128.2.4.98",
-        "user_agent": "Mozilla/5.0, AppleWebKit/537.36, Chrome/80.0.3987.132",
+        url = f"{http_url.scheme}://{http_url.host}:{http_url.port}{http_url.path}.gif"
+    params = {
+        "ip": base64.b64encode(b"128.2.4.98").decode(),
+        "ag": base64.b64encode(
+            b"Mozilla/5.0, AppleWebKit/537.36, Chrome/80.0.3987.132"
+        ).decode(),
+        "ev": base64.b64encode(b"GetCallerIdentity").decode(),
+        "acc": base64.b64encode(b"123456789012").decode(),
     }
-    data["eventName"] = "GetCallerIdentity"
 
-    data = urllib.parse.urlencode(data).encode("utf8")
-
-    req = urllib.request.Request(url, data)
+    req = urllib.request.Request(f"{url}?{urllib.parse.urlencode(params)}")
     _ = urllib.request.urlopen(req)
 
 
