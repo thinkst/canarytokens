@@ -310,12 +310,10 @@ class CanarytokenPage(InputChannel, resource.Resource):
     def credential_report_trigger(self, request: Request, lambda_auth=None):
         if lambda_auth is None:
             return GIF
-
         data: dict[str, list[str]] = {
             k.decode(): [o.decode() for o in v] for k, v in request.args.items()
         }
         canarytoken = data.get("canarytoken", [None])[0]
-        access_time = data.get("access_time", [-1])[0]
         auth = data.get("auth", [None])[0]
 
         if auth is None or auth != lambda_auth:
@@ -328,14 +326,18 @@ class CanarytokenPage(InputChannel, resource.Resource):
             token = Canarytoken(value=canarytoken)
             canarydrop = get_canarydrop(token)
             token_hit = Canarytoken._parse_aws_key_trigger(request)
-            canarydrop.add_canarydrop_hit(token_hit=token_hit)
-
-            if int(canarydrop._drop.get("time_of_hit", 0)) < int(float(access_time)):
+            last_hit = (
+                canarydrop.triggered_details.hits[-1].time_of_hit
+                if canarydrop.triggered_details.hits
+                else 0
+            )
+            if last_hit < token_hit.time_of_hit:
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
                 self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             else:
                 log.info(
                     "Ignoring AWS Credentials Report trigger for {} with access time {}".format(
-                        canarytoken, access_time
+                        canarytoken, token_hit.time_of_hit
                     )
                 )
         except (NoCanarytokenFound, NoCanarydropFound):
