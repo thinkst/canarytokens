@@ -389,9 +389,12 @@ class Canarytoken(object):
             else:
                 timestamp = data["access_time"][0]
 
-            hit_time = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z").strftime(
-                "%s"
-            )
+            try:
+                hit_time = datetime.strptime(
+                    timestamp, "%Y-%m-%dT%H:%M:%S%z"
+                ).timestamp()
+            except ValueError:
+                hit_time = float(timestamp)
             service_used = data["last_used_service"][0]
 
             hit_info = {

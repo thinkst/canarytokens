@@ -421,7 +421,7 @@ def test_POST_aws_token_back_legacy(
     "input_data",
     [
         {
-            b"access_time": [b"2022-07-29T05:48:00+00:00"],
+            b"access_time": [b"1659073680.0"],
             b"credential_report": [b"True"],
             b"last_used_service": [b"sts"],
             b"canarytoken": [b"q9o5v58eifjf9dsn4f03sai6a"],
@@ -479,9 +479,9 @@ def test_aws_credential_report_checker_trigger(
     http_channel.site.resource.render(request)
 
     cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
-
     assert cd_updated is not None
     assert len(cd_updated.triggered_details.hits) == 1
+    assert cd_updated.triggered_details.hits[0].time_of_hit == 1659073680.0
     assert cd.type == cd_updated.type
 
 
