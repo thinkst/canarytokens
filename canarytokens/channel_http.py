@@ -331,7 +331,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 if canarydrop.triggered_details.hits
                 else 0
             )
-            log.debug(f"Last Hit: {last_hit}, Current Hit: {token_hit.time_of_hit}")
             if last_hit < token_hit.time_of_hit:
                 canarydrop.add_canarydrop_hit(token_hit=token_hit)
                 self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
