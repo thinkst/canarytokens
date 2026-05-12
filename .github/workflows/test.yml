@@ -26,7 +26,7 @@ jobs:
     services:
       redis:
         # TODO: ensure this is identical to whatever is in the compose files. Simple linter should suffice.
-        image: redis@sha256:03f00cd789243846888e2f834c762f53b224b9970b434a192b0f6b533d7e219c
+        image: redis:7.0.10
         #
         ports:
           # Opens tcp port 6379 on the host and service container
@@ -59,19 +59,13 @@ jobs:
           role-to-assume: arn:aws:iam::211125554061:role/Canarytokens-staging-github-action
           role-session-name: GitHubActions-${{ github.actor }}-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/checkout@v3
+
+      - name: Check out repository code
+        uses: actions/checkout@v6
         with:
           ref: '${{ github.event.inputs.canarytokens-branch }}'
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Get full python version
-        id: full-python-version
-        run: |
-          echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
-      - name: Install deps
+      - name: Install dependencies
         run: |
           sudo apt update -y
           sudo apt install libzbar0 -y
@@ -79,22 +73,26 @@ jobs:
           sudo apt install mysql-client
           sudo apt-get install subversion
           sudo apt-get install openssh-server
-          curl -sSL https://install.python-poetry.org | python -
-          poetry config virtualenvs.in-project true
           sudo apt-get update -y
           sudo apt-get install -y apt-transport-https ca-certificates curl
           sudo apt-get update -y
           sudo apt-get install -y osslsigncode
           sudo apt install redis-tools
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install Canarytokens
+        run: uv sync --locked --all-extras --dev
+
       - name: Set up cache
         uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install python dependencies
-        run: |
-          poetry install -E 'twisted web'
+          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/uv.lock') }}
 
       - name: Run unit tests
         env:
@@ -119,16 +117,16 @@ jobs:
           export CANARY_CLOUDFLARE_API_TOKEN=test
           export CANARY_CLOUDFLARE_NAMESPACE=test
           cd tests
-          poetry run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units -v
+          uv run coverage run  --source=../canarytokens --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" -m pytest units -v
 
       - name: Check coverage is over threshold percentage for unit tests
         # Here we check coverage info on all tests
         run: |
           cd tests
-          poetry run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 75
+          uv run coverage report --omit="integration/test_custom_binary.py,integration/test_sql_server_token.py" --fail-under 75
 
 
-      - name: Run integration tests (against local V3)
+      - name: Run integration tests
         run: |
           redis-cli flushall
           mkdir uploads
@@ -140,33 +138,34 @@ jobs:
           export TEST_HOST=`docker network inspect $TEST_NETWORK | jq '.[0].IPAM.Config[0].Gateway' | sed 's/"//g'`
           export CANARY_AWS_INFRA_AWS_REGION=eu-west-1
 
-          LIVE=False poetry run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration -v
+          LIVE=False uv run coverage run  --source=../canarytokens --omit=integration/test_custom_binary.py -m pytest integration -v
 
 
   windows-tests:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v4
+      - name: Check out repository code
+        uses: actions/checkout@v6
         with:
-          python-version: '3.13'
-      - name: Install deps
-        run: |
-          python -m pip install --user pipx
-          python -m pipx ensurepath
-          python -m pipx install poetry==1.8.3
-      - name: Install python dependencies
-        # poetry cache clear --all pypi ref: https://stackoverflow.com/questions/72551057/poetry-gives-toomanyindirects-error-suddenly
-        # Remove when this is resolved.
-        run: |
-          poetry config virtualenvs.in-project true
-          poetry cache clear --all pypi
-          poetry install -E 'twisted web'
-      - name: Integration Tests
+          ref: '${{ github.event.inputs.canarytokens-branch }}'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.13
+
+      - name: Install Canarytokens
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run integration tests
         run: |
           $env:LIVE = 'True'
           copy .\frontend\frontend.env.dist .\frontend\frontend.env
           copy .\switchboard\switchboard.env.dist .\switchboard\switchboard.env
           cd tests
           $env:CANARY_AWS_INFRA_AWS_REGION = 'eu-west-1'
-          $env:PSModulePath = ''; poetry run pytest .\integration\test_custom_binary.py -v
+          $env:PSModulePath = ''; uv run pytest .\integration\test_custom_binary.py -v
