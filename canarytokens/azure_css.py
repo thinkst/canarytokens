@@ -2,11 +2,17 @@ from azure.identity import ClientSecretCredential
 from canarytokens.settings import FrontendSettings
 from requests import Response, get, put, delete, post
 from time import sleep
-from cssutils.css import CSSStyleRule
+from cssutils.css import CSSStyleRule, CSSStyleSheet
+
+from canarytokens.constants import (
+    CANARYTOKEN_ALPHABET,
+    CANARYTOKEN_LENGTH,
+)
 
 import logging
 import cssutils
 import sys
+import re
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum  # Python 3.11+
@@ -39,7 +45,9 @@ LEGACY_ENTRA_STATUS_MAP = {
 
 def _auth_to_tenant(tenant_id: str) -> BearerToken:
     """
-    Tenant that the client app has permissions to, returns a Graph API Bearer token
+    Tenant that the client app has permissions to
+
+    Returns a Graph API Bearer token
     """
     cred = ClientSecretCredential(
         tenant_id, frontend_settings.AZUREAPP_ID, frontend_settings.AZUREAPP_SECRET
@@ -51,6 +59,7 @@ def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
     """
     Checks to see if a tenant has custom branding (and if it's not safe to install our custom CSS)
     Reference: https://learn.microsoft.com/en-us/graph/api/organizationalbranding-get
+
     Returns: True if there is branding present, false otherwise
     """
     headers = {"Accept-Language": "0", "Authorization": "Bearer " + token}
@@ -62,15 +71,66 @@ def _check_if_custom_branding(token: BearerToken, tenant_id: str) -> bool:
     return res.status_code != 404
 
 
+def _try_upgrade_css(existing_css: str) -> str:
+    """
+    If there is an older CSS token that doesn't have the media at-rule for full-screen,
+    we remove the old rule so the newer version can be installed
+
+    Returns the existing CSS with any previously-added CSS token rule removed
+    """
+    css: CSSStyleSheet = cssutils.parseString(existing_css)
+    css_rules: list[CSSStyleRule] = css.cssRules
+    rule_to_del = None
+    for idx, rule in enumerate(css_rules):
+        if (
+            rule.typeString == "STYLE_RULE"
+            and rule.selectorText == "body"
+            and "background" in rule.style.cssText
+        ):
+            # Using a regex to see if there is a string that looks like a token ID with the img.gif in the background url().
+            # If we find it we can delete that rule to install the newer version.
+            m = re.match(
+                r".*/(["
+                + CANARYTOKEN_ALPHABET
+                + r"]{"
+                + str(CANARYTOKEN_LENGTH)
+                + r"})/[a-z0-9A-Z%=]+/img\.gif",
+                rule.style.cssText,
+            )
+            if m is not None and len(m.groups()) == 1:
+                rule_to_del = idx
+                break
+
+    if rule_to_del is not None:
+        css.deleteRule(rule_to_del)
+    return css.cssText
+
+
 def _check_existing_body_background(css: str) -> bool:
     """
     Parses an existing CSS file to see if there is a conflicting rule
+
     Returns True if there is a conflicting rule, False otherwise
     """
     css_rules: list[CSSStyleRule] = cssutils.parseString(css)
     for rule in css_rules:
-        if rule.selectorText == "body" and "background" in rule.style.cssText:
+        if (
+            rule.typeString == "STYLE_RULE"
+            and rule.selectorText == "body"
+            and "background" in rule.style.cssText
+        ):
             return True
+        if (
+            rule.typeString == "MEDIA_RULE"
+            and "(display-mode: fullscreen)" in rule.media.mediaText
+        ):
+            for sub_rule in rule.cssRules:
+                if (
+                    sub_rule.typeString == "STYLE_RULE"
+                    and sub_rule.selectorText == "body"
+                    and "background" in sub_rule.style.cssText
+                ):
+                    return True
     return False
 
 
@@ -103,7 +163,10 @@ def _check_if_can_install_custom_css(
         headers=headers,
     )
     if res.status_code == 200:
-        return (not _check_existing_body_background(res.text), res.text)
+        return (
+            not _check_existing_body_background(_try_upgrade_css(res.text)),
+            res.text,
+        )
     return (False, "")
 
 
