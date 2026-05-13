@@ -46,10 +46,9 @@ class CanarytokenPage(InputChannel, resource.Resource):
         switchboard_hostname: str,
         name: Optional[str] = None,
         unique_channel: bool = False,
-        switchboard_settings: Optional[SwitchboardSettings] = None,
     ) -> None:
         name = name or self.CHANNEL
-        self.switchboard_settings = switchboard_settings
+        self.switchboard_settings = switchboard.switchboard_settings
         super().__init__(
             switchboard,
             switchboard_scheme,
@@ -336,14 +335,12 @@ class CanarytokenPage(InputChannel, resource.Resource):
                 self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
             else:
                 log.info(
-                    "Ignoring AWS Credentials Report trigger for {} with access time {}".format(
-                        canarytoken, token_hit.time_of_hit
-                    )
+                    f"Ignoring AWS Credentials Report trigger for {canarytoken} with access time {token_hit.time_of_hit}"
                 )
         except (NoCanarytokenFound, NoCanarydropFound):
             log.warning("No Canarytoken found in request")
         except Exception as e:
-            log.critical("Exception was {e}, {cls}".format(e=e, cls=type(e)))
+            log.critical(f"Exception was {e}, {type(e)}")
         return GIF
 
 
@@ -360,7 +357,6 @@ class ChannelHTTP:
             switchboard=switchboard,
             switchboard_hostname=frontend_settings.DOMAINS[0],
             switchboard_scheme=switchboard_settings.SWITCHBOARD_SCHEME,
-            switchboard_settings=switchboard_settings,
         )
         wrapped = EncodingResourceWrapper(self.canarytoken_page, [GzipEncoderFactory()])
         self.site = server.Site(wrapped)
