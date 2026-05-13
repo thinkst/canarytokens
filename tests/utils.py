@@ -276,7 +276,7 @@ def plain_fire_token(
 
 def aws_token_fire(token_info: AWSKeyTokenResponse) -> None:
     """Triggers an AWS token via the HTTP channel. This mimics the
-    `check_cloudtrail_logs` lambda GET.
+    `CheckCloudTrailLogsForAWSIDTokenUse` lambda GET.
 
     Args:
         token_info (AWSTokenResponse): This is the token that gets triggered.

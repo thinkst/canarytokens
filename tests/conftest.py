@@ -124,7 +124,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
     ) -> dict[str, Optional[str]]:
         """
         This provides a simple test endpoint that returns AWS creds
-        in the same way the `link_console_to_iam_user` lambda does.
+        in the same way the `LinkAWSIDTokenUserToCanaryConsole` lambda does.
         """
 
         # TODO: loading settings here is likely no needed - should be not needed.

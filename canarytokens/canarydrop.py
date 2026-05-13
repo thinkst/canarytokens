@@ -146,7 +146,6 @@ class Canarydrop(BaseModel):
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]
     aws_output: Optional[str] = Field(alias="output")
-    last_triggered_timestamp: Optional[str]
 
     # AWS key and AWS infra stuff
     aws_account_id: Optional[AWSAccountNumber]
