@@ -37,15 +37,12 @@ switchboard = Switchboard()
         TokenTypes.WEB_IMAGE,
     ],
 )
-def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
+def test_channel_http_GET(
+    setup_db, http_channel, settings, frontend_settings, token_type
+):
     """
     Test canarytokens http (GET) channel.
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -72,15 +69,10 @@ def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
     assert len(cd_updated.triggered_details.hits) == 1
 
 
-def test_http_request_dns_token(setup_db, settings, frontend_settings):
+def test_http_request_dns_token(setup_db, http_channel, settings, frontend_settings):
     """
     Test that firing a DNS canarytoken on the http channel does not break or alert.
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -108,15 +100,12 @@ def test_http_request_dns_token(setup_db, settings, frontend_settings):
     assert len(cd_updated.triggered_details.hits) == 0
 
 
-def test_channel_http_GET_token_limit(setup_db, settings, frontend_settings):
+def test_channel_http_GET_token_limit(
+    setup_db, http_channel, settings, frontend_settings
+):
     """
     Test canarytokens http (GET) channel.
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -159,7 +148,7 @@ def test_channel_http_GET_token_limit(setup_db, settings, frontend_settings):
     ],
 )
 def test_channel_http_GET_and_POST_back(
-    setup_db, frontend_settings, settings, token_type, request_args
+    setup_db, frontend_settings, settings, http_channel, token_type, request_args
 ):
     """
     Test ChannelHTTP handles POST back info. SLOW_REDIRECT is
@@ -168,11 +157,6 @@ def test_channel_http_GET_and_POST_back(
     """
     from twisted.web.test.requesthelper import DummyChannel
 
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
         type=token_type,
@@ -240,17 +224,14 @@ def test_channel_http_GET_and_POST_back(
         TokenTypes.SLOW_REDIRECT,
     ],
 )
-def test_channel_http_POST(setup_db, frontend_settings, settings, token_type):
+def test_channel_http_POST(
+    setup_db, frontend_settings, settings, http_channel, token_type
+):
     """
     Test canarytokens http (POST) channel.
     """
     from twisted.web.test.requesthelper import DummyChannel
 
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
         type=token_type,
@@ -284,17 +265,14 @@ def test_channel_http_POST(setup_db, frontend_settings, settings, token_type):
     assert cd.type == cd_updated.type
 
 
-def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings):
+def test_channel_http_GET_random_endpoint(
+    setup_db, http_channel, settings, frontend_settings
+):
     """
     Test ChannelHTTP handles random non-token endpoints.
     """
     from twisted.web.test.requesthelper import DummyChannel
 
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
     token_type, request_args = TokenTypes.FAST_REDIRECT, {}
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -363,13 +341,9 @@ def test_POST_aws_token_back_legacy(
     frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: SwitchboardSettings,
     setup_db: None,
+    http_channel: ChannelHTTP,
 ):
     settings = fake_settings_for_aws_keys
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
 
     canarytoken = Canarytoken()
     key = get_aws_key(
@@ -434,14 +408,9 @@ def test_aws_credential_report_checker_trigger(
     frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: SwitchboardSettings,
     setup_db: None,
+    http_channel: ChannelHTTP,
 ):
     settings = fake_settings_for_aws_keys
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
-
     canarytoken = Canarytoken("q9o5v58eifjf9dsn4f03sai6a")
     key = get_aws_key(
         token=canarytoken,
@@ -489,14 +458,9 @@ def test_GET_aws_token_back(
     frontend_settings: FrontendSettings,
     fake_settings_for_aws_keys: SwitchboardSettings,
     setup_db: None,
+    http_channel: ChannelHTTP,
 ):
     settings = fake_settings_for_aws_keys
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
-
     canarytoken = Canarytoken()
     key = get_aws_key(
         token=canarytoken,
@@ -576,18 +540,13 @@ def test_POST_cc_token_v2_back(
     setup_db: None,
     trigger_type: str,
     webhook_data_extra: dict,
+    http_channel: ChannelHTTP,
 ):
     """
     Test the v2 credit card token webhook. Verifies that transaction data
     is captured correctly in the token alert for both transaction failure and 3DS
     notification webhooks.
     """
-
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
 
     canarytoken = Canarytoken()
 
@@ -659,15 +618,10 @@ def test_POST_cc_token_v2_back(
         assert hit_info.status == webhook_data_extra["status"]
 
 
-def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
+def test_channel_http_OPTIONS(setup_db, http_channel, settings, frontend_settings):
     """
     Alert triggers on HTTP OPTIONS request to Canarytokens HTTP channel
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
