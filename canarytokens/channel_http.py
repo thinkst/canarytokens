@@ -181,9 +181,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
 
     def render_POST(self, request: Request):  # noqa: C901
         if request.path == b"/a/cr":
-            return self.credential_report_trigger(
-                request, self.switchboard_settings.LAMBDA_AWS_CRED_REPORT_AUTH
-            )
+            return self.credential_report_trigger(request)
 
         try:
             token = Canarytoken(value=request.path)
@@ -306,7 +304,15 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return b"success"
         return self.render_GET(request)
 
-    def credential_report_trigger(self, request: Request, lambda_auth=None):
+    def credential_report_trigger(self, request: Request):
+        """
+        A special use case POST endpoint for AWS Credential Report triggers. This is separate from the normal
+        render_POST flow because we are checking for very specific arguments from our AWS API Key Canarytoken
+        Infrastructure.
+        """
+        lambda_auth = getattr(
+            self.switchboard_settings, "LAMBDA_AWS_CRED_REPORT_AUTH", None
+        )
         if lambda_auth is None:
             return GIF
         data: dict[str, list[str]] = {
