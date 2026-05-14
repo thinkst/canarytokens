@@ -185,22 +185,6 @@ def settings() -> SwitchboardSettings:
         ),
         SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
-    )
-
-
-@pytest.fixture(scope="session")
-def fake_settings_for_aws_keys():
-    """Used for unit tests that need TESTING_AWS...
-    details.
-    """
-    return SwitchboardSettings(
-        PUBLIC_DOMAIN="127.0.0.1",
-        CHANNEL_HTTP_PORT=Port(8084),
-        CHANNEL_SMTP_PORT=(
-            Port(25) if strtobool(os.getenv("LIVE", "FALSE")) else Port(2500)
-        ),
-        SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
-        WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
         LAMBDA_AWS_CRED_REPORT_AUTH="test_auth_value",
     )
 

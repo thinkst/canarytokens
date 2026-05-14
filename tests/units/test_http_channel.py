@@ -339,12 +339,10 @@ def test_channel_http_GET_random_endpoint(
 def test_POST_aws_token_back_legacy(
     input_data: dict[bytes, Sequence[bytes]],
     frontend_settings: FrontendSettings,
-    fake_settings_for_aws_keys: SwitchboardSettings,
+    settings: SwitchboardSettings,
     setup_db: None,
     http_channel: ChannelHTTP,
 ):
-    settings = fake_settings_for_aws_keys
-
     canarytoken = Canarytoken()
     key = get_aws_key(
         token=canarytoken,
@@ -406,11 +404,10 @@ def test_POST_aws_token_back_legacy(
 def test_aws_credential_report_checker_trigger(
     input_data: dict[bytes, Sequence[bytes]],
     frontend_settings: FrontendSettings,
-    fake_settings_for_aws_keys: SwitchboardSettings,
+    settings: SwitchboardSettings,
     setup_db: None,
     http_channel: ChannelHTTP,
 ):
-    settings = fake_settings_for_aws_keys
     canarytoken = Canarytoken("q9o5v58eifjf9dsn4f03sai6a")
     key = get_aws_key(
         token=canarytoken,
@@ -456,11 +453,10 @@ def test_aws_credential_report_checker_trigger(
 
 def test_GET_aws_token_back(
     frontend_settings: FrontendSettings,
-    fake_settings_for_aws_keys: SwitchboardSettings,
+    settings: SwitchboardSettings,
     setup_db: None,
     http_channel: ChannelHTTP,
 ):
-    settings = fake_settings_for_aws_keys
     canarytoken = Canarytoken()
     key = get_aws_key(
         token=canarytoken,
@@ -721,6 +717,19 @@ def create_dummy_request(cd: canarydrop.Canarydrop, ipv6: bool = False) -> Dummy
 
 @pytest.fixture(scope="module")
 def http_channel(
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+) -> ChannelHTTP:
+    http_channel = ChannelHTTP(
+        switchboard=switchboard,
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+    return http_channel
+
+
+@pytest.fixture(scope="module")
+def aws_keys_http_channel(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ) -> ChannelHTTP:
