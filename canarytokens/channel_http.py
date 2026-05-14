@@ -352,7 +352,6 @@ class ChannelHTTP:
         switchboard: Switchboard,
     ):
         self.port = switchboard_settings.CHANNEL_HTTP_PORT
-
         self.canarytoken_page = CanarytokenPage(
             switchboard=switchboard,
             switchboard_hostname=frontend_settings.DOMAINS[0],

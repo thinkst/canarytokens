@@ -25,8 +25,6 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
-switchboard = Switchboard()
-
 
 @pytest.mark.parametrize(
     "token_type",
@@ -720,19 +718,7 @@ def http_channel(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ) -> ChannelHTTP:
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
-    return http_channel
-
-
-@pytest.fixture(scope="module")
-def aws_keys_http_channel(
-    frontend_settings: FrontendSettings,
-    settings: SwitchboardSettings,
-) -> ChannelHTTP:
+    switchboard = Switchboard(switchboard_settings=settings)
     http_channel = ChannelHTTP(
         switchboard=switchboard,
         frontend_settings=frontend_settings,

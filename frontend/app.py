@@ -1844,7 +1844,7 @@ def _create_aws_key_token_response(
     if settings is None:
         settings = frontend_settings
 
-    if settings.AWSID_URL or settings.AWSID_AUTH:
+    if not settings.AWSID_URL or not settings.AWSID_AUTH:
         return JSONResponse(
             {
                 "message": "This Canarytokens instance does not have AWS ID tokens enabled."
