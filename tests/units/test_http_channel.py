@@ -1,5 +1,6 @@
 from typing import Sequence
 
+import base64
 import json
 import pytest
 import io
@@ -24,8 +25,6 @@ from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 
-switchboard = Switchboard()
-
 
 @pytest.mark.parametrize(
     "token_type",
@@ -36,15 +35,12 @@ switchboard = Switchboard()
         TokenTypes.WEB_IMAGE,
     ],
 )
-def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
+def test_channel_http_GET(
+    setup_db, http_channel, settings, frontend_settings, token_type
+):
     """
     Test canarytokens http (GET) channel.
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -71,15 +67,10 @@ def test_channel_http_GET(setup_db, settings, frontend_settings, token_type):
     assert len(cd_updated.triggered_details.hits) == 1
 
 
-def test_http_request_dns_token(setup_db, settings, frontend_settings):
+def test_http_request_dns_token(setup_db, http_channel, settings, frontend_settings):
     """
     Test that firing a DNS canarytoken on the http channel does not break or alert.
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -107,15 +98,12 @@ def test_http_request_dns_token(setup_db, settings, frontend_settings):
     assert len(cd_updated.triggered_details.hits) == 0
 
 
-def test_channel_http_GET_token_limit(setup_db, settings, frontend_settings):
+def test_channel_http_GET_token_limit(
+    setup_db, http_channel, settings, frontend_settings
+):
     """
     Test canarytokens http (GET) channel.
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -158,7 +146,7 @@ def test_channel_http_GET_token_limit(setup_db, settings, frontend_settings):
     ],
 )
 def test_channel_http_GET_and_POST_back(
-    setup_db, frontend_settings, settings, token_type, request_args
+    setup_db, frontend_settings, settings, http_channel, token_type, request_args
 ):
     """
     Test ChannelHTTP handles POST back info. SLOW_REDIRECT is
@@ -167,11 +155,6 @@ def test_channel_http_GET_and_POST_back(
     """
     from twisted.web.test.requesthelper import DummyChannel
 
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
         type=token_type,
@@ -239,17 +222,14 @@ def test_channel_http_GET_and_POST_back(
         TokenTypes.SLOW_REDIRECT,
     ],
 )
-def test_channel_http_POST(setup_db, frontend_settings, settings, token_type):
+def test_channel_http_POST(
+    setup_db, frontend_settings, settings, http_channel, token_type
+):
     """
     Test canarytokens http (POST) channel.
     """
     from twisted.web.test.requesthelper import DummyChannel
 
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
         type=token_type,
@@ -283,17 +263,14 @@ def test_channel_http_POST(setup_db, frontend_settings, settings, token_type):
     assert cd.type == cd_updated.type
 
 
-def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings):
+def test_channel_http_GET_random_endpoint(
+    setup_db, http_channel, settings, frontend_settings
+):
     """
     Test ChannelHTTP handles random non-token endpoints.
     """
     from twisted.web.test.requesthelper import DummyChannel
 
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
     token_type, request_args = TokenTypes.FAST_REDIRECT, {}
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -357,23 +334,18 @@ def test_channel_http_GET_random_endpoint(setup_db, settings, frontend_settings)
         },
     ],
 )
-def test_POST_aws_token_back(
+def test_POST_aws_token_back_legacy(
     input_data: dict[bytes, Sequence[bytes]],
     frontend_settings: FrontendSettings,
-    fake_settings_for_aws_keys: SwitchboardSettings,
+    settings: SwitchboardSettings,
     setup_db: None,
+    http_channel: ChannelHTTP,
 ):
-    settings = fake_settings_for_aws_keys
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
-
     canarytoken = Canarytoken()
     key = get_aws_key(
         token=canarytoken,
         server=settings.PUBLIC_DOMAIN,
+        auth=None,
         aws_url=None,  # env var might have live url, don't use up an AWS user.
         aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
         aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
@@ -398,11 +370,8 @@ def test_POST_aws_token_back(
     )
     queries.save_canarydrop(cd)
 
-    request = Request(channel=DummyChannel())
-    request.path = f"http://127.0.0.1/{canarytoken.value()}".encode()
-
-    data = input_data
-    request.args = data
+    request = create_dummy_request(cd)
+    request.args = input_data
     request.method = b"POST"
 
     http_channel.site.resource.render(request)
@@ -415,6 +384,130 @@ def test_POST_aws_token_back(
         assert cd_updated.triggered_details.hits[0].additional_info.aws_key_log_data[
             "eventName"
         ] == ["GetCallerIdentity"]
+    assert cd.type == cd_updated.type
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        {
+            b"access_time": [b"1659073680.0"],
+            b"credential_report": [b"True"],
+            b"last_used_service": [b"sts"],
+            b"canarytoken": [b"q9o5v58eifjf9dsn4f03sai6a"],
+            b"auth": [b"test_auth_value"],
+        },
+    ],
+)
+def test_aws_credential_report_checker_trigger(
+    input_data: dict[bytes, Sequence[bytes]],
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    setup_db: None,
+    http_channel: ChannelHTTP,
+):
+    canarytoken = Canarytoken("q9o5v58eifjf9dsn4f03sai6a")
+    key = get_aws_key(
+        token=canarytoken,
+        server=settings.PUBLIC_DOMAIN,
+        auth=None,
+        aws_url=None,  # env var might have live url, don't use up an AWS user.
+        aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
+    )
+
+    if not key:
+        raise ValueError("Failed to get aws key")
+
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.AWS_KEYS,
+        triggered_details=AWSKeyTokenHistory(),
+        alert_email_enabled=False,
+        alert_email_recipient=EmailStr("email@test.com"),
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        aws_access_key_id=key["access_key_id"],
+        aws_secret_access_key=key["secret_access_key"],
+        aws_region=key["region"],
+        aws_output=key["output"],
+    )
+    queries.save_canarydrop(cd)
+
+    request = create_dummy_request(cd)
+    request.path = "/a/cr".encode()
+    request.args = input_data
+    request.method = b"POST"
+
+    http_channel.site.resource.render(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+    assert cd_updated is not None
+    assert len(cd_updated.triggered_details.hits) == 1
+    assert cd_updated.triggered_details.hits[0].time_of_hit == 1659073680.0
+    assert cd.type == cd_updated.type
+
+
+def test_GET_aws_token_back(
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    setup_db: None,
+    http_channel: ChannelHTTP,
+):
+    canarytoken = Canarytoken()
+    key = get_aws_key(
+        token=canarytoken,
+        server=settings.PUBLIC_DOMAIN,
+        auth=None,
+        aws_url=None,
+        aws_access_key_id=frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
+    )
+
+    if not key:
+        raise ValueError("Failed to get aws key")
+
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.AWS_KEYS,
+        triggered_details=AWSKeyTokenHistory(),
+        alert_email_enabled=False,
+        alert_email_recipient=EmailStr("email@test.com"),
+        alert_webhook_enabled=False,
+        alert_webhook_url=None,
+        canarytoken=canarytoken,
+        memo="memo",
+        aws_access_key_id=key["access_key_id"],
+        aws_secret_access_key=key["secret_access_key"],
+        aws_region=key["region"],
+        aws_output=key["output"],
+    )
+    queries.save_canarydrop(cd)
+
+    IP_ADDRESS = "172.253.205.33"
+    EVENT = "GetCallerIdentity"
+    ACCOUNT_ID = "123456789012"
+    USER_AGENT = "Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
+    request = create_dummy_request(cd)
+    request.args = {
+        b"ip": [base64.b64encode(IP_ADDRESS.encode())],
+        b"ag": [base64.b64encode(USER_AGENT.encode())],
+        b"ev": [base64.b64encode(EVENT.encode())],
+        b"acc": [base64.b64encode(ACCOUNT_ID.encode())],
+    }
+    request.method = b"GET"
+
+    http_channel.site.resource.render(request)
+
+    cd_updated = queries.get_canarydrop(canarytoken=cd.canarytoken)
+
+    assert cd_updated is not None
+    assert len(cd_updated.triggered_details.hits) == 1
+    hit = cd_updated.triggered_details.hits[0]
+    assert hit.additional_info.aws_key_log_data["eventName"] == [EVENT]
+    assert hit.additional_info.aws_key_log_data["accountId"] == [ACCOUNT_ID]
+    assert hit.useragent == USER_AGENT
+    assert hit.src_ip == IP_ADDRESS
     assert cd.type == cd_updated.type
 
 
@@ -441,18 +534,13 @@ def test_POST_cc_token_v2_back(
     setup_db: None,
     trigger_type: str,
     webhook_data_extra: dict,
+    http_channel: ChannelHTTP,
 ):
     """
     Test the v2 credit card token webhook. Verifies that transaction data
     is captured correctly in the token alert for both transaction failure and 3DS
     notification webhooks.
     """
-
-    http_channel = ChannelHTTP(
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-        switchboard=switchboard,
-    )
 
     canarytoken = Canarytoken()
 
@@ -524,15 +612,10 @@ def test_POST_cc_token_v2_back(
         assert hit_info.status == webhook_data_extra["status"]
 
 
-def test_channel_http_OPTIONS(setup_db, settings, frontend_settings):
+def test_channel_http_OPTIONS(setup_db, http_channel, settings, frontend_settings):
     """
     Alert triggers on HTTP OPTIONS request to Canarytokens HTTP channel
     """
-    http_channel = ChannelHTTP(
-        switchboard=switchboard,
-        frontend_settings=frontend_settings,
-        switchboard_settings=settings,
-    )
 
     canarytoken = Canarytoken()
     cd = canarydrop.Canarydrop(
@@ -635,6 +718,7 @@ def http_channel(
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ) -> ChannelHTTP:
+    switchboard = Switchboard(switchboard_settings=settings)
     http_channel = ChannelHTTP(
         switchboard=switchboard,
         frontend_settings=frontend_settings,

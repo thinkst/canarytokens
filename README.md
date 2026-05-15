@@ -15,6 +15,7 @@ If you have any issues please check out our FAQ over [here](https://github.com/t
   - [Deprecations](#deprecations)
   - [Installation](#installation)
   - [Configuration](#configuration)
+  - [AWS ID infrastructure](#aws-id-infrastructure)
   - [Configuration of Outgoing SMTP](#configuration-of-outgoing-smtp)
   - [Alert throttling](#alert-throttling)
   - [Webhook failure limiting](#webhook-failure-limiting)
@@ -46,6 +47,7 @@ The `frontend.env` contains the frontend process settings such as:
 - CANARY_DOMAINS=mytesttokensdomain.com
 - CANARY_NXDOMAINS=pdf.demo.canarytokens.net
 - CANARY_AWSID_URL=<custom awsid url>
+- CANARY_AWSID_AUTH=<shared awsid auth token>
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
 - CANARY_GOOGLE_API_KEY=<custom google maps api key>
 - LOG_FILE=frontend.log
@@ -73,6 +75,7 @@ The `switchboard.env` contains the switchboard process settings such as:
 | LOG_FILE                        | switchboard.log                                  |
 | ERROR_LOG_WEBHOOK               | <URI of a webhook you want Error Logs posted to> |
 | CANARY_FORCE_HTTPS              | force `https` protocol scheme for Canarytokens   |
+| CANARY_LAMBDA_AWS_CRED_REPORT_AUTH | <shared credential report checker auth token> |
 
 Please note that when choosing which email provider you would like to use, you **MUST** only provide
 information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` then you must remove the others such as
@@ -81,8 +84,16 @@ information related to that provider. E.g. if you have `CANARY_MAILGUN_API_KEY` 
 If you are using Mailgun's European infrastructure for your Canarytokens Server, you will need to add `CANARY_MAILGUN_BASE_URL=https://api.eu.mailgun.net` to your `switchboard.env`. If you do not specify that,
 we will use the regular URL as 'https://api.mailgun.net' as the default.
 
-Lastly, we have added the ability to specify your own AWSID lambda so that you may host your own. The setting is placed in
-`frontend.env` under `CANARY_AWSID_URL`. If this value is not specified, it will use our default hosted lambda.
+### AWS ID infrastructure
+
+AWS API key Canarytokens use AWS-side infrastructure to allocate IAM users and run safety-net checks. That infrastructure has moved to a private repo.
+
+This repo still owns the Canarytokens-facing integration points:
+
+* `CANARY_AWSID_URL` in `frontend.env` is the API Gateway/Lambda URL for the `LinkAWSIDTokenUserToCanaryConsole` endpoint managed from the private repo.
+* `CANARY_AWSID_AUTH` in `frontend.env` must match the auth token in the AWS ID secret. The frontend sends `domain`, `token`, and `auth` when creating an AWS key token.
+* If either `CANARY_AWSID_URL` or `CANARY_AWSID_AUTH` is unset, AWS key token creation is disabled for this Canarytokens instance.
+* `CANARY_LAMBDA_AWS_CRED_REPORT_AUTH` in `switchboard.env` enables the `/a/cr` callback used by the AWS ID credential report checker.
 
 ### Configuration of Outgoing SMTP
 

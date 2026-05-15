@@ -29,10 +29,7 @@ from canarytokens.utils import coerce_to_float
 
 log = Logger()
 
-# from jinja2 import Environment, FileSystemLoader
 
-
-# from canarytokens.settings import
 class CanarytokenPage(InputChannel, resource.Resource):
     CHANNEL = INPUT_CHANNEL_HTTP
     isLeaf = True
@@ -51,6 +48,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         unique_channel: bool = False,
     ) -> None:
         name = name or self.CHANNEL
+        self.switchboard_settings = switchboard.switchboard_settings
         super().__init__(
             switchboard,
             switchboard_scheme,
@@ -93,7 +91,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
             )
             request.setHeader("Content-Type", "image/gif")
             return GIF
-
         try:
             canarydrop = get_canarydrop(canarytoken)
         except NoCanarydropFound as e:
@@ -124,6 +121,12 @@ class CanarytokenPage(InputChannel, resource.Resource):
                     "icon": canarydrop.pwa_icon.value,
                 }
                 return template.render(**params).encode()
+
+        if canarydrop.type == TokenTypes.AWS_KEYS:
+            token_hit = Canarytoken._parse_aws_key_trigger(request)
+            canarydrop.add_canarydrop_hit(token_hit=token_hit)
+            self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            return b"success"
 
         try:
             handler = getattr(Canarytoken, f"_get_info_for_{canarydrop.type}")
@@ -177,6 +180,9 @@ class CanarytokenPage(InputChannel, resource.Resource):
         return b""
 
     def render_POST(self, request: Request):  # noqa: C901
+        if request.path == b"/a/cr":
+            return self.credential_report_trigger(request)
+
         try:
             token = Canarytoken(value=request.path)
         except NoCanarytokenFound:
@@ -298,6 +304,49 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return b"success"
         return self.render_GET(request)
 
+    def credential_report_trigger(self, request: Request):
+        """
+        A special use case POST endpoint for AWS Credential Report triggers. This is separate from the normal
+        render_POST flow because we are checking for very specific arguments from our AWS API Key Canarytoken
+        Infrastructure.
+        """
+        lambda_auth = self.switchboard_settings.LAMBDA_AWS_CRED_REPORT_AUTH
+        if lambda_auth is None:
+            return GIF
+        data: dict[str, list[str]] = {
+            k.decode(): [o.decode() for o in v] for k, v in request.args.items()
+        }
+        canarytoken = data.get("canarytoken", [None])[0]
+        auth = data.get("auth", [None])[0]
+
+        if auth is None or auth != lambda_auth:
+            return GIF
+
+        if canarytoken is None:
+            log.warning("Credential report trigger called without canarytoken")
+            return GIF
+        try:
+            token = Canarytoken(value=canarytoken)
+            canarydrop = get_canarydrop(token)
+            token_hit = Canarytoken._parse_aws_key_trigger(request)
+            last_hit = (
+                canarydrop.triggered_details.hits[-1].time_of_hit
+                if canarydrop.triggered_details.hits
+                else 0
+            )
+            if last_hit < token_hit.time_of_hit:
+                canarydrop.add_canarydrop_hit(token_hit=token_hit)
+                self.dispatch(canarydrop=canarydrop, token_hit=token_hit)
+            else:
+                log.info(
+                    f"Ignoring AWS Credentials Report trigger for {canarytoken} with access time {token_hit.time_of_hit}"
+                )
+        except (NoCanarytokenFound, NoCanarydropFound):
+            log.warning("No Canarytoken found in request")
+        except Exception as e:
+            log.critical(f"Exception was {e}, {type(e)}")
+        return GIF
+
 
 class ChannelHTTP:
     def __init__(
@@ -307,7 +356,6 @@ class ChannelHTTP:
         switchboard: Switchboard,
     ):
         self.port = switchboard_settings.CHANNEL_HTTP_PORT
-
         self.canarytoken_page = CanarytokenPage(
             switchboard=switchboard,
             switchboard_hostname=frontend_settings.DOMAINS[0],
