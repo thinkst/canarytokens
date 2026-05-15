@@ -15,7 +15,7 @@ from .common import (
 
 
 class AWSAccountNumber(ConstrainedStr):
-    regex = r"\d{12}"
+    regex = r"^\d{12}$"
 
 
 class AWSInfraAssetType(enum.StrEnum):
