@@ -64,7 +64,7 @@ class SwitchboardSettings(BaseSettings):
     SWITCHBOARD_LOG_COUNT: Optional[int] = 20
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
-    LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str]
+    LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
 
     class Config:
         allow_mutation = False
@@ -107,8 +107,8 @@ class FrontendSettings(BaseSettings):
     DEV_BUILD_ID: Optional[str]
 
     # 3rd party settings
-    AWSID_URL: Optional[HttpUrl]
-    AWSID_AUTH: Optional[str]
+    AWSID_URL: Optional[HttpUrl] = None
+    AWSID_AUTH: Optional[str] = None
     TESTING_AWS_ACCESS_KEY_ID: Optional[str] = ""
     TESTING_AWS_SECRET_ACCESS_KEY: Optional[str] = ""
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
