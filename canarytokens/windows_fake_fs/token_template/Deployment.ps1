@@ -163,6 +163,10 @@ function Remove-ProjFS {
     Invoke-Step "Removing folder" {
         cmd /c rmdir /s /q "$RootPath"
     }
+    
+    Invoke-Step "Removing Scheduled Task" {
+        schtasks /delete /TN $TaskName /F
+    }
 
     if ((Test-Path -Path $RootPath -PathType Container) -and
         ($null -ne (Get-ChildItem -Path $RootPath -Force))) {
