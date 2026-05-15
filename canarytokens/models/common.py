@@ -218,9 +218,6 @@ class TokenRequest(BaseModel):
 class TokenEditRequest(BaseModel):
     canarytoken: str
     auth_token: str
-    email: Optional[EmailStr]
-    webhook_url: Optional[HttpUrl]
-    memo: Optional[Memo]
 
 
 class TokenResponse(BaseModel):
