@@ -21,6 +21,7 @@ from hashlib import md5
 from pathlib import Path
 from urllib.parse import quote
 from typing import Literal, Optional, Union
+from canarytokens.models.aws_infra import AWSAccountNumber, AWSRegion
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
@@ -147,8 +148,8 @@ class Canarydrop(BaseModel):
     aws_output: Optional[str] = Field(alias="output")
 
     # AWS key and AWS infra stuff
-    aws_account_id: Optional[str]
-    aws_region: Optional[str] = Field(alias="region")
+    aws_account_id: Optional[AWSAccountNumber]
+    aws_region: Optional[AWSRegion] = Field(alias="region")
 
     # AWS  infra specific stuff
     aws_customer_iam_access_external_id: Optional[str]
@@ -350,10 +351,8 @@ class Canarydrop(BaseModel):
                 AWSInfraState.INVENTORY,
             ]
         ):
-            for field in edit_request:
-                if field in ["token", "auth"]:
-                    continue
-            setattr(self, field[0], field[1])
+            self.aws_account_id = edit_request.aws_account_number
+            self.aws_region = edit_request.aws_region
             queries.save_canarydrop(self)
             return True
         else:
