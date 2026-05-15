@@ -484,16 +484,16 @@ def test_GET_aws_token_back(
     )
     queries.save_canarydrop(cd)
 
+    IP_ADDRESS = "172.253.205.33"
+    EVENT = "GetCallerIdentity"
+    ACCOUNT_ID = "123456789012"
+    USER_AGENT = "Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
     request = create_dummy_request(cd)
     request.args = {
-        b"ip": [base64.b64encode(b"172.253.205.33")],
-        b"ag": [
-            base64.b64encode(
-                b"Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
-            )
-        ],
-        b"ev": [base64.b64encode(b"GetCallerIdentity")],
-        b"acc": [base64.b64encode(b"123456789012")],
+        b"ip": [base64.b64encode(IP_ADDRESS.encode())],
+        b"ag": [base64.b64encode(USER_AGENT.encode())],
+        b"ev": [base64.b64encode(EVENT.encode())],
+        b"acc": [base64.b64encode(ACCOUNT_ID.encode())],
     }
     request.method = b"GET"
 
@@ -504,10 +504,10 @@ def test_GET_aws_token_back(
     assert cd_updated is not None
     assert len(cd_updated.triggered_details.hits) == 1
     hit = cd_updated.triggered_details.hits[0]
-    assert hit.additional_info.aws_key_log_data["eventName"] == ["GetCallerIdentity"]
-    assert hit.additional_info.aws_key_log_data["accountId"] == ["123456789012"]
-    assert hit.useragent == "Boto3/1.20.46 Python/3.9.10 Darwin/21.4.0 Botocore/1.23.46"
-    assert hit.src_ip == "172.253.205.33"
+    assert hit.additional_info.aws_key_log_data["eventName"] == [EVENT]
+    assert hit.additional_info.aws_key_log_data["accountId"] == [ACCOUNT_ID]
+    assert hit.useragent == USER_AGENT
+    assert hit.src_ip == IP_ADDRESS
     assert cd.type == cd_updated.type
 
 
