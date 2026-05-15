@@ -310,9 +310,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
         render_POST flow because we are checking for very specific arguments from our AWS API Key Canarytoken
         Infrastructure.
         """
-        lambda_auth = getattr(
-            self.switchboard_settings, "LAMBDA_AWS_CRED_REPORT_AUTH", None
-        )
+        lambda_auth = self.switchboard_settings.LAMBDA_AWS_CRED_REPORT_AUTH
         if lambda_auth is None:
             return GIF
         data: dict[str, list[str]] = {
