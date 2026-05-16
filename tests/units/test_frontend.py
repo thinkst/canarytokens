@@ -1,8 +1,10 @@
 import inspect
+import io
 import json
 import os
 import re
 from unittest import mock
+import zipfile
 
 import pytest
 from fastapi.testclient import TestClient
@@ -36,6 +38,7 @@ from canarytokens.models import (
     DownloadMSExcelRequest,
     DownloadMSWordRequest,
     DownloadMySQLRequest,
+    DownloadNPMPublishRequest,
     DownloadPDFRequest,
     DownloadQRCodeRequest,
     DownloadSVGRequest,
@@ -52,6 +55,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    NPMPublishTokenRequest,
+    NPMPublishTokenResponse,
     PWATokenRequest,
     PWATokenResponse,
     PageRequest,
@@ -170,6 +175,7 @@ set_of_unsupported_request_classes = [
     CreditCardV2TokenRequest,
     AWSInfraTokenRequest,  # no download
     CrowdStrikeCCTokenRequest,  # requires external gateway
+    NPMPublishTokenRequest,  # requires external gateway
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -181,6 +187,7 @@ set_of_unsupported_response_classes = [
     CreditCardV2TokenResponse,
     AWSInfraTokenResponse,  # no download
     CrowdStrikeCCTokenResponse,  # requires external gateway
+    NPMPublishTokenResponse,  # requires external gateway
 ]
 
 if not FrontendSettings("../frontend/frontend.env").WEBDAV_SERVER:
@@ -699,7 +706,147 @@ def test_aws_keys(
         token_info = AWSKeyTokenResponse(**resp.dict())
         assert token_info.aws_secret_access_key
         assert token_info.region == "us-east-2"
-        assert token_info.output == "json"
+    assert token_info.output == "json"
+
+
+def test_npm_publish_token(
+    frontend_settings: FrontendSettings,
+    setup_db: None,
+) -> None:
+    npm_create_url = "https://example.com/create"
+    local_settings = FrontendSettings(
+        NPM_PUBLISH_CREATE_URL=HttpUrl(npm_create_url, scheme="https"),
+        **{
+            k: v
+            for k, v in frontend_settings.dict().items()
+            if k != "NPM_PUBLISH_CREATE_URL"
+        },
+    )
+    from frontend.app import _create_npm_publish_token_response
+
+    token_request_details = NPMPublishTokenRequest(
+        webhook_url="https://slack.com/api/api.test",
+        memo=Memo("Testing npm publish token generation in frontend"),
+    )
+
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_request_details.token_type,
+        alert_email_enabled=False,
+        alert_webhook_enabled=True,
+        alert_webhook_url=token_request_details.webhook_url,
+        canarytoken=canarytoken,
+        memo=token_request_details.memo,
+    )
+
+    canary_http_channel = f"http://{local_settings.DOMAINS[0]}"
+    cd.get_url([canary_http_channel])
+    cd.generated_hostname = cd.get_hostname()
+    save_canarydrop(cd)
+
+    with mock.patch(
+        "frontend.app.get_npm_publish_token",
+        return_value={
+            "token": "npm-test-token",
+            "token_id": "npm-test-token-id",
+            "package_name": "@thinkst/canary-test",
+            "package_version": "0.0.2",
+        },
+    ):
+        resp = _create_npm_publish_token_response(
+            token_request_details=token_request_details,
+            canarydrop=cd,
+            settings=local_settings,
+        )
+
+    token_info = NPMPublishTokenResponse(**resp.dict())
+    assert token_info.npm_token == "npm-test-token"
+    assert token_info.npm_package_name == "@thinkst/canary-test"
+    updated_cd = queries.get_canarydrop(canarytoken=canarytoken)
+    assert updated_cd.npm_token_id == "npm-test-token-id"
+    assert updated_cd.npm_package_version == "0.0.2"
+
+
+def test_npm_publish_token_broken(
+    frontend_settings: FrontendSettings,
+    setup_db: None,
+) -> None:
+    npm_create_url = "https://example.com/create"
+    local_settings = FrontendSettings(
+        NPM_PUBLISH_CREATE_URL=HttpUrl(npm_create_url, scheme="https"),
+        **{
+            k: v
+            for k, v in frontend_settings.dict().items()
+            if k != "NPM_PUBLISH_CREATE_URL"
+        },
+    )
+    from frontend.app import _create_npm_publish_token_response
+
+    token_request_details = NPMPublishTokenRequest(
+        webhook_url="https://slack.com/api/api.test",
+        memo=Memo("Testing npm publish token failure in frontend"),
+    )
+
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=token_request_details.token_type,
+        alert_email_enabled=False,
+        alert_webhook_enabled=True,
+        alert_webhook_url=token_request_details.webhook_url,
+        canarytoken=canarytoken,
+        memo=token_request_details.memo,
+    )
+
+    canary_http_channel = f"http://{local_settings.DOMAINS[0]}"
+    cd.get_url([canary_http_channel])
+    cd.generated_hostname = cd.get_hostname()
+    save_canarydrop(cd)
+
+    with mock.patch("frontend.app.get_npm_publish_token", side_effect=RuntimeError):
+        resp = _create_npm_publish_token_response(
+            token_request_details=token_request_details,
+            canarydrop=cd,
+            settings=local_settings,
+        )
+
+    assert resp.status_code == 400
+    assert b"Failed to generate npm publish canary token." in resp.body
+
+
+def test_npm_publish_download(
+    test_client: TestClient,
+    setup_db: None,
+) -> None:
+    canarytoken = Canarytoken()
+    cd = canarydrop.Canarydrop(
+        type=TokenTypes.NPM_PUBLISH,
+        alert_email_enabled=False,
+        alert_webhook_enabled=True,
+        alert_webhook_url="https://slack.com/api/api.test",
+        canarytoken=canarytoken,
+        memo=Memo("Testing npm publish download"),
+        npm_token="npm-test-token",
+        npm_token_id="npm-test-token-id",
+        npm_package_name="@thinkst/canary-test",
+        npm_package_version="0.0.2",
+    )
+    save_canarydrop(cd)
+
+    resp_dl = test_client.get(
+        api_path("/download"),
+        params=DownloadNPMPublishRequest(
+            token=cd.canarytoken.value(),
+            auth=cd.auth,
+        ).dict(),
+    )
+
+    assert resp_dl.status_code == 200
+    with zipfile.ZipFile(io.BytesIO(resp_dl.content)) as zf:
+        assert "canary-test/.npmrc" in zf.namelist()
+        assert (
+            json.loads(zf.read("canary-test/package.json"))["name"]
+            == "@thinkst/canary-test"
+        )
 
 
 @pytest.fixture(scope="function")
