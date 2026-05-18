@@ -19,6 +19,7 @@ from .common import (
 class CreditCardV2AdditionalInfo(BaseModel):
     merchant: Optional[str]
     merchant_identifier: Optional[str]
+    acquirer_identifier: Optional[str]
     transaction_amount: Optional[str]
     transaction_currency: Optional[str]
     masked_card_number: Optional[str]
