@@ -31,7 +31,7 @@
         :id="label"
         :code="code"
         :lang="lang"
-        class="min-h-[3.5rem] overflow-scroll rounded-2xl"
+        class="min-h-[3.5rem] overflow-auto rounded-2xl"
         :style="{
           height: componentHeight,
         }"
