@@ -712,10 +712,25 @@ def is_email_blocked(email):
     ) or DB.get_db().sismember(KEY_EMAIL_BLOCK_LIST, san)
 
 
-def is_tor_relay(ip):
+def is_tor_relay(ip, force_update=False) -> Optional[bool]:
     if not DB.get_db().exists(KEY_TOR_EXIT_NODES):
-        update_tor_exit_nodes_loop()  # FIXME: DESIGN: we call deferred and expect a result in redis, Now!
-    return DB.get_db().sismember(KEY_TOR_EXIT_NODES, json.dumps(ip))
+        if force_update:
+            # This function previously tried updating exit node list any time
+            # the list was missing.  This was resulting in rate limiting
+            # failures, at least during CI pipelines.  The force_update argument
+            # added with this comment can selectively restore the previous
+            # functionality if needed but may be removed entirely if sticking to
+            # the normal 30 minute update cycle in switchboard proves
+            # sufficient.
+            update_tor_exit_nodes()
+        return None
+    else:
+        return bool(DB.get_db().sismember(KEY_TOR_EXIT_NODES, ip))
+
+
+def clear_tor_exit_nodes():
+    DB.get_db().delete(KEY_TOR_EXIT_NODES)
+
 
 @inlineCallbacks
 def update_tor_exit_nodes():
@@ -753,10 +768,8 @@ def update_tor_exit_nodes():
 
     DB.get_db().delete(KEY_TOR_EXIT_NODES)
     DB.get_db().sadd(KEY_TOR_EXIT_NODES, *ips)
+    return ips
 
-
-def update_tor_exit_nodes_loop():
-    update_tor_exit_nodes()
 
 def get_certificate(key) -> models.KubeCerts:
     certificate = DB.get_db().hgetall("{}{}".format(KEY_KUBECONFIG_CERTS, key))
