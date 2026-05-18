@@ -488,7 +488,6 @@ def test_update_tor_exit_nodes_http_not_ok(monkeypatch):
     with capturedLogs() as captured:
         yield queries.update_tor_exit_nodes()
 
-    print(captured, len(captured))
     assert "Failed to update tor exit nodes" in captured[0]["log_format"]
     assert captured[0]["log_level"] == LogLevel.error
 
