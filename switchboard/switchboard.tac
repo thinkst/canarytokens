@@ -24,7 +24,7 @@ from canarytokens.loghandlers import WebhookLogObserver
 from canarytokens.queries import (
     add_return_for_token,
     set_ip_info_api_key,
-    update_tor_exit_nodes_loop,
+    update_tor_exit_nodes,
 )
 from canarytokens.redismanager import DB
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
@@ -172,7 +172,7 @@ canarytokens_wireguard = ChannelWireGuard(
 canarytokens_wireguard.service.setServiceParent(application)
 
 # loop to update tor exit nodes every 30 min
-loop_http = internet.task.LoopingCall(update_tor_exit_nodes_loop)
+loop_http = internet.task.LoopingCall(update_tor_exit_nodes)
 loop_http.start(1800)
 
 # Start the cleanup daemon for inactive AWS infra canarydrops.
