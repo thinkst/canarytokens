@@ -14,24 +14,33 @@ on:
         required: false
         default: "master"
 
+permissions: {}
+
 jobs:
   build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
     env:
       COPYFILE_DISABLE: 1
 
     steps:
       - name: set Canarytokens Docker repo branch
+        env:
+          INPUT_BRANCH: ${{ github.event.inputs.canarytokens-docker-branch }}
         run: |
-          if [ -z "${{ github.event.inputs.canarytokens-docker-branch }}" ]; then
+          if [ -z "$INPUT_BRANCH" ]; then
             BRANCH="master"
           else
-            BRANCH="${{ github.event.inputs.canarytokens-docker-branch }}"
+            BRANCH="$INPUT_BRANCH"
           fi
           echo "CANARYTOKENS_DOCKER_BRANCH=$BRANCH" >> "$GITHUB_ENV"
 
 
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        with:
+          persist-credentials: false
 
       - name: Fetch dockerfile
         run: |
@@ -40,17 +49,17 @@ jobs:
             -o dockerfiles/Dockerfile.ci
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5.5.1
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: |
             thinkst/canarytokens
@@ -66,7 +75,7 @@ jobs:
 
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v6.8.0
+        uses: docker/build-push-action@32945a339266b759abcbdc89316275140b0fc960 # v6.8.0
         with:
           context: .
           file: dockerfiles/Dockerfile.ci
