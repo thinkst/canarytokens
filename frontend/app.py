@@ -613,7 +613,7 @@ async def api_generate(  # noqa: C901  # gen is large
             # raise HTTPException(status_code=400, detail="Email is blocked.")
             return response_error(
                 6,
-                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
+                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/nest/legal",
             )
 
     if token_request_details.token_type == TokenTypes.CREDIT_CARD_V2:
