@@ -290,6 +290,7 @@ vue_index = Jinja2Templates(directory="../dist/")
 
 
 @app.get("/")
+@app.get("/legal")
 @app.get("/nest/legal")
 @app.get("/manage")
 @app.get("/nest/manage/{rest_of_path:path}")
@@ -613,7 +614,7 @@ async def api_generate(  # noqa: C901  # gen is large
             # raise HTTPException(status_code=400, detail="Email is blocked.")
             return response_error(
                 6,
-                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/legal",
+                "Blocked email supplied. Please see our Acceptable Use Policy at https://canarytokens.org/nest/legal",
             )
 
     if token_request_details.token_type == TokenTypes.CREDIT_CARD_V2:
