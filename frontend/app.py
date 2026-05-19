@@ -290,6 +290,7 @@ vue_index = Jinja2Templates(directory="../dist/")
 
 
 @app.get("/")
+@app.get("/legal")
 @app.get("/nest/legal")
 @app.get("/manage")
 @app.get("/nest/manage/{rest_of_path:path}")
