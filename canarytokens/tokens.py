@@ -409,7 +409,7 @@ class Canarytoken(object):
         hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
         try:
             new_infra_user_agent = base64.b64decode(data.get("ag", [""])[0]).decode()
-        except binascii.Error:
+        except (binascii.Error, UnicodeDecodeError):
             new_infra_user_agent = None
 
         user_agent = new_infra_user_agent or data["user_agent"][0]
@@ -419,7 +419,7 @@ class Canarytoken(object):
 
         try:
             new_infra_src_ip = base64.b64decode(data.get("ip", [""])[0]).decode()
-        except binascii.Error:
+        except (binascii.Error, UnicodeDecodeError):
             new_infra_src_ip = None
 
         src_ip = new_infra_src_ip or data["ip"][0]
