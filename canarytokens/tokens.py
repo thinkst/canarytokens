@@ -592,14 +592,17 @@ class Canarytoken(object):
         if merchant := request_data.get("merchant") or request_data.get(
             "merchant_detail"
         ):
-            merchant_identifier = merchant.get("identifier") or merchant.get(
-                "merchant_id"
-            )
-
             if merchant_identifier := merchant.get("identifier") or merchant.get(
                 "merchant_id"
             ):
                 request_data["merchant_identifier"] = merchant_identifier
+
+            if acquirer_identifier := merchant.get("acquirer_id"):
+                request_data["acquirer_identifier"] = acquirer_identifier
+            elif acquirer_identifier := request_data.get(
+                "acquiring_institution_identifier"
+            ):
+                request_data["acquirer_identifier"] = acquirer_identifier
 
             request_data["merchant"] = ", ".join(
                 v

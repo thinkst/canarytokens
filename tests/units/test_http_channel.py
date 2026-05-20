@@ -561,6 +561,7 @@ def test_POST_cc_token_v2_back(
     )
 
     merchant_identifier = "MID123456789"
+    acquirer_identifier = "AID987654321"
     merchant_name = "ACME Airline Co."
     merchant_city = "New York"
     merchant_country = "US"
@@ -576,6 +577,7 @@ def test_POST_cc_token_v2_back(
         "transaction_currency": currency,
         "merchant_detail": {
             "identifier": merchant_identifier,
+            "acquirer_id": acquirer_identifier,
             "name": merchant_name,
             "city": merchant_city,
             "country": merchant_country,
@@ -601,6 +603,7 @@ def test_POST_cc_token_v2_back(
     hit_info = hit.additional_info
 
     assert hit_info.merchant_identifier == merchant_identifier
+    assert hit_info.acquirer_identifier == acquirer_identifier
     assert hit_info.masked_card_number == masked_card
     assert hit_info.transaction_amount == amount
     assert hit_info.transaction_currency == currency

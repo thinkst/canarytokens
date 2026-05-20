@@ -252,6 +252,7 @@ export type AdditionalInfoType = {
   useragent?: null | string;
   merchant?: string;
   merchant_identifier?: string;
+  acquirer_identifier?: string;
   transaction_amount?: string;
   transaction_currency?: string;
   masked_card_number?: string;
@@ -282,6 +283,7 @@ export type HitsType = {
   amount?: string | null;
   merchant?: string | null;
   merchant_identifier?: string | null;
+  acquirer_identifier?: string | null;
   mail?: string | null;
   referer?: string | null;
   referrer?: string | null;
