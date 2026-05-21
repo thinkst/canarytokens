@@ -180,6 +180,8 @@ jobs:
   trigger_playwright:
       needs: test-gate
       if: ${{ always() && needs.test-gate.result == 'success' && needs.test-gate.outputs.ran_any == 'true' }}
+      permissions:
+        contents: read
       uses: ./.github/workflows/playwright.yml
       with:
         branch: "${{ github.ref_name }}"
