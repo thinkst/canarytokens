@@ -17,6 +17,7 @@ on:
         required: false
 jobs:
   tests:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
     runs-on: ubuntu-latest
     env:
       AWS_REGION: 'eu-west-1'
