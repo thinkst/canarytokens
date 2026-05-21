@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   # All development happens in this container.
   app:
@@ -33,7 +31,7 @@ services:
     links:
       - redis
   redis:
-    image: redis
+    image: redis:7.0.10
     container_name: "redis-store"
     volumes:
       - db-data:/data
