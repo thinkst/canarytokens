@@ -457,6 +457,12 @@ def get_geoinfo(ip: str):
     if ip.lower() == "aws internal":
         return None
 
+    try:
+        ipaddress.ip_address(ip)
+    except ValueError:
+        log.warn(f"Invalid IP address provided for geoinfo lookup: {ip}")
+        return None
+
     if is_ip_cached(ip):
         return get_geoinfo_from_cache(ip)
     else:
@@ -716,6 +722,13 @@ def is_tor_relay(ip: str) -> Optional[bool]:
     if not DB.get_db().exists(KEY_TOR_EXIT_NODES):
         log.warn("is_tor_relay used before exit node list exists")
         return None
+
+    try:
+        ipaddress.ip_address(ip)
+    except ValueError:
+        log.warn(f"Invalid IP address provided for TOR relay check: {ip}")
+        return None
+
     return bool(DB.get_db().sismember(KEY_TOR_EXIT_NODES, ip))
 
 
