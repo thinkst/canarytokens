@@ -675,6 +675,22 @@ def test_log_4_shell_token_response():
     assert Log4ShellTokenResponse._token_marker in resp.token_with_usage_info
 
 
+def test_aws_key_notification_additional_data_includes_log_data():
+    hit = AWSKeyTokenHit(
+        time_of_hit=1652815479.13329,
+        src_ip="127.0.0.1",
+        input_channel="HTTP",
+        user_agent="Boto3/1.20.46",
+        additional_info={
+            "AWS Key Log Data": {"eventName": ["GetCallerIdentity"]},
+        },
+    )
+
+    additional_data = hit.get_additional_data_for_notification()
+
+    assert additional_data["aws_key_log_data"]["eventName"] == ["GetCallerIdentity"]
+
+
 @pytest.mark.parametrize(
     "data,expect_success",
     [

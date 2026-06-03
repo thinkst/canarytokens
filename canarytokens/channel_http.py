@@ -323,7 +323,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             return GIF
 
         if canarytoken is None:
-            log.warning("Credential report trigger called without canarytoken")
+            log.info("Credential report trigger called without canarytoken")
             return GIF
         try:
             token = Canarytoken(value=canarytoken)
@@ -342,7 +342,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
                     f"Ignoring AWS Credentials Report trigger for {canarytoken} with access time {token_hit.time_of_hit}"
                 )
         except (NoCanarytokenFound, NoCanarydropFound):
-            log.warning("No Canarytoken found in request")
+            log.info("No Canarytoken found in request")
         except Exception as e:
             log.critical(f"Exception was {e}, {type(e)}")
         return GIF

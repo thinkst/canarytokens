@@ -396,6 +396,46 @@ def test_get_geoinfo_aws_internal():
     assert info is None
 
 
+def test_get_geoinfo_invalid_ip_returns_none_without_lookup(monkeypatch):
+    def unexpected_lookup(*args, **kwargs):
+        pytest.fail("Invalid IP should not trigger a geo lookup")
+
+    monkeypatch.setattr(queries, "is_ip_cached", unexpected_lookup)
+    monkeypatch.setattr(queries, "get_geoinfo_from_ip", unexpected_lookup)
+
+    with capturedLogs() as captured:
+        info = queries.get_geoinfo("not-an-ip")
+
+    assert info is None
+    assert captured[0]["log_level"] == LogLevel.warn
+    assert (
+        "Invalid IP address provided for geoinfo lookup: not-an-ip"
+        in captured[0]["log_format"]
+    )
+
+
+def test_is_tor_relay_invalid_ip_returns_none_without_membership_lookup(monkeypatch):
+    class FakeRedis:
+        def exists(self, key):
+            assert key == KEY_TOR_EXIT_NODES
+            return 1
+
+        def sismember(self, *args, **kwargs):
+            pytest.fail("Invalid IP should not trigger a TOR membership lookup")
+
+    monkeypatch.setattr(queries.DB, "get_db", classmethod(lambda cls: FakeRedis()))
+
+    with capturedLogs() as captured:
+        is_relay = queries.is_tor_relay("not-an-ip")
+
+    assert is_relay is None
+    assert captured[0]["log_level"] == LogLevel.warn
+    assert (
+        "Invalid IP address provided for TOR relay check: not-an-ip"
+        in captured[0]["log_format"]
+    )
+
+
 def test_mail_queue(setup_db):
     details = make_token_alert_detail()
     mail_key = "some_unique_key"
@@ -475,14 +515,19 @@ def test_add_add_get_return_for_token(setup_db):
     queries.add_return_for_token("gif")
     assert queries.get_return_for_token() == "gif"
 
+
 @inlineCallbacks
 def test_update_tor_exit_nodes_http_not_ok(monkeypatch):
     class MockResponse:
         code = 404
+
     class MockAgent:
-        def __init__(self, reactor): pass
+        def __init__(self, reactor):
+            pass
+
         def request(self, method, url):
             return succeed(MockResponse())
+
     monkeypatch.setattr(queries, "Agent", MockAgent)
 
     with capturedLogs() as captured:
@@ -491,15 +536,21 @@ def test_update_tor_exit_nodes_http_not_ok(monkeypatch):
     assert "Failed to update tor exit nodes" in captured[0]["log_format"]
     assert captured[0]["log_level"] == LogLevel.error
 
+
 @inlineCallbacks
 def test_update_tor_exit_nodes(setup_db, monkeypatch):
     db: StrictRedis = setup_db
+
     class MockResponse:
         code = 200
+
     class MockAgent:
-        def __init__(self, reactor): pass
+        def __init__(self, reactor):
+            pass
+
         def request(self, method, url):
             return succeed(MockResponse())
+
     def mock_read(url):
         return succeed(b"""\
 ExitNode 46F8D3CCA2FE7C8D4907930CF0B8871BE7EA98E4
@@ -514,8 +565,7 @@ ExitNode 5D84900DBE6D6365684A9675B81A68ACE9577A68
 Published 2026-04-14 04:17:21
 LastStatus 2026-04-14 06:00:00
 ExitAddress 104.244.73.193 2026-04-14 06:33:13
-"""
-        )
+""")
 
     monkeypatch.setattr(queries, "Agent", MockAgent)
     monkeypatch.setattr(queries, "readBody", mock_read)
@@ -525,6 +575,7 @@ ExitAddress 104.244.73.193 2026-04-14 06:33:13
     nodes = db.smembers(KEY_TOR_EXIT_NODES)
     for ip in ("38.135.24.245", "104.244.73.43", "104.244.73.193"):
         assert ip in nodes
+
 
 @pytest.mark.parametrize(
     "target, expect_block",

@@ -9,6 +9,15 @@ from canarytokens.exceptions import NoCanarytokenFound
 from canarytokens.models import TokenTypes
 
 
+class MockRequest:
+    def __init__(self, args):
+        self.args = args
+
+
+def base64_arg(value):
+    return base64.b64encode(value.encode())
+
+
 @pytest.mark.parametrize(
     "haystack, expected_token",
     [
@@ -251,6 +260,66 @@ def test_canarytoken_create_and_fetch():
     ct = t.Canarytoken()
     ct_new = t.Canarytoken(value=ct.value())
     assert ct_new.value() == ct.value()
+
+
+def test_parse_aws_key_trigger_uses_defaults_for_missing_optional_metadata(
+    monkeypatch,
+):
+    geo_info_ips = []
+    tor_relay_ips = []
+
+    monkeypatch.setattr(
+        t.queries, "get_geoinfo", lambda ip: geo_info_ips.append(ip) or None
+    )
+    monkeypatch.setattr(
+        t.queries, "is_tor_relay", lambda ip: tor_relay_ips.append(ip) or None
+    )
+
+    request = MockRequest(
+        {
+            b"ev": [base64_arg("GetCallerIdentity")],
+            b"acc": [base64_arg("123456789012")],
+        }
+    )
+
+    hit = t.Canarytoken._parse_aws_key_trigger(request)
+
+    assert hit.useragent == "(no user-agent specified)"
+    assert hit.src_ip == "(no source IP specified)"
+    assert geo_info_ips == ["(no source IP specified)"]
+    assert tor_relay_ips == ["(no source IP specified)"]
+    assert hit.additional_info.aws_key_log_data["eventName"] == ["GetCallerIdentity"]
+    assert hit.additional_info.aws_key_log_data["accountId"] == ["123456789012"]
+
+
+def test_parse_aws_key_trigger_uses_plain_ip_and_user_agent_for_old_infra(
+    monkeypatch,
+):
+    geo_info_ips = []
+    tor_relay_ips = []
+
+    monkeypatch.setattr(
+        t.queries, "get_geoinfo", lambda ip: geo_info_ips.append(ip) or None
+    )
+    monkeypatch.setattr(
+        t.queries, "is_tor_relay", lambda ip: tor_relay_ips.append(ip) or False
+    )
+
+    request = MockRequest(
+        {
+            b"ev": [base64_arg("GetCallerIdentity")],
+            b"acc": [base64_arg("123456789012")],
+            b"ip": [b"1.2.3.4"],
+            b"user_agent": [b"aws-cli/2.0"],
+        }
+    )
+
+    hit = t.Canarytoken._parse_aws_key_trigger(request)
+
+    assert hit.src_ip == "1.2.3.4"
+    assert hit.useragent == "aws-cli/2.0"
+    assert geo_info_ips == ["1.2.3.4"]
+    assert tor_relay_ips == ["1.2.3.4"]
 
 
 @pytest.mark.parametrize(

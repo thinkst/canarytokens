@@ -45,6 +45,10 @@ Log4Shell hostname:
 SQL Server username:
   {{BasicDetails['sql_username']}}
 {% endif %}
+{% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['eventName'] +%}
+Event Name:
+  {{ BasicDetails['aws_key_log_data']['eventName'][0]}}
+{% endif %}
 {% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['service_used'] +%}
 Service Used:
   {{ BasicDetails['aws_key_log_data']['service_used'][0].upper()}}

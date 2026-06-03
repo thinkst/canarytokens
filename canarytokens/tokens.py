@@ -407,22 +407,37 @@ class Canarytoken(object):
             return AWSKeyTokenHit(**hit_info)
 
         hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
+        encoded_user_agent = data.get("ag", [""])[0]
         try:
-            new_infra_user_agent = base64.b64decode(data.get("ag", [""])[0]).decode()
+            new_infra_user_agent = (
+                base64.b64decode(encoded_user_agent).decode()
+                if encoded_user_agent
+                else None
+            )
         except (binascii.Error, UnicodeDecodeError):
             new_infra_user_agent = None
 
-        user_agent = new_infra_user_agent or data["user_agent"][0]
+        user_agent = (
+            new_infra_user_agent
+            or data.get("user_agent", [""])[0]
+            or "(no user-agent specified)"
+        )
 
         event_name = base64.b64decode(data.get("ev", [""])[0]).decode()
         account_id = base64.b64decode(data.get("acc", [""])[0]).decode()
 
+        encoded_src_ip = data.get("ip", [""])[0]
         try:
-            new_infra_src_ip = base64.b64decode(data.get("ip", [""])[0]).decode()
+            new_infra_src_ip = (
+                base64.b64decode(encoded_src_ip).decode() if encoded_src_ip else None
+            )
         except (binascii.Error, UnicodeDecodeError):
             new_infra_src_ip = None
 
-        src_ip = new_infra_src_ip or data["ip"][0]
+        src_ip = (
+            new_infra_src_ip or data.get("ip", [""])[0] or "(no source IP specified)"
+        )
+
         # DESIGN/TODO: this makes a call to third party ensure we happy with fails here
         #              and have default.
         geo_info = queries.get_geoinfo(ip=src_ip)
