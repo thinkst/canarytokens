@@ -85,6 +85,14 @@ class AWSKeyTokenHit(TokenHit):
                 return service_used
         return False
 
+    def get_additional_data_for_notification(self) -> dict[str, Any]:
+        additional_data = super().get_additional_data_for_notification()
+        if self.additional_info is not None:
+            additional_data["aws_key_log_data"] = dict(
+                self.additional_info.aws_key_log_data
+            )
+        return additional_data
+
     def serialize_for_v2(self) -> dict:
         """Serialize an `AWSKeyTokenHit` into a dict
         that holds the equivalent info in the v2 shape.
