@@ -1962,6 +1962,13 @@ def _create_crowdstrike_cc_token_response(
     canarydrop: Canarydrop,
     settings: Optional[FrontendSettings] = None,
 ) -> CrowdStrikeCCTokenResponse:
+    return JSONResponse(
+        {
+            "msg": "CrowdStrike API Key creation paused while CrowdStrike integration issues are being resolved."
+        },
+        status_code=SERVICE_UNAVAILABLE,
+    )
+
     if settings is None:
         settings = frontend_settings
 
