@@ -319,8 +319,8 @@
     <mj-raw>{% endif %}</mj-raw>
 
 
-    <!-- AWS Service Used  -->
-    <mj-raw>{% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['eventname'] %} </mj-raw>
+    <!-- AWS Event Name  -->
+    <mj-raw>{% if BasicDetails['aws_key_log_data'] and BasicDetails['aws_key_log_data']['eventName'] %} </mj-raw>
     <mj-wrapper padding="0px 30px 30px" background-color="#FFF">
       <mj-section background-color="#f6f8fb" border-radius="16px 16px">
         <mj-column width="100%" padding="0px">
@@ -332,7 +332,7 @@
               </td>
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Event Name</p>
-                <p style="font-weight:400;color:#060606;margin:0;">{{ BasicDetails['aws_key_log_data']['eventname'][0].upper() | e}}</p>
+                <p style="font-weight:400;color:#060606;margin:0;">{{ BasicDetails['aws_key_log_data']['eventName'][0] | e}}</p>
               </td>
             </tr>
 

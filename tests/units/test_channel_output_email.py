@@ -135,6 +135,37 @@ def test_aws_keys_safetynet_rendered_html(settings: SwitchboardSettings):
     assert "https://some.link/history/here" in email_template
 
 
+def test_aws_keys_event_name_rendered_in_notification_emails(
+    settings: SwitchboardSettings,
+):
+    details = TokenAlertDetails(
+        channel="HTTP",
+        token_type=TokenTypes.AWS_KEYS,
+        token=Canarytoken().value(),
+        src_ip="127.0.0.1",
+        time=datetime.datetime.now(),
+        memo="This is a test Memo",
+        manage_url="https://some.link/manage/here",
+        additional_data={
+            "aws_key_log_data": {"eventName": ["GetCallerIdentity"]},
+        },
+    )
+
+    email_template_html = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
+    )
+    email_template_text = EmailOutputChannel.format_token_alert_mail(
+        details,
+        Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}"),
+    )
+
+    assert "Event Name" in email_template_html
+    assert "GetCallerIdentity" in email_template_html
+    assert "Event Name" in email_template_text
+    assert "GetCallerIdentity" in email_template_text
+
+
 def test_aws_key_exposed_rendered_html(settings: SwitchboardSettings):
     memo = "This is a test Memo"
     manage_url = "https://some.link/manage/here"
