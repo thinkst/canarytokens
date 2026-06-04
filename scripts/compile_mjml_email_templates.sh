@@ -25,8 +25,8 @@ while IFS= read -r mjml_file; do
 done <<< "$staged_mjml_files"
 
 if [[ -n "$missing_generated_files" ]]; then
-  echo "Generated email templates are not staged:" >&2
-  printf "%s" "$missing_generated_files" >&2
-  echo "Run \`git add\` for the generated HTML files and commit again." >&2
+  echo "Generated email templates are not staged:"
+  printf "%s" "$missing_generated_files"
+  echo "Run \`git add\` for the generated HTML files and commit again."
   exit 1
 fi
