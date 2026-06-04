@@ -12,14 +12,21 @@ if ! command -v mjml >/dev/null 2>&1; then
   exit 1
 fi
 
+missing_generated_files=""
+
 while IFS= read -r mjml_file; do
   output_file="$(dirname "$mjml_file")/_generated_dont_edit_$(basename "$mjml_file" .mjml).html"
 
   mjml "$mjml_file" -o "$output_file"
 
   if [[ -z "$(git ls-files --cached -- "$output_file")" ]]; then
-    echo "Generated email template is not staged: $output_file" >&2
-    echo "Run \`git add $output_file\` and commit again." >&2
-    exit 1
+    missing_generated_files="${missing_generated_files}${output_file}"$'\n'
   fi
 done <<< "$staged_mjml_files"
+
+if [[ -n "$missing_generated_files" ]]; then
+  echo "Generated email templates are not staged:" >&2
+  printf "%s" "$missing_generated_files" >&2
+  echo "Run \`git add\` for the generated HTML files and commit again." >&2
+  exit 1
+fi
