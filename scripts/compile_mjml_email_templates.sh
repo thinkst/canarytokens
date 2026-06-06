@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-staged_mjml_files="$(git diff --cached --name-only --diff-filter=ACMR -- '*.mjml')"
-
-if [[ -z "$staged_mjml_files" ]]; then
+if (($# == 0)); then
   exit 0
 fi
 
@@ -14,7 +12,7 @@ fi
 
 missing_generated_files=""
 
-while IFS= read -r mjml_file; do
+for mjml_file in "$@"; do
   output_file="$(dirname "$mjml_file")/_generated_dont_edit_$(basename "$mjml_file" .mjml).html"
 
   mjml "$mjml_file" -o "$output_file"
@@ -22,7 +20,7 @@ while IFS= read -r mjml_file; do
   if [[ -z "$(git ls-files --cached -- "$output_file")" ]]; then
     missing_generated_files="${missing_generated_files}${output_file}"$'\n'
   fi
-done <<< "$staged_mjml_files"
+done
 
 if [[ -n "$missing_generated_files" ]]; then
   echo "Generated email templates are not staged:"

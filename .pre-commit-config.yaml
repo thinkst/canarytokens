@@ -2,7 +2,7 @@ exclude: >
   (?x)^(
       v2/|
       aws-token-infra/|
-      templates/ |
+      templates/(?!.*\.mjml$)|
       .devcontainer/devcontainer.json
   )
 fail_fast: true
@@ -50,5 +50,4 @@ repos:
         name: Compile MJML email templates
         entry: bash scripts/compile_mjml_email_templates.sh
         language: system
-        pass_filenames: false
-        always_run: true
+        files: '\.mjml$'
