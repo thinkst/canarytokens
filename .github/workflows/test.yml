@@ -6,6 +6,10 @@ on:
       - "master"
       - "dev"
       - "dev2"
+
+  # This is ordinarily dangerous on a public repo. Currently this workflow is only protected by the
+  # Github setting that limits workflow executions to members of the Github Org by
+  # default requiring approval otherwise.
   pull_request:
     branches:
       - "master"
@@ -56,11 +60,20 @@ jobs:
         python-version: ["3.13"]
 
     steps:
+      - name: Build a valid AWS role session name
+        id: aws-role-session-name
+        shell: bash
+        run: |
+          actor="${GITHUB_ACTOR//[^A-Za-z0-9+=,.@-]/-}"
+          workflow="${GITHUB_WORKFLOW//[^A-Za-z0-9+=,.@-]/-}"
+          role_session_name="GitHubActions-${actor}-${workflow}-${GITHUB_RUN_ID}-${GITHUB_RUN_NUMBER}"
+          echo "name=${role_session_name:0:64}" >> "$GITHUB_OUTPUT"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
         with:
           role-to-assume: arn:aws:iam::211125554061:role/Canarytokens-staging-github-action
-          role-session-name: GitHubActions-${{ github.actor }}-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}
+          role-session-name: ${{ steps.aws-role-session-name.outputs.name }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
