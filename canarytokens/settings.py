@@ -137,6 +137,8 @@ class FrontendSettings(BaseSettings):
     CREDIT_CARD_INFRA_REGION: Optional[str]
     CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
     CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
+    MCP_SERVER_URL: Optional[str]
+    MCP_SERVER_SECRET: Optional[str]
 
     AWS_INFRA_AWS_ACCOUNT: Optional[str]
     AWS_INFRA_AWS_REGION: Optional[str]

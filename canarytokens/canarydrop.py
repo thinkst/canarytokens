@@ -215,6 +215,10 @@ class Canarydrop(BaseModel):
 
     svg: Optional[str]
 
+    # MCP specific stuff
+    mcp_alert_on: Optional[str] = "tool_call"
+    mcpjson: Optional[str]
+
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):
         """

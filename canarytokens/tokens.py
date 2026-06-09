@@ -784,6 +784,21 @@ class Canarytoken(object):
         return Canarytoken._get_response_for_slow_redirect(canarydrop, request)
 
     @staticmethod
+    def _get_info_for_mcp(request: Request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        tool_called = request.args.get(b"tool_called", [None])[0]
+        ip = request.getHeader("X-Client-IP")
+        src_data = {"tool_called": tool_called, "ip": ip}
+        return http_general_info, src_data
+
+    @staticmethod
+    def _get_response_for_mcp(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_slow_redirect(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         location = request.args.get(b"l", [None])[0]

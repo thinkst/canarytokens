@@ -155,6 +155,8 @@ from canarytokens.models import (
     DownloadIncidentListJsonResponse,
     DownloadKubeconfigRequest,
     DownloadKubeconfigResponse,
+    DownloadMcpRequest,
+    DownloadMcpResponse,
     DownloadMSExcelRequest,
     DownloadMSExcelResponse,
     DownloadMSWordRequest,
@@ -177,6 +179,8 @@ from canarytokens.models import (
     Log4ShellTokenRequest,
     Log4ShellTokenResponse,
     ManageResponse,
+    McpTokenRequest,
+    McpTokenResponse,
     MsExcelDocumentTokenRequest,
     MsExcelDocumentTokenResponse,
     MsWordDocumentTokenRequest,
@@ -214,6 +218,7 @@ from canarytokens.models import (
 from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
+from canarytokens.mcp import make_canary_mcp_json
 from canarytokens.azure_css import (
     install_azure_css,
     EntraTokenErrorAccessDenied,
@@ -664,6 +669,7 @@ async def api_generate(  # noqa: C901  # gen is large
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
         expected_referrer=getattr(token_request_details, "expected_referrer", None),
+        mcp_alert_on=getattr(token_request_details, "mcp_alert_on", None),
         sql_server_sql_action=getattr(
             token_request_details, "sql_server_sql_action", None
         ),
@@ -1320,6 +1326,22 @@ def _(
             process_name=canarydrop.cmd_process,
         ),
         filename=f"{canarydrop.canarytoken.value()}.reg",
+    )
+
+
+@create_download_response.register
+def _(
+    download_request_details: DownloadMcpRequest, canarydrop: Canarydrop
+) -> DownloadMcpResponse:
+    """"""
+    return DownloadMcpResponse(
+        token=download_request_details.token,
+        auth=download_request_details.auth,
+        content=make_canary_mcp_json(
+            token_id=download_request_details.token,
+            alert_on_connect=canarydrop.mcp_alert_on == "connect",
+        ),
+        filename="mcp.json",
     )
 
 
@@ -2076,6 +2098,30 @@ def _(
             token_hostname=canarydrop.get_hostname(),
             process_name=canarydrop.cmd_process,
         ),
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: McpTokenRequest, canarydrop: Canarydrop
+) -> McpTokenResponse:
+    mcpjson = make_canary_mcp_json(
+        token_id=canarydrop.canarytoken.value(),
+        alert_on_connect=canarydrop.mcp_alert_on == "connect",
+    )
+    canarydrop.mcpjson = mcpjson
+    queries.save_canarydrop(canarydrop=canarydrop)
+    return McpTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=(
+            canarydrop.alert_webhook_url if canarydrop.alert_webhook_url else ""
+        ),
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        mcpjson=mcpjson,
     )
 
 
