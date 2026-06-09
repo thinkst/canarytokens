@@ -14,8 +14,8 @@ from .common import (
 
 class McpTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MCP] = TokenTypes.MCP
-    mcp_alert_on: str
-    gen_aws: Optional[bool]
+    mcp_alert_on: str = "connect"
+    gen_aws: Optional[bool] = False
 
 
 class McpTokenResponse(TokenResponse):
