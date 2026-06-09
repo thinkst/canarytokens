@@ -324,7 +324,9 @@ class Canarytoken(object):
         # TODO: Check how typical clients use 'x-forwarded-for'
         src_ip_chain = [o.strip() for o in src_ips.split(",")]
         # TODO: 'ts_key' -> which tokens fire this?
-        hit_time = request.args.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
+        hit_time = request.args.get(
+            "ts_key", [datetime.now(timezone.utc).strftime("%s.%f")]
+        )[0]
         flatten_singletons = lambda d: d[0] if len(d) == 1 else d  # noqa: E731
         request_headers = {
             k.decode(): flatten_singletons([s.decode() for s in v])
@@ -368,7 +370,7 @@ class Canarytoken(object):
 
         if "token_exposed" in data:
             exposed_time = data.get(
-                "exposed_time", [datetime.utcnow().strftime("%s.%f")]
+                "exposed_time", [datetime.now(timezone.utc).strftime("%s.%f")]
             )[0]
 
             public_location = data.get("public_location", [""])[0]
@@ -406,7 +408,7 @@ class Canarytoken(object):
             }
             return AWSKeyTokenHit(**hit_info)
 
-        hit_time = data.get("ts_key", [datetime.utcnow().strftime("%s.%f")])[0]
+        hit_time = data.get("ts_key", [datetime.now(timezone.utc).strftime("%s.%f")])[0]
         encoded_user_agent = data.get("ag", [""])[0]
         try:
             new_infra_user_agent = (
@@ -482,7 +484,7 @@ class Canarytoken(object):
             AzureIDTokenHit: Structured Azure Key Specific hit info.
         """
 
-        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_time = datetime.now(timezone.utc).strftime("%s.%f")
 
         json_data = json.loads(request.content.read())
         src_ip = json_data.get("ip", "127.0.0.1")
@@ -534,7 +536,7 @@ class Canarytoken(object):
     @staticmethod
     def _parse_slack_api_trigger(request):
         data = {k.decode(): [o.decode() for o in v] for k, v in request.args.items()}
-        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_time = datetime.now(timezone.utc).strftime("%s.%f")
         src_ip = data["ip"][0]
         geo_info = queries.get_geoinfo(ip=src_ip)
         is_tor_relay = queries.is_tor_relay(src_ip)
@@ -569,7 +571,7 @@ class Canarytoken(object):
         Returns:
             CrowdStrikeCCTokenHit: Structured CrowdStrike CC specific hit info.
         """
-        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_time = datetime.now(timezone.utc).strftime("%s.%f")
 
         json_data = json.loads(request.content.read())
         src_ip = json_data.get("src_ip", "127.0.0.1")
@@ -631,7 +633,7 @@ class Canarytoken(object):
 
         trigger_data = parse_obj_as(AnyCreditCardTrigger, request_data)
 
-        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_time = datetime.now(timezone.utc).strftime("%s.%f")
         hit_info = {
             "time_of_hit": hit_time,
             "input_channel": INPUT_CHANNEL_HTTP,
@@ -676,7 +678,7 @@ class Canarytoken(object):
     def _get_info_for_webdav(request: Request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         client_ip = request.getHeader("X-Client-Ip")
-        hit_time = datetime.utcnow().strftime("%s.%f")
+        hit_time = datetime.now(timezone.utc).strftime("%s.%f")
         hit_info = {
             "additional_info": WebDavAdditionalInfo(
                 file_path=request.getHeader("X-Alert-Path"),
@@ -787,9 +789,10 @@ class Canarytoken(object):
     def _get_info_for_mcp(request: Request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         tool_called = request.args.get(b"tool_called", [None])[0]
-        ip = request.getHeader("X-Client-IP")
-        src_data = {"tool_called": tool_called, "ip": ip}
-        return http_general_info, src_data
+        client_ip = request.args.get(b"client_ip", [None])[0]
+        if client_ip:
+            http_general_info["src_ip"] = client_ip.decode()
+        return http_general_info, {"tool_called": tool_called}
 
     @staticmethod
     def _get_response_for_mcp(
@@ -1130,7 +1133,7 @@ class Canarytoken(object):
         time_of_hit: Optional[str] = None,
     ):
         # DESIGN: we can do better. Dispatch on token_type.
-        time_of_hit = time_of_hit or datetime.utcnow().strftime("%s.%f")
+        time_of_hit = time_of_hit or datetime.now(timezone.utc).strftime("%s.%f")
         # DESIGN/TODO: 3rd party reliance here. we need to see how we fail safe here.
         hit_info["time_of_hit"] = time_of_hit
         hit_info["token_type"] = token_type

@@ -291,6 +291,7 @@ export type HitsType = {
   merchant_identifier?: string | null;
   acquirer_identifier?: string | null;
   mail?: string | null;
+  tool_called?: string | null;
   referer?: string | null;
   referrer?: string | null;
   location?: string | GeolocationPosition | CoordsType | null;

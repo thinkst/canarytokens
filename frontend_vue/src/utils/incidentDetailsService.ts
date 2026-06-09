@@ -29,6 +29,7 @@ export default function incidentDetailsService(
     mail: hitAlert.mail || null,
     referer: hitAlert.referer || hitAlert.referrer || null,
     request_args: hitAlert?.request_args || null,
+    tool_called: hitAlert.tool_called || null,
   };
 
   const sharedMainDetails = {
