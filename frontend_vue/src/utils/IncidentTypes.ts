@@ -12,6 +12,7 @@ type BasicInfo = {
   merchant: string | null;
   mail: string | null;
   referer: string | null;
+  tls_ja4_fingerprint: string | null;
   request_args: any | null;
   location:
     | string
