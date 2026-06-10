@@ -5,15 +5,8 @@ from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
 
-if settings.MCP_SERVER_URL:
-    MCP_URL = settings.MCP_SERVER_URL
-else:
-    MCP_URL = ""
-
-if settings.MCP_SERVER_SECRET:
-    MCP_JWE_SECRET = settings.MCP_SERVER_SECRET
-else:
-    MCP_JWE_SECRET = "abcD0123defG4567"
+MCP_URL = settings.MCP_SERVER_URL
+MCP_JWE_SECRET = settings.MCP_SERVER_SECRET
 
 
 def generate_jwe(string: str) -> str:

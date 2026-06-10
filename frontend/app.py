@@ -669,7 +669,6 @@ async def api_generate(  # noqa: C901  # gen is large
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
         expected_referrer=getattr(token_request_details, "expected_referrer", None),
-        mcp_alert_on=getattr(token_request_details, "mcp_alert_on", None),
         sql_server_sql_action=getattr(
             token_request_details, "sql_server_sql_action", None
         ),
@@ -2105,6 +2104,7 @@ def _(
 def _(
     token_request_details: McpTokenRequest, canarydrop: Canarydrop
 ) -> McpTokenResponse:
+    canarydrop.mcp_alert_on = getattr(token_request_details, "mcp_alert_on", None)
     mcpjson = make_canary_mcp_json(
         token_id=canarydrop.canarytoken.value(),
         alert_on_connect=canarydrop.mcp_alert_on == "connect",

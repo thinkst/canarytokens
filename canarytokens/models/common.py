@@ -135,6 +135,7 @@ TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.AWS_KEYS,
     TokenTypes.AWS_INFRA,
     TokenTypes.AZURE_ID,
+    TokenTypes.MCP,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
     TokenTypes.SQL_SERVER,

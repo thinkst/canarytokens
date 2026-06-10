@@ -1,9 +1,9 @@
 <template>
   <TokenDisplay :token-data="tokenData" />
   <p class="mt-16 text-sm">
-    This token is triggered when someone uses this credential pair to access AWS
-    programmatically (through the API). The configuration is unique. i.e. There is no
-    chance of somebody guessing these credentials.
+    This token is triggered when someone uses this MCP configuration.
+    The configuration is unique. i.e. There is no
+    chance of somebody guessing these MCP server credentials.
   </p>
   <ButtonActivateTokenTips @how-to-use="$emit('howToUse')" />
 
