@@ -4,7 +4,7 @@
         id="mcp_alert_on"
         label="Alert on"
         :options="options"
-        placeholder="..."
+        placeholder="Choose token alerting behaviour"
       />
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
