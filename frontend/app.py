@@ -1332,7 +1332,6 @@ def _(
 def _(
     download_request_details: DownloadMcpRequest, canarydrop: Canarydrop
 ) -> DownloadMcpResponse:
-    """"""
     return DownloadMcpResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
