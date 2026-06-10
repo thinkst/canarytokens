@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List, Literal, Optional, Union
 from .common import (
     TokenHistory,
@@ -12,9 +13,14 @@ from .common import (
 )
 
 
+class McpAlertOn(Enum):
+    connect = "connect"
+    tool_call = "tool_call"
+
+
 class McpTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MCP] = TokenTypes.MCP
-    mcp_alert_on: Optional[str] = "connect"
+    mcp_alert_on: McpAlertOn
     gen_aws: Optional[bool] = False
 
 

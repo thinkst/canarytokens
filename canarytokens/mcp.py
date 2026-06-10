@@ -1,6 +1,7 @@
 from json import dumps
 from jose import jwe
 
+from canarytokens.models.mcp import McpAlertOn
 from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
@@ -15,19 +16,13 @@ def generate_jwe(string: str) -> str:
     ).decode("utf-8")
 
 
-def make_token_jwe(
-    token_id: str, alert_on_connect: bool = False, aws_token: str = ""
-) -> str:
-    if alert_on_connect:
-        alert = "connect"
-    else:
-        alert = "tool_call"
-    payload = {"token_id": token_id, "alert_on": alert, "aws_token": aws_token}
+def make_token_jwe(token_id: str, alert_on: McpAlertOn, aws_token: str = "") -> str:
+    payload = {"token_id": token_id, "alert_on": alert_on.value, "aws_token": aws_token}
     return generate_jwe(dumps(payload))
 
 
 def make_canary_mcp_json(
-    token_id: str, alert_on_connect: bool = False, aws_token: str = ""
+    token_id: str, alert_on: McpAlertOn, aws_token: str = ""
 ) -> str:
     config = {
         "servers": {
@@ -35,7 +30,7 @@ def make_canary_mcp_json(
                 "type": "http",
                 "url": MCP_URL,
                 "headers": {
-                    "Authorization": f"Bearer {make_token_jwe(token_id, alert_on_connect, aws_token)}"
+                    "Authorization": f"Bearer {make_token_jwe(token_id, alert_on, aws_token)}"
                 },
             }
         }
