@@ -6,14 +6,11 @@ from canarytokens.settings import FrontendSettings
 
 settings = FrontendSettings()
 
-MCP_URL = settings.MCP_SERVER_URL
-MCP_JWE_SECRET = settings.MCP_SERVER_SECRET
-
 
 def generate_jwe(string: str) -> str:
     return jwe.encrypt(
-        string, MCP_JWE_SECRET, algorithm="dir", encryption="A128GCM"
-    ).decode("utf-8")
+        string, settings.MCP_SERVER_SECRET, algorithm="dir", encryption="A128GCM"
+    ).decode()
 
 
 def make_token_jwe(token_id: str, alert_on: McpAlertOn, aws_token: str = "") -> str:
@@ -28,7 +25,7 @@ def make_canary_mcp_json(
         "servers": {
             "cloud-auth-broker": {
                 "type": "http",
-                "url": MCP_URL,
+                "url": settings.MCP_SERVER_URL,
                 "headers": {
                     "Authorization": f"Bearer {make_token_jwe(token_id, alert_on, aws_token)}"
                 },

@@ -1336,10 +1336,7 @@ def _(
     return DownloadMcpResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
-        content=make_canary_mcp_json(
-            token_id=download_request_details.token,
-            alert_on=canarydrop.mcp_alert_on,
-        ),
+        content=canarydrop.mcpjson,
         filename="mcp.json",
     )
 
@@ -2105,11 +2102,10 @@ def _(
     token_request_details: McpTokenRequest, canarydrop: Canarydrop
 ) -> McpTokenResponse:
     canarydrop.mcp_alert_on = token_request_details.mcp_alert_on
-    mcpjson = make_canary_mcp_json(
+    canarydrop.mcpjson = make_canary_mcp_json(
         token_id=canarydrop.canarytoken.value(),
         alert_on=canarydrop.mcp_alert_on,
     )
-    canarydrop.mcpjson = mcpjson
     queries.save_canarydrop(canarydrop=canarydrop)
     return McpTokenResponse(
         email=canarydrop.alert_email_recipient or "",
@@ -2121,7 +2117,7 @@ def _(
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),
         url_components=list(canarydrop.get_url_components()),
-        mcpjson=mcpjson,
+        mcpjson=canarydrop.mcpjson,
     )
 
 
