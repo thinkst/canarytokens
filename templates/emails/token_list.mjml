@@ -62,7 +62,7 @@
         .token-type-name {
           display: block !important;
         }
-        
+
         .token-value {
           display: block !important;
           margin-top: 4px !important;
@@ -118,25 +118,25 @@
           <img src="https://{{public_domain}}/resources/notification-email/canarytoken-icons-no-alert/{{canarydrop.type}}.png" width="32" height="32" style="vertical-align:middle;" />
           <span class="token-type-name" style="vertical-align:middle;">{{READABLE_TOKEN_TYPE_NAMES[canarydrop.type]}}</span>
         </mj-text>
-          
+
           <mj-text padding="0 0 4px 0" font-size="12px" color="#818a8e">
             Created at {{canarydrop.created_at.isoformat(sep=' ', timespec='minutes')[:-6]}} UTC <span class="token-value">(id: {{canarydrop.canarytoken.value()}})</span>
           </mj-text>
-          
+
           <mj-text padding="0" font-size="12px" color="#666" font-family="monospace, 'Courier New', Courier"
           font-weight="bold"
           >
-            {{canarydrop.memo}}
+            {{canarydrop.memo | e}}
           </mj-text>
         </mj-column>
-        
+
         <mj-column vertical-align="middle" css-class="manage-section" width="20%">
-            <mj-button 
-              background-color="#33c480" 
-              color="white" 
-              font-size="14px" 
-              font-weight="600" 
-              border-radius="6px" 
+            <mj-button
+              background-color="#33c480"
+              color="white"
+              font-size="14px"
+              font-weight="600"
+              border-radius="6px"
               padding="0px"
               align="right"
               href="{{canarydrop.build_manage_url(switchboard_scheme, public_domain)}}"
@@ -147,7 +147,7 @@
         </mj-column>
       </mj-section>
     </mj-wrapper>
-    
+
     <mj-raw>{% endfor %}</mj-raw>
 
     <!-- Banner ad -->
