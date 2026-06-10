@@ -579,6 +579,7 @@ def get_token_request(token_request_type: AnyTokenRequest) -> AnyTokenRequest:
         windows_fake_fs_file_structure="home_network",
         app_type="aws",
         webdav_fs_type="testing",
+        mcp_alert_on="connect",
     )
 
 
