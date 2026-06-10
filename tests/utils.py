@@ -6,7 +6,7 @@ import socket
 import time
 import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 from logging import Logger
 from typing import Callable, Dict, Optional, Union
@@ -559,7 +559,7 @@ def make_token_alert_detail(
         token_type=token_type or TokenTypes.DNS,
         memo=memo or Memo("Fake alert token details"),
         additional_data={},
-        time=datetime.utcnow(),
+        time=datetime.now(timezone.utc),
         manage_url="https://this.is/manage/token",
         src_ip="127.0.0.1",
     )
