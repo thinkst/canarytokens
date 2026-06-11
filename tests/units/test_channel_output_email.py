@@ -343,7 +343,9 @@ def _do_send_alert(
         triggered_details=DNSTokenHistory(
             hits=[
                 DNSTokenHit(
-                    time_of_hit=datetime.datetime.utcnow().timestamp(),
+                    time_of_hit=datetime.datetime.now(
+                        datetime.timezone.utc
+                    ).timestamp(),
                     src_ip="127.0.0.1",
                     input_channel="DNS",
                     is_tor_relay=False,
@@ -439,7 +441,9 @@ def test_do_send_alert_retries(
         triggered_details=DNSTokenHistory(
             hits=[
                 DNSTokenHit(
-                    time_of_hit=datetime.datetime.utcnow().timestamp(),
+                    time_of_hit=datetime.datetime.now(
+                        datetime.timezone.utc
+                    ).timestamp(),
                     src_ip="127.0.0.1",
                     input_channel="DNS",
                     is_tor_relay=False,

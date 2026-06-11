@@ -42,6 +42,7 @@ export const TOKENS_TYPE = {
   AWS_INFRA: 'aws_infra',
   CROWDSTRIKE_CC: 'crowdstrike_cc',
   SVG: 'svg',
+  MCP: 'mcp',
 };
 
 type TokenCapabilities = {
@@ -83,6 +84,7 @@ export const TOKEN_CONFIG: Record<keyof typeof TOKENS_TYPE, TokenCapabilities> =
   AWS_INFRA: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
   CROWDSTRIKE_CC: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
   SVG: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  MCP: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
 };
 
 export function getTokenConfig(tokenType: string | null): TokenCapabilities {

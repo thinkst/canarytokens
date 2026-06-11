@@ -97,6 +97,8 @@ type CanaryDropType = {
   crowdstrike_client_secret: string;
   crowdstrike_base_url: string;
   svg: string | null;
+  mcpjson: string | null;
+  mcp_alert_on: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -126,6 +128,7 @@ export type ManageTokenBackendType = {
   cc_v2_name_on_card: string;
   aws_region: string;
   aws_account_id: string;
+  mcpjson: string;
 };
 
 export type NewTokenBackendType = {
@@ -180,6 +183,8 @@ export type NewTokenBackendType = {
   client_secret: string | null;
   base_url: string | null;
   svg: string | null;
+  mcp_alert_on: string | null;
+  mcpjson: string | null;
 };
 
 export type AsnType = {
@@ -247,6 +252,7 @@ export type AdditionalInfoType = {
   mysql_client?: null | string;
   r?: null | string;
   l?: null | string;
+  tool_called?: null | string;
   aws_key_log_data?: AWSLogDataType | null;
   file_path?: null | string;
   useragent?: null | string;
@@ -285,6 +291,7 @@ export type HitsType = {
   merchant_identifier?: string | null;
   acquirer_identifier?: string | null;
   mail?: string | null;
+  tool_called?: string | null;
   referer?: string | null;
   referrer?: string | null;
   location?: string | GeolocationPosition | CoordsType | null;

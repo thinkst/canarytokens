@@ -34,6 +34,7 @@ azure-identity = "^1.10.0"
 cssutils = "^2.11.1"
 pycountry-convert = "^0.7.2"
 netifaces = "^0.11.0"
+python-jose = "^3.5.0"
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
 twisted = ["Twisted", "sentry-sdk"]

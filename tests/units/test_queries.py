@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from twisted.logger import LogLevel, capturedLogs
 from twisted.internet.defer import inlineCallbacks, succeed
 import pytest
@@ -141,7 +141,7 @@ def test_add_hit_get_canarytoken(setup_db):
     save_canarydrop(canarydrop)
     token_hit = DNSTokenHit(
         token_type=canarydrop.type,
-        time_of_hit=datetime.utcnow().strftime("%s.%f"),
+        time_of_hit=datetime.now(timezone.utc).strftime("%s.%f"),
         src_ip="127.0.0.1",
         geo_info=GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
         is_tor_relay=False,
@@ -170,7 +170,7 @@ def test_add_hit_get_canarytoken_wrong_type(setup_db):
     save_canarydrop(canarydrop)
     token_hit = KubeconfigTokenHit(
         token_type=TokenTypes.KUBECONFIG,
-        time_of_hit=datetime.utcnow().strftime("%s.%f"),
+        time_of_hit=datetime.now(timezone.utc).strftime("%s.%f"),
         src_ip="127.0.0.1",
         geo_info=GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
         is_tor_relay=False,
@@ -214,7 +214,7 @@ def test_delete_drop(setup_db):
 
     save_canarydrop(canarydrop)
     token_hit = DNSTokenHit(
-        time_of_hit=datetime.utcnow().strftime("%s.%f"),
+        time_of_hit=datetime.now(timezone.utc).strftime("%s.%f"),
         src_ip="127.0.0.1",
         geo_info=GeoIPBogonInfo(ip="127.0.0.1", bogon=True),
         is_tor_relay=False,

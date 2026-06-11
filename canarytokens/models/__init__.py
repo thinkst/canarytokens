@@ -199,6 +199,14 @@ from .log4shell import (
     Log4ShellTokenRequest,
     Log4ShellTokenResponse,
 )
+from .mcp import (
+    McpTokenHistory,
+    McpTokenHit,
+    McpTokenRequest,
+    McpTokenResponse,
+    DownloadMcpResponse,
+    DownloadMcpRequest,
+)
 from .ms_excel import (
     DownloadMSExcelRequest,
     DownloadMSExcelResponse,
@@ -362,6 +370,7 @@ AnyTokenRequest = Annotated[
         AWSInfraTokenRequest,
         CrowdStrikeCCTokenRequest,
         SVGTokenRequest,
+        McpTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -405,6 +414,7 @@ AnyTokenResponse = Annotated[
         AWSInfraTokenResponse,
         CrowdStrikeCCTokenResponse,
         SVGTokenResponse,
+        McpTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -445,6 +455,7 @@ AnyTokenHit = Annotated[
         AWSInfraTokenHit,
         CrowdStrikeCCTokenHit,
         SVGTokenHit,
+        McpTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -487,6 +498,7 @@ AnyTokenHistory = Annotated[
         AWSInfraTokenHistory,
         CrowdStrikeCCTokenHistory,
         SVGTokenHistory,
+        McpTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
@@ -519,6 +531,7 @@ AnyDownloadRequest = Annotated[
         DownloadQRCodeRequest,
         DownloadCreditCardV2Request,
         DownloadSVGRequest,
+        DownloadMcpRequest,
     ],
     Field(discriminator="fmt"),
 ]

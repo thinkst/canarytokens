@@ -124,6 +124,7 @@ class TokenTypes(StrEnum):
     AWS_INFRA = "aws_infra"
     CROWDSTRIKE_CC = "crowdstrike_cc"
     SVG = "svg"
+    MCP = "mcp"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -134,6 +135,7 @@ TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.AWS_KEYS,
     TokenTypes.AWS_INFRA,
     TokenTypes.AZURE_ID,
+    TokenTypes.MCP,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
     TokenTypes.SQL_SERVER,
@@ -175,6 +177,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.AWS_INFRA: "AWS Infrastructure",
     TokenTypes.CROWDSTRIKE_CC: "CrowdStrike API key",
     TokenTypes.SVG: "SVG",
+    TokenTypes.MCP: "MCP JSON",
 }
 
 GeneralHistoryTokenType = Literal["blank"]
@@ -688,6 +691,7 @@ class DownloadFmtTypes(StrEnum):
     CSSCLONEDSITE = "cssclonedsite"
     CREDIT_CARD_V2 = "credit_card_v2"
     SVG = "svg"
+    MCP = "mcp"
 
     def __str__(self) -> str:
         return str(self.value)
