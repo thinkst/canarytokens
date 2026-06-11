@@ -79,6 +79,7 @@ class FrontendSettings(BaseSettings):
     PUBLIC_IP: str
     DOMAINS: list[str]
     NXDOMAINS: list[str]
+    NS_SERVERS: list[str] = []
     SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
 
     SENTRY_DSN: Optional[HttpUrl] = None
@@ -167,6 +168,6 @@ class FrontendSettings(BaseSettings):
 
         @classmethod
         def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-            if field_name in ["DOMAINS", "NXDOMAINS"]:
+            if field_name in ["DOMAINS", "NXDOMAINS", "NS_SERVERS"]:
                 return [x for x in raw_val.split(",")]
             return cls.json_loads(raw_val)

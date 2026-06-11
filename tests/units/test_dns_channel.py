@@ -192,3 +192,42 @@ async def test_DNS_server_factory(query, address):
             message=message, protocol=proto, address=address
         )
         deferred.result
+
+
+def test_ns_response_uses_configured_ns_servers(frontend_settings: FrontendSettings):
+    resolver = ChannelDNS(
+        switchboard=switchboard,
+        switchboard_scheme="http",
+        switchboard_hostname="127.0.0.1",
+        frontend_settings=frontend_settings.copy(
+            update={"NS_SERVERS": ["ns1.example.net", " ns2.example.net "]}
+        ),
+    )
+
+    answers, authority, additional = resolver._do_ns_response(name=b"example.com")
+
+    assert authority == []
+    assert additional == []
+    assert [answer.payload.name.name.decode() for answer in answers] == [
+        "ns1.example.net",
+        "ns2.example.net",
+    ]
+
+
+def test_ns_response_falls_back_to_ns1_when_no_ns_servers(
+    frontend_settings: FrontendSettings,
+):
+    resolver = ChannelDNS(
+        switchboard=switchboard,
+        switchboard_scheme="http",
+        switchboard_hostname="127.0.0.1",
+        frontend_settings=frontend_settings.copy(update={"NS_SERVERS": []}),
+    )
+
+    answers, authority, additional = resolver._do_ns_response(name=b"example.com")
+
+    assert authority == []
+    assert len(answers) == 1
+    assert answers[0].payload.name.name.decode() == "ns1.example.com"
+    assert len(additional) == 1
+    assert additional[0].name.name.decode() == "ns1.example.com"

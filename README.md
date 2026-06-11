@@ -95,6 +95,9 @@ This repo still owns the Canarytokens-facing integration points:
 * If either `CANARY_AWSID_URL` or `CANARY_AWSID_AUTH` is unset, AWS key token creation is disabled for this Canarytokens instance.
 * `CANARY_LAMBDA_AWS_CRED_REPORT_AUTH` in `switchboard.env` enables the `/a/cr` callback used by the AWS ID credential report checker.
 
+If you want to change the nameservers for your DNS zone you can do this by setting `CANARY_NS_SERVERS`.
+Make sure that all the nameservers forward to your instance. Default behavior is that 'ns1' is prepended to your domain.
+
 ### Configuration of Outgoing SMTP
 
 When configuring outgoing SMTP please consider the following:
