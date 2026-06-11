@@ -22,7 +22,7 @@ def make_canary_mcp_json(
     token_id: str, alert_on: McpAlertOn, aws_token: str = ""
 ) -> str:
     config = {
-        "servers": {
+        "mcpServers": {
             "cloud-auth-broker": {
                 "type": "http",
                 "url": settings.MCP_SERVER_URL,
