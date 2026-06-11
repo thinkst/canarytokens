@@ -96,6 +96,10 @@ type CanaryDropType = {
   crowdstrike_client_id: string;
   crowdstrike_client_secret: string;
   crowdstrike_base_url: string;
+  npm_token: string;
+  npm_token_id: string;
+  npm_package_name: string;
+  npm_package_version: string;
   svg: string | null;
 };
 
@@ -179,6 +183,10 @@ export type NewTokenBackendType = {
   app_type: string | null;
   client_secret: string | null;
   base_url: string | null;
+  npm_token: string | null;
+  npm_token_id: string | null;
+  npm_package_name: string | null;
+  npm_package_version: string | null;
   svg: string | null;
 };
 
