@@ -137,7 +137,7 @@ class FrontendSettings(BaseSettings):
     CREDIT_CARD_INFRA_REGION: Optional[str]
     CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
     CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
-    MCP_SERVER_URL: Optional[str] = ""
+    MCP_SERVER_URL: Optional[list[str]] = [""]
     MCP_SERVER_SECRET: Optional[str] = "abcD0123defG4567"
 
     AWS_INFRA_AWS_ACCOUNT: Optional[str]
@@ -169,6 +169,6 @@ class FrontendSettings(BaseSettings):
 
         @classmethod
         def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-            if field_name in ["DOMAINS", "NXDOMAINS"]:
+            if field_name in ["DOMAINS", "NXDOMAINS", "MCP_SERVER_URL"]:
                 return [x for x in raw_val.split(",")]
             return cls.json_loads(raw_val)

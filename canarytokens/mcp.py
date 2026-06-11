@@ -1,5 +1,6 @@
 from json import dumps
 from jose import jwe
+from random import choice
 
 from canarytokens.models.mcp import McpAlertOn
 from canarytokens.settings import FrontendSettings
@@ -25,7 +26,7 @@ def make_canary_mcp_json(
         "mcpServers": {
             "cloud-auth-broker": {
                 "type": "http",
-                "url": settings.MCP_SERVER_URL,
+                "url": choice(settings.MCP_SERVER_URL),
                 "headers": {
                     "Authorization": f"Bearer {make_token_jwe(token_id, alert_on, aws_token)}"
                 },
