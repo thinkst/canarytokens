@@ -30,6 +30,7 @@ class CSSClonedWebTokenResponse(TokenResponse):
 class CSSClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
     referrer: Optional[str]
+    tls_ja4_fingerprint: Optional[str]
 
 
 class CSSClonedWebTokenHistory(TokenHistory[CSSClonedWebTokenHit]):
