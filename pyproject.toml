@@ -8,7 +8,6 @@ license = "GPLv3"
 [tool.poetry.dependencies]
 python = "^3.13"
 pydantic = {extras = ["dotenv", "email"], version = "^1.9.1"}
-PyQRCode = "^1.2.1"
 redis = "^4.2.0"
 h11 = "^0.16.0"
 httpx = "^0.28.0"
@@ -35,6 +34,7 @@ cssutils = "^2.11.1"
 pycountry-convert = "^0.7.2"
 netifaces = "^0.11.0"
 python-jose = "^3.5.0"
+pyjwt = "2.13.0"
 [tool.poetry.extras]
 web = ["fastapi", "uvicorn", "sentry-sdk"]
 twisted = ["Twisted", "sentry-sdk"]
