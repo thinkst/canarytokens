@@ -16,7 +16,7 @@
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 import type { SelectOption } from '@/components/base/BaseFormSelect.vue';
 const options: SelectOption[] = [
-          {value: 'connect', label: 'Connection'},
-          {value: 'tool_call', label: 'MCP Tool Call'},
-          ];
+  {value: 'connect', label: 'Connection'},
+  {value: 'tool_call', label: 'MCP Tool Call'},
+  ];
 </script>

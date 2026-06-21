@@ -26,7 +26,7 @@ def make_canary_mcp_json(
         "mcpServers": {
             "cloud-auth-broker": {
                 "type": "http",
-                "url": choice(settings.MCP_SERVER_URL),
+                "url": choice(settings.MCP_SERVER_URLS),
                 "headers": {
                     "Authorization": f"Bearer {make_token_jwe(token_id, alert_on, aws_token)}"
                 },
