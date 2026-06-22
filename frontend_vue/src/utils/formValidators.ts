@@ -215,6 +215,18 @@ export const formValidators: ValidateSchemaType = {
         .matches(validDnsRegexPattern, 'Must be valid domain eg: example.com'),
     }),
   },
+  [TOKENS_TYPE.MCP]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      mcp_alert_on: Yup.string()
+        .required('Alerting setting is required')
+        .test(
+          'validAlert',
+          'Must be either "connect" or "tool_call"',
+          (value) => value == "connect" || value == "tool_call"
+        ),
+    }),
+  },
   [TOKENS_TYPE.KUBECONFIG]: {
     schema: Yup.object().shape(validationNotificationSettings),
   },

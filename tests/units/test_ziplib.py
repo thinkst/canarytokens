@@ -13,14 +13,14 @@ def test_make_canary_zip():
 
 def test_make_dir_entry_fail():
     try:
-        make_dir_entry("", datetime.datetime.utcnow())
+        make_dir_entry("", datetime.datetime.now(datetime.timezone.utc))
         raise AssertionError("make_dir_entry should fail on empty name")
     except ValueError:
         pass
 
 
 def test_make_dir_entry():
-    zipinfo = make_dir_entry("filename", datetime.datetime.utcnow())
+    zipinfo = make_dir_entry("filename", datetime.datetime.now(datetime.timezone.utc))
     assert zipinfo.filename == "filename/"
     assert zipinfo.external_attr == ziplib.MODE_DIRECTORY
 

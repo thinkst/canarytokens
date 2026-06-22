@@ -33,6 +33,7 @@ from canarytokens.models import (
     DownloadIncidentListCSVRequest,
     DownloadIncidentListJsonRequest,
     DownloadKubeconfigRequest,
+    DownloadMcpRequest,
     DownloadMSExcelRequest,
     DownloadMSWordRequest,
     DownloadMySQLRequest,
@@ -46,6 +47,8 @@ from canarytokens.models import (
     KubeconfigTokenResponse,
     ManagePageRequest,
     Memo,
+    McpTokenRequest,
+    McpTokenResponse,
     MsExcelDocumentTokenRequest,
     MsExcelDocumentTokenResponse,
     MsWordDocumentTokenRequest,
@@ -321,6 +324,7 @@ def test_download_canarydrop_csv_details(
         (KubeconfigTokenRequest, KubeconfigTokenResponse, DownloadKubeconfigRequest),
         (QRCodeTokenRequest, QRCodeTokenResponse, DownloadQRCodeRequest),
         (SVGTokenRequest, SVGTokenResponse, DownloadSVGRequest),
+        (McpTokenRequest, McpTokenResponse, DownloadMcpRequest),
     ],
 )
 def test_token_download_requests(

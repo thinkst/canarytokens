@@ -17,4 +17,4 @@ Or install MJML globally and compile your MJML files into HTML files:
 For more information, and more visit the official MJML documentation: https://mjml.io/documentation
 
 NOTE: When exporting to html, the conditions {% if BasicDetails['something'] %} living outside a <mj-text> are not supported and will be removed from the final html file.
-If you need to use conditions, remeber to check the output html file and add them manually if needed.
+If you need to use conditions, remember to check the output html file and add them manually if needed.

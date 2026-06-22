@@ -30,6 +30,7 @@ export default function incidentDetailsService(
     referer: hitAlert.referer || hitAlert.referrer || null,
     tls_ja4_fingerprint: hitAlert.tls_ja4_fingerprint || null,
     request_args: hitAlert?.request_args || null,
+    mcp_method_called: hitAlert.tool_called || null,
   };
 
   const sharedMainDetails = {

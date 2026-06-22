@@ -22,6 +22,7 @@ from pathlib import Path
 from urllib.parse import quote
 from typing import Literal, Optional, Union
 from canarytokens.models.aws_infra import AWSAccountNumber, AWSRegion
+from canarytokens.models.mcp import McpAlertOn
 from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
@@ -214,6 +215,10 @@ class Canarydrop(BaseModel):
     idp_app_type: Optional[IdPAppType]
 
     svg: Optional[str]
+
+    # MCP specific stuff
+    mcp_alert_on: Optional[McpAlertOn]
+    mcpjson: Optional[str]
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):

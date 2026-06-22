@@ -129,6 +129,23 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.CLOUD,
     keywords: ['cloud', 'api'],
   },
+  [TOKENS_TYPE.MCP]: {
+    label: 'MCP configuration',
+    description: 'Get an alert when an attacker uses your MCP configuration.',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/mcp-token.html',
+    icon: `${TOKENS_TYPE.MCP}.png`,
+    createRouteTokenAlias: 'mcp',
+    instruction:
+      'Copy this mcp.json template to your clipboard to use as desired:',
+    howItWorksInstructions: [
+      'We give you a legit mcp.json configuration file.',
+      'You place it somewhere.',
+      'We send you an alert if some tries to connect and/or use exposed MCP tools.',
+    ],
+    category: TOKEN_CATEGORY.CLOUD,
+    keywords: ['cloud', 'api'],
+  },
   [TOKENS_TYPE.PWA]: {
     label: 'Fake App',
     description: 'Get an alert when someone opens a fake app on your device.',

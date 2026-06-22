@@ -57,6 +57,12 @@ test.describe('Create Token', () => {
         await page.getByRole('option', { name: 'Cyber Security' }).click();
       }
 
+      if (service === TOKENS_TYPE.MCP) {
+        const McpInput = page.locator('input.vs__search[placeholder="Choose token alerting behaviour"]');
+        await McpInput.click();
+        await page.getByRole('option', { name: 'Connection' }).click();
+      }
+
       if (service === TOKENS_TYPE.IDP_APP) {
         const IDPAppInput = page.locator('input.vs__search[placeholder="Select an app"]');
         await IDPAppInput.click();
