@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Union, Optional, Literal
+from markupsafe import escape
 import json
 from enum import Enum
 import sys
@@ -320,7 +321,7 @@ def _format_as_slack_token_exposed(
         fields.insert(
             0,
             SlackTextObject(
-                text=f":link: *<{details.public_location}|View exposed key>*"
+                text=f":link: *View exposed key at {escape(details.public_location)}*"
             ),
         )
 
@@ -520,7 +521,7 @@ def _format_as_googlechat_token_exposed(
                                         ),
                                         GoogleChatTextWithTopLabel(
                                             top_label="Key exposed here",
-                                            text=f'<a href="{details.public_location}">{details.public_location}</a>',
+                                            text=f"{details.public_location}",
                                         ),
                                     ]
                                 ),
@@ -591,9 +592,9 @@ class GoogleChatTextWithTopLabel(GoogleChatWidget):
     top_label: Optional[str] = None
 
     def dict(self, *args, **kwargs):
-        d = {"decoratedText": {"text": self.text}}
+        d = {"decoratedText": {"text": escape(self.text)}}
         if self.top_label:
-            d["decoratedText"]["topLabel"] = self.top_label
+            d["decoratedText"]["topLabel"] = escape(self.top_label)
 
         return d
 
@@ -718,8 +719,8 @@ def _format_as_discord_token_exposed(
     embeds.add_fields(
         {
             "Key ID": details.key_id,
-            "Token Reminder": details.memo,
-            "Key exposed here": details.public_location,
+            "Token Reminder": escape(details.memo),
+            "Key exposed here": escape(details.public_location),
             "Manage token": details.manage_url,
         }
     )
@@ -869,12 +870,12 @@ def _format_as_ms_teams_token_exposed(
 
     facts = [
         MsTeamsFact(title="Key ID", value=details.key_id),
-        MsTeamsFact(title="Token Reminder", value=details.memo),
+        MsTeamsFact(title="Token Reminder", value=escape(details.memo)),
         MsTeamsFact(
             title="Key exposed at",
             value=details.exposed_time.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
         ),
-        MsTeamsFact(title="Key exposed here", value=details.public_location),
+        MsTeamsFact(title="Key exposed here", value=escape(details.public_location)),
     ]
 
     return TokenAlertDetailsMsTeams(
@@ -913,7 +914,9 @@ def _data_to_ms_teams_facts(data: dict[str, Union[str, dict]]) -> list[MsTeamsFa
             continue
 
         message_text = dict_to_csv(value) if isinstance(value, dict) else value
-        facts.append(MsTeamsFact(title=prettify_snake_case(label), value=message_text))
+        facts.append(
+            MsTeamsFact(title=prettify_snake_case(label), value=escape(message_text))
+        )
 
     return facts
 
