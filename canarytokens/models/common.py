@@ -505,6 +505,7 @@ class TokenHit(BaseModel):
 
 class TokenExposedHit(BaseModel):
     time_of_hit: float
+    alert_status: AlertStatus = AlertStatus.ALERTABLE
 
 
 TH = TypeVar("TH", bound=TokenHit)

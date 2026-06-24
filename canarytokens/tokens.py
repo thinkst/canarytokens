@@ -378,6 +378,12 @@ class Canarytoken(object):
             if not public_location.strip():
                 public_location = None
 
+            if public_location and not (
+                public_location.startswith("https://")
+                or public_location.startswith("http://")
+            ):
+                public_location = None
+
             return AWSKeyTokenExposedHit(
                 public_location=public_location,
                 input_channel=INPUT_CHANNEL_HTTP,
