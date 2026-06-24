@@ -95,17 +95,14 @@
         v-if="keyExposedHit"
         class="mt-32"
         variant="warning"
-        text-link="Go to token"
+        text-link="Open Link"
         @click="handleGoToExposedToken"
       >
         This Canarytoken has been found
-        <a
-          class="font-bold"
-          :href="keyExposedHit.public_location"
-          target="_blank"
-          >here</a
-        >
-        on the internet. Please replace it with a new Canarytoken.
+        on the internet, please replace it with a new Canarytoken. The location is:
+        <div class="md:max-w-[30vw] mt-16">
+          <span class="font-bold">{{ keyExposedHit.public_location }}</span>
+        </div>
       </BaseMessageBox>
       <DeleteTokenButton
         :memo="manageTokenResponse.canarydrop.memo"
