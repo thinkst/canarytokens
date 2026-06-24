@@ -63,7 +63,7 @@
             One of your <span style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
             Canarytokens has been found at this location
             {% if BasicDetails['public_location'] %}
-            <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">{{ BasicDetails['public_location'] | e}}</a>.
+            {{ BasicDetails['public_location'] | e}}.
             {% else %}
             on the internet.
             {% endif %}
@@ -109,7 +109,7 @@
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Key found here</p>
                 <p style="font-weight:400;color:#060606;margin:0;">
-                  <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">{{ BasicDetails['public_location'] | e }}</a>
+                  {{ BasicDetails['public_location'] | e }}
                 </p>
               </td>
             </tr>
