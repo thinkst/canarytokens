@@ -61,11 +61,11 @@
             Your Canarytoken was exposed publicly</mj-text>
           <mj-text color="#818a8e" padding="0px 20px" align="center">
             One of your <span style="color:#060606;font-weight:600">{{BasicDetails['readable_type']}}</span>
-            Canarytokens has been found on the
+            Canarytokens has been found at this location
             {% if BasicDetails['public_location'] %}
-            <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">internet</a>.
+            <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">{{ BasicDetails['public_location'] | e}}</a>.
             {% else %}
-            internet.
+            on the internet.
             {% endif %}
             A publicly exposed token will provide very low quality alerts. We recommend that you disable and replace this token on private infrastructure.
           </mj-text>
@@ -109,7 +109,7 @@
               <td>
                 <p style="font-weight:600;display:block;line-height:1;margin:0;">Key found here</p>
                 <p style="font-weight:400;color:#060606;margin:0;">
-                  <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">{{ BasicDetails['public_location'] }}</a>
+                  <a href="{{ BasicDetails['public_location'] }}" style="text-decoration:none;color:#33c480" target="_blank">{{ BasicDetails['public_location'] | e }}</a>
                 </p>
               </td>
             </tr>
