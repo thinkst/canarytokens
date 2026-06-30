@@ -20,6 +20,8 @@ test.describe('Create Token', () => {
   Object.keys(tokenServices).forEach((service) => {
     if (TOKENS_TO_SKIP.includes(service)) return;
     const tokenObj = tokenServices[service as keyof typeof tokenServices];
+
+    if (tokenObj.isHiddenFromGenerateFlow) return;
     const serviceName = tokenObj.label;
 
     test(`Can create ${tokenObj.label} Canarytoken`, async ({ page }) => {
