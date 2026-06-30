@@ -3,15 +3,21 @@
     variant="info"
     class="mt-6 mb-16"
     >We have custom instructions for
-    <a style="text-decoration: underline" target="_blank"
+    <a
+      style="text-decoration: underline"
+      target="_blank"
       href="https://docs.canarytokens.org/guide/idp-app-token.html#deploying-to-azure"
     >
       Entra ID</a> and
-    <a style="text-decoration: underline" target="_blank"
+    <a
+      style="text-decoration: underline"
+      target="_blank"
       href="https://docs.canarytokens.org/guide/idp-app-token.html#deploying-to-okta"
     >
       Okta</a>, in our
-    <a style="text-decoration: underline" target="_blank"
+    <a
+      style="text-decoration: underline"
+      target="_blank"
       href="https://docs.canarytokens.org/guide/idp-app-token.html"
     >
       docs</a>.
@@ -55,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { IDP_OPTIONS } from '@/components/constants';
+import { IDP_OPTIONS } from './constants';
 import getImageUrl from '@/utils/getImageUrl';
 
 defineProps<{

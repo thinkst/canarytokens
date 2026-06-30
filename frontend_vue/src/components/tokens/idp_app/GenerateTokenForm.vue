@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 import getImageUrl from '@/utils/getImageUrl';
-import { IDP_OPTIONS } from '@/components/constants';
+import { IDP_OPTIONS } from './constants';
 import { ref } from 'vue';
 
 type SelectedAppType = {
