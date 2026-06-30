@@ -51,6 +51,7 @@
         :key="key"
       >
         <CardToken
+          v-if="!isHiddenFromGenerateFlow(key)"
           :selected-token="key"
           :title="(token as TokenServiceType).label"
           :description="(token as TokenServiceType).description"
@@ -86,6 +87,11 @@ const filteredList: Ref<TokenServicesType> = ref(tokenServices);
 const animationType = ref('move-grid');
 const selectedModalToken = ref<string | null>(null);
 const closeCurrentModal = ref<(() => void) | null>(null);
+
+const isHiddenFromGenerateFlow = (tokenType: string): boolean => {
+  const tokenService = tokenServices[tokenType];
+  return tokenService?.isHiddenFromGenerateFlow ?? false;
+};
 
 const createRouteAliasLookup = Object.entries(tokenServices).reduce(
   (lookup: Record<string, string>, [tokenType, tokenService]) => {
