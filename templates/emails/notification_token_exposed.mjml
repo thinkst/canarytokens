@@ -178,7 +178,7 @@
     </mj-wrapper>
 
     <!-- More info -->
-    {% if BasicDetails['token_type'] != 'legacy' %}
+    <mj-raw>{% if BasicDetails['token_type'] != 'legacy' %}</mj-raw>
     <mj-wrapper padding="0px 30px 0px" background-color="#FFF">
       <mj-section padding="0px 0 20px 0">
         <mj-column>
@@ -186,7 +186,7 @@
         </mj-column>
       </mj-section>
     </mj-wrapper>
-    {% endif %}
+    <mj-raw>{% endif %}</mj-raw>
 
 
     <!-- Banner ad -->
