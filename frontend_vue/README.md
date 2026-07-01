@@ -124,11 +124,11 @@ i.e. for Cloned Site
 
 ### Manage page capabilities
 
-Token manage settings use a default set of capabilities.
+Token manage settings use a common set of capabilities for most supported tokens.
 
-If the token is different from the default, add an entry in ```src/utils/tokenManageCapabilities.ts```.
+Every known token should have an entry in ```src/utils/tokenManageCapabilities.ts```.
 
-The current default is:
+Use the common capabilities helper for tokens that follow the common pattern:
 
 ```
 {
@@ -141,9 +141,9 @@ The current default is:
 i.e. for a token that supports browser scan
 
 ```
-  [TOKENS_TYPE.WEB_BUG]: {
+  [TOKENS_TYPE.WEB_BUG]: defineTokenManageCapabilities({
     supportsBrowserScan: true,
-  },
+  }),
 ```
 
 ---
