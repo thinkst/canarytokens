@@ -11,6 +11,7 @@ export type TokenServiceType = {
   category?: string | string[];
   keywords?: string[]; // used by Search
   isCustomGenerateFlow?: boolean; // after the 'generate' form, push user to route /generate-token
+  isHiddenFromGenerateFlow?: boolean; // hide tokens from the generate flow, but still allow them to be managed
 };
 
 export type TokenServicesType = {
@@ -567,5 +568,15 @@ export const tokenServices: TokenServicesType = {
     ],
     category: [TOKEN_CATEGORY.OTHER, TOKEN_CATEGORY.PHISHING],
     keywords: [],
+  },
+  // Support token management, not creation
+  [TOKENS_TYPE.LEGACY]: {
+    label: 'Legacy',
+    description: '',
+    documentationLink: '',
+    icon: `${TOKENS_TYPE.LEGACY}.png`,
+    createRouteTokenAlias: '',
+    instruction: '',
+    isHiddenFromGenerateFlow: true,
   },
 };

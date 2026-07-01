@@ -43,6 +43,7 @@ export const TOKENS_TYPE = {
   CROWDSTRIKE_CC: 'crowdstrike_cc',
   SVG: 'svg',
   MCP: 'mcp',
+  LEGACY: 'legacy',
 };
 
 type TokenCapabilities = {
@@ -85,6 +86,7 @@ export const TOKEN_CONFIG: Record<keyof typeof TOKENS_TYPE, TokenCapabilities> =
   CROWDSTRIKE_CC: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
   SVG: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
   MCP: { supportsIPIgnore: true, supportsBrowserScan: false, supportsCustomImage: false },
+  LEGACY: { supportsIPIgnore: false, supportsBrowserScan: false, supportsCustomImage: false },
 };
 
 export function getTokenConfig(tokenType: string | null): TokenCapabilities {
