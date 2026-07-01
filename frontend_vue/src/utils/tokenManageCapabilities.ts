@@ -79,9 +79,6 @@ const TOKEN_MANAGE_CAPABILITIES: Record<string, TokenManageCapabilitiesType> = {
   [TOKENS_TYPE.CROWDSTRIKE_CC]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.SVG]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.MCP]: defineTokenManageCapabilities(),
-  [TOKENS_TYPE.LEGACY]: defineTokenManageCapabilities({
-    supportsIPIgnore: false,
-  }),
 };
 
 export function getTokenManageCapabilities(
