@@ -99,8 +99,8 @@ import {
   SETTINGS_TYPE,
   UPDATE_SETTINGS_BACKEND_TYPE,
   GET_SETTINGS_BACKEND_TYPE,
-  getTokenConfig,
 } from '@/components/constants';
+import { getTokenManageCapabilities } from '@/utils/tokenManageCapabilities';
 import IPIgnoreList from '@/components/ui/IPIgnoreList.vue';
 
 const props = defineProps<{
@@ -112,7 +112,6 @@ const emit = defineEmits<{
   'update-ignore-ips-enabled': [isEnabled: boolean];
 }>();
 
-
 // Check which settings are available for this Token
 const hasEmailAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_email_recipient
@@ -120,10 +119,10 @@ const hasEmailAlert = ref(
 const hasWebhookAlert = ref(
   props.tokenBackendResponse.canarydrop.alert_webhook_url
 );
-const tokenConfig = getTokenConfig(props.tokenBackendResponse.canarydrop.type);
-const hasBrowserScan = ref(tokenConfig.supportsBrowserScan);
-const hasCustomImage = ref(tokenConfig.supportsCustomImage);
-const isIPIgnorable = ref(tokenConfig.supportsIPIgnore);
+const tokenCapabilities = getTokenManageCapabilities(props.tokenBackendResponse.canarydrop.type);
+const hasBrowserScan = ref(tokenCapabilities.supportsBrowserScan);
+const hasCustomImage = ref(tokenCapabilities.supportsCustomImage);
+const isIPIgnorable = ref(tokenCapabilities.supportsIPIgnore);
 
 // State of each setting type
 const settingRefs = ref({
