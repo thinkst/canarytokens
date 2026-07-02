@@ -160,8 +160,10 @@ Alert History:
 Manage Alert:
   {{ ManageLink }}
 
+{% if BasicDetails['token_type'] != 'legacy' +%}
 More info on this Canarytoken?
   https://docs.canarytokens.org/guide/
+{% endif %}
 
 Some of the best security teams in the world run Thinkst Canary.
 Find out why (https://canary.tools/)
