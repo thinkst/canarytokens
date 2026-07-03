@@ -869,9 +869,16 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
 
     token_set = queries.list_email_tokens(request.email)
     if token_set:
+
+        def _safe_get_canarydrop(token: str):
+            try:
+                return queries.get_canarydrop(Canarytoken(token))
+            except NoCanarydropFound:
+                return None
+
         drops = filter(
             None,
-            map(lambda token: queries.get_canarydrop(Canarytoken(token)), token_set),
+            map(_safe_get_canarydrop, token_set),
         )
         token_list = sorted(
             drops, key=lambda canarydrop: canarydrop.created_at, reverse=True
