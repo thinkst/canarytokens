@@ -214,8 +214,8 @@ def add_email_token_idx(email: str, canarytoken: str) -> int:
 def remove_email_token_idx(
     email: str, canarytoken: str, pipe: Optional[Pipeline] = None
 ) -> None:
-    target = pipe or DB.get_db()
-    target.srem(KEY_EMAIL_IDX + email.lower(), canarytoken)
+    db = pipe or DB.get_db()
+    db.srem(KEY_EMAIL_IDX + email.lower(), canarytoken)
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
@@ -225,8 +225,8 @@ def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
 def remove_webhook_token_idx(
     webhook: HttpUrl, canarytoken: str, pipe: Optional[Pipeline] = None
 ) -> None:
-    target = pipe or DB.get_db()
-    target.srem(KEY_WEBHOOK_IDX + webhook, canarytoken)
+    db = pipe or DB.get_db()
+    db.srem(KEY_WEBHOOK_IDX + webhook, canarytoken)
 
 
 def add_auth_token_idx(auth: str, token: str) -> int:
@@ -236,8 +236,8 @@ def add_auth_token_idx(auth: str, token: str) -> int:
 def remove_auth_token_idx(
     auth: str, token: str, pipe: Optional[Pipeline] = None
 ) -> None:
-    target = pipe or DB.get_db()
-    target.srem(KEY_AUTH_IDX + auth, token)
+    db = pipe or DB.get_db()
+    db.srem(KEY_AUTH_IDX + auth, token)
 
 
 def delete_email_tokens(email_address):
@@ -299,6 +299,7 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
 
 def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
     token = canarydrop.canarytoken.value()
+    log.info(f"Deleting canarydrop for token: {token}")
 
     db = DB.get_db()
     with db.pipeline() as pipe:
