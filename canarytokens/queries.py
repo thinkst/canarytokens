@@ -299,7 +299,7 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
 
 def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
     token = canarydrop.canarytoken.value()
-    log.info("Deleting canarydrop for token: %s", token)
+    log.info("Deleting canarydrop for token: {token}", token=token)
 
     db = DB.get_db()
     with db.pipeline() as pipe:
