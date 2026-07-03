@@ -219,7 +219,7 @@ def remove_email_token_idx(
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
-    return DB.get_db().sadd(f"{KEY_WEBHOOK_IDX}{webhook}", canarytoken)
+    return DB.get_db().sadd(KEY_WEBHOOK_IDX + webhook, canarytoken)
 
 
 def remove_webhook_token_idx(
@@ -230,7 +230,7 @@ def remove_webhook_token_idx(
 
 
 def add_auth_token_idx(auth: str, token: str) -> int:
-    return DB.get_db().sadd(f"{KEY_AUTH_IDX}{auth}", token)
+    return DB.get_db().sadd(KEY_AUTH_IDX + auth, token)
 
 
 def remove_auth_token_idx(
