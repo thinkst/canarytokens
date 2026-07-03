@@ -301,7 +301,7 @@ def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
     token = canarydrop.canarytoken.value()
 
     db = DB.get_db()
-    with db.pipeline(transaction=True) as pipe:
+    with db.pipeline() as pipe:
         if canarydrop.alert_email_recipient:
             remove_email_token_idx(
                 canarydrop.alert_email_recipient,
