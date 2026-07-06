@@ -15,6 +15,7 @@ from canarytokens import advocate
 from canarytokens.channel_output_webhook import WEBHOOK_ADDR_VALIDATOR
 import httpx
 import requests
+from redis.client import Pipeline
 from pydantic import EmailStr, HttpUrl, ValidationError, parse_obj_as
 from twisted.logger import Logger
 from twisted.internet.defer import inlineCallbacks
@@ -210,24 +211,33 @@ def add_email_token_idx(email: str, canarytoken: str) -> int:
     return DB.get_db().sadd(KEY_EMAIL_IDX + email.lower(), canarytoken)
 
 
-def remove_email_token_idx(email: str, canarytoken: str) -> None:
-    DB.get_db().srem(KEY_EMAIL_IDX + email.lower(), canarytoken)
+def remove_email_token_idx(
+    email: str, canarytoken: str, pipe: Optional[Pipeline] = None
+) -> None:
+    db = pipe or DB.get_db()
+    db.srem(f"{KEY_EMAIL_IDX}{email.lower()}", canarytoken)
 
 
 def add_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> int:
     return DB.get_db().sadd(KEY_WEBHOOK_IDX + webhook, canarytoken)
 
 
-def remove_webhook_token_idx(webhook: HttpUrl, canarytoken: str) -> None:
-    DB.get_db().srem(KEY_WEBHOOK_IDX + webhook, canarytoken)
+def remove_webhook_token_idx(
+    webhook: HttpUrl, canarytoken: str, pipe: Optional[Pipeline] = None
+) -> None:
+    db = pipe or DB.get_db()
+    db.srem(f"{KEY_WEBHOOK_IDX}{webhook}", canarytoken)
 
 
 def add_auth_token_idx(auth: str, token: str) -> int:
     return DB.get_db().sadd(KEY_AUTH_IDX + auth, token)
 
 
-def remove_auth_token_idx(auth: str, token: str) -> None:
-    DB.get_db().srem(KEY_AUTH_IDX + auth, token)
+def remove_auth_token_idx(
+    auth: str, token: str, pipe: Optional[Pipeline] = None
+) -> None:
+    db = pipe or DB.get_db()
+    db.srem(f"{KEY_AUTH_IDX}{auth}", token)
 
 
 def delete_email_tokens(email_address):
@@ -289,18 +299,28 @@ def save_canarydrop(canarydrop: cand.Canarydrop):
 
 def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
     token = canarydrop.canarytoken.value()
-    DB.get_db().delete(KEY_CANARYDROP + token)
-    log.info(f"Deleted canarydrop for token: {token}")
+    log.info("Deleting canarydrop for token: {token}", token=token)
 
-    DB.get_db().zrem(KEY_CANARYDROPS_TIMELINE, token)
+    db = DB.get_db()
+    with db.pipeline() as pipe:
+        if canarydrop.alert_email_recipient:
+            remove_email_token_idx(
+                canarydrop.alert_email_recipient,
+                token,
+                pipe=pipe,
+            )
 
-    if canarydrop.alert_email_recipient:
-        remove_email_token_idx(canarydrop.alert_email_recipient, token)
+        if canarydrop.alert_webhook_url:
+            remove_webhook_token_idx(
+                canarydrop.alert_webhook_url,
+                token,
+                pipe=pipe,
+            )
 
-    if canarydrop.alert_webhook_url:
-        remove_webhook_token_idx(canarydrop.alert_webhook_url, token)
-
-    remove_auth_token_idx(canarydrop.auth, token)
+        remove_auth_token_idx(canarydrop.auth, token, pipe=pipe)
+        pipe.zrem(KEY_CANARYDROPS_TIMELINE, token)
+        pipe.delete(KEY_CANARYDROP + token)
+        pipe.execute()
 
     if canarydrop.type == models.TokenTypes.WIREGUARD:
         wireguard.deleteCanarytokenPrivateKey(canarydrop.wg_key)
