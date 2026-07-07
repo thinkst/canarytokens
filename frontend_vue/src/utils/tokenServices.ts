@@ -569,14 +569,4 @@ export const tokenServices: TokenServicesType = {
     category: [TOKEN_CATEGORY.OTHER, TOKEN_CATEGORY.PHISHING],
     keywords: [],
   },
-  // Support token management, not creation
-  [TOKENS_TYPE.LEGACY]: {
-    label: 'Legacy',
-    description: '',
-    documentationLink: '',
-    icon: `${TOKENS_TYPE.LEGACY}.png`,
-    createRouteTokenAlias: '',
-    instruction: '',
-    isHiddenFromGenerateFlow: true,
-  },
 };

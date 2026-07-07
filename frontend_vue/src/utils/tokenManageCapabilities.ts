@@ -7,22 +7,30 @@
 
 import { TOKENS_TYPE } from '@/components/constants';
 
+type TokenTypeValue = (typeof TOKENS_TYPE)[keyof typeof TOKENS_TYPE];
+
+const TOKEN_MANAGE_CAPABILITIES_KEYS = {
+  SUPPORTS_IP_IGNORE: 'supportsIPIgnore',
+  SUPPORTS_BROWSER_SCAN: 'supportsBrowserScan',
+  SUPPORTS_CUSTOM_IMAGE: 'supportsCustomImage',
+} as const;
+
+type ManageCapability = typeof TOKEN_MANAGE_CAPABILITIES_KEYS[keyof typeof TOKEN_MANAGE_CAPABILITIES_KEYS];
+
 export type TokenManageCapabilitiesType = {
-  supportsIPIgnore: boolean;
-  supportsBrowserScan: boolean;
-  supportsCustomImage: boolean;
+  [key in ManageCapability]: boolean;
 };
 
 const COMMON_TOKEN_MANAGE_CAPABILITIES: TokenManageCapabilitiesType = {
-  supportsIPIgnore: true,
-  supportsBrowserScan: false,
-  supportsCustomImage: false,
+  [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_IP_IGNORE]: true,
+  [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_BROWSER_SCAN]: false,
+  [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_CUSTOM_IMAGE]: false,
 };
 
 const DISABLED_TOKEN_MANAGE_CAPABILITIES: TokenManageCapabilitiesType = {
-  supportsIPIgnore: false,
-  supportsBrowserScan: false,
-  supportsCustomImage: false,
+  [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_IP_IGNORE]: false,
+  [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_BROWSER_SCAN]: false,
+  [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_CUSTOM_IMAGE]: false,
 };
 
 function defineTokenManageCapabilities(
@@ -34,17 +42,17 @@ function defineTokenManageCapabilities(
   };
 }
 
-const TOKEN_MANAGE_CAPABILITIES: Record<string, TokenManageCapabilitiesType> = {
+const TOKEN_MANAGE_CAPABILITIES: Record<TokenTypeValue, TokenManageCapabilitiesType> = {
   [TOKENS_TYPE.WEB_BUG]: defineTokenManageCapabilities({
-    supportsBrowserScan: true,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_BROWSER_SCAN]: true,
   }),
   [TOKENS_TYPE.DNS]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.LOG4SHELL]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.QRCODE]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.MYSQL]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.WEB_IMAGE]: defineTokenManageCapabilities({
-    supportsBrowserScan: true,
-    supportsCustomImage: true,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_BROWSER_SCAN]: true,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_CUSTOM_IMAGE]: true,
   }),
   [TOKENS_TYPE.AWS_KEYS]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.FAST_REDIRECT]: defineTokenManageCapabilities(),
@@ -56,7 +64,7 @@ const TOKEN_MANAGE_CAPABILITIES: Record<string, TokenManageCapabilitiesType> = {
   [TOKENS_TYPE.MICROSOFT_WORD]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.SVN]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.UNIQUE_EMAIL]: defineTokenManageCapabilities({
-    supportsIPIgnore: false,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_IP_IGNORE]: false,
   }),
   [TOKENS_TYPE.SQL_SERVER]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.CUSTOM_EXE]: defineTokenManageCapabilities(),
@@ -69,11 +77,11 @@ const TOKEN_MANAGE_CAPABILITIES: Record<string, TokenManageCapabilitiesType> = {
   [TOKENS_TYPE.AZURE_ENTRA_CONFIG]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.PWA]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.CREDIT_CARD_V2]: defineTokenManageCapabilities({
-    supportsIPIgnore: false,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_IP_IGNORE]: false,
   }),
   [TOKENS_TYPE.WEBDAV]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.IDP_APP]: defineTokenManageCapabilities({
-    supportsBrowserScan: true,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_BROWSER_SCAN]: true,
   }),
   [TOKENS_TYPE.AWS_INFRA]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.CROWDSTRIKE_CC]: defineTokenManageCapabilities(),
@@ -85,8 +93,8 @@ export function getTokenManageCapabilities(
   tokenType: string | null,
 ): TokenManageCapabilitiesType {
   if (!tokenType || !TOKEN_MANAGE_CAPABILITIES[tokenType]) {
-    return DISABLED_TOKEN_MANAGE_CAPABILITIES;
+    return { ...DISABLED_TOKEN_MANAGE_CAPABILITIES };
   }
 
-  return TOKEN_MANAGE_CAPABILITIES[tokenType];
+  return { ...TOKEN_MANAGE_CAPABILITIES[tokenType] };
 }
