@@ -87,7 +87,11 @@ const TOKEN_MANAGE_CAPABILITIES: Record<TokenTypeValue, TokenManageCapabilitiesT
   [TOKENS_TYPE.CROWDSTRIKE_CC]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.SVG]: defineTokenManageCapabilities(),
   [TOKENS_TYPE.MCP]: defineTokenManageCapabilities(),
-};
+  [TOKENS_TYPE.LEGACY]: defineTokenManageCapabilities({
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_IP_IGNORE]: false,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_BROWSER_SCAN]: false,
+    [TOKEN_MANAGE_CAPABILITIES_KEYS.SUPPORTS_CUSTOM_IMAGE]: false,
+  }),};
 
 export function getTokenManageCapabilities(
   tokenType: string | null,

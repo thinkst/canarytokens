@@ -41,6 +41,7 @@ export const TOKENS_TYPE = {
   CROWDSTRIKE_CC: 'crowdstrike_cc',
   SVG: 'svg',
   MCP: 'mcp',
+  LEGACY: 'legacy',
 };
 
 // unique keys to use in the frontend
