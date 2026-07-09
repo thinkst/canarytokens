@@ -12,3 +12,4 @@ frontend/frontend.env
 switchboard/switchboard.env
 private_settings.sh
 dist/*
+.venv/
