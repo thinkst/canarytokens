@@ -93,6 +93,9 @@ export const TOKENS_TYPE = {
    - Add the alert icon to the ```templates/static/notification-email/canarytoken-icons``` directory.
    - Add the file-style icon to the ```assets/step1``` directory.
    - Make sure the icon filename matches the backend-provided name.
+   - Add a category, so the token can be filtered correctly.
+   - Add keywords, so the token can be found from the search input.
+   - If the token has a custom generation flow, set ```isCustomGenerateFlow: true```.
 
 
 i.e. for Cloned Site
@@ -117,6 +120,32 @@ i.e. for Cloned Site
     keywords: ['web', 'cloned'],
   },
 ```
+---
+
+### Manage page capabilities
+
+Token manage settings use a common set of capabilities for most supported tokens.
+
+Every known token should have an entry in ```src/utils/tokenManageCapabilities.ts```.
+
+Use the common capabilities helper for tokens that follow the common pattern:
+
+```
+{
+  supportsIPIgnore: true,
+  supportsBrowserScan: false,
+  supportsCustomImage: false,
+}
+```
+
+i.e. for a token that supports browser scan
+
+```
+  [TOKENS_TYPE.WEB_BUG]: defineTokenManageCapabilities({
+    supportsBrowserScan: true,
+  }),
+```
+
 ---
 
 ### Token's folder
@@ -165,7 +194,6 @@ i.e. Cloned site
 ```
 
 ---
-
 
 ...that should be it.
 
