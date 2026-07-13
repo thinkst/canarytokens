@@ -11,6 +11,9 @@ RUN apt-get update \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --from=ghcr.io/astral-sh/uv:0.11.24 /uv /uvx /usr/local/bin/
+ENV UV_LINK_MODE=copy
+
 CMD [ "sleep", "infinity" ]
 
 # [Optional] Uncomment this section to install additional OS packages.
