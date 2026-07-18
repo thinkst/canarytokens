@@ -116,7 +116,11 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape(validationNotificationSettings),
   },
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
-    schema: Yup.object().shape(validationNotificationSettings),
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      text_snippet: Yup.string(),
+      text_snippet_placement: Yup.string().oneOf(['metadata', 'plaintext']),
+    }),
   },
   [TOKENS_TYPE.AZURE_ID]: {
     schema: Yup.object().shape({

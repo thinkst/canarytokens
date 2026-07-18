@@ -1,4 +1,7 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
+
+from canarytokens.msexcel import MSEXCEL_TEXT_SNIPPET_PLACEMENT_PLAINTEXT
+
 from .common import (
     DownloadContentTypes,
     DownloadFmtTypes,
@@ -14,6 +17,10 @@ from .common import (
 
 class MsExcelDocumentTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
+    text_snippet: Optional[str] = None
+    text_snippet_placement: Literal["metadata", "plaintext"] = (
+        MSEXCEL_TEXT_SNIPPET_PLACEMENT_PLAINTEXT
+    )
 
 
 class MsExcelDocumentTokenResponse(TokenResponse):

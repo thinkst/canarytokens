@@ -1440,6 +1440,10 @@ def _(
         content=make_canary_msexcel(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.xlsx",
+            text_snippet=canarydrop.msword_text_snippet,
+            text_snippet_placement=(
+                canarydrop.msword_text_snippet_placement or "plaintext"
+            ),
         ),
         filename=f"{canarydrop.canarytoken.value()}.xlsx",
     )
