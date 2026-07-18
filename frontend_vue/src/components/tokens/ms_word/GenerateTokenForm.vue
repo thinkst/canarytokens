@@ -4,7 +4,7 @@
       <BaseInputCheckbox
         id="include_text_snippet"
         v-model="includeTextSnippet"
-        label="Include custom text in the documents"
+        label="Include AI/Agent Poison Pill"
       />
       <BaseFormTextField
         v-if="includeTextSnippet"
@@ -19,39 +19,38 @@
         required
       />
       <fieldset
+        v-if="includeTextSnippet"
         class="text-placement-options"
-        :disabled="!includeTextSnippet"
       >
         <legend>Document text placement</legend>
-        <label>
+        <label class="text-placement-option">
           <input
             id="text_snippet_placement_metadata"
             v-model="textSnippetPlacement"
             type="radio"
             name="text_snippet_placement"
             value="metadata"
-            :disabled="!includeTextSnippet"
           />
           Hidden in document metadata
         </label>
-        <label>
+        <span aria-hidden="true">or</span>
+        <label class="text-placement-option">
           <input
             id="text_snippet_placement_plaintext"
             v-model="textSnippetPlacement"
             type="radio"
             name="text_snippet_placement"
             value="plaintext"
-            :disabled="!includeTextSnippet"
           />
           Inserted as plaintext in the document
         </label>
       </fieldset>
-      <!-- <BaseInputCheckbox
+      <BaseInputCheckbox
+        v-if="includeTextSnippet"
         id="text_snippet_base64"
         v-model="textSnippetBase64"
         label="Base64 encode the document text"
-        :disabled="!includeTextSnippet"
-      /> -->
+      />
     </div>
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
@@ -93,27 +92,26 @@ watch(includeTextSnippet, (enabled) => {
 .text-placement-options {
   border: 0;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0;
 
   legend {
     color: var(--color-grey-500);
     margin-bottom: 0.5rem;
+    width: 100%;
   }
 
-  label {
+  .text-placement-option {
     align-items: center;
     color: var(--color-grey-500);
     display: flex;
     gap: 0.5rem;
   }
 
-  &:disabled {
-    label,
-    legend {
-      color: var(--color-grey-300);
-    }
+  span {
+    color: var(--color-grey-400);
   }
 }
 </style>
