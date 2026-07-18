@@ -666,6 +666,10 @@ async def api_generate(  # noqa: C901  # gen is large
         #       attribute setting into `create_response`
         #       which is already doing the type dispatch for us.
         kubeconfig=kube_config,
+        msword_text_snippet=getattr(token_request_details, "text_snippet", None),
+        msword_text_snippet_base64=getattr(
+            token_request_details, "text_snippet_base64", False
+        ),
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
         expected_referrer=getattr(token_request_details, "expected_referrer", None),
@@ -1399,6 +1403,8 @@ def _(
         content=make_canary_msword(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
+            text_snippet=canarydrop.msword_text_snippet,
+            text_snippet_base64=bool(canarydrop.msword_text_snippet_base64),
         ),
         filename=f"{canarydrop.canarytoken.value()}.docx",
     )

@@ -3,6 +3,7 @@ import {
   TOKENS_TYPE,
   MAX_UPLOAD_SIZE,
   MAX_APP_NAME_LENGTH,
+  MAX_MSWORD_TEXT_SNIPPET_LENGTH,
 } from '@/components/constants.ts';
 import { isValidFileType, validFileExtensions } from './utils';
 
@@ -24,6 +25,8 @@ type FieldsType = {
   windows_fake_fs_file_structure?: string;
   icon?: string;
   app_name?: string;
+  text_snippet?: string;
+  text_snippet_base64?: boolean;
   cf_turnstile_response?: string;
   app_type?: string;
   aws_region?: string;
@@ -127,7 +130,14 @@ export const formValidators: ValidateSchemaType = {
     }),
   },
   [TOKENS_TYPE.MICROSOFT_WORD]: {
-    schema: Yup.object().shape(validationNotificationSettings),
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      text_snippet: Yup.string().max(
+        MAX_MSWORD_TEXT_SNIPPET_LENGTH,
+        `Document text cannot be longer than ${MAX_MSWORD_TEXT_SNIPPET_LENGTH} characters`
+      ),
+      text_snippet_base64: Yup.boolean(),
+    }),
   },
   [TOKENS_TYPE.WEB_IMAGE]: {
     schema: Yup.object().shape({

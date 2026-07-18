@@ -127,6 +127,8 @@ class Canarydrop(BaseModel):
     clonedsite: Optional[str]
     # Kubeconfig specific stuff
     kubeconfig: Optional[str]
+    msword_text_snippet: Optional[str]
+    msword_text_snippet_base64: Optional[bool] = False
     # SQL specific stuff
     sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
     sql_server_table_name: Optional[str]
