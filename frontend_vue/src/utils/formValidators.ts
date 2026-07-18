@@ -27,6 +27,7 @@ type FieldsType = {
   app_name?: string;
   text_snippet?: string;
   text_snippet_base64?: boolean;
+  text_snippet_placement?: string;
   cf_turnstile_response?: string;
   app_type?: string;
   aws_region?: string;
@@ -137,6 +138,7 @@ export const formValidators: ValidateSchemaType = {
         `Document text cannot be longer than ${MAX_MSWORD_TEXT_SNIPPET_LENGTH} characters`
       ),
       text_snippet_base64: Yup.boolean(),
+      text_snippet_placement: Yup.string().oneOf(['metadata', 'plaintext']),
     }),
   },
   [TOKENS_TYPE.WEB_IMAGE]: {

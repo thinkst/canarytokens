@@ -15,25 +15,38 @@ from canarytokens.ziplib import (
     zipinfo_contents_replace,
 )
 
+MSWORD_TEXT_SNIPPET_PLACEMENT_METADATA = "metadata"
+MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT = "plaintext"
+
 
 def _add_text_snippet(document_xml: str, text_snippet: str) -> str:
-    paragraphs = []
-    normalized_snippet = text_snippet.replace("\r\n", "\n").replace("\r", "\n")
-    for line in normalized_snippet.split("\n"):
-        if line:
-            paragraphs.append(
-                '<w:p><w:r><w:t xml:space="preserve">'
-                f"{escape(line, quote=False)}"
-                "</w:t></w:r></w:p>"
-            )
-        else:
-            paragraphs.append("<w:p/>")
-
     section_properties = "<w:sectPr"
     if section_properties not in document_xml:
         raise ValueError("Microsoft Word template has no section properties")
+    snippet_tag = (
+        '<w:sdt><w:sdtPr><w:tag w:val="'
+        f"{escape(text_snippet, quote=True)}"
+        '"/></w:sdtPr><w:sdtContent><w:p/></w:sdtContent></w:sdt>'
+    )
+    return document_xml.replace(section_properties, snippet_tag + section_properties, 1)
+
+
+def _add_plaintext_snippet(document_xml: str, text_snippet: str) -> str:
+    section_properties = "<w:sectPr"
+    if section_properties not in document_xml:
+        raise ValueError("Microsoft Word template has no section properties")
+
+    lines = text_snippet.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    snippet_runs = []
+    for index, line in enumerate(lines):
+        if index:
+            snippet_runs.append("<w:r><w:br/></w:r>")
+        snippet_runs.append(
+            f'<w:r><w:t xml:space="preserve">{escape(line, quote=False)}</w:t></w:r>'
+        )
+    snippet_paragraph = f"<w:p>{''.join(snippet_runs)}</w:p>"
     return document_xml.replace(
-        section_properties, "".join(paragraphs) + section_properties, 1
+        section_properties, snippet_paragraph + section_properties, 1
     )
 
 
@@ -42,6 +55,7 @@ def make_canary_msword(
     template: Path,
     text_snippet: Optional[str] = None,
     text_snippet_base64: bool = False,
+    text_snippet_placement: str = MSWORD_TEXT_SNIPPET_PLACEMENT_METADATA,
 ) -> bytes:
     with open(template, "rb") as f:
         input_buf = BytesIO(f.read())
@@ -70,7 +84,10 @@ def make_canary_msword(
             if entry.filename == "word/document.xml" and text_snippet:
                 if text_snippet_base64:
                     text_snippet = base64.b64encode(text_snippet.encode()).decode()
-                contents = _add_text_snippet(contents, text_snippet)
+                if text_snippet_placement == MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT:
+                    contents = _add_plaintext_snippet(contents, text_snippet)
+                else:
+                    contents = _add_text_snippet(contents, text_snippet)
             output_zip.writestr(entry, contents)
     output_zip.close()
     return output_buf.getvalue()
