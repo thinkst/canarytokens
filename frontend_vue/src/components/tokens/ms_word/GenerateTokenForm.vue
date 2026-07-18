@@ -9,47 +9,31 @@
       <BaseFormTextField
         v-if="includeTextSnippet"
         id="text_snippet"
+        :value="textSnippet"
         label="Document textes"
         placeholder="Paste or type the text to include in the document"
-        helper-message="Up to 1000 characters."
-        :max-length="MAX_MSWORD_TEXT_SNIPPET_LENGTH"
+        helper-message="Toggle Base64 on to encode this text before it is added to the document."
         multiline
         multiline-height="8rem"
         full-width
         required
+        @input="syncTextSnippet"
       />
-      <fieldset
+      <BaseFormSelect
         v-if="includeTextSnippet"
-        class="text-placement-options"
-      >
-        <legend>Document text placement</legend>
-        <label class="text-placement-option">
-          <input
-            id="text_snippet_placement_metadata"
-            v-model="textSnippetPlacement"
-            type="radio"
-            name="text_snippet_placement"
-            value="metadata"
-          />
-          Hidden in document metadata
-        </label>
-        <span aria-hidden="true">or</span>
-        <label class="text-placement-option">
-          <input
-            id="text_snippet_placement_plaintext"
-            v-model="textSnippetPlacement"
-            type="radio"
-            name="text_snippet_placement"
-            value="plaintext"
-          />
-          Inserted as plaintext in the document
-        </label>
-      </fieldset>
-      <BaseInputCheckbox
+        id="text_snippet_placement"
+        label="Document text placement"
+        :options="textSnippetPlacementOptions"
+        :value="textSnippetPlacementOptions[1]"
+        :searchable="false"
+      />
+      <BaseSwitch
         v-if="includeTextSnippet"
         id="text_snippet_base64"
-        v-model="textSnippetBase64"
-        label="Base64 encode the document text"
+        :model-value="textSnippetBase64"
+        label="Base64 encode text"
+        helper-message="Toggle between base64 encoded and plaintext text."
+        @update:model-value="setTextSnippetBase64"
       />
     </div>
   </BaseGenerateTokenSettings>
@@ -62,56 +46,53 @@
 import { ref, watch } from 'vue';
 import { useField } from 'vee-validate';
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
-import { MAX_MSWORD_TEXT_SNIPPET_LENGTH } from '@/components/constants';
+import type { SelectOption } from '@/components/base/BaseFormSelect.vue';
 
 const includeTextSnippet = ref(false);
-const { value: textSnippetPlacement } = useField<string>(
-  'text_snippet_placement',
-  undefined,
-  {
-    initialValue: 'metadata',
+const textSnippetBase64 = ref(false);
+const textSnippetPlacementOptions: SelectOption[] = [
+  { value: 'metadata', label: 'Hidden in document metadata' },
+  { value: 'plaintext', label: 'Inserted as plaintext in the document' },
+];
+const { value: textSnippet } = useField<string>('text_snippet', undefined, {
+  initialValue: '',
+});
+
+function syncTextSnippet(event: Event) {
+  textSnippet.value = (event.target as HTMLTextAreaElement).value;
+}
+
+function encodeText(text: string) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
+
+function decodeText(text: string) {
+  const binary = atob(text);
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function setTextSnippetBase64(enabled: boolean) {
+  if (enabled === textSnippetBase64.value) return;
+
+  try {
+    textSnippet.value = enabled
+      ? encodeText(textSnippet.value)
+      : decodeText(textSnippet.value);
+    textSnippetBase64.value = enabled;
+  } catch {
+    textSnippetBase64.value = !enabled;
   }
-);
-const { value: textSnippetBase64 } = useField<boolean>(
-  'text_snippet_base64',
-  undefined,
-  {
-    initialValue: false,
-  }
-);
+}
 
 watch(includeTextSnippet, (enabled) => {
   if (!enabled) {
     textSnippetBase64.value = false;
-    textSnippetPlacement.value = 'metadata';
   }
 });
 </script>
-
-<style scoped lang="scss">
-.text-placement-options {
-  border: 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0;
-
-  legend {
-    color: var(--color-grey-500);
-    margin-bottom: 0.5rem;
-    width: 100%;
-  }
-
-  .text-placement-option {
-    align-items: center;
-    color: var(--color-grey-500);
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  span {
-    color: var(--color-grey-400);
-  }
-}
-</style>
