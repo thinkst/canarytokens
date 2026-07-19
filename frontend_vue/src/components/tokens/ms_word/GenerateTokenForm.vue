@@ -1,23 +1,31 @@
 <template>
   <BaseGenerateTokenSettings setting-type="Canarytoken">
     <div class="flex flex-col gap-16">
-      <BaseInputCheckbox
+      <BaseSwitch
         id="include_text_snippet"
         v-model="includeTextSnippet"
-        label="Include Agent Poison Pill"
+        label="Embed custom text"
+        helper-message="For experimenting with AI agent prompt injection."
       />
       <BaseFormTextField
         v-if="includeTextSnippet"
         id="text_snippet"
         :value="textSnippet"
-        label="Snippet to insert"
+        label="Text to embed"
         placeholder="Paste or type the snippet to include in the document"
-        helper-message="We default to a few prompts known to trigger agent behavior."
         multiline
         multiline-height="8rem"
         full-width
         required
         @input="syncTextSnippet"
+      />
+      <BaseSwitch
+        v-if="includeTextSnippet"
+        id="text_snippet_base64"
+        :model-value="textSnippetBase64"
+        label="Base64 encode text"
+        helper-message="Toggle between base64 encoded and plaintext text."
+        @update:model-value="setTextSnippetBase64"
       />
       <div>
         <BaseFormSelect
@@ -29,14 +37,6 @@
           :searchable="false"
         />
       </div>
-      <BaseSwitch
-        v-if="includeTextSnippet"
-        id="text_snippet_base64"
-        :model-value="textSnippetBase64"
-        label="Base64 encode text"
-        helper-message="Toggle between base64 encoded and plaintext text."
-        @update:model-value="setTextSnippetBase64"
-      />
     </div>
   </BaseGenerateTokenSettings>
   <GenerateTokenSettingsNotifications
