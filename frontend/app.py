@@ -667,9 +667,6 @@ async def api_generate(  # noqa: C901  # gen is large
         #       which is already doing the type dispatch for us.
         kubeconfig=kube_config,
         msword_text_snippet=getattr(token_request_details, "text_snippet", None),
-        msword_text_snippet_base64=getattr(
-            token_request_details, "text_snippet_base64", False
-        ),
         msword_text_snippet_placement=getattr(
             token_request_details, "text_snippet_placement", "metadata"
         ),
@@ -1407,7 +1404,6 @@ def _(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
             text_snippet=canarydrop.msword_text_snippet,
-            text_snippet_base64=bool(canarydrop.msword_text_snippet_base64),
             text_snippet_placement=(
                 canarydrop.msword_text_snippet_placement or "metadata"
             ),

@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import base64
 import datetime
 import random
 from html import escape
@@ -54,7 +53,6 @@ def make_canary_msword(
     url: str,
     template: Path,
     text_snippet: Optional[str] = None,
-    text_snippet_base64: bool = False,
     text_snippet_placement: str = MSWORD_TEXT_SNIPPET_PLACEMENT_METADATA,
 ) -> bytes:
     with open(template, "rb") as f:
@@ -82,8 +80,6 @@ def make_canary_msword(
             contents = contents.replace("aaaaaaaaaaaaaaaaaaaa", created_ts)
             contents = contents.replace("bbbbbbbbbbbbbbbbbbbb", now_ts)
             if entry.filename == "word/document.xml" and text_snippet:
-                if text_snippet_base64:
-                    text_snippet = base64.b64encode(text_snippet.encode()).decode()
                 if text_snippet_placement == MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT:
                     contents = _add_plaintext_snippet(contents, text_snippet)
                 else:

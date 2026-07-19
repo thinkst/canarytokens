@@ -24,7 +24,6 @@ class MsWordTextSnippet(ConstrainedStr):
 class MsWordDocumentTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
     text_snippet: Optional[MsWordTextSnippet] = None
-    text_snippet_base64: bool = False
     text_snippet_placement: Literal["metadata", "plaintext"] = (
         MSWORD_TEXT_SNIPPET_PLACEMENT_METADATA
     )

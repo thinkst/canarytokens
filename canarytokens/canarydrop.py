@@ -128,7 +128,6 @@ class Canarydrop(BaseModel):
     # Kubeconfig specific stuff
     kubeconfig: Optional[str]
     msword_text_snippet: Optional[str]
-    msword_text_snippet_base64: Optional[bool] = False
     msword_text_snippet_placement: Optional[str] = "metadata"
     # SQL specific stuff
     sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
