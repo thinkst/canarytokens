@@ -649,6 +649,17 @@ async def api_generate(  # noqa: C901  # gen is large
 
     src_ip = _get_src_ip(request)
     x_forwarded_for = request.headers.get("x-forwarded-for") or ""
+    include_text_snippet = getattr(token_request_details, "include_text_snippet", False)
+    text_snippet = (
+        getattr(token_request_details, "text_snippet", None)
+        if include_text_snippet
+        else None
+    )
+    text_snippet_placement = (
+        getattr(token_request_details, "text_snippet_placement", None)
+        if include_text_snippet
+        else None
+    )
 
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
@@ -666,10 +677,8 @@ async def api_generate(  # noqa: C901  # gen is large
         #       attribute setting into `create_response`
         #       which is already doing the type dispatch for us.
         kubeconfig=kube_config,
-        msword_text_snippet=getattr(token_request_details, "text_snippet", None),
-        msword_text_snippet_placement=getattr(
-            token_request_details, "text_snippet_placement", "metadata"
-        ),
+        text_snippet=text_snippet,
+        text_snippet_placement=text_snippet_placement,
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
         expected_referrer=getattr(token_request_details, "expected_referrer", None),
@@ -1403,10 +1412,8 @@ def _(
         content=make_canary_msword(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
-            text_snippet=canarydrop.msword_text_snippet,
-            text_snippet_placement=(
-                canarydrop.msword_text_snippet_placement or "metadata"
-            ),
+            text_snippet=canarydrop.text_snippet,
+            text_snippet_placement=(canarydrop.text_snippet_placement or "plaintext"),
         ),
         filename=f"{canarydrop.canarytoken.value()}.docx",
     )
@@ -1436,10 +1443,8 @@ def _(
         content=make_canary_msexcel(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.xlsx",
-            text_snippet=canarydrop.msword_text_snippet,
-            text_snippet_placement=(
-                canarydrop.msword_text_snippet_placement or "plaintext"
-            ),
+            text_snippet=canarydrop.text_snippet,
+            text_snippet_placement=(canarydrop.text_snippet_placement or "plaintext"),
         ),
         filename=f"{canarydrop.canarytoken.value()}.xlsx",
     )

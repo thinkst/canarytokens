@@ -353,6 +353,49 @@ def test_token_download_requests(
 
 @pytest.mark.parametrize(
     "token_request_type, token_response_type",
+    [
+        (MsWordDocumentTokenRequest, MsWordDocumentTokenResponse),
+        (MsExcelDocumentTokenRequest, MsExcelDocumentTokenResponse),
+    ],
+)
+@pytest.mark.parametrize("include_text_snippet", [False, True])
+def test_document_tokens_honor_include_text_snippet(
+    token_request_type: AnyTokenRequest,
+    token_response_type: AnyTokenResponse,
+    include_text_snippet: bool,
+    test_client: TestClient,
+    setup_db: None,
+) -> None:
+    text_snippet = "ignore this when disabled"
+    text_snippet_placement = "metadata"
+    token_request = token_request_type(
+        email="test@test.com",
+        memo="test stuff break stuff fix stuff test stuff",
+        include_text_snippet=include_text_snippet,
+        text_snippet=text_snippet,
+        text_snippet_placement=text_snippet_placement,
+    )
+
+    resp = test_client.post(
+        api_path("/generate"), json=json.loads(token_request.json())
+    )
+
+    assert resp.status_code == 200
+    token_resp = token_response_type(**resp.json())
+    generated_canarydrop = queries.get_canarydrop_and_authenticate(
+        token=token_resp.token, auth=token_resp.auth_token
+    )
+
+    if include_text_snippet:
+        assert generated_canarydrop.text_snippet == text_snippet
+        assert generated_canarydrop.text_snippet_placement == text_snippet_placement
+    else:
+        assert generated_canarydrop.text_snippet is None
+        assert generated_canarydrop.text_snippet_placement is None
+
+
+@pytest.mark.parametrize(
+    "token_request_type, token_response_type",
     zip(set_of_request_classes, set_of_response_classes),
 )
 def test_email_enable_token_settings_requests(
