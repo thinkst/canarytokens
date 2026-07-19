@@ -4,29 +4,31 @@
       <BaseInputCheckbox
         id="include_text_snippet"
         v-model="includeTextSnippet"
-        label="Include AI/Agent Poison Pill"
+        label="Include Agent Poison Pill"
       />
       <BaseFormTextField
         v-if="includeTextSnippet"
         id="text_snippet"
         :value="textSnippet"
-        label="Document textes"
-        placeholder="Paste or type the text to include in the document"
-        helper-message="Toggle Base64 on to encode this text before it is added to the document."
+        label="Snippet to insert"
+        placeholder="Paste or type the snippet to include in the document"
+        helper-message="We default to a few prompts known to trigger agent behavior."
         multiline
         multiline-height="8rem"
         full-width
         required
         @input="syncTextSnippet"
       />
-      <BaseFormSelect
-        v-if="includeTextSnippet"
-        id="text_snippet_placement"
-        label="Document text placement"
-        :options="textSnippetPlacementOptions"
-        :value="textSnippetPlacementOptions[1]"
-        :searchable="false"
-      />
+      <div>
+        <BaseFormSelect
+          v-if="includeTextSnippet"
+          id="text_snippet_placement"
+          label="Snippet placement"
+          :options="textSnippetPlacementOptions"
+          :value="textSnippetPlacementOptions[0]"
+          :searchable="false"
+        />
+      </div>
       <BaseSwitch
         v-if="includeTextSnippet"
         id="text_snippet_base64"
@@ -47,15 +49,18 @@ import { ref, watch } from 'vue';
 import { useField } from 'vee-validate';
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 import type { SelectOption } from '@/components/base/BaseFormSelect.vue';
+import { prompts } from '@/utils/poisonPillPrompts';
 
 const includeTextSnippet = ref(false);
 const textSnippetBase64 = ref(false);
 const textSnippetPlacementOptions: SelectOption[] = [
-  { value: 'metadata', label: 'Hidden in document metadata' },
   { value: 'plaintext', label: 'Inserted as plaintext in the document' },
+  { value: 'metadata', label: 'Hidden in document metadata' },
 ];
+
+
 const { value: textSnippet } = useField<string>('text_snippet', undefined, {
-  initialValue: '',
+  initialValue: prompts.join('\n'),
 });
 
 function syncTextSnippet(event: Event) {
