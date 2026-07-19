@@ -24,6 +24,7 @@ type FieldsType = {
   windows_fake_fs_file_structure?: string;
   icon?: string;
   app_name?: string;
+  include_text_snippet?: boolean;
   text_snippet?: string;
   text_snippet_placement?: string;
   cf_turnstile_response?: string;
@@ -118,6 +119,7 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
+      include_text_snippet: Yup.boolean(),
       text_snippet: Yup.string(),
       text_snippet_placement: Yup.string().oneOf(['metadata', 'plaintext']),
     }),
@@ -135,6 +137,7 @@ export const formValidators: ValidateSchemaType = {
   [TOKENS_TYPE.MICROSOFT_WORD]: {
     schema: Yup.object().shape({
       ...validationNotificationSettings,
+      include_text_snippet: Yup.boolean(),
       text_snippet: Yup.string(),
       text_snippet_placement: Yup.string().oneOf(['metadata', 'plaintext']),
     }),
