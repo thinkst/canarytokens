@@ -14,6 +14,7 @@
           :value="textSnippet"
           label="Text to embed"
           placeholder="Paste or type the snippet to include in the document"
+          :maxLength="5000"
           multiline
           multiline-height="8rem"
           full-width

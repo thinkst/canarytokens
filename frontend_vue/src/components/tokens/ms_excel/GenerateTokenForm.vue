@@ -16,6 +16,7 @@
           placeholder="Paste or type the text to include in the document"
           multiline
           multiline-height="8rem"
+          :maxLength="5000"
           full-width
           required
         />
