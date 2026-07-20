@@ -2,8 +2,10 @@ from __future__ import absolute_import
 
 import datetime
 import random
+from html import escape
 from io import BytesIO
 from pathlib import Path
+from typing import Optional
 from zipfile import ZipFile
 
 from canarytokens.ziplib import (
@@ -13,7 +15,30 @@ from canarytokens.ziplib import (
 )
 
 
-def make_canary_msword(url: str, template: Path):
+def _add_plaintext_snippet(document_xml: str, text_snippet: str) -> str:
+    section_properties = "<w:sectPr"
+    if section_properties not in document_xml:
+        raise ValueError("Microsoft Word template has no section properties")
+
+    lines = text_snippet.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    snippet_runs = []
+    for index, line in enumerate(lines):
+        if index:
+            snippet_runs.append("<w:r><w:br/></w:r>")
+        snippet_runs.append(
+            f'<w:r><w:t xml:space="preserve">{escape(line, quote=False)}</w:t></w:r>'
+        )
+    snippet_paragraph = f"<w:p>{''.join(snippet_runs)}</w:p>"
+    return document_xml.replace(
+        section_properties, snippet_paragraph + section_properties, 1
+    )
+
+
+def make_canary_msword(
+    url: str,
+    template: Path,
+    text_snippet: Optional[str] = None,
+) -> bytes:
     with open(template, "rb") as f:
         input_buf = BytesIO(f.read())
     output_buf = BytesIO()
@@ -38,6 +63,8 @@ def make_canary_msword(url: str, template: Path):
             )
             contents = contents.replace("aaaaaaaaaaaaaaaaaaaa", created_ts)
             contents = contents.replace("bbbbbbbbbbbbbbbbbbbb", now_ts)
+            if entry.filename == "word/document.xml" and text_snippet:
+                contents = _add_plaintext_snippet(contents, text_snippet)
             output_zip.writestr(entry, contents)
     output_zip.close()
     return output_buf.getvalue()

@@ -1,5 +1,6 @@
 <template>
   <button
+    type="button"
     v-tooltip="{
       content: 'How does this work?',
       shown: isOpen,

@@ -1,4 +1,8 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
+
+from pydantic import ConstrainedStr
+
+from canarytokens.constants import MSWORD_TEXT_SNIPPET_MAX_CHARACTERS
 from .common import (
     DownloadContentTypes,
     DownloadFmtTypes,
@@ -12,8 +16,14 @@ from .common import (
 )
 
 
+class MsWordTextSnippet(ConstrainedStr):
+    max_length = MSWORD_TEXT_SNIPPET_MAX_CHARACTERS
+
+
 class MsWordDocumentTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
+    include_text_snippet: bool = False
+    text_snippet: Optional[MsWordTextSnippet] = None
 
 
 class MsWordDocumentTokenResponse(TokenResponse):

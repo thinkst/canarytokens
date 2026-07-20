@@ -24,6 +24,8 @@ type FieldsType = {
   windows_fake_fs_file_structure?: string;
   icon?: string;
   app_name?: string;
+  include_text_snippet?: boolean;
+  text_snippet?: string;
   cf_turnstile_response?: string;
   app_type?: string;
   aws_region?: string;
@@ -114,7 +116,11 @@ export const formValidators: ValidateSchemaType = {
     schema: Yup.object().shape(validationNotificationSettings),
   },
   [TOKENS_TYPE.MICROSOFT_EXCEL]: {
-    schema: Yup.object().shape(validationNotificationSettings),
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      include_text_snippet: Yup.boolean(),
+      text_snippet: Yup.string(),
+    }),
   },
   [TOKENS_TYPE.AZURE_ID]: {
     schema: Yup.object().shape({
@@ -127,7 +133,11 @@ export const formValidators: ValidateSchemaType = {
     }),
   },
   [TOKENS_TYPE.MICROSOFT_WORD]: {
-    schema: Yup.object().shape(validationNotificationSettings),
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      include_text_snippet: Yup.boolean(),
+      text_snippet: Yup.string(),
+    }),
   },
   [TOKENS_TYPE.WEB_IMAGE]: {
     schema: Yup.object().shape({

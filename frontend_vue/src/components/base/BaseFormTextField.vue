@@ -36,6 +36,7 @@
       aria-describedby="helper error"
       :required="required"
       :disabled="disabled"
+      :maxlength="maxLength"
       v-bind="$attrs"
       @blur="handleChange"
       @input="(e: Event) => validateIfErrorExists(e)"

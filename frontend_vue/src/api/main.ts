@@ -73,6 +73,11 @@ export function deleteToken(params: TokenAuthType) {
   return axios.post(url, params).then((response) => response);
 }
 
+export function getDefaultGuardrailTriggers() {
+  const url = '/d3aece8093b71007b5ccfedad91ebb11/default_guardrail_triggers';
+  return axios.get<string[]>(url).then((response) => response.data);
+}
+
 export function getCreditCardDetails(cf_turnstile_response: string) {
   const url = '/d3aece8093b71007b5ccfedad91ebb11/credit_card/quota';
   return axios

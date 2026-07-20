@@ -649,6 +649,12 @@ async def api_generate(  # noqa: C901  # gen is large
 
     src_ip = _get_src_ip(request)
     x_forwarded_for = request.headers.get("x-forwarded-for") or ""
+    include_text_snippet = getattr(token_request_details, "include_text_snippet", False)
+    text_snippet = (
+        getattr(token_request_details, "text_snippet", None)
+        if include_text_snippet
+        else None
+    )
 
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
@@ -666,6 +672,7 @@ async def api_generate(  # noqa: C901  # gen is large
         #       attribute setting into `create_response`
         #       which is already doing the type dispatch for us.
         kubeconfig=kube_config,
+        text_snippet=text_snippet,
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
         expected_referrer=getattr(token_request_details, "expected_referrer", None),
@@ -924,6 +931,11 @@ async def api_mail_token_list(request: FetchLinksRequest) -> JSONResponse:
 def api_get_commit_sha():
     commit_sha = get_deployed_commit_sha()
     return JSONResponse({"commit_sha": commit_sha}, status_code=200)
+
+
+@api.get("/default_guardrail_triggers", response_model=list[str])
+async def api_get_default_guardrail_triggers() -> list[str]:
+    return frontend_settings.DEFAULT_GUARDRAIL_TRIGGERS
 
 
 @api.get("/credit_card/quota")
@@ -1399,6 +1411,7 @@ def _(
         content=make_canary_msword(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
+            text_snippet=canarydrop.text_snippet,
         ),
         filename=f"{canarydrop.canarytoken.value()}.docx",
     )
@@ -1428,6 +1441,7 @@ def _(
         content=make_canary_msexcel(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.xlsx",
+            text_snippet=canarydrop.text_snippet,
         ),
         filename=f"{canarydrop.canarytoken.value()}.xlsx",
     )

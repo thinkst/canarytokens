@@ -2,8 +2,10 @@ from __future__ import absolute_import
 
 import datetime
 import random
+from html import escape
 from io import BytesIO
 from pathlib import Path
+from typing import Optional
 from zipfile import ZipFile
 
 from canarytokens.ziplib import (
@@ -13,7 +15,23 @@ from canarytokens.ziplib import (
 )
 
 
-def make_canary_msexcel(url: str, template: Path):
+def _add_plaintext_snippet(sheet_xml: str, text_snippet: str) -> str:
+    sheet_data = "<sheetData/>"
+    if sheet_data not in sheet_xml:
+        raise ValueError("Microsoft Excel template has no empty sheet data")
+    cell = (
+        '<sheetData><row r="1"><c r="A1" t="inlineStr"><is><t xml:space="preserve">'
+        f"{escape(text_snippet, quote=False)}"
+        "</t></is></c></row></sheetData>"
+    )
+    return sheet_xml.replace(sheet_data, cell, 1)
+
+
+def make_canary_msexcel(
+    url: str,
+    template: Path,
+    text_snippet: Optional[str] = None,
+):
     with open(template, "rb") as f:
         input_buf = BytesIO(f.read())
     output_buf = BytesIO()
@@ -38,6 +56,8 @@ def make_canary_msexcel(url: str, template: Path):
             )
             contents = contents.replace("aaaaaaaaaaaaaaaaaaaa", created_ts)
             contents = contents.replace("bbbbbbbbbbbbbbbbbbbb", now_ts)
+            if entry.filename == "xl/worksheets/sheet1.xml" and text_snippet:
+                contents = _add_plaintext_snippet(contents, text_snippet)
             output_zip.writestr(entry, contents)
     output_zip.close()
     return output_buf.getvalue()

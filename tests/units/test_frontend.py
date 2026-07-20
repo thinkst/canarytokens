@@ -79,7 +79,7 @@ from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_token_request
-from frontend.app import ROOT_API_ENDPOINT
+from frontend.app import ROOT_API_ENDPOINT, api
 
 
 def api_path(path: str) -> str:
@@ -349,6 +349,60 @@ def test_token_download_requests(
     # Check that the content is at least present.
     assert len(resp_dl.content) > 20
     assert resp_dl.status_code == 200
+
+
+def test_default_guardrail_triggers_endpoint(
+    frontend_settings: FrontendSettings,
+) -> None:
+    default_prompts = ["first prompt", "second prompt"]
+
+    with mock.patch(
+        "frontend.app.frontend_settings",
+        frontend_settings.copy(update={"DEFAULT_GUARDRAIL_TRIGGERS": default_prompts}),
+    ):
+        resp = TestClient(api).get("/default_guardrail_triggers")
+
+    assert resp.status_code == 200
+    assert resp.json() == default_prompts
+
+
+@pytest.mark.parametrize(
+    "token_request_type, token_response_type",
+    [
+        (MsWordDocumentTokenRequest, MsWordDocumentTokenResponse),
+        (MsExcelDocumentTokenRequest, MsExcelDocumentTokenResponse),
+    ],
+)
+@pytest.mark.parametrize("include_text_snippet", [False, True])
+def test_document_tokens_honor_include_text_snippet(
+    token_request_type: AnyTokenRequest,
+    token_response_type: AnyTokenResponse,
+    include_text_snippet: bool,
+    test_client: TestClient,
+    setup_db: None,
+) -> None:
+    text_snippet = "ignore this when disabled"
+    token_request = token_request_type(
+        email="test@test.com",
+        memo="test stuff break stuff fix stuff test stuff",
+        include_text_snippet=include_text_snippet,
+        text_snippet=text_snippet,
+    )
+
+    resp = test_client.post(
+        api_path("/generate"), json=json.loads(token_request.json())
+    )
+
+    assert resp.status_code == 200
+    token_resp = token_response_type(**resp.json())
+    generated_canarydrop = queries.get_canarydrop_and_authenticate(
+        token=token_resp.token, auth=token_resp.auth_token
+    )
+
+    if include_text_snippet:
+        assert generated_canarydrop.text_snippet == text_snippet
+    else:
+        assert generated_canarydrop.text_snippet is None
 
 
 @pytest.mark.parametrize(

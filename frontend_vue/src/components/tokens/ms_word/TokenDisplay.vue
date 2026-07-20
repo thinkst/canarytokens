@@ -1,21 +1,32 @@
 <template>
-  <div class="flex justify-center">
+  <div class="flex flex-col items-center">
     <base-button
       class="mt-16"
       @click="handleDownloadWordDocument"
       >Download your MS Word file</base-button
     >
+    <div
+      v-if="tokenData.textSnippet"
+      class="w-full max-w-3xl mt-24"
+    >
+      <BaseCodeSnippet
+        label="Embedded text snippet"
+        :code="tokenData.textSnippet"
+        lang="text"
+      />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import { downloadAsset } from '@/api/main';
 
-type MSExcelDataType = {
+type MSWordDataType = {
   auth: string;
   token: string;
+  textSnippet?: string;
 };
 const props = defineProps<{
-  tokenData: MSExcelDataType;
+  tokenData: MSWordDataType;
 }>();
 
 async function handleDownloadWordDocument() {

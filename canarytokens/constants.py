@@ -14,6 +14,8 @@ INPUT_CHANNEL_WIREGUARD = "WireGuard"
 
 # DESIGN: We'll want a constraint on this but what is sensible as a user and what is practical for our system?
 MEMO_MAX_CHARACTERS = 1000
+MSWORD_TEXT_SNIPPET_MAX_CHARACTERS = 5000
+MSEXCEL_TEXT_SNIPPET_MAX_CHARACTERS = 5000
 CANARYTOKEN_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
 CANARYTOKEN_LENGTH = 25  # equivalent to 128-bit id
 
