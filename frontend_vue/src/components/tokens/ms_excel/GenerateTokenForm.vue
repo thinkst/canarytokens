@@ -7,6 +7,13 @@
         label="AI/Agent Guardrail Triggers"
         helper-message="Embed custom text to confound AI Agents"
       />
+      <ButtonHowToDeploy
+        token-name="MS Excel"
+        :is-open="false"
+        size="big"
+        class="absolute bottom-8 right-8 z-10 top-[9px]"
+        @click="handleHowToUseButton"
+      />
       <template v-if="includeTextSnippet">
         <BaseFormTextField
           id="text_snippet"
@@ -44,8 +51,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useField } from 'vee-validate';
-import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 import { prompts } from '@/utils/poisonPillPrompts';
+import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
+import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 
 const showInyoni = ref(false);
 const textSnippetBase64 = ref(false);
@@ -92,6 +100,10 @@ function setTextSnippetBase64(enabled: boolean) {
   } catch {
     textSnippetBase64.value = !enabled;
   }
+}
+
+function handleHowToUseButton() {
+  window.open('https://docs.canarytokens.org', '_blank', 'noopener,noreferrer')
 }
 
 watch(includeTextSnippet, (enabled) => {
