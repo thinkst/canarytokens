@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useField } from 'vee-validate';
-import { prompts } from '@/utils/poisonPillPrompts';
+import { prompts } from '@/utils/guardrailTriggers';
 import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 
