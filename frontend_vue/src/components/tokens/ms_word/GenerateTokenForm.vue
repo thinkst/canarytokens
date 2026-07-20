@@ -50,9 +50,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useField } from 'vee-validate';
-import { prompts } from '@/utils/guardrailTriggers';
+import { loadDefaultGuardrailTriggers, prompts } from '@/utils/guardrailTriggers';
 import ButtonHowToDeploy from '@/components/ui/ButtonHowToDeploy.vue';
 import GenerateTokenSettingsNotifications from '@/components/ui/GenerateTokenSettingsNotifications.vue';
 
@@ -107,13 +107,18 @@ function handleHowToUseButton() {
   window.open('https://docs.canarytokens.org', '_blank', 'noopener,noreferrer')
 }
 
-watch(includeTextSnippet, (enabled) => {
+onMounted(() => {
+  loadDefaultGuardrailTriggers();
+});
+
+watch(includeTextSnippet, async (enabled) => {
   showInyoni.value = enabled;
   if (!enabled) {
     textSnippetBase64.value = false;
     textSnippet.value = undefined;
     return;
   }
+  await loadDefaultGuardrailTriggers();
   textSnippet.value = textSnippet.value || prompts.join('\n');
 });
 </script>

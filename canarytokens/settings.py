@@ -155,6 +155,7 @@ class FrontendSettings(BaseSettings):
     GEMINI_PROMPT_TEMPLATE: Optional[str]
     GEMINI_SYSTEM_PROMPT: Optional[str]
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
+    DEFAULT_GUARDRAIL_TRIGGERS: list[str] = []
 
     # for local aws infra testing
     AWS_ACCESS_KEY_ID: Optional[str]
@@ -171,4 +172,6 @@ class FrontendSettings(BaseSettings):
         def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
             if field_name in ["DOMAINS", "NXDOMAINS", "MCP_SERVER_URLS"]:
                 return [x for x in raw_val.split(",")]
+            if field_name == "DEFAULT_GUARDRAIL_TRIGGERS":
+                return [x.strip() for x in raw_val.split(",") if x.strip()]
             return cls.json_loads(raw_val)

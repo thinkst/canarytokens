@@ -933,6 +933,11 @@ def api_get_commit_sha():
     return JSONResponse({"commit_sha": commit_sha}, status_code=200)
 
 
+@api.get("/default_guardrail_triggers", response_model=list[str])
+async def api_get_default_guardrail_triggers() -> list[str]:
+    return frontend_settings.DEFAULT_GUARDRAIL_TRIGGERS
+
+
 @api.get("/credit_card/quota")
 async def api_get_credit_card_customer_details(cf_turnstile_response: str):
     if cf_turnstile_response is None:

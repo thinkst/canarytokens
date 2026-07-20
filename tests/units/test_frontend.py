@@ -79,7 +79,7 @@ from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_token_request
-from frontend.app import ROOT_API_ENDPOINT
+from frontend.app import ROOT_API_ENDPOINT, api
 
 
 def api_path(path: str) -> str:
@@ -349,6 +349,21 @@ def test_token_download_requests(
     # Check that the content is at least present.
     assert len(resp_dl.content) > 20
     assert resp_dl.status_code == 200
+
+
+def test_default_guardrail_triggers_endpoint(
+    frontend_settings: FrontendSettings,
+) -> None:
+    default_prompts = ["first prompt", "second prompt"]
+
+    with mock.patch(
+        "frontend.app.frontend_settings",
+        frontend_settings.copy(update={"DEFAULT_GUARDRAIL_TRIGGERS": default_prompts}),
+    ):
+        resp = TestClient(api).get("/default_guardrail_triggers")
+
+    assert resp.status_code == 200
+    assert resp.json() == default_prompts
 
 
 @pytest.mark.parametrize(
