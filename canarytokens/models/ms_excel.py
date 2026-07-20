@@ -2,7 +2,6 @@ from typing import List, Literal, Optional
 from pydantic import ConstrainedStr
 
 from canarytokens.constants import MSEXCEL_TEXT_SNIPPET_MAX_CHARACTERS
-from canarytokens.msexcel import MSEXCEL_TEXT_SNIPPET_PLACEMENT_PLAINTEXT
 
 from .common import (
     DownloadContentTypes,
@@ -25,9 +24,6 @@ class MsExcelDocumentTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
     include_text_snippet: bool = False
     text_snippet: Optional[MsExcelTextSnippet] = None
-    text_snippet_placement: Literal["metadata", "plaintext"] = (
-        MSEXCEL_TEXT_SNIPPET_PLACEMENT_PLAINTEXT
-    )
 
 
 class MsExcelDocumentTokenResponse(TokenResponse):

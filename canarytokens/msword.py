@@ -53,7 +53,7 @@ def make_canary_msword(
     url: str,
     template: Path,
     text_snippet: Optional[str] = None,
-    text_snippet_placement: str = MSWORD_TEXT_SNIPPET_PLACEMENT_METADATA,
+    text_snippet_placement: str = MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT,
 ) -> bytes:
     with open(template, "rb") as f:
         input_buf = BytesIO(f.read())

@@ -26,7 +26,6 @@ type FieldsType = {
   app_name?: string;
   include_text_snippet?: boolean;
   text_snippet?: string;
-  text_snippet_placement?: string;
   cf_turnstile_response?: string;
   app_type?: string;
   aws_region?: string;
@@ -121,7 +120,6 @@ export const formValidators: ValidateSchemaType = {
       ...validationNotificationSettings,
       include_text_snippet: Yup.boolean(),
       text_snippet: Yup.string(),
-      text_snippet_placement: Yup.string().oneOf(['metadata', 'plaintext']),
     }),
   },
   [TOKENS_TYPE.AZURE_ID]: {
@@ -139,7 +137,6 @@ export const formValidators: ValidateSchemaType = {
       ...validationNotificationSettings,
       include_text_snippet: Yup.boolean(),
       text_snippet: Yup.string(),
-      text_snippet_placement: Yup.string().oneOf(['metadata', 'plaintext']),
     }),
   },
   [TOKENS_TYPE.WEB_IMAGE]: {

@@ -27,26 +27,6 @@
           helper-message="Toggle between base64 encoded and plaintext text."
           @update:model-value="setTextSnippetBase64"
         />
-        <fieldset
-          id="text_snippet_placement"
-        >
-          <legend class="mt-8 font-semibold">Where to embed the text</legend>
-          <div class="flex flex-row gap-8 mt-4">
-            <BaseRadioInput
-              id="text_snippet_placement_plaintext"
-              name="text_snippet_placement"
-              value="plaintext"
-              label="As plaintext"
-              checked
-            />
-            <BaseRadioInput
-              id="text_snippet_placement_metadata"
-              name="text_snippet_placement"
-              value="metadata"
-              label="Hidden in metadata"
-            />
-          </div>
-        </fieldset>
       </template>
     </div>
   </BaseGenerateTokenSettings>
@@ -78,19 +58,11 @@ const { value: includeTextSnippet } = useField<boolean>(
   }
 );
 
-const { value: textSnippet } = useField<string>(
+const { value: textSnippet } = useField<string | undefined>(
   'text_snippet',
   undefined,
   {
-    initialValue: '',
-  }
-);
-
-const { value: textSnippetPlacement } = useField<string>(
-  'text_snippet_placement',
-  undefined,
-  {
-    initialValue: 'plaintext',
+    initialValue: undefined,
   }
 );
 
@@ -114,8 +86,8 @@ function setTextSnippetBase64(enabled: boolean) {
 
   try {
     textSnippet.value = enabled
-      ? encodeText(textSnippet.value)
-      : decodeText(textSnippet.value);
+      ? encodeText(textSnippet.value || '')
+      : decodeText(textSnippet.value || '');
     textSnippetBase64.value = enabled;
   } catch {
     textSnippetBase64.value = !enabled;
@@ -126,12 +98,10 @@ watch(includeTextSnippet, (enabled) => {
   showInyoni.value = enabled;
   if (!enabled) {
     textSnippetBase64.value = false;
-    textSnippet.value = '';
-    textSnippetPlacement.value = '';
+    textSnippet.value = undefined;
     return;
   }
   textSnippet.value = textSnippet.value || prompts.join('\n');
-  textSnippetPlacement.value = textSnippetPlacement.value || 'plaintext';
 });
 </script>
 

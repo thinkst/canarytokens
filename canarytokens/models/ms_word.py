@@ -3,7 +3,6 @@ from typing import List, Literal, Optional
 from pydantic import ConstrainedStr
 
 from canarytokens.constants import MSWORD_TEXT_SNIPPET_MAX_CHARACTERS
-from canarytokens.msword import MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT
 from .common import (
     DownloadContentTypes,
     DownloadFmtTypes,
@@ -25,9 +24,6 @@ class MsWordDocumentTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.MS_WORD] = TokenTypes.MS_WORD
     include_text_snippet: bool = False
     text_snippet: Optional[MsWordTextSnippet] = None
-    text_snippet_placement: Literal["metadata", "plaintext"] = (
-        MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT
-    )
 
 
 class MsWordDocumentTokenResponse(TokenResponse):

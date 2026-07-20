@@ -215,8 +215,14 @@ from canarytokens.models import (
     WireguardTokenRequest,
     WireguardTokenResponse,
 )
-from canarytokens.msexcel import make_canary_msexcel
-from canarytokens.msword import make_canary_msword
+from canarytokens.msexcel import (
+    MSEXCEL_TEXT_SNIPPET_PLACEMENT_PLAINTEXT,
+    make_canary_msexcel,
+)
+from canarytokens.msword import (
+    MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT,
+    make_canary_msword,
+)
 from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.mcp import make_canary_mcp_json
 from canarytokens.azure_css import (
@@ -655,11 +661,6 @@ async def api_generate(  # noqa: C901  # gen is large
         if include_text_snippet
         else None
     )
-    text_snippet_placement = (
-        getattr(token_request_details, "text_snippet_placement", None)
-        if include_text_snippet
-        else None
-    )
 
     canarydrop = Canarydrop(
         type=token_request_details.token_type,
@@ -678,7 +679,6 @@ async def api_generate(  # noqa: C901  # gen is large
         #       which is already doing the type dispatch for us.
         kubeconfig=kube_config,
         text_snippet=text_snippet,
-        text_snippet_placement=text_snippet_placement,
         redirect_url=getattr(token_request_details, "redirect_url", None),
         clonedsite=getattr(token_request_details, "clonedsite", None),
         expected_referrer=getattr(token_request_details, "expected_referrer", None),
@@ -1413,7 +1413,7 @@ def _(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.docx",
             text_snippet=canarydrop.text_snippet,
-            text_snippet_placement=(canarydrop.text_snippet_placement or "plaintext"),
+            text_snippet_placement=MSWORD_TEXT_SNIPPET_PLACEMENT_PLAINTEXT,
         ),
         filename=f"{canarydrop.canarytoken.value()}.docx",
     )
@@ -1444,7 +1444,7 @@ def _(
             canarydrop.generated_url,
             template=Path(frontend_settings.TEMPLATES_PATH) / "template.xlsx",
             text_snippet=canarydrop.text_snippet,
-            text_snippet_placement=(canarydrop.text_snippet_placement or "plaintext"),
+            text_snippet_placement=MSEXCEL_TEXT_SNIPPET_PLACEMENT_PLAINTEXT,
         ),
         filename=f"{canarydrop.canarytoken.value()}.xlsx",
     )
