@@ -18,5 +18,6 @@ const props = defineProps<{
 const tokenData = ref({
   token: props.tokenBackendResponse?.canarydrop?.canarytoken?._value || '',
   auth: props.tokenBackendResponse.canarydrop?.auth || '',
+  textSnippet: props.tokenBackendResponse.canarydrop?.text_snippet || '',
 });
 </script>

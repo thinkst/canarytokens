@@ -45,6 +45,7 @@ type CanaryDropType = {
   redirect_url: string;
   clonedsite: string;
   kubeconfig: string;
+  text_snippet: string;
   sql_server_sql_action: string;
   sql_server_table_name: string;
   sql_server_view_name: string;
