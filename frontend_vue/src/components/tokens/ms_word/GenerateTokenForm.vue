@@ -104,7 +104,7 @@ function setTextSnippetBase64(enabled: boolean) {
 }
 
 function handleHowToUseButton() {
-  window.open('https://docs.canarytokens.org', '_blank', 'noopener,noreferrer')
+  window.open('https://help.canary.tools/hc/en-gb/articles/37756423971869-What-are-AI-Agent-Guardrail-Triggers', '_blank', 'noopener,noreferrer')
 }
 
 onMounted(() => {
