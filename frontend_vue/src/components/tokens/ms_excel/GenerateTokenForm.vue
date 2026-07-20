@@ -4,8 +4,8 @@
       <BaseSwitch
         id="include_text_snippet"
         v-model="includeTextSnippet"
-        label="Embed custom text"
-        helper-message="For experimenting with AI agent prompt injection."
+        label="AI/Agent Guardrail Triggers"
+        helper-message="Embed custom text to confound AI Agents"
       />
       <template v-if="includeTextSnippet">
         <BaseFormTextField
@@ -24,7 +24,7 @@
           id="text_snippet_base64"
           :model-value="textSnippetBase64"
           label="Base64 encode text"
-          helper-message="Toggle between base64 encoded and plaintext text."
+          helper-message="Humans may ignore Base64, AI agents usually won't."
           @update:model-value="setTextSnippetBase64"
         />
       </template>
