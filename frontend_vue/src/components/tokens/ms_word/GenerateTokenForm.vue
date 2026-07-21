@@ -15,6 +15,10 @@
         @click="handleHowToUseButton"
       />
       <template v-if="includeTextSnippet">
+        <BaseMessageBox
+          variant="warning"
+          message="Test with care. This feature works by triggering the guardrails of an attacker's model. Testing it with your own account is likely to trigger the same behaviour which could result in your frontier-model account being suspended."
+        />
         <BaseFormTextField
           id="text_snippet"
           class="text_snippet_form"
