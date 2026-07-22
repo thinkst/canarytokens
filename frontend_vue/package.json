@@ -22,7 +22,7 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.4",
     "@vueuse/core": "^10.9.0",
-    "axios": "^1.13.0",
+    "axios": "^1.18.1",
     "canvas-confetti": "^1.9.3",
     "dotenv": "^17.3.1",
     "eslint-config-typescript": "^3.0.0",
