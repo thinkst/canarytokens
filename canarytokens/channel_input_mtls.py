@@ -144,7 +144,6 @@ class mTLS(basic.LineReceiver):
     def generate_new_certificate(
         ca_redis_key, username, ip=None, is_server_cert=False
     ) -> KubeCerts:
-        log.debug("generating new certificate")
         ca = get_certificate(ca_redis_key)
         if not ca:
             log.warn("CA with key {} not found in redis".format(ca_redis_key))
@@ -197,8 +196,13 @@ class mTLS(basic.LineReceiver):
             ),
             critical=True,
         )
+        client_ca_key_identifier = cert_authority.extensions.get_extension_for_class(
+            x509.SubjectKeyIdentifier
+        )
         builder = builder.add_extension(
-            x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()),
+            x509.AuthorityKeyIdentifier.from_issuer_subject_key_identifier(
+                client_ca_key_identifier.value
+            ),
             critical=False,
         )
 
@@ -246,8 +250,6 @@ class mTLS(basic.LineReceiver):
 
     @staticmethod
     def generate_new_ca(username) -> KubeCerts:
-        log.debug("generating new certificate")
-
         # Generate new RSA key
         ca_key = rsa.generate_private_key(
             public_exponent=65537,
@@ -460,5 +462,10 @@ class ChannelKubeConfig:
             requireCertificate=True,
             acceptableProtocols=[b"http/1.1"],  # ALPN support
         )
+
+        # Explicitly add the client CA to the list sent to clients during handshake
+        # This tells clients which CA their certificate should be signed by
+        ssl_ctx = ctx.getContext()
+        ssl_ctx.add_client_ca(client_ca.original)
 
         return ctx
