@@ -1,20 +1,14 @@
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from ipaddress import IPv4Address
 from typing import TypedDict
 
-from OpenSSL.crypto import (
-    FILETYPE_PEM,
-    TYPE_RSA,
-    X509,
-    PKey,
-    X509Extension,
-    dump_certificate,
-    dump_privatekey,
-    load_certificate,
-    load_privatekey,
-)
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
+
 from twisted.application.internet import SSLServer
 from twisted.internet import defer
 from twisted.internet.error import CertificateError
@@ -156,105 +150,168 @@ class mTLS(basic.LineReceiver):
             log.warn("CA with key {} not found in redis".format(ca_redis_key))
             return None
 
-        ca_key = load_privatekey(FILETYPE_PEM, ca.get("k"))
-        cert_authority = load_certificate(FILETYPE_PEM, ca.get("c"))
+        ca_key = serialization.load_pem_private_key(ca.get("k"), password=None)
+        cert_authority = x509.load_pem_x509_certificate(ca.get("c"))
 
-        client_key = PKey()
-        client_key.generate_key(TYPE_RSA, 4096)
-
-        x509 = X509()
-        x509.set_version(2)
-        x509.set_serial_number(random.randint(0, 100000000))
-
-        client_subj = x509.get_subject()
-        client_subj.commonName = username
-
-        ca_extension = X509Extension(b"basicConstraints", True, b"CA:FALSE")
-        key_usage = X509Extension(
-            b"keyUsage", True, b"digitalSignature,keyEncipherment"
+        # Generate new RSA key
+        client_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=4096,
         )
 
-        if ip:
-            san_list = [
-                "IP:{}".format(ip),
-                "DNS:kubernetes",
-                "DNS:kubernetes.default",
-                "DNS:kubernetes.default.svc",
-                "DNS:kubernetes.default.svc.cluster",
-                "DNS:kubernetes.svc.cluster.local",
+        # Build subject name
+        subject = x509.Name(
+            [
+                x509.NameAttribute(NameOID.COMMON_NAME, username),
             ]
-        else:
-            san_list = None
+        )
 
-        extensions = [
-            ca_extension,
-            X509Extension(
-                b"authorityKeyIdentifier", False, b"keyid", issuer=cert_authority
+        # Build the certificate
+        now = datetime.now(timezone.utc)
+        builder = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(cert_authority.subject)
+            .public_key(client_key.public_key())
+            .serial_number(random.randint(0, 100000000))
+            .not_valid_before(now)
+            .not_valid_after(now + timedelta(days=365) - timedelta(seconds=1))
+        )
+
+        # Add extensions
+        builder = builder.add_extension(
+            x509.BasicConstraints(ca=False, path_length=None),
+            critical=True,
+        )
+        builder = builder.add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                key_encipherment=True,
+                content_commitment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=False,
+                decipher_only=False,
             ),
-            (
-                X509Extension(b"extendedKeyUsage", True, b"serverAuth")
-                if is_server_cert
-                else X509Extension(b"extendedKeyUsage", True, b"clientAuth")
-            ),
-            key_usage,
-        ]
-        if san_list:
-            extensions.append(
-                X509Extension(b"subjectAltName", False, ", ".join(san_list).encode())
+            critical=True,
+        )
+        builder = builder.add_extension(
+            x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()),
+            critical=False,
+        )
+
+        if is_server_cert:
+            builder = builder.add_extension(
+                x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]),
+                critical=True,
+            )
+        else:
+            builder = builder.add_extension(
+                x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CLIENT_AUTH]),
+                critical=True,
             )
 
-        x509.add_extensions(extensions)
+        if ip:
+            san_entries = [
+                x509.IPAddress(IPv4Address(str(ip))),
+                x509.DNSName("kubernetes"),
+                x509.DNSName("kubernetes.default"),
+                x509.DNSName("kubernetes.default.svc"),
+                x509.DNSName("kubernetes.default.svc.cluster"),
+                x509.DNSName("kubernetes.svc.cluster.local"),
+            ]
+            builder = builder.add_extension(
+                x509.SubjectAlternativeName(san_entries),
+                critical=False,
+            )
 
-        x509.set_issuer(cert_authority.get_subject())
-        x509.set_pubkey(client_key)
-        x509.gmtime_adj_notBefore(0)
-        # default certificate validity is 1 year
-        x509.gmtime_adj_notAfter(1 * 365 * 24 * 60 * 60 - 1)
-        x509.sign(ca_key, "sha256")
+        # Sign the certificate
+        certificate = builder.sign(ca_key, hashes.SHA256())
+
+        # Serialize to PEM
+        cert_pem = certificate.public_bytes(serialization.Encoding.PEM)
+        key_pem = client_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
 
         return {
-            "f": mTLS._get_digest(dump_certificate(FILETYPE_PEM, x509)),
-            "c": dump_certificate(FILETYPE_PEM, x509),
-            "k": dump_privatekey(FILETYPE_PEM, client_key),
+            "f": mTLS._get_digest(cert_pem),
+            "c": cert_pem,
+            "k": key_pem,
         }
 
     @staticmethod
     def generate_new_ca(username) -> KubeCerts:
         log.debug("generating new certificate")
-        client_key = PKey()
-        client_key.generate_key(TYPE_RSA, 4096)
 
-        x509 = X509()
-        x509.set_version(2)
-        x509.set_serial_number(random.randint(0, 100000000))
-
-        client_subj = x509.get_subject()
-        client_subj.commonName = username
-
-        ca_extension = X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0")
-        key_usage = X509Extension(
-            b"keyUsage", False, b"digitalSignature,keyCertSign,keyEncipherment"
+        # Generate new RSA key
+        ca_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=4096,
         )
 
-        x509.add_extensions(
+        # Build subject/issuer name (self-signed, so they're the same)
+        subject = issuer = x509.Name(
             [
-                ca_extension,
-                X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=x509),
-                key_usage,
+                x509.NameAttribute(NameOID.COMMON_NAME, username),
             ]
         )
 
-        x509.set_issuer(client_subj)
-        x509.set_pubkey(client_key)
-        x509.gmtime_adj_notBefore(0)
-        # default ca validity is 10 years with kubeadm
-        x509.gmtime_adj_notAfter(10 * 365 * 24 * 60 * 60 - 1)
-        x509.sign(client_key, "sha256")
+        # Build the certificate
+        now = datetime.now(timezone.utc)
+        builder = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(issuer)
+            .public_key(ca_key.public_key())
+            .serial_number(random.randint(0, 100000000))
+            .not_valid_before(now)
+            .not_valid_after(now + timedelta(days=10 * 365) - timedelta(seconds=1))
+        )
+
+        # Add extensions
+        builder = builder.add_extension(
+            x509.BasicConstraints(ca=True, path_length=0),
+            critical=True,
+        )
+        builder = builder.add_extension(
+            x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()),
+            critical=False,
+        )
+        builder = builder.add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                key_encipherment=True,
+                content_commitment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=True,
+                crl_sign=False,
+                encipher_only=False,
+                decipher_only=False,
+            ),
+            critical=False,
+        )
+
+        # Sign the certificate (self-signed)
+        certificate = builder.sign(ca_key, hashes.SHA256())
+
+        # Serialize to PEM
+        cert_pem = certificate.public_bytes(serialization.Encoding.PEM)
+        key_pem = ca_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
 
         return {
-            "f": mTLS._get_digest(dump_certificate(FILETYPE_PEM, x509)),
-            "c": dump_certificate(FILETYPE_PEM, x509),
-            "k": dump_privatekey(FILETYPE_PEM, client_key),
+            "f": mTLS._get_digest(cert_pem),
+            "c": cert_pem,
+            "k": key_pem,
         }
 
     @staticmethod
