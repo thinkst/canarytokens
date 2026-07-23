@@ -448,4 +448,17 @@ class ChannelKubeConfig:
             )
             certs[redis_key] = kind.loadPEM(cert_pem)
 
-        return certs[server_cert_redis_key].options(certs[client_ca_redis_key])
+        # Build CertificateOptions with explicit settings for mTLS
+        server_cert = certs[server_cert_redis_key]
+        client_ca = certs[client_ca_redis_key]
+
+        ctx = CertificateOptions(
+            privateKey=server_cert.privateKey.original,
+            certificate=server_cert.original,
+            caCerts=[client_ca.original],
+            verify=True,
+            requireCertificate=True,
+            acceptableProtocols=[b"http/1.1"],  # ALPN support
+        )
+
+        return ctx
