@@ -44,6 +44,7 @@ BEGIN
     end
     exec master.dbo.xp_fileexist @unc;
 END
+GO
 
 --add a trigger if data is altered
 CREATE TRIGGER ${SQLData.sql_trigger_name}
@@ -52,7 +53,8 @@ AFTER ${SQLData.sql_action}
 AS
 BEGIN
 exec ping_canarytoken
-END`;
+END
+GO`;
 
   const snippetIsSelect = `
 --create a table-view function to query the canary hostname
@@ -98,13 +100,24 @@ BEGIN
     exec master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
         return
 END
+GO
 
 --create a view that calls the function
-alter view ${SQLData.sql_server_view_name} as select * from master.dbo.(rand());
+CREATE view ${SQLData.sql_server_view_name} as select * from dbo.${SQLData.sql_function_name}(rand());
+GO
 
 --change permissions on ${SQLData.sql_function_name} to SELECT for [public]
+GRANT SELECT ON ${SQLData.sql_function_name} TO PUBLIC
+GO
+
 --change permissions on ${SQLData.sql_server_view_name} to SELECT for [public]
---don't allow [public] to view the definitions`;
+GRANT SELECT ON ${SQLData.sql_server_view_name} TO PUBLIC
+GO
+
+--don't allow [public] to view the definitions
+REVOKE VIEW ANY DEFINITION TO PUBLIC
+GO
+`;
 
   return SQLData.sql_action === 'SELECT' ? snippetIsSelect : snippetIsNotSelect;
 }
