@@ -103,7 +103,7 @@ END
 GO
 
 --create a view that calls the function
-CREATE view ${SQLData.sql_server_view_name} as select * from dbo.${SQLData.sql_function_name}(rand());
+CREATE view ${SQLData.sql_server_view_name} as select * from ${SQLData.sql_function_name}(rand());
 GO
 
 --change permissions on ${SQLData.sql_function_name} to SELECT for [public]
