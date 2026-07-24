@@ -504,6 +504,7 @@ async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
     return JSONResponse({"message": "success"})
 
 
+@api.exception_handler(500)
 @app.exception_handler(500)
 async def internal_exception_handler(request: Request, exc: Exception):
     capture_exception(error=exc, context=("500-error", None))
