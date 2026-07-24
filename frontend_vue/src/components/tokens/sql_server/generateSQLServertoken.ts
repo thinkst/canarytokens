@@ -2,7 +2,7 @@ import type { SQLServerDataType } from './types';
 
 export default function generateSQLServertoken(SQLData: SQLServerDataType) {
   const snippetIsNotSelect = `
---create a stored proc that'll ping canarytokens
+  --create a stored proc that'll ping canarytokens
   CREATE proc ping_canarytoken
   AS
   BEGIN
@@ -22,7 +22,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
           --convert username into base64
           select @base64 = (SELECT
               CAST(N'' AS XML).value(
-                    'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                  'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
                   , 'VARCHAR(MAX)'
               )   Base64Encoding
           FROM (
@@ -33,7 +33,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
           select @base64 = replace(@base64,'=','-')
 
           --construct the UNC path
-          select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+          select @unc = concat('\\\\',@base64,'.',@random,@tokendomain,'\\a')
 
           -- if too big, trim the username and try again
           if len(@unc) <= @size
@@ -44,18 +44,20 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
       end
       exec master.dbo.xp_fileexist @unc;
   END
+  GO
 
   --add a trigger if data is altered
   CREATE TRIGGER ${SQLData.sql_trigger_name}
-    ON ${SQLData.sql_table_name}
-    AFTER ${SQLData.sql_action}
+  ON ${SQLData.sql_table_name}
+  AFTER ${SQLData.sql_action}
   AS
   BEGIN
   exec ping_canarytoken
-  end`;
+  END
+  GO`;
 
   const snippetIsSelect = `
---create a table-view function to query the canary hostname
+  --create a table-view function to query the canary hostname
   CREATE function ${SQLData.sql_function_name}(@RAND FLOAT) returns @output table (col1 varchar(max))
   AS
   BEGIN
@@ -75,7 +77,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
           --convert username into base64
           select @base64 = (SELECT
               CAST(N'' AS XML).value(
-                    'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
+                  'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
                   , 'VARCHAR(MAX)'
               )   Base64Encoding
           FROM (
@@ -86,7 +88,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
           select @base64 = replace(@base64,'=','0')
 
           --construct the UNC path
-          select @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
+          select @unc = concat('\\\\',@base64,'.',@random,@tokendomain,'\\a')
 
           -- if too big, trim the username and try again
           if len(@unc) <= @size
@@ -98,13 +100,23 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
       exec master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
           return
   END
+  GO
 
   --create a view that calls the function
-  alter view ${SQLData.sql_server_view_name} as select * from master.dbo.(rand());
+  CREATE view ${SQLData.sql_server_view_name} as select * from ${SQLData.sql_function_name}(rand());
+  GO
 
   --change permissions on ${SQLData.sql_function_name} to SELECT for [public]
+  GRANT SELECT ON ${SQLData.sql_function_name} TO PUBLIC
+  GO
+
   --change permissions on ${SQLData.sql_server_view_name} to SELECT for [public]
-  --don't allow [public] to view the definitions`;
+  GRANT SELECT ON ${SQLData.sql_server_view_name} TO PUBLIC
+  GO
+
+  --don't allow [public] to view the definitions
+  REVOKE VIEW ANY DEFINITION TO PUBLIC
+  GO`;
 
   return SQLData.sql_action === 'SELECT' ? snippetIsSelect : snippetIsNotSelect;
 }
