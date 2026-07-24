@@ -115,7 +115,7 @@ def gather_data(
 def send_to_tokens_server(data: "ExposedKeyData"):
     post_url_base = TOKENS_POST_URL_OVERRIDE or data.tokens_server
 
-    if not post_url_base.startswith("http://") or post_url_base.startswith("https://"):
+    if not post_url_base.startswith(("http://", "https://")):
         post_url_base = f"https://{post_url_base}"
 
     post_url = f"{post_url_base}/{data.token}"
