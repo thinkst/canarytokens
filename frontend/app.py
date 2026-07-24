@@ -506,6 +506,7 @@ async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
 
 @app.exception_handler(500)
 async def internal_exception_handler(request: Request, exc: Exception):
+    capture_exception(error=exc, context=("500-error", None))
     return templates.TemplateResponse("500.html", {"request": request})
 
 
