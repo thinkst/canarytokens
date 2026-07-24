@@ -28,7 +28,7 @@ dependencies = [
     "minify-html",
     "netifaces",
     "pycountry-convert",
-    "pydantic[dotenv,email]==1.10.26",
+    "pydantic[dotenv,email]==2.13.4",
     "pynacl",
     "pyopenssl",
     "python-http-client",
