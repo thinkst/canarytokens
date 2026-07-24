@@ -165,21 +165,18 @@ def sendgrid_send(
     message_id = ""
     try:
         response = sendgrid_client.send(message=mail)
-        if response.status_code not in [202, 200]:
-            email_response = EmailResponseStatuses.ERROR
+        if response.status_code in [202, 200]:
+            email_response = EmailResponseStatuses.SENT
+            message_id = response.headers.get("X-Message-Id")
+        else:
             log.error(
                 f"status code: {response.status_code}. Body: {response.body}",
             )
     except HTTPError as e:
-        email_response = EmailResponseStatuses.ERROR
         log.error(
             f"A sendgrid error occurred. Status code: {e.status_code} {e.to_dict}",
         )
-    else:
-        email_response = EmailResponseStatuses.SENT
-        message_id = response.headers.get("X-Message-Id")
-    finally:
-        return email_response, message_id
+    return email_response, message_id
 
 
 def mailgun_send(
@@ -219,12 +216,10 @@ def mailgun_send(
             log.error(
                 f"A mailgun error occurred sending a mail to {email_address}: {e.__class__} - {e}"
             )
-            email_response = EmailResponseStatuses.ERROR
     else:
         email_response = EmailResponseStatuses.SENT
         message_id = response.json().get("id")
-    finally:
-        return email_response, message_id
+    return email_response, message_id
 
 
 def smtp_send(

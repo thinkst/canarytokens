@@ -1,9 +1,12 @@
 import datetime
 from pathlib import Path
 import uuid
-from pydantic import EmailStr
 import pytest
-from unittest.mock import patch
+import requests
+from pydantic import EmailStr, HttpUrl, SecretStr
+from python_http_client.exceptions import HTTPError
+from unittest.mock import Mock
+from unittest import mock
 from twisted.logger import capturedLogs
 
 from canarytokens import queries
@@ -207,90 +210,129 @@ def _get_send_token_details() -> TokenAlertDetails:
 
 
 @pytest.mark.parametrize(
-    "email,expected_result_type",
+    "status_code,expected_result_type",
     [
-        (
-            "http://notawebsiteIhopeorknowof.invalid",
-            EmailResponseStatuses.ERROR,
-        ),
-        ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
-        ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
+        (200, EmailResponseStatuses.SENT),
+        (202, EmailResponseStatuses.SENT),
+        (500, EmailResponseStatuses.ERROR),
     ],
 )
+@mock.patch(
+    "canarytokens.channel_output_email.sendgrid.SendGridAPIClient", autospec=True
+)
 def test_sendgrid_send(
+    mock_sendgrid_client,
     settings: SwitchboardSettings,
-    email: str,
+    status_code: int,
     expected_result_type: EmailResponseStatuses,
 ):
-    pytest.skip(
-        "This test is broken because of a quota issue. It is disabled until that gets resolved."
+    mock_sendgrid_client.return_value.send.return_value = Mock(
+        status_code=status_code,
+        body="response body",
+        headers={"X-Message-Id": "message-id"},
     )
-    if not settings.SENDGRID_API_KEY:
-        pytest.skip("No SendGrid API key found; skipping...")
     details = _get_send_token_details()
 
     result, message_id = sendgrid_send(
-        api_key=settings.SENDGRID_API_KEY,
+        api_key=SecretStr("test-sendgrid-api-key"),
         email_content_html=EmailOutputChannel.format_token_alert_mail(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_address=EmailStr(email),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
         sandbox_mode=True,
     )
-    assert result
     assert result is expected_result_type
     if result == EmailResponseStatuses.SENT:
-        assert len(message_id) > 0
+        assert message_id == "message-id"
+    else:
+        assert message_id == ""
+
+
+@mock.patch(
+    "canarytokens.channel_output_email.sendgrid.SendGridAPIClient", autospec=True
+)
+def test_sendgrid_send_http_error(mock_sendgrid_client):
+    mock_sendgrid_client.return_value.send.side_effect = HTTPError(
+        500,
+        "Internal Server Error",
+        b'{"errors": [{"message": "Internal Server Error"}]}',
+        {},
+    )
+
+    result, message_id = sendgrid_send(
+        api_key=SecretStr("test-sendgrid-api-key"),
+        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_content_html="test email content",
+        from_email=EmailStr("sender@example.com"),
+        from_display=EmailStr("sender@example.com"),
+        email_subject="Test email",
+    )
+
+    assert result is EmailResponseStatuses.ERROR
+    assert message_id == ""
 
 
 @pytest.mark.parametrize(
-    "email,expected_result_type",
+    "status_code,response_body,expected_result_type,expected_message_id",
     [
-        (
-            "http://notawebsiteIhopeorknowof.invalid",
+        pytest.param(
+            400,
+            b'{"message": "to parameter is not a valid address. please check documentation"}',
             EmailResponseStatuses.IGNORED,
+            "",
+            id="ignorable email address",
         ),
-        ("tokens-testing@thinkst.com", EmailResponseStatuses.SENT),
-        ("testing@notawebsiteIhopeorknowof.invalid", EmailResponseStatuses.SENT),
+        pytest.param(
+            200,
+            b'{"id": "message-id"}',
+            EmailResponseStatuses.SENT,
+            "message-id",
+            id="successful send",
+        ),
+        pytest.param(
+            500,
+            b'{"message": "Internal Server Error"}',
+            EmailResponseStatuses.ERROR,
+            "",
+            id="server error",
+        ),
     ],
 )
+@mock.patch("canarytokens.channel_output_email.requests.post", autospec=True)
 def test_mailgun_send(
-    settings: SwitchboardSettings,
-    email: str,
+    mock_post,
+    status_code: int,
+    response_body: bytes,
     expected_result_type: EmailResponseStatuses,
+    expected_message_id: str,
 ):
-    if not settings.MAILGUN_API_KEY:
-        pytest.skip("No Mailgun API key found; skipping...")
-    details = _get_send_token_details()
+    response = requests.Response()
+    response.status_code = status_code
+    response._content = response_body
+    mock_post.return_value = response
+
     result, message_id = mailgun_send(
-        email_content_html=EmailOutputChannel.format_token_alert_mail(
-            details,
-            Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
-        ),
-        email_content_text=EmailOutputChannel.format_token_alert_mail(
-            details, Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}")
-        ),
-        email_address=EmailStr(email),
-        from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
-        email_subject=settings.ALERT_EMAIL_SUBJECT,
-        from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
-        api_key=settings.MAILGUN_API_KEY,
-        base_url=settings.MAILGUN_BASE_URL,
-        mailgun_domain=settings.MAILGUN_DOMAIN_NAME,
+        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_content_html="test email content",
+        email_content_text="test email content",
+        email_subject="Test email",
+        from_email=EmailStr("sender@example.com"),
+        from_display="Sender",
+        api_key=SecretStr("test-mailgun-api-key"),
+        base_url=HttpUrl("https://api.mailgun.test", scheme="https"),
+        mailgun_domain="mailgun.test",
     )
-    assert result
     assert result is expected_result_type
-    if result == EmailResponseStatuses.SENT:
-        assert len(message_id) > 0
+    assert message_id == expected_message_id
 
 
 # TODO: Write more comprehensive tests for SMTP. The difficulty here is that we don't have a consistent API to use
 # because different SMTP servers may handle things differently. I figure as we break and enhance, we'll add tests too
-@patch("canarytokens.channel_output_email.smtplib.SMTP", autospec=True)
+@mock.patch("canarytokens.channel_output_email.smtplib.SMTP", autospec=True)
 def test_smtp_send(
     mock_SMTP,
     settings: SwitchboardSettings,
@@ -376,6 +418,75 @@ def test_do_send_alert(
     mail_key, details = queries.pop_mail_off_sent_queue()
     assert details.memo == canarydrop.memo
     assert mail_key is not False
+
+
+@mock.patch(
+    "canarytokens.channel_output_email.sendgrid.SendGridAPIClient", autospec=True
+)
+def test_sendgrid_http_error_does_not_mark_email_sent(
+    mock_sendgrid_client,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    setup_db,
+):
+    mock_sendgrid_client.return_value.send.return_value = Mock(
+        status_code=500,
+        body="Internal Server Error",
+        headers={},
+    )
+    sendgrid_settings = settings.copy(
+        update={
+            "MAILGUN_API_KEY": None,
+            "SENDGRID_API_KEY": SecretStr("test-sendgrid-api-key"),
+        }
+    )
+
+    canarydrop = _do_send_alert(
+        frontend_settings,
+        sendgrid_settings,
+        "tokens-testing@thinkst.com",
+    )
+
+    mail_key, details = queries.pop_mail_off_sent_queue()
+    assert mail_key is None
+    assert details is None
+    assert (
+        len(queries.get_all_mails_in_send_status(token=canarydrop.canarytoken.value()))
+        == 1
+    )
+
+
+@mock.patch("canarytokens.channel_output_email.requests.post", autospec=True)
+def test_mailgun_http_error_does_not_mark_email_sent(
+    mock_post,
+    frontend_settings: FrontendSettings,
+    settings: SwitchboardSettings,
+    setup_db,
+):
+    response = requests.Response()
+    response.status_code = 500
+    response._content = b'{"message": "Internal Server Error"}'
+    mock_post.return_value = response
+    mailgun_settings = settings.copy(
+        update={
+            "MAILGUN_API_KEY": SecretStr("test-mailgun-api-key"),
+            "SENDGRID_API_KEY": None,
+        }
+    )
+
+    canarydrop = _do_send_alert(
+        frontend_settings,
+        mailgun_settings,
+        "tokens-testing@thinkst.com",
+    )
+
+    mail_key, details = queries.pop_mail_off_sent_queue()
+    assert mail_key is None
+    assert details is None
+    assert (
+        len(queries.get_all_mails_in_send_status(token=canarydrop.canarytoken.value()))
+        == 1
+    )
 
 
 def test_bad_format_email(
