@@ -1,6 +1,9 @@
+from base64 import urlsafe_b64encode
 from json import dumps
-from jose import jwe
 from random import choice
+from os import urandom
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from canarytokens.models.mcp import McpAlertOn
 from canarytokens.settings import FrontendSettings
@@ -8,10 +11,27 @@ from canarytokens.settings import FrontendSettings
 settings = FrontendSettings()
 
 
+def _base64url(data: bytes) -> str:
+    return urlsafe_b64encode(data).rstrip(b"=").decode()
+
+
+def _jwe_key() -> bytes:
+    key = settings.MCP_SERVER_SECRET.encode()
+    if len(key) != 16:
+        raise ValueError("MCP_SERVER_SECRET must be 16 bytes for A128GCM")
+    return key
+
+
 def generate_jwe(string: str) -> str:
-    return jwe.encrypt(
-        string, settings.MCP_SERVER_SECRET, algorithm="dir", encryption="A128GCM"
-    ).decode()
+    protected = _base64url(
+        dumps({"alg": "dir", "enc": "A128GCM"}, separators=(",", ":")).encode()
+    )
+    iv = urandom(12)
+    encrypted = AESGCM(_jwe_key()).encrypt(iv, string.encode(), protected.encode())
+    ciphertext, tag = encrypted[:-16], encrypted[-16:]
+    return ".".join(
+        [protected, "", _base64url(iv), _base64url(ciphertext), _base64url(tag)]
+    )
 
 
 def make_token_jwe(token_id: str, alert_on: McpAlertOn, aws_token: str = "") -> str:

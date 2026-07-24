@@ -32,7 +32,6 @@ dependencies = [
     "pynacl",
     "pyopenssl",
     "python-http-client",
-    "python-jose",
     "python-multipart", # enables form parsing in fastapi (starlette)
     "pyyaml",
     "redis",
