@@ -116,8 +116,7 @@ export default function generateSQLServertoken(SQLData: SQLServerDataType) {
 
   --don't allow [public] to view the definitions
   REVOKE VIEW ANY DEFINITION TO PUBLIC
-  GO
-  `;
+  GO`;
 
   return SQLData.sql_action === 'SELECT' ? snippetIsSelect : snippetIsNotSelect;
 }
