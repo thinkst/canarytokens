@@ -48,6 +48,8 @@ The `frontend.env` contains the frontend process settings such as:
 - CANARY_NXDOMAINS=pdf.demo.canarytokens.net
 - CANARY_AWSID_URL=<custom awsid url>
 - CANARY_AWSID_AUTH=<shared awsid auth token>
+- CANARY_AWSID_GUID=<registered awsid console guid>
+- CANARY_AWSID_CONTROL_ACCOUNT_ID=<awsid control account id>
 - CANARY_WEB_IMAGE_UPLOAD_PATH=/uploads
 - CANARY_GOOGLE_API_KEY=<custom google maps api key>
 - LOG_FILE=frontend.log
@@ -91,7 +93,9 @@ AWS API key Canarytokens use AWS-side infrastructure to allocate IAM users and r
 This repo still owns the Canarytokens-facing integration points:
 
 * `CANARY_AWSID_URL` in `frontend.env` is the API Gateway/Lambda URL for the `LinkAWSIDTokenUserToCanaryConsole` endpoint managed from the private repo.
-* `CANARY_AWSID_AUTH` in `frontend.env` must match the auth token in the AWS ID secret. The frontend sends `domain`, `token`, and `auth` when creating an AWS key token.
+* `CANARY_AWSID_AUTH` in `frontend.env` must match the auth token in the AWS ID secret. The frontend sends `domain`, `token`, `auth`, and `guid` when creating an AWS key token.
+* `CANARY_AWSID_GUID` identifies the Canarytokens instance when allocating and deleting AWS key tokens.
+* `CANARY_AWSID_CONTROL_ACCOUNT_ID` is the AWS account ID that owns the AWS ID deletion queue.
 * If either `CANARY_AWSID_URL` or `CANARY_AWSID_AUTH` is unset, AWS key token creation is disabled for this Canarytokens instance.
 * `CANARY_LAMBDA_AWS_CRED_REPORT_AUTH` in `switchboard.env` enables the `/a/cr` callback used by the AWS ID credential report checker.
 

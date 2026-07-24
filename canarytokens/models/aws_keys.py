@@ -20,6 +20,7 @@ from .common import (
 class AWSKey(TypedDict):
     access_key_id: str
     secret_access_key: str
+    username: Optional[str]
     aws_account_id: Optional[str]
     region: str
     output: Literal["json", "yaml", "yaml-stream", "text", "table"]

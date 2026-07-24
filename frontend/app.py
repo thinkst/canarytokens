@@ -1883,6 +1883,7 @@ def _create_aws_key_token_response(
             aws_url=settings.AWSID_URL,
             aws_access_key_id=settings.TESTING_AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.TESTING_AWS_SECRET_ACCESS_KEY,
+            guid=settings.AWSID_GUID,
         )
     except Exception as e:
         capture_exception(error=e, context=("get_aws_key", None))
@@ -1897,6 +1898,8 @@ def _create_aws_key_token_response(
     canarydrop.aws_secret_access_key = key["secret_access_key"]
     canarydrop.aws_region = key["region"]
     canarydrop.aws_output = key["output"]
+    if username := key.get("username"):
+        canarydrop.aws_username = username
     if aws_account_id := key.get("aws_account_id", False):
         canarydrop.aws_account_id = aws_account_id
     canarydrop.generated_url = f"{canary_http_channel}/{canarydrop.canarytoken.value()}"

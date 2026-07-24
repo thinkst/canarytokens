@@ -142,6 +142,7 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
         mock_key = {
             "access_key_id": frontend_settings.TESTING_AWS_ACCESS_KEY_ID,
             "secret_access_key": frontend_settings.TESTING_AWS_SECRET_ACCESS_KEY,
+            "username": "awsid-test-user",
             "region": frontend_settings.TESTING_AWS_REGION,
             "output": frontend_settings.TESTING_AWS_OUTPUT,
         }

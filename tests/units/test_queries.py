@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from unittest import mock
 from twisted.logger import LogLevel, capturedLogs
 from twisted.internet.defer import inlineCallbacks, succeed
 import pytest
@@ -235,6 +236,119 @@ def test_delete_drop(setup_db):
     for key in critical_keys:
         assert not db.exists(key)
     assert db.zscore(KEY_CANARYDROPS_TIMELINE, canarytoken.value()) is None
+
+
+def test_delete_non_aws_drop_does_not_enqueue_aws_deletion():
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.DNS,
+        canarytoken=Canarytoken(),
+        memo="DNS token",
+    )
+    db = mock.MagicMock()
+    pipe = db.pipeline.return_value.__enter__.return_value
+
+    with (
+        mock.patch("canarytokens.queries.DB.get_db", return_value=db),
+        mock.patch(
+            "canarytokens.awskeys.enqueue_aws_id_token_deletion"
+        ) as enqueue_deletion,
+    ):
+        delete_canarydrop(canarydrop)
+
+    pipe.execute.assert_called_once_with()
+    enqueue_deletion.assert_not_called()
+
+
+def test_delete_old_aws_key_drop_without_username():
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.AWS_KEYS,
+        canarytoken=canarytoken,
+        memo="old AWS key token",
+    )
+    db = mock.MagicMock()
+    pipe = db.pipeline.return_value.__enter__.return_value
+
+    with (
+        mock.patch("canarytokens.queries.DB.get_db", return_value=db),
+        mock.patch(
+            "canarytokens.awskeys.enqueue_aws_id_token_deletion"
+        ) as enqueue_deletion,
+        capturedLogs() as captured,
+    ):
+        delete_canarydrop(canarydrop)
+
+    enqueue_deletion.assert_not_called()
+    pipe.delete.assert_called_once_with(KEY_CANARYDROP + canarytoken.value())
+    pipe.execute.assert_called_once_with()
+    assert any(
+        event["log_level"] == LogLevel.warn
+        and "has no stored AWS username" in event["log_format"]
+        for event in captured
+    )
+
+
+def test_delete_aws_key_drop_enqueues_after_local_deletion():
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.AWS_KEYS,
+        canarytoken=canarytoken,
+        memo="new AWS key token",
+        aws_username="awsid-user",
+    )
+    db = mock.MagicMock()
+    pipe = db.pipeline.return_value.__enter__.return_value
+    settings = mock.Mock(
+        AWSID_GUID="awsid-test:00000000-0000-4000-8000-000000000000",
+        AWSID_CONTROL_ACCOUNT_ID="123456789012",
+    )
+
+    def fail_after_local_deletion(**kwargs):
+        pipe.execute.assert_called_once_with()
+        raise RuntimeError("SQS unavailable")
+
+    with (
+        mock.patch("canarytokens.queries.DB.get_db", return_value=db),
+        mock.patch("canarytokens.settings.FrontendSettings", return_value=settings),
+        mock.patch(
+            "canarytokens.awskeys.enqueue_aws_id_token_deletion",
+            side_effect=fail_after_local_deletion,
+        ) as enqueue_deletion,
+        pytest.raises(RuntimeError, match="SQS unavailable"),
+    ):
+        delete_canarydrop(canarydrop)
+
+    pipe.delete.assert_called_once_with(KEY_CANARYDROP + canarytoken.value())
+    enqueue_deletion.assert_called_once_with(
+        username="awsid-user",
+        canarytoken=canarytoken.value(),
+        guid="awsid-test:00000000-0000-4000-8000-000000000000",
+        control_account_id="123456789012",
+    )
+
+
+def test_aws_username_serialization_compatibility():
+    canarytoken = Canarytoken()
+    canarydrop = Canarydrop(
+        generate=True,
+        type=TokenTypes.AWS_KEYS,
+        canarytoken=canarytoken,
+        memo="AWS key token",
+        aws_username="awsid-user",
+        output="json",
+        region="us-east-2",
+    )
+
+    serialized = canarydrop.serialize()
+
+    assert serialized["aws_username"] == "awsid-user"
+    assert serialized["output"] == "json"
+    assert serialized["region"] == "us-east-2"
+    assert "aws_output" not in serialized
+    assert "aws_region" not in serialized
 
 
 def test_remove_tokens_with_email_x(setup_db):

@@ -7,6 +7,8 @@ export CANARY_ALERT_EMAIL_FROM_DISPLAY="testing-display@example.com"
 export CANARY_ALERT_EMAIL_SUBJECT="Canarytokens Alert"
 export CANARY_AWSID_URL="https://some_lambda.amazonaws.com/LinkAWSIDTokenUserToCanaryConsole"
 export CANARY_AWSID_AUTH="AuthTokenForLocalTesting"
+export CANARY_AWSID_GUID="awsid-test:00000000-0000-4000-8000-000000000000"
+export CANARY_AWSID_CONTROL_ACCOUNT_ID="123456789012"
 export CANARY_LAMBDA_AWS_CRED_REPORT_AUTH="AuthTokenForCredentialReportLocalTesting"
 
 export CANARY_TESTING_AWS_ACCESS_KEY_ID="KeyToReuseWhenTesting"
