@@ -505,7 +505,7 @@ def get_geoinfo_from_ip(ip: str) -> dict[str, str]:
         # not user-supplied, so advocate is not required.
         # This should be async
         resp = requests.get(
-            "http://ipinfo.io/" + ip + "/json",
+            "https://ipinfo.io/" + ip + "/json",
             auth=(_ip_info_api_key, "") if _ip_info_api_key else None,
             timeout=(2, 2),
         )
