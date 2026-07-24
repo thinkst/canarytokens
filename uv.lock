@@ -305,7 +305,7 @@ dev = [
     { name = "boto3-stubs", extras = ["essential"] },
     { name = "coverage" },
     { name = "debugpy" },
-    { name = "deepdiff", specifier = ">=8.6.2" },
+    { name = "deepdiff" },
     { name = "dnspython" },
     { name = "easywebdav" },
     { name = "hypothesis" },

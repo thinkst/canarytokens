@@ -51,7 +51,7 @@ dev = [
     "boto3-stubs[essential]",
     "coverage",
     "debugpy",
-    "deepdiff>=8.6.2",
+    "deepdiff",
     "dnspython",
     "easywebdav",
     "hypothesis",
