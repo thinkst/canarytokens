@@ -3,12 +3,12 @@ from __future__ import annotations
 import base64
 import binascii
 import json
-import random
 import re
 from datetime import datetime, timezone
 from functools import cache
 from typing import Any, AnyStr, Match, Optional, Union
 import logging
+import secrets
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
@@ -131,7 +131,7 @@ class Canarytoken(object):
     def generate() -> str:
         """Return a new canarytoken."""
         return "".join(
-            [random.choice(CANARYTOKEN_ALPHABET) for x in range(0, CANARYTOKEN_LENGTH)],
+            secrets.choice(CANARYTOKEN_ALPHABET) for _ in range(CANARYTOKEN_LENGTH)
         )
 
     @staticmethod
