@@ -285,7 +285,7 @@ def test_delete_old_aws_key_drop_without_username():
     pipe.execute.assert_called_once_with()
     assert any(
         event["log_level"] == LogLevel.warn
-        and "has no stored AWS username" in event["log_format"]
+        and "can't be deleted remotely; skipping remote deletion" in event["log_format"]
         for event in captured
     )
 
