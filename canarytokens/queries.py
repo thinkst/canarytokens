@@ -344,7 +344,7 @@ def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
             )
         else:
             log.warn(
-                "AWS key token {token} has no stored AWS username; skipping remote deletion",
+                "AWS key token {token} can't be deleted remotely; skipping remote deletion",
                 token=token,
             )
 
