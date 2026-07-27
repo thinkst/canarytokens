@@ -1,10 +1,12 @@
+import json
 from typing import Optional
+from unittest import mock
 
 import pytest
 import requests
 from pydantic import HttpUrl
 
-from canarytokens.awskeys import get_aws_key
+from canarytokens.awskeys import enqueue_aws_id_token_deletion, get_aws_key
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 
@@ -17,6 +19,7 @@ from canarytokens.tokens import Canarytoken
             {
                 "access_key_id": "",
                 "secret_access_key": "",
+                "username": "awsid-test-user",
                 "region": "us-east-2",
                 "output": "json",
             },
@@ -51,6 +54,7 @@ def test_get_aws_key_with_query(
             ),
             aws_access_key_id=None,
             aws_secret_access_key=None,
+            guid="test-guid",
         )
         assert key == expected_key
     else:
@@ -135,3 +139,81 @@ def test_get_aws_key_without_query(
                 aws_access_key_id=aws_access_key_id,
                 aws_secret_access_key=aws_secret_access_key,
             )
+
+
+def test_get_aws_key_sends_guid_and_parses_username() -> None:
+    response = mock.Mock()
+    response.json.return_value = {
+        "access_key_id": "access-key-id",
+        "secret_access_key": "secret-access-key",
+        "username": "awsid-user",
+    }
+    aws_url = HttpUrl(
+        "https://example.com/LinkAWSIDTokenUserToCanaryConsole",
+        scheme="https",
+    )
+    token = Canarytoken("q9o5v58eifjf9dsn4f03sai6a")
+
+    with mock.patch("canarytokens.awskeys.requests.get", return_value=response) as get:
+        key = get_aws_key(
+            token=token,
+            server="example.com",
+            auth="auth-token",
+            aws_url=aws_url,
+            aws_access_key_id=None,
+            aws_secret_access_key=None,
+            guid="test-guid",
+        )
+
+    get.assert_called_once_with(
+        str(aws_url),
+        params={
+            "domain": "example.com",
+            "token": token.value(),
+            "auth": "auth-token",
+            "guid": "test-guid",
+        },
+        timeout=(5, 10),
+    )
+    assert key["username"] == "awsid-user"
+
+
+def test_enqueue_aws_id_token_deletion() -> None:
+    botocore_session = mock.Mock()
+    boto3_session = mock.Mock()
+    sqs = mock.Mock()
+    queue = mock.Mock()
+    boto3_session.resource.return_value = sqs
+    sqs.get_queue_by_name.return_value = queue
+
+    with (
+        mock.patch(
+            "canarytokens.awskeys.botocore.session.get_session",
+            return_value=botocore_session,
+        ),
+        mock.patch("canarytokens.awskeys.boto3.Session", return_value=boto3_session),
+    ):
+        enqueue_aws_id_token_deletion(
+            username="awsid-user",
+            canarytoken="q9o5v58eifjf9dsn4f03sai6a",
+            guid="awsid-test:00000000-0000-4000-8000-000000000000",
+            control_account_id="123456789012",
+        )
+
+    for config_variable in (
+        "credentials_file",
+        "shared_credentials_file",
+        "config_file",
+    ):
+        botocore_session.set_config_variable.assert_any_call(config_variable, "")
+    boto3_session.resource.assert_called_once_with("sqs", region_name="us-east-1")
+    sqs.get_queue_by_name.assert_called_once_with(
+        QueueName="awsid_delete_users_sqs",
+        QueueOwnerAWSAccountId="123456789012",
+    )
+    message = queue.send_message.call_args.kwargs["MessageBody"]
+    assert json.loads(message) == {
+        "username": "awsid-user",
+        "canarytoken": "q9o5v58eifjf9dsn4f03sai6a",
+        "guid": "awsid-test:00000000-0000-4000-8000-000000000000",
+    }

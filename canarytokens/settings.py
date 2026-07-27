@@ -109,6 +109,8 @@ class FrontendSettings(BaseSettings):
     # 3rd party settings
     AWSID_URL: Optional[HttpUrl] = None
     AWSID_AUTH: Optional[str] = None
+    AWSID_GUID: Optional[str] = None
+    AWSID_CONTROL_ACCOUNT_ID: Optional[str] = None
     TESTING_AWS_ACCESS_KEY_ID: Optional[str] = ""
     TESTING_AWS_SECRET_ACCESS_KEY: Optional[str] = ""
     TESTING_AWS_REGION: Optional[str] = "us-east-2"

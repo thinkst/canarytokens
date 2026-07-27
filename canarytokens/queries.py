@@ -325,6 +325,29 @@ def delete_canarydrop(canarydrop: cand.Canarydrop) -> None:
     if canarydrop.type == models.TokenTypes.WIREGUARD:
         wireguard.deleteCanarytokenPrivateKey(canarydrop.wg_key)
 
+    if canarydrop.type == models.TokenTypes.AWS_KEYS:
+        from canarytokens.settings import FrontendSettings
+
+        settings = FrontendSettings()
+        if (
+            canarydrop.aws_username
+            and settings.AWSID_GUID
+            and settings.AWSID_CONTROL_ACCOUNT_ID
+        ):
+            from canarytokens.awskeys import enqueue_aws_id_token_deletion
+
+            enqueue_aws_id_token_deletion(
+                username=canarydrop.aws_username,
+                canarytoken=token,
+                guid=settings.AWSID_GUID,
+                control_account_id=settings.AWSID_CONTROL_ACCOUNT_ID,
+            )
+        else:
+            log.warn(
+                "AWS key token {token} can't be deleted remotely; skipping remote deletion",
+                token=token,
+            )
+
     if canarydrop.type == models.TokenTypes.CROWDSTRIKE_CC:
         from canarytokens.crowdstrikekeys import delete_crowdstrike_key
         from canarytokens.settings import FrontendSettings

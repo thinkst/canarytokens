@@ -764,6 +764,10 @@ def test_aws_keys(
         assert token_info.aws_secret_access_key
         assert token_info.region == "us-east-2"
         assert token_info.output == "json"
+        assert "aws_username" not in resp.dict()
+
+        stored_canarydrop = queries.get_canarydrop(canarytoken)
+        assert stored_canarydrop.aws_username == "awsid-test-user"
 
 
 @pytest.fixture(scope="function")
