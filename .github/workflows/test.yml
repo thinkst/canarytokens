@@ -70,27 +70,28 @@ jobs:
           echo "name=${role_session_name:0:64}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: arn:aws:iam::211125554061:role/Canarytokens-staging-github-action
           role-session-name: ${{ steps.aws-role-session-name.outputs.name }}
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: '${{ github.event.inputs.canarytokens-branch }}'
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: "0.11.24"
       - name: Get full python version
         id: full-python-version
         run: |
-          echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
+          version=$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Install deps
         run: |
           sudo apt update -y
@@ -105,7 +106,7 @@ jobs:
           sudo apt-get install -y osslsigncode
           sudo apt install redis-tools
       - name: Set up cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/uv.lock') }}
@@ -165,13 +166,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
-      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: "0.11.24"
       - name: Install python dependencies
