@@ -1,8 +1,8 @@
 import JavascriptObfuscator from 'javascript-obfuscator';
 export default function obfuscateToken(jsCode: string) {
   const modifyScriptJs = (scriptJs: any, cb: any) => {
-    let innerJs = scriptJs.replace(/^<script>/, '');
-    innerJs = innerJs.replace(/<\/script>$/, '');
+    const scriptWrapperMatch = scriptJs.match(/^\s*<script\b[^>]*>([\s\S]*?)<\/script\s*>\s*$/i);
+    const innerJs = scriptWrapperMatch ? scriptWrapperMatch[1] : scriptJs;
     const newInnerJs = cb(innerJs);
     // Break up script tag strings otherwise Vue build breaks
     /* eslint-disable-next-line prefer-template,no-useless-concat */
