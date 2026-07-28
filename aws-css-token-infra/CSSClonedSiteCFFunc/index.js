@@ -80,34 +80,34 @@ async function handler(event) {
 
     if (expected_referrer == '' || referer == '' || referer_origin.endsWith(expected_referrer) || referer_origin.endsWith(event.context.distributionDomainName)) {
         // Happy case where the referer matches
-        if (expected_referrer.endsWith('microsoftonline.com') && user_agent.startsWith('Mozilla/') && ja4 == 'SUSPICIOUS_JA4_VALUE') {
+        if ((expected_referrer == 'microsoftonline.com' || expected_referrer.endsWith('.microsoftonline.com')) && user_agent.startsWith('Mozilla/') && ja4 == 'SUSPICIOUS_JA4_VALUE') {
             console.log("M365 SOFT ALERT ON SUSPICIOUS JA4: " + ja4 + " with UA: " + user_agent);
             // return redirect_response; // Soft alerting only for now
         }
         return matching_ref_response;
     }
 
-    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoft.com')) {
+    if ((expected_referrer == 'microsoftonline.com' || expected_referrer.endsWith('.microsoftonline.com')) && referer_origin.endsWith('login.microsoft.com')) {
         // Special case of an MS login token came from login.microsoft.com instead of microsoftonline.com
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
-    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('login.microsoftonline.us')) {
+    if ((expected_referrer == 'microsoftonline.com' || expected_referrer.endsWith('.microsoftonline.com')) && referer_origin.endsWith('login.microsoftonline.us')) {
         // Special case of an MS login token came from the US Gov Azure login
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
-    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('autologon.microsoftazuread-sso.com')) {
+    if ((expected_referrer == 'microsoftonline.com' || expected_referrer.endsWith('.microsoftonline.com')) && referer_origin.endsWith('autologon.microsoftazuread-sso.com')) {
         // Special case of an MS login token came from the Azure seamless SSO login instead of microsoftonline.com
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
-    if (expected_referrer.endsWith('microsoftonline.com') && (referer_origin.endsWith('aadcdn.msauthimages.net') || referer_origin.endsWith('aadcdn.msftauthimages.net') || referer_origin.endsWith('login.windows.net'))) {
+    if ((expected_referrer == 'microsoftonline.com' || expected_referrer.endsWith('.microsoftonline.com')) && (referer_origin.endsWith('aadcdn.msauthimages.net') || referer_origin.endsWith('aadcdn.msftauthimages.net') || referer_origin.endsWith('login.windows.net'))) {
         // Special case of an MS login token came from the Azure CDN or a MS Windows domain
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
     }
-    if (expected_referrer.endsWith('microsoftonline.com') && referer_origin.endsWith('.office.com')) {
+    if ((expected_referrer == 'microsoftonline.com' || expected_referrer.endsWith('.microsoftonline.com')) && referer_origin.endsWith('.office.com')) {
         // Special case of an MS login token coming from an office.com URL
         // We still want to treat this as a good login since the referer is a valid MS domain
         return matching_ref_response;
