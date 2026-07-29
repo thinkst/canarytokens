@@ -18,6 +18,7 @@ class SwitchboardSettings(BaseSettings):
     )
 
     PUBLIC_DOMAIN: str
+    NXDOMAINS: list[str]
     CHANNEL_DNS_IP: str = ""
     CHANNEL_DNS_PORT: Port = Port(5354)
     CHANNEL_HTTP_PORT: Port = Port(8083)
@@ -51,6 +52,10 @@ class SwitchboardSettings(BaseSettings):
     MAX_ALERTS_PER_MINUTE: int = 1
     # Maximum number of alert failures before a mechanism is disabled
     MAX_ALERT_FAILURES: int = 5
+
+    WEB_IMAGE_UPLOAD_PATH: str = "/uploads"
+
+    ERROR_LOG_WEBHOOK: Optional[HttpUrl] = None
 
     IPINFO_API_KEY: Optional[SecretStr] = None
     # Mailgun Required Settings
