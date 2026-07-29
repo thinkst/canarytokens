@@ -118,6 +118,8 @@ class FrontendSettings(BaseSettings):
 
     DEV_BUILD_ID: Optional[str] = None
 
+    LOG_FILE: Path = Path("frontend.log")
+
     # 3rd party settings
     AWSID_URL: Optional[HttpUrl] = None
     AWSID_AUTH: Optional[str] = None
