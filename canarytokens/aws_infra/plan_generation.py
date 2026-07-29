@@ -9,6 +9,7 @@ from typing import Callable, Optional
 
 from pydantic import (
     BaseModel,
+    ConfigDict,
     Field,
     ValidationError,
     ValidationInfo,
@@ -151,6 +152,12 @@ class AWSInfraAsset(BaseModel):
 class AWSInfraPlan(BaseModel):
     """AWS Infrastructure plan containing assets by type."""
 
+    model_config = ConfigDict(
+        extra="allow",
+        validate_by_name=True,
+        validate_by_alias=True,
+    )
+
     S3Bucket: list[AWSInfraAsset] = Field(default_factory=list, alias="S3Bucket")
     SQSQueue: list[AWSInfraAsset] = Field(default_factory=list, alias="SQSQueue")
     SSMParameter: list[AWSInfraAsset] = Field(
@@ -232,10 +239,6 @@ class AWSInfraPlan(BaseModel):
             plan = cls()
             plan.validation_errors = [f"{error['msg']}" for error in e.errors()]
             return plan
-
-    class Config:
-        allow_population_by_field_name = True
-        extra = "allow"
 
 
 _EVENT_PATTERN_EMPTY = 10

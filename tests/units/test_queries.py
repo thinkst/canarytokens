@@ -609,7 +609,7 @@ def test_add_many_pop_many_mail_queue(setup_db):
 
 
 def test_add_mail_to_send_status(setup_db):
-    recipient = "help@test,com"
+    recipient = "help@test.com"
     details = make_token_alert_detail(memo=Memo("message 2"))
     queries.add_mail_to_send_status(
         recipient=recipient,

@@ -1,4 +1,7 @@
 from typing import List, Literal, Optional
+
+from pydantic import ConfigDict
+
 from .common import (
     AdditionalInfo,
     TokenHistory,
@@ -18,13 +21,12 @@ class WebBugTokenResponse(TokenResponse):
 
 
 class WebBugTokenHit(TokenHit):
+    model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
+
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
     request_headers: Optional[dict] = None
     request_args: Optional[dict] = None
     additional_info: AdditionalInfo = AdditionalInfo()
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class WebBugTokenHistory(TokenHistory[WebBugTokenHit]):

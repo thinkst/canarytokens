@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, ConfigDict, Field, root_validator
 
 from canarytokens.utils import json_safe_dict, strtobool
 from .common import (
@@ -55,14 +55,13 @@ class AWSKeyTokenResponse(TokenResponse):
 
 
 class AWSKeyTokenHit(TokenHit):
+    model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
+
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
     useragent: Optional[str] = Field(
         None, alias="user_agent"
     )  # V2 does / did not store user agent.
     additional_info: Optional[AWSKeyAdditionalInfo] = None
-
-    class Config:
-        allow_population_by_field_name = True
 
     @property
     def safety_net(self):

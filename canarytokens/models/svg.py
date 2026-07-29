@@ -1,4 +1,7 @@
 from typing import List, Literal, Optional
+
+from pydantic import ConfigDict
+
 from .common import (
     AdditionalInfo,
     DownloadContentTypes,
@@ -23,13 +26,12 @@ class SVGTokenResponse(TokenResponse):
 
 
 class SVGTokenHit(TokenHit):
+    model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
+
     token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
     request_headers: Optional[dict] = None
     request_args: Optional[dict] = None
     additional_info: AdditionalInfo = AdditionalInfo()
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class SVGTokenHistory(TokenHistory[SVGTokenHit]):

@@ -633,7 +633,7 @@ def add_mail_to_send_status(
 
 def get_all_mails_in_send_status(
     token: str,
-) -> list[tuple[list[EmailStr], models.TokenAlertDetails]]:
+) -> list[tuple[EmailStr, models.TokenAlertDetails]]:
     mails_and_details = []
     for key in DB.get_db().scan_iter(f"{KEY_MAIL_TO_SEND}:{token}:*"):
         item = DB.get_db().get(key)
@@ -646,7 +646,7 @@ def get_all_mails_in_send_status(
 def remove_mail_from_to_send_status(
     token: str, time: datetime.datetime
 ) -> tuple[
-    Optional[list[EmailStr]],
+    Optional[EmailStr],
     Optional[Union[models.TokenAlertDetails, models.TokenExposedDetails]],
 ]:
     item = DB.get_db().getdel(f"{KEY_MAIL_TO_SEND}:{token}:{time.timestamp()}")

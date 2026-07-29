@@ -29,6 +29,7 @@ from canarytokens.webdav import FsType
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
+    ConfigDict,
     Field,
     parse_obj_as,
     root_validator,
@@ -275,12 +276,14 @@ class Canarydrop(BaseModel):
             ),
         )
 
-    class Config:
-        arbitrary_types_allowed = True
-        allow_population_by_field_name = True
-        json_encoders = {
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        validate_by_name=True,
+        validate_by_alias=True,
+        json_encoders={
             datetime: lambda v: v.strftime("%s.%f"),
-        }
+        },
+    )
 
     def add_canarydrop_hit(self, *, token_hit: AnyTokenHit):
         """Adds a hit to the drops history `.triggered_details`.
