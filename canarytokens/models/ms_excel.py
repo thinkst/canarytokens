@@ -1,5 +1,6 @@
 from typing import List, Literal, Optional
-from pydantic import ConstrainedStr
+from pydantic import StringConstraints
+from typing_extensions import Annotated
 
 from canarytokens.constants import MSEXCEL_TEXT_SNIPPET_MAX_CHARACTERS
 
@@ -16,8 +17,10 @@ from .common import (
 )
 
 
-class MsExcelTextSnippet(ConstrainedStr):
-    max_length = MSEXCEL_TEXT_SNIPPET_MAX_CHARACTERS
+MsExcelTextSnippet = Annotated[
+    str,
+    StringConstraints(max_length=MSEXCEL_TEXT_SNIPPET_MAX_CHARACTERS),
+]
 
 
 class MsExcelDocumentTokenRequest(TokenRequest):

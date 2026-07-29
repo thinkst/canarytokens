@@ -1055,7 +1055,6 @@ async def api_awsinfra_inventory_customer_account(
     request: Union[AWSInfraTriggerOperationRequest, AWSInfraHandleRequest],
     response: Response,
 ) -> Union[AWSInfraInventoryCustomerAccountReceivedResponse, AWSInfraHandleResponse]:
-
     if isinstance(request, AWSInfraTriggerOperationRequest):
         canarydrop = get_canarydrop_and_authenticate(
             request.canarytoken, request.auth_token
@@ -1406,7 +1405,6 @@ def _(
 def _(
     download_request_details: DownloadMSWordRequest, canarydrop: Canarydrop
 ) -> Response:
-
     return DownloadMSWordResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
@@ -1436,7 +1434,6 @@ def _(download_request_details: DownloadZipRequest, canarydrop: Canarydrop) -> R
 def _(
     download_request_details: DownloadMSExcelRequest, canarydrop: Canarydrop
 ) -> Response:
-
     return DownloadMSExcelResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
@@ -1451,7 +1448,6 @@ def _(
 
 @create_download_response.register
 def _(download_request_details: DownloadPDFRequest, canarydrop: Canarydrop) -> Response:
-
     return DownloadPDFResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
@@ -1467,7 +1463,6 @@ def _(download_request_details: DownloadPDFRequest, canarydrop: Canarydrop) -> R
 def _(
     download_request_details: DownloadIncidentListJsonRequest, canarydrop: Canarydrop
 ) -> Response:
-
     json_content = canarydrop.triggered_details.json()
 
     return DownloadIncidentListJsonResponse(
@@ -1482,7 +1477,6 @@ def _(
 def _(
     download_request_details: DownloadMySQLRequest, canarydrop: Canarydrop
 ) -> Response:
-
     return DownloadMySQLResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
@@ -1503,7 +1497,6 @@ def _(
 def _(
     download_request_details: DownloadIncidentListCSVRequest, canarydrop: Canarydrop
 ) -> Response:
-
     csv_content = canarydrop.get_csv_incident_list()
 
     return DownloadIncidentListCSVResponse(
@@ -1632,7 +1625,6 @@ def _(
 
 @create_download_response.register
 def _(download_request_details: DownloadSVGRequest, canarydrop: Canarydrop) -> Response:
-
     return DownloadSVGResponse(
         token=download_request_details.token,
         auth=download_request_details.auth,
@@ -1668,7 +1660,6 @@ def _(
 def _(
     token_request_details: Log4ShellTokenRequest, canarydrop: Canarydrop
 ) -> Log4ShellTokenResponse:
-
     return Log4ShellTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=(
@@ -1688,7 +1679,6 @@ def _(
 def _(
     token_request_details: WindowsDirectoryTokenRequest, canarydrop: Canarydrop
 ) -> WindowsDirectoryTokenResponse:
-
     return WindowsDirectoryTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
@@ -1706,7 +1696,6 @@ def _(
 def _(
     token_request_details: ClonedWebTokenRequest, canarydrop: Canarydrop
 ) -> ClonedWebTokenResponse:
-
     return ClonedWebTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
@@ -1726,7 +1715,6 @@ def _(
 def _(
     token_request_details: CSSClonedWebTokenRequest, canarydrop: Canarydrop
 ) -> CSSClonedWebTokenResponse:
-
     return CSSClonedWebTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
@@ -1745,7 +1733,6 @@ def _(
 def _(
     token_request_details: FastRedirectTokenRequest, canarydrop: Canarydrop
 ) -> FastRedirectTokenResponse:
-
     return FastRedirectTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
@@ -1762,7 +1749,6 @@ def _(
 def _(
     token_request_details: SlowRedirectTokenRequest, canarydrop: Canarydrop
 ) -> SlowRedirectTokenResponse:
-
     return SlowRedirectTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url or "",
@@ -1854,7 +1840,6 @@ def _(
 
 @create_response.register
 def _(token_request_details: SQLServerTokenRequest, canarydrop: Canarydrop):
-
     return SQLServerTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=(
@@ -1879,7 +1864,6 @@ def _create_aws_key_token_response(
     canarydrop: Canarydrop,
     settings: Optional[FrontendSettings] = None,
 ) -> AWSKeyTokenResponse:
-
     if settings is None:
         settings = frontend_settings
 
@@ -1962,8 +1946,7 @@ def _create_azure_id_token_response(
             server=get_all_canary_domains()[0],
             cert_file_name=token_request_details.azure_id_cert_file_name,
             azure_url=HttpUrl(
-                f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}",
-                scheme=settings.AZURE_ID_TOKEN_URL.scheme,
+                f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}"
             ),
         )
     except Exception as e:
@@ -2053,7 +2036,6 @@ def _create_webdav_token_response(
     canarydrop: Canarydrop,
     settings: Optional[FrontendSettings] = None,
 ) -> WebDavTokenResponse:
-
     if settings is None:
         settings = frontend_settings
 
@@ -2378,7 +2360,6 @@ def _(
 
 @create_response.register
 def _(token_request_details: SvnTokenRequest, canarydrop: Canarydrop):
-
     return SvnTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=(
@@ -2394,7 +2375,6 @@ def _(token_request_details: SvnTokenRequest, canarydrop: Canarydrop):
 
 @create_response.register
 def _(token_request_details: MsWordDocumentTokenRequest, canarydrop: Canarydrop):
-
     return MsWordDocumentTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=(
@@ -2410,7 +2390,6 @@ def _(token_request_details: MsWordDocumentTokenRequest, canarydrop: Canarydrop)
 
 @create_response.register
 def _(token_request_details: MsExcelDocumentTokenRequest, canarydrop: Canarydrop):
-
     return MsExcelDocumentTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=(
@@ -2480,8 +2459,7 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
                 [
                     f"{switchboard_settings.SWITCHBOARD_SCHEME}://{frontend_settings.DOMAINS[0]}"
                 ]
-            ),
-            scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+            )
         ),
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),

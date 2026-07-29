@@ -32,8 +32,8 @@ class SlowRedirectTokenResponse(TokenResponse):
 
 class SlowRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLOW_REDIRECT] = TokenTypes.SLOW_REDIRECT
-    referer: Optional[Union[str, bytes]]
-    location: Optional[Union[str, bytes]]
+    referer: Optional[Union[str, bytes]] = None
+    location: Optional[Union[str, bytes]] = None
     additional_info: AdditionalInfo = AdditionalInfo()
 
 

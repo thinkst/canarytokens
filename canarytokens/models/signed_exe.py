@@ -1,7 +1,7 @@
 from io import BytesIO
 from tempfile import SpooledTemporaryFile
 from typing import Any, List, Literal
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, validator
 from .common import (
     TokenHistory,
     TokenHit,
@@ -12,17 +12,17 @@ from .common import (
 
 
 class UploadedExe(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
+
     content_type: Literal["application/x-msdownload", "application/octet-stream"]
     filename: str
-    file: SpooledTemporaryFile
-
-    class Config:
-        arbitrary_types_allowed = True
-        orm_mode = True
+    file: Any
 
     @classmethod
-    def __modify_schema__(cls, field_schema, field):
-        field_schema["title"] = "File"
+    def __get_pydantic_json_schema__(cls, core_schema: Any, handler: Any) -> dict:
+        json_schema = handler(core_schema)
+        json_schema["title"] = "File"
+        return json_schema
 
 
 class CustomBinaryTokenRequest(TokenRequest):

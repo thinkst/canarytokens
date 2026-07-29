@@ -20,17 +20,14 @@ from fastapi.responses import JSONResponse
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
-    ConstrainedInt,
-    ConstrainedStr,
     EmailStr,
     Field,
     HttpUrl,
     IPvAnyAddress,
-    ValidationError,
+    StringConstraints,
     root_validator,
     validator,
 )
-from pydantic.generics import GenericModel
 from typing_extensions import Annotated
 
 from canarytokens.constants import (
@@ -67,26 +64,28 @@ def response_error(error, message, status_code=400):
     )
 
 
-class Memo(ConstrainedStr):
-    max_length: int = MEMO_MAX_CHARACTERS
+Memo = Annotated[str, StringConstraints(max_length=MEMO_MAX_CHARACTERS)]
 
 
-class Port(ConstrainedInt):
-    ge: int = 0
-    lt: int = 65535
+Port = Annotated[int, Field(ge=0, lt=65535)]
 
 
-class Hostname(ConstrainedStr):
-    max_length: int = 253
-    regex = re.compile(
-        r"^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
-        re.IGNORECASE,
-    )
+Hostname = Annotated[
+    str,
+    StringConstraints(
+        max_length=253,
+        pattern=re.compile(
+            r"^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
+            re.IGNORECASE,
+        ),
+    ),
+]
 
 
-class Canarytoken(ConstrainedStr):
-    max_length: int = CANARYTOKEN_LENGTH
-    regex = CANARYTOKEN_RE
+Canarytoken = Annotated[
+    str,
+    StringConstraints(max_length=CANARYTOKEN_LENGTH, pattern=CANARYTOKEN_RE),
+]
 
 
 class TokenTypes(StrEnum):
@@ -188,8 +187,8 @@ IGNORE_IP_UNSUPPORTED = [TokenTypes.SMTP, TokenTypes.CREDIT_CARD_V2]
 
 
 class TokenRequest(BaseModel):
-    email: Optional[EmailStr]
-    webhook_url: Optional[HttpUrl]
+    email: Optional[EmailStr] = None
+    webhook_url: Optional[HttpUrl] = None
     memo: Memo
 
     def __init__(__pydantic_self__, **data: Any) -> None:
@@ -201,7 +200,7 @@ class TokenRequest(BaseModel):
             data["token_type"] = TokenTypes(data["token_type"])
         super().__init__(**data)
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def check_email_or_webhook_opt(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if not values.get("webhook_url") and not values.get("email"):
             raise ValueError("either webhook or email is required")
@@ -230,10 +229,10 @@ class TokenResponse(BaseModel):
     auth_token: str
     email: Union[EmailStr, Literal[""]] = ""
     webhook_url: Union[HttpUrl, Literal[""]] = ""
-    url_components: Optional[List[List[str]]]
-    error: Optional[str]
-    error_message: Optional[str]
-    Url: Union[HttpUrl, Literal[""], None]
+    url_components: Optional[List[List[str]]] = None
+    error: Optional[str] = None
+    error_message: Optional[str] = None
+    Url: Union[HttpUrl, Literal[""], None] = None
 
     @root_validator(pre=True)
     def normalize_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
@@ -280,26 +279,26 @@ class GeoIPBogonInfo(BaseModel):
 class GeoIPInfo(BaseModel):
     # DESIGN/TODO: This is based on 3rd party response. Make all fields optional / match the api we expecting
     loc: Tuple[float, float]  # '-33.9778,18.6167'
-    org: Optional[str]  # 'AS29975 Vodacom'
-    city: Optional[str]  # 'Cape Town'
+    org: Optional[str] = None  # 'AS29975 Vodacom'
+    city: Optional[str] = None  # 'Cape Town'
     # TODO: Validate country code pycountry?? add a dependency for this??
-    country: Optional[str]  # 'ZA',
-    region: Optional[str]  # 'Western Cape'
+    country: Optional[str] = None  # 'ZA',
+    region: Optional[str] = None  # 'Western Cape'
     #  TODO: validate this domain
-    hostname: Optional[str]  # 'dnsinfo1-cte-pt.3g.vodacom.co.za
+    hostname: Optional[str] = None  # 'dnsinfo1-cte-pt.3g.vodacom.co.za
     ip: str  # '41.1.47.253
-    timezone: Optional[str]  # 'Africa/Johannesburg
-    postal: Optional[str]  # '7100 or EC1A
-    asn: Optional[
-        ASN
-    ]  # {'route': '41.1.0.0/18', 'type': 'isp', 'asn': 'AS29975', 'domain': 'vodacom.com', 'name': 'Vodacom'}
-    readme: Optional[str]
+    timezone: Optional[str] = None  # 'Africa/Johannesburg
+    postal: Optional[str] = None  # '7100 or EC1A
+    asn: Optional[ASN] = (
+        None  # {'route': '41.1.0.0/18', 'type': 'isp', 'asn': 'AS29975', 'domain': 'vodacom.com', 'name': 'Vodacom'}
+    )
+    readme: Optional[str] = None
     # bogon
 
     @root_validator(pre=True)
     def validator_bogon(cls, values):
         if values and "bogon" in values:
-            raise ValidationError("Bogon implies GeoIPBogonInfo not GeoIPInfo")
+            raise ValueError("Bogon implies GeoIPBogonInfo not GeoIPInfo")
         return values
 
     @validator("loc", pre=True)
@@ -350,22 +349,22 @@ class ServiceInfo(BaseModel):
     version: list[str]
     enabled: list[str]
     installed: list[str]
-    r: Optional[list[str]]
-    l: Optional[list[str]]
+    r: Optional[list[str]] = None
+    l: Optional[list[str]] = None  # noqa: E741
 
 
 class BrowserInfo(BaseModel):
     mimetypes: list[str]
-    vendor: Optional[list[str]]
-    language: Optional[list[str]]
+    vendor: Optional[list[str]] = None
+    language: Optional[list[str]] = None
     enabled: list[str]
     installed: list[str]
-    platform: Optional[list[str]]
+    platform: Optional[list[str]] = None
     version: list[str]
     os: list[str]
-    browser: Optional[list[str]]
-    r: Optional[list[str]]
-    l: Optional[list[str]]
+    browser: Optional[list[str]] = None
+    r: Optional[list[str]] = None
+    l: Optional[list[str]] = None  # noqa: E741
 
 
 class AWSKeyAdditionalInfo(BaseModel):
@@ -418,12 +417,12 @@ class AzureIDAdditionalInfo(BaseModel):
 
 
 class AdditionalInfo(BaseModel):
-    javascript: Optional[ServiceInfo]
-    browser: Optional[BrowserInfo]
-    mysql_client: Optional[dict[str, list[str]]]
-    r: Optional[list[str]]
-    l: Optional[list[str]]
-    file_path: Optional[list[str]]
+    javascript: Optional[ServiceInfo] = None
+    browser: Optional[BrowserInfo] = None
+    mysql_client: Optional[dict[str, list[str]]] = None
+    r: Optional[list[str]] = None
+    l: Optional[list[str]] = None  # noqa: E741
+    file_path: Optional[list[str]] = None
 
     @root_validator(pre=True)
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
@@ -455,12 +454,12 @@ class AlertStatus(enum.StrEnum):
 
 class TokenHit(BaseModel):
     time_of_hit: float
-    src_ip: Optional[str]
-    geo_info: Union[GeoIPInfo, GeoIPBogonInfo, GeoIPNoInfo, None, Literal[""]]
-    is_tor_relay: Optional[bool]
+    src_ip: Optional[str] = None
+    geo_info: Union[GeoIPInfo, GeoIPBogonInfo, GeoIPNoInfo, None, Literal[""]] = None
+    is_tor_relay: Optional[bool] = None
     input_channel: str
-    src_data: Optional[dict]
-    useragent: Optional[str]
+    src_data: Optional[dict] = None
+    useragent: Optional[str] = None
     alert_status: AlertStatus = AlertStatus.ALERTABLE
 
     class Config:
@@ -511,7 +510,7 @@ class TokenExposedHit(BaseModel):
 TH = TypeVar("TH", bound=TokenHit)
 
 
-class TokenHistory(GenericModel, Generic[TH]):
+class TokenHistory(BaseModel, Generic[TH]):
     """
     TokenHistory holds the format of each tokens'hits.
     `token_type` dictates which type of token a
@@ -588,7 +587,7 @@ class TokenAlertDetails(BaseModel):
     time: datetime
     memo: Memo
     manage_url: AnyHttpUrl
-    additional_data: Optional[dict[str, Any]]
+    additional_data: Optional[dict[str, Any]] = None
     public_domain: Optional[str] = "my.domain"
 
     @validator("time", pre=True)
@@ -599,9 +598,7 @@ class TokenAlertDetails(BaseModel):
 
     @property
     def history_url(self):
-        return HttpUrl(
-            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
-        )
+        return HttpUrl(str(self.manage_url).replace("manage", "history"))
 
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
@@ -617,7 +614,7 @@ class TokenExposedDetails(BaseModel):
     token: str
     memo: Memo
     key_id: str
-    public_location: Optional[str]
+    public_location: Optional[str] = None
     exposed_time: datetime
     manage_url: AnyHttpUrl
     public_domain: Optional[str] = "my.domain"
@@ -633,9 +630,7 @@ class TokenExposedDetails(BaseModel):
 
     @property
     def history_url(self):
-        return HttpUrl(
-            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
-        )
+        return HttpUrl(str(self.manage_url).replace("manage", "history"))
 
     @property
     def time_hm(self) -> str:
@@ -651,10 +646,10 @@ class TokenExposedDetails(BaseModel):
         }
 
 
-class UserName(ConstrainedStr):
-    max_lengthint: int = 30
-    strip_whitespace: bool = True
-    to_lower: bool = False
+UserName = Annotated[
+    str,
+    StringConstraints(max_length=30, strip_whitespace=True, to_lower=False),
+]
 
 
 class User(BaseModel):
@@ -880,22 +875,22 @@ class DefaultResponse(BaseModel):
 class ManageTokenSettingsRequest(BaseModel):
     token: str
     auth: str
-    email_enable: Optional[Literal["on", "off"]]
-    webhook_enable: Optional[Literal["on", "off"]]
-    sms_enable: Optional[Literal["on", "off"]]
-    web_image_enable: Optional[Literal["on", "off"]]
-    browser_scanner_enable: Optional[Literal["on", "off"]]
+    email_enable: Optional[Literal["on", "off"]] = None
+    webhook_enable: Optional[Literal["on", "off"]] = None
+    sms_enable: Optional[Literal["on", "off"]] = None
+    web_image_enable: Optional[Literal["on", "off"]] = None
+    browser_scanner_enable: Optional[Literal["on", "off"]] = None
 
 
 class ManageResponse(BaseModel):
     canarydrop: Dict
-    public_ip: Optional[str]
-    wg_private_key_seed: Optional[str]
-    wg_private_key_n: Optional[str]
-    wg_conf: Optional[str]
-    wg_qr_code: Optional[str]
-    qr_code: Optional[str]
-    force_https: Optional[bool]
-    clonedsite_js: Optional[str]
-    clonedsite_css: Optional[str]
-    client_id: Optional[str]
+    public_ip: Optional[str] = None
+    wg_private_key_seed: Optional[str] = None
+    wg_private_key_n: Optional[str] = None
+    wg_conf: Optional[str] = None
+    wg_qr_code: Optional[str] = None
+    qr_code: Optional[str] = None
+    force_https: Optional[bool] = None
+    clonedsite_js: Optional[str] = None
+    clonedsite_css: Optional[str] = None
+    client_id: Optional[str] = None

@@ -3,7 +3,6 @@ from unittest import mock
 from twisted.logger import LogLevel, capturedLogs
 from twisted.internet.defer import inlineCallbacks, succeed
 import pytest
-from pydantic import EmailStr
 from redis import StrictRedis
 import requests
 
@@ -378,7 +377,7 @@ def test_remove_tokens_with_email_x(setup_db):
     tokens_linked_to_email = queries.list_email_tokens(email_address=email)
 
     assert cd.alert_email_enabled
-    assert cd.alert_email_recipient == EmailStr(email)
+    assert cd.alert_email_recipient == email
     assert len(tokens_linked_to_email)
 
     # Act. Delete the token using an email
@@ -610,7 +609,7 @@ def test_add_many_pop_many_mail_queue(setup_db):
 
 
 def test_add_mail_to_send_status(setup_db):
-    recipient = EmailStr("help@test,com")
+    recipient = "help@test,com"
     details = make_token_alert_detail(memo=Memo("message 2"))
     queries.add_mail_to_send_status(
         recipient=recipient,

@@ -1,6 +1,7 @@
 from typing import List, Literal, Optional
 
-from pydantic import ConstrainedStr
+from pydantic import StringConstraints
+from typing_extensions import Annotated
 
 from canarytokens.constants import MSWORD_TEXT_SNIPPET_MAX_CHARACTERS
 from .common import (
@@ -16,8 +17,10 @@ from .common import (
 )
 
 
-class MsWordTextSnippet(ConstrainedStr):
-    max_length = MSWORD_TEXT_SNIPPET_MAX_CHARACTERS
+MsWordTextSnippet = Annotated[
+    str,
+    StringConstraints(max_length=MSWORD_TEXT_SNIPPET_MAX_CHARACTERS),
+]
 
 
 class MsWordDocumentTokenRequest(TokenRequest):

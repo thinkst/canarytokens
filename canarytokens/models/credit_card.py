@@ -8,10 +8,10 @@ from pydantic import BaseModel
 
 class CreditCard(BaseModel):
     id: str
-    number: Optional[str]
-    cvc: Optional[str]
-    expiration: Optional[str]
-    kind: Optional[str]
+    number: Optional[str] = None
+    cvc: Optional[str] = None
+    expiration: Optional[str] = None
+    kind: Optional[str] = None
     name: str
     billing_zip: str
     address: str

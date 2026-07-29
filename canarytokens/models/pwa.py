@@ -107,24 +107,24 @@ PWA_APP_TITLES = {
 
 
 class GeolocationCoordinates(BaseModel):
-    accuracy: Optional[float]
-    altitude: Optional[float]
-    altitudeAccuracy: Optional[float]
-    heading: Optional[float]
-    latitude: Optional[float]
-    longitude: Optional[float]
-    speed: Optional[float]
+    accuracy: Optional[float] = None
+    altitude: Optional[float] = None
+    altitudeAccuracy: Optional[float] = None
+    heading: Optional[float] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    speed: Optional[float] = None
 
 
 class GeolocationPosition(BaseModel):
-    coords: Optional[GeolocationCoordinates]
-    timestamp: Optional[int]
+    coords: Optional[GeolocationCoordinates] = None
+    timestamp: Optional[int] = None
 
 
 class PWATokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
     icon: PWAType
-    app_name: Optional[str]
+    app_name: Optional[str] = None
 
 
 class PWATokenResponse(TokenResponse):
@@ -135,7 +135,7 @@ class PWATokenResponse(TokenResponse):
 
 class PWATokenHit(TokenHit):
     token_type: Literal[TokenTypes.PWA] = TokenTypes.PWA
-    location: Optional[GeolocationPosition]
+    location: Optional[GeolocationPosition] = None
 
 
 class PWATokenHistory(TokenHistory[PWATokenHit]):

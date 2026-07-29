@@ -5,7 +5,6 @@ import json
 import pytest
 import io
 import ipaddress
-from pydantic import EmailStr
 from twisted.internet.address import IPv4Address, IPv6Address
 from twisted.web.http import Request
 from twisted.web.test.requesthelper import DummyChannel
@@ -358,7 +357,7 @@ def test_POST_aws_token_back_legacy(
         type=TokenTypes.AWS_KEYS,
         triggered_details=AWSKeyTokenHistory(),
         alert_email_enabled=False,
-        alert_email_recipient=EmailStr("email@test.com"),
+        alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
         alert_webhook_url=None,
         canarytoken=canarytoken,
@@ -423,7 +422,7 @@ def test_aws_credential_report_checker_trigger(
         type=TokenTypes.AWS_KEYS,
         triggered_details=AWSKeyTokenHistory(),
         alert_email_enabled=False,
-        alert_email_recipient=EmailStr("email@test.com"),
+        alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
         alert_webhook_url=None,
         canarytoken=canarytoken,
@@ -472,7 +471,7 @@ def test_GET_aws_token_back(
         type=TokenTypes.AWS_KEYS,
         triggered_details=AWSKeyTokenHistory(),
         alert_email_enabled=False,
-        alert_email_recipient=EmailStr("email@test.com"),
+        alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
         alert_webhook_url=None,
         canarytoken=canarytoken,
@@ -548,7 +547,7 @@ def test_POST_cc_token_v2_back(
         type=TokenTypes.CREDIT_CARD_V2,
         triggered_details=CreditCardV2TokenHistory(),
         alert_email_enabled=False,
-        alert_email_recipient=EmailStr("email@test.com"),
+        alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
         alert_webhook_url=None,
         canarytoken=canarytoken,

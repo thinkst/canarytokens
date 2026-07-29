@@ -57,7 +57,7 @@ class CrowdStrikeCCTokenResponse(TokenResponse):
 
 class CrowdStrikeCCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CROWDSTRIKE_CC] = TokenTypes.CROWDSTRIKE_CC
-    additional_info: Optional[CrowdStrikeCCAdditionalInfo]
+    additional_info: Optional[CrowdStrikeCCAdditionalInfo] = None
 
     class Config:
         allow_population_by_field_name = True

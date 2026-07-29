@@ -664,7 +664,7 @@ def test_aws_keys_broken(
         clear=False,
     ):
         local_settings = FrontendSettings(
-            AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_URL=HttpUrl(aws_url),
             AWSID_AUTH="N/A=",  # no auth
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
@@ -722,7 +722,7 @@ def test_aws_keys(
         clear=False,
     ):
         local_settings = FrontendSettings(
-            AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_URL=HttpUrl(aws_url),
             AWSID_AUTH="N/A=",
             TESTING_AWS_ACCESS_KEY_ID="",
             **{

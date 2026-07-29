@@ -11,8 +11,8 @@ from .common import (
 
 
 class WebDavAdditionalInfo(BaseModel):
-    file_path: Optional[str]
-    useragent: Optional[str]
+    file_path: Optional[str] = None
+    useragent: Optional[str] = None
 
     def serialize_for_v2(self) -> dict:
         return self.dict()
@@ -26,7 +26,7 @@ class WebDavTokenRequest(TokenRequest):
     def check_webdav_fs_type(value: str):
         from canarytokens.webdav import FsType
 
-        if not value.upper() in FsType.__members__.keys():
+        if value.upper() not in FsType.__members__.keys():
             raise ValueError(
                 f"webdav_fs_type must be in the FsType enum. Given: {value}"
             )
@@ -42,7 +42,7 @@ class WebDavTokenResponse(TokenResponse):
 
 class WebDavTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
-    additional_info: Optional[WebDavAdditionalInfo]
+    additional_info: Optional[WebDavAdditionalInfo] = None
 
 
 class WebDavTokenHistory(TokenHistory[WebDavTokenHit]):

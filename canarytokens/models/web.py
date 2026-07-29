@@ -19,8 +19,8 @@ class WebBugTokenResponse(TokenResponse):
 
 class WebBugTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEB] = TokenTypes.WEB
-    request_headers: Optional[dict]
-    request_args: Optional[dict]
+    request_headers: Optional[dict] = None
+    request_args: Optional[dict] = None
     additional_info: AdditionalInfo = AdditionalInfo()
 
     class Config:

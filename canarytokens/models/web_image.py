@@ -1,8 +1,8 @@
 from io import BytesIO
 from tempfile import SpooledTemporaryFile
-from typing import List, Literal
+from typing import Any, List, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from .common import (
     AdditionalInfo,
     TokenHistory,
@@ -14,17 +14,17 @@ from .common import (
 
 
 class UploadedImage(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
+
     content_type: Literal["image/png", "image/gif", "image/jpeg"]
     filename: str
-    file: SpooledTemporaryFile
-
-    class Config:
-        arbitrary_types_allowed = True
-        orm_mode = True
+    file: Any
 
     @classmethod
-    def __modify_schema__(cls, field_schema, field):
-        field_schema["title"] = "File"
+    def __get_pydantic_json_schema__(cls, core_schema: Any, handler: Any) -> dict:
+        json_schema = handler(core_schema)
+        json_schema["title"] = "File"
+        return json_schema
 
 
 class CustomImageTokenRequest(TokenRequest):

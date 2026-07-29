@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional
+from typing import Any, ClassVar, List, Literal, Optional
 
 from pydantic import root_validator
 from .common import (
@@ -27,8 +27,8 @@ class Log4ShellTokenRequest(TokenRequest):
 class Log4ShellTokenResponse(TokenResponse):
     # DESIGN: These 2 markers should be application constants.
     #         keeping here until they are needed elsewhere.
-    _hostname_marker: Literal["x"] = "x"
-    _token_marker: Literal["L4J"] = "L4J"
+    _hostname_marker: ClassVar[Literal["x"]] = "x"
+    _token_marker: ClassVar[Literal["L4J"]] = "L4J"
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
     token_usage: str
     token_with_usage_info: str
@@ -61,7 +61,7 @@ class Log4ShellTokenResponse(TokenResponse):
 
 class Log4ShellTokenHit(TokenHit):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
-    src_data: Optional[dict]
+    src_data: Optional[dict] = None
 
 
 class Log4ShellTokenHistory(TokenHistory[Log4ShellTokenHit]):

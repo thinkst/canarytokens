@@ -22,7 +22,7 @@ class SMTPHeloField(BaseModel):
 
 
 class SMTPMailField(BaseModel):
-    sender: Optional[str]
+    sender: Optional[str] = None
     recipients: list[str]
     links: list[str]
     headers: list[str]
@@ -60,7 +60,7 @@ class SMTPTokenRequest(TokenRequest):
 
 class SMTPTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-    unique_email: Optional[EmailStr]
+    unique_email: Optional[EmailStr] = None
 
     # FIXME: validate all
     @validator("unique_email", pre=True)
@@ -74,13 +74,13 @@ class SMTPTokenResponse(TokenResponse):
                 domain = "localhost.com"
             else:
                 domain = ".".join(values["hostname"].split(".")[-2:])
-            return EmailStr(f"{values['token']}@{domain}")
+            return f"{values['token']}@{domain}"
         return unique_email
 
 
 class SMTPTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-    mail: Optional[SMTPMailField]
+    mail: Optional[SMTPMailField] = None
 
 
 class SMTPTokenHistory(TokenHistory[SMTPTokenHit]):

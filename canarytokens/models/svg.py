@@ -24,8 +24,8 @@ class SVGTokenResponse(TokenResponse):
 
 class SVGTokenHit(TokenHit):
     token_type: Literal[TokenTypes.SVG] = TokenTypes.SVG
-    request_headers: Optional[dict]
-    request_args: Optional[dict]
+    request_headers: Optional[dict] = None
+    request_args: Optional[dict] = None
     additional_info: AdditionalInfo = AdditionalInfo()
 
     class Config:

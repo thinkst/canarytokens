@@ -7,8 +7,15 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from pydantic import BaseModel, Field, root_validator, validator, ValidationError
-from pydantic.fields import ModelField
+from pydantic import (
+    BaseModel,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+    root_validator,
+    validator,
+)
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
@@ -87,12 +94,13 @@ class AWSInfraAsset(BaseModel):
     table_items: Optional[list[str]] = Field(default_factory=list)
     off_inventory: bool = False
 
-    @validator(
+    @field_validator(
         *FIELD_VALIDATORS.keys(),
     )
-    def validate_asset_names(cls, name: str, field: ModelField):
+    @classmethod
+    def validate_asset_names(cls, name: str, info: ValidationInfo):
         if name is not None:
-            validation = FIELD_VALIDATORS[field.name](name)
+            validation = FIELD_VALIDATORS[info.field_name](name)
             if not validation.result:
                 raise ValueError(validation.error_message)
         return name
@@ -158,7 +166,7 @@ class AWSInfraPlan(BaseModel):
     # Store validation errors as a list
     validation_errors: Optional[list[str]] = None
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_unique_names(cls, values):
         """Ensure no duplicate asset names within each type."""
         validation_errors = []
@@ -194,7 +202,7 @@ class AWSInfraPlan(BaseModel):
             )  # Remove duplicates
         return values
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_max_number_assets(cls, values):
         """Ensure the number of assets does not exceed the maximum allowed."""
         validation_errors = []

@@ -20,8 +20,8 @@ from .common import (
 class AWSKey(TypedDict):
     access_key_id: str
     secret_access_key: str
-    username: Optional[str]
-    aws_account_id: Optional[str]
+    username: Optional[str] = None
+    aws_account_id: Optional[str] = None
     region: str
     output: Literal["json", "yaml", "yaml-stream", "text", "table"]
 
@@ -59,7 +59,7 @@ class AWSKeyTokenHit(TokenHit):
     useragent: Optional[str] = Field(
         None, alias="user_agent"
     )  # V2 does / did not store user agent.
-    additional_info: Optional[AWSKeyAdditionalInfo]
+    additional_info: Optional[AWSKeyAdditionalInfo] = None
 
     class Config:
         allow_population_by_field_name = True
@@ -127,7 +127,7 @@ class AWSKeyTokenHit(TokenHit):
             data["additional_info"] = {"AWS Key Log Data": log_data}
         super().__init__(**data)
 
-    @root_validator(allow_reuse=True)
+    @root_validator(allow_reuse=True, skip_on_failure=True)
     def validate_extras(cls, values):
         dependent_vals = [
             # "src_ip", #V2 stores src_ip as "". It's not None.
@@ -150,7 +150,7 @@ class AWSKeyTokenHit(TokenHit):
 
 class AWSKeyTokenExposedHit(TokenExposedHit):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
-    public_location: Optional[str]
+    public_location: Optional[str] = None
     input_channel: str = "HTTP"
 
 

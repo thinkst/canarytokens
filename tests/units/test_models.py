@@ -160,15 +160,7 @@ def test_canarydrop_model_on_details():
         "alert_sms_enabled": False,
         "alert_sms_recipient": None,
         "alert_webhook_enabled": True,
-        "alert_webhook_url": HttpUrl(
-            "http://0cdc-165-73-122-152.ngrok.io/alert",
-            scheme="http",
-            host="0cdc-165-73-122-152.ngrok.io",
-            tld="io",
-            host_type="domain",
-            port="80",
-            path="/alert",
-        ),
+        "alert_webhook_url": HttpUrl("http://0cdc-165-73-122-152.ngrok.io/alert"),
     }
     Canarydrop(**data)
 

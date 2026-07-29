@@ -28,7 +28,7 @@ def test_mysql_token(
     settings: SwitchboardSettings,
 ):  # pragma: no cover
     token_request = MySQLTokenRequest(
-        webhook_url=HttpUrl(url=webhook_receiver, scheme="https"),
+        webhook_url=HttpUrl(url=webhook_receiver),
         memo=Memo("Test stuff break stuff test stuff sometimes build stuff"),
     )
     resp = create_token(token_request)

@@ -132,11 +132,11 @@ def aws_webhook_receiver() -> Generator[str, None, None]:
             NXDOMAINS=["nxdomain.127.0.0.1"],
             PUBLIC_IP="10.0.1.3",
             DOMAINS=["127.0.0.1"],
-            AWSID_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
+            AWSID_URL=HttpUrl("https://not.using/in/tests"),
             AWSID_AUTH="N/A=",
-            AZURE_ID_TOKEN_URL=HttpUrl("https://not.using/in/tests", scheme="https"),
+            AZURE_ID_TOKEN_URL=HttpUrl("https://not.using/in/tests"),
             AZURE_ID_TOKEN_AUTH="N/A=",
-            SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
+            SENTRY_DSN=HttpUrl("https://not.using/in/tests"),
             GOOGLE_API_KEY="N/A=",
         )
         mock_key = {
@@ -184,7 +184,7 @@ def settings() -> SwitchboardSettings:
             if not os.getenv("CANARY_MAILGUN_DOMAIN_NAME")
             else os.getenv("CANARY_MAILGUN_BASE_URL")
         ),
-        SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https"),
+        SENTRY_DSN=HttpUrl("https://not.using/in/tests"),
         WG_PRIVATE_KEY_SEED="vk/GD+frlhve/hDTTSUvqpQ/WsQtioKAri0Rt5mg7dw=",
         LAMBDA_AWS_CRED_REPORT_AUTH="test_auth_value",
     )
@@ -218,13 +218,13 @@ def frontend_settings() -> FrontendSettings:
         NXDOMAINS=["nx.127.0.0.1"],
         PUBLIC_IP="127.0.0.1",  # "10.0.1.3",
         DOMAINS=["127.0.0.1"],
-        SENTRY_DSN=HttpUrl("https://not.using/in/tests", scheme="https://"),
+        SENTRY_DSN=HttpUrl("https://not.using/in/tests"),
         TEMPLATES_PATH="../templates",
         STATIC_FILES_PATH="../templates/static",
         STATIC_FILES_APPLICATION_SUB_PATH="/resources",
         STATIC_FILES_APPLICATION_INTERNAL_NAME="resources",
         WEB_IMAGE_UPLOAD_PATH="../uploads",
-        AWSID_URL=HttpUrl("https://overwrit.e/from/outside", scheme="https"),
+        AWSID_URL=HttpUrl("https://overwrit.e/from/outside"),
         TESTING_AWS_ACCESS_KEY_ID="placeholder_key_id",
         TESTING_AWS_SECRET_ACCESS_KEY="placeholder_secret_key",
         GOOGLE_API_KEY="nothing_here",

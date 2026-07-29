@@ -4,7 +4,9 @@ from .common import TokenHistory, TokenHit, TokenRequest, TokenResponse, TokenTy
 
 class SQLServerTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.SQL_SERVER] = TokenTypes.SQL_SERVER
-    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
+    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]] = (
+        None
+    )
     sql_server_table_name: str = "TABLE1"
     sql_server_view_name: str = "VIEW1"
     sql_server_function_name: str = "FUNCTION1"
@@ -13,11 +15,13 @@ class SQLServerTokenRequest(TokenRequest):
 
 class SQLServerTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SQL_SERVER] = TokenTypes.SQL_SERVER
-    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
-    sql_server_table_name: Optional[str]
-    sql_server_view_name: Optional[str]
-    sql_server_function_name: Optional[str]
-    sql_server_trigger_name: Optional[str]
+    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]] = (
+        None
+    )
+    sql_server_table_name: Optional[str] = None
+    sql_server_view_name: Optional[str] = None
+    sql_server_function_name: Optional[str] = None
+    sql_server_trigger_name: Optional[str] = None
 
 
 class SQLServerTokenHit(TokenHit):

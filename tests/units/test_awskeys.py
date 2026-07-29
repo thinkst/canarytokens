@@ -49,8 +49,7 @@ def test_get_aws_key_with_query(
             server=frontend_settings.DOMAINS[0],
             auth="N/A=",
             aws_url=HttpUrl(
-                f"{aws_webhook_receiver}/{path}/LinkAWSIDTokenUserToCanaryConsole",
-                scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
+                f"{aws_webhook_receiver}/{path}/LinkAWSIDTokenUserToCanaryConsole"
             ),
             aws_access_key_id=None,
             aws_secret_access_key=None,
@@ -65,8 +64,7 @@ def test_get_aws_key_with_query(
                 server=settings.PUBLIC_DOMAIN,
                 auth="N/A=",
                 aws_url=HttpUrl(
-                    f"{aws_webhook_receiver}/{path}/LinkAWSIDTokenUserToCanaryConsole",
-                    scheme=aws_webhook_receiver[: aws_webhook_receiver.index("://")],
+                    f"{aws_webhook_receiver}/{path}/LinkAWSIDTokenUserToCanaryConsole"
                 ),
                 aws_access_key_id=None,
                 aws_secret_access_key=None,
@@ -148,10 +146,7 @@ def test_get_aws_key_sends_guid_and_parses_username() -> None:
         "secret_access_key": "secret-access-key",
         "username": "awsid-user",
     }
-    aws_url = HttpUrl(
-        "https://example.com/LinkAWSIDTokenUserToCanaryConsole",
-        scheme="https",
-    )
+    aws_url = HttpUrl("https://example.com/LinkAWSIDTokenUserToCanaryConsole")
     token = Canarytoken("q9o5v58eifjf9dsn4f03sai6a")
 
     with mock.patch("canarytokens.awskeys.requests.get", return_value=response) as get:
