@@ -14,6 +14,7 @@ class SwitchboardSettings(BaseSettings):
         env_file="../switchboard/switchboard.env",
         env_file_encoding="utf-8",
         env_prefix="CANARY_",
+        enable_decoding=False,
         frozen=True,
     )
 
@@ -80,6 +81,13 @@ class SwitchboardSettings(BaseSettings):
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
     LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
+
+    @field_validator("NXDOMAINS", mode="before")
+    @classmethod
+    def parse_csv_list(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return [item for item in value.split(",")]
+        return value
 
 
 class FrontendSettings(BaseSettings):

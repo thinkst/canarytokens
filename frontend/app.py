@@ -309,7 +309,7 @@ vue_index = Jinja2Templates(directory="../dist/")
 @app.get("/nest/create")
 @app.get("/nest/create/{rest_of_path:path}")
 def index(request: Request):
-    response = vue_index.TemplateResponse("index.html", {"request": request})
+    response = vue_index.TemplateResponse(request, "index.html")
     if request.url.path not in ["/", "/nest"]:
         robot_tags = ["noindex", "nofollow"]
         response.headers["X-Robots-Tag"] = ", ".join(robot_tags)
@@ -508,12 +508,12 @@ async def ip_ignore_list_post(request: IPIgnoreListRequest) -> JSONResponse:
 @app.exception_handler(500)
 async def internal_exception_handler(request: Request, exc: Exception):
     capture_exception(error=exc, context=("500-error", None))
-    return templates.TemplateResponse("500.html", {"request": request})
+    return templates.TemplateResponse(request, "500.html")
 
 
 @app.exception_handler(404)
 async def internal_not_found_handler(request: Request, exc: Exception):
-    return templates.TemplateResponse("404.html", {"request": request})
+    return templates.TemplateResponse(request, "404.html")
 
 
 @app.get("/azure_css_landing", tags=["Azure Portal Phishing Protection App"])
