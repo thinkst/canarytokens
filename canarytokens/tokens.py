@@ -10,7 +10,6 @@ from typing import Any, AnyStr, Match, Optional, Union
 import logging
 import secrets
 
-from jinja2 import Environment, FileSystemLoader
 from pydantic import parse_obj_as
 from twisted.web.http import Request
 from twisted.web.util import redirectTo
@@ -43,6 +42,7 @@ from canarytokens.models import (
     AWSInfraAssetType,
 )
 from canarytokens.credit_card_v2 import AnyCreditCardTrigger
+from canarytokens.utils import get_autoescaped_env
 
 # TODO: put these in a nicer place. Ensure re.compile is called only once at startup
 # add a naming convention for easy reading when seen in other files.
@@ -102,7 +102,7 @@ def get_template_env():
     global g_template_dir
     if g_template_dir is None:
         raise ValueError("g_template_dir must be set via tokens.set_template_env(...)")
-    return Environment(loader=FileSystemLoader(g_template_dir))
+    return get_autoescaped_env(g_template_dir)
 
 
 class Canarytoken(object):

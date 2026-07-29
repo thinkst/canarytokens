@@ -20,7 +20,6 @@ import sendgrid
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from jinja2 import Template
 from pydantic import EmailStr, HttpUrl, SecretStr
 from python_http_client.exceptions import HTTPError
 from sendgrid.helpers.mail import Content, From, Mail, MailSettings, SandBoxMode, To
@@ -43,6 +42,7 @@ from canarytokens.models import (
 )
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.switchboard import Switchboard
+from canarytokens.utils import get_autoescaped_template
 
 log = Logger()
 
@@ -353,7 +353,8 @@ class EmailOutputChannel(OutputChannel):
         BasicDetails["time_ymd"] = details.time_ymd
         BasicDetails["time_hm"] = details.time_hm
 
-        rendered_html = Template(template_path.read_text()).render(
+        html_template = get_autoescaped_template(template_path.read_text())
+        rendered_html = html_template.render(
             BasicDetails=BasicDetails,
             ManageLink=details.manage_url,
             HistoryLink=details.history_url,
@@ -425,7 +426,8 @@ class EmailOutputChannel(OutputChannel):
         """
 
         BasicDetails = EmailOutputChannel.extract_basic_details(details)
-        rendered_text = Template(template_path.open().read(), trim_blocks=True).render(
+        email_template = get_autoescaped_template(template_path.open().read())
+        rendered_text = email_template.render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),
             BasicDetails=BasicDetails,
