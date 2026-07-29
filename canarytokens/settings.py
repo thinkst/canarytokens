@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any, Literal, Optional
 
 from canarytokens.utils import strtobool
@@ -20,6 +21,7 @@ class SwitchboardSettings(BaseSettings):
     CHANNEL_DNS_IP: str = ""
     CHANNEL_DNS_PORT: Port = Port(5354)
     CHANNEL_HTTP_PORT: Port = Port(8083)
+    PUBLIC_IP: str
     CHANNEL_SMTP_PORT: Port = Port(2500)
     CHANNEL_MYSQL_PORT: Port = Port(3306)
     CHANNEL_MTLS_KUBECONFIG_PORT: Port = Port(6443)
@@ -30,6 +32,8 @@ class SwitchboardSettings(BaseSettings):
     REDIS_HOST: str = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
     REDIS_PORT: Port = Port(6379)
     REDIS_DB: str = "0"
+
+    LOG_FILE: Path = Path("switchboard.log")
 
     REAL_IP_HEADER: str = "x-real-ip"
 
@@ -168,6 +172,8 @@ class FrontendSettings(BaseSettings):
     GEMINI_SYSTEM_PROMPT: Optional[str] = None
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
     DEFAULT_GUARDRAIL_TRIGGERS: list[str] = []
+
+    WG_PRIVATE_KEY_SEED: str
 
     # for local aws infra testing
     AWS_ACCESS_KEY_ID: Optional[str] = None
