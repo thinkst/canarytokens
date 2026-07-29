@@ -179,6 +179,22 @@ def sendgrid_send(
     return email_response, message_id
 
 
+def _mailgun_response_payload(response: requests.Response) -> dict:
+    try:
+        payload = response.json()
+    except requests.exceptions.JSONDecodeError:
+        log.error(
+            f"Mailgun returned a non-JSON response. Status code: {response.status_code}. Body: {response.text}",
+        )
+        return {}
+    if not isinstance(payload, dict):
+        log.error(
+            f"Mailgun returned an unexpected JSON response. Status code: {response.status_code}. Body: {payload}",
+        )
+        return {}
+    return payload
+
+
 def mailgun_send(
     *,
     email_address: EmailStr,
@@ -194,7 +210,7 @@ def mailgun_send(
     email_response = EmailResponseStatuses.ERROR
     message_id = ""
     try:
-        url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
+        url = f"{str(base_url).rstrip('/')}/v3/{mailgun_domain}/messages"
         auth = ("api", api_key.get_secret_value().strip())
         data = {
             "from": f"{from_display} <{from_email}>",
@@ -207,10 +223,10 @@ def mailgun_send(
         # Raise an error if the returned status is 4xx or 5xx
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        if response.json().get("message") in MAILGUN_IGNORE_ERRORS:
-            log.debug(
-                f"Ignored mailgun error message for {email_address}: '{response.json()['message']}'"
-            )
+        payload = _mailgun_response_payload(response)
+        message = payload.get("message")
+        if message in MAILGUN_IGNORE_ERRORS:
+            log.debug(f"Ignored mailgun error message for {email_address}: '{message}'")
             email_response = EmailResponseStatuses.IGNORED
         else:
             log.error(
@@ -218,7 +234,7 @@ def mailgun_send(
             )
     else:
         email_response = EmailResponseStatuses.SENT
-        message_id = response.json().get("id")
+        message_id = _mailgun_response_payload(response).get("id", "")
     return email_response, message_id
 
 

@@ -300,6 +300,13 @@ def test_sendgrid_send_http_error(mock_sendgrid_client):
             "",
             id="server error",
         ),
+        pytest.param(
+            500,
+            b"Internal Server Error",
+            EmailResponseStatuses.ERROR,
+            "",
+            id="server error non-json",
+        ),
     ],
 )
 @mock.patch("canarytokens.channel_output_email.requests.post", autospec=True)
@@ -465,7 +472,7 @@ def test_mailgun_http_error_does_not_mark_email_sent(
 ):
     response = requests.Response()
     response.status_code = 500
-    response._content = b'{"message": "Internal Server Error"}'
+    response._content = b"Internal Server Error"
     mock_post.return_value = response
     mailgun_settings = settings.copy(
         update={
