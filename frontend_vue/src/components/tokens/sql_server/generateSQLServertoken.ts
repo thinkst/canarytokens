@@ -48,11 +48,11 @@ GO
 
 -- Add a trigger if data is altered in your table
 CREATE TRIGGER ${SQLData.sql_trigger_name}
-ON dbo.${SQLData.sql_table_name}
+ON ${SQLData.sql_table_name}
 AFTER ${SQLData.sql_action}
 AS
 BEGIN
-    EXEC dbo.ping_canarytoken
+    EXEC ping_canarytoken
 END
 GO
 `;
@@ -106,7 +106,7 @@ GO
 -- Alter your database view to call the above function
 ALTER VIEW ${SQLData.sql_server_view_name}
 AS
-    SELECT * from dbo.${SQLData.sql_function_name}(rand());
+    SELECT * from ${SQLData.sql_function_name}(rand());
 GO
 
 -- To allow database users, who only have the public database role, to run "SELECT" queries against the ${SQLData.sql_server_view_name} view:
