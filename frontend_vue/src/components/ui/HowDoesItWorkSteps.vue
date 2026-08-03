@@ -10,7 +10,7 @@
         <img
           :src="getImageUrl(item.imgSrc)"
           :alt="item.altText"
-          class="h-auto sm:w-[8rem]"
+          class="h-auto max-h-[150px]"
         />
         <div class="mt-16">
           <h3 class="px-16 text-sm font-semibold sm:text-center text-grey-700">
