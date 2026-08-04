@@ -19,7 +19,9 @@ BEGIN
     -- Loop runs until the UNC path is 128 chars or less
     WHILE @done <= 0
     BEGIN
-        -- Convert username into base64
+        -- Convert username into base64, which is case sensitive.
+        -- If intermediate dns servers randomizes the case in the base64, we won't be able to decode the username.
+        -- But an alert we be created when this token is triggered.
         SELECT @base64 = (SELECT
             CAST(N'' AS XML).value(
                 'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
@@ -31,6 +33,12 @@ BEGIN
 
         -- Replace base64 padding as dns will choke on =
         SELECT @base64 = replace(@base64,'=','-')
+
+        -- Replace '+' and '/' in the base64, as dns will choke on them.
+        -- As a result, we won't be able to decode the username,
+        -- But an alert we be created when this token is triggered.
+        SELECT @base64 = replace(@base64,'+','-')
+        SELECT @base64 = replace(@base64,'/','-')
 
         -- Construct the UNC path
         SELECT @unc = concat('\\\\',@base64,'.',@random,@tokendomain,'\\a')
@@ -75,7 +83,9 @@ BEGIN
     -- Loop runs until the UNC path is 128 chars or less
     WHILE @done <= 0
     BEGIN
-        -- Convert username into base64
+        -- Convert username into base64, which is case sensitive.
+        -- If intermediate dns servers randomizes the case in the base64, we won't be able to decode the username.
+        -- But an alert we be created when this token is triggered.
         SELECT @base64 = (SELECT
             CAST(N'' AS XML).value(
                 'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
@@ -86,10 +96,16 @@ BEGIN
         ) AS bin_sql_server_temp);
 
         -- Replace base64 padding as dns will choke on =
-        SELECT @base64 = replace(@base64,'=','0')
+        SELECT @base64 = replace(@base64,'=','-')
 
         -- Construct the UNC path
         SELECT @unc = concat('\\\\',@base64,'.',@random,@tokendomain,'\\a')
+
+        -- Replace '+' and '/' in the base64, as dns will choke on them.
+        -- As a result, we won't be able to decode the username,
+        -- But an alert we be created when this token is triggered.
+        SELECT @base64 = replace(@base64,'+','-')
+        SELECT @base64 = replace(@base64,'/','-')
 
         -- If too big, trim the username and try again
         if len(@unc) <= @size
@@ -98,7 +114,7 @@ BEGIN
             -- Trim from the front, to keep the username and lose domain details
             SELECT @username = substring(@username, 2, len(@username)-1)
     END
-    EXEC master.dbo.xp_dirtree @unc-- WITH RESULT SETS (([result] varchar(max)));
+    EXEC master.dbo.xp_dirtree @unc -- WITH RESULT SETS (([result] varchar(max)));
         RETURN
 END
 GO
@@ -110,9 +126,9 @@ AS
 GO
 
 -- To allow database users, who only have the public database role, to run "SELECT" queries against the ${SQLData.sql_server_view_name} view:
---    Grant the public database role "SELECT" permission on the dbo.${SQLData.sql_function_name} function.
+--    Grant the public database role "SELECT" permission on the ${SQLData.sql_function_name} function.
 --    Grant the public database role "SELECT" permission on the ${SQLData.sql_server_view_name} view.
---    Do not grant the public database role "VIEW DEFINITION" permission on either the dbo.${SQLData.sql_function_name} function or the ${SQLData.sql_server_view_name} view.
+--    Do not grant the public database role "VIEW DEFINITION" permission on either the ${SQLData.sql_function_name} function or the ${SQLData.sql_server_view_name} view.
 `;
 
   return SQLData.sql_action === 'SELECT' ? snippetIsSelect : snippetIsNotSelect;
