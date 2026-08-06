@@ -40,8 +40,8 @@ class FastRedirectTokenResponse(TokenResponse):
 
 class FastRedirectTokenHit(TokenHit):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
-    referer: Optional[Union[str, bytes]]
-    location: Optional[Union[str, bytes]]
+    referer: Optional[Union[str, bytes]] = None
+    location: Optional[Union[str, bytes]] = None
     additional_info: AdditionalInfo = AdditionalInfo()
 
 

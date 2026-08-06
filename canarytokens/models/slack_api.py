@@ -14,7 +14,7 @@ from .common import (
 
 class SlackAPITokenHit(TokenHit):
     token_type: Literal[TokenTypes.SLACK_API] = TokenTypes.SLACK_API
-    additional_info: Optional[dict]
+    additional_info: Optional[dict] = None
 
     def serialize_for_v2(self) -> dict:
         """Serialize an `AWSKeyTokenHit` into a dict

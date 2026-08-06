@@ -19,12 +19,12 @@ class MySQLTokenRequest(TokenRequest):
 
 class MySQLTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.MY_SQL] = TokenTypes.MY_SQL
-    usage: Optional[str]
+    usage: Optional[str] = None
 
 
 class MySQLTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MY_SQL] = TokenTypes.MY_SQL
-    additional_info: Optional[AdditionalInfo]
+    additional_info: Optional[AdditionalInfo] = None
 
 
 class MySQLTokenHistory(TokenHistory[MySQLTokenHit]):

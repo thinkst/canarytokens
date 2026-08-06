@@ -17,20 +17,20 @@ from .common import (
 
 
 class CreditCardV2AdditionalInfo(BaseModel):
-    merchant: Optional[str]
-    merchant_identifier: Optional[str]
-    acquirer_identifier: Optional[str]
-    transaction_amount: Optional[str]
-    transaction_currency: Optional[str]
-    masked_card_number: Optional[str]
-    transaction_date: Optional[str]
-    transaction_type: Optional[str]
-    status: Optional[str]
+    merchant: Optional[str] = None
+    merchant_identifier: Optional[str] = None
+    acquirer_identifier: Optional[str] = None
+    transaction_amount: Optional[str] = None
+    transaction_currency: Optional[str] = None
+    masked_card_number: Optional[str] = None
+    transaction_date: Optional[str] = None
+    transaction_type: Optional[str] = None
+    status: Optional[str] = None
 
 
 class CreditCardV2TokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
-    cf_turnstile_response: Optional[str]
+    cf_turnstile_response: Optional[str] = None
 
 
 class CreditCardV2TokenResponse(TokenResponse):
@@ -45,7 +45,7 @@ class CreditCardV2TokenResponse(TokenResponse):
 
 class CreditCardV2TokenHit(TokenHit):
     token_type: Literal[TokenTypes.CREDIT_CARD_V2] = TokenTypes.CREDIT_CARD_V2
-    additional_info: Optional[CreditCardV2AdditionalInfo]
+    additional_info: Optional[CreditCardV2AdditionalInfo] = None
 
     def serialize_for_v2(self) -> dict:
         """Serialize an `CreditCardV2TokenHit` into a dict

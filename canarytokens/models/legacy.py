@@ -6,13 +6,13 @@ from .common import AdditionalInfo, TokenHistory, TokenHit, TokenTypes
 
 class LegacyTokenHit(TokenHit):
     token_type: Literal[TokenTypes.LEGACY] = TokenTypes.LEGACY
-    src_data: Optional[dict]
-    request_headers: Optional[dict]
-    request_args: Optional[dict]
+    src_data: Optional[dict] = None
+    request_headers: Optional[dict] = None
+    request_args: Optional[dict] = None
     additional_info: Optional[AdditionalInfo] = AdditionalInfo()
-    referer: Optional[Union[str, bytes]]
-    location: Optional[Union[str, bytes]]
-    mail: Optional[SMTPMailField]
+    referer: Optional[Union[str, bytes]] = None
+    location: Optional[Union[str, bytes]] = None
+    mail: Optional[SMTPMailField] = None
 
 
 class LegacyTokenHistory(TokenHistory[LegacyTokenHit]):

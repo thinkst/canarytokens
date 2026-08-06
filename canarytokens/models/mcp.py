@@ -26,12 +26,12 @@ class McpTokenRequest(TokenRequest):
 
 class McpTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.MCP] = TokenTypes.MCP
-    mcpjson: Optional[str]
+    mcpjson: Optional[str] = None
 
 
 class McpTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MCP] = TokenTypes.MCP
-    tool_called: Optional[Union[str, bytes]]
+    tool_called: Optional[Union[str, bytes]] = None
 
 
 class McpTokenHistory(TokenHistory[McpTokenHit]):

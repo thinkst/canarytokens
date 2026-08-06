@@ -18,10 +18,10 @@ from .common import (
 
 class CreditCard(BaseModel):
     id: str
-    number: Optional[str]
-    cvc: Optional[str]
-    expiration: Optional[str]
-    kind: Optional[str]
+    number: Optional[str] = None
+    cvc: Optional[str] = None
+    expiration: Optional[str] = None
+    kind: Optional[str] = None
     name: str
     billing_zip: str
     address: str
@@ -92,9 +92,9 @@ class CCTokenResponse(TokenResponse):
 
 class CCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CC] = TokenTypes.CC
-    last4: Optional[str]
-    amount: Optional[str]
-    merchant: Optional[str]
+    last4: Optional[str] = None
+    amount: Optional[str] = None
+    merchant: Optional[str] = None
 
 
 class CCTokenHistory(TokenHistory[CCTokenHit]):
