@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
       assetsInlineLimit: 2048,
     },
     optimizeDeps: {
-      include: ['@fawmi/vue-google-maps', 'fast-deep-equal'],
+      include: ['vue-google-maps-community-fork', 'fast-deep-equal'],
     },
     resolve: {
       alias: {
