@@ -2,29 +2,35 @@
 SET ANSI_NULLS, QUOTED_IDENTIFIER ON
 GO
 
---Use master database
-USE master
+--Create table
+CREATE TABLE testing_table (ID int, FirstName varchar(25))
 GO
 
---create a table-view function to query the canary hostname
-CREATE function FUNCTION1(@RAND FLOAT) returns @output table (col1 varchar(max))
+-- Create a view
+CREATE view {view} as select * from testing_table;
+GO
+
+-- Create a table-view function to query the canarytokens hostname
+CREATE FUNCTION {procedure}(@RAND FLOAT) RETURNS @output table (col1 varchar(max))
 AS
 BEGIN
-    declare @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
+    DECLARE @username varchar(max), @base64 varchar(max), @tokendomain varchar(128), @unc varchar(128), @size int, @done int, @random varchar(3);
 
-    --setup the variables
-    set @tokendomain = '{token}';
-    set @size = 128;
-    set @done = 0;
-    set @random = cast(round(@RAND*100,0) as varchar(2));
-    set @random = concat(@random, '.');
-    set @username = 'r';
+    -- Setup the variables
+    SET @tokendomain = '{token}';
+    SET @size = 128;
+    SET @done = 0;
+    SET @random = cast(round(@RAND*100,0) as varchar(2));
+    SET @random = concat(@random, '.');
+    SET @username = SUSER_SNAME();
 
-    --loop runs until the UNC path is 128 chars or less
-    while @done <= 0
-    begin
-        --convert username into base64
-        select @base64 = (SELECT
+    -- Loop runs until the UNC path is 128 chars or less
+    WHILE @done <= 0
+    BEGIN
+        -- Convert username into base64, which is case sensitive.
+        -- If intermediate dns servers randomizes the case in the base64, we won't be able to decode the username.
+        -- But an alert we be created when this token is triggered.
+        SELECT @base64 = (SELECT
             CAST(N'' AS XML).value(
                 'xs:base64Binary(xs:hexBinary(sql:column("bin")))'
                 , 'VARCHAR(MAX)'
@@ -33,41 +39,42 @@ BEGIN
             SELECT CAST(@username AS VARBINARY(MAX)) AS bin
         ) AS bin_sql_server_temp);
 
-        --replace base64 padding as dns will choke on =
-        select @base64 = replace(@base64,'=','0')
+        -- Replace base64 padding as dns will choke on =
+        SELECT @base64 = replace(@base64,'=','-')
 
-        --construct the UNC path
-        select @unc = concat('//',@base64,'.',@random,@tokendomain,'/a')
+        -- Construct the UNC path
+        SELECT @unc = concat('\\',@base64,'.',@random,@tokendomain,'\a')
 
-        -- if too big, trim the username and try again
+        -- Replace '+' and '/' in the base64, as dns will choke on them.
+        -- As a result, we won't be able to decode the username,
+        -- But an alert we be created when this token is triggered.
+        SELECT @base64 = replace(@base64,'+','-')
+        SELECT @base64 = replace(@base64,'/','-')
+
+        -- If too big, trim the username and try again
         if len(@unc) <= @size
-            set @done = 1
+            SET @done = 1
         else
-            --trim from the front, to keep the username and lose domain details
-            select @username = substring(@username, 2, len(@username)-1)
-    end;
-
-    exec master.dbo.xp_dirtree @unc --WITH RESULT SETS (([result] varchar(max)));
-
-    return
+            -- Trim from the front, to keep the username and lose domain details
+            SELECT @username = substring(@username, 2, len(@username)-1)
+    END
+    EXEC master.dbo.xp_dirtree @unc -- WITH RESULT SETS (([result] varchar(max)));
+        RETURN
 END
 GO
 
---create a view that calls the function
-CREATE view {view} as select * from master.dbo.FUNCTION1(rand());
+-- Alter your database view to call the above function
+ALTER VIEW {view}
+AS
+    SELECT * from {procedure}(rand());
 GO
 
---change permissions on FUNCTION1 to SELECT for [public]
-GRANT SELECT ON FUNCTION1 TO PUBLIC
-GO
+-- To allow database users, who only have the public database role, to run "SELECT" queries against the {view} view:
+--    Grant the public database role "SELECT" permission on the {procedure} function.
+--    Grant the public database role "SELECT" permission on the {view} view.
+--    Do not grant the public database role "VIEW DEFINITION" permission on either the {procedure} function or the {view} view.
 
---change permissions on VIEW to SELECT for [public]
-GRANT SELECT ON {view} TO PUBLIC
-GO
 
---don't allow [public] to view the definitions
-REVOKE VIEW ANY DEFINITION TO PUBLIC
-GO
 
 --trigger token
 SELECT * FROM {view}
