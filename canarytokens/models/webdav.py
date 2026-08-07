@@ -11,8 +11,8 @@ from .common import (
 
 
 class WebDavAdditionalInfo(BaseModel):
-    file_path: Optional[str]
-    useragent: Optional[str]
+    file_path: Optional[str] = None
+    useragent: Optional[str] = None
 
     def serialize_for_v2(self) -> dict:
         return self.dict()
@@ -42,7 +42,7 @@ class WebDavTokenResponse(TokenResponse):
 
 class WebDavTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
-    additional_info: Optional[WebDavAdditionalInfo]
+    additional_info: Optional[WebDavAdditionalInfo] = None
 
 
 class WebDavTokenHistory(TokenHistory[WebDavTokenHit]):

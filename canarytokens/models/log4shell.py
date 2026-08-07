@@ -61,7 +61,7 @@ class Log4ShellTokenResponse(TokenResponse):
 
 class Log4ShellTokenHit(TokenHit):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
-    src_data: Optional[dict]
+    src_data: Optional[dict] = None
 
 
 class Log4ShellTokenHistory(TokenHistory[Log4ShellTokenHit]):

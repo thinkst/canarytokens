@@ -744,7 +744,7 @@ class DiscordEmbeds(BaseModel):
     color: int = DecimalColor.CANARY_GREEN.value
     title: str = "Canarytoken Triggered"
     description: Optional[str] = None
-    url: Optional[HttpUrl]
+    url: Optional[HttpUrl] = None
     timestamp: datetime
     fields: list[DiscordFieldEntry] = []
 

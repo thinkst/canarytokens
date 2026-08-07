@@ -23,14 +23,14 @@ class CSSClonedWebTokenRequest(TokenRequest):
 
 class CSSClonedWebTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
-    css: Optional[str]
-    client_id: Optional[str]
+    css: Optional[str] = None
+    client_id: Optional[str] = None
 
 
 class CSSClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CSSCLONEDSITE] = TokenTypes.CSSCLONEDSITE
-    referrer: Optional[str]
-    tls_ja4_fingerprint: Optional[str]
+    referrer: Optional[str] = None
+    tls_ja4_fingerprint: Optional[str] = None
 
 
 class CSSClonedWebTokenHistory(TokenHistory[CSSClonedWebTokenHit]):

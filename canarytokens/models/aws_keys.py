@@ -59,7 +59,7 @@ class AWSKeyTokenHit(TokenHit):
     useragent: Optional[str] = Field(
         None, alias="user_agent"
     )  # V2 does / did not store user agent.
-    additional_info: Optional[AWSKeyAdditionalInfo]
+    additional_info: Optional[AWSKeyAdditionalInfo] = None
 
     class Config:
         allow_population_by_field_name = True
@@ -150,7 +150,7 @@ class AWSKeyTokenHit(TokenHit):
 
 class AWSKeyTokenExposedHit(TokenExposedHit):
     token_type: Literal[TokenTypes.AWS_KEYS] = TokenTypes.AWS_KEYS
-    public_location: Optional[str]
+    public_location: Optional[str] = None
     input_channel: str = "HTTP"
 
 

@@ -151,7 +151,7 @@ class AWSInfraGenerateDataChoiceRequest(BaseModel):
 class AWSInfraSavePlanRequest(BaseModel):
     canarytoken: str
     auth_token: str
-    plan: Any
+    plan: Any = None
 
 
 class AWSInfraManagementResponseRequest(BaseModel):
@@ -263,10 +263,10 @@ class AWSInfraTokenResponse(TokenResponse):
 
 
 class AwsInfraAdditionalInfo(BaseModel):
-    event: Optional[dict[str, Any]]
-    decoy_resource: Optional[dict[str, Any]]
-    identity: Optional[dict[str, Any]]
-    metadata: Optional[dict[str, Any]]
+    event: Optional[dict[str, Any]] = None
+    decoy_resource: Optional[dict[str, Any]] = None
+    identity: Optional[dict[str, Any]] = None
+    metadata: Optional[dict[str, Any]] = None
 
     def serialize_for_v2(self) -> dict:
         return self.dict()
@@ -275,7 +275,7 @@ class AwsInfraAdditionalInfo(BaseModel):
 class AWSInfraTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AWS_INFRA] = TokenTypes.AWS_INFRA
     input_channel: str = "HTTP"
-    additional_info: Optional[AwsInfraAdditionalInfo]
+    additional_info: Optional[AwsInfraAdditionalInfo] = None
 
     def serialize_for_v2(self) -> dict:
         return json_safe_dict(self, exclude=("token_type", "time_of_hit"))

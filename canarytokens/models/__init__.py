@@ -507,7 +507,7 @@ AnyTokenHistory = Annotated[
 class HistoryResponse(BaseModel):
     canarydrop: Dict
     history: AnyTokenHistory
-    google_api_key: Optional[str]
+    google_api_key: Optional[str] = None
 
 
 AnyDownloadRequest = Annotated[

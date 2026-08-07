@@ -88,139 +88,139 @@ class Canarydrop(BaseModel):
     #         It may be simpler to break these up. See: _validate_redirect_url  and comments
     #         with ... stuff etc as motivation.
 
-    generate: Optional[bool]  # V2 stores this attribute in redis.
+    generate: Optional[bool] = None  # V2 stores this attribute in redis.
     canarytoken: tokens.Canarytoken
     triggered_details: AnyTokenHistory
     memo: str = ""
     # Make created_at v2 compatible - add timestamp as alias.
     created_at: datetime = Field(default_factory=datetime.utcnow, alias="timestamp")
-    created_from_ip: Optional[str]
-    created_from_ip_x_forwarded_for: Optional[str]
+    created_from_ip: Optional[str] = None
+    created_from_ip_x_forwarded_for: Optional[str] = None
 
     auth: str = Field(default_factory=make_auth_token)
     type: TokenTypes
     user: Union[User, Anonymous] = Anonymous()
 
     # token_url: Optional[str]
-    generated_url: Optional[str]
-    generated_hostname: Optional[str]
+    generated_url: Optional[str] = None
+    generated_hostname: Optional[str] = None
 
     # Alerting details
     alert_email_enabled: bool = False
-    alert_email_recipient: Optional[str]
+    alert_email_recipient: Optional[str] = None
     alert_sms_enabled: bool = False
     # TODO: validate sms number
     alert_sms_recipient: Optional[str] = None
     alert_webhook_enabled: bool = False
-    alert_webhook_url: Optional[str]
-    alert_failure_count: Optional[int]
+    alert_webhook_url: Optional[str] = None
+    alert_failure_count: Optional[int] = None
 
     alert_ip_ignore_enabled: bool = False
     alert_ignored_ips: list[IPv4Address | IPv6Address] = []
 
     # web image specific stuff
     web_image_enabled: bool = False
-    web_image_path: Optional[Path]
+    web_image_path: Optional[Path] = None
     # Slow/Fast redirect specific stuff
-    redirect_url: Optional[str]
+    redirect_url: Optional[str] = None
     # Clonedsite specific stuff
-    clonedsite: Optional[str]
+    clonedsite: Optional[str] = None
     # Kubeconfig specific stuff
-    kubeconfig: Optional[str]
-    text_snippet: Optional[str]
+    kubeconfig: Optional[str] = None
+    text_snippet: Optional[str] = None
     # SQL specific stuff
-    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]]
-    sql_server_table_name: Optional[str]
-    sql_server_view_name: Optional[str]
-    sql_server_function_name: Optional[str]
-    sql_server_trigger_name: Optional[str]
+    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]] = None
+    sql_server_table_name: Optional[str] = None
+    sql_server_view_name: Optional[str] = None
+    sql_server_function_name: Optional[str] = None
+    sql_server_trigger_name: Optional[str] = None
     # Custom upload stuff
-    file_contents: Optional[str]
-    file_name: Optional[str]
+    file_contents: Optional[str] = None
+    file_name: Optional[str] = None
     # CSS cloned site stuff
-    expected_referrer: Optional[str]
+    expected_referrer: Optional[str] = None
     # WebDAV specific stuff
-    webdav_fs_type: Optional[FsType]
-    webdav_password: Optional[str]
-    webdav_server: Optional[str]
+    webdav_fs_type: Optional[FsType] = None
+    webdav_password: Optional[str] = None
+    webdav_server: Optional[str] = None
 
     # AWS key specific stuff
-    aws_access_key_id: Optional[str]
-    aws_secret_access_key: Optional[str]
-    aws_username: Optional[str]
-    aws_output: Optional[str] = Field(alias="output")
+    aws_access_key_id: Optional[str] = None
+    aws_secret_access_key: Optional[str] = None
+    aws_username: Optional[str] = None
+    aws_output: Optional[str] = Field(None, alias="output")
 
     # AWS key and AWS infra stuff
-    aws_account_id: Optional[AWSAccountNumber]
-    aws_region: Optional[AWSRegion] = Field(alias="region")
+    aws_account_id: Optional[AWSAccountNumber] = None
+    aws_region: Optional[AWSRegion] = Field(None, alias="region")
 
     # AWS  infra specific stuff
-    aws_customer_iam_access_external_id: Optional[str]
-    aws_deployed_assets: Optional[str]
-    aws_inventoried_assets: Optional[str]
-    aws_saved_plan: Optional[str]
-    aws_tf_module_prefix: Optional[str]
-    aws_infra_ingestion_bus_name: Optional[str]
-    aws_infra_state: Optional[AWSInfraState]
+    aws_customer_iam_access_external_id: Optional[str] = None
+    aws_deployed_assets: Optional[str] = None
+    aws_inventoried_assets: Optional[str] = None
+    aws_saved_plan: Optional[str] = None
+    aws_tf_module_prefix: Optional[str] = None
+    aws_infra_ingestion_bus_name: Optional[str] = None
+    aws_infra_state: Optional[AWSInfraState] = None
     aws_infra_inventory_role: Optional[str] = None
 
     # Azure key specific stuff
-    app_id: Optional[str]
-    tenant_id: Optional[str]
-    cert: Optional[str]
-    cert_name: Optional[str]
-    cert_file_name: Optional[str]
+    app_id: Optional[str] = None
+    tenant_id: Optional[str] = None
+    cert: Optional[str] = None
+    cert_name: Optional[str] = None
+    cert_file_name: Optional[str] = None
 
     # CrowdStrike CC specific stuff
-    crowdstrike_token_id: Optional[str]
-    crowdstrike_client_id: Optional[str]
-    crowdstrike_client_secret: Optional[str]
-    crowdstrike_base_url: Optional[str]
+    crowdstrike_token_id: Optional[str] = None
+    crowdstrike_client_id: Optional[str] = None
+    crowdstrike_client_secret: Optional[str] = None
+    crowdstrike_base_url: Optional[str] = None
 
     # HTTP style token specific stuff
-    browser_scanner_enabled: Optional[bool]
+    browser_scanner_enabled: Optional[bool] = None
     # Wireguard specific stuff
-    wg_key: Optional[str]
+    wg_key: Optional[str] = None
     # cmd specific stuff
-    cmd_process: Optional[str]
+    cmd_process: Optional[str] = None
     # windows_fake_fs specific stuff
-    windows_fake_fs_root: Optional[str]
-    windows_fake_fs_file_structure: Optional[str]
+    windows_fake_fs_root: Optional[str] = None
+    windows_fake_fs_file_structure: Optional[str] = None
     # slack_api specific stuff
-    slack_api_key: Optional[str]
+    slack_api_key: Optional[str] = None
     # CC specific stuff
-    cc_id: Optional[str]
-    cc_kind: Optional[str]
-    cc_number: Optional[str]
-    cc_cvc: Optional[str]
-    cc_expiration: Optional[str]
-    cc_name: Optional[str]
-    cc_billing_zip: Optional[str]
-    cc_address: Optional[str]
-    cc_rendered_html: Optional[str]
-    cc_rendered_csv: Optional[str]
+    cc_id: Optional[str] = None
+    cc_kind: Optional[str] = None
+    cc_number: Optional[str] = None
+    cc_cvc: Optional[str] = None
+    cc_expiration: Optional[str] = None
+    cc_name: Optional[str] = None
+    cc_billing_zip: Optional[str] = None
+    cc_address: Optional[str] = None
+    cc_rendered_html: Optional[str] = None
+    cc_rendered_csv: Optional[str] = None
 
     # PWA specific stuff
-    pwa_icon: Optional[PWAType]
-    pwa_app_name: Optional[str]
+    pwa_icon: Optional[PWAType] = None
+    pwa_app_name: Optional[str] = None
 
-    cc_v2_card_id: Optional[str]
-    cc_v2_card_number: Optional[str]
-    cc_v2_cvv: Optional[str]
-    cc_v2_expiry_month: Optional[int]
-    cc_v2_expiry_year: Optional[int]
-    cc_v2_name_on_card: Optional[Literal["Canarytokens.org"]]
+    cc_v2_card_id: Optional[str] = None
+    cc_v2_card_number: Optional[str] = None
+    cc_v2_cvv: Optional[str] = None
+    cc_v2_expiry_month: Optional[int] = None
+    cc_v2_expiry_year: Optional[int] = None
+    cc_v2_name_on_card: Optional[Literal["Canarytokens.org"]] = None
 
     key_exposed_details: Optional[AnyTokenExposedHit] = None
 
-    idp_app_entity_id: Optional[str]
-    idp_app_type: Optional[IdPAppType]
+    idp_app_entity_id: Optional[str] = None
+    idp_app_type: Optional[IdPAppType] = None
 
-    svg: Optional[str]
+    svg: Optional[str] = None
 
     # MCP specific stuff
-    mcp_alert_on: Optional[McpAlertOn]
-    mcpjson: Optional[str]
+    mcp_alert_on: Optional[McpAlertOn] = None
+    mcpjson: Optional[str] = None
 
     @root_validator(pre=True)
     def _validate_triggered_details(cls, values):

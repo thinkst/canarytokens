@@ -12,7 +12,7 @@ class WindowsDirectoryTokenResponse(TokenResponse):
 
 class WindowsDirectoryTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
-    src_data: Optional[dict]
+    src_data: Optional[dict] = None
 
 
 class WindowsDirectoryTokenHistory(TokenHistory[WindowsDirectoryTokenHit]):

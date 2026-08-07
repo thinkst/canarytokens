@@ -69,13 +69,13 @@ class CreditCardTrigger3DSNotification(BaseModel):
     trigger_type: Literal[TriggerWebhookEvent.ThreeDSecureNotification] = (
         TriggerWebhookEvent.ThreeDSecureNotification
     )
-    canarytoken: Optional[str]
-    masked_card_number: Optional[str]
-    merchant: Optional[str]
-    transaction_amount: Optional[str]
-    transaction_currency: Optional[str]
-    merchant_identifier: Optional[str]
-    acquirer_identifier: Optional[str]
+    canarytoken: Optional[str] = None
+    masked_card_number: Optional[str] = None
+    merchant: Optional[str] = None
+    transaction_amount: Optional[str] = None
+    transaction_currency: Optional[str] = None
+    merchant_identifier: Optional[str] = None
+    acquirer_identifier: Optional[str] = None
 
 
 class CreditCardTriggerTransaction(BaseModel):
@@ -83,15 +83,15 @@ class CreditCardTriggerTransaction(BaseModel):
         TriggerWebhookEvent.TransactionFailed
     )
     canarytoken: Canarytoken
-    masked_card_number: Optional[str]
-    merchant: Optional[str]
-    transaction_amount: Optional[str]
-    transaction_currency: Optional[str]
-    transaction_date: Optional[str]
-    transaction_type: Optional[str]
-    status: Optional[str]
-    merchant_identifier: Optional[str]
-    acquirer_identifier: Optional[str]
+    masked_card_number: Optional[str] = None
+    merchant: Optional[str] = None
+    transaction_amount: Optional[str] = None
+    transaction_currency: Optional[str] = None
+    transaction_date: Optional[str] = None
+    transaction_type: Optional[str] = None
+    status: Optional[str] = None
+    merchant_identifier: Optional[str] = None
+    acquirer_identifier: Optional[str] = None
 
 
 AnyCreditCardTrigger = Union[

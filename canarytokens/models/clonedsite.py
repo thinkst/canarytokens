@@ -9,14 +9,14 @@ class ClonedWebTokenRequest(TokenRequest):
 
 class ClonedWebTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
-    clonedsite_js: Optional[str]
+    clonedsite_js: Optional[str] = None
 
 
 class ClonedWebTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CLONEDSITE] = TokenTypes.CLONEDSITE
     # TODO fix API spelling to 'referrer' (comes from JS document.referrer)
-    referer: Optional[Union[str, bytes]]
-    location: Optional[Union[str, bytes]]
+    referer: Optional[Union[str, bytes]] = None
+    location: Optional[Union[str, bytes]] = None
 
 
 class ClonedWebTokenHistory(TokenHistory[ClonedWebTokenHit]):

@@ -82,7 +82,7 @@ class AzureIDTokenResponse(TokenResponse):
 
 class AzureIDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
-    additional_info: Optional[AzureIDAdditionalInfo]
+    additional_info: Optional[AzureIDAdditionalInfo] = None
 
     class Config:
         allow_population_by_field_name = True
