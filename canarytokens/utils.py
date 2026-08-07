@@ -5,6 +5,42 @@ from typing import Any, Literal, Union
 
 import pycountry_convert
 from pydantic import BaseModel
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
+from canarytokens.constants import AUTO_ESCAPED_FILE_EXTENSIONS
+
+autoescape_config = select_autoescape(
+    enabled_extensions=AUTO_ESCAPED_FILE_EXTENSIONS,
+    disabled_extensions=(),
+    default_for_string=True,
+    default=True
+)
+
+def get_autoescaped_env(template_dir: str) -> Environment:
+    """ Returns a jinja2.Environment with auto escaping enabled on it.
+        This environment uses the provided template_dir as its search path
+
+    Args:
+        template_dir (str): Path to use as a search path to the jinja2.Environment.
+
+    Returns:
+        Environment: A jinja2.Environment with auto escaping enabled on it.
+    """
+    return Environment(autoescape=autoescape_config, loader=FileSystemLoader(template_dir))
+
+
+def get_autoescaped_template(template_source: str, trim_blocks: bool = False) -> Template:
+    """ Returns a jinja2.Template with auto escaping enabled on it.
+        This template uses the provided template_source as the source of its contents.
+
+    Args:
+        template_source (str)   : The contents of the jinja2.Template.
+        trim_blocks     (bool)  : If this is set to True the first newline after a Jinja
+                                  block is removed (block, not variable tag!)
+
+    Returns:
+        Template: A jinja2.Template with auto escaping enabled on it.
+    """
+    return Template(template_source, trim_blocks=trim_blocks, autoescape=autoescape_config)
 
 
 def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:

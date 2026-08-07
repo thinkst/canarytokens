@@ -100,7 +100,6 @@ class CanarytokenPage(InputChannel, resource.Resource):
 
         if canarydrop.type == TokenTypes.PWA:
             template_env = get_template_env()
-            template_env.autoescape = True
             if request.path.endswith(b"/manifest.json"):
                 request.setHeader("Content-Type", "application/manifest+json")
                 template = template_env.get_template("pwa_manifest.json")
