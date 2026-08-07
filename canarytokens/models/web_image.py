@@ -20,8 +20,10 @@ class UploadedImage(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
     @classmethod
-    def __modify_schema__(cls, field_schema, field):
-        field_schema["title"] = "File"
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        schema = handler(core_schema)
+        schema["title"] = "File"
+        return schema
 
 
 class CustomImageTokenRequest(TokenRequest):
