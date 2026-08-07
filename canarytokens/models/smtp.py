@@ -15,11 +15,6 @@ class SMTPHeloField(BaseModel):
     client_name: str
     client_ip: IPv4Address
 
-    class Config:
-        json_encoders = {
-            IPv4Address: lambda v: str(v),
-        }
-
 
 class SMTPMailField(BaseModel):
     sender: Optional[str] = None

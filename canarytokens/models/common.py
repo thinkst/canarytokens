@@ -18,7 +18,7 @@ from typing import (
 from fastapi import Response
 from fastapi.responses import JSONResponse
 from pydantic import (
-    AnyHttpUrl,
+    ConfigDict, AnyHttpUrl,
     BaseModel,
     ConstrainedInt,
     ConstrainedStr,
@@ -27,6 +27,7 @@ from pydantic import (
     HttpUrl,
     IPvAnyAddress,
     ValidationError,
+    field_serializer,
     root_validator,
     validator,
 )
@@ -213,9 +214,7 @@ class TokenRequest(BaseModel):
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
 
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {TokenTypes: lambda v: v.value}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class TokenEditRequest(BaseModel):
@@ -340,11 +339,6 @@ class GeoIPInfo(BaseModel):
             data["loc"] = ",".join([f"{o:.4f}" for o in self.loc])
         return data
 
-    class Config:
-        json_encoders = {
-            list: lambda v: ",".join(v),
-        }
-
 
 class ServiceInfo(BaseModel):
     version: list[str]
@@ -462,9 +456,6 @@ class TokenHit(BaseModel):
     src_data: Optional[dict] = None
     useragent: Optional[str] = None
     alert_status: AlertStatus = AlertStatus.ALERTABLE
-
-    class Config:
-        smart_union = True
 
     @validator("geo_info", pre=True)
     def adjust_geo_info(cls, value):
@@ -603,13 +594,12 @@ class TokenAlertDetails(BaseModel):
             self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
         )
 
+    @field_serializer("time")
+    def serialize_time(self, value: datetime) -> str:
+        return value.strftime("%Y-%m-%d %H:%M:%S (UTC)")
+
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        }
 
 
 class TokenExposedDetails(BaseModel):
@@ -641,14 +631,13 @@ class TokenExposedDetails(BaseModel):
     def time_hm(self) -> str:
         return self.exposed_time.strftime("%H:%M")
 
+    @field_serializer("exposed_time")
+    def serialize_exposed_time(self, value: datetime) -> str:
+        return value.strftime("%Y-%m-%d %H:%M:%S (UTC)")
+
     @property
     def time_ymd(self) -> str:
         return self.exposed_time.strftime("%Y/%m/%d")
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        }
 
 
 class UserName(ConstrainedStr):

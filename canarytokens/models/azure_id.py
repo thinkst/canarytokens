@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import root_validator
+from pydantic import ConfigDict, root_validator
 
 from canarytokens.utils import json_safe_dict
 from .common import (
@@ -83,9 +83,7 @@ class AzureIDTokenResponse(TokenResponse):
 class AzureIDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     additional_info: Optional[AzureIDAdditionalInfo] = None
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     def serialize_for_v2(self) -> dict:
         """Serialize an `AzureIDTokenHit` into a dict

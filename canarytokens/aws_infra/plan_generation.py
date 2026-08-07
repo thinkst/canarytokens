@@ -7,7 +7,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from pydantic import BaseModel, Field, root_validator, validator, ValidationError
+from pydantic import ConfigDict, BaseModel, Field, root_validator, validator, ValidationError
 from pydantic.fields import ModelField
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
@@ -224,10 +224,7 @@ class AWSInfraPlan(BaseModel):
             plan = cls()
             plan.validation_errors = [f"{error['msg']}" for error in e.errors()]
             return plan
-
-    class Config:
-        allow_population_by_field_name = True
-        extra = "allow"
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
 
 
 _EVENT_PATTERN_EMPTY = 10

@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import BaseModel, root_validator
+from pydantic import ConfigDict, BaseModel, root_validator
 
 from canarytokens.utils import json_safe_dict
 from .common import (
@@ -58,9 +58,7 @@ class CrowdStrikeCCTokenResponse(TokenResponse):
 class CrowdStrikeCCTokenHit(TokenHit):
     token_type: Literal[TokenTypes.CROWDSTRIKE_CC] = TokenTypes.CROWDSTRIKE_CC
     additional_info: Optional[CrowdStrikeCCAdditionalInfo] = None
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     def serialize_for_v2(self) -> dict:
         data = json_safe_dict(self, exclude=("token_type", "time_of_hit"))

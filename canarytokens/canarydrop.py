@@ -27,9 +27,10 @@ from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
 from pydantic import (
-    AnyHttpUrl,
+    ConfigDict, AnyHttpUrl,
     BaseModel,
     Field,
+    field_serializer,
     parse_obj_as,
     root_validator,
 )
@@ -269,13 +270,11 @@ class Canarydrop(BaseModel):
                 auth=self.auth,
             ),
         )
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
 
-    class Config:
-        arbitrary_types_allowed = True
-        allow_population_by_field_name = True
-        json_encoders = {
-            datetime: lambda v: v.strftime("%s.%f"),
-        }
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        return value.strftime("%s.%f")
 
     def add_canarydrop_hit(self, *, token_hit: AnyTokenHit):
         """Adds a hit to the drops history `.triggered_details`.

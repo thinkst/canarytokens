@@ -13,7 +13,7 @@ import re
 from functools import partial
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as, validator, Field
+from pydantic import BaseModel, HttpUrl, parse_obj_as, field_validator, field_serializer, Field
 
 from canarytokens import constants
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
@@ -766,16 +766,16 @@ class DiscordEmbeds(BaseModel):
                 )
             )
 
-    @validator("timestamp", pre=True)
+    @field_validator("timestamp", mode="before")
+    @classmethod
     def validate_timestamp(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
         return value
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
-        }
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 class TokenAlertDetailsDiscord(BaseModel):

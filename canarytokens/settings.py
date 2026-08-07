@@ -1,8 +1,9 @@
 import os
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 
 from canarytokens.utils import strtobool
-from pydantic import BaseSettings, EmailStr, HttpUrl, SecretStr
+from pydantic import EmailStr, HttpUrl, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from canarytokens.models import Port
 
@@ -65,12 +66,7 @@ class SwitchboardSettings(BaseSettings):
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
     LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
-
-    class Config:
-        allow_mutation = False
-        env_file = "../switchboard/switchboard.env"
-        env_file_encoding = "utf-8"
-        env_prefix = "CANARY_"
+    model_config = SettingsConfigDict(frozen=True, env_file="../switchboard/switchboard.env", env_file_encoding="utf-8", env_prefix="CANARY_")
 
 
 class FrontendSettings(BaseSettings):
@@ -164,16 +160,4 @@ class FrontendSettings(BaseSettings):
     AWS_SECRET_ACCESS_KEY: Optional[str]
     AWS_SESSION_TOKEN: Optional[str]
 
-    class Config:
-        allow_mutation = False
-        env_file = "../frontend/frontend.env"
-        env_file_encoding = "utf-8"
-        env_prefix = "CANARY_"
-
-        @classmethod
-        def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-            if field_name in ["DOMAINS", "NXDOMAINS", "MCP_SERVER_URLS"]:
-                return [x for x in raw_val.split(",")]
-            if field_name == "DEFAULT_GUARDRAIL_TRIGGERS":
-                return [x.strip() for x in raw_val.split(",") if x.strip()]
-            return cls.json_loads(raw_val)
+    model_config = SettingsConfigDict(frozen=True, env_file="../frontend/frontend.env", env_file_encoding="utf-8", env_prefix="CANARY_", env_list_delimiter=",")
