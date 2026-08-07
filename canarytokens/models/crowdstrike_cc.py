@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import ConfigDict, BaseModel, root_validator
+from pydantic import model_validator, ConfigDict, BaseModel
 
 from canarytokens.utils import json_safe_dict
 from .common import (
@@ -22,7 +22,8 @@ class CrowdStrikeCC(TypedDict):
 class CrowdStrikeCCAdditionalInfo(BaseModel):
     crowdstrike_log_data: dict[str, list[str]]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             ("CrowdStrike Log Data", "crowdstrike_log_data"),

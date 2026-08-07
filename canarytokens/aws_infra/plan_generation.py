@@ -7,8 +7,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from pydantic import ConfigDict, BaseModel, Field, root_validator, validator, ValidationError
-from pydantic.fields import ModelField
+from pydantic import field_validator, model_validator, ConfigDict, BaseModel, Field, ValidationError, ValidationInfo
 from canarytokens.aws_infra.db_queries import get_current_assets
 from canarytokens.aws_infra import data_generation
 from canarytokens.aws_infra.state_management import is_ingesting
@@ -87,17 +86,17 @@ class AWSInfraAsset(BaseModel):
     table_items: Optional[list[str]] = Field(default_factory=list)
     off_inventory: bool = False
 
-    @validator(
-        *FIELD_VALIDATORS.keys(),
-    )
-    def validate_asset_names(cls, name: str, field: ModelField):
+    @field_validator(*FIELD_VALIDATORS.keys())
+    @classmethod
+    def validate_asset_names(cls, name: str, info: ValidationInfo):
         if name is not None:
-            validation = FIELD_VALIDATORS[field.name](name)
+            validation = FIELD_VALIDATORS[info.field_name](name)
             if not validation.result:
                 raise ValueError(validation.error_message)
         return name
 
-    @validator("objects")
+    @field_validator("objects")
+    @classmethod
     def validate_objects_list(cls, names: list[str]):
         if names is not None:
             if (
@@ -118,7 +117,8 @@ class AWSInfraAsset(BaseModel):
                     )
         return names
 
-    @validator("table_items")
+    @field_validator("table_items")
+    @classmethod
     def validate_table_items_list(cls, names: list[str]):
         if names is not None:
             if (
@@ -158,12 +158,12 @@ class AWSInfraPlan(BaseModel):
     # Store validation errors as a list
     validation_errors: Optional[list[str]] = None
 
-    @root_validator
-    def validate_unique_names(cls, values):
+    @model_validator(mode='after')
+    def validate_unique_names(self) -> 'AWSInfraPlan':
         """Ensure no duplicate asset names within each type."""
         validation_errors = []
 
-        canarydrop = values.get("_canarydrop")
+        canarydrop = self.model_extra.get("_canarydrop")
         if canarydrop is None:
             account_inventory = {}
         else:
@@ -173,7 +173,7 @@ class AWSInfraPlan(BaseModel):
             field_name = _ASSET_TYPE_CONFIG[asset_type].asset_field_name.value
             new_names = [
                 getattr(asset, field_name)
-                for asset in values.get(asset_type.value, [])
+                for asset in getattr(self, asset_type.value, [])
                 if getattr(asset, field_name, None)
             ]
             if len(new_names) != len(set(new_names)):
@@ -189,24 +189,22 @@ class AWSInfraPlan(BaseModel):
                     )
 
         if validation_errors:
-            values["validation_errors"] = list(
-                set(validation_errors)
-            )  # Remove duplicates
-        return values
+            self.validation_errors = list(set(validation_errors))
+        return self
 
-    @root_validator
-    def validate_max_number_assets(cls, values):
+    @model_validator(mode='after')
+    def validate_max_number_assets(self) -> 'AWSInfraPlan':
         """Ensure the number of assets does not exceed the maximum allowed."""
         validation_errors = []
         for asset_type, config in _ASSET_TYPE_CONFIG.items():
-            current_count = len(values.get(asset_type.value, []))
+            current_count = len(getattr(self, asset_type.value, []))
             if current_count > config.max_assets:
                 validation_errors.append(
                     f"Exceeded maximum number of {asset_type} decoy assets: {current_count} > {config.max_assets}"
                 )
         if validation_errors:
-            values["validation_errors"] = validation_errors
-        return values
+            self.validation_errors = validation_errors
+        return self
 
     @classmethod
     def from_dict_with_canarydrop(

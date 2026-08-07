@@ -27,13 +27,11 @@ from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
 from pydantic import (
-    ConfigDict, AnyHttpUrl,
+    model_validator, ConfigDict, AnyHttpUrl,
     BaseModel,
     Field,
     field_serializer,
-    parse_obj_as,
-    root_validator,
-)
+    parse_obj_as)
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (
@@ -223,7 +221,8 @@ class Canarydrop(BaseModel):
     mcp_alert_on: Optional[McpAlertOn] = None
     mcpjson: Optional[str] = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def _validate_triggered_details(cls, values):
         """
         Ensure canarydrop `type` and `triggered_details` `token_type` match.

@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import ConfigDict, root_validator
+from pydantic import model_validator, ConfigDict
 
 from canarytokens.utils import json_safe_dict
 from .common import (
@@ -31,7 +31,8 @@ class AzureIDAdditionalInfo(BaseModel):
     location: dict[str, list[str]]
     coordinates: dict[str, list[str]]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             # TODO: make this consistent.

@@ -1,7 +1,7 @@
 import re
 from typing import List, Literal
 
-from pydantic import validator
+from pydantic import field_validator
 from .common import (
     DownloadContentTypes,
     DownloadFmtTypes,
@@ -20,8 +20,9 @@ class WindowsFakeFSTokenRequest(TokenRequest):
     windows_fake_fs_root: str
     windows_fake_fs_file_structure: str
 
-    @validator("windows_fake_fs_root")
-    def check_process_name(value: str):
+    @field_validator("windows_fake_fs_root")
+    @classmethod
+    def check_process_name(cls, value: str):
         _value = value.strip()
         invalid_chars = r'[<>:"/|?*[\]]'
         drive_pattern = r"^[A-Za-z]:[\\/]"
