@@ -249,6 +249,7 @@ from canarytokens.tokens import Canarytoken, get_template_env, set_template_env
 from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
+from canarytokens.utils import get_autoescaped_env
 
 log = logging.getLogger("uvicorn")
 
@@ -291,7 +292,7 @@ app = FastAPI(
     version=canarytokens.__version__,
 )
 
-vue_index = Jinja2Templates(directory="../dist/")
+vue_index = Jinja2Templates(env=get_autoescaped_env("../dist/"))
 
 
 @app.get("/")
@@ -362,7 +363,7 @@ try:
 except RuntimeError:
     log.warning("Error: No Vue dist found. Please build the frontend.")
 
-templates = Jinja2Templates(directory=frontend_settings.TEMPLATES_PATH)
+templates = Jinja2Templates(env=get_autoescaped_env(frontend_settings.TEMPLATES_PATH))
 
 if (
     frontend_settings.SENTRY_DSN
