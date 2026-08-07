@@ -48,14 +48,14 @@
       <BaseFormTextField
         v-if="selectedValue === 'SELECT'"
         id="sql_server_view_name"
-        label="On this View"
+        label="On this (already existing) Database View"
         placeholder="YOUR_VIEW_NAME"
         required
       />
       <BaseFormTextField
         v-else
         id="sql_server_table_name"
-        label="On this Table"
+        label="On this (already existing) Database Table"
         placeholder="YOUR_TABLE_NAME"
         required
       />
@@ -63,6 +63,19 @@
   </BaseGenerateTokenSettings>
 
   <GenerateTokenSettingsNotifications
+    v-if="selectedValue === 'INSERT'"
+    memo-helper-example="INSERT SQL Server token on SQL01/CreditCards"
+  />
+  <GenerateTokenSettingsNotifications
+    v-else-if="selectedValue === 'UPDATE'"
+    memo-helper-example="UPDATE SQL Server token on SQL01/CreditCards"
+  />
+  <GenerateTokenSettingsNotifications
+    v-else-if="selectedValue === 'DELETE'"
+    memo-helper-example="DELETE SQL Server token on SQL01/CreditCards"
+  />
+  <GenerateTokenSettingsNotifications
+    v-else="selectedValue === 'SELECT'"
     memo-helper-example="SELECT SQL Server token on SQL01/CreditCards"
   />
 </template>

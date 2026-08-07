@@ -20,8 +20,15 @@ from tests.utils import (
     get_token_history,
 )
 
+SQL_SERVER_FOR_TESTING              = "" # For example tcp:1.2.3.4,1433
+SQL_SERVER_DB_FOR_TESTING           = ""
+SQL_SERVER_USER_FOR_TESTING         = ""
+SQL_SERVER_USER_PASS_FOR_TESTING    = ""
 
-@pytest.mark.skipif(os.name != "nt", reason="Requires nt os (Windows OS)")
+@pytest.mark.skipif(
+    any(not x for x in [SQL_SERVER_FOR_TESTING, SQL_SERVER_DB_FOR_TESTING, SQL_SERVER_USER_FOR_TESTING, SQL_SERVER_USER_PASS_FOR_TESTING]),
+    reason="Please set up a properly configured Windows SQL Server and define the SQL_SERVER_* variables above. Before running these tests."
+)
 @pytest.mark.parametrize(
     "table, view, procedure, trigger, event",
     [
@@ -92,31 +99,34 @@ def test_sql_server_token(
     }
 
     # extract sql script template
-    script_template = f"tests\\data\\sql_server_token_{event}_script.txt"
+    script_template = f"data/sql_server_token_{event}_script.txt"
     with open(script_template, "r") as fp:
         script = fp.read()
 
     # create temporary directory and sql script
     script_file_name = "sql_server_token_script.sql"
     tmpdir = tempfile.mkdtemp()
-    script_file = "{tmpdir}\\{file}".format(tmpdir=tmpdir, file=script_file_name)
+    script_file = "{tmpdir}/{file}".format(tmpdir=tmpdir, file=script_file_name)
     with open(script_file, "w") as fp:
         fp.write(script.format(**sql_database_variables))
 
     # Trigger the token
     proc = subprocess.Popen(
         [
-            "sqlcmd",
-            "-S",
-            "localhost",
-            "-U",
-            "sa",
-            "-P",
-            "dbatools.I0",
-            "-d",
-            "tempdb",
+            "docker",
+            "run",
+            "--rm",
             "-i",
-            f"{script_file}",
+            "--volume", f"{script_file}:/tmp/script.sql:ro",
+            "mcr.microsoft.com/mssql-tools",
+            "/opt/mssql-tools/bin/sqlcmd",
+            "-S", SQL_SERVER_FOR_TESTING,
+            "-d", SQL_SERVER_DB_FOR_TESTING,
+            "-U", SQL_SERVER_USER_FOR_TESTING,
+            "-P", SQL_SERVER_USER_PASS_FOR_TESTING,
+            "-C",
+            "-i",
+            "/tmp/script.sql",
         ],
         stdout=subprocess.PIPE,
     )
