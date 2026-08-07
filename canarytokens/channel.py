@@ -95,7 +95,7 @@ class InputChannel(Channel):
             token_type=canarydrop.type,
             src_ip=hit.src_ip,
             time=datetime.datetime.utcnow(),
-            memo=Memo(canarydrop.memo),
+            memo=canarydrop.memo,
             token=canarydrop.canarytoken.value(),
             # TODO: this manage url should come from the frontend / settings object.
             manage_url=canarydrop.build_manage_url(protocol, host),

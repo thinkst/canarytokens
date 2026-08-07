@@ -211,7 +211,7 @@ def generate_webhook_test_payload(webhook_type: WebhookType, token_type: TokenTy
         return TokenAlertDetails(
             manage_url=WEBHOOK_TEST_URL,
             channel="HTTP",
-            memo=Memo("Congrats! The newly saved webhook works"),
+            memo="Congrats! The newly saved webhook works",
             token="a+test+token",
             token_type=token_type,
             src_ip="127.0.0.1",

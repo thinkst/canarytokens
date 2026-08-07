@@ -323,7 +323,7 @@ def test_mailgun_send(
         from_email=EmailStr("sender@example.com"),
         from_display="Sender",
         api_key=SecretStr("test-mailgun-api-key"),
-        base_url=HttpUrl("https://api.mailgun.test", scheme="https"),
+        base_url="https://api.mailgun.test",
         mailgun_domain="mailgun.test",
     )
     assert result is expected_result_type
