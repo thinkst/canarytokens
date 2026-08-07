@@ -25,20 +25,22 @@ def get_autoescaped_env(template_dir: str) -> Environment:
     Returns:
         Environment: A jinja2.Environment with auto escaping enabled on it.
     """
-    return Environment(autoescape=autoescape_config ,loader=FileSystemLoader(template_dir))
+    return Environment(autoescape=autoescape_config, loader=FileSystemLoader(template_dir))
 
 
-def get_autoescaped_template(template_source: str) -> Template:
+def get_autoescaped_template(template_source: str, trim_blocks: bool = False) -> Template:
     """ Returns a jinja2.Template with auto escaping enabled on it.
         This template uses the provided template_source as the source of its contents.
 
     Args:
-        template_source (str): The contents of the jinja2.Template.
+        template_source (str)   : The contents of the jinja2.Template.
+        trim_blocks     (bool)  : If this is set to True the first newline after a Jinja
+                                  block is removed (block, not variable tag!)
 
     Returns:
         Template: A jinja2.Template with auto escaping enabled on it.
     """
-    return Template(template_source, autoescape=autoescape_config)
+    return Template(template_source, trim_blocks=trim_blocks, autoescape=autoescape_config)
 
 
 def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:

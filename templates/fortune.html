@@ -5,9 +5,11 @@
 {% if redirect_url %}    <noscript><meta http-equiv="refresh" content="0; {{redirect_url|e}}"></noscript>{% endif %}
 {% if include_pale_blue_dot %}{% include 'pale_blue_dot/head.html' %}{% endif %}
   </head>
-{% autoescape false %}
-  {{'<body class="stars"></body>' if include_pale_blue_dot else '<body>'}}
-{% endautoescape %}
+{% if include_pale_blue_dot %}
+  <body class="stars">
+{% else %}
+  <body>
+{% endif %}
 {% if include_pale_blue_dot %}{% include 'pale_blue_dot/body.html' %}{% endif %}
 {% if include_browser_scanner %}{% include 'scanner/body.html' %}{% endif %}
 {% if include_pale_blue_dot %}{% include 'pale_blue_dot/script.html' %}{% endif %}

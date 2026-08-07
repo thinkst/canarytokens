@@ -426,7 +426,9 @@ class EmailOutputChannel(OutputChannel):
         """
 
         BasicDetails = EmailOutputChannel.extract_basic_details(details)
-        email_template = get_autoescaped_template(template_path.open().read())
+        email_template = get_autoescaped_template(
+            template_path.open().read(), trim_blocks=True
+        )
         rendered_text = email_template.render(
             Title=EmailOutputChannel.DESCRIPTION,
             Intro=EmailOutputChannel.format_report_intro(details),
