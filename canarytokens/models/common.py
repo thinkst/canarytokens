@@ -31,7 +31,6 @@ from pydantic import (
     root_validator,
     validator,
 )
-from pydantic.generics import GenericModel
 from typing_extensions import Annotated
 
 from canarytokens.constants import (
@@ -502,7 +501,7 @@ class TokenExposedHit(BaseModel):
 TH = TypeVar("TH", bound=TokenHit)
 
 
-class TokenHistory(GenericModel, Generic[TH]):
+class TokenHistory(BaseModel, Generic[TH]):
     """
     TokenHistory holds the format of each tokens'hits.
     `token_type` dictates which type of token a
