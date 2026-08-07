@@ -514,7 +514,7 @@ class EmailOutputChannel(OutputChannel):
                 token_type=token_hit.token_type,
                 token=canarydrop.canarytoken.value(),
                 key_id=canarydrop.aws_access_key_id,
-                memo=Memo(canarydrop.memo),
+                memo=canarydrop.memo,
                 public_location=token_hit.public_location,
                 exposed_time=token_hit.time_of_hit,
                 manage_url=canarydrop.build_manage_url(

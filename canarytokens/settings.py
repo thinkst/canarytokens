@@ -11,17 +11,17 @@ from canarytokens.models import Port
 class SwitchboardSettings(BaseSettings):
     PUBLIC_DOMAIN: str
     CHANNEL_DNS_IP: str = ""
-    CHANNEL_DNS_PORT: Port = Port(5354)
-    CHANNEL_HTTP_PORT: Port = Port(8083)
-    CHANNEL_SMTP_PORT: Port = Port(2500)
-    CHANNEL_MYSQL_PORT: Port = Port(3306)
-    CHANNEL_MTLS_KUBECONFIG_PORT: Port = Port(6443)
-    CHANNEL_WIREGUARD_PORT: Port = Port(51820)
+    CHANNEL_DNS_PORT: Port = 5354
+    CHANNEL_HTTP_PORT: Port = 8083
+    CHANNEL_SMTP_PORT: Port = 2500
+    CHANNEL_MYSQL_PORT: Port = 3306
+    CHANNEL_MTLS_KUBECONFIG_PORT: Port = 6443
+    CHANNEL_WIREGUARD_PORT: Port = 51820
     SWITCHBOARD_SCHEME: str = "https"
     FORCE_HTTPS: bool = False
     # TODO: Remove this default here and added it where it's used. This is too opinionated.
     REDIS_HOST: str = "localhost" if strtobool(os.getenv("CI", "False")) else "redis"
-    REDIS_PORT: Port = Port(6379)
+    REDIS_PORT: Port = 6379
     REDIS_DB: str = "0"
 
     REAL_IP_HEADER: str = "x-real-ip"
@@ -55,7 +55,7 @@ class SwitchboardSettings(BaseSettings):
     SMTP_USERNAME: Optional[str]
     SMTP_PASSWORD: Optional[str]
     SMTP_SERVER: Optional[str]
-    SMTP_PORT: Optional[Port] = Port(587)
+    SMTP_PORT: Optional[Port] = 587
 
     SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"

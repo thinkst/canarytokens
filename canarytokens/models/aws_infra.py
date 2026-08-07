@@ -1,7 +1,8 @@
 import enum
 from typing import Any, List, Literal, Optional, Union
 
-from pydantic import BaseModel, ConstrainedStr
+from pydantic import BaseModel, StringConstraints
+from typing import Annotated
 
 from canarytokens.utils import json_safe_dict
 from .common import (
@@ -14,8 +15,7 @@ from .common import (
 )
 
 
-class AWSAccountNumber(ConstrainedStr):
-    regex = r"^\d{12}$"
+AWSAccountNumber = Annotated[str, StringConstraints(pattern=r"^\d{12}$")]
 
 
 class AWSInfraAssetType(enum.StrEnum):
