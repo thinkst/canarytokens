@@ -585,9 +585,7 @@ class TokenAlertDetails(BaseModel):
 
     @property
     def history_url(self):
-        return HttpUrl(
-            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
-        )
+        return str(self.manage_url).replace("manage", "history")
 
     @field_serializer("time")
     def serialize_time(self, value: datetime) -> str:
@@ -619,9 +617,7 @@ class TokenExposedDetails(BaseModel):
 
     @property
     def history_url(self):
-        return HttpUrl(
-            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
-        )
+        return str(self.manage_url).replace("manage", "history")
 
     @property
     def time_hm(self) -> str:

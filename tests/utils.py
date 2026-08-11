@@ -72,9 +72,7 @@ class ServerConfig:
 
     @property
     def server_url(self) -> HttpUrl:
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
+        return f"{self.scheme}://{self.canarytokens_sld}"
 
     @property
     def canarytokens_ips(self) -> list[str]:

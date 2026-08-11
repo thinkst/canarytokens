@@ -1,11 +1,26 @@
 import os
-from typing import Literal, Optional
+from typing import Annotated, Any, Literal, Optional
 
 from canarytokens.utils import strtobool
-from pydantic import EmailStr, HttpUrl, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BeforeValidator, EmailStr, HttpUrl, SecretStr
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from canarytokens.models import Port
+
+
+def _split_comma(v: Any) -> Any:
+    if isinstance(v, str):
+        return [x for x in v.split(",")]
+    return v
+
+
+def _split_comma_strip(v: Any) -> Any:
+    if isinstance(v, str):
+        return [x.strip() for x in v.split(",") if x.strip()]
+    return v
+
+
+CommaSeparatedList = Annotated[list[str], NoDecode, BeforeValidator(_split_comma)]
 
 
 class SwitchboardSettings(BaseSettings):
@@ -45,14 +60,14 @@ class SwitchboardSettings(BaseSettings):
     # Mailgun Required Settings
     MAILGUN_API_KEY: Optional[SecretStr] = None
     MAILGUN_BASE_URL: Optional[HttpUrl] = "https://api.mailgun.net"
-    MAILGUN_DOMAIN_NAME: Optional[str]
+    MAILGUN_DOMAIN_NAME: Optional[str] = None
     # Sendgrid Required Settings
     SENDGRID_API_KEY: Optional[SecretStr] = None
     SENDGRID_SANDBOX_MODE: bool = True
     # SMTP Required Settings
-    SMTP_USERNAME: Optional[str]
-    SMTP_PASSWORD: Optional[str]
-    SMTP_SERVER: Optional[str]
+    SMTP_USERNAME: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_SERVER: Optional[str] = None
     SMTP_PORT: Optional[Port] = 587
 
     SENTRY_DSN: Optional[HttpUrl] = None
@@ -64,15 +79,15 @@ class SwitchboardSettings(BaseSettings):
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
     LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
-    model_config = SettingsConfigDict(frozen=True, env_file="../switchboard/switchboard.env", env_file_encoding="utf-8", env_prefix="CANARY_")
+    model_config = SettingsConfigDict(frozen=True, extra='ignore', env_file="../switchboard/switchboard.env", env_file_encoding="utf-8", env_prefix="CANARY_")
 
 
 class FrontendSettings(BaseSettings):
     API_APP_TITLE: str = "Canarytokens"
     API_VERSION_STR: str = "v1"
     PUBLIC_IP: str
-    DOMAINS: list[str]
-    NXDOMAINS: list[str]
+    DOMAINS: CommaSeparatedList
+    NXDOMAINS: CommaSeparatedList
     SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
 
     SENTRY_DSN: Optional[HttpUrl] = None
@@ -86,7 +101,7 @@ class FrontendSettings(BaseSettings):
     TOKENS_FETCH_LIMIT: int = 1000
 
     # if None the API docs won't load. Loads at /API_HASH/{your_url}. Must start with a /
-    API_REDOC_URL: Optional[str]
+    API_REDOC_URL: Optional[str] = None
 
     # upload settings
     MAX_UPLOAD_SIZE: int = 1024 * 1024 * 1
@@ -98,7 +113,7 @@ class FrontendSettings(BaseSettings):
     FRONTEND_LOG_SIZE: Optional[int] = 500000000
     FRONTEND_LOG_COUNT: Optional[int] = 20
 
-    DEV_BUILD_ID: Optional[str]
+    DEV_BUILD_ID: Optional[str] = None
 
     # 3rd party settings
     AWSID_URL: Optional[HttpUrl] = None
@@ -110,52 +125,52 @@ class FrontendSettings(BaseSettings):
     TESTING_AWS_REGION: Optional[str] = "us-east-2"
     TESTING_AWSID_AUTH: Optional[str] = "test_auth_value"
     TESTING_AWS_OUTPUT: Optional[str] = "json"
-    AZURE_ID_TOKEN_URL: Optional[HttpUrl]
-    AZURE_ID_TOKEN_AUTH: Optional[str]
-    CROWDSTRIKE_CC_CREATE_URL: Optional[HttpUrl]
-    CROWDSTRIKE_CC_DELETE_URL: Optional[HttpUrl]
-    GOOGLE_API_KEY: Optional[str]
-    EXTEND_EMAIL: Optional[str]
+    AZURE_ID_TOKEN_URL: Optional[HttpUrl] = None
+    AZURE_ID_TOKEN_AUTH: Optional[str] = None
+    CROWDSTRIKE_CC_CREATE_URL: Optional[HttpUrl] = None
+    CROWDSTRIKE_CC_DELETE_URL: Optional[HttpUrl] = None
+    GOOGLE_API_KEY: Optional[str] = None
+    EXTEND_EMAIL: Optional[str] = None
     EXTEND_PASSWORD: Optional[SecretStr] = SecretStr("NoExtendPasswordFound")
-    EXTEND_CARD_NAME: Optional[str]
+    EXTEND_CARD_NAME: Optional[str] = None
     CLOUDFRONT_URL: HttpUrl = "https://SET-CLOUDFRONT-URL-IN-FRONTEND-DOT-ENV.invalid"
     CLOUDFLARE_ACCOUNT_ID: Optional[str] = ""
     CLOUDFLARE_NAMESPACE: Optional[str] = ""
     CLOUDFLARE_API_TOKEN: Optional[str] = ""
     WEBDAV_SERVER: Optional[str] = ""
-    AZUREAPP_ID: Optional[str]
-    AZUREAPP_SECRET: Optional[str]  # TODO: Figure out SecretStr with Azure secrets
+    AZUREAPP_ID: Optional[str] = None
+    AZUREAPP_SECRET: Optional[str] = None  # TODO: Figure out SecretStr with Azure secrets
     CREDIT_CARD_TOKEN_ENABLED: bool = False
-    CREDIT_CARD_INFRA_CUSTOMER_GUID: Optional[str]
-    CREDIT_CARD_INFRA_CUSTOMER_SECRET: Optional[str]
-    CREDIT_CARD_INFRA_LAMBDA: Optional[str]
-    CREDIT_CARD_INFRA_ACCOUNT_ID: Optional[str]
-    CREDIT_CARD_INFRA_REGION: Optional[str]
-    CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str]
-    CLOUDFLARE_TURNSTILE_SECRET: Optional[str]
-    MCP_SERVER_URLS: Optional[list[str]] = [""]
+    CREDIT_CARD_INFRA_CUSTOMER_GUID: Optional[str] = None
+    CREDIT_CARD_INFRA_CUSTOMER_SECRET: Optional[str] = None
+    CREDIT_CARD_INFRA_LAMBDA: Optional[str] = None
+    CREDIT_CARD_INFRA_ACCOUNT_ID: Optional[str] = None
+    CREDIT_CARD_INFRA_REGION: Optional[str] = None
+    CREDIT_CARD_INFRA_ACCESS_ROLE: Optional[str] = None
+    CLOUDFLARE_TURNSTILE_SECRET: Optional[str] = None
+    MCP_SERVER_URLS: Optional[CommaSeparatedList] = [""]
     MCP_SERVER_SECRET: Optional[str] = "abcD0123defG4567"
 
-    AWS_INFRA_AWS_ACCOUNT: Optional[str]
-    AWS_INFRA_AWS_REGION: Optional[str]
-    AWS_INFRA_SHARED_SECRET: Optional[str]
-    AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str]
+    AWS_INFRA_AWS_ACCOUNT: Optional[str] = None
+    AWS_INFRA_AWS_REGION: Optional[str] = None
+    AWS_INFRA_SHARED_SECRET: Optional[str] = None
+    AWS_INFRA_MANAGEMENT_REQUEST_SQS_URL: Optional[str] = None
     AWS_INFRA_CALLBACK_DOMAIN: Optional[str] = "callback domain goes here"
-    AWS_INFRA_INGESTION_BUS: Optional[str]
-    AWS_INFRA_TF_MODULE_BUCKET: Optional[str]
+    AWS_INFRA_INGESTION_BUS: Optional[str] = None
+    AWS_INFRA_TF_MODULE_BUCKET: Optional[str] = None
     AWS_INFRA_NAME_GENERATION_LIMIT: Optional[int] = 50
     AWS_INFRA_CLEANUP_INTERVAL_SECONDS: int = 6 * 60 * 60
     AWS_INFRA_CLEANUP_MAX_AGE: int = 7 * 24 * 60 * 60
-    GEMINI_API_KEY: Optional[str]
+    GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: Optional[str] = "gemini-2.5-flash"
-    GEMINI_PROMPT_TEMPLATE: Optional[str]
-    GEMINI_SYSTEM_PROMPT: Optional[str]
+    GEMINI_PROMPT_TEMPLATE: Optional[str] = None
+    GEMINI_SYSTEM_PROMPT: Optional[str] = None
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
-    DEFAULT_GUARDRAIL_TRIGGERS: list[str] = []
+    DEFAULT_GUARDRAIL_TRIGGERS: Annotated[list[str], NoDecode, BeforeValidator(_split_comma_strip)] = []
 
     # for local aws infra testing
-    AWS_ACCESS_KEY_ID: Optional[str]
-    AWS_SECRET_ACCESS_KEY: Optional[str]
-    AWS_SESSION_TOKEN: Optional[str]
+    AWS_ACCESS_KEY_ID: Optional[str] = None
+    AWS_SECRET_ACCESS_KEY: Optional[str] = None
+    AWS_SESSION_TOKEN: Optional[str] = None
 
-    model_config = SettingsConfigDict(frozen=True, env_file="../frontend/frontend.env", env_file_encoding="utf-8", env_prefix="CANARY_", env_list_delimiter=",")
+    model_config = SettingsConfigDict(frozen=True, extra='ignore', env_file="../frontend/frontend.env", env_file_encoding="utf-8", env_prefix="CANARY_")

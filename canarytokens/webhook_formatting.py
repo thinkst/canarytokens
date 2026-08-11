@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Union, Optional, Literal
+from typing import Union, Optional, Literal, ClassVar
 from markupsafe import escape
 import json
 from enum import Enum
@@ -13,7 +13,7 @@ import re
 from functools import partial
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as, field_validator, field_serializer, Field
+from pydantic import BaseModel, HttpUrl, TypeAdapter, field_validator, field_serializer, Field
 
 from canarytokens import constants
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
@@ -25,11 +25,10 @@ from canarytokens.models import (
     TokenExposedDetails,
 )
 
-CANARY_LOGO_ROUND_PUBLIC_URL = parse_obj_as(
-    HttpUrl,
-    constants.CANARY_IMAGE_URL,
+CANARY_LOGO_ROUND_PUBLIC_URL = TypeAdapter(HttpUrl).validate_python(
+    constants.CANARY_IMAGE_URL
 )
-WEBHOOK_TEST_URL = parse_obj_as(HttpUrl, "http://example.com/test/url/for/webhook")
+WEBHOOK_TEST_URL = TypeAdapter(HttpUrl).validate_python("http://example.com/test/url/for/webhook")
 TOKEN_EXPOSED_DESCRIPTION = "One of your {readable_type} Canarytokens has been found on the internet. A publicly exposed token will provide very low quality alerts. We recommend that you disable and replace this token on private infrastructure."
 MAX_INLINE_LENGTH = 40  # Max length of content to share a line with other content
 CANARY_TOKENS_NEST_URL = "https://canarytokens.org/nest/"
@@ -362,13 +361,13 @@ class SlackBlock(BaseModel): ...
 
 
 class SlackHeader(SlackBlock):
-    type = "header"
+    type: ClassVar[str] = "header"
     text: SlackTextObject
 
 
 class SlackRichText(SlackBlock):
     text: str
-    bold = False
+    bold: bool = False
     rich_text_type: Union[
         Literal["rich_text_section"], Literal["rich_text_preformatted"]
     ] = "rich_text_section"
@@ -411,16 +410,16 @@ class SlackFooter(SlackBlock):
 
 
 class SlackDivider(SlackBlock):
-    type = "divider"
+    type: ClassVar[str] = "divider"
 
 
 class SlackSection(SlackBlock):
-    type = "section"
+    type: ClassVar[str] = "section"
     fields: list[SlackTextObject]
 
 
 class SlackSectionText(SlackBlock):
-    type = "section"
+    type: ClassVar[str] = "section"
     text: SlackTextObject
 
 

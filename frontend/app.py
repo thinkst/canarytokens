@@ -551,7 +551,7 @@ def _manually_build_docs_schema(model) -> dict:
                 "application/json": {
                     "schema": {
                         "anyOf": [
-                            schema.schema()
+                            schema.model_json_schema()
                             for schema in list(model.__args__[0].__args__)
                         ],
                     },
@@ -1961,10 +1961,7 @@ def _create_azure_id_token_response(
             token=canarydrop.canarytoken,
             server=get_all_canary_domains()[0],
             cert_file_name=token_request_details.azure_id_cert_file_name,
-            azure_url=HttpUrl(
-                f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}",
-                scheme=settings.AZURE_ID_TOKEN_URL.scheme,
-            ),
+            azure_url=f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}",
         )
     except Exception as e:
         capture_exception(error=e, context=("get_azure_id", None))
@@ -2475,13 +2472,10 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
             canarydrop.alert_webhook_url if canarydrop.alert_webhook_url else ""
         ),
         token=canarydrop.canarytoken.value(),
-        token_url=HttpUrl(
-            canarydrop.get_url(
-                [
-                    f"{switchboard_settings.SWITCHBOARD_SCHEME}://{frontend_settings.DOMAINS[0]}"
-                ]
-            ),
-            scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+        token_url=canarydrop.get_url(
+            [
+                f"{switchboard_settings.SWITCHBOARD_SCHEME}://{frontend_settings.DOMAINS[0]}"
+            ]
         ),
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),

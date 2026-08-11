@@ -21,9 +21,21 @@ class UploadedImage(BaseModel):
 
     @classmethod
     def __get_pydantic_json_schema__(cls, core_schema, handler):
-        schema = handler(core_schema)
-        schema["title"] = "File"
-        return schema
+        # Manually build schema without SpooledTemporaryFile which can't be serialized to JSON
+        return {
+            "title": "File",
+            "type": "object",
+            "properties": {
+                "content_type": {
+                    "enum": ["image/png", "image/gif", "image/jpeg"],
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                }
+            },
+            "required": ["content_type", "filename"]
+        }
 
 
 class CustomImageTokenRequest(TokenRequest):
