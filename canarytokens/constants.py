@@ -37,3 +37,7 @@ WEBHOOK_BASE_URL_DISCORD = "https://discord.com/api/webhooks"
 WEBHOOK_BASE_URL_REGEX_MS_TEAMS = (
     r"^https:\/\/\S+\.ac\.environment\.api\.powerplatform\.com"
 )
+
+# Auto escaping
+
+AUTO_ESCAPED_FILE_EXTENSIONS = ( "html", "htm", "xhtml", "xml", "svg", "mjml" )
