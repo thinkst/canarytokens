@@ -29,7 +29,7 @@ dependencies = [
     "netifaces",
     "pycountry-convert",
     "pydantic[email]==2.13.4",
-    "pydantic-settings==2.14.2",
+    "pydantic-settings==2.15.0",
     "pynacl",
     "pyopenssl",
     "python-http-client",
