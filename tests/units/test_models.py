@@ -39,6 +39,24 @@ from canarytokens.utils import json_safe_dict
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
 
 
+def test_geoip_location_serialization():
+    geo_info = GeoIPInfo(ip="1.2.3.4", loc="1.2,3.4")
+
+    assert geo_info.model_dump(mode="json")["loc"] == "1.2000,3.4000"
+
+
+def test_smtp_recipient_serialization():
+    mail = SMTPMailField(
+        recipients=["recipient@example.com"],
+        links=[],
+        headers=[],
+        helo=SMTPHeloField(client_name="client", client_ip="127.0.0.1"),
+        attachments=[],
+    )
+
+    assert mail.model_dump(mode="json")["recipients"] == ["<recipient@example.com>"]
+
+
 @pytest.mark.parametrize(
     "email,webhook_url, expected_exception",
     [

@@ -1,7 +1,7 @@
 from ipaddress import IPv4Address
 from typing import Any, List, Literal, Optional
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_serializer, validator
 from .common import (
     TokenHistory,
     TokenHit,
@@ -15,11 +15,6 @@ class SMTPHeloField(BaseModel):
     client_name: str
     client_ip: IPv4Address
 
-    class Config:
-        json_encoders = {
-            IPv4Address: lambda v: str(v),
-        }
-
 
 class SMTPMailField(BaseModel):
     sender: Optional[str] = None
@@ -29,29 +24,9 @@ class SMTPMailField(BaseModel):
     helo: SMTPHeloField
     attachments: list[str]
 
-    def dict(
-        self,
-        *,
-        include: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        exclude: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        by_alias: bool = False,
-        skip_defaults: bool = None,
-        exclude_unset: bool = False,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> "DictStrAny":  # noqa F821
-        data = super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-        # V2 Compatible serialization
-        data["recipients"] = [f"<{o}>" for o in data["recipients"]]
-        return data
+    @field_serializer("recipients")
+    def serialize_recipients(self, recipients: list[str]) -> list[str]:
+        return [f"<{recipient}>" for recipient in recipients]
 
 
 class SMTPTokenRequest(TokenRequest):

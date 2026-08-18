@@ -1003,8 +1003,18 @@ def test_generate_token_ip_headers(
     )
     assert manage_resp.status_code == 200
     canarydrop = manage_resp.json()["canarydrop"]
+    assert canarydrop["canarytoken"] == {"_value": token_resp.token}
     for key, value in expected_headers.items():
         assert canarydrop[key] == value
+
+    history_resp = test_client.get(
+        api_path("/history"),
+        params=HistoryPageRequest(
+            token=token_resp.token,
+            auth=token_resp.auth_token,
+        ).dict(),
+    )
+    assert history_resp.status_code == 200
 
 
 @pytest.mark.parametrize(

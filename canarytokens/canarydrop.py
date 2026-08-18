@@ -30,6 +30,7 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     Field,
+    field_serializer,
     parse_obj_as,
     root_validator,
 )
@@ -273,9 +274,14 @@ class Canarydrop(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         allow_population_by_field_name = True
-        json_encoders = {
-            datetime: lambda v: v.strftime("%s.%f"),
-        }
+
+    @field_serializer("canarytoken")
+    def serialize_canarytoken(self, value: tokens.Canarytoken) -> dict[str, str]:
+        return {"_value": value.value()}
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        return value.strftime("%s.%f")
 
     def add_canarydrop_hit(self, *, token_hit: AnyTokenHit):
         """Adds a hit to the drops history `.triggered_details`.

@@ -3,6 +3,23 @@ from typing import Literal, Union
 import pytest
 from canarytokens.models import Memo, TokenAlertDetails, TokenExposedDetails, TokenTypes
 from canarytokens.webhook_formatting import (
+    GoogleChatButton,
+    GoogleChatButtonList,
+    GoogleChatCard,
+    GoogleChatCardV2,
+    GoogleChatColumnItems,
+    GoogleChatColumns,
+    GoogleChatHeader,
+    GoogleChatParagraph,
+    GoogleChatSection,
+    GoogleChatTextWithTopLabel,
+    SlackDivider,
+    SlackFooter,
+    SlackHeader,
+    SlackRichText,
+    SlackSection,
+    SlackSectionText,
+    SlackTextObject,
     TokenAlertDetailsSlack,
     WebhookType,
     format_details_for_webhook,
@@ -84,3 +101,92 @@ def test_format_details_for_webhook_alert_type(
 
     payload = format_details_for_webhook(webhook_type, details)
     assert isinstance(payload, expected_payload_type)
+
+
+def test_slack_payload_serialization():
+    payload = TokenAlertDetailsSlack(
+        blocks=[
+            SlackHeader(text=SlackTextObject(type="plain_text", text="Header")),
+            SlackDivider(),
+            SlackSection(fields=[SlackTextObject(text="Field")]),
+            SlackSectionText(text=SlackTextObject(text="Section")),
+            SlackRichText(text="Rich text").set_bold(),
+            SlackFooter(),
+        ]
+    ).json_safe_dict()
+
+    assert payload["blocks"][:5] == [
+        {"type": "header", "text": {"type": "plain_text", "text": "Header"}},
+        {"type": "divider"},
+        {"type": "section", "fields": [{"type": "mrkdwn", "text": "Field"}]},
+        {"type": "section", "text": {"type": "mrkdwn", "text": "Section"}},
+        {
+            "type": "rich_text",
+            "elements": [
+                {
+                    "type": "rich_text_section",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "text": "Rich text",
+                            "style": {"bold": True},
+                        }
+                    ],
+                }
+            ],
+        },
+    ]
+    assert payload["blocks"][5]["type"] == "context"
+
+
+def test_google_chat_payload_serialization():
+    payload = TokenAlertDetailsGoogleChat(
+        cardsV2=[
+            GoogleChatCardV2(
+                card=GoogleChatCard(
+                    header=GoogleChatHeader(imageUrl="https://example.com/logo.png"),
+                    sections=[
+                        GoogleChatSection(
+                            widgets=[
+                                GoogleChatParagraph(text="Paragraph"),
+                                GoogleChatTextWithTopLabel(
+                                    text="Text", top_label="Label"
+                                ),
+                                GoogleChatButtonList(
+                                    buttons=[
+                                        GoogleChatButton(
+                                            text="Manage", url="https://example.com"
+                                        )
+                                    ]
+                                ),
+                                GoogleChatColumns(
+                                    column_items=[
+                                        GoogleChatColumnItems(
+                                            widgets=[GoogleChatParagraph(text="Nested")]
+                                        )
+                                    ]
+                                ),
+                            ]
+                        )
+                    ],
+                )
+            )
+        ]
+    ).json_safe_dict()
+
+    widgets = payload["cardsV2"][0]["card"]["sections"][0]["widgets"]
+    assert widgets[0] == {"textParagraph": {"text": "Paragraph"}}
+    assert widgets[1] == {"decoratedText": {"text": "Text", "topLabel": "Label"}}
+    assert widgets[2] == {
+        "buttonList": {
+            "buttons": [
+                {
+                    "text": "Manage",
+                    "onClick": {"openLink": {"url": "https://example.com/"}},
+                }
+            ]
+        }
+    }
+    assert widgets[3]["columns"]["columnItems"][0]["widgets"] == [
+        {"textParagraph": {"text": "Nested"}}
+    ]

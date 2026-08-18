@@ -44,7 +44,7 @@ def get_autoescaped_template(template_source: str, trim_blocks: bool = False) ->
 
 
 def json_safe_dict(m: BaseModel, exclude: tuple = ()) -> dict[str, str]:
-    return json.loads(m.json(exclude_none=True, exclude=set(exclude)))
+    return json.loads(m.model_dump_json(exclude_none=True, exclude=set(exclude)))
 
 
 def dict_to_csv(d: dict) -> str:

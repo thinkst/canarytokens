@@ -27,6 +27,7 @@ from pydantic import (
     HttpUrl,
     IPvAnyAddress,
     ValidationError,
+    field_serializer,
     root_validator,
     validator,
 )
@@ -215,7 +216,6 @@ class TokenRequest(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-        json_encoders = {TokenTypes: lambda v: v.value}
 
 
 class TokenEditRequest(BaseModel):
@@ -315,35 +315,9 @@ class GeoIPInfo(BaseModel):
             raise TypeError(f"loc must be str or list: {type(loc)} was given. {loc}")
         return (float(lon), float(lat))
 
-    def dict(
-        self,
-        *,
-        include: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        exclude: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        by_alias: bool = False,
-        skip_defaults: bool = None,
-        exclude_unset: bool = False,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> "DictStrAny":  # noqa F821
-        data = super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-        # V2 Compatible serialization
-        if self.loc:
-            data["loc"] = ",".join([f"{o:.4f}" for o in self.loc])
-        return data
-
-    class Config:
-        json_encoders = {
-            list: lambda v: ",".join(v),
-        }
+    @field_serializer("loc")
+    def serialize_loc(self, loc: Tuple[float, float]) -> str:
+        return ",".join(f"{coordinate:.4f}" for coordinate in loc)
 
 
 class ServiceInfo(BaseModel):
@@ -603,13 +577,12 @@ class TokenAlertDetails(BaseModel):
             self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
         )
 
+    @field_serializer("time")
+    def serialize_time(self, value: datetime) -> str:
+        return value.strftime("%Y-%m-%d %H:%M:%S (UTC)")
+
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        }
 
 
 class TokenExposedDetails(BaseModel):
@@ -641,14 +614,13 @@ class TokenExposedDetails(BaseModel):
     def time_hm(self) -> str:
         return self.exposed_time.strftime("%H:%M")
 
+    @field_serializer("exposed_time")
+    def serialize_exposed_time(self, value: datetime) -> str:
+        return value.strftime("%Y-%m-%d %H:%M:%S (UTC)")
+
     @property
     def time_ymd(self) -> str:
         return self.exposed_time.strftime("%Y/%m/%d")
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S (UTC)"),
-        }
 
 
 class UserName(ConstrainedStr):

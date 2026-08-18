@@ -442,7 +442,7 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
             models.LegacyTokenHit,
         ),
     ):
-        info = enriched_hit.additional_info.dict(exclude_unset=True, exclude_none=None)
+        info = enriched_hit.additional_info.dict(exclude_unset=True, exclude_none=False)
         combined_info = info | additional_info
         enriched_hit.additional_info = models.AdditionalInfo(**combined_info)
     else:
