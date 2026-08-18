@@ -24,3 +24,14 @@ def test_uploaded_file_serialization_excludes_file(model, content_type, filename
             "content_type": content_type,
             "filename": filename,
         }
+
+
+@pytest.mark.parametrize("model", [UploadedExe, UploadedImage])
+def test_uploaded_file_schema_includes_required_binary_file(model):
+    schema = model.model_json_schema()
+
+    assert schema["properties"]["file"] == {
+        "type": "string",
+        "format": "binary",
+    }
+    assert "file" in schema["required"]

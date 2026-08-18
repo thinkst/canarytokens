@@ -552,7 +552,7 @@ def _manually_build_docs_schema(model) -> dict:
                 "application/json": {
                     "schema": {
                         "anyOf": [
-                            schema.schema()
+                            schema.model_json_schema()
                             for schema in list(model.__args__[0].__args__)
                         ],
                     },

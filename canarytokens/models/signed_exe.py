@@ -17,8 +17,26 @@ class UploadedExe(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
     @classmethod
-    def __modify_schema__(cls, field_schema, field):
-        field_schema["title"] = "File"
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        # Pydantic cannot generate JSON schema for SpooledTemporaryFile.
+        return {
+            "title": "File",
+            "type": "object",
+            "properties": {
+                "content_type": {
+                    "enum": ["application/x-msdownload", "application/octet-stream"],
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "file": {
+                    "type": "string",
+                    "format": "binary"
+                }
+            },
+            "required": ["content_type", "filename", "file"]
+        }
 
 
 class CustomBinaryTokenRequest(TokenRequest):
