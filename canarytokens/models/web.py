@@ -7,6 +7,7 @@ from .common import (
     TokenResponse,
     TokenTypes,
 )
+from pydantic import ConfigDict
 
 
 class WebBugTokenRequest(TokenRequest):
@@ -22,9 +23,7 @@ class WebBugTokenHit(TokenHit):
     request_headers: Optional[dict] = None
     request_args: Optional[dict] = None
     additional_info: AdditionalInfo = AdditionalInfo()
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class WebBugTokenHistory(TokenHistory[WebBugTokenHit]):

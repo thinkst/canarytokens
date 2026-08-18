@@ -13,6 +13,7 @@ from canarytokens.models import (
     AnyTokenRequest,
     AnyTokenResponse,
     AWSKeyTokenHit,
+    AzureIDAdditionalInfo,
     ClonedWebTokenHistory,
     DNSTokenRequest,
     DownloadContentTypes,
@@ -55,6 +56,20 @@ def test_smtp_recipient_serialization():
     )
 
     assert mail.model_dump(mode="json")["recipients"] == ["<recipient@example.com>"]
+
+
+def test_azure_id_additional_info_coerces_numeric_coordinates():
+    additional_info = AzureIDAdditionalInfo(
+        azure_id_log_data={},
+        microsoft_azure={},
+        location={},
+        coordinates={"latitude": [-25.73], "longitude": [28.21]},
+    )
+
+    assert additional_info.coordinates == {
+        "latitude": ["-25.73"],
+        "longitude": ["28.21"],
+    }
 
 
 @pytest.mark.parametrize(

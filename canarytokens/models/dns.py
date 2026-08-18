@@ -1,35 +1,32 @@
 from typing import List, Literal
 from .common import TokenHistory, TokenHit, TokenRequest, TokenResponse, TokenTypes
+from pydantic import ConfigDict
 
 
 class DNSTokenRequest(TokenRequest):
     """"""
 
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.DNS,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "webhook_url": "https://slack.com/api/api.test",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.DNS,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "webhook_url": "https://slack.com/api/api.test",
+        },
+    })
 
 
 class DNSTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.DNS] = TokenTypes.DNS
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.DNS,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "webhook_url": "https://slack.com/api/api.test",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.DNS,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "webhook_url": "https://slack.com/api/api.test",
+        },
+    })
 
 
 class DNSTokenHit(TokenHit):

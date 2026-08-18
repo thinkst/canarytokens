@@ -18,7 +18,7 @@ from typing import (
 from fastapi import Response
 from fastapi.responses import JSONResponse
 from pydantic import (
-    AnyHttpUrl,
+    ConfigDict, AnyHttpUrl,
     BaseModel,
     ConstrainedInt,
     ConstrainedStr,
@@ -31,7 +31,6 @@ from pydantic import (
     root_validator,
     validator,
 )
-from pydantic.generics import GenericModel
 from typing_extensions import Annotated
 
 from canarytokens.constants import (
@@ -214,8 +213,7 @@ class TokenRequest(BaseModel):
     def json_safe_dict(self) -> Dict[str, str]:
         return json_safe_dict(self)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class TokenEditRequest(BaseModel):
@@ -437,9 +435,6 @@ class TokenHit(BaseModel):
     useragent: Optional[str] = None
     alert_status: AlertStatus = AlertStatus.ALERTABLE
 
-    class Config:
-        smart_union = True
-
     @validator("geo_info", pre=True)
     def adjust_geo_info(cls, value):
         if value == "":
@@ -485,7 +480,7 @@ class TokenExposedHit(BaseModel):
 TH = TypeVar("TH", bound=TokenHit)
 
 
-class TokenHistory(GenericModel, Generic[TH]):
+class TokenHistory(BaseModel, Generic[TH]):
     """
     TokenHistory holds the format of each tokens'hits.
     `token_type` dictates which type of token a

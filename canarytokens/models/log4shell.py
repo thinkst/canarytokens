@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional
 
-from pydantic import root_validator
+from pydantic import ConfigDict, root_validator
 from .common import (
     TokenHistory,
     TokenHit,
@@ -12,16 +12,14 @@ from .common import (
 
 class Log4ShellTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.LOG4SHELL] = TokenTypes.LOG4SHELL
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.LOG4SHELL,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "webhook_url": "https://slack.com/api/api.test",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.LOG4SHELL,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "webhook_url": "https://slack.com/api/api.test",
+        },
+    })
 
 
 class Log4ShellTokenResponse(TokenResponse):
@@ -47,16 +45,14 @@ class Log4ShellTokenResponse(TokenResponse):
             f"${{jndi:ldap://{cls._hostname_marker}${{hostName}}.{cls._token_marker}.{values['hostname']}/a}}"
         )
         return values
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.LOG4SHELL,
-                "memo": "Added to user login portal.",
-                "email": "username@domain.com",
-                "webhook_url": "https://slack.com/api/api.test",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.LOG4SHELL,
+            "memo": "Added to user login portal.",
+            "email": "username@domain.com",
+            "webhook_url": "https://slack.com/api/api.test",
+        },
+    })
 
 
 class Log4ShellTokenHit(TokenHit):

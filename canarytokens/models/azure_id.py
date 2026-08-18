@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import root_validator
+from pydantic import ConfigDict, root_validator
 
 from canarytokens.utils import json_safe_dict
 from .common import (
@@ -30,6 +30,7 @@ class AzureIDAdditionalInfo(BaseModel):
     microsoft_azure: dict[str, list[str]]
     location: dict[str, list[str]]
     coordinates: dict[str, list[str]]
+    model_config = ConfigDict(coerce_numbers_to_str=True)
 
     @root_validator(pre=True)
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
@@ -83,9 +84,7 @@ class AzureIDTokenResponse(TokenResponse):
 class AzureIDTokenHit(TokenHit):
     token_type: Literal[TokenTypes.AZURE_ID] = TokenTypes.AZURE_ID
     additional_info: Optional[AzureIDAdditionalInfo] = None
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     def serialize_for_v2(self) -> dict:
         """Serialize an `AzureIDTokenHit` into a dict

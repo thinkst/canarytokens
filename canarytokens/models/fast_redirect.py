@@ -7,35 +7,32 @@ from .common import (
     TokenResponse,
     TokenTypes,
 )
+from pydantic import ConfigDict
 
 
 class FastRedirectTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
     redirect_url: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.FAST_REDIRECT,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "redirect_url": "https://youtube.com",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.FAST_REDIRECT,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "redirect_url": "https://youtube.com",
+        },
+    })
 
 
 class FastRedirectTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.FAST_REDIRECT] = TokenTypes.FAST_REDIRECT
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.DNS,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "webhook_url": "https://slack.com/api/api.test",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.DNS,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "webhook_url": "https://slack.com/api/api.test",
+        },
+    })
 
 
 class FastRedirectTokenHit(TokenHit):

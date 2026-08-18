@@ -27,7 +27,7 @@ from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
 from pydantic import (
-    AnyHttpUrl,
+    ConfigDict, AnyHttpUrl,
     BaseModel,
     Field,
     field_serializer,
@@ -270,10 +270,7 @@ class Canarydrop(BaseModel):
                 auth=self.auth,
             ),
         )
-
-    class Config:
-        arbitrary_types_allowed = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
 
     @field_serializer("canarytoken")
     def serialize_canarytoken(self, value: tokens.Canarytoken) -> dict[str, str]:

@@ -7,6 +7,7 @@ from .common import (
     TokenResponse,
     TokenTypes,
 )
+from pydantic import ConfigDict
 
 
 class SlowRedirectTokenRequest(TokenRequest):
@@ -14,16 +15,14 @@ class SlowRedirectTokenRequest(TokenRequest):
     # TODO: tighten this up so redirects are validated
     # https://github.com/thinkst/canarytokens/issues/122
     redirect_url: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.SLOW_REDIRECT,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "redirect_url": "https://youtube.com",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.SLOW_REDIRECT,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "redirect_url": "https://youtube.com",
+        },
+    })
 
 
 class SlowRedirectTokenResponse(TokenResponse):
