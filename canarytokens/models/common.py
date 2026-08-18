@@ -18,7 +18,7 @@ from typing import (
 from fastapi import Response
 from fastapi.responses import JSONResponse
 from pydantic import (
-    ConfigDict, AnyHttpUrl,
+    field_validator, model_validator, ConfigDict, AnyHttpUrl,
     BaseModel,
     ConstrainedInt,
     ConstrainedStr,
@@ -28,9 +28,7 @@ from pydantic import (
     IPvAnyAddress,
     ValidationError,
     field_serializer,
-    root_validator,
-    validator,
-)
+    StringConstraints)
 from typing_extensions import Annotated
 
 from canarytokens.constants import (
@@ -201,11 +199,11 @@ class TokenRequest(BaseModel):
             data["token_type"] = TokenTypes(data["token_type"])
         super().__init__(**data)
 
-    @root_validator
-    def check_email_or_webhook_opt(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if not values.get("webhook_url") and not values.get("email"):
+    @model_validator(mode='after')
+    def check_email_or_webhook_opt(self) -> 'TokenRequest':
+        if not self.webhook_url and not self.email:
             raise ValueError("either webhook or email is required")
-        return values
+        return self
 
     def to_dict(self) -> Dict[str, Any]:
         return json_safe_dict(self)
@@ -233,7 +231,8 @@ class TokenResponse(BaseModel):
     error_message: Optional[str] = None
     Url: Union[HttpUrl, Literal[""], None] = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def normalize_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         for old_key, new_key in [("Auth", "auth_token"), ("Url", "token_url")]:
             if old_key in values and values[old_key] is not None:
@@ -294,15 +293,16 @@ class GeoIPInfo(BaseModel):
     readme: Optional[str] = None
     # bogon
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def validator_bogon(cls, values):
         if values and "bogon" in values:
-            raise ValidationError("Bogon implies GeoIPBogonInfo not GeoIPInfo")
+            raise ValueError("Bogon implies GeoIPBogonInfo not GeoIPInfo")
         return values
 
-    @validator("loc", pre=True)
-    def validator_loc(loc: Union[str, list]) -> Tuple[float, float]:  # type: ignore
-        # TODO: fix pydantic vs mypy - it's possible
+    @field_validator("loc", mode="before")
+    @classmethod
+    def validator_loc(cls, loc: Union[str, list]) -> Tuple[float, float]:
         if isinstance(loc, str):
             lon, lat = loc.split(",")
         elif isinstance(loc, list):
@@ -310,7 +310,7 @@ class GeoIPInfo(BaseModel):
         elif isinstance(loc, tuple):
             return loc
         else:
-            raise TypeError(f"loc must be str or list: {type(loc)} was given. {loc}")
+            raise ValueError(f"loc must be str or list: {type(loc)} was given. {loc}")
         return (float(lon), float(lat))
 
     @field_serializer("loc")
@@ -343,8 +343,13 @@ class BrowserInfo(BaseModel):
 class AWSKeyAdditionalInfo(BaseModel):
     aws_key_log_data: dict[str, list[str]]
 
-    @root_validator(pre=True)
-    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_additional_info_names(cls, values: Any) -> Any:
+        if not isinstance(values, dict):
+            # Before validators receive arbitrary input in v2; preserve it
+            # for normal validation.
+            return values
         keys_to_convert = [
             ("AWS Key Log Data", "aws_key_log_data"),
         ]
@@ -361,8 +366,13 @@ class AzureIDAdditionalInfo(BaseModel):
     location: dict[str, list[str]]
     coordinates: dict[str, list[str]]
 
-    @root_validator(pre=True)
-    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_additional_info_names(cls, values: Any) -> Any:
+        if not isinstance(values, dict):
+            # Before validators receive arbitrary input in v2; preserve it
+            # for normal validation.
+            return values
         keys_to_convert = [
             ("Azure ID Log Data", "azure_id_log_data"),
             ("Microsoft Azure", "microsoft_azure"),
@@ -397,8 +407,16 @@ class AdditionalInfo(BaseModel):
     l: Optional[list[str]] = None
     file_path: Optional[list[str]] = None
 
-    @root_validator(pre=True)
-    def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_additional_info_names(cls, values: Any) -> Any:
+        # Legacy MySQL hits use an empty string when no additional info was sent.
+        if values == "":
+            return {}
+        if not isinstance(values, dict):
+            # Before validators receive arbitrary input in v2; preserve it
+            # for normal validation.
+            return values
         keys_to_convert = [
             ("MySQL Client", "mysql_client"),
         ]
@@ -435,7 +453,8 @@ class TokenHit(BaseModel):
     useragent: Optional[str] = None
     alert_status: AlertStatus = AlertStatus.ALERTABLE
 
-    @validator("geo_info", pre=True)
+    @field_validator("geo_info", mode="before")
+    @classmethod
     def adjust_geo_info(cls, value):
         if value == "":
             return None
@@ -560,7 +579,8 @@ class TokenAlertDetails(BaseModel):
     additional_data: Optional[dict[str, Any]] = None
     public_domain: Optional[str] = "my.domain"
 
-    @validator("time", pre=True)
+    @field_validator("time", mode="before")
+    @classmethod
     def validate_time(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%d %H:%M:%S (UTC)")
@@ -590,7 +610,8 @@ class TokenExposedDetails(BaseModel):
     manage_url: AnyHttpUrl
     public_domain: Optional[str] = "my.domain"
 
-    @validator("exposed_time", pre=True)
+    @field_validator("exposed_time", mode="before")
+    @classmethod
     def validate_time(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%d %H:%M:%S (UTC)")

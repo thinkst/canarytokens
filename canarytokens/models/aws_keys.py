@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import ConfigDict, BaseModel, Field, root_validator
+from pydantic import model_validator, ConfigDict, BaseModel, Field
 
 from canarytokens.utils import json_safe_dict, strtobool
 from .common import (
@@ -29,7 +29,8 @@ class AWSKey(TypedDict):
 class AWSKeyAdditionalInfo(BaseModel):
     aws_key_log_data: dict[str, list[str]]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def normalize_additional_info_names(cls, values: dict[str, Any]) -> dict[str, Any]:  # type: ignore
         keys_to_convert = [
             # TODO: make this consistent.
@@ -125,7 +126,8 @@ class AWSKeyTokenHit(TokenHit):
             data["additional_info"] = {"AWS Key Log Data": log_data}
         super().__init__(**data)
 
-    @root_validator(allow_reuse=True)
+    @model_validator(mode="before")
+    @classmethod
     def validate_extras(cls, values):
         dependent_vals = [
             # "src_ip", #V2 stores src_ip as "". It's not None.

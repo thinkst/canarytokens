@@ -19,9 +19,9 @@ from pydantic import (
     HttpUrl,
     SerializeAsAny,
     field_serializer,
+    field_validator,
     model_serializer,
     parse_obj_as,
-    validator,
 )
 
 from canarytokens import constants
@@ -783,7 +783,8 @@ class DiscordEmbeds(BaseModel):
                 )
             )
 
-    @validator("timestamp", pre=True)
+    @field_validator("timestamp", mode="before")
+    @classmethod
     def validate_timestamp(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")

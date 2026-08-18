@@ -46,6 +46,11 @@ def test_geoip_location_serialization():
     assert geo_info.model_dump(mode="json")["loc"] == "1.2000,3.4000"
 
 
+def test_geoip_invalid_location_raises_validation_error():
+    with pytest.raises(ValidationError):
+        GeoIPInfo(ip="1.2.3.4", loc=123)
+
+
 def test_smtp_recipient_serialization():
     mail = SMTPMailField(
         recipients=["recipient@example.com"],

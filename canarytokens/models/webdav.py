@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import field_validator, BaseModel
 from .common import (
     TokenHistory,
     TokenHit,
@@ -22,8 +22,9 @@ class WebDavTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
     webdav_fs_type: str
 
-    @validator("webdav_fs_type")
-    def check_webdav_fs_type(value: str):
+    @field_validator("webdav_fs_type")
+    @classmethod
+    def check_webdav_fs_type(cls, value: str):
         from canarytokens.webdav import FsType
 
         if not value.upper() in FsType.__members__.keys():

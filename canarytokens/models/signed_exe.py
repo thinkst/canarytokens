@@ -1,6 +1,6 @@
 from tempfile import SpooledTemporaryFile
-from typing import Any, List, Literal
-from pydantic import ConfigDict, BaseModel, Field, validator
+from typing import List, Literal
+from pydantic import ConfigDict, BaseModel, Field, field_validator
 from .common import (
     TokenHistory,
     TokenHit,
@@ -33,8 +33,9 @@ class CustomBinaryTokenResponse(TokenResponse):
     file_contents: str
     hostname: str  # Hostname Local testing fails this check on NXDOMAIN TODO: FIXME
 
-    @validator("file_contents", pre=True)
-    def check_file_contents(cls, file_contents: str, values: dict[str, Any]) -> str:
+    @field_validator("file_contents", mode="before")
+    @classmethod
+    def check_file_contents(cls, file_contents: str) -> str:
         if not file_contents.startswith("data:octet/stream;base64"):
             raise ValueError("File contents must be base64 encoded")
         return file_contents
