@@ -1,10 +1,26 @@
 import os
-from typing import Any, Literal, Optional
+from typing import Annotated, Any, Literal, Optional
 
 from canarytokens.utils import strtobool
-from pydantic import BaseSettings, EmailStr, HttpUrl, SecretStr
+from pydantic import BeforeValidator, EmailStr, HttpUrl, SecretStr
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from canarytokens.models import Port
+
+
+def _split_comma(v: Any) -> Any:
+    if isinstance(v, str):
+        return [x for x in v.split(",")]
+    return v
+
+
+def _split_comma_strip(v: Any) -> Any:
+    if isinstance(v, str):
+        return [x.strip() for x in v.split(",") if x.strip()]
+    return v
+
+
+CommaSeparatedList = Annotated[list[str], NoDecode, BeforeValidator(_split_comma)]
 
 
 class SwitchboardSettings(BaseSettings):
@@ -65,20 +81,15 @@ class SwitchboardSettings(BaseSettings):
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
     LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
-
-    class Config:
-        allow_mutation = False
-        env_file = "../switchboard/switchboard.env"
-        env_file_encoding = "utf-8"
-        env_prefix = "CANARY_"
+    model_config = SettingsConfigDict(frozen=True, extra='ignore', env_file="../switchboard/switchboard.env", env_file_encoding="utf-8", env_prefix="CANARY_")
 
 
 class FrontendSettings(BaseSettings):
     API_APP_TITLE: str = "Canarytokens"
     API_VERSION_STR: str = "v1"
     PUBLIC_IP: str
-    DOMAINS: list[str]
-    NXDOMAINS: list[str]
+    DOMAINS: CommaSeparatedList
+    NXDOMAINS: CommaSeparatedList
     SWITCHBOARD_SETTINGS_PATH: str = "../switchboard/switchboard.env"
 
     SENTRY_DSN: Optional[HttpUrl] = None
@@ -157,23 +168,11 @@ class FrontendSettings(BaseSettings):
     GEMINI_PROMPT_TEMPLATE: Optional[str] = None
     GEMINI_SYSTEM_PROMPT: Optional[str] = None
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
-    DEFAULT_GUARDRAIL_TRIGGERS: list[str] = []
+    DEFAULT_GUARDRAIL_TRIGGERS: Annotated[list[str], NoDecode, BeforeValidator(_split_comma_strip)] = []
 
     # for local aws infra testing
     AWS_ACCESS_KEY_ID: Optional[str] = None
     AWS_SECRET_ACCESS_KEY: Optional[str] = None
     AWS_SESSION_TOKEN: Optional[str] = None
 
-    class Config:
-        allow_mutation = False
-        env_file = "../frontend/frontend.env"
-        env_file_encoding = "utf-8"
-        env_prefix = "CANARY_"
-
-        @classmethod
-        def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-            if field_name in ["DOMAINS", "NXDOMAINS", "MCP_SERVER_URLS"]:
-                return [x for x in raw_val.split(",")]
-            if field_name == "DEFAULT_GUARDRAIL_TRIGGERS":
-                return [x.strip() for x in raw_val.split(",") if x.strip()]
-            return cls.json_loads(raw_val)
+    model_config = SettingsConfigDict(frozen=True, extra='ignore', env_file="../frontend/frontend.env", env_file_encoding="utf-8", env_prefix="CANARY_")
