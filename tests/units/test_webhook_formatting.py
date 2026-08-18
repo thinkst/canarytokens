@@ -139,6 +139,19 @@ def test_slack_payload_serialization():
     assert payload["blocks"][5]["type"] == "context"
 
 
+def test_slack_payload_coerces_numeric_additional_data_to_text():
+    details = TokenAlertDetails(
+        time=datetime.now(),
+        memo=Memo("test"),
+        additional_data={"status_code": 200},
+        manage_url="http://example.com",
+    )
+
+    payload = format_details_for_webhook(WebhookType.SLACK, details).json_safe_dict()
+
+    assert payload["blocks"][4]["elements"][0]["elements"][0]["text"] == "200"
+
+
 def test_google_chat_payload_serialization():
     payload = TokenAlertDetailsGoogleChat(
         cardsV2=[

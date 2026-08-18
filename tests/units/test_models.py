@@ -1,5 +1,6 @@
 import inspect
 from datetime import datetime
+from types import SimpleNamespace
 
 import pytest
 from pydantic import HttpUrl, ValidationError, parse_obj_as
@@ -75,6 +76,21 @@ def test_azure_id_additional_info_coerces_numeric_coordinates():
         "latitude": ["-25.73"],
         "longitude": ["28.21"],
     }
+
+
+def test_cloned_site_css_normalizes_cloudfront_url(monkeypatch):
+    monkeypatch.setattr(
+        "canarytokens.canarydrop.random.sample", lambda *args, **kwargs: []
+    )
+    canarydrop = SimpleNamespace(
+        canarytoken=SimpleNamespace(value=lambda: "token"),
+        expected_referrer="https://example.com",
+    )
+    cloudfront_url = HttpUrl("https://example.cloudfront.net")
+
+    css = Canarydrop.get_cloned_site_css(canarydrop, cloudfront_url)
+
+    assert "https://example.cloudfront.net/token/" in css
 
 
 @pytest.mark.parametrize(
@@ -198,15 +214,7 @@ def test_canarydrop_model_on_details():
         "alert_sms_enabled": False,
         "alert_sms_recipient": None,
         "alert_webhook_enabled": True,
-        "alert_webhook_url": HttpUrl(
-            "http://0cdc-165-73-122-152.ngrok.io/alert",
-            scheme="http",
-            host="0cdc-165-73-122-152.ngrok.io",
-            tld="io",
-            host_type="domain",
-            port="80",
-            path="/alert",
-        ),
+        "alert_webhook_url": "http://0cdc-165-73-122-152.ngrok.io/alert",
     }
     Canarydrop(**data)
 

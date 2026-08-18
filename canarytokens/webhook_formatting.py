@@ -18,10 +18,10 @@ from pydantic import (
     Field,
     HttpUrl,
     SerializeAsAny,
+    TypeAdapter,
     field_serializer,
     field_validator,
     model_serializer,
-    parse_obj_as,
 )
 
 from canarytokens import constants
@@ -34,11 +34,8 @@ from canarytokens.models import (
     TokenExposedDetails,
 )
 
-CANARY_LOGO_ROUND_PUBLIC_URL = parse_obj_as(
-    HttpUrl,
-    constants.CANARY_IMAGE_URL,
-)
-WEBHOOK_TEST_URL = parse_obj_as(HttpUrl, "http://example.com/test/url/for/webhook")
+CANARY_LOGO_ROUND_PUBLIC_URL = constants.CANARY_IMAGE_URL
+WEBHOOK_TEST_URL = TypeAdapter(HttpUrl).validate_python("http://example.com/test/url/for/webhook")
 TOKEN_EXPOSED_DESCRIPTION = "One of your {readable_type} Canarytokens has been found on the internet. A publicly exposed token will provide very low quality alerts. We recommend that you disable and replace this token on private infrastructure."
 MAX_INLINE_LENGTH = 40  # Max length of content to share a line with other content
 CANARY_TOKENS_NEST_URL = "https://canarytokens.org/nest/"
@@ -96,7 +93,8 @@ _WEBHOOK_URL_MATCH_CRITERIA = {
 }
 
 
-def get_webhook_type(url: str) -> WebhookType:
+def get_webhook_type(url: str | HttpUrl) -> WebhookType:
+    url = str(url)
     for webhook_type, match_func in _WEBHOOK_URL_MATCH_CRITERIA.items():
         if match_func(url):
             return webhook_type
@@ -352,7 +350,7 @@ def _data_to_slack_blocks(data: dict[str, Union[str, dict]]) -> list[SlackBlock]
         if isinstance(value, dict):
             blocks.append(SlackRichText(text=json.dumps(value)).set_code_block())
         else:
-            blocks.append(SlackRichText(text=value))
+            blocks.append(SlackRichText(text=str(value)))
 
     return blocks
 
@@ -377,7 +375,7 @@ class SlackHeader(SlackBlock):
 
 class SlackRichText(SlackBlock):
     text: str
-    bold = False
+    bold: bool = False
     rich_text_type: Union[
         Literal["rich_text_section"], Literal["rich_text_preformatted"]
     ] = "rich_text_section"

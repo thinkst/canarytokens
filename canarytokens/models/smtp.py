@@ -50,7 +50,7 @@ class SMTPTokenResponse(TokenResponse):
                 domain = "localhost.com"
             else:
                 domain = ".".join(info.data["hostname"].split(".")[-2:])
-            return EmailStr(f"{info.data['token']}@{domain}")
+            return f"{info.data['token']}@{domain}"
         return unique_email
 
 

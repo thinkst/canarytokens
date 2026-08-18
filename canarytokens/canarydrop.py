@@ -495,6 +495,7 @@ class Canarydrop(BaseModel):
             )
 
         cfs = "\x2e\x63\x6c\x6f\x75\x64\x66\x72\x6f\x6e\x74\x2e\x6e\x65\x74"
+        cf_url = str(cf_url).rstrip("/")
         if cfs in cf_url:
             cf_url = cf_url[: -len(cfs)] + _ucc_swap(cfs)
 

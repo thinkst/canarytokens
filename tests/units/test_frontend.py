@@ -664,7 +664,7 @@ def test_aws_keys_broken(
         clear=False,
     ):
         local_settings = FrontendSettings(
-            AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_URL=aws_url,
             AWSID_AUTH="N/A=",  # no auth
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
@@ -685,7 +685,7 @@ def test_aws_keys_broken(
             type=token_request_details.token_type,
             alert_email_enabled=False,
             alert_webhook_enabled=True,
-            alert_webhook_url=token_request_details.webhook_url,
+            alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
             canarytoken=canarytoken,
             memo=token_request_details.memo,
         )
@@ -722,7 +722,7 @@ def test_aws_keys(
         clear=False,
     ):
         local_settings = FrontendSettings(
-            AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_URL=aws_url,
             AWSID_AUTH="N/A=",
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
@@ -743,7 +743,7 @@ def test_aws_keys(
             type=token_request_details.token_type,
             alert_email_enabled=False,
             alert_webhook_enabled=True,
-            alert_webhook_url=token_request_details.webhook_url,
+            alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
             canarytoken=canarytoken,
             memo=token_request_details.memo,
         )
@@ -837,7 +837,7 @@ def test_webdav(
         type=token_request_details.token_type,
         alert_email_enabled=False,
         alert_webhook_enabled=True,
-        alert_webhook_url=token_request_details.webhook_url,
+        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
     )
@@ -883,7 +883,7 @@ def test_webdav_no_cloudflare(
         type=token_request_details.token_type,
         alert_email_enabled=False,
         alert_webhook_enabled=True,
-        alert_webhook_url=token_request_details.webhook_url,
+        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
     )

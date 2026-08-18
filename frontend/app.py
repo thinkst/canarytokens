@@ -48,7 +48,7 @@ from fastapi.responses import (
 from fastapi.security import APIKeyQuery
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import HttpUrl, ValidationError, parse_obj_as
+from pydantic import ValidationError, parse_obj_as
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -664,7 +664,7 @@ async def api_generate(  # noqa: C901  # gen is large
         alert_email_enabled=True if token_request_details.email else False,
         alert_email_recipient=token_request_details.email,
         alert_webhook_enabled=True if token_request_details.webhook_url else False,
-        alert_webhook_url=token_request_details.webhook_url or "",
+        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
         created_from_ip=src_ip,
         created_from_ip_x_forwarded_for=x_forwarded_for,
         canarytoken=canarytoken,
@@ -1962,10 +1962,7 @@ def _create_azure_id_token_response(
             token=canarydrop.canarytoken,
             server=get_all_canary_domains()[0],
             cert_file_name=token_request_details.azure_id_cert_file_name,
-            azure_url=HttpUrl(
-                f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}",
-                scheme=settings.AZURE_ID_TOKEN_URL.scheme,
-            ),
+            azure_url=f"{settings.AZURE_ID_TOKEN_URL}?code={settings.AZURE_ID_TOKEN_AUTH}",
         )
     except Exception as e:
         capture_exception(error=e, context=("get_azure_id", None))
@@ -2476,13 +2473,10 @@ def _(token_request_details: MySQLTokenRequest, canarydrop: Canarydrop):
             canarydrop.alert_webhook_url if canarydrop.alert_webhook_url else ""
         ),
         token=canarydrop.canarytoken.value(),
-        token_url=HttpUrl(
-            canarydrop.get_url(
-                [
-                    f"{switchboard_settings.SWITCHBOARD_SCHEME}://{frontend_settings.DOMAINS[0]}"
-                ]
-            ),
-            scheme=switchboard_settings.SWITCHBOARD_SCHEME,
+        token_url=canarydrop.get_url(
+            [
+                f"{switchboard_settings.SWITCHBOARD_SCHEME}://{frontend_settings.DOMAINS[0]}"
+            ]
         ),
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),

@@ -194,7 +194,9 @@ def mailgun_send(
     email_response = EmailResponseStatuses.ERROR
     message_id = ""
     try:
-        url = "{}/v3/{}/messages".format(base_url, mailgun_domain)
+        url = "{}/v3/{}/messages".format(
+            str(base_url).rstrip("/"), mailgun_domain
+        )
         auth = ("api", api_key.get_secret_value().strip())
         data = {
             "from": f"{from_display} <{from_email}>",
@@ -278,7 +280,7 @@ def send_email(
             email_subject=email_subject,
             email_content_html=email_content_html,
             email_content_text=email_content_text,
-            from_email=EmailStr(from_email),
+            from_email=from_email,
             from_display=from_display,
             api_key=switchboard_settings.MAILGUN_API_KEY,
             base_url=switchboard_settings.MAILGUN_BASE_URL,
@@ -289,7 +291,7 @@ def send_email(
             api_key=switchboard_settings.SENDGRID_API_KEY,
             email_address=email_recipient,
             email_content_html=email_content_html,
-            from_email=EmailStr(from_email),
+            from_email=from_email,
             email_subject=email_subject,
             from_display=from_display,
             sandbox_mode=False,
@@ -300,7 +302,7 @@ def send_email(
             email_content_html=email_content_html,
             email_content_text=email_content_text,
             email_subject=email_subject,
-            from_email=EmailStr(from_email),
+            from_email=from_email,
             from_display=from_display,
             smtp_password=switchboard_settings.SMTP_PASSWORD,
             smtp_username=switchboard_settings.SMTP_USERNAME,
@@ -571,7 +573,7 @@ class EmailOutputChannel(OutputChannel):
             email_subject=email_subject,
             email_content_html=email_content_html,
             email_content_text=email_content_text,
-            from_email=EmailStr(self.from_email),
+            from_email=self.from_email,
             from_display=self.from_display,
         )
 

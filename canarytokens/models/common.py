@@ -20,8 +20,6 @@ from fastapi.responses import JSONResponse
 from pydantic import (
     field_validator, model_validator, ConfigDict, AnyHttpUrl,
     BaseModel,
-    ConstrainedInt,
-    ConstrainedStr,
     EmailStr,
     Field,
     HttpUrl,
@@ -65,26 +63,19 @@ def response_error(error, message, status_code=400):
     )
 
 
-class Memo(ConstrainedStr):
-    max_length: int = MEMO_MAX_CHARACTERS
+Memo = Annotated[str, StringConstraints(max_length=MEMO_MAX_CHARACTERS)]
 
+Port = Annotated[int, Field(ge=0, lt=65535)]
 
-class Port(ConstrainedInt):
-    ge: int = 0
-    lt: int = 65535
+Hostname = Annotated[str, StringConstraints(
+    max_length=253,
+    pattern=r"(?i)^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
+)]
 
-
-class Hostname(ConstrainedStr):
-    max_length: int = 253
-    regex = re.compile(
-        r"^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
-        re.IGNORECASE,
-    )
-
-
-class Canarytoken(ConstrainedStr):
-    max_length: int = CANARYTOKEN_LENGTH
-    regex = CANARYTOKEN_RE
+Canarytoken = Annotated[str, StringConstraints(
+    max_length=CANARYTOKEN_LENGTH,
+    pattern=f"(?i)[{CANARYTOKEN_ALPHABET}]{{{CANARYTOKEN_LENGTH}}}",
+)]
 
 
 class TokenTypes(StrEnum):
@@ -588,9 +579,7 @@ class TokenAlertDetails(BaseModel):
 
     @property
     def history_url(self):
-        return HttpUrl(
-            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
-        )
+        return HttpUrl(str(self.manage_url).replace("manage", "history"))
 
     @field_serializer("time")
     def serialize_time(self, value: datetime) -> str:
@@ -622,9 +611,7 @@ class TokenExposedDetails(BaseModel):
 
     @property
     def history_url(self):
-        return HttpUrl(
-            self.manage_url.replace("manage", "history"), scheme=self.manage_url.scheme
-        )
+        return HttpUrl(str(self.manage_url).replace("manage", "history"))
 
     @property
     def time_hm(self) -> str:
@@ -639,10 +626,7 @@ class TokenExposedDetails(BaseModel):
         return self.exposed_time.strftime("%Y/%m/%d")
 
 
-class UserName(ConstrainedStr):
-    max_lengthint: int = 30
-    strip_whitespace: bool = True
-    to_lower: bool = False
+UserName = Annotated[str, StringConstraints(max_length=30, strip_whitespace=True)]
 
 
 class User(BaseModel):

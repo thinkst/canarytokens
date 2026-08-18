@@ -48,7 +48,7 @@ class SwitchboardSettings(BaseSettings):
     USING_NGINX: bool = True
     TEMPLATES_PATH: str = "../templates"
 
-    ALERT_EMAIL_FROM_ADDRESS: EmailStr = EmailStr("your-email@example.com")
+    ALERT_EMAIL_FROM_ADDRESS: EmailStr = "your-email@example.com"
     ALERT_EMAIL_FROM_DISPLAY: str = "Canarytokens-Test"
     ALERT_EMAIL_SUBJECT: str = "Canarytokens Alert"
     MAX_HISTORY: int = 50
@@ -59,9 +59,7 @@ class SwitchboardSettings(BaseSettings):
     IPINFO_API_KEY: Optional[SecretStr] = None
     # Mailgun Required Settings
     MAILGUN_API_KEY: Optional[SecretStr] = None
-    MAILGUN_BASE_URL: Optional[HttpUrl] = HttpUrl(
-        "https://api.mailgun.net", scheme="https"
-    )
+    MAILGUN_BASE_URL: Optional[HttpUrl] = "https://api.mailgun.net"
     MAILGUN_DOMAIN_NAME: Optional[str] = None
     # Sendgrid Required Settings
     SENDGRID_API_KEY: Optional[SecretStr] = None
