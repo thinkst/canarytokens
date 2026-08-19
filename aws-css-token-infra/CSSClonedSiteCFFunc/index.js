@@ -46,8 +46,8 @@ function decodedGoogleTranslateHostname(proxyUrl) {
 
   // 3. Prepend value of _x_tr_hp parameter to the domain prefix, if it exists
   const hostPrefixMatch = proxyUrl.match(/(?:[?&])_x_tr_hp(?:=([^&]*))?(?=&|$)/);
-  const hostPrefix = hostPrefixMatch ? hostPrefixMatch[1] || '' : '';
-  domainPrefix = hostPrefix + domainPrefix;
+  const hostPrefix = hostPrefixMatch ? (hostPrefixMatch[1] || '') : '';
+  domainPrefix = decodeURIComponent(hostPrefix) + domainPrefix;
 
   // 4. Remove '1-' prefix from the output of step 2 if encodingList contains
   //    '1' and the output begins with '1-'.
