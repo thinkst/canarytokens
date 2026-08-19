@@ -35,21 +35,19 @@ function getHostname(url) {
 }
 
 function decodedGoogleTranslateHostname(proxyUrl) {
-    // from https://developers.google.com/search/docs/appearance/ad-network-and-translation#sample-javascript-code-for-decoding-the-hostname-from-a-google-translate-url
-  const parsedProxyUrl = new URL(proxyUrl);
-  const fullHost = parsedProxyUrl.hostname;
+    // mostly from https://developers.google.com/search/docs/appearance/ad-network-and-translation#sample-javascript-code-for-decoding-the-hostname-from-a-google-translate-url
+  const fullHost = getHostname(proxyUrl);
   // 1. Extract the domain prefix from the hostname, by removing the".translate.goog" suffix
   let domainPrefix = fullHost.substring(0, fullHost.indexOf('.'));
 
   // 2. Split _x_tr_enc parameter by "," (comma), save as encodingList
-  const encodingList = parsedProxyUrl.searchParams.has('_x_tr_enc') ?
-      parsedProxyUrl.searchParams.get('_x_tr_enc').split(',') :
-      [];
+  const encodingMatch = proxyUrl.match(/(?:[?&])_x_tr_enc(?:=([^&]*))?(?=&|$)/);
+  const encodingList = encodingMatch ? (encodingMatch[1] || '').split(',') : [];
 
   // 3. Prepend value of _x_tr_hp parameter to the domain prefix, if it exists
-  if (parsedProxyUrl.searchParams.has('_x_tr_hp')) {
-    domainPrefix = parsedProxyUrl.searchParams.get('_x_tr_hp') + domainPrefix;
-  }
+  const hostPrefixMatch = proxyUrl.match(/(?:[?&])_x_tr_hp(?:=([^&]*))?(?=&|$)/);
+  const hostPrefix = hostPrefixMatch ? hostPrefixMatch[1] || '' : '';
+  domainPrefix = hostPrefix + domainPrefix;
 
   // 4. Remove '1-' prefix from the output of step 2 if encodingList contains
   //    '1' and the output begins with '1-'.
