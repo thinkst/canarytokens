@@ -179,7 +179,7 @@ async function handler(event) {
     const normalisedExpectedReferer = getHostname(expected_referrer);
     if (normalisedReferer.endsWith('.translate.goog')) {
         const decodedReferer = getHostname(decodedGoogleTranslateHostname(referer));
-        if (decodedReferer && (decodedReferer == normalisedExpectedReferer || decodedReferer.endsWith('.' + normalisedExpectedReferer)))
+        if (decodedReferer && (decodedReferer === normalisedExpectedReferer || decodedReferer.endsWith('.' + normalisedExpectedReferer)))
             return matching_ref_response;
     }
 
