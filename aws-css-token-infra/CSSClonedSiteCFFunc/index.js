@@ -23,6 +23,59 @@ const matching_ref_response = {
     + "\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"
 };
 
+function getHostname(url) {
+    // The URL library is not available in CloudFront Functions, so we have to do this manually
+    const schemeIndex = url.indexOf("//");
+    let authority = schemeIndex >= 0 ? url.substring(schemeIndex + 2) : url;
+    authority = authority.split("/")[0].split("?")[0];
+    const portIndex = authority.indexOf(":");
+    if (portIndex >= 0)
+        authority = authority.substring(0, portIndex);
+    return authority.toLowerCase().replace(/\.+$/, "");
+}
+
+function decodedGoogleTranslateHostname(proxyUrl) {
+    // mostly from https://developers.google.com/search/docs/appearance/ad-network-and-translation#sample-javascript-code-for-decoding-the-hostname-from-a-google-translate-url
+  const fullHost = getHostname(proxyUrl);
+  // 1. Extract the domain prefix from the hostname, by removing the".translate.goog" suffix
+  let domainPrefix = fullHost.substring(0, fullHost.indexOf('.'));
+
+  // 2. Split _x_tr_enc parameter by "," (comma), save as encodingList
+  const encodingMatch = proxyUrl.match(/(?:[?&])_x_tr_enc(?:=([^&]*))?(?=&|$)/);
+  const encodingList = encodingMatch ? (encodingMatch[1] || '').split(',') : [];
+
+  // 3. Prepend value of _x_tr_hp parameter to the domain prefix, if it exists
+  const hostPrefixMatch = proxyUrl.match(/(?:[?&])_x_tr_hp(?:=([^&]*))?(?=&|$)/);
+  const hostPrefix = hostPrefixMatch ? (hostPrefixMatch[1] || '') : '';
+  domainPrefix = decodeURIComponent(hostPrefix) + domainPrefix;
+
+  // 4. Remove '1-' prefix from the output of step 2 if encodingList contains
+  //    '1' and the output begins with '1-'.
+  if (encodingList.includes('1') && domainPrefix.startsWith('1-')) {
+    domainPrefix = domainPrefix.substring(2);
+  }
+
+  // 5. Remove '0-' prefix from the output of step 3 if encodingList contains
+  //    '0' and the output begins with '0-'.
+  //    Set isIdn to true if removed, false otherwise.
+  let isIdn = false;
+  if (encodingList.includes('0') && domainPrefix.startsWith('0-')) {
+    isIdn = true;
+    domainPrefix = domainPrefix.substring(2);
+  }
+
+  // 6. Replace /\b-\b/ (regex) with '.' (dot) character.
+  // 7. Replace '--' (double hyphen) with '-' (hyphen).
+  let decodedSegment =
+      domainPrefix.replaceAll(/\b-\b/g, '.').replaceAll('--', '-');
+
+  // 8. If isIdn equals true, add the punycode prefix 'xn--'.
+  if (isIdn) {
+    decodedSegment = 'xn--' + decodedSegment;
+  }
+  return decodedSegment;
+}
+
 async function handler(event) {
     const decoder = new TextDecoder();
     const uri = event.request.uri.split('/');
@@ -119,6 +172,15 @@ async function handler(event) {
             if (referer_origin.endsWith(exclusions[i]))
                 return matching_ref_response;
         }
+    }
+
+    // Ignore hits from Google Translate, which will rewrite the referer to a translate.goog domain
+    const normalisedReferer = getHostname(referer);
+    const normalisedExpectedReferer = getHostname(expected_referrer);
+    if (normalisedReferer.endsWith('.translate.goog')) {
+        const decodedReferer = getHostname(decodedGoogleTranslateHostname(referer));
+        if (decodedReferer && (decodedReferer === normalisedExpectedReferer || decodedReferer.endsWith('.' + normalisedExpectedReferer)))
+            return matching_ref_response;
     }
 
     // Default case of redirecting to the tokens server

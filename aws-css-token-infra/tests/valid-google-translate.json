@@ -1,0 +1,20 @@
+{
+    "version": "1.0",
+    "context": {
+      "eventType": "viewer-request"
+    },
+    "viewer": {
+      "ip": "1.2.3.4"
+    },
+    "request": {
+      "method": "GET",
+      "uri": "/TESTING/ZXhhbXBsZS5jb20/img.gif",
+      "headers": {
+        "referer": {
+          "value": "https://example-com.translate.goog"
+        }
+      },
+      "cookies": {},
+      "querystring": {}
+    }
+}

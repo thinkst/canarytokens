@@ -1,0 +1,20 @@
+{
+    "version": "1.0",
+    "context": {
+      "eventType": "viewer-request"
+    },
+    "viewer": {
+      "ip": "1.2.3.4"
+    },
+    "request": {
+      "method": "GET",
+      "uri": "/TESTING/eG4tLWc1aDM5NjludGFkZzQ0anVoeWFoM2M5YXphODdpaWFyNGk0MTBhdmRsOGQzZjFmdXEzbnowNWRnNWIuY29t/img.gif",
+      "headers": {
+        "referer": {
+          "value": "https://g5h3969ntadg44juhyah3c9aza87iiar4i410avdl8d3f1fuq3nz05dg5b-com.translate.goog/?_x_tr_enc=0&_x_tr_hp=0-"
+        }
+      },
+      "cookies": {},
+      "querystring": {}
+    }
+}
