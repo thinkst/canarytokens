@@ -11,7 +11,7 @@
       "uri": "/TESTING/ZXhhbXBsZS5jb20/img.gif",
       "headers": {
         "referer": {
-          "value": "https://example-com.translate.goog"
+          "value": "https://bad--example-com.translate.goog"
         }
       },
       "cookies": {},
