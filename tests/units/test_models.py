@@ -31,6 +31,7 @@ from canarytokens.models import (
     SMTPMailField,
     SMTPTokenHistory,
     SMTPTokenHit,
+    SMTPTokenResponse,
     TokenRequest,
     TokenTypes,
     WebBugTokenHistory,
@@ -76,6 +77,17 @@ def test_azure_id_additional_info_coerces_numeric_coordinates():
         "latitude": ["-25.73"],
         "longitude": ["28.21"],
     }
+
+
+def test_smtp_token_response_generates_unique_email_when_omitted():
+    response = SMTPTokenResponse(
+        token="uz6re9ha3t7k7jkhqy26mam8l",
+        hostname="tokens.example.com",
+        token_url="",
+        auth_token="auth",
+    )
+
+    assert response.unique_email == "uz6re9ha3t7k7jkhqy26mam8l@example.com"
 
 
 def test_cloned_site_css_normalizes_cloudfront_url(monkeypatch):

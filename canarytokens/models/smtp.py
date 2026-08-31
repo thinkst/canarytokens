@@ -1,7 +1,7 @@
 from ipaddress import IPv4Address
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, EmailStr, field_serializer, field_validator, ValidationInfo
+from pydantic import BaseModel, EmailStr, Field, field_serializer, field_validator, ValidationInfo
 from .common import (
     TokenHistory,
     TokenHit,
@@ -35,7 +35,7 @@ class SMTPTokenRequest(TokenRequest):
 
 class SMTPTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-    unique_email: Optional[EmailStr] = None
+    unique_email: Optional[EmailStr] = Field(default=None, validate_default=True)
 
     # FIXME: validate all
     @field_validator("unique_email", mode="before")
