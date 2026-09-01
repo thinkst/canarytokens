@@ -24,12 +24,14 @@ _RETRY_COUNT = 2
 
 
 class Lambda(StrEnum):
+    EXPIRY_REMINDER_SERVICE = "ExpiryReminderService"
     PAYMENTS_DEMO = "CreditCardPaymentsDemoBackend"
 
 
 class _Api(StrEnum):
     CARD_CREATE = "/card/create"
     CUSTOMER_DETAILS = "/customer/details"
+    EXPIRY_LIST = "/expiry/list"
 
 
 class Status(StrEnum):
@@ -202,6 +204,52 @@ def get_customer_details() -> Tuple[Status, Optional[Customer]]:
         return (Status.SUCCESS, Customer(**response_payload["body"]["customer"]))
 
     return (status, None)
+
+
+def _get_expiring_cards(
+    expiry: int,
+    limit: int = 1000,
+    next_token: Optional[dict] = None,
+) -> Tuple[Status, Optional[dict]]:
+    if not frontend_settings.CREDIT_CARD_TOKEN_ENABLED:
+        return (Status.ERROR, None)
+
+    payload = {
+        "api": _Api.EXPIRY_LIST.value,
+        "guid": frontend_settings.CREDIT_CARD_INFRA_CUSTOMER_GUID,
+        "secret": frontend_settings.CREDIT_CARD_INFRA_CUSTOMER_SECRET,
+        "expiry": expiry,
+        "limit": limit,
+    }
+    if next_token:
+        payload["next_token"] = next_token
+
+    response = _invoke_lambda(Lambda.EXPIRY_REMINDER_SERVICE.value, payload)
+    response_payload = json.loads(response["Payload"].read())
+    status = Status(response_payload.get("status"))
+
+    if status == Status.SUCCESS:
+        return (Status.SUCCESS, response_payload["body"])
+
+    return (status, None)
+
+
+def get_expiring_cards(expiry: int) -> Tuple[Status, Optional[list[dict]]]:
+    cards = []
+    next_token = None
+
+    while True:
+        status, response = _get_expiring_cards(
+            expiry=expiry,
+            next_token=next_token,
+        )
+        if status != Status.SUCCESS or response is None:
+            return (status, None)
+
+        cards.extend(response["cards"])
+        next_token = response.get("next_token")
+        if not next_token:
+            return (Status.SUCCESS, cards)
 
 
 def trigger_demo_alert(card_id: str, card_number: str) -> Status:
