@@ -1,0 +1,27 @@
+<mjml>
+  <mj-head>
+    <mj-title>Your Credit Card Canarytokens Expire This Month</mj-title>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="20px" font-weight="bold">
+          Your Credit Card Canarytokens Expire This Month
+        </mj-text>
+        <mj-text>
+          The following credit card Canarytokens expire this month:
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-raw>{% for card in cards %}</mj-raw>
+    <mj-section>
+      <mj-column>
+        <mj-text>
+          <strong>Memo:</strong> {{ card.memo | e }}<br />
+          <strong>Token ID:</strong> {{ card.canarytoken }}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-raw>{% endfor %}</mj-raw>
+  </mj-body>
+</mjml>

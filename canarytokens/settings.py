@@ -73,6 +73,7 @@ class SwitchboardSettings(BaseSettings):
     SENTRY_DSN: Optional[HttpUrl] = None
     SENTRY_ENVIRONMENT: Literal["prod", "staging", "dev", "ci", "local"] = "local"
     SENTRY_ENABLE: bool = True
+    TICKET_URL: Optional[HttpUrl] = None
 
     SWITCHBOARD_LOG_SIZE: Optional[int] = 500000000
     SWITCHBOARD_LOG_COUNT: Optional[int] = 20

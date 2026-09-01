@@ -1,0 +1,10 @@
+Your Credit Card Canarytokens Expire This Month
+------------------------------------------------
+
+The following credit card Canarytokens expire this month:
+
+{% for card in cards %}
+Memo: {{ card.memo }}
+Token ID: {{ card.canarytoken }}
+
+{% endfor %}
