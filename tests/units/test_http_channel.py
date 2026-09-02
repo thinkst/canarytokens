@@ -512,7 +512,7 @@ def test_GET_aws_token_back(
 
 
 @pytest.mark.parametrize(
-    "trigger_type,webhook_data_extra",
+    "trigger_type,webhook_data_extra,amount",
     [
         (
             "issuing.transaction.failed",
@@ -521,10 +521,40 @@ def test_GET_aws_token_back(
                 "transaction_type": "PURCHASE",
                 "status": "DECLINED",
             },
+            "6.39",
+        ),
+        (
+            "issuing.transaction.failed",
+            {
+                "transaction_date": "2025-02-03T00:42:00Z",
+                "transaction_type": "PURCHASE",
+                "status": "DECLINED",
+            },
+            -444.57,
+        ),
+        (
+            "issuing.transaction.failed",
+            {
+                "transaction_date": "2025-02-03T00:42:00Z",
+                "transaction_type": "PURCHASE",
+                "status": "DECLINED",
+            },
+            0,
         ),
         (
             "issuing.3ds_notification.stepup_otp",
             {},
+            "6.39",
+        ),
+        (
+            "issuing.3ds_notification.stepup_otp",
+            {},
+            -444.57,
+        ),
+        (
+            "issuing.3ds_notification.stepup_otp",
+            {},
+            0,
         ),
     ],
 )
@@ -534,6 +564,7 @@ def test_POST_cc_token_v2_back(
     setup_db: None,
     trigger_type: str,
     webhook_data_extra: dict,
+    amount: str | float | int,
     http_channel: ChannelHTTP,
 ):
     """
@@ -566,7 +597,6 @@ def test_POST_cc_token_v2_back(
     merchant_city = "New York"
     merchant_country = "US"
     masked_card = "**** **** **** 1234"
-    amount = "6.39"
     currency = "USD"
 
     webhook_data = {
@@ -605,7 +635,7 @@ def test_POST_cc_token_v2_back(
     assert hit_info.merchant_identifier == merchant_identifier
     assert hit_info.acquirer_identifier == acquirer_identifier
     assert hit_info.masked_card_number == masked_card
-    assert hit_info.transaction_amount == amount
+    assert hit_info.transaction_amount == str(amount)
     assert hit_info.transaction_currency == currency
     assert hit_info.merchant == f"{merchant_name}, {merchant_city}, {merchant_country}"
 
