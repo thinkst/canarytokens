@@ -442,7 +442,7 @@ def add_additional_info_to_hit(canarytoken, hit_time, additional_info):
             models.LegacyTokenHit,
         ),
     ):
-        info = enriched_hit.additional_info.dict(exclude_unset=True, exclude_none=None)
+        info = enriched_hit.additional_info.dict(exclude_unset=True, exclude_none=False)
         combined_info = info | additional_info
         enriched_hit.additional_info = models.AdditionalInfo(**combined_info)
     else:
@@ -635,7 +635,7 @@ def get_all_mails_in_send_status(
     for key in DB.get_db().scan_iter(f"{KEY_MAIL_TO_SEND}:{token}:*"):
         item = DB.get_db().get(key)
         data = json.loads(item)
-        recipient = EmailStr(data.pop("recipient"))
+        recipient = data.pop("recipient")
         mails_and_details.append((recipient, models.TokenAlertDetails(**data)))
     return mails_and_details
 
@@ -652,7 +652,7 @@ def remove_mail_from_to_send_status(
         return None, None
 
     data = json.loads(item)
-    recipient = EmailStr(data.pop("recipient"))
+    recipient = data.pop("recipient")
     details = (
         models.TokenExposedDetails(**data)
         if "public_location" in data

@@ -1,7 +1,6 @@
-from io import BytesIO
 from tempfile import SpooledTemporaryFile
-from typing import Any, List, Literal
-from pydantic import BaseModel, validator
+from typing import List, Literal
+from pydantic import ConfigDict, BaseModel, Field, field_validator
 from .common import (
     TokenHistory,
     TokenHit,
@@ -14,27 +13,36 @@ from .common import (
 class UploadedExe(BaseModel):
     content_type: Literal["application/x-msdownload", "application/octet-stream"]
     filename: str
-    file: SpooledTemporaryFile
-
-    class Config:
-        arbitrary_types_allowed = True
-        orm_mode = True
+    file: SpooledTemporaryFile = Field(exclude=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
     @classmethod
-    def __modify_schema__(cls, field_schema, field):
-        field_schema["title"] = "File"
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        # Pydantic cannot generate JSON schema for SpooledTemporaryFile.
+        return {
+            "title": "File",
+            "type": "object",
+            "properties": {
+                "content_type": {
+                    "enum": ["application/x-msdownload", "application/octet-stream"],
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "file": {
+                    "type": "string",
+                    "format": "binary"
+                }
+            },
+            "required": ["content_type", "filename", "file"]
+        }
 
 
 class CustomBinaryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.SIGNED_EXE] = TokenTypes.SIGNED_EXE
     signed_exe: UploadedExe
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {
-            SpooledTemporaryFile: lambda v: v.__dict__,
-            BytesIO: lambda v: v.__dict__,
-        }
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class CustomBinaryTokenResponse(TokenResponse):
@@ -43,8 +51,9 @@ class CustomBinaryTokenResponse(TokenResponse):
     file_contents: str
     hostname: str  # Hostname Local testing fails this check on NXDOMAIN TODO: FIXME
 
-    @validator("file_contents", pre=True)
-    def check_file_contents(cls, file_contents: str, values: dict[str, Any]) -> str:
+    @field_validator("file_contents", mode="before")
+    @classmethod
+    def check_file_contents(cls, file_contents: str) -> str:
         if not file_contents.startswith("data:octet/stream;base64"):
             raise ValueError("File contents must be base64 encoded")
         return file_contents

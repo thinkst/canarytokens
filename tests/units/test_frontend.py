@@ -2,6 +2,7 @@ import inspect
 import json
 import os
 import re
+from datetime import datetime
 from unittest import mock
 
 import pytest
@@ -79,11 +80,43 @@ from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_token_request
-from frontend.app import ROOT_API_ENDPOINT, api
+from frontend.app import ROOT_API_ENDPOINT, api, api_history, api_manage_canarytoken
 
 
 def api_path(path: str) -> str:
     return f"{ROOT_API_ENDPOINT}{path}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "endpoint",
+    [
+        pytest.param(api_manage_canarytoken, id="manage"),
+        pytest.param(api_history, id="history"),
+    ],
+)
+async def test_manage_and_history_preserve_canarydrop_serialization(
+    monkeypatch, endpoint
+):
+    token = Canarytoken("uz6re9ha3t7k7jkhqy26mam8l")
+    drop = canarydrop.Canarydrop(
+        canarytoken=token,
+        type=TokenTypes.DNS,
+        memo="API serialization contract",
+        timestamp=datetime(2022, 4, 21, 6, 10, 13),
+    )
+    monkeypatch.setattr(
+        "frontend.app.get_canarydrop_and_authenticate", lambda **kwargs: drop
+    )
+    monkeypatch.setattr(queries, "get_canary_google_api_key", lambda: None)
+
+    response = await endpoint(token.value(), drop.auth)
+    serialized = response.model_dump(mode="json")["canarydrop"]
+
+    assert (
+        serialized["created_at"],
+        serialized.get("alert_sms_recipient", "missing"),
+    ) == ("2022-04-21T06:10:13", None)
 
 
 def test_read_docs(test_client: TestClient) -> None:
@@ -664,7 +697,7 @@ def test_aws_keys_broken(
         clear=False,
     ):
         local_settings = FrontendSettings(
-            AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_URL=aws_url,
             AWSID_AUTH="N/A=",  # no auth
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
@@ -685,7 +718,7 @@ def test_aws_keys_broken(
             type=token_request_details.token_type,
             alert_email_enabled=False,
             alert_webhook_enabled=True,
-            alert_webhook_url=token_request_details.webhook_url,
+            alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
             canarytoken=canarytoken,
             memo=token_request_details.memo,
         )
@@ -722,7 +755,7 @@ def test_aws_keys(
         clear=False,
     ):
         local_settings = FrontendSettings(
-            AWSID_URL=HttpUrl(aws_url, scheme=aws_url[: aws_url.index("://")]),
+            AWSID_URL=aws_url,
             AWSID_AUTH="N/A=",
             TESTING_AWS_ACCESS_KEY_ID="",
             **{
@@ -743,7 +776,7 @@ def test_aws_keys(
             type=token_request_details.token_type,
             alert_email_enabled=False,
             alert_webhook_enabled=True,
-            alert_webhook_url=token_request_details.webhook_url,
+            alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
             canarytoken=canarytoken,
             memo=token_request_details.memo,
         )
@@ -837,7 +870,7 @@ def test_webdav(
         type=token_request_details.token_type,
         alert_email_enabled=False,
         alert_webhook_enabled=True,
-        alert_webhook_url=token_request_details.webhook_url,
+        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
     )
@@ -883,7 +916,7 @@ def test_webdav_no_cloudflare(
         type=token_request_details.token_type,
         alert_email_enabled=False,
         alert_webhook_enabled=True,
-        alert_webhook_url=token_request_details.webhook_url,
+        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
     )
@@ -1003,8 +1036,18 @@ def test_generate_token_ip_headers(
     )
     assert manage_resp.status_code == 200
     canarydrop = manage_resp.json()["canarydrop"]
+    assert canarydrop["canarytoken"] == {"_value": token_resp.token}
     for key, value in expected_headers.items():
         assert canarydrop[key] == value
+
+    history_resp = test_client.get(
+        api_path("/history"),
+        params=HistoryPageRequest(
+            token=token_resp.token,
+            auth=token_resp.auth_token,
+        ).dict(),
+    )
+    assert history_resp.status_code == 200
 
 
 @pytest.mark.parametrize(

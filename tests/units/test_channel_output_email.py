@@ -239,7 +239,7 @@ def test_sendgrid_send(
             details,
             Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_HTML}"),
         ),
-        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_address="tokens-testing@thinkst.com",
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -265,10 +265,10 @@ def test_sendgrid_send_http_error(mock_sendgrid_client):
 
     result, message_id = sendgrid_send(
         api_key=SecretStr("test-sendgrid-api-key"),
-        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_address="tokens-testing@thinkst.com",
         email_content_html="test email content",
-        from_email=EmailStr("sender@example.com"),
-        from_display=EmailStr("sender@example.com"),
+        from_email="sender@example.com",
+        from_display="sender@example.com",
         email_subject="Test email",
     )
 
@@ -316,18 +316,19 @@ def test_mailgun_send(
     mock_post.return_value = response
 
     result, message_id = mailgun_send(
-        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_address="tokens-testing@thinkst.com",
         email_content_html="test email content",
         email_content_text="test email content",
         email_subject="Test email",
-        from_email=EmailStr("sender@example.com"),
+        from_email="sender@example.com",
         from_display="Sender",
         api_key=SecretStr("test-mailgun-api-key"),
-        base_url=HttpUrl("https://api.mailgun.test", scheme="https"),
+        base_url=HttpUrl("https://api.mailgun.test"),
         mailgun_domain="mailgun.test",
     )
     assert result is expected_result_type
     assert message_id == expected_message_id
+    assert mock_post.call_args.args[0] == "https://api.mailgun.test/v3/mailgun.test/messages"
 
 
 # TODO: Write more comprehensive tests for SMTP. The difficulty here is that we don't have a consistent API to use
@@ -346,7 +347,7 @@ def test_smtp_send(
         email_content_text=EmailOutputChannel.format_token_alert_mail(
             details, Path(settings.TEMPLATES_PATH, f"{EmailTemplates.NOTIFICATION_TXT}")
         ),
-        email_address=EmailStr("tokens-testing@thinkst.com"),
+        email_address="tokens-testing@thinkst.com",
         from_email=settings.ALERT_EMAIL_FROM_ADDRESS,
         email_subject=settings.ALERT_EMAIL_SUBJECT,
         from_display=settings.ALERT_EMAIL_FROM_DISPLAY,
@@ -380,7 +381,7 @@ def _do_send_alert(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,
         alert_email_enabled=True,
-        alert_email_recipient=EmailStr(email),
+        alert_email_recipient=email,
         memo=Memo("Test email thanks for checking!"),
         triggered_details=DNSTokenHistory(
             hits=[
@@ -542,7 +543,7 @@ def test_do_send_alert_retries(
         switchboard_settings=settings,
         switchboard=Switchboard(),
     )
-    recipient = EmailStr("tokens-testing@thinkst.com")
+    recipient = "tokens-testing@thinkst.com"
     canarydrop = Canarydrop(
         canarytoken=Canarytoken(),
         type=TokenTypes.DNS,

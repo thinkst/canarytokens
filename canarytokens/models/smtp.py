@@ -1,7 +1,7 @@
 from ipaddress import IPv4Address
-from typing import Any, List, Literal, Optional
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, Field, field_serializer, field_validator, ValidationInfo
 from .common import (
     TokenHistory,
     TokenHit,
@@ -15,11 +15,6 @@ class SMTPHeloField(BaseModel):
     client_name: str
     client_ip: IPv4Address
 
-    class Config:
-        json_encoders = {
-            IPv4Address: lambda v: str(v),
-        }
-
 
 class SMTPMailField(BaseModel):
     sender: Optional[str] = None
@@ -29,29 +24,9 @@ class SMTPMailField(BaseModel):
     helo: SMTPHeloField
     attachments: list[str]
 
-    def dict(
-        self,
-        *,
-        include: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        exclude: 'Union["AbstractSetIntStr", "MappingIntStrAny"]' = None,  # noqa F821
-        by_alias: bool = False,
-        skip_defaults: bool = None,
-        exclude_unset: bool = False,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> "DictStrAny":  # noqa F821
-        data = super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-        # V2 Compatible serialization
-        data["recipients"] = [f"<{o}>" for o in data["recipients"]]
-        return data
+    @field_serializer("recipients")
+    def serialize_recipients(self, recipients: list[str]) -> list[str]:
+        return [f"<{recipient}>" for recipient in recipients]
 
 
 class SMTPTokenRequest(TokenRequest):
@@ -60,21 +35,22 @@ class SMTPTokenRequest(TokenRequest):
 
 class SMTPTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
-    unique_email: Optional[EmailStr] = None
+    unique_email: Optional[EmailStr] = Field(default=None, validate_default=True)
 
     # FIXME: validate all
-    @validator("unique_email", pre=True)
+    @field_validator("unique_email", mode="before")
+    @classmethod
     def set_unique_email(
-        cls, unique_email: Optional[EmailStr], values: dict[str, Any]
+        cls, unique_email: Optional[EmailStr], info: ValidationInfo
     ) -> EmailStr:
         if unique_email is None:
             # TODO: mapping from hostname to domain should in some common code
             #       if we do this often.
-            if "127.0.0.1" in values["hostname"]:
+            if "127.0.0.1" in info.data["hostname"]:
                 domain = "localhost.com"
             else:
-                domain = ".".join(values["hostname"].split(".")[-2:])
-            return EmailStr(f"{values['token']}@{domain}")
+                domain = ".".join(info.data["hostname"].split(".")[-2:])
+            return f"{info.data['token']}@{domain}"
         return unique_email
 
 

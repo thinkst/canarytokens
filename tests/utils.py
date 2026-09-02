@@ -71,10 +71,8 @@ class ServerConfig:
     live: bool
 
     @property
-    def server_url(self) -> HttpUrl:
-        return HttpUrl(
-            url=f"{self.scheme}://{self.canarytokens_sld}", scheme=self.scheme
-        )
+    def server_url(self) -> str:
+        return f"{self.scheme}://{self.canarytokens_sld}"
 
     @property
     def canarytokens_ips(self) -> list[str]:
@@ -647,7 +645,7 @@ def get_basic_hit(token_type: TokenTypes) -> AnyTokenHit:
             attachments=[],
             recipients=[],
             headers=[],
-            sender=EmailStr("test@test.com"),
+            sender="test@test.com",
             links=[],
             helo=SMTPHeloField(client_name="test", client_ip="127.0.0.1"),
         ),

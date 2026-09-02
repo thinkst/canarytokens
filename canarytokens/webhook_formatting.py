@@ -13,7 +13,16 @@ import re
 from functools import partial
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as, validator, Field
+from pydantic import (
+    BaseModel,
+    Field,
+    HttpUrl,
+    SerializeAsAny,
+    TypeAdapter,
+    field_serializer,
+    field_validator,
+    model_serializer,
+)
 
 from canarytokens import constants
 from canarytokens.utils import json_safe_dict, prettify_snake_case, dict_to_csv
@@ -25,11 +34,8 @@ from canarytokens.models import (
     TokenExposedDetails,
 )
 
-CANARY_LOGO_ROUND_PUBLIC_URL = parse_obj_as(
-    HttpUrl,
-    constants.CANARY_IMAGE_URL,
-)
-WEBHOOK_TEST_URL = parse_obj_as(HttpUrl, "http://example.com/test/url/for/webhook")
+CANARY_LOGO_ROUND_PUBLIC_URL = constants.CANARY_IMAGE_URL
+WEBHOOK_TEST_URL = TypeAdapter(HttpUrl).validate_python("http://example.com/test/url/for/webhook")
 TOKEN_EXPOSED_DESCRIPTION = "One of your {readable_type} Canarytokens has been found on the internet. A publicly exposed token will provide very low quality alerts. We recommend that you disable and replace this token on private infrastructure."
 MAX_INLINE_LENGTH = 40  # Max length of content to share a line with other content
 CANARY_TOKENS_NEST_URL = "https://canarytokens.org/nest/"
@@ -87,7 +93,8 @@ _WEBHOOK_URL_MATCH_CRITERIA = {
 }
 
 
-def get_webhook_type(url: str) -> WebhookType:
+def get_webhook_type(url: str | HttpUrl) -> WebhookType:
+    url = str(url)
     for webhook_type, match_func in _WEBHOOK_URL_MATCH_CRITERIA.items():
         if match_func(url):
             return webhook_type
@@ -343,7 +350,7 @@ def _data_to_slack_blocks(data: dict[str, Union[str, dict]]) -> list[SlackBlock]
         if isinstance(value, dict):
             blocks.append(SlackRichText(text=json.dumps(value)).set_code_block())
         else:
-            blocks.append(SlackRichText(text=value))
+            blocks.append(SlackRichText(text=str(value)))
 
     return blocks
 
@@ -362,13 +369,13 @@ class SlackBlock(BaseModel): ...
 
 
 class SlackHeader(SlackBlock):
-    type = "header"
+    type: Literal["header"] = "header"
     text: SlackTextObject
 
 
 class SlackRichText(SlackBlock):
     text: str
-    bold = False
+    bold: bool = False
     rich_text_type: Union[
         Literal["rich_text_section"], Literal["rich_text_preformatted"]
     ] = "rich_text_section"
@@ -381,7 +388,8 @@ class SlackRichText(SlackBlock):
         self.bold = True
         return self
 
-    def dict(self, *_args, **__kwargs):
+    @model_serializer
+    def serialize(self):
         text = {"type": "text", "text": self.text}
         if self.bold is True:
             text["style"] = {"bold": True}
@@ -393,7 +401,8 @@ class SlackRichText(SlackBlock):
 
 
 class SlackFooter(SlackBlock):
-    def dict(self, *_args, **_kwargs):
+    @model_serializer
+    def serialize(self):
         return {
             "type": "context",
             "elements": [
@@ -411,23 +420,23 @@ class SlackFooter(SlackBlock):
 
 
 class SlackDivider(SlackBlock):
-    type = "divider"
+    type: Literal["divider"] = "divider"
 
 
 class SlackSection(SlackBlock):
-    type = "section"
+    type: Literal["section"] = "section"
     fields: list[SlackTextObject]
 
 
 class SlackSectionText(SlackBlock):
-    type = "section"
+    type: Literal["section"] = "section"
     text: SlackTextObject
 
 
 class TokenAlertDetailsSlack(BaseModel):
     """Details that are sent to slack webhooks."""
 
-    blocks: list[SlackBlock]
+    blocks: list[SerializeAsAny[SlackBlock]]
 
     def json_safe_dict(self) -> dict[str, str]:
         return json_safe_dict(self)
@@ -583,7 +592,8 @@ class GoogleChatWidget(BaseModel): ...
 class GoogleChatParagraph(GoogleChatWidget):
     text: str
 
-    def dict(self, *args, **kwargs):
+    @model_serializer
+    def serialize(self):
         return {"textParagraph": {"text": self.text}}
 
 
@@ -591,7 +601,8 @@ class GoogleChatTextWithTopLabel(GoogleChatWidget):
     text: str
     top_label: Optional[str] = None
 
-    def dict(self, *args, **kwargs):
+    @model_serializer
+    def serialize(self):
         d = {"decoratedText": {"text": escape(self.text)}}
         if self.top_label:
             d["decoratedText"]["topLabel"] = escape(self.top_label)
@@ -605,7 +616,8 @@ class GoogleChatButton(BaseModel):
     material_icon: Optional[str] = None
     alt_text: Optional[str] = None
 
-    def dict(self, *args, **kwargs):
+    @model_serializer
+    def serialize(self):
         d = {"text": self.text, "onClick": {"openLink": {"url": self.url}}}
         if self.material_icon:
             d["icon"] = {
@@ -619,30 +631,33 @@ class GoogleChatButton(BaseModel):
 class GoogleChatButtonList(GoogleChatWidget):
     buttons: list[GoogleChatButton]
 
-    def dict(self, *args, **kwargs):
-        return {"buttonList": {"buttons": [button.dict() for button in self.buttons]}}
+    @model_serializer
+    def serialize(self):
+        return {"buttonList": {"buttons": self.buttons}}
 
 
 class GoogleChatColumnItems(BaseModel):
-    widgets: list[GoogleChatWidget]
+    widgets: list[SerializeAsAny[GoogleChatWidget]]
     horizontalSizeStyle: str = "FILL_MINIMUM_SPACE"
     horizontalAlignment: str = "START"
     verticalAlignment: str = "CENTER"
 
-    def dict(self, *args, **kwargs):
+    @model_serializer
+    def serialize(self):
         return {
             "horizontalSizeStyle": self.horizontalSizeStyle,
             "horizontalAlignment": self.horizontalAlignment,
             "verticalAlignment": self.verticalAlignment,
-            "widgets": [widget.dict() for widget in self.widgets],
+            "widgets": self.widgets,
         }
 
 
 class GoogleChatColumns(GoogleChatWidget):
     column_items: list[GoogleChatColumnItems]
 
-    def dict(self, *args, **kwargs):
-        return {"columns": {"columnItems": [ci.dict() for ci in self.column_items]}}
+    @model_serializer
+    def serialize(self):
+        return {"columns": {"columnItems": self.column_items}}
 
 
 class GoogleChatHeader(BaseModel):
@@ -655,7 +670,7 @@ class GoogleChatHeader(BaseModel):
 class GoogleChatSection(BaseModel):
     header: str = ""
     collapsible: bool = False
-    widgets: list[GoogleChatWidget] = []
+    widgets: list[SerializeAsAny[GoogleChatWidget]] = []
 
 
 class GoogleChatCard(BaseModel):
@@ -766,16 +781,16 @@ class DiscordEmbeds(BaseModel):
                 )
             )
 
-    @validator("timestamp", pre=True)
+    @field_validator("timestamp", mode="before")
+    @classmethod
     def validate_timestamp(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
         return value
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S"),
-        }
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 class TokenAlertDetailsDiscord(BaseModel):
@@ -985,7 +1000,7 @@ class TokenAlertDetailsMsTeams(BaseModel):
     attachments: list[TokenAlertAttachmentMsTeams]
 
     def json_safe_dict(self) -> dict[str, str]:
-        return self.dict(by_alias=True, exclude_none=True)
+        return json.loads(self.model_dump_json(by_alias=True, exclude_none=True))
 
 
 class TokenAlertDetailGeneric(TokenAlertDetails): ...

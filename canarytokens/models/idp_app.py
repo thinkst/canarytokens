@@ -8,6 +8,7 @@ from .common import (
     TokenResponse,
     TokenTypes,
 )
+from pydantic import ConfigDict
 
 
 class IdPAppType(enum.StrEnum):
@@ -83,16 +84,14 @@ class IdPAppTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.IDP_APP] = TokenTypes.IDP_APP
     app_type: IdPAppType
     redirect_url: Optional[str] = None
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "token_type": TokenTypes.IDP_APP,
-                "memo": "Reminder note when this token is triggered",
-                "email": "username@domain.com",
-                "redirect_url": "https://youtube.com",
-            },
-        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "token_type": TokenTypes.IDP_APP,
+            "memo": "Reminder note when this token is triggered",
+            "email": "username@domain.com",
+            "redirect_url": "https://youtube.com",
+        },
+    })
 
 
 class IdPAppTokenResponse(TokenResponse):

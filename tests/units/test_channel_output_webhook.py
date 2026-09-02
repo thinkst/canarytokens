@@ -285,7 +285,7 @@ def test_ms_teams_webhook_format(
     assert payload["attachments"][0]["content"]["actions"][0] == {
         "type": "Action.OpenUrl",
         "title": "⚙️ Manage token",
-        "url": details.manage_url,
+        "url": str(details.manage_url),
     }
 
 

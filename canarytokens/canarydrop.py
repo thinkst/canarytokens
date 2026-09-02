@@ -27,12 +27,11 @@ from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
 from pydantic import (
-    AnyHttpUrl,
+    model_validator, ConfigDict, AnyHttpUrl, TypeAdapter,
     BaseModel,
     Field,
-    parse_obj_as,
-    root_validator,
-)
+    field_serializer,
+    parse_obj_as)
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (
@@ -64,6 +63,8 @@ from canarytokens.models import (
 logger = logging.getLogger(__name__)
 
 switchboard_settings = SwitchboardSettings()
+any_token_history_adapter = TypeAdapter(AnyTokenHistory)
+any_token_exposed_hit_adapter = TypeAdapter(AnyTokenExposedHit)
 
 
 def make_auth_token():
@@ -222,18 +223,19 @@ class Canarydrop(BaseModel):
     mcp_alert_on: Optional[McpAlertOn] = None
     mcpjson: Optional[str] = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def _validate_triggered_details(cls, values):
         """
         Ensure canarydrop `type` and `triggered_details` `token_type` match.
         """
         if values.get("triggered_details", None) is None:
-            values["triggered_details"] = parse_obj_as(
-                AnyTokenHistory, {"token_type": values["type"], "hits": []}
+            values["triggered_details"] = any_token_history_adapter.validate_python(
+                {"token_type": values["type"], "hits": []}
             )
         else:
-            values["triggered_details"] = parse_obj_as(
-                AnyTokenHistory, values["triggered_details"]
+            values["triggered_details"] = any_token_history_adapter.validate_python(
+                values["triggered_details"]
             )
 
         # Check that the triggered_details 'token_type' matches the 'type' of the canarydrop.
@@ -245,8 +247,8 @@ class Canarydrop(BaseModel):
             )
 
         if "key_exposed_details" in values:
-            values["key_exposed_details"] = parse_obj_as(
-                AnyTokenExposedHit, values["key_exposed_details"]
+            values["key_exposed_details"] = any_token_exposed_hit_adapter.validate_python(
+                values["key_exposed_details"]
             )
             token_type, expected_token_type = (
                 values["key_exposed_details"].token_type,
@@ -269,13 +271,11 @@ class Canarydrop(BaseModel):
                 auth=self.auth,
             ),
         )
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
 
-    class Config:
-        arbitrary_types_allowed = True
-        allow_population_by_field_name = True
-        json_encoders = {
-            datetime: lambda v: v.strftime("%s.%f"),
-        }
+    @field_serializer("canarytoken")
+    def serialize_canarytoken(self, value: tokens.Canarytoken) -> dict[str, str]:
+        return {"_value": value.value()}
 
     def add_canarydrop_hit(self, *, token_hit: AnyTokenHit):
         """Adds a hit to the drops history `.triggered_details`.
@@ -491,6 +491,7 @@ class Canarydrop(BaseModel):
             )
 
         cfs = "\x2e\x63\x6c\x6f\x75\x64\x66\x72\x6f\x6e\x74\x2e\x6e\x65\x74"
+        cf_url = str(cf_url).rstrip("/")
         if cfs in cf_url:
             cf_url = cf_url[: -len(cfs)] + _ucc_swap(cfs)
 
@@ -582,10 +583,8 @@ class Canarydrop(BaseModel):
         )  # TODO: check https://github.com/samuelcolvin/pydantic/issues/1409 and swap out when possible
         serialized["canarytoken"] = self.canarytoken.value()
 
-        # V2 compatibility - timestamp and created_at are aliases on the
-        # Canarydrop model. Redis just has timestamp.
-        serialized["timestamp"] = serialized.pop("created_at")
-
+        serialized.pop("created_at")
+        serialized["timestamp"] = self.created_at.strftime("%s.%f")
         serialized["type"] = str(serialized["type"])
         for k, v in serialized.copy().items():
             if isinstance(v, bool):

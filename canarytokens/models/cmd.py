@@ -1,6 +1,6 @@
 from typing import List, Literal
 
-from pydantic import validator
+from pydantic import field_validator
 from .common import (
     DownloadContentTypes,
     DownloadFmtTypes,
@@ -18,8 +18,9 @@ class CMDTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.CMD] = TokenTypes.CMD
     cmd_process: str
 
-    @validator("cmd_process")
-    def check_process_name(value: str):
+    @field_validator("cmd_process")
+    @classmethod
+    def check_process_name(cls, value: str):
         if not value.endswith(".exe"):
             raise ValueError(f"cmd_process must end in .exe. Given: {value}")
         return value

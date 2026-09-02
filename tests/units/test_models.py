@@ -1,5 +1,6 @@
 import inspect
 from datetime import datetime
+from types import SimpleNamespace
 
 import pytest
 from pydantic import HttpUrl, ValidationError, parse_obj_as
@@ -13,6 +14,7 @@ from canarytokens.models import (
     AnyTokenRequest,
     AnyTokenResponse,
     AWSKeyTokenHit,
+    AzureIDAdditionalInfo,
     ClonedWebTokenHistory,
     DNSTokenRequest,
     DownloadContentTypes,
@@ -29,6 +31,7 @@ from canarytokens.models import (
     SMTPMailField,
     SMTPTokenHistory,
     SMTPTokenHit,
+    SMTPTokenResponse,
     TokenRequest,
     TokenTypes,
     WebBugTokenHistory,
@@ -37,6 +40,69 @@ from canarytokens.models import (
 from canarytokens.tokens import Canarytoken
 from canarytokens.utils import json_safe_dict
 from canarytokens.webhook_formatting import TokenAlertDetailGeneric
+
+
+def test_geoip_location_serialization():
+    geo_info = GeoIPInfo(ip="1.2.3.4", loc="1.2,3.4")
+
+    assert geo_info.model_dump(mode="json")["loc"] == "1.2000,3.4000"
+
+
+def test_geoip_invalid_location_raises_validation_error():
+    with pytest.raises(ValidationError):
+        GeoIPInfo(ip="1.2.3.4", loc=123)
+
+
+def test_smtp_recipient_serialization():
+    mail = SMTPMailField(
+        recipients=["recipient@example.com"],
+        links=[],
+        headers=[],
+        helo=SMTPHeloField(client_name="client", client_ip="127.0.0.1"),
+        attachments=[],
+    )
+
+    assert mail.model_dump(mode="json")["recipients"] == ["<recipient@example.com>"]
+
+
+def test_azure_id_additional_info_coerces_numeric_coordinates():
+    additional_info = AzureIDAdditionalInfo(
+        azure_id_log_data={},
+        microsoft_azure={},
+        location={},
+        coordinates={"latitude": [-25.73], "longitude": [28.21]},
+    )
+
+    assert additional_info.coordinates == {
+        "latitude": ["-25.73"],
+        "longitude": ["28.21"],
+    }
+
+
+def test_smtp_token_response_generates_unique_email_when_omitted():
+    response = SMTPTokenResponse(
+        token="uz6re9ha3t7k7jkhqy26mam8l",
+        hostname="tokens.example.com",
+        token_url="",
+        auth_token="auth",
+    )
+
+    assert response.unique_email == "uz6re9ha3t7k7jkhqy26mam8l@example.com"
+
+
+def test_cloned_site_css_normalizes_cloudfront_url(monkeypatch):
+    monkeypatch.setattr(
+        "canarytokens.canarydrop.random.sample", lambda *args, **kwargs: []
+    )
+    canarydrop = SimpleNamespace(
+        canarytoken=SimpleNamespace(value=lambda: "token"),
+        expected_referrer="https://example.com",
+    )
+    cloudfront_url = HttpUrl("https://example.cloudfront.net")
+
+    css = Canarydrop.get_cloned_site_css(canarydrop, cloudfront_url)
+
+    assert "https://example.cloudfront.net/token/" in css
 
 
 @pytest.mark.parametrize(
@@ -160,15 +226,7 @@ def test_canarydrop_model_on_details():
         "alert_sms_enabled": False,
         "alert_sms_recipient": None,
         "alert_webhook_enabled": True,
-        "alert_webhook_url": HttpUrl(
-            "http://0cdc-165-73-122-152.ngrok.io/alert",
-            scheme="http",
-            host="0cdc-165-73-122-152.ngrok.io",
-            tld="io",
-            host_type="domain",
-            port="80",
-            path="/alert",
-        ),
+        "alert_webhook_url": "http://0cdc-165-73-122-152.ngrok.io/alert",
     }
     Canarydrop(**data)
 
