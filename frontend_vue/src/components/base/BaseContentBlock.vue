@@ -8,7 +8,7 @@
         <span class="block text-grey-800 font-medium" :class="{ copied }">{{ props.text }}</span>
       </div>
     </div>
-    <BaseCopyButton v-if="copyContent" :content="props.text" class="ring-white ring-4" :class="{ '!bg-yellow hover:!bg-yellow-300': props.copyButtonSetWarningColour }" @click="handleCopyText()" />
+    <BaseCopyButton v-if="copyContent" :content="props.text" :fill-color="props.copyButtonFillColor" class="ring-white ring-4" @click="handleCopyText()" />
   </span>
 </template>
 
@@ -20,7 +20,7 @@ const props = defineProps<{
   text: string;
   copyContent: boolean;
   iconName: string;
-  copyButtonSetWarningColour?: boolean;
+  copyButtonFillColor?: 'grey' | 'green';
 }>();
 
 const copied = ref(false)

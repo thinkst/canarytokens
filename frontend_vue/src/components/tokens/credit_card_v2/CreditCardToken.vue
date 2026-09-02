@@ -2,7 +2,7 @@
   <div
     id="cc-card"
     class="w-[280px] h-[11em] sm:w-[20.5em] sm:h-[13em] relative m-auto text-white"
-    :class="{ grayscale: props.isExpired }"
+    :class="{ 'grayscale opacity-70': props.isExpired }"
   >
     <span class="absolute top-[60px] sm:top-[75px] left-[20px] sm:left-[25px] text-base sm:text-lg">{{ props.tokenData.name_on_card }}</span>
     <span class="absolute top-[85px] sm:top-[100px] left-[20px] sm:left-[25px] text-base sm:text-lg">{{ formatCreditCardNumber(props.tokenData.card_number) }}</span>
@@ -27,13 +27,13 @@
   </div>
   <div class="grid grid-cols-6 p-16 text-sm grid-flow-row-dense gap-8 mt-32 items-center border border-grey-200 rounded-xl shadow-solid-shadow-grey bg-white">
     <BaseContentBlock
-      class="col-span-6 xl:col-span-6" :label="'Card Name'" :text="props.tokenData.name_on_card" :icon-name="'id-card'" :copy-button-set-warning-colour="props.isExpired" copy-content />
+      class="col-span-6 xl:col-span-6" :label="'Card Name'" :text="props.tokenData.name_on_card" :icon-name="'id-card'" :copy-button-fill-color="copyButtonFillColor" copy-content />
     <BaseContentBlock
-      class="col-span-6 xl:col-span-6" :label="'Card Number'" :text="formatCreditCardNumber(props.tokenData.card_number)" :icon-name="'credit-card'" :copy-button-set-warning-colour="props.isExpired" copy-content />
+      class="col-span-6 xl:col-span-6" :label="'Card Number'" :text="formatCreditCardNumber(props.tokenData.card_number)" :icon-name="'credit-card'" :copy-button-fill-color="copyButtonFillColor" copy-content />
     <BaseContentBlock
-      class="col-span-6 lg:col-span-3" :label="'Expires'" :text="`${props.tokenData.expiry_month}/${props.tokenData.expiry_year}`" :icon-name="'calendar-day'" :copy-button-set-warning-colour="props.isExpired" copy-content />
+      class="col-span-6 lg:col-span-3" :label="'Expires'" :text="`${props.tokenData.expiry_month}/${props.tokenData.expiry_year}`" :icon-name="'calendar-day'" :copy-button-fill-color="copyButtonFillColor" copy-content />
     <BaseContentBlock
-      class="col-span-6 lg:col-span-3" :label="'CVV'" :text="props.tokenData.cvv" :icon-name="'lock'" :copy-button-set-warning-colour="props.isExpired" copy-content />
+      class="col-span-6 lg:col-span-3" :label="'CVV'" :text="props.tokenData.cvv" :icon-name="'lock'" :copy-button-fill-color="copyButtonFillColor" copy-content />
   </div>
 </template>
 
@@ -53,6 +53,8 @@ const props = defineProps<{
   tokenData: CreditCardDataType;
   isExpired: boolean;
 }>();
+
+const copyButtonFillColor = props.isExpired ? 'grey' : 'green';
 
 const emits = defineEmits(['close']);
 
