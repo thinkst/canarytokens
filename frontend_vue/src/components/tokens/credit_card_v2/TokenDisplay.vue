@@ -2,11 +2,13 @@
   <div class="flex flex-col items-center min-h-[448px] justify-center">
     <div v-if="!showTestForm">
       <CreditCardToken
-        :token-data="tokenData" />
-      <div class="flex flex-col lg:flex-row justify-center items-center gap-16">
+        :token-data="tokenData"
+        :is-expired="isExpired" />
+      <div v-if="!isExpired" class="flex flex-col lg:flex-row justify-center items-center gap-16">
         <base-button
           variant="secondary"
           class="mt-24"
+          :disabled="isExpired"
           @click="handleDownloadCC()">
           Download Credit Card
         </base-button>
@@ -27,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import CreditCardToken from '@/components/tokens/credit_card_v2/CreditCardToken.vue';
 import type { CreditCardDataType } from '@/components/tokens/credit_card_v2/CreditCardToken.vue';
 import TriggerDemo from '@/components/tokens/credit_card_v2/TriggerDemo.vue';
@@ -39,6 +41,11 @@ const props = defineProps<{
 }>();
 
 const showTestForm = ref(false);
+const isExpired = computed(() => Date.now() >= new Date(
+  Number(props.tokenData.expiry_year),
+  Number(props.tokenData.expiry_month) - 1,
+  13,
+).getTime());
 
 async function handleDownloadCC() {
   const params = {
