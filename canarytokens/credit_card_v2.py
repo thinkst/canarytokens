@@ -13,7 +13,7 @@ if sys.version_info >= (3, 11):
     from enum import StrEnum  # Python 3.11+
 else:
     from backports.strenum import StrEnum  # Python < 3.11
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 frontend_settings = FrontendSettings()
@@ -66,6 +66,8 @@ class Customer:
 
 
 class CreditCardTrigger3DSNotification(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     trigger_type: Literal[TriggerWebhookEvent.ThreeDSecureNotification] = (
         TriggerWebhookEvent.ThreeDSecureNotification
     )
@@ -79,6 +81,8 @@ class CreditCardTrigger3DSNotification(BaseModel):
 
 
 class CreditCardTriggerTransaction(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     trigger_type: Literal[TriggerWebhookEvent.TransactionFailed] = (
         TriggerWebhookEvent.TransactionFailed
     )
