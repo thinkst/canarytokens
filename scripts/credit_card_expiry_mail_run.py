@@ -16,7 +16,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 if __name__ == "__main__":
     os.chdir(PROJECT_ROOT / "frontend")
 
-from pydantic import EmailStr, HttpUrl, parse_obj_as  # noqa: E402
+from pydantic import EmailStr, TypeAdapter, HttpUrl, parse_obj_as  # noqa: E402
 
 from canarytokens import credit_card_v2, queries, ticketing  # noqa: E402
 from canarytokens.channel_output_email import (  # noqa: E402
@@ -33,6 +33,7 @@ from canarytokens.utils import get_autoescaped_env  # noqa: E402
 logger = logging.getLogger("credit-card-expiry-mail-run")
 EXPIRY_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 JINJA2_ENV = get_autoescaped_env(str(PROJECT_ROOT / "templates"))
+email_validator = TypeAdapter(EmailStr)
 
 
 def timestamp() -> str:
@@ -120,7 +121,7 @@ def credit_card_expiry_mail_run(  # noqa: C901
         try:
             email_response_status, _ = send_email(
                 switchboard_settings=switchboard_settings,
-                email_recipient=EmailStr(recipient),
+                email_recipient=email_validator.validate_python(recipient),
                 email_subject=subject,
                 email_content_html=html_template.render(cards=template_cards),
                 email_content_text=text_template.render(cards=template_cards),
