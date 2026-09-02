@@ -246,7 +246,7 @@ from canarytokens.queries import (
 from canarytokens.redismanager import DB
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken, get_template_env, set_template_env
-from canarytokens.utils import get_deployed_commit_sha, json_safe_dict
+from canarytokens.utils import get_deployed_commit_sha
 from canarytokens.windows_fake_fs import windows_fake_fs
 from canarytokens.ziplib import make_canary_zip
 from canarytokens.utils import get_autoescaped_env
@@ -749,7 +749,7 @@ async def api_generate(  # noqa: C901  # gen is large
 async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
     canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
 
-    response = {"canarydrop": json_safe_dict(canarydrop)}
+    response = {"canarydrop": canarydrop.model_dump(mode="json")}
 
     if canarydrop.type == TokenTypes.WIREGUARD:
         wg_conf = wg.clientConfig(
@@ -786,7 +786,7 @@ async def api_manage_canarytoken(token: str, auth: str) -> ManageResponse:
 async def api_history(token: str, auth: str) -> HistoryResponse:
     canarydrop = get_canarydrop_and_authenticate(token=token, auth=auth)
     response = {
-        "canarydrop": json_safe_dict(canarydrop),
+        "canarydrop": canarydrop.model_dump(mode="json"),
         "history": canarydrop.triggered_details,
         "google_api_key": queries.get_canary_google_api_key(),
     }

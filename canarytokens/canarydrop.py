@@ -277,10 +277,6 @@ class Canarydrop(BaseModel):
     def serialize_canarytoken(self, value: tokens.Canarytoken) -> dict[str, str]:
         return {"_value": value.value()}
 
-    @field_serializer("created_at")
-    def serialize_created_at(self, value: datetime) -> str:
-        return value.strftime("%s.%f")
-
     def add_canarydrop_hit(self, *, token_hit: AnyTokenHit):
         """Adds a hit to the drops history `.triggered_details`.
 
@@ -587,10 +583,8 @@ class Canarydrop(BaseModel):
         )  # TODO: check https://github.com/samuelcolvin/pydantic/issues/1409 and swap out when possible
         serialized["canarytoken"] = self.canarytoken.value()
 
-        # V2 compatibility - timestamp and created_at are aliases on the
-        # Canarydrop model. Redis just has timestamp.
-        serialized["timestamp"] = serialized.pop("created_at")
-
+        serialized.pop("created_at")
+        serialized["timestamp"] = self.created_at.strftime("%s.%f")
         serialized["type"] = str(serialized["type"])
         for k, v in serialized.copy().items():
             if isinstance(v, bool):

@@ -2,6 +2,7 @@ import inspect
 import json
 import os
 import re
+from datetime import datetime
 from unittest import mock
 
 import pytest
@@ -79,11 +80,43 @@ from canarytokens.queries import save_canarydrop
 from canarytokens.settings import FrontendSettings, SwitchboardSettings
 from canarytokens.tokens import Canarytoken
 from tests.utils import get_token_request
-from frontend.app import ROOT_API_ENDPOINT, api
+from frontend.app import ROOT_API_ENDPOINT, api, api_history, api_manage_canarytoken
 
 
 def api_path(path: str) -> str:
     return f"{ROOT_API_ENDPOINT}{path}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "endpoint",
+    [
+        pytest.param(api_manage_canarytoken, id="manage"),
+        pytest.param(api_history, id="history"),
+    ],
+)
+async def test_manage_and_history_preserve_canarydrop_serialization(
+    monkeypatch, endpoint
+):
+    token = Canarytoken("uz6re9ha3t7k7jkhqy26mam8l")
+    drop = canarydrop.Canarydrop(
+        canarytoken=token,
+        type=TokenTypes.DNS,
+        memo="API serialization contract",
+        timestamp=datetime(2022, 4, 21, 6, 10, 13),
+    )
+    monkeypatch.setattr(
+        "frontend.app.get_canarydrop_and_authenticate", lambda **kwargs: drop
+    )
+    monkeypatch.setattr(queries, "get_canary_google_api_key", lambda: None)
+
+    response = await endpoint(token.value(), drop.auth)
+    serialized = response.model_dump(mode="json")["canarydrop"]
+
+    assert (
+        serialized["created_at"],
+        serialized.get("alert_sms_recipient", "missing"),
+    ) == ("2022-04-21T06:10:13", None)
 
 
 def test_read_docs(test_client: TestClient) -> None:
