@@ -207,6 +207,7 @@ def ticket_failed_mail_run(
             "The Credit Card Canarytoken expiry reminder mail run failed.\n\n"
             "Inspect the run record and rerun the expiry mailer if reminders were "
             "not sent.\n\n"
+            "Find the playbook: 'Credit Card expiry mail run failed playbook'"
             "Run record:\n\n```\n"
             f"{json.dumps(ticket_log_record, default=str, indent=2, sort_keys=True)}"
             "\n```"
