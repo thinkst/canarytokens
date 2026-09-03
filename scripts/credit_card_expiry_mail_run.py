@@ -111,20 +111,18 @@ def credit_card_expiry_mail_run(  # noqa: C901
     )
 
     for recipient, recipient_drops in cards_by_recipient.items():
-        template_cards = [
-            {
-                "memo": canarydrop.memo,
-                "canarytoken": canarydrop.canarytoken.value(),
-            }
-            for canarydrop in recipient_drops
-        ]
+        template_params = {
+            "cards": recipient_drops,
+            "public_domain": switchboard_settings.PUBLIC_DOMAIN,
+            "switchboard_scheme": switchboard_settings.SWITCHBOARD_SCHEME,
+        }
         try:
             email_response_status, _ = send_email(
                 switchboard_settings=switchboard_settings,
                 email_recipient=email_validator.validate_python(recipient),
                 email_subject=subject,
-                email_content_html=html_template.render(cards=template_cards),
-                email_content_text=text_template.render(cards=template_cards),
+                email_content_html=html_template.render(**template_params),
+                email_content_text=text_template.render(**template_params),
                 from_email=switchboard_settings.ALERT_EMAIL_FROM_ADDRESS,
                 from_display=switchboard_settings.ALERT_EMAIL_FROM_DISPLAY,
             )
