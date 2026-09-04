@@ -185,35 +185,39 @@
     <!-- What's next -->
     <mj-wrapper padding="24px 30px 0px" background-color="#FFF">
       <mj-section background-color="#f6f8fb" border-radius="12px" padding="16px 16px">
-        <mj-column width="15%">
-         <mj-image src="https://{{ public_domain }}/resources/notification-email/cc_expired_token/whats_next.png" alt="Canarytokens" align="center" border="none" padding="8px 0px 0px 0px" height="50px" width="50px"/>
-        </mj-column>
-        <mj-column width="80%">
-            <mj-text color="#060606" font-weight="bold" align="left" font-size="24px" padding-bottom="24px" padding-top="16px">
-            What next?
-            </mj-text>
-            <mj-text color="#818a8e" align="left" padding-top="0">
-            To continue receiving alerts, simply create a new Credit Card Canarytoken at Canarytokens.org and replace the expiring
-            token in your environment.
-            </mj-text>
-        </mj-column>
+        <mj-group>
+          <mj-column width="15%">
+          <mj-image src="https://{{ public_domain }}/resources/notification-email/cc_expired_token/whats_next.png" alt="Canarytokens" align="center" border="none" padding="8px 0px 0px 0px" height="50px" width="50px"/>
+          </mj-column>
+          <mj-column width="80%">
+              <mj-text color="#060606" font-weight="bold" align="left" font-size="24px" padding-bottom="24px" padding-top="16px">
+              What next?
+              </mj-text>
+              <mj-text color="#818a8e" align="left" padding-top="0">
+              To continue receiving alerts, simply create a new Credit Card Canarytoken at Canarytokens.org and replace the expiring
+              token in your environment.
+              </mj-text>
+          </mj-column>
+        </mj-group>
       </mj-section>
     </mj-wrapper>
 
     <!-- Nedd more  -->
     <mj-wrapper padding="24px 30px 0px" background-color="#FFF">
       <mj-section background-color="#B5EDCF" border-radius="12px" padding="20px 20px">
-        <mj-column width="15%">
-            <mj-image src="https://{{ public_domain }}/resources/notification-email/cc_expired_token/canarytokens_icon.png" alt="Canarytokens" align="center" border="none" padding="0px 0px 0px 0px" height="70px" width="70px"/>
-        </mj-column>
-          <mj-column width="80%">
-            <mj-text color="#060606" font-weight="bold" align="left" font-size="24px" padding-bottom="24px" padding-top="16px">
-            Need more?
-            </mj-text>
-            <mj-text color="#060606" align="left" padding-top="0">
-           If you're managing multiple Canarytokens or would like centralized visibility and administration, consider using the Thinkst Canary Console!
-            </mj-text>
-        </mj-column>
+        <mj-group>
+          <mj-column width="15%">
+              <mj-image src="https://{{ public_domain }}/resources/notification-email/cc_expired_token/canarytokens_icon.png" alt="Canarytokens" align="center" border="none" padding="0px 0px 0px 0px" height="70px" width="70px"/>
+          </mj-column>
+            <mj-column width="80%">
+              <mj-text color="#060606" font-weight="bold" align="left" font-size="24px" padding-bottom="24px" padding-top="16px">
+              Need more?
+              </mj-text>
+              <mj-text color="#060606" align="left" padding-top="0">
+            If you're managing multiple Canarytokens or would like centralized visibility and administration, consider using the Thinkst Canary Console!
+              </mj-text>
+          </mj-column>
+        </mj-group>
       </mj-section>
     </mj-wrapper>
 
