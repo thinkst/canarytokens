@@ -32,6 +32,7 @@ from canarytokens.utils import get_autoescaped_env  # noqa: E402
 
 logger = logging.getLogger("credit-card-expiry-mail-run")
 EXPIRY_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+CREDIT_CARD_EXPIRY_DAY = 12
 JINJA2_ENV = get_autoescaped_env(str(PROJECT_ROOT / "templates"))
 email_validator = TypeAdapter(EmailStr)
 
@@ -113,6 +114,7 @@ def credit_card_expiry_mail_run(  # noqa: C901
     for recipient, recipient_drops in cards_by_recipient.items():
         template_params = {
             "cards": recipient_drops,
+            "expiry_date": f"{CREDIT_CARD_EXPIRY_DAY:02}/{month:02}/{year:04}",
             "public_domain": switchboard_settings.PUBLIC_DOMAIN,
             "switchboard_scheme": switchboard_settings.SWITCHBOARD_SCHEME,
         }

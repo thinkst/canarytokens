@@ -170,7 +170,7 @@
                 {% for card in cards %}
                 <tr>
                     <td class="token-table__cell token-table__cell--bordered" data-label="Reminder"><span class="token-table__mobile-label">Reminder</span>{{ card.memo }}</td>
-                    <td class="token-table__cell token-table__cell--bordered token-table__cell--strong" data-label="Expires"><span class="token-table__mobile-label">Expires</span>{{ card.cc_v2_expiry_month }}/{{ card.cc_v2_expiry_year }}</td>
+                    <td class="token-table__cell token-table__cell--bordered token-table__cell--strong" data-label="Expires"><span class="token-table__mobile-label">Expires</span>{{ expiry_date }}</td>
                     <td class="token-table__cell token-table__cell--bordered token-table__cell--action">
                         <a href="{{ card.build_manage_url(switchboard_scheme, public_domain) }}" target="_blank" class="token-table__button">View token</a>
                     </td>
