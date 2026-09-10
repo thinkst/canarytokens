@@ -5,7 +5,7 @@ The following credit card Canarytokens expire this month:
 
 {% for card in cards %}
 Memo: {{ card.memo }}
-Expires: {{ card.cc_v2_expiry_month }}/{{ card.cc_v2_expiry_year }}
+Expires: {{ expiry_date }}
 Manage: {{ card.build_manage_url(switchboard_scheme, public_domain) }}
 
 {% endfor %}
