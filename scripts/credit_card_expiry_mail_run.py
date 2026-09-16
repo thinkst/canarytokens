@@ -52,7 +52,7 @@ def credit_card_expiry_mail_run(  # noqa: C901
         "timestamps": {"start": timestamp()},
         "credit_card_tokens": {
             "not_found": [],
-            "marked_sent": [],
+            "already_marked_sent": [],
             "to_send": [],
             "webhook_only": [],
         },
@@ -92,7 +92,7 @@ def credit_card_expiry_mail_run(  # noqa: C901
             continue
 
         if canarydrop.cc_v2_expiry_reminder_sent:
-            log_record["credit_card_tokens"]["marked_sent"].append(canarytoken)
+            log_record["credit_card_tokens"]["already_marked_sent"].append(canarytoken)
             continue
 
         if not canarydrop.alert_email_enabled or not canarydrop.alert_email_recipient:
