@@ -810,6 +810,21 @@ class Canarytoken(object):
         return GIF
 
     @staticmethod
+    def _get_info_for_onepassword(request: Request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+        client_ip = request.args.get(b"ipAddress", [None])[0]
+        if client_ip:
+            http_general_info["src_ip"] = client_ip.decode()
+        return http_general_info, {}
+
+    @staticmethod
+    def _get_response_for_onepassword(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ) -> bytes:
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
+
+    @staticmethod
     def _get_info_for_slow_redirect(request):
         http_general_info = Canarytoken._grab_http_general_info(request=request)
         location = request.args.get(b"l", [None])[0]

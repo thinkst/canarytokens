@@ -1,0 +1,36 @@
+<template>
+  <onepassword-save-button
+    data-onepassword-type="login"
+    :value="b64value"
+    lang="en"></onepassword-save-button>
+</template>
+
+<script setup lang="ts">
+import "@1password/save-button";
+import { ref } from 'vue';
+
+type OPDataType = {
+  email_addr: string;
+};
+
+const props = defineProps<{
+  tokenData: OPDataType;
+}>();
+
+const data = {
+  title: "M365 account",
+  fields: [
+    {
+      autocomplete: "username",
+      value: ref(props.tokenData.email_addr)
+    },
+    {
+      autocomplete: "current-password",
+      value: Math.random().toString(36).substr(2, 14)
+    }
+  ],
+  notes: "Recovery account for Sharepoint, Outlook, Azure, and Entra ID"
+};
+
+const b64value = btoa(JSON.stringify(data));
+</script>
