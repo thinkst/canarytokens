@@ -1,5 +1,5 @@
 <template>
-  <!--<TokenDisplay :token-data="tokenData" />-->
+  <TokenDisplay :token-data="tokenData" />
   <p class="mt-16 text-sm">
     This token is triggered when someone attempts to use this saved credential.
     The M365 username is unique.
