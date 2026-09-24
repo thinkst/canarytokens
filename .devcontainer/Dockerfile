@@ -1,5 +1,5 @@
 # If any packages or tools are not available through devcontainer features, install them here.
-FROM mcr.microsoft.com/devcontainers/base:debian-11
+FROM mcr.microsoft.com/devcontainers/base:debian-12
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
