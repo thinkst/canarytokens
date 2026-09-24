@@ -147,6 +147,23 @@ export const tokenServices: TokenServicesType = {
     category: TOKEN_CATEGORY.CLOUD,
     keywords: ['cloud', 'api'],
   },
+  [TOKENS_TYPE.ONE_PASSWORD]: {
+    label: '1Password credential',
+    description: 'Get an alert when an attacker uses a credential from your 1Password vault.',
+    documentationLink:
+      'https://docs.canarytokens.org/guide/1p-token.html',
+    icon: `${TOKENS_TYPE.ONE_PASSWORD}.png`,
+    createRouteTokenAlias: 'onepassword',
+    instruction:
+      'Click the button to add the credential to your 1Password vault:',
+    howItWorksInstructions: [
+      'We give you a legit, unique credential that looks attractive to attackers.',
+      'You place it in your 1Password vault.',
+      'We send you an alert if some tries to use the credential.',
+    ],
+    category: TOKEN_CATEGORY.CLOUD,
+    keywords: ['cloud'],
+  },
   [TOKENS_TYPE.PWA]: {
     label: 'Fake App',
     description: 'Get an alert when someone opens a fake app on your device.',
