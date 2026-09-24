@@ -815,6 +815,9 @@ class Canarytoken(object):
         client_ip = request.args.get(b"ipAddress", [None])[0]
         if client_ip:
             http_general_info["src_ip"] = client_ip.decode()
+        useragent = request.args.get(b"userAgent", [None])[0]
+        if useragent:
+            http_general_info["useragent"] = useragent.decode()
         return http_general_info, {}
 
     @staticmethod
