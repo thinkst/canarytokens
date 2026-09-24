@@ -22,14 +22,14 @@ const data = {
   fields: [
     {
       autocomplete: "username",
-      value: ref(props.tokenData.email_addr)
+      value: props.tokenData.email_addr
     },
     {
       autocomplete: "current-password",
       value: Math.random().toString(36).substr(2, 14)
     }
   ],
-  notes: "Recovery account for Sharepoint, Outlook, Azure, and Entra ID"
+  notes: "Recovery account for Sharepoint, Outlook, Azure, and Entra ID (https://login.microsoftonline.com)"
 };
 
 const b64value = btoa(JSON.stringify(data));
