@@ -9,6 +9,8 @@ from pydantic import HttpUrl
 from canarytokens.models import OnePassword
 from canarytokens import tokens
 
+log = logging.getLogger("uvicorn")
+
 
 def get_onepassword(
     token: tokens.Canarytoken,
@@ -20,21 +22,21 @@ def get_onepassword(
 ) -> OnePassword:  # pragma: no cover
     if email:
         return OnePassword(**{"email_addr": email})
-    return OnePassword(**{"email_addr": "philb@backofficeoperations.onmicrosoft.com"})
-    if not (token and username) or len(username) == 0:
-        logging.error("Empty values passed through to get_onepassword function.")
+
+    if not (token_url and username) or len(username) == 0:
+        log.error("Empty values passed through to get_onepassword function.")
         raise ValueError("get_onepassword requires token and username to be set.")
-    if not onepass_url:
+    if onepass_url is None:
+        log.error("No onepass_url value passed through to get_onepassword function.")
         raise ValueError("get_onepassword requires onepassword_url to request from.")
 
     data = {
-        "token": token.value(),
+        "token": token,
         "username": username,
         "auth": auth,
         "token_url": token_url,
     }
-
     resp = requests.post(url=str(onepass_url), json=data)
     resp.raise_for_status()
     resp_json = resp.json()
-    return OnePassword(**{"email_addr": resp_json.get("email")})
+    return OnePassword(**{"email_addr": resp_json.get("email_addr")})
