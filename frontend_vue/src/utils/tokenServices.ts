@@ -153,7 +153,7 @@ export const tokenServices: TokenServicesType = {
     documentationLink:
       'https://docs.canarytokens.org/guide/1p-token.html',
     icon: `${TOKENS_TYPE.ONE_PASSWORD}.png`,
-    createRouteTokenAlias: 'onepassword',
+    createRouteTokenAlias: 'one_password',
     instruction:
       'Click the button to add the credential to your 1Password vault:',
     howItWorksInstructions: [
