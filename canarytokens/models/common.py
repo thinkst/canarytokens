@@ -123,7 +123,7 @@ class TokenTypes(StrEnum):
     CROWDSTRIKE_CC = "crowdstrike_cc"
     SVG = "svg"
     MCP = "mcp"
-    ONE_PASSWORD = "onepassword"
+    ONE_PASSWORD = "one_password"
 
     def __str__(self) -> str:
         return str(self.value)

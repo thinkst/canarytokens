@@ -221,7 +221,7 @@ from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.mcp import make_canary_mcp_json
-from canarytokens.onepassword import get_onepassword
+from canarytokens.onepassword import get_one_password
 from canarytokens.azure_css import (
     install_azure_css,
     EntraTokenErrorAccessDenied,
@@ -2168,7 +2168,7 @@ def _(
         )
     canarydrop.username = token_request_details.username
     try:
-        canarydrop.email_addr = get_onepassword(
+        canarydrop.email_addr = get_one_password(
             token=canarydrop.canarytoken.value(),
             username=canarydrop.username,
             onepass_url=settings.ONE_PASSWORD_TOKEN_URL,
@@ -2176,7 +2176,7 @@ def _(
             token_url=canarydrop.generated_url,
         ).get("email_addr")
     except Exception as e:
-        capture_exception(error=e, context=("get_onepassword", None))
+        capture_exception(error=e, context=("get_one_password", None))
         # We can fail by getting 404 from ONE_PASSWORD_TOKEN_URL or failing validation
         return response_error(
             4, message="Failed to generate 1Password token. We're looking into it."
