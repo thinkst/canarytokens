@@ -46,6 +46,10 @@ test.describe('Create Token', () => {
         await page.getByRole('textbox', { name: 'Name of the process to monitor' }).fill('whoami.exe');
       }
 
+      if (service === TOKENS_TYPE.ONE_PASSWORD) {
+        await page.getByRole('textbox', { name: 'Username to use as a basis for credential generation' }).fill('steve.jobs');
+      }
+
       if (service === TOKENS_TYPE.WINDOWS_FAKE_FS) {
         await page.getByRole('textbox', { name: 'Where will this directory be placed?' }).fill('C:\\Desktop\\FakeFS');
         const industryInput = page.locator('input.vs__search[placeholder="Choose an Industry/Sector"]');

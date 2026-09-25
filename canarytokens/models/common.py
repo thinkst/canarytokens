@@ -18,15 +18,18 @@ from typing import (
 from fastapi import Response
 from fastapi.responses import JSONResponse
 from pydantic import (
-    field_validator, model_validator, ConfigDict, AnyHttpUrl,
+    field_validator,
+    model_validator,
+    ConfigDict,
+    AnyHttpUrl,
     BaseModel,
     EmailStr,
     Field,
     HttpUrl,
     IPvAnyAddress,
-    ValidationError,
     field_serializer,
-    StringConstraints)
+    StringConstraints,
+)
 from typing_extensions import Annotated
 
 from canarytokens.constants import (
@@ -67,15 +70,21 @@ Memo = Annotated[str, StringConstraints(max_length=MEMO_MAX_CHARACTERS)]
 
 Port = Annotated[int, Field(ge=0, lt=65535)]
 
-Hostname = Annotated[str, StringConstraints(
-    max_length=253,
-    pattern=r"(?i)^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
-)]
+Hostname = Annotated[
+    str,
+    StringConstraints(
+        max_length=253,
+        pattern=r"(?i)^(([a-z0-9]|[a-z0-9]?[a-z0-9\-]{1,61}[a-z0-9])\.){1,61}[a-z0-9]{1,61}$",
+    ),
+]
 
-Canarytoken = Annotated[str, StringConstraints(
-    max_length=CANARYTOKEN_LENGTH,
-    pattern=f"(?i)[{CANARYTOKEN_ALPHABET}]{{{CANARYTOKEN_LENGTH}}}",
-)]
+Canarytoken = Annotated[
+    str,
+    StringConstraints(
+        max_length=CANARYTOKEN_LENGTH,
+        pattern=f"(?i)[{CANARYTOKEN_ALPHABET}]{{{CANARYTOKEN_LENGTH}}}",
+    ),
+]
 
 
 class TokenTypes(StrEnum):
@@ -114,6 +123,7 @@ class TokenTypes(StrEnum):
     CROWDSTRIKE_CC = "crowdstrike_cc"
     SVG = "svg"
     MCP = "mcp"
+    ONE_PASSWORD = "one_password"
 
     def __str__(self) -> str:
         return str(self.value)
@@ -127,6 +137,7 @@ TOKEN_TYPES_WITH_ARTICLE_AN = [
     TokenTypes.MCP,
     TokenTypes.MS_EXCEL,
     TokenTypes.MS_WORD,
+    TokenTypes.ONE_PASSWORD,
     TokenTypes.SQL_SERVER,
     TokenTypes.SVN,
 ]
@@ -167,6 +178,7 @@ READABLE_TOKEN_TYPE_NAMES = {
     TokenTypes.CROWDSTRIKE_CC: "CrowdStrike API key",
     TokenTypes.SVG: "SVG",
     TokenTypes.MCP: "MCP JSON",
+    TokenTypes.ONE_PASSWORD: "1Password saved login",
 }
 
 GeneralHistoryTokenType = Literal["blank"]
@@ -190,8 +202,8 @@ class TokenRequest(BaseModel):
             data["token_type"] = TokenTypes(data["token_type"])
         super().__init__(**data)
 
-    @model_validator(mode='after')
-    def check_email_or_webhook_opt(self) -> 'TokenRequest':
+    @model_validator(mode="after")
+    def check_email_or_webhook_opt(self) -> "TokenRequest":
         if not self.webhook_url and not self.email:
             raise ValueError("either webhook or email is required")
         return self
@@ -278,9 +290,9 @@ class GeoIPInfo(BaseModel):
     ip: str  # '41.1.47.253
     timezone: Optional[str] = None  # 'Africa/Johannesburg
     postal: Optional[str] = None  # '7100 or EC1A
-    asn: Optional[
-        ASN
-    ] = None  # {'route': '41.1.0.0/18', 'type': 'isp', 'asn': 'AS29975', 'domain': 'vodacom.com', 'name': 'Vodacom'}
+    asn: Optional[ASN] = (
+        None  # {'route': '41.1.0.0/18', 'type': 'isp', 'asn': 'AS29975', 'domain': 'vodacom.com', 'name': 'Vodacom'}
+    )
     readme: Optional[str] = None
     # bogon
 

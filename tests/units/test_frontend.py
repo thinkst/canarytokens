@@ -56,6 +56,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    OnePasswordTokenRequest,
+    OnePasswordTokenResponse,
     PWATokenRequest,
     PWATokenResponse,
     PageRequest,
@@ -206,6 +208,7 @@ set_of_unsupported_request_classes = [
     CreditCardV2TokenRequest,
     AWSInfraTokenRequest,  # no download
     CrowdStrikeCCTokenRequest,  # requires external gateway
+    OnePasswordTokenRequest,  # requires using up M365 user
 ]
 set_of_unsupported_response_classes = [
     AWSKeyTokenResponse,
@@ -217,6 +220,7 @@ set_of_unsupported_response_classes = [
     CreditCardV2TokenResponse,
     AWSInfraTokenResponse,  # no download
     CrowdStrikeCCTokenResponse,  # requires external gateway
+    OnePasswordTokenResponse,  # requires using up M365 user
 ]
 
 if not FrontendSettings("../frontend/frontend.env").WEBDAV_SERVER:
@@ -718,7 +722,9 @@ def test_aws_keys_broken(
             type=token_request_details.token_type,
             alert_email_enabled=False,
             alert_webhook_enabled=True,
-            alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
+            alert_webhook_url=str(token_request_details.webhook_url)
+            if token_request_details.webhook_url
+            else "",
             canarytoken=canarytoken,
             memo=token_request_details.memo,
         )
@@ -776,7 +782,9 @@ def test_aws_keys(
             type=token_request_details.token_type,
             alert_email_enabled=False,
             alert_webhook_enabled=True,
-            alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
+            alert_webhook_url=str(token_request_details.webhook_url)
+            if token_request_details.webhook_url
+            else "",
             canarytoken=canarytoken,
             memo=token_request_details.memo,
         )
@@ -870,7 +878,9 @@ def test_webdav(
         type=token_request_details.token_type,
         alert_email_enabled=False,
         alert_webhook_enabled=True,
-        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
+        alert_webhook_url=str(token_request_details.webhook_url)
+        if token_request_details.webhook_url
+        else "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
     )
@@ -916,7 +926,9 @@ def test_webdav_no_cloudflare(
         type=token_request_details.token_type,
         alert_email_enabled=False,
         alert_webhook_enabled=True,
-        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
+        alert_webhook_url=str(token_request_details.webhook_url)
+        if token_request_details.webhook_url
+        else "",
         canarytoken=canarytoken,
         memo=token_request_details.memo,
     )
