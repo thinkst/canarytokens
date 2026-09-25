@@ -12,7 +12,7 @@ from canarytokens import tokens
 log = logging.getLogger("uvicorn")
 
 
-def get_onepassword(
+def get_one_password(
     token: tokens.Canarytoken,
     username: str,
     token_url: str,
@@ -24,11 +24,11 @@ def get_onepassword(
         return OnePassword(**{"email_addr": email})
 
     if not (token_url and username) or len(username) == 0:
-        log.error("Empty values passed through to get_onepassword function.")
-        raise ValueError("get_onepassword requires token and username to be set.")
+        log.error("Empty values passed through to get_one_password function.")
+        raise ValueError("get_one_password requires token and username to be set.")
     if onepass_url is None:
-        log.error("No onepass_url value passed through to get_onepassword function.")
-        raise ValueError("get_onepassword requires onepassword_url to request from.")
+        log.error("No onepass_url value passed through to get_one_password function.")
+        raise ValueError("get_one_password requires one_password_url to request from.")
 
     data = {
         "token": token,
