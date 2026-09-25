@@ -130,7 +130,9 @@ class Canarydrop(BaseModel):
     kubeconfig: Optional[str] = None
     text_snippet: Optional[str] = None
     # SQL specific stuff
-    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]] = None
+    sql_server_sql_action: Optional[Literal["INSERT", "DELETE", "UPDATE", "SELECT"]] = (
+        None
+    )
     sql_server_table_name: Optional[str] = None
     sql_server_view_name: Optional[str] = None
     sql_server_function_name: Optional[str] = None
@@ -211,6 +213,7 @@ class Canarydrop(BaseModel):
     cc_v2_expiry_month: Optional[int] = None
     cc_v2_expiry_year: Optional[int] = None
     cc_v2_name_on_card: Optional[Literal["Canarytokens.org"]] = None
+    cc_v2_expiry_reminder_sent: Optional[bool] = None
 
     key_exposed_details: Optional[AnyTokenExposedHit] = None
 
