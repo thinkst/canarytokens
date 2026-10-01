@@ -11,8 +11,9 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, nextTick } from "vue";
+import { activateOPButton } from "@1password/save-button";
 import "@1password/save-button";
-import { ref } from 'vue';
 
 type OPDataType = {
   email_addr: string;
@@ -38,4 +39,9 @@ const data = {
 };
 
 const b64value = btoa(JSON.stringify(data));
+
+onMounted(async () => {
+  await nextTick();
+  activateOPButton();
+});
 </script>
