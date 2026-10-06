@@ -107,6 +107,8 @@ Restrictions:
 * no other provider like Mailgun or Sendgrid must be configured for this to work
 * For AWS SES `CANARY_ALERT_EMAIL_FROM_DISPLAY` should be in the format: `CANARY_ALERT_EMAIL_FROM_DISPLAY=CanaryAlert <canaryalert@my-email-domain.here>`
 
+Note: SMTP alert emails send an RFC-compliant `From` header. If `CANARY_ALERT_EMAIL_FROM_DISPLAY` is configured as a display name, the resulting header is rendered as `Display Name <CANARY_ALERT_EMAIL_FROM_ADDRESS>`. This may slightly change how the sender appears in mail clients, but the alert email body is unchanged.
+
 The following settings have to be configured in `switchboard.env` for SMTP to work:
 * CANARY_SMTP_SERVER: the SMTP server
 * CANARY_SMTP_PORT: the port number of the SMTP server (must be a StartTLS enabled port!)

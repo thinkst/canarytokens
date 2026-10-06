@@ -20,6 +20,7 @@ import sendgrid
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr, parseaddr
 from pydantic import EmailStr, HttpUrl, SecretStr
 from python_http_client.exceptions import HTTPError
 from sendgrid.helpers.mail import Content, From, Mail, MailSettings, SandBoxMode, To
@@ -194,9 +195,7 @@ def mailgun_send(
     email_response = EmailResponseStatuses.ERROR
     message_id = ""
     try:
-        url = "{}/v3/{}/messages".format(
-            str(base_url).rstrip("/"), mailgun_domain
-        )
+        url = "{}/v3/{}/messages".format(str(base_url).rstrip("/"), mailgun_domain)
         auth = ("api", api_key.get_secret_value().strip())
         data = {
             "from": f"{from_display} <{from_email}>",
@@ -243,7 +242,13 @@ def smtp_send(
         fromaddr = from_email
         toaddr = email_address
         smtpmsg = MIMEMultipart("alternative")
-        smtpmsg["From"] = from_display
+        _, parsed_from_address = parseaddr(from_display)
+        from_header = (
+            from_display
+            if "@" in parsed_from_address
+            else formataddr((from_display, str(from_email)))
+        )
+        smtpmsg["From"] = from_header
         smtpmsg["To"] = email_address
         smtpmsg["Subject"] = email_subject
         part1 = MIMEText(email_content_text, "plain")
