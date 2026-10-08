@@ -1,7 +1,7 @@
 <template>
-  <!-- 
-    hidden field for expected_referrer 
-    doesn't require user input 
+  <!--
+    hidden field for expected_referrer
+    doesn't require user input
   -->
   <BaseFormTextField
     id="expected_referrer"
