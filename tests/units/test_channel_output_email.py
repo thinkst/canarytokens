@@ -1,9 +1,11 @@
 import datetime
 from pathlib import Path
+from email.parser import Parser
+from email.utils import parseaddr
 import uuid
 import pytest
 import requests
-from pydantic import EmailStr, HttpUrl, SecretStr
+from pydantic import HttpUrl, SecretStr
 from python_http_client.exceptions import HTTPError
 from unittest.mock import Mock
 from unittest import mock
@@ -328,7 +330,10 @@ def test_mailgun_send(
     )
     assert result is expected_result_type
     assert message_id == expected_message_id
-    assert mock_post.call_args.args[0] == "https://api.mailgun.test/v3/mailgun.test/messages"
+    assert (
+        mock_post.call_args.args[0]
+        == "https://api.mailgun.test/v3/mailgun.test/messages"
+    )
 
 
 # TODO: Write more comprehensive tests for SMTP. The difficulty here is that we don't have a consistent API to use
@@ -356,7 +361,12 @@ def test_smtp_send(
         smtp_server="localhost",
         smtp_username="testuser",
     )
-    assert mock_SMTP.return_value.__enter__.return_value.sendmail.call_count == 1
+    sendmail = mock_SMTP.return_value.__enter__.return_value.sendmail
+    assert sendmail.call_count == 1
+    smtp_message = Parser().parsestr(sendmail.call_args.args[2])
+    from_name, from_address = parseaddr(smtp_message["From"])
+    assert from_name == settings.ALERT_EMAIL_FROM_DISPLAY
+    assert from_address == settings.ALERT_EMAIL_FROM_ADDRESS
     assert len(message_id) == len(uuid.uuid4().hex)
     assert result == EmailResponseStatuses.SENT
     assert len(message_id) > 0
