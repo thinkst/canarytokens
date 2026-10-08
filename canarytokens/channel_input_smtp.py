@@ -30,6 +30,12 @@ from canarytokens.tokens import Canarytoken
 
 log = Logger()
 
+MAX_HEADER_LINES = 1_000
+MAX_HEADER_BYTES = 64 * 2**10
+MAX_STORED_LINES = 10_000
+MAX_STORED_BYTES = 5 * 2**20
+MAX_ATTACHMENT_PARTS = 100
+
 # Store the original method before patching
 original_lookup_method = smtp.ESMTP.lookupMethod
 
@@ -68,6 +74,7 @@ class CanaryMessage:
         self.in_mime_header = True
         self.lines = []
         self.stored_byte_count = 0
+        self.header_byte_count = 0
 
     def lineReceived(self, line: bytes):
         """
@@ -78,25 +85,36 @@ class CanaryMessage:
             self.headers_finished = True
 
         if not self.headers_finished:
+            if (
+                len(self.headers) >= MAX_HEADER_LINES
+                or self.header_byte_count >= MAX_HEADER_BYTES
+            ):
+                return
             self.headers.append(line)
+            self.header_byte_count += len(line)
             m = self.mime_boundary_re.match(line)
             if m:
                 self.mime_boundary = m.group(1)
         else:
+            if (
+                len(self.lines) >= MAX_STORED_LINES
+                or self.stored_byte_count >= MAX_STORED_BYTES
+            ):
+                return
             if self.mime_boundary:
                 if self.in_mime_header:
                     if line == b"":
                         self.in_mime_header = False
-                    else:
+                    elif self.attachments:
                         self.attachments[-1].append(line)
 
                 if self.mime_boundary in line:
                     self.in_mime_header = True
-                    self.attachments.append([])
+                    if len(self.attachments) < MAX_ATTACHMENT_PARTS:
+                        self.attachments.append([])
 
-            if self.stored_byte_count < 5 * 2**20:  # 5MB limit
-                self.lines.append(line)
-                self.stored_byte_count = self.stored_byte_count + len(line)
+            self.lines.append(line)
+            self.stored_byte_count += len(line)
 
     def eomReceived(self):
         """

@@ -35,6 +35,11 @@ from canarytokens.tokens import Canarytoken
 
 log = Logger()
 
+MAX_STORED_LINES = 1_000
+# A kube-apiserver (net/http) caps a request's header block - request line plus
+# headers, which is all this channel ever buffers - at 1 MiB by default.
+MAX_STORED_BYTES = 1 * 2**20
+
 
 class ChirpData(TypedDict):
     # TODO: rename these to something meaningful.
@@ -53,13 +58,19 @@ class mTLS(basic.LineReceiver):
         self.headers = headers
         self.bodies = bodies
         self.lines = []
+        self.stored_byte_count = 0
         self.enricher = enricher
         self.last_hit = datetime.utcnow()
 
     def lineReceived(self, line: bytes):
-        self.lines.append(line)
         if not line:
+            self.lines.append(line)
             self.send_response()
+            return
+        if len(self.lines) >= MAX_STORED_LINES or self.stored_byte_count >= MAX_STORED_BYTES:
+            return
+        self.lines.append(line)
+        self.stored_byte_count += len(line)
 
     def send_response(self):
         client = self.transport.getPeer()
