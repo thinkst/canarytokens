@@ -30,6 +30,7 @@ type FieldsType = {
   app_type?: string;
   aws_region?: string;
   aws_account_number?: number;
+  username?: string;
   [key: string]: any;
 };
 
@@ -281,6 +282,12 @@ export const formValidators: ValidateSchemaType = {
       ...validationNotificationSettings,
       redirect_url: Yup.string(),
       app_type: Yup.string().required('App type is required'),
+    }),
+  },
+  [TOKENS_TYPE.ONE_PASSWORD]: {
+    schema: Yup.object().shape({
+      ...validationNotificationSettings,
+      username: Yup.string().required('Username is required'),
     }),
   },
   [TOKENS_TYPE.AWS_INFRA]: {
