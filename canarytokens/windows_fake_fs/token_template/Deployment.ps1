@@ -163,7 +163,7 @@ function Remove-ProjFS {
     Invoke-Step "Removing folder" {
         cmd /c rmdir /s /q "$RootPath"
     }
-    
+
     Invoke-Step "Removing Scheduled Task" {
         schtasks /delete /TN $TaskName /F
     }

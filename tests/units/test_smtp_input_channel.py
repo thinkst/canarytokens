@@ -4,9 +4,15 @@ from email.mime.text import MIMEText
 
 from twisted.internet.testing import StringTransport
 from twisted.mail.smtp import Address, User
+from twisted.protocols.basic import LineReceiver
 
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel_input_smtp import (
+    MAX_ATTACHMENT_PARTS,
+    MAX_HEADER_BYTES,
+    MAX_HEADER_LINES,
+    MAX_STORED_BYTES,
+    MAX_STORED_LINES,
     CanaryESMTP,
     CanaryMessage,
     CanarySMTPFactory,
@@ -16,6 +22,14 @@ from canarytokens.queries import save_canarydrop
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 from tests.utils import slack_webhook_test
+
+HEADER_FLOOD_PREFIX = b"X-Pad: "
+HEADER_FLOOD_LINE = HEADER_FLOOD_PREFIX + b"B" * (
+    LineReceiver.MAX_LENGTH - len(HEADER_FLOOD_PREFIX)
+)
+HEADER_FLOOD_ATTEMPTS = (
+    (MAX_HEADER_BYTES + len(HEADER_FLOOD_LINE) - 1) // len(HEADER_FLOOD_LINE) + 1
+)
 
 switchboard = Switchboard()
 
@@ -143,3 +157,77 @@ async def test_canary_esmtp(frontend_settings, settings, setup_db):
     assert len(canary_message.token_hit.mail.recipients) == 1
     assert cd.canarytoken.value() in canary_message.token_hit.mail.recipients[0]
     assert len(canary_message.token_hit.mail.headers) == 5
+
+
+def test_header_flood_bounded_by_bytes():
+    cm = CanaryMessage(esmtp=None)
+    for _ in range(HEADER_FLOOD_ATTEMPTS):
+        cm.lineReceived(HEADER_FLOOD_LINE)
+    assert cm.header_byte_count >= MAX_HEADER_BYTES
+    assert cm.header_byte_count < MAX_HEADER_BYTES + len(HEADER_FLOOD_LINE)
+
+
+def test_header_flood_bounded_by_line_count():
+    cm = CanaryMessage(esmtp=None)
+    for _ in range(MAX_HEADER_LINES):
+        cm.lineReceived(b"X")
+    cm.lineReceived(b"X")
+    assert len(cm.headers) == MAX_HEADER_LINES
+
+
+def test_boundary_flood_bounded():
+    cm = CanaryMessage(esmtp=None)
+    cm.lineReceived(b"Content-Type: multipart/mixed; boundary=b")
+    cm.lineReceived(b"")
+    for _ in range(MAX_STORED_LINES + 1):
+        cm.lineReceived(b"b")
+    assert len(cm.attachments) == MAX_ATTACHMENT_PARTS
+    assert len(cm.lines) == MAX_STORED_LINES
+    assert sum(len(a) for a in cm.attachments) <= MAX_STORED_LINES
+
+
+def test_links_survive_header_flood():
+    cm = CanaryMessage(esmtp=None)
+    for _ in range(HEADER_FLOOD_ATTEMPTS):
+        cm.lineReceived(HEADER_FLOOD_LINE)
+    cm.lineReceived(b"")
+    cm.lineReceived(b"visit https://evil.example/abc now")
+    links = cm.links_re.findall(b"\r\n".join(cm.lines))
+    assert b"https://evil.example/abc" in links
+
+
+def test_body_flood_bounded_by_bytes():
+    cm = CanaryMessage(esmtp=None)
+    cm.lineReceived(b"Subject: x")
+    cm.lineReceived(b"")
+    line = b"B" * (MAX_STORED_BYTES // MAX_STORED_LINES + 1)
+    for _ in range(MAX_STORED_LINES + 1):
+        cm.lineReceived(line)
+    assert cm.stored_byte_count >= MAX_STORED_BYTES
+    assert cm.stored_byte_count < MAX_STORED_BYTES + len(line)
+    assert len(cm.lines) < MAX_STORED_LINES
+
+
+def test_body_flood_bounded_by_line_count():
+    cm = CanaryMessage(esmtp=None)
+    cm.lineReceived(b"Subject: x")
+    cm.lineReceived(b"")
+    for _ in range(MAX_STORED_LINES):
+        cm.lineReceived(b"B")
+    cm.lineReceived(b"B")
+    assert len(cm.lines) == MAX_STORED_LINES
+    assert cm.stored_byte_count <= MAX_STORED_LINES
+
+
+def test_normal_mail_still_parsed():
+    cm = CanaryMessage(esmtp=None)
+    for line in [
+        b"From: fromtest@test.com",
+        b"Subject: hi",
+        b"",
+        b"plain body with https://normal.example/ok inside",
+    ]:
+        cm.lineReceived(line)
+    links = cm.links_re.findall(b"\r\n".join(cm.lines))
+    assert links == [b"https://normal.example/ok"]
+    assert b"Subject: hi" in cm.headers
