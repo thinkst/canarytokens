@@ -100,6 +100,8 @@ type CanaryDropType = {
   svg: string | null;
   mcpjson: string | null;
   mcp_alert_on: string | null;
+  email_addr: string | null;
+  username: string | null;
 };
 
 type NullablePartial<T> = { [P in keyof T]: T[P] | null };
@@ -130,6 +132,7 @@ export type ManageTokenBackendType = {
   aws_region: string;
   aws_account_id: string;
   mcpjson: string;
+  email_addr: string;
 };
 
 export type NewTokenBackendType = {
@@ -186,6 +189,8 @@ export type NewTokenBackendType = {
   svg: string | null;
   mcp_alert_on: string | null;
   mcpjson: string | null;
+  email_addr: string | null;
+  username: string | null;
 };
 
 export type AsnType = {

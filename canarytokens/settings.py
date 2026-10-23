@@ -79,7 +79,13 @@ class SwitchboardSettings(BaseSettings):
 
     TOKEN_RETURN: Literal["gif", "fortune"] = "gif"
     LAMBDA_AWS_CRED_REPORT_AUTH: Optional[str] = None
-    model_config = SettingsConfigDict(frozen=True, extra='ignore', env_file="../switchboard/switchboard.env", env_file_encoding="utf-8", env_prefix="CANARY_")
+    model_config = SettingsConfigDict(
+        frozen=True,
+        extra="ignore",
+        env_file="../switchboard/switchboard.env",
+        env_file_encoding="utf-8",
+        env_prefix="CANARY_",
+    )
 
 
 class FrontendSettings(BaseSettings):
@@ -127,6 +133,8 @@ class FrontendSettings(BaseSettings):
     TESTING_AWS_OUTPUT: Optional[str] = "json"
     AZURE_ID_TOKEN_URL: Optional[HttpUrl] = None
     AZURE_ID_TOKEN_AUTH: Optional[str] = None
+    ONE_PASSWORD_TOKEN_URL: Optional[HttpUrl] = None
+    ONE_PASSWORD_TOKEN_AUTH: Optional[str] = None
     CROWDSTRIKE_CC_CREATE_URL: Optional[HttpUrl] = None
     CROWDSTRIKE_CC_DELETE_URL: Optional[HttpUrl] = None
     GOOGLE_API_KEY: Optional[str] = None
@@ -139,7 +147,9 @@ class FrontendSettings(BaseSettings):
     CLOUDFLARE_API_TOKEN: Optional[str] = ""
     WEBDAV_SERVER: Optional[str] = ""
     AZUREAPP_ID: Optional[str] = None
-    AZUREAPP_SECRET: Optional[str] = None  # TODO: Figure out SecretStr with Azure secrets
+    AZUREAPP_SECRET: Optional[str] = (
+        None  # TODO: Figure out SecretStr with Azure secrets
+    )
     CREDIT_CARD_TOKEN_ENABLED: bool = False
     CREDIT_CARD_INFRA_CUSTOMER_GUID: Optional[str] = None
     CREDIT_CARD_INFRA_CUSTOMER_SECRET: Optional[str] = None
@@ -166,11 +176,19 @@ class FrontendSettings(BaseSettings):
     GEMINI_PROMPT_TEMPLATE: Optional[str] = None
     GEMINI_SYSTEM_PROMPT: Optional[str] = None
     GEMINI_TEMPERATURE: Optional[str] = "1.8"
-    DEFAULT_GUARDRAIL_TRIGGERS: Annotated[list[str], NoDecode, BeforeValidator(_split_comma_strip)] = []
+    DEFAULT_GUARDRAIL_TRIGGERS: Annotated[
+        list[str], NoDecode, BeforeValidator(_split_comma_strip)
+    ] = []
 
     # for local aws infra testing
     AWS_ACCESS_KEY_ID: Optional[str] = None
     AWS_SECRET_ACCESS_KEY: Optional[str] = None
     AWS_SESSION_TOKEN: Optional[str] = None
 
-    model_config = SettingsConfigDict(frozen=True, extra='ignore', env_file="../frontend/frontend.env", env_file_encoding="utf-8", env_prefix="CANARY_")
+    model_config = SettingsConfigDict(
+        frozen=True,
+        extra="ignore",
+        env_file="../frontend/frontend.env",
+        env_file_encoding="utf-8",
+        env_prefix="CANARY_",
+    )
