@@ -27,11 +27,15 @@ from canarytokens.settings import SwitchboardSettings
 from canarytokens.webdav import FsType
 
 from pydantic import (
-    model_validator, ConfigDict, AnyHttpUrl, TypeAdapter,
+    model_validator,
+    ConfigDict,
+    AnyHttpUrl,
+    TypeAdapter,
     BaseModel,
     Field,
     field_serializer,
-    parse_obj_as)
+    parse_obj_as,
+)
 
 from canarytokens import queries, tokens
 from canarytokens.constants import (
@@ -226,6 +230,10 @@ class Canarydrop(BaseModel):
     mcp_alert_on: Optional[McpAlertOn] = None
     mcpjson: Optional[str] = None
 
+    # 1Password specific stuff
+    email_addr: Optional[str] = None
+    username: Optional[str] = None
+
     @model_validator(mode="before")
     @classmethod
     def _validate_triggered_details(cls, values):
@@ -250,8 +258,10 @@ class Canarydrop(BaseModel):
             )
 
         if "key_exposed_details" in values:
-            values["key_exposed_details"] = any_token_exposed_hit_adapter.validate_python(
-                values["key_exposed_details"]
+            values["key_exposed_details"] = (
+                any_token_exposed_hit_adapter.validate_python(
+                    values["key_exposed_details"]
+                )
             )
             token_type, expected_token_type = (
                 values["key_exposed_details"].token_type,
@@ -274,6 +284,7 @@ class Canarydrop(BaseModel):
                 auth=self.auth,
             ),
         )
+
     model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
 
     @field_serializer("canarytoken")

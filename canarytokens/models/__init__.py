@@ -231,6 +231,13 @@ from .my_sql import (
     MySQLTokenRequest,
     MySQLTokenResponse,
 )
+from .onepassword import (
+    OnePasswordTokenHistory,
+    OnePasswordTokenHit,
+    OnePasswordTokenRequest,
+    OnePasswordTokenResponse,
+    OnePassword,
+)
 from .pwa import (
     PWA_APP_TITLES,
     PWATokenHistory,
@@ -371,6 +378,7 @@ AnyTokenRequest = Annotated[
         CrowdStrikeCCTokenRequest,
         SVGTokenRequest,
         McpTokenRequest,
+        OnePasswordTokenRequest,
     ],
     Field(discriminator="token_type"),
 ]
@@ -415,6 +423,7 @@ AnyTokenResponse = Annotated[
         CrowdStrikeCCTokenResponse,
         SVGTokenResponse,
         McpTokenResponse,
+        OnePasswordTokenResponse,
     ],
     Field(discriminator="token_type"),
 ]
@@ -456,6 +465,7 @@ AnyTokenHit = Annotated[
         CrowdStrikeCCTokenHit,
         SVGTokenHit,
         McpTokenHit,
+        OnePasswordTokenHit,
     ],
     Field(discriminator="token_type"),
 ]
@@ -499,6 +509,7 @@ AnyTokenHistory = Annotated[
         CrowdStrikeCCTokenHistory,
         SVGTokenHistory,
         McpTokenHistory,
+        OnePasswordTokenHistory,
     ],
     Field(discriminator="token_type"),
 ]
