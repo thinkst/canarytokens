@@ -15,7 +15,6 @@ from requests import HTTPError
 import uvicorn  # type: ignore
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from pydantic import HttpUrl
 from starlette.responses import JSONResponse
 
 from canarytokens import kubeconfig
@@ -79,13 +78,13 @@ def webhook_receiver() -> Generator[str, None, None]:
     resp = requests.post("https://webhook.site/token")
     attempts = 1
     while resp.status_code == 429:  # too many requests
-        time.sleep(6.1)  # webhook.site allows 10 per minute; sometimes we're too fast
-        resp = requests.post("https://webhook.site/token")
-        attempts += 1
         if attempts == 10:
             raise HTTPError(
                 f"Failed to acquire a webhook after 10 attempts: {resp.status_code=}; {resp.content=}"
             )
+        time.sleep(15.1)  # webhook.site allows one token creation per minute.
+        resp = requests.post("https://webhook.site/token")
+        attempts += 1
     resp.raise_for_status()
     data = resp.json()
     uuid = data["uuid"]
