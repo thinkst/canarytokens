@@ -1,5 +1,4 @@
 import os
-from pydantic import HttpUrl
 import pytest
 
 from canarytokens.models import (
@@ -70,7 +69,7 @@ from tests.utils import get_token_history
     ],
 )
 def test_azure_token_post_request_processing(
-    data: dict, expected_hit: dict
+    data: dict, expected_hit: dict, webhook_receiver: str
 ):  # pragma: no cover
     """
     When an Azure Token is triggered azure makes a POST request
@@ -78,7 +77,7 @@ def test_azure_token_post_request_processing(
     """
 
     token_request = AzureIDTokenRequest(
-        webhook_url="https://webhook.site/873f846e-9434-4db9-bfb4-1e7f60464f97",
+        webhook_url=webhook_receiver,
         memo=Memo("Azure test token"),
         azure_id_cert_file_name="test_token.pem",
     )

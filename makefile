@@ -13,6 +13,13 @@ frontend:
 	cd frontend; uv run uvicorn app:app --reload  --reload-dir="./" --reload-dir="../canarytokens" --host 0.0.0.0 --port 8082
 
 
+.PHONY: switchboard-test frontend-test
+switchboard-test:
+	uv run python tests/run_service.py switchboard
+
+frontend-test:
+	uv run python tests/run_service.py frontend
+
 .PHONY: test
 test:
 	cd tests; \

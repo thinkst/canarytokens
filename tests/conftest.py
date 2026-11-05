@@ -7,11 +7,11 @@ import time
 from pathlib import Path
 from typing import Any, Generator, Optional
 from unittest import mock
+from uuid import uuid4
 
 import pytest
 from redis import StrictRedis
 import requests
-from requests import HTTPError
 import uvicorn  # type: ignore
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
@@ -32,10 +32,13 @@ from canarytokens.queries import (
 from canarytokens.redismanager import DB, KEY_KUBECONFIG_CERTS, KEY_KUBECONFIG_SERVEREP
 from canarytokens.settings import FrontendSettings, Port, SwitchboardSettings
 from canarytokens.utils import strtobool
+from tests.webhook_capture import (
+    allow_capture_delivery,
+    capture_api_url,
+    create_app,
+    create_webhook_site_url,
+)
 
-# TODO: Once webhooker can handle more / faster traffic these will get upped
-# DESIGN: ngrok to get a basic webhook(er). This can be a lambda or a docker service.
-#         main limitation is number of connections.
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
@@ -54,7 +57,10 @@ class Server(uvicorn.Server):
         thread = threading.Thread(target=self.run)
         thread.start()
         try:
+            deadline = time.monotonic() + 10
             while not self.started:
+                if not thread.is_alive() or time.monotonic() >= deadline:
+                    raise RuntimeError("Test HTTP server failed to start")
                 time.sleep(1e-3)
             yield
         finally:
@@ -62,36 +68,45 @@ class Server(uvicorn.Server):
             thread.join()
 
 
+@pytest.fixture(scope="session")
+def webhook_capture_server() -> Generator[str, None, None]:
+    external_url = os.getenv("TEST_WEBHOOK_URL")
+    if external_url:
+        yield external_url.rstrip("/")
+        return
+    if strtobool(os.getenv("LIVE", "False")):
+        pytest.fail("LIVE tests require TEST_WEBHOOK_URL pointing to an owned receiver")
+    config = uvicorn.Config(create_app(), host="127.0.0.1", port=8088)
+    with Server(config).run_in_thread():
+        yield "http://127.0.0.1:8088"
+
+
 @pytest.fixture(scope="function")
-def webhook_receiver() -> Generator[str, None, None]:
-    """
-    Provides an alerting URL for tests.
+def webhook_receiver(request, monkeypatch) -> Generator[str, None, None]:
+    from canarytokens import advocate
 
-    Returns:
-       None: on teardown nothing is returned
+    backend = os.getenv("TEST_WEBHOOK_BACKEND", "local")
+    if backend == "webhook.site":
+        yield request.getfixturevalue("webhook_site_receiver")
+        return
+    if backend != "local":
+        pytest.fail(f"Unknown TEST_WEBHOOK_BACKEND: {backend}")
+    webhook_capture_server = request.getfixturevalue("webhook_capture_server")
+    monkeypatch.setattr(
+        advocate, "post", allow_capture_delivery(advocate.post, webhook_capture_server)
+    )
+    url = f"{webhook_capture_server}/hooks/{uuid4().hex}"
+    api_url = capture_api_url(url)
+    requests.post(api_url, timeout=5).raise_for_status()
+    try:
+        yield url
+    finally:
+        requests.delete(api_url, timeout=5).raise_for_status()
 
-    Yields:
-         str: url to the alert endpoint
-    """
 
-    # acquire a URL and return it
-    resp = requests.post("https://webhook.site/token")
-    attempts = 1
-    while resp.status_code == 429:  # too many requests
-        if attempts == 10:
-            raise HTTPError(
-                f"Failed to acquire a webhook after 10 attempts: {resp.status_code=}; {resp.content=}"
-            )
-        time.sleep(15.1)  # webhook.site allows one token creation per minute.
-        resp = requests.post("https://webhook.site/token")
-        attempts += 1
-    resp.raise_for_status()
-    data = resp.json()
-    uuid = data["uuid"]
-    url = f"https://webhook.site/{uuid}"
-    yield url
-    # tear down
-    # for webhook.site there's nothing to do; they'll delete in 7 days
+@pytest.fixture(scope="session")
+def webhook_site_receiver() -> str:
+    return create_webhook_site_url()
 
 
 @pytest.fixture(scope="function")
