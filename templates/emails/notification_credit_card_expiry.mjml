@@ -143,10 +143,10 @@
           <mj-text color="#060606" font-weight="bold" align="center" font-size="24px" line-height="32px">
             Your Credit Card Canarytoken<br /> will expire soon.</mj-text>
           <mj-text color="#818a8e" padding="20px 50px 0 50px" align="center">
-           These tokens use real credit card details, and like all credit cards, they eventually expire.
+           These tokens use real credit card details and, like all credit cards, they eventually expire.
           </mj-text>
           <mj-text color="#818a8e" padding="0px 50px" align="center" padding-top="20px">
-            Once a token reaches its expiration date, it will no longer generate alerts if the card details are used.
+            Once a token expires, it will no longer generate alerts if the card details are used.
           </mj-text>
         </mj-column>
       </mj-section>
