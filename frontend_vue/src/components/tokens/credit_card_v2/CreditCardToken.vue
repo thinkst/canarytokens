@@ -18,7 +18,7 @@
       class="w-[4rem] h-[4rem]"
       alt="Expired credit card"
     />
-    <p class="font-semibold text-grey-900">This credit card token has expired.</p>
+    <p class="font-semibold text-grey-900">This Credit Card token has expired.</p>
     <p class="max-w-[24rem] leading-6 text-grey-500">
       To continue receiving alerts, simply create a new Credit Card Canarytoken at
       <a class="font-bold text-grey-500" href="https://canarytokens.org">Canarytokens.org</a>
