@@ -1,6 +1,7 @@
 # If any packages or tools are not available through devcontainer features, install them here.
 FROM mcr.microsoft.com/devcontainers/base:debian-12
 
+RUN sed -i.bak -E 's#https?://(deb\.debian\.org|security\.debian\.org)/debian-security#https://archive.debian.org/debian-archive/debian-security#g' /etc/apt/sources.list
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     default-mysql-client \
