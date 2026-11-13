@@ -187,6 +187,8 @@ from canarytokens.models import (
     MsWordDocumentTokenResponse,
     MySQLTokenRequest,
     MySQLTokenResponse,
+    OnePasswordTokenRequest,
+    OnePasswordTokenResponse,
     PDFTokenRequest,
     PDFTokenResponse,
     PWATokenRequest,
@@ -219,6 +221,7 @@ from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.mcp import make_canary_mcp_json
+from canarytokens.onepassword import get_one_password
 from canarytokens.azure_css import (
     install_azure_css,
     EntraTokenErrorAccessDenied,
@@ -664,7 +667,9 @@ async def api_generate(  # noqa: C901  # gen is large
         alert_email_enabled=True if token_request_details.email else False,
         alert_email_recipient=token_request_details.email,
         alert_webhook_enabled=True if token_request_details.webhook_url else False,
-        alert_webhook_url=str(token_request_details.webhook_url) if token_request_details.webhook_url else "",
+        alert_webhook_url=str(token_request_details.webhook_url)
+        if token_request_details.webhook_url
+        else "",
         created_from_ip=src_ip,
         created_from_ip_x_forwarded_for=x_forwarded_for,
         canarytoken=canarytoken,
@@ -2139,6 +2144,55 @@ def _(
         hostname=canarydrop.get_hostname(),
         url_components=list(canarydrop.get_url_components()),
         mcpjson=canarydrop.mcpjson,
+    )
+
+
+@create_response.register
+def _(
+    token_request_details: OnePasswordTokenRequest,
+    canarydrop: Canarydrop,
+    settings: Optional[FrontendSettings] = None,
+) -> OnePasswordTokenResponse:
+    if settings is None:
+        settings = frontend_settings
+
+    if (
+        settings.ONE_PASSWORD_TOKEN_AUTH is None
+        or settings.ONE_PASSWORD_TOKEN_URL is None
+    ):
+        return JSONResponse(
+            {
+                "message": "This Canarytokens instance does not have 1Password tokens enabled."
+            },
+            status_code=400,
+        )
+    canarydrop.username = token_request_details.username
+    try:
+        canarydrop.email_addr = get_one_password(
+            token=canarydrop.canarytoken.value(),
+            username=canarydrop.username,
+            onepass_url=settings.ONE_PASSWORD_TOKEN_URL,
+            auth=settings.ONE_PASSWORD_TOKEN_AUTH,
+            token_url=canarydrop.generated_url,
+        ).get("email_addr")
+    except Exception as e:
+        capture_exception(error=e, context=("get_one_password", None))
+        # We can fail by getting 404 from ONE_PASSWORD_TOKEN_URL or failing validation
+        return response_error(
+            4, message="Failed to generate 1Password token. We're looking into it."
+        )
+    queries.save_canarydrop(canarydrop=canarydrop)
+    return OnePasswordTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=(
+            canarydrop.alert_webhook_url if canarydrop.alert_webhook_url else ""
+        ),
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        email_addr=canarydrop.email_addr,
     )
 
 
