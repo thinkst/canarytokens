@@ -17,7 +17,7 @@ import pytest
 import dns.resolver
 import requests
 from dns.resolver import LifetimeTimeout
-from pydantic import EmailStr, HttpUrl, parse_obj_as
+from pydantic import HttpUrl, parse_obj_as
 
 from canarytokens.exceptions import CanaryTokenCreationError
 from canarytokens.models import (
@@ -57,6 +57,7 @@ from canarytokens.models import (
 from canarytokens.tokens import Canarytoken
 from canarytokens.utils import strtobool
 from frontend.app import ROOT_API_ENDPOINT
+from tests.webhook_capture import capture_api_url, capture_request_url, payload_token
 
 log = Logger("test_utils")
 
@@ -376,8 +377,7 @@ def get_stats_from_webhook(webhook_receiver: str, token: str):
     if "slack" in webhook_receiver:
         # slack webhooks don't give us introspection. Or can we? TODO: take a look.
         return  # pragma: no cover
-    uuid = webhook_receiver.split("/")[-1]
-    webhook_url = f"https://webhook.site/token/{uuid}/requests"
+    webhook_url = capture_api_url(webhook_receiver)
     headers = {"Connection": "close"}
     for _ in range(5):
         time.sleep(1.0)
@@ -391,17 +391,13 @@ def get_stats_from_webhook(webhook_receiver: str, token: str):
         stats = defaultdict(list)
         for req in webhook_data["data"]:
             data = json.loads(req["content"])
-            # HACK: we can do better but that would be an API change:
-            if "http://example.com/test/url/for/webhook" != data.get(
-                "manage_url", None
-            ):
-                token_and_auth = data["manage_url"].split("/")[-1]
-                data_token = token_and_auth.split("&")[0].split("=")[1]
+            data_token = payload_token(data)
+            if data_token is not None:
                 stats[data_token].append(data)
         if len(stats[token]) > 0:
             return stats[token]
     pytest.fail(
-        f"No stats found for token {token} on webhook {webhook_receiver} after 5 attempts"
+        f"No stats found for token {token} on webhook {webhook_receiver} after 5 attempts; captured: {webhook_data!r}"
     )
 
 
@@ -411,10 +407,10 @@ def clear_stats_on_webhook(webhook_receiver: str, token: str):
     if "slack" in webhook_receiver:
         # slack webhooks don't give us introspection. or TODO: check how to!
         return  # pragma: no cover
-    webhook_uuid = webhook_receiver.split("/")[-1]
+    webhook_url = capture_api_url(webhook_receiver)
     # get all the requests
     resp = session.get(
-        f"https://webhook.site/token/{webhook_uuid}/requests",
+        webhook_url,
         timeout=request_timeout,
         headers={"Connection": "close"},
     )
@@ -430,13 +426,12 @@ def clear_stats_on_webhook(webhook_receiver: str, token: str):
         if "http://example.com/test/url/for/webhook" == data.get("manage_url", None):
             delete_req = True
         else:
-            token_and_auth = data["manage_url"].split("/")[-1]
-            current_token = token_and_auth.split("&")[0].split("=")[1]
+            current_token = payload_token(data)
             if current_token == token:
                 delete_req = True
         if delete_req:
             resp = session.delete(
-                f"https://webhook.site/token/{webhook_uuid}/request/{token_uuid}",
+                capture_request_url(webhook_receiver, token_uuid),
                 timeout=request_timeout,
                 headers={"Connection": "close"},
             )
