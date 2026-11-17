@@ -35,6 +35,7 @@ MAX_HEADER_BYTES = 64 * 2**10
 MAX_STORED_LINES = 10_000
 MAX_STORED_BYTES = 5 * 2**20
 MAX_ATTACHMENT_PARTS = 100
+MAX_RECIPIENTS = 100
 
 # Store the original method before patching
 original_lookup_method = smtp.ESMTP.lookupMethod
@@ -85,16 +86,7 @@ class CanaryMessage:
             self.headers_finished = True
 
         if not self.headers_finished:
-            if (
-                len(self.headers) >= MAX_HEADER_LINES
-                or self.header_byte_count >= MAX_HEADER_BYTES
-            ):
-                return
-            self.headers.append(line)
-            self.header_byte_count += len(line)
-            m = self.mime_boundary_re.match(line)
-            if m:
-                self.mime_boundary = m.group(1)
+            self._receive_header(line)
         else:
             if (
                 len(self.lines) >= MAX_STORED_LINES
@@ -115,6 +107,18 @@ class CanaryMessage:
 
             self.lines.append(line)
             self.stored_byte_count += len(line)
+
+    def _receive_header(self, line: bytes):
+        if (
+            len(self.headers) >= MAX_HEADER_LINES
+            or self.header_byte_count >= MAX_HEADER_BYTES
+        ):
+            return
+        self.headers.append(line)
+        self.header_byte_count += len(line)
+        m = self.mime_boundary_re.match(line)
+        if m:
+            self.mime_boundary = m.group(1)
 
     def eomReceived(self):
         """
@@ -169,9 +173,18 @@ class Mail(TypedDict):
 
 
 class CanaryESMTP(smtp.ESMTP):
+    """Bound recipient-driven work within each SMTP transaction.
+
+    Accept at most MAX_RECIPIENTS successful RCPT commands, including duplicates,
+    but register only one delivery handler per token. Excess recipients receive
+    452 so senders can retry them (RFC 5321 section 4.5.3.1).
+    """
+
     def __init__(self, **kwargs):
         smtp.ESMTP.__init__(self, **kwargs)
         self.token_hit: Optional[SMTPTokenHit] = None
+        self._recipient_count = 0
+        self._recipient_tokens: set[str] = set()
         self.mail: Mail = {
             "recipients": [],
             "sender": "",
@@ -201,11 +214,13 @@ class CanaryESMTP(smtp.ESMTP):
             self.mail["recipients"].append(address)
 
     def validateFrom(self, helo: Tuple[bytes, bytes], origin: Address):
+        self._reset_recipients()
         log.info(f"Got email from: {origin}")
         return origin
 
     def validateTo(self, user):
-        # Only messages directed to the "console" user are accepted.
+        if self._recipient_count >= MAX_RECIPIENTS:
+            raise smtp.SMTPServerError(452, "Too many recipients")
         try:
             canarytoken = Canarytoken(value=user.dest.local)
             self.canarydrop = get_canarydrop(canarytoken=canarytoken)
@@ -227,6 +242,28 @@ class CanaryESMTP(smtp.ESMTP):
             log.error(f"Error in SMTP channel while validating To field{token}: {e}")
 
         raise smtp.SMTPBadRcpt(user)
+
+    def _cbToValidate(self, to, user=None, code=250, msg=b"Recipient address accepted"):
+        token = Canarytoken(value=user.dest.local).value()
+        self._recipient_count += 1
+        if token in self._recipient_tokens:
+            self.sendCode(code, msg)
+            return
+        self._recipient_tokens.add(token)
+        return super()._cbToValidate(to, user, code, msg)
+
+    def _reset_recipients(self):
+        self._recipient_count = 0
+        self._recipient_tokens.clear()
+        self.mail["recipients"].clear()
+
+    def do_RSET(self, rest):
+        self._reset_recipients()
+        return super().do_RSET(rest)
+
+    def _messageHandled(self, resultList):
+        self._reset_recipients()
+        return super()._messageHandled(resultList)
 
     def dispatch(
         self,

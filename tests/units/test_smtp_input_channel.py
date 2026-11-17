@@ -2,21 +2,26 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import pytest
+
 from twisted.internet.testing import StringTransport
 from twisted.mail.smtp import Address, User
 from twisted.protocols.basic import LineReceiver
 
+from canarytokens import channel_input_smtp
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel_input_smtp import (
     MAX_ATTACHMENT_PARTS,
     MAX_HEADER_BYTES,
     MAX_HEADER_LINES,
+    MAX_RECIPIENTS,
     MAX_STORED_BYTES,
     MAX_STORED_LINES,
     CanaryESMTP,
     CanaryMessage,
     CanarySMTPFactory,
 )
+from canarytokens.exceptions import NoCanarydropFound
 from canarytokens.models import TokenTypes
 from canarytokens.queries import save_canarydrop
 from canarytokens.switchboard import Switchboard
@@ -27,9 +32,9 @@ HEADER_FLOOD_PREFIX = b"X-Pad: "
 HEADER_FLOOD_LINE = HEADER_FLOOD_PREFIX + b"B" * (
     LineReceiver.MAX_LENGTH - len(HEADER_FLOOD_PREFIX)
 )
-HEADER_FLOOD_ATTEMPTS = (
-    (MAX_HEADER_BYTES + len(HEADER_FLOOD_LINE) - 1) // len(HEADER_FLOOD_LINE) + 1
-)
+HEADER_FLOOD_ATTEMPTS = (MAX_HEADER_BYTES + len(HEADER_FLOOD_LINE) - 1) // len(
+    HEADER_FLOOD_LINE
+) + 1
 
 switchboard = Switchboard()
 
@@ -231,3 +236,114 @@ def test_normal_mail_still_parsed():
     links = cm.links_re.findall(b"\r\n".join(cm.lines))
     assert links == [b"https://normal.example/ok"]
     assert b"Subject: hi" in cm.headers
+
+
+@pytest.fixture
+def smtp_recipient_session(monkeypatch, frontend_settings, settings):
+    drops = {}
+    saved_hits = []
+    dispatched_hits = []
+
+    def lookup(*, canarytoken):
+        try:
+            return drops[canarytoken.value()]
+        except KeyError:
+            raise NoCanarydropFound()
+
+    monkeypatch.setattr(channel_input_smtp, "get_canarydrop", lookup)
+    monkeypatch.setattr(
+        channel_input_smtp.queries,
+        "save_canarydrop",
+        lambda drop: saved_hits.append(drop.triggered_details.hits[-1]),
+    )
+    monkeypatch.setattr(channel_input_smtp.queries, "get_geoinfo", lambda **kw: None)
+    monkeypatch.setattr(channel_input_smtp.queries, "is_tor_relay", lambda **kw: False)
+    factory = CanarySMTPFactory(
+        switchboard=Switchboard(),
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+    protocol = factory.buildProtocol(None)
+    monkeypatch.setattr(
+        protocol, "dispatch", lambda drop, hit: dispatched_hits.append(hit)
+    )
+    transport = StringTransport()
+    protocol.makeConnection(transport)
+
+    def send(command):
+        transport.clear()
+        protocol.dataReceived(command + b"\r\n")
+        return transport.value()
+
+    try:
+        assert send(b"EHLO example.test").startswith(b"250")
+        assert send(b"MAIL FROM:<sender@example.test>").startswith(b"250")
+        yield send, drops, saved_hits, dispatched_hits
+    finally:
+        protocol.setTimeout(None)
+        protocol.connectionLost(None)
+
+
+def test_smtp_duplicate_recipients_delivered_once(smtp_recipient_session):
+    send, drops, saved, dispatched = smtp_recipient_session
+    token = Canarytoken()
+    drops[token.value()] = Canarydrop(canarytoken=token, type=TokenTypes.SMTP)
+    for index in range(MAX_RECIPIENTS):
+        address = f"{token.value()}@alias{index % 2}.test"
+        assert send(f"RCPT TO:<{address}>".encode()).startswith(b"250")
+    assert send(f"RCPT TO:<{address}>".encode()).startswith(b"452")
+    assert send(b"DATA").startswith(b"354")
+    assert send(b"Subject: duplicate recipients\r\n\r\nbody\r\n.").startswith(b"250")
+    assert len(saved) == len(dispatched) == 1
+    assert [str(Address(value)) for value in saved[0].mail.recipients] == [
+        f"{token.value()}@alias0.test"
+    ]
+    assert len(drops[token.value()].triggered_details.hits) == 1
+
+
+def test_smtp_distinct_recipient_capacity(smtp_recipient_session):
+    send, drops, saved, dispatched = smtp_recipient_session
+    missing = Canarytoken().value()
+    assert send(f"RCPT TO:<{missing}@example.test>".encode()).startswith(b"550")
+    for _ in range(MAX_RECIPIENTS):
+        token = Canarytoken()
+        drops[token.value()] = Canarydrop(canarytoken=token, type=TokenTypes.SMTP)
+        assert send(f"RCPT TO:<{token.value()}@example.test>".encode()).startswith(
+            b"250"
+        )
+    overflow = Canarytoken()
+    drops[overflow.value()] = Canarydrop(canarytoken=overflow, type=TokenTypes.SMTP)
+    assert send(f"RCPT TO:<{overflow.value()}@example.test>".encode()).startswith(
+        b"452"
+    )
+    assert send(b"MAIL FROM:<replacement@example.test>").startswith(b"503")
+    assert send(f"RCPT TO:<{missing}@example.test>".encode()).startswith(b"452")
+    assert send(b"DATA").startswith(b"354")
+    assert send(b"Subject: accepted recipients\r\n\r\nbody\r\n.").startswith(b"250")
+    assert len(saved) == len(dispatched) == MAX_RECIPIENTS
+    assert all(len(hit.mail.recipients) == MAX_RECIPIENTS for hit in saved)
+    assert not drops[overflow.value()].triggered_details.hits
+
+
+@pytest.mark.parametrize(
+    "reset", [b"RSET", b"HELO example.test", b"EHLO example.test", b"DATA"]
+)
+def test_smtp_recipient_state_is_transaction_scoped(smtp_recipient_session, reset):
+    send, drops, saved, dispatched = smtp_recipient_session
+    token = Canarytoken()
+    drops[token.value()] = Canarydrop(canarytoken=token, type=TokenTypes.SMTP)
+    for _ in range(MAX_RECIPIENTS):
+        assert send(f"RCPT TO:<{token.value()}@first.test>".encode()).startswith(b"250")
+    if reset == b"DATA":
+        assert send(reset).startswith(b"354")
+        assert send(b"Subject: first\r\n\r\nbody\r\n.").startswith(b"250")
+    else:
+        assert send(reset).startswith(b"250")
+    assert send(b"MAIL FROM:<sender@example.test>").startswith(b"250")
+    assert send(f"RCPT TO:<{token.value()}@second.test>".encode()).startswith(b"250")
+    assert send(b"DATA").startswith(b"354")
+    assert send(b"Subject: second\r\n\r\nbody\r\n.").startswith(b"250")
+    assert len(saved) == len(dispatched) == (2 if reset == b"DATA" else 1)
+    assert [str(Address(value)) for value in saved[-1].mail.recipients] == [
+        f"{token.value()}@second.test"
+    ]
