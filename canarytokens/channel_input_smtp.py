@@ -63,8 +63,11 @@ smtp.ESMTP.lookupMethod = patched_lookupMethod
 
 @implementer(smtp.IMessage)
 class CanaryMessage:
-    def __init__(self, esmtp=None):
+    """Persist and dispatch hits using the drop bound during recipient validation."""
+
+    def __init__(self, esmtp=None, *, canarydrop):
         self.esmtp = esmtp
+        self.canarydrop = canarydrop
         self.headers = []
         self.headers_finished = False
         self.attachments = []
@@ -151,8 +154,8 @@ class CanaryMessage:
                 ),
             ),
         )
-        self.esmtp.canarydrop.add_canarydrop_hit(token_hit=self.token_hit)
-        self.esmtp.dispatch(self.esmtp.canarydrop, self.token_hit)
+        self.canarydrop.add_canarydrop_hit(token_hit=self.token_hit)
+        self.esmtp.dispatch(self.canarydrop, self.token_hit)
 
         d = defer.Deferred()
         d.callback("Success")
@@ -223,14 +226,14 @@ class CanaryESMTP(smtp.ESMTP):
             raise smtp.SMTPServerError(452, "Too many recipients")
         try:
             canarytoken = Canarytoken(value=user.dest.local)
-            self.canarydrop = get_canarydrop(canarytoken=canarytoken)
-            if self.canarydrop.type == TokenTypes.LEGACY:
-                self.canarydrop.type = TokenTypes.SMTP
-                self.canarydrop.triggered_details = SMTPTokenHistory(
-                    hits=self.canarydrop.triggered_details.hits
+            canarydrop = get_canarydrop(canarytoken=canarytoken)
+            if canarydrop.type == TokenTypes.LEGACY:
+                canarydrop.type = TokenTypes.SMTP
+                canarydrop.triggered_details = SMTPTokenHistory(
+                    hits=canarydrop.triggered_details.hits
                 )
-                save_canarydrop(self.canarydrop)
-            return lambda: CanaryMessage(esmtp=self)
+                save_canarydrop(canarydrop)
+            return lambda: CanaryMessage(esmtp=self, canarydrop=canarydrop)
         except (NoCanarydropFound, NoCanarytokenFound):
             log.warn(
                 "No token in recipient address: {address}".format(
