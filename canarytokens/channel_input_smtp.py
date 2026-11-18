@@ -35,7 +35,7 @@ MAX_HEADER_BYTES = 64 * 2**10
 MAX_STORED_LINES = 10_000
 MAX_STORED_BYTES = 5 * 2**20
 MAX_ATTACHMENT_PARTS = 100
-MAX_RECIPIENTS = 100
+MAX_RECIPIENTS = 100  # Minimum recipient capacity per RFC 5321, section 4.5.3.1.8.
 
 # Store the original method before patching
 original_lookup_method = smtp.ESMTP.lookupMethod
