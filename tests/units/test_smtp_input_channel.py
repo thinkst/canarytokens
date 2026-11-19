@@ -1,3 +1,4 @@
+from collections import Counter
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -23,7 +24,7 @@ from canarytokens.channel_input_smtp import (
 )
 from canarytokens.exceptions import NoCanarydropFound
 from canarytokens.models import TokenTypes
-from canarytokens.queries import save_canarydrop
+from canarytokens.queries import get_canarydrop, save_canarydrop
 from canarytokens.switchboard import Switchboard
 from canarytokens.tokens import Canarytoken
 from tests.utils import slack_webhook_test
@@ -58,7 +59,7 @@ def test_canary_message(setup_db):
     message.attach(part_text)
     message.attach(part_image)
 
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     for line in message.as_string().splitlines():
         cm.lineReceived(line=line.encode())
     links_found = cm.links_re.findall(b"\r\n".join(cm.lines))
@@ -165,7 +166,7 @@ async def test_canary_esmtp(frontend_settings, settings, setup_db):
 
 
 def test_header_flood_bounded_by_bytes():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     for _ in range(HEADER_FLOOD_ATTEMPTS):
         cm.lineReceived(HEADER_FLOOD_LINE)
     assert cm.header_byte_count >= MAX_HEADER_BYTES
@@ -173,7 +174,7 @@ def test_header_flood_bounded_by_bytes():
 
 
 def test_header_flood_bounded_by_line_count():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     for _ in range(MAX_HEADER_LINES):
         cm.lineReceived(b"X")
     cm.lineReceived(b"X")
@@ -181,7 +182,7 @@ def test_header_flood_bounded_by_line_count():
 
 
 def test_boundary_flood_bounded():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     cm.lineReceived(b"Content-Type: multipart/mixed; boundary=b")
     cm.lineReceived(b"")
     for _ in range(MAX_STORED_LINES + 1):
@@ -192,7 +193,7 @@ def test_boundary_flood_bounded():
 
 
 def test_links_survive_header_flood():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     for _ in range(HEADER_FLOOD_ATTEMPTS):
         cm.lineReceived(HEADER_FLOOD_LINE)
     cm.lineReceived(b"")
@@ -202,7 +203,7 @@ def test_links_survive_header_flood():
 
 
 def test_body_flood_bounded_by_bytes():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     cm.lineReceived(b"Subject: x")
     cm.lineReceived(b"")
     line = b"B" * (MAX_STORED_BYTES // MAX_STORED_LINES + 1)
@@ -214,7 +215,7 @@ def test_body_flood_bounded_by_bytes():
 
 
 def test_body_flood_bounded_by_line_count():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     cm.lineReceived(b"Subject: x")
     cm.lineReceived(b"")
     for _ in range(MAX_STORED_LINES):
@@ -225,7 +226,7 @@ def test_body_flood_bounded_by_line_count():
 
 
 def test_normal_mail_still_parsed():
-    cm = CanaryMessage(esmtp=None)
+    cm = CanaryMessage(esmtp=None, canarydrop=None)
     for line in [
         b"From: fromtest@test.com",
         b"Subject: hi",
@@ -347,3 +348,82 @@ def test_smtp_recipient_state_is_transaction_scoped(smtp_recipient_session, rese
     assert [str(Address(value)) for value in saved[-1].mail.recipients] == [
         f"{token.value()}@second.test"
     ]
+
+
+@pytest.mark.parametrize(
+    "recipients,first_type",
+    [
+        ("AB", TokenTypes.SMTP),
+        ("BA", TokenTypes.SMTP),
+        ("ABA", TokenTypes.SMTP),
+        ("AB", TokenTypes.LEGACY),
+    ],
+)
+def test_smtp_recipient_attribution(
+    recipients, first_type, monkeypatch, frontend_settings, settings, setup_db
+):
+    drops = {
+        name: Canarydrop(
+            canarytoken=Canarytoken(),
+            type=first_type if name == "A" else TokenTypes.SMTP,
+            alert_email_enabled=True,
+            alert_email_recipient=f"{name.lower()}@example.com",
+        )
+        for name in "AB"
+    }
+    for drop in drops.values():
+        save_canarydrop(drop)
+    monkeypatch.setattr(channel_input_smtp.queries, "get_geoinfo", lambda **kw: None)
+    monkeypatch.setattr(channel_input_smtp.queries, "is_tor_relay", lambda **kw: False)
+    dispatched = []
+    factory = CanarySMTPFactory(
+        switchboard=Switchboard(),
+        frontend_settings=frontend_settings,
+        switchboard_settings=settings,
+    )
+    protocol = factory.buildProtocol(None)
+    monkeypatch.setattr(
+        protocol,
+        "dispatch",
+        lambda drop, hit: dispatched.append(
+            (drop.canarytoken.value(), drop.alert_email_recipient)
+        ),
+    )
+    transport = StringTransport()
+    protocol.makeConnection(transport)
+
+    def send(command):
+        transport.clear()
+        protocol.dataReceived(command + b"\r\n")
+        return transport.value()
+
+    try:
+        assert send(b"EHLO example.test").startswith(b"250")
+        assert send(b"MAIL FROM:<sender@example.test>").startswith(b"250")
+        for name in recipients:
+            address = f"{drops[name].canarytoken.value()}@example.test"
+            assert send(f"RCPT TO:<{address}>".encode()).startswith(b"250")
+        assert send(b"DATA").startswith(b"354")
+        assert send(b"Subject: attribution\r\n\r\nbody\r\n.").startswith(b"250")
+        for drop in drops.values():
+            stored = get_canarydrop(drop.canarytoken)
+            assert stored.type == TokenTypes.SMTP
+            assert len(stored.triggered_details.hits) == 1
+        assert Counter(dispatched) == Counter(
+            (drop.canarytoken.value(), drop.alert_email_recipient)
+            for drop in drops.values()
+        )
+
+        updated = get_canarydrop(drops["A"].canarytoken)
+        updated.alert_email_recipient = "updated@example.com"
+        save_canarydrop(updated)
+        assert send(b"MAIL FROM:<sender@example.test>").startswith(b"250")
+        address = f"{updated.canarytoken.value()}@example.test"
+        assert send(f"RCPT TO:<{address}>".encode()).startswith(b"250")
+        assert send(b"DATA").startswith(b"354")
+        assert send(b"Subject: next message\r\n\r\nbody\r\n.").startswith(b"250")
+        assert dispatched[-1] == (updated.canarytoken.value(), "updated@example.com")
+        assert len(get_canarydrop(updated.canarytoken).triggered_details.hits) == 2
+    finally:
+        protocol.setTimeout(None)
+        protocol.connectionLost(None)
