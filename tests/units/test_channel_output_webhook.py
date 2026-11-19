@@ -1,8 +1,12 @@
 # pytest caplog
+from unittest.mock import Mock
+
 import pytest
+import requests
 
 from twisted.logger import capturedLogs
 
+from canarytokens import advocate
 from canarytokens.canarydrop import Canarydrop
 from canarytokens.channel_dns import ChannelDNS
 from canarytokens.channel_output_webhook import WebhookOutputChannel
@@ -23,9 +27,13 @@ from canarytokens.webhook_formatting import (
 
 def test_broken_webhook(
     setup_db,
+    monkeypatch,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
+    monkeypatch.setattr(
+        advocate, "post", Mock(side_effect=requests.exceptions.ConnectionError)
+    )
     switchboard = Switchboard(settings)
     switchboard.switchboard_settings = settings
     webhook_channel = WebhookOutputChannel(
@@ -39,7 +47,7 @@ def test_broken_webhook(
         alert_email_enabled=False,
         alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
-        alert_webhook_url="https://broken.webhook.com/test",
+        alert_webhook_url="https://example.com/webhook",
         canarytoken=Canarytoken(),
         memo="memo",
         browser_scanner_enabled=False,
@@ -115,7 +123,6 @@ def test_webhook(
 
 def test_googlechat_webhook_format(
     setup_db,
-    webhook_receiver,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
@@ -133,7 +140,7 @@ def test_googlechat_webhook_format(
         alert_email_enabled=False,
         alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
-        alert_webhook_url=webhook_receiver,
+        alert_webhook_url="https://example.com/webhook",
         canarytoken=Canarytoken(),
         memo="memo",
         browser_scanner_enabled=False,
@@ -191,7 +198,6 @@ def test_googlechat_webhook_format(
 
 def test_canaryalert_googlechat_webhook(
     setup_db,
-    webhook_receiver,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
@@ -237,7 +243,6 @@ def test_canaryalert_googlechat_webhook(
 
 def test_ms_teams_webhook_format(
     setup_db,
-    webhook_receiver,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):
@@ -255,7 +260,7 @@ def test_ms_teams_webhook_format(
         alert_email_enabled=False,
         alert_email_recipient="email@test.com",
         alert_webhook_enabled=False,
-        alert_webhook_url=webhook_receiver,
+        alert_webhook_url="https://example.com/webhook",
         canarytoken=Canarytoken(),
         memo="memo",
         browser_scanner_enabled=False,
@@ -291,7 +296,6 @@ def test_ms_teams_webhook_format(
 
 def test_canaryalert_ms_teams_webhook(
     setup_db,
-    webhook_receiver,
     frontend_settings: FrontendSettings,
     settings: SwitchboardSettings,
 ):

@@ -150,8 +150,8 @@ jobs:
         run: |
           redis-cli flushall
           mkdir uploads
-          make switchboard &
-          make frontend &
+          make switchboard-test &
+          make frontend-test &
           cd tests
           sleep 10
           export TEST_NETWORK=`docker network ls | grep git | python -c "from sys import stdin; print(stdin.read().split()[1])"`
@@ -179,6 +179,8 @@ jobs:
         run: uv sync
 
       - name: Integration Tests
+        env:
+          TEST_WEBHOOK_BACKEND: webhook.site
         run: |
           $env:LIVE = 'True'
           copy .\frontend\frontend.env.dist .\frontend\frontend.env
