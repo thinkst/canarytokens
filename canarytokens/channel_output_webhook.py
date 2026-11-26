@@ -27,7 +27,7 @@ log = Logger()
 # Allows any port but relies on advocate's default behaviour to block all
 # private/reserved IP ranges.  Tests import this directly so that any
 # accidental relaxation of the config is immediately caught.
-WEBHOOK_ADDR_VALIDATOR = advocate.AddrValidator(port_whitelist=set(range(0, 65535)))
+WEBHOOK_ADDR_VALIDATOR = advocate.AddrValidator(port_allowlist=set(range(0, 65535)))
 
 
 class WebhookOutputChannel(OutputChannel):

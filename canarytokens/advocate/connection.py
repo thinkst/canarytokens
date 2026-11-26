@@ -73,7 +73,7 @@ def validating_create_connection(
     # We can skip asking for the canon name if we're not doing hostname-based
     # blacklisting.
     need_canonname = False
-    if validator.hostname_blacklist:
+    if validator.hostname_blocklist:
         need_canonname = True
         # We check both the non-canonical and canonical hostnames so we can
         # catch both of these:

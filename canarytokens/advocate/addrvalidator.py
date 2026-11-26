@@ -68,34 +68,34 @@ class AddrValidator:
     # Just the well known prefix, DNS64 servers can set their own
     # prefix, but in practice most probably don't.
     _DNS64_WK_PREFIX = ipaddress.ip_network("64:ff9b::/96")
-    DEFAULT_PORT_WHITELIST = {80, 8080, 443, 8443, 8000}
+    DEFAULT_PORT_ALLOWLIST = {80, 8080, 443, 8443, 8000}
 
     def __init__(
         self,
-        ip_blacklist=None,
-        ip_whitelist=None,
-        port_whitelist=None,
-        port_blacklist=None,
-        hostname_blacklist=None,
-        allow_ipv6=False,
-        allow_teredo=False,
-        allow_6to4=False,
-        allow_dns64=False,
+        ip_blocklist: set[ipaddress.IPv4Network | ipaddress.IPv6Network] | None = None,
+        ip_allowlist: set[ipaddress.IPv4Network | ipaddress.IPv6Network] | None = None,
+        port_allowlist: set[int] | None = None,
+        port_blocklist: set[int] | None = None,
+        hostname_blocklist: set | None = None,
+        allow_ipv6: bool = False,
+        allow_teredo: bool = False,
+        allow_6to4: bool = False,
+        allow_dns64: bool = False,
         # Must be explicitly set to "False" if you don't want to try
         # detecting local interface addresses with netifaces.
-        autodetect_local_addresses=True,
+        autodetect_local_addresses: bool = True,
     ):
-        if not port_blacklist and not port_whitelist:
+        if not port_blocklist and not port_allowlist:
             # An assortment of common HTTPS? ports.
-            port_whitelist = self.DEFAULT_PORT_WHITELIST.copy()
-        self.ip_blacklist = ip_blacklist or set()
-        self.ip_whitelist = ip_whitelist or set()
-        self.port_blacklist = port_blacklist or set()
-        self.port_whitelist = port_whitelist or set()
+            port_allowlist = self.DEFAULT_PORT_ALLOWLIST.copy()
+        self.ip_blocklist = ip_blocklist or set()
+        self.ip_allowlist = ip_allowlist or set()
+        self.port_blocklist = port_blocklist or set()
+        self.port_allowlist = port_allowlist or set()
         # TODO: ATM this can contain either regexes or globs that are converted
         # to regexes upon every check. Create a collection that automagically
         # converts them to regexes on insert?
-        self.hostname_blacklist = hostname_blacklist or set()
+        self.hostname_blocklist = hostname_blocklist or set()
         self.allow_ipv6 = allow_ipv6
         self.allow_teredo = allow_teredo
         self.allow_6to4 = allow_6to4
@@ -107,12 +107,12 @@ class AddrValidator:
         if not isinstance(addr_ip, (ipaddress.IPv4Address, ipaddress.IPv6Address)):
             addr_ip = ipaddress.ip_address(addr_ip)
 
-        # The whitelist should take precedence over the blacklist so we can
-        # punch holes in blacklisted ranges
-        if any(addr_ip in net for net in self.ip_whitelist):
+        # The allowlist should take precedence over the blocklist so we can
+        # punch holes in blocklisted ranges
+        if any(addr_ip in net for net in self.ip_allowlist):
             return True
 
-        if any(addr_ip in net for net in self.ip_blacklist):
+        if any(addr_ip in net for net in self.ip_blocklist):
             return False
 
         if any(addr_ip in net for net in _local_addresses):
@@ -211,7 +211,7 @@ class AddrValidator:
 
     def is_hostname_allowed(self, hostname):
         # Sometimes (like with "external" services that your IP has privileged
-        # access to) you might not always know the IP range to blacklist access
+        # access to) you might not always know the IP range to blocklist access
         # to, or the `A` record might change without you noticing.
         # For e.x.: `foocorp.external.org`.
         #
@@ -221,7 +221,7 @@ class AddrValidator:
         #         global_validator.ip_blacklist.add(ip_address(addrinfo[4][0]))
         #
         # but that's not always a good idea if they're behind a third-party lb.
-        for pattern in self.hostname_blacklist:
+        for pattern in self.hostname_blocklist:
             if self._hostname_matches_pattern(hostname, pattern):
                 return False
         return True
@@ -249,15 +249,15 @@ class AddrValidator:
         # Probably won't help protect against SSRF, but might prevent our being
         # used to attack others' non-HTTP services. See
         # http://www.remote.org/jochen/sec/hfpa/
-        if self.port_whitelist and port not in self.port_whitelist:
+        if self.port_allowlist and port not in self.port_allowlist:
             return False
-        if port in self.port_blacklist:
+        if port in self.port_blocklist:
             return False
 
-        if self.hostname_blacklist:
+        if self.hostname_blocklist:
             if not canonname:
                 raise NameserverException(
-                    "addrinfo must contain the canon name to do blacklisting "
+                    "addrinfo must contain the canon name to do blocklisting "
                     "based on hostname. Make sure you use the "
                     "`socket.AI_CANONNAME` flag, and that each record contains "
                     "the canon name. Your DNS server might also be garbage."
