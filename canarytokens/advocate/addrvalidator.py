@@ -68,7 +68,7 @@ class AddrValidator:
     # Just the well known prefix, DNS64 servers can set their own
     # prefix, but in practice most probably don't.
     _DNS64_WK_PREFIX = ipaddress.ip_network("64:ff9b::/96")
-    DEFAULT_PORT_WHITELIST = {80, 8080, 443, 8443, 8000}
+    DEFAULT_PORT_ALLOWLIST = {80, 8080, 443, 8443, 8000}
 
     def __init__(
         self,
@@ -87,7 +87,7 @@ class AddrValidator:
     ):
         if not port_blocklist and not port_allowlist:
             # An assortment of common HTTPS? ports.
-            port_whitelist = self.DEFAULT_PORT_WHITELIST.copy()
+            port_allowlist = self.DEFAULT_PORT_ALLOWLIST.copy()
         self.ip_blocklist = ip_blocklist or set()
         self.ip_allowlist = ip_allowlist or set()
         self.port_blocklist = port_blocklist or set()
